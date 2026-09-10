@@ -1,0 +1,19 @@
+{
+  "id": "exercise_sides",
+  "kind": "composite",
+  "loop": true,
+  "label": "左右体操",
+  "duration": 2.36,
+  "operator": "layers",
+  "layers": [
+    {
+      "source": "stretch_shape",
+      "at": 1
+    },
+    {
+      "source": "side_bend",
+      "blend": "additive"
+    }
+  ],
+  "description": "保持最大伸长 + 左右弯曲。"
+}

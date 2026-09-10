@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "content_sha256": "fcbc74a312adb1d15c0850861f49cdfe347b16598b04fffe862214d54233dc14",
+  "files": [
+    {
+      "path": "variants/marisa-b-actions/build.py",
+      "bytes": 797,
+      "sha256": "9bbd672aa960b7469472f80f072a25fc5ec5fa6a2e3d39ab68a2c783aab14e21"
+    },
+    {
+      "path": "variants/marisa-b-actions/flee.png",
+      "bytes": 54017,
+      "sha256": "cd1a27b1b28741aa44428f20f0cb120b2ca8ecd6272f5f27f3ef3936dc50bcc9"
+    },
+    {
+      "path": "variants/marisa-b-actions/index.html",
+      "bytes": 5786199,
+      "sha256": "88a107b0b6a7ee2dd0c1ca1003de58f0e539eb1f5a0d55e393c645466fa431b5"
+    },
+    {
+      "path": "variants/marisa-b-actions/marisa.bbmodel",
+      "bytes": 34030694,
+      "sha256": "38adc03300d15cccebc8190dec341b5c9bfb6e50e66e7af76d16773d9bb03968"
+    },
+    {
+      "path": "variants/marisa-b-actions/puff.png",
+      "bytes": 58766,
+      "sha256": "ad306f2c99c8579dd08ae96c81323608e25635bcf47f1bfda5b764785ae6bcb3"
+    },
+    {
+      "path": "variants/marisa-b-actions/README.md",
+      "bytes": 768,
+      "sha256": "7e49a6b5165ba8c9e9bca078d64954a63964c2dd0a1acc38a8bf74c43ab4ae10"
+    },
+    {
+      "path": "variants/marisa-b-actions/stretch.png",
+      "bytes": 57269,
+      "sha256": "3f038f7ea16763c0c5bf0fbc3dbcac8972a3a3645a15e1543372ccf25b4a460e"
+    },
+    {
+      "path": "variants/marisa-b-actions/template.html",
+      "bytes": 6132,
+      "sha256": "a06ff241b91b63221dffa26540ad115c987cbaff8eb48b01a1662ff68399492f"
+    },
+    {
+      "path": "variants/marisa-b-actions/verification.json",
+      "bytes": 176,
+      "sha256": "18886d3800f72c2b0257919559b49ec36da93ef46a47aacd05debabcc20eaeba"
+    },
+    {
+      "path": "variants/marisa-b-actions/verify.cjs",
+      "bytes": 2394,
+      "sha256": "6f35206cb23db1471e7f9506b796cb425f1a4136b712890bed20ac97ed14d8c2"
+    }
+  ]
+}

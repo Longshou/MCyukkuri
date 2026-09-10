@@ -1,0 +1,17 @@
+[
+  {
+    "file": "food_bowl.bbmodel",
+    "source": "variants/marisa-feeding/food_bowl.bbmodel",
+    "sha256": "bb983e9a8259e97c6be1ae79026b5ad16aabd33f38c7c3e1be13ba02a197d1e6"
+  },
+  {
+    "file": "food_bowl.geo.json",
+    "source": "variants/marisa-feeding/food_bowl.geo.json",
+    "sha256": "4fe09951bd99f200bdd1b62022f1643cf0e068b988328f8b5e656b8fd397789d"
+  },
+  {
+    "file": "feeding.png",
+    "source": "variants/marisa-feeding/feeding.png",
+    "sha256": "ecae350c80f0eca14c4a3b18b56f0c5971fbcdfa261a6a19a306ab057d17fc9c"
+  }
+]

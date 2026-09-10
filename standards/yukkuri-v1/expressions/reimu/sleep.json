@@ -1,0 +1,14 @@
+{
+  "id": "reimu.sleep",
+  "kind": "procedural-face-overlay",
+  "remove_parts": ["face_rest_left_eye", "face_rest_right_eye", "face_rest_mouth"],
+  "eyelids": [
+    [[0.90,4.55,-4.64],[1.65,4.22,-4.64],[2.5,4.12,-4.64],[3.35,4.22,-4.64],[4.1,4.55,-4.64]],
+    [[-4.1,4.55,-4.64],[-3.35,4.22,-4.64],[-2.5,4.12,-4.64],[-1.65,4.22,-4.64],[-0.90,4.55,-4.64]]
+  ],
+  "eyelid_radius": 0.12,
+  "mouth_center": [0,2.65,-4.65],
+  "mouth_radii": [0.45,0.27],
+  "colors": {"ink": [65,43,34], "mouth": [135,66,65], "drool": [157,216,211]},
+  "reference": "U 実ゆ眠り顔() uses 基本睡眠顔グラベース / 基本睡眠２顔グラベース; inspected Sprites 5335 and 6235 show closed lids, small open mouth and drool. Geometry is drawn for the project's own UV-free face overlay."
+}

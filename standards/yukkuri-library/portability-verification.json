@@ -1,0 +1,10 @@
+{
+  "isolated_copy_build": "pass",
+  "no_variants_or_game_dependency": true,
+  "deterministic_export_files": [
+    "assembled/marisa/marisa.bbmodel",
+    "assembled/reimu/reimu.bbmodel",
+    "assembled/marisa/animation-rig.json",
+    "assembled/reimu/animation-rig.json"
+  ]
+}

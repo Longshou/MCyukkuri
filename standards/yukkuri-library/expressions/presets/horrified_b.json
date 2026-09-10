@@ -1,0 +1,60 @@
+{
+  "id": "horrified_b",
+  "label": "嫌恶惊惧 · 泪帧 B",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "eyes": "shiny",
+    "brows": "arched",
+    "mouth": "fear-vertical-open-cry",
+    "tears": "flow_b",
+    "blush": "normal",
+    "effect": "stress"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+    "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/abce6e4112b0c8fbdc05.png",
+    "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+    "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/0c487c2bfc397c4c4b75.png",
+    "face_mouth": "expressions/parts/18832cdce4f2056a92d5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本ドン引き顔グラ２ベース",
+      "index": 0,
+      "sprite_id": 6567,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右ドン引き顔グラ２ベース",
+      "index": 0,
+      "sprite_id": 6247,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N040",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "redrawn-awaiting-review",
+    "note": "与 N039 做口型差分：纵向大开口惊叫，露出下方舌面。"
+  }
+}

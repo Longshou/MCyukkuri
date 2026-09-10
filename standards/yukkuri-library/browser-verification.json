@@ -1,0 +1,19 @@
+{
+  "motionSamples": 60,
+  "motions": 15,
+  "expressionSwitches": 105,
+  "effects": 2,
+  "sharedBodyPosesEqual": true,
+  "independentHands": [
+    [
+      "hand_left",
+      "hand_left_tip",
+      "hand_left_ribbon"
+    ],
+    [
+      "hand_left"
+    ]
+  ],
+  "synchronizedOrbit": true,
+  "pageErrors": []
+}

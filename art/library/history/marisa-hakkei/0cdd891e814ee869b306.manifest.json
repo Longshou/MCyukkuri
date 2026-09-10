@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "content_sha256": "0cdd891e814ee869b30667ecd7200f58baa41be0077c09f45f7e666f5d12ce2d",
+  "files": [
+    {
+      "path": "variants/marisa-hakkei/browser-preview.png",
+      "bytes": 74251,
+      "sha256": "61f4bfdfac23d0b503c2b5ca10cb5d6a455cb204082702b1a8683d7d54046a1c"
+    },
+    {
+      "path": "variants/marisa-hakkei/generate.py",
+      "bytes": 14473,
+      "sha256": "c9367e8cfb0193349feaba29cf3039250ceb90850c1fd6ac13ece08b51624c27"
+    },
+    {
+      "path": "variants/marisa-hakkei/marisa.bbmodel",
+      "bytes": 84745,
+      "sha256": "61d4ff5d1ffd65b4dbb130f26f61ca9fba3c73672a0f51eb2465701b8ccf29c0"
+    },
+    {
+      "path": "variants/marisa-hakkei/marisa.geo.json",
+      "bytes": 98774,
+      "sha256": "d7bdcba769fe5f0a19c0164a70982a0291b356db000410204f142c9dbb93ca4f"
+    },
+    {
+      "path": "variants/marisa-hakkei/marisa.png",
+      "bytes": 1357,
+      "sha256": "eef70512e2406c468af7816b98e81129b66aef0f586f53facd0539b43ab4822f"
+    },
+    {
+      "path": "variants/marisa-hakkei/preview-sheet.png",
+      "bytes": 37480,
+      "sha256": "2c85a701a7303f9fba823c6d30e4da12350428986221ca9d8749a1990cfeca41"
+    },
+    {
+      "path": "variants/marisa-hakkei/preview.html",
+      "bytes": 96606,
+      "sha256": "187fe65027c48c6b074082986651b90f64869929d8cccfd60e7eec2852380b4f"
+    },
+    {
+      "path": "variants/marisa-hakkei/preview.png",
+      "bytes": 17207,
+      "sha256": "b7739069341131100782786d8421dc14cafbf76507d68d4d298f669c9af49f99"
+    },
+    {
+      "path": "variants/marisa-hakkei/README.md",
+      "bytes": 6824,
+      "sha256": "78aad892582971b5fb52682b7e7bbc4ecb9a5dd64e01d58f5d091009e9a5f3ba"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 66433,
+      "sha256": "be6ee5139d527924d7603abe6901c94ac6aec563b45e13c9d580aac0add178db"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 1357,
+      "sha256": "eef70512e2406c468af7816b98e81129b66aef0f586f53facd0539b43ab4822f"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-hakkei/resourcepack/pack.png",
+      "bytes": 2356,
+      "sha256": "956caa6c8c0a70463c5dc9163d5980041964ebb12fd51e3b6e6003da931e6585"
+    },
+    {
+      "path": "variants/marisa-hakkei/software-viewer.js",
+      "bytes": 5007,
+      "sha256": "c7ecccc5babcaedb4918fc62c7bb54e0d5cbf9190c14c7b8557e8c169308ea7c"
+    },
+    {
+      "path": "variants/marisa-hakkei/verification.json",
+      "bytes": 1322,
+      "sha256": "229f4d6cd8e92fc484e778601c4d05f6b8d36ca977479f06358ec70836b9640e"
+    },
+    {
+      "path": "variants/marisa-hakkei/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/marisa-hakkei/verify.py",
+      "bytes": 3184,
+      "sha256": "270427f1e8a758d37dd82d98b1b3e5c20fe715b2f3880fe0e169ba7290e36547"
+    },
+    {
+      "path": "variants/marisa-hakkei/viewer-render-check.png",
+      "bytes": 18384,
+      "sha256": "2100202510f50128131d24b1856d10ff96651db09f62bf011691ff95cf79ec76"
+    },
+    {
+      "path": "variants/marisa-hakkei/viewer-template.html",
+      "bytes": 2925,
+      "sha256": "6195963de795350dd3ac606333cd7613033cfd23c21c81babee3b12ce1521a20"
+    }
+  ]
+}

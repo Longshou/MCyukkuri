@@ -1,0 +1,13 @@
+{
+  "bones": [
+    {
+      "name": "patchouli_bonnet",
+      "parent": "features_squash",
+      "pivot": [
+        0,
+        9.6,
+        1
+      ]
+    }
+  ]
+}

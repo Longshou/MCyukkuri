@@ -1,0 +1,86 @@
+{
+  "name": "side_hair_-1",
+  "uuid": "c39d0660-81f2-59f0-b236-d8af93faa01e",
+  "type": "cube",
+  "from": [
+    -7.1,
+    2.65,
+    -3.515625
+  ],
+  "to": [
+    -5.9,
+    8.48,
+    -2.4
+  ],
+  "origin": [
+    0,
+    0.0,
+    1.6351562
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 1,
+  "faces": {
+    "north": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        16,
+        48,
+        32,
+        64
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "hand_left"
+}

@@ -1,0 +1,40 @@
+{
+  "id": "drool__new",
+  "label": "闭眼流口水",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "eyes": "closed",
+    "brows": "relaxed",
+    "mouth": "round",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "drool"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+    "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+  },
+  "sources": [
+    {
+      "field": "基本よだれ顔グラベース",
+      "index": 0,
+      "sprite_id": 6449,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": [],
+  "review_pair": "drool",
+  "review_code": "N083",
+  "origin": "new"
+}

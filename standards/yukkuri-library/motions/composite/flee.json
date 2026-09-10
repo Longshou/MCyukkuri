@@ -1,0 +1,16 @@
+{
+  "id": "flee",
+  "kind": "composite",
+  "loop": true,
+  "label": "受惊逃跑",
+  "duration": 5,
+  "operator": "escape",
+  "startle": "startle",
+  "turn": "turn",
+  "locomotion": "waddle",
+  "hop": "hop",
+  "startle_until": 0.6,
+  "run_after": 1,
+  "playback_rate": 1.8,
+  "description": "受惊弹起 → 转身 → 走动加速×1.8 + 跑动跳跃；受惊表情为独立演出建议。"
+}

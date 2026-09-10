@@ -1,0 +1,63 @@
+{
+  "id": "squeezed_cry_tears",
+  "label": "挤眼喊叫含泪",
+  "group": "哭泣",
+  "recipe": {
+    "eyes": "squeeze",
+    "brows": "angry",
+    "mouth": "wail",
+    "tears": "flow",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本バツ泣き叫び顔面２グラベース",
+      "index": 0,
+      "sprite_id": 8332,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右バツ泣き叫び顔面２グラベース",
+      "index": 0,
+      "sprite_id": 7078,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右まずまず１顔グラベース",
+      "index": 0,
+      "sprite_id": 5503,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [
+    {
+      "id": "bad_taste",
+      "label": "难吃张嘴"
+    }
+  ],
+  "review_code": "N030",
+  "origin": "new",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "note": "采用已确认部件组合。"
+  }
+}

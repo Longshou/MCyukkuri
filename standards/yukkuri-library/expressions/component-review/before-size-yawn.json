@@ -1,0 +1,5435 @@
+{
+  "neutral": {
+    "id": "neutral",
+    "label": "普通",
+    "group": "日常",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "neutral"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/a7b8b23ed01c7bf82df3.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/neutral.png",
+    "review_code": "O01",
+    "origin": "original",
+    "review_pair": "neutral__new"
+  },
+  "open_smile": {
+    "id": "open_smile",
+    "label": "睁眼笑",
+    "group": "日常",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "normal",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本顔面グラベース",
+        "index": 0,
+        "sprite_id": 6280,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "基本ぼーるけり顔グラベース",
+        "index": 0,
+        "sprite_id": 7933,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "基本左右顔面グラベース",
+        "index": 0,
+        "sprite_id": 6637,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右関心顔グラベース",
+        "index": 0,
+        "sprite_id": 5619,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "横向き顔面グラベース",
+        "index": 0,
+        "sprite_id": 4718,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面ケツ振り顔面グラベース",
+        "index": 0,
+        "sprite_id": 7445,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ジャンプ移動１顔面グラベース",
+        "index": 0,
+        "sprite_id": 7716,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ジャンプ移動２顔面グラベース",
+        "index": 0,
+        "sprite_id": 4449,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ジャンプ移動３顔面グラベース",
+        "index": 0,
+        "sprite_id": 6290,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面グラベース",
+        "index": 0,
+        "sprite_id": 5460,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N001",
+    "origin": "new",
+    "review_pair": null
+  },
+  "happy": {
+    "id": "happy",
+    "label": "闭眼大笑",
+    "group": "笑脸",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E1-A",
+        "M1-N001"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+      "face_blush_right": "expressions/parts/1890bec72eaae44508bf.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本綴じ笑顔グラベース",
+        "index": 0,
+        "sprite_id": 6604,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔１グラベース",
+        "index": 0,
+        "sprite_id": 7808,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔２グラベース",
+        "index": 0,
+        "sprite_id": 6503,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔３グラベース",
+        "index": 0,
+        "sprite_id": 6533,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔４グラベース",
+        "index": 0,
+        "sprite_id": 7470,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔５グラベース",
+        "index": 0,
+        "sprite_id": 8633,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右閉じ笑顔グラベース",
+        "index": 0,
+        "sprite_id": 6403,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんグラベース",
+        "index": 0,
+        "sprite_id": 8153,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/happy.png",
+    "review_code": "O02",
+    "origin": "original",
+    "review_pair": "happy__new",
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E1-A",
+        "M1-N001"
+      ]
+    }
+  },
+  "closed_smile": {
+    "id": "closed_smile",
+    "label": "闭口微笑",
+    "group": "笑脸",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E1-B"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/89d0b82329725d97cb83.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [],
+    "status": "pending-review",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "review_code": "N002",
+    "origin": "new",
+    "review_pair": null,
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E1-B"
+      ]
+    }
+  },
+  "smug": {
+    "id": "smug",
+    "label": "得意",
+    "group": "日常",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "smug"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/4a98859cf98b258429a1.png",
+      "face_brow_right": "expressions/parts/87649084e12b80cab2ee.png",
+      "face_mouth": "expressions/parts/1a18ef5434ece78e89a8.png",
+      "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+      "face_blush_right": "expressions/parts/1890bec72eaae44508bf.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ドヤ顔グラベース",
+        "index": 0,
+        "sprite_id": 4478,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ドヤ顔グラベース",
+        "index": 0,
+        "sprite_id": 6822,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/smug.png",
+    "review_code": "O03",
+    "origin": "original",
+    "review_pair": "smug__new"
+  },
+  "cry": {
+    "id": "cry",
+    "label": "闭眼哭喊",
+    "group": "哭泣",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "cry"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/99ff610a168018f97a63.png",
+      "face_tear_right": "expressions/parts/99ff610a168018f97a63.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫び顔グラベース",
+        "index": 0,
+        "sprite_id": 6927,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地２泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 6882,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地３泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 4755,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地４泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 5625,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右泣き叫び２顔グラベース",
+        "index": 0,
+        "sprite_id": 6204,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面ケツ振り泣き叫び２B顔面グラベース",
+        "index": 0,
+        "sprite_id": 5306,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り１顔面グラベース",
+        "index": 0,
+        "sprite_id": 7978,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り２顔面グラベース",
+        "index": 0,
+        "sprite_id": 6706,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り３顔面グラベース",
+        "index": 0,
+        "sprite_id": 5724,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い１顔面グラベース",
+        "index": 0,
+        "sprite_id": 8260,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5890,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6801,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１泣き叫び顔面グラベース",
+        "index": 0,
+        "sprite_id": 4389,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/cry.png",
+    "review_code": "O04",
+    "origin": "original",
+    "review_pair": "cry__new"
+  },
+  "cry_b": {
+    "id": "cry_b",
+    "label": "闭眼哭喊 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫びB顔グラベース",
+        "index": 0,
+        "sprite_id": 6786,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右泣き叫び２B顔グラベース",
+        "index": 0,
+        "sprite_id": 5297,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い１顔面２グラベース",
+        "index": 0,
+        "sprite_id": 5339,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い２顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7184,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7794,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N003",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary": {
+    "id": "teary",
+    "label": "含泪",
+    "group": "哭泣",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "teary"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/57a99722f11714cc0584.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/613c33ad86f2e8940fa6.png",
+      "face_tear_right": "expressions/parts/613c33ad86f2e8940fa6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 5577,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 7798,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "横向き涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 6339,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面１グラベース",
+        "index": 0,
+        "sprite_id": 7712,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 6416,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび２涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 6392,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび３涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 4661,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/teary.png",
+    "review_code": "O05",
+    "origin": "original",
+    "review_pair": "teary__new"
+  },
+  "teary_b": {
+    "id": "teary_b",
+    "label": "含泪 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "caret",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 7035,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 8059,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "横向き涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 6594,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7791,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N004",
+    "origin": "new",
+    "review_pair": null
+  },
+  "drool": {
+    "id": "drool",
+    "label": "闭眼流口水",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E1-A",
+        "M2-accepted"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+    },
+    "sources": [
+      {
+        "field": "基本よだれ顔グラベース",
+        "index": 0,
+        "sprite_id": 6449,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/drool.png",
+    "review_code": "O06",
+    "origin": "original",
+    "review_pair": "drool__new",
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E1-A",
+        "M2-accepted"
+      ]
+    }
+  },
+  "drool_b": {
+    "id": "drool_b",
+    "label": "闭眼流口水 · 滴落",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E1-A",
+        "M2-accepted"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+      "face_effect_mouth": "expressions/parts/ab30220834cd3d2d47ea.png"
+    },
+    "sources": [
+      {
+        "field": "基本よだれ２顔グラベース",
+        "index": 0,
+        "sprite_id": 6156,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "review_code": "N005",
+    "origin": "new",
+    "review_pair": null,
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E1-A",
+        "M2-accepted"
+      ]
+    }
+  },
+  "confused": {
+    "id": "confused",
+    "label": "困惑张嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "confused"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/d9daf979e2c947b8ee45.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 6401,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 8414,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/confused.png",
+    "review_code": "O07",
+    "origin": "original",
+    "review_pair": "confused__new"
+  },
+  "confused_small": {
+    "id": "confused_small",
+    "label": "困惑小嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔２グラベース",
+        "index": 0,
+        "sprite_id": 4494,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔２グラベース",
+        "index": 0,
+        "sprite_id": 6014,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N006",
+    "origin": "new",
+    "review_pair": null
+  },
+  "blank_confused": {
+    "id": "blank_confused",
+    "label": "困惑白眼",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔３グラベース",
+        "index": 0,
+        "sprite_id": 5640,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "基本驚愕顔グラベース",
+        "index": 0,
+        "sprite_id": 5640,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔３グラベース",
+        "index": 0,
+        "sprite_id": 6626,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N007",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_smile": {
+    "id": "teary_smile",
+    "label": "含泪笑",
+    "group": "笑脸",
+    "recipe": {
+      "eyes": "shiny",
+      "brows": "sad",
+      "mouth": "smile",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目笑顔顔グラベース",
+        "index": 0,
+        "sprite_id": 7697,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目笑顔グラベース",
+        "index": 0,
+        "sprite_id": 5276,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんフィニッシュ１グラベース",
+        "index": 0,
+        "sprite_id": 6424,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１顔面グラベース",
+        "index": 0,
+        "sprite_id": 5736,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび２顔面グラベース",
+        "index": 0,
+        "sprite_id": 7626,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび３顔面グラベース",
+        "index": 0,
+        "sprite_id": 5286,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N008",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_smile_b": {
+    "id": "teary_smile_b",
+    "label": "含泪笑 · 泪帧 B",
+    "group": "笑脸",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "smile",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目笑顔２顔グラベース",
+        "index": 0,
+        "sprite_id": 5146,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目笑顔２グラベース",
+        "index": 0,
+        "sprite_id": 6292,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんフィニッシュ２グラベース",
+        "index": 0,
+        "sprite_id": 4878,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N009",
+    "origin": "new",
+    "review_pair": null
+  },
+  "yawn": {
+    "id": "yawn",
+    "label": "打哈欠",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "yawn"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/49f8cbd04c7b4262afc2.png",
+      "face_eye_right": "expressions/parts/49f8cbd04c7b4262afc2.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/0f0860feba202ca1b2a3.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/613c33ad86f2e8940fa6.png",
+      "face_tear_right": "expressions/parts/613c33ad86f2e8940fa6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本あくび顔グラベース",
+        "index": 0,
+        "sprite_id": 8564,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/yawn.png",
+    "review_code": "O08",
+    "origin": "original",
+    "review_pair": "yawn__new"
+  },
+  "yawn_b": {
+    "id": "yawn_b",
+    "label": "打哈欠 · 泪帧 B",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "relaxed",
+      "mouth": "yawn",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/3ef9ff0a643f1700de23.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本あくび２顔グラベース",
+        "index": 0,
+        "sprite_id": 5295,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N010",
+    "origin": "new",
+    "review_pair": null
+  },
+  "sleep": {
+    "id": "sleep",
+    "label": "睡眠",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E2-B"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/312577fa8d373c00b276.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+    },
+    "sources": [
+      {
+        "field": "基本睡眠顔グラベース",
+        "index": 0,
+        "sprite_id": 5335,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/sleep.png",
+    "review_code": "O09",
+    "origin": "original",
+    "review_pair": "sleep__new",
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E2-B"
+      ]
+    }
+  },
+  "sleep_b": {
+    "id": "sleep_b",
+    "label": "睡眠 · 滴落",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E2-B"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/ab30220834cd3d2d47ea.png"
+    },
+    "sources": [
+      {
+        "field": "基本睡眠２顔グラベース",
+        "index": 0,
+        "sprite_id": 6235,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "review_code": "N011",
+    "origin": "new",
+    "review_pair": null,
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E2-B"
+      ]
+    }
+  },
+  "tear_sleep": {
+    "id": "tear_sleep",
+    "label": "含泪睡眠",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "sleep",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目睡眠顔グラベース",
+        "index": 0,
+        "sprite_id": 8410,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N012",
+    "origin": "new",
+    "review_pair": null
+  },
+  "tear_sleep_b": {
+    "id": "tear_sleep_b",
+    "label": "含泪睡眠 · 泪帧 B",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "sleep",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目睡眠２顔グラベース",
+        "index": 0,
+        "sprite_id": 8131,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N013",
+    "origin": "new",
+    "review_pair": null
+  },
+  "squeezed_teary": {
+    "id": "squeezed_teary",
+    "label": "挤眼含泪",
+    "group": "哭泣",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E3-PUFF",
+        "M3-accepted"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/56bdd7450afc65e1de19.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 8373,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "review_code": "N014",
+    "origin": "new",
+    "review_pair": null,
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E3-PUFF",
+        "M3-accepted"
+      ],
+      "mouth": "Small upward triangle only, 3x2 pixels; separate stress wrinkle layer cleared"
+    }
+  },
+  "squeezed_teary_b": {
+    "id": "squeezed_teary_b",
+    "label": "挤眼含泪 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "source": "accepted-component-review",
+      "parts": [
+        "E3-PUFF",
+        "M3-accepted"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/56bdd7450afc65e1de19.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ涙目顔２グラベース",
+        "index": 0,
+        "sprite_id": 7004,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+    "aliases": [],
+    "review_code": "N015",
+    "origin": "new",
+    "review_pair": null,
+    "review_decision": {
+      "status": "accepted-for-specified-parts",
+      "parts": [
+        "E3-PUFF",
+        "M3-accepted"
+      ],
+      "mouth": "Small upward triangle only, 3x2 pixels; separate stress wrinkle layer cleared"
+    }
+  },
+  "squeezed_frown": {
+    "id": "squeezed_frown",
+    "label": "挤眼哭丧",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ涙目顔Bグラベース",
+        "index": 0,
+        "sprite_id": 6616,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N016",
+    "origin": "new",
+    "review_pair": null
+  },
+  "squeezed_frown_b": {
+    "id": "squeezed_frown_b",
+    "label": "挤眼哭丧 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ涙目顔B２グラベース",
+        "index": 0,
+        "sprite_id": 6830,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N017",
+    "origin": "new",
+    "review_pair": null
+  },
+  "waking": {
+    "id": "waking",
+    "label": "刚睡醒",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "relaxed",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool"
+    },
+    "eye_left": "wink",
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    },
+    "sources": [
+      {
+        "field": "基本寝起き顔グラベース",
+        "index": 0,
+        "sprite_id": 5778,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N018",
+    "origin": "new",
+    "review_pair": null
+  },
+  "puff": {
+    "id": "puff",
+    "label": "闭眼噗咕",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "puff"
+    },
+    "requires": [
+      "puff-cheeks"
+    ],
+    "geometry_offsets": {
+      "face_eye_left": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_mouth": {
+        "position": [
+          0,
+          -0.053,
+          0
+        ],
+        "scale": [
+          0.75,
+          0.85,
+          1
+        ]
+      }
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/6f9e17f8ec5fad430612.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ぷくー１顔グラベース",
+        "index": 0,
+        "sprite_id": 6547,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ぷくー２顔グラベース",
+        "index": 0,
+        "sprite_id": 4503,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/puff.png",
+    "review_code": "O10",
+    "origin": "original",
+    "review_pair": "puff__new"
+  },
+  "angry": {
+    "id": "angry",
+    "label": "生气",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "angry"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/4a98859cf98b258429a1.png",
+      "face_brow_right": "expressions/parts/87649084e12b80cab2ee.png",
+      "face_mouth": "expressions/parts/57a99722f11714cc0584.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本怒り顔グラベース",
+        "index": 0,
+        "sprite_id": 6360,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/angry.png",
+    "review_code": "O11",
+    "origin": "original",
+    "review_pair": "angry__new"
+  },
+  "puff_open": {
+    "id": "puff_open",
+    "label": "睁眼噗咕",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "half",
+      "brows": "sad",
+      "mouth": "purse",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "requires": [
+      "puff-cheeks"
+    ],
+    "geometry_offsets": {
+      "face_eye_left": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_mouth": {
+        "position": [
+          0,
+          -0.053,
+          0
+        ],
+        "scale": [
+          0.75,
+          0.85,
+          1
+        ]
+      }
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/221dac271b1be6952056.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/221dac271b1be6952056.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/2b8a2835163d5b8bfd8f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ぷくー２顔グラベース",
+        "index": 0,
+        "sprite_id": 5600,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N019",
+    "origin": "new",
+    "review_pair": null
+  },
+  "puff_teary": {
+    "id": "puff_teary",
+    "label": "含泪噗咕",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "half",
+      "brows": "sad",
+      "mouth": "purse",
+      "tears": "wet",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "requires": [
+      "puff-cheeks"
+    ],
+    "geometry_offsets": {
+      "face_eye_left": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_mouth": {
+        "position": [
+          0,
+          -0.053,
+          0
+        ],
+        "scale": [
+          0.75,
+          0.85,
+          1
+        ]
+      }
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/221dac271b1be6952056.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/92a9551b06587ee862ac.png",
+      "face_eye_right": "expressions/parts/221dac271b1be6952056.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/92a9551b06587ee862ac.png",
+      "face_mouth": "expressions/parts/2b8a2835163d5b8bfd8f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ぷくー２B顔グラベース",
+        "index": 0,
+        "sprite_id": 7819,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ぷくー１顔グラベース",
+        "index": 0,
+        "sprite_id": 5731,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N020",
+    "origin": "new",
+    "review_pair": null
+  },
+  "surprise": {
+    "id": "surprise",
+    "label": "受惊逃跑",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "surprise"
+    },
+    "accepted_override": true,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本驚き顔グラベース",
+        "index": 0,
+        "sprite_id": 8207,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔４グラベース",
+        "index": 0,
+        "sprite_id": 7708,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/surprise.png",
+    "review_code": "O12",
+    "origin": "original",
+    "review_pair": "surprise__new"
+  },
+  "look_down": {
+    "id": "look_down",
+    "label": "低头困惑",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "down",
+      "brows": "relaxed",
+      "mouth": "beak",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本下困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 4610,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝下困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 6779,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N021",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pin_cry": {
+    "id": "pin_cry",
+    "label": "灰瞳哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "pin",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本キリ泣きA顔グラベース",
+        "index": 0,
+        "sprite_id": 8002,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝キリ泣きA顔グラベース",
+        "index": 0,
+        "sprite_id": 7469,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N022",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pin_cry_b": {
+    "id": "pin_cry_b",
+    "label": "灰瞳哭喊 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "pin",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本キリ泣きB顔グラベース",
+        "index": 0,
+        "sprite_id": 5373,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝キリ泣きB顔グラベース",
+        "index": 0,
+        "sprite_id": 5485,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N023",
+    "origin": "new",
+    "review_pair": null
+  },
+  "tongue_cry": {
+    "id": "tongue_cry",
+    "label": "灰瞳伸舌哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "pin",
+      "brows": "sad",
+      "mouth": "tongue_long",
+      "tears": "stream",
+      "blush": "pale",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_left": "expressions/parts/eb60b62d8542bc230151.png",
+      "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_right": "expressions/parts/6faaa34c550ea3364017.png",
+      "face_mouth": "expressions/parts/7425436c510ac9dab5b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本キリ泣き舌A顔グラベース",
+        "index": 0,
+        "sprite_id": 5545,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝キリ泣き舌A顔グラベース",
+        "index": 0,
+        "sprite_id": 5904,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N024",
+    "origin": "new",
+    "review_pair": null
+  },
+  "tongue_cry_b": {
+    "id": "tongue_cry_b",
+    "label": "灰瞳伸舌哭喊 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "pin",
+      "brows": "sad",
+      "mouth": "tongue_long",
+      "tears": "stream_b",
+      "blush": "pale",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_left": "expressions/parts/ccff932942dd90d10f0d.png",
+      "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_right": "expressions/parts/9a100ff0c9c5479a8d98.png",
+      "face_mouth": "expressions/parts/7425436c510ac9dab5b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本キリ泣き舌B顔グラベース",
+        "index": 0,
+        "sprite_id": 8643,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝キリ泣き舌B顔グラベース",
+        "index": 0,
+        "sprite_id": 7234,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N025",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dead_tongue": {
+    "id": "dead_tongue",
+    "label": "失神垂舌",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "dead",
+      "brows": "sad",
+      "mouth": "tongue_long",
+      "tears": "stream",
+      "blush": "pale",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5d6c0e39a214a8067b03.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_left": "expressions/parts/eb60b62d8542bc230151.png",
+      "face_eye_right": "expressions/parts/5d6c0e39a214a8067b03.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/1219e3a3aec64b7705b0.png",
+      "face_tear_right": "expressions/parts/6faaa34c550ea3364017.png",
+      "face_mouth": "expressions/parts/7425436c510ac9dab5b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本キリ死亡顔グラベース",
+        "index": 0,
+        "sprite_id": 6860,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝キリ死亡顔グラベース",
+        "index": 0,
+        "sprite_id": 4682,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N026",
+    "origin": "new",
+    "review_pair": null
+  },
+  "blank_cry": {
+    "id": "blank_cry",
+    "label": "白眼哭喊",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫び白目顔面１グラベース",
+        "index": 0,
+        "sprite_id": 5717,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右驚き１顔グラベース",
+        "index": 0,
+        "sprite_id": 5334,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り吐き顔グラベース",
+        "index": 0,
+        "sprite_id": 5021,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び白目顔面１グラベース",
+        "index": 0,
+        "sprite_id": 5542,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N027",
+    "origin": "new",
+    "review_pair": null
+  },
+  "blank_cry_b": {
+    "id": "blank_cry_b",
+    "label": "白眼哭喊 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫び白目顔面２グラベース",
+        "index": 0,
+        "sprite_id": 5040,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右驚き２顔グラベース",
+        "index": 0,
+        "sprite_id": 5006,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び白目顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6264,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N028",
+    "origin": "new",
+    "review_pair": null
+  },
+  "squeezed_cry": {
+    "id": "squeezed_cry",
+    "label": "挤眼喊叫",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "wail",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ泣き叫び顔面１グラベース",
+        "index": 0,
+        "sprite_id": 4683,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右バツ泣き叫び顔面１グラベース",
+        "index": 0,
+        "sprite_id": 8154,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面ケツ振り泣き叫び２顔面グラベース",
+        "index": 0,
+        "sprite_id": 4830,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び顔面１グラベース",
+        "index": 0,
+        "sprite_id": 7100,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N029",
+    "origin": "new",
+    "review_pair": null
+  },
+  "squeezed_cry_tears": {
+    "id": "squeezed_cry_tears",
+    "label": "挤眼喊叫含泪",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本バツ泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 8332,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右バツ泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7078,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右まずまず１顔グラベース",
+        "index": 0,
+        "sprite_id": 5503,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [
+      {
+        "id": "bad_taste",
+        "label": "难吃张嘴"
+      }
+    ],
+    "review_code": "N030",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_pant": {
+    "id": "teary_pant",
+    "label": "含泪喘嘴",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "shiny",
+      "brows": "sad",
+      "mouth": "pant",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本正面涙目顔面１グラベース",
+        "index": 0,
+        "sprite_id": 5011,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N031",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_pant_b": {
+    "id": "teary_pant_b",
+    "label": "含泪喘嘴 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "shiny",
+      "brows": "sad",
+      "mouth": "pant",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本正面涙目顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7240,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N032",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dull": {
+    "id": "dull",
+    "label": "失去高光",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "dull",
+      "brows": "relaxed",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/98b8d08eae4618af9b6b.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/98b8d08eae4618af9b6b.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本非ゆっくり症グラベース",
+        "index": 0,
+        "sprite_id": 7788,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右非ゆっくり症顔グラベース",
+        "index": 0,
+        "sprite_id": 5294,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り１非ゆっくり顔面グラベース",
+        "index": 0,
+        "sprite_id": 6463,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り２非ゆっくり顔面グラベース",
+        "index": 0,
+        "sprite_id": 7114,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り３非ゆっくり顔面グラベース",
+        "index": 0,
+        "sprite_id": 6048,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝非ゆっくり症顔グラベース",
+        "index": 0,
+        "sprite_id": 5400,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N033",
+    "origin": "new",
+    "review_pair": null
+  },
+  "flushed_smile": {
+    "id": "flushed_smile",
+    "label": "潮红闭眼笑",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "happy",
+      "brows": "relaxed",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "基本発情顔１グラベース",
+        "index": 0,
+        "sprite_id": 5469,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右発情顔１グラベース",
+        "index": 0,
+        "sprite_id": 6320,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝発情顔１グラベース",
+        "index": 0,
+        "sprite_id": 5936,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N034",
+    "origin": "new",
+    "review_pair": null
+  },
+  "flushed_tongue": {
+    "id": "flushed_tongue",
+    "label": "潮红闭眼伸舌",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "happy",
+      "brows": "relaxed",
+      "mouth": "tongue",
+      "tears": "none",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "基本発情顔２グラベース",
+        "index": 0,
+        "sprite_id": 5757,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右発情顔２グラベース",
+        "index": 0,
+        "sprite_id": 7964,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝発情顔２グラベース",
+        "index": 0,
+        "sprite_id": 5394,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N035",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_tongue": {
+    "id": "teary_tongue",
+    "label": "含泪伸舌",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "tongue",
+      "tears": "flow",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "基本エロ笑顔１グラベース",
+        "index": 0,
+        "sprite_id": 4738,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右エロ笑顔１グラベース",
+        "index": 0,
+        "sprite_id": 4907,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝エロ笑顔１グラベース",
+        "index": 0,
+        "sprite_id": 8284,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N036",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_tongue_b": {
+    "id": "teary_tongue_b",
+    "label": "含泪伸舌 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "tongue",
+      "tears": "flow_b",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "基本エロ笑顔２グラベース",
+        "index": 0,
+        "sprite_id": 5905,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右エロ笑顔２グラベース",
+        "index": 0,
+        "sprite_id": 6358,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝エロ笑顔２グラベース",
+        "index": 0,
+        "sprite_id": 5546,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N037",
+    "origin": "new",
+    "review_pair": null
+  },
+  "endure": {
+    "id": "endure",
+    "label": "白眼忍耐",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "normal",
+      "mouth": "wave",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本耐え顔グラベース",
+        "index": 0,
+        "sprite_id": 5404,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り耐え顔グラベース",
+        "index": 0,
+        "sprite_id": 5661,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N038",
+    "origin": "new",
+    "review_pair": null
+  },
+  "horrified": {
+    "id": "horrified",
+    "label": "嫌恶惊惧",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "shiny",
+      "brows": "arched",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本ドン引き顔グラベース",
+        "index": 0,
+        "sprite_id": 6602,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ドン引き顔グラベース",
+        "index": 0,
+        "sprite_id": 7345,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N039",
+    "origin": "new",
+    "review_pair": null
+  },
+  "horrified_b": {
+    "id": "horrified_b",
+    "label": "嫌恶惊惧 · 泪帧 B",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "shiny",
+      "brows": "arched",
+      "mouth": "frown_open",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本ドン引き顔グラ２ベース",
+        "index": 0,
+        "sprite_id": 6567,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ドン引き顔グラ２ベース",
+        "index": 0,
+        "sprite_id": 6247,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N040",
+    "origin": "new",
+    "review_pair": null
+  },
+  "side_teary": {
+    "id": "side_teary",
+    "label": "垂眼哭丧",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "flat",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3c4663002b4906560d6f.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/3c4663002b4906560d6f.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本横涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 7789,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右横涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 4421,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び顔面３グラベース",
+        "index": 0,
+        "sprite_id": 5710,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N041",
+    "origin": "new",
+    "review_pair": null
+  },
+  "side_teary_b": {
+    "id": "side_teary_b",
+    "label": "垂眼哭丧 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "flat",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3c4663002b4906560d6f.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/3c4663002b4906560d6f.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本横涙目顔グラベース２",
+        "index": 0,
+        "sprite_id": 5030,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右横涙目顔グラベース２",
+        "index": 0,
+        "sprite_id": 5100,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び顔面４グラベース",
+        "index": 0,
+        "sprite_id": 8420,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N042",
+    "origin": "new",
+    "review_pair": null
+  },
+  "down_angry": {
+    "id": "down_angry",
+    "label": "低头生气",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "down",
+      "brows": "angry",
+      "mouth": "frown",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/117323ba709d564d34fb.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本下怒り顔グラベース",
+        "index": 0,
+        "sprite_id": 6397,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右怒り顔２グラベース",
+        "index": 0,
+        "sprite_id": 7360,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N043",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dry_dead": {
+    "id": "dry_dead",
+    "label": "干枯失神",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "dry",
+      "brows": "worried",
+      "mouth": "dry",
+      "tears": "none",
+      "blush": "none",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/66ea3e051de1433bb95b.png",
+      "face_brow_left": "expressions/parts/ea48519afc490db1dc57.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/66ea3e051de1433bb95b.png",
+      "face_brow_right": "expressions/parts/d8eadf3d7987b660aeb5.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/1d047e66cab8e7c56400.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "干物死顔グラベース",
+        "index": 0,
+        "sprite_id": 7055,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N044",
+    "origin": "new",
+    "review_pair": null
+  },
+  "squashed": {
+    "id": "squashed",
+    "label": "压扁失神",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "squashed",
+      "brows": "worried",
+      "mouth": "frown_open",
+      "tears": "none",
+      "blush": "none",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/b11bb4b57a0b70246f4f.png",
+      "face_brow_left": "expressions/parts/ea48519afc490db1dc57.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/b11bb4b57a0b70246f4f.png",
+      "face_brow_right": "expressions/parts/d8eadf3d7987b660aeb5.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "潰れ顔グラベース",
+        "index": 0,
+        "sprite_id": 6407,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り死亡顔グラベース",
+        "index": 0,
+        "sprite_id": 5578,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N045",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_frown": {
+    "id": "teary_frown",
+    "label": "睁眼哭丧",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "縦ジャンプ涙目顔１グラベース",
+        "index": 0,
+        "sprite_id": 4910,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面３グラベース",
+        "index": 0,
+        "sprite_id": 5279,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N046",
+    "origin": "new",
+    "review_pair": null
+  },
+  "teary_frown_b": {
+    "id": "teary_frown_b",
+    "label": "睁眼哭丧 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "縦ジャンプ涙目顔２グラベース",
+        "index": 0,
+        "sprite_id": 7189,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面４グラベース",
+        "index": 0,
+        "sprite_id": 8168,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N047",
+    "origin": "new",
+    "review_pair": null
+  },
+  "open_drool": {
+    "id": "open_drool",
+    "label": "睁眼流口水",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "normal",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    },
+    "sources": [
+      {
+        "field": "縦ジャンプよだれ顔１グラベース",
+        "index": 0,
+        "sprite_id": 5937,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ジャンプ移動よだれ顔１グラベース",
+        "index": 0,
+        "sprite_id": 5508,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N048",
+    "origin": "new",
+    "review_pair": null
+  },
+  "open_drool_b": {
+    "id": "open_drool_b",
+    "label": "睁眼流口水 · 滴落",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "normal",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool_b"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/ab30220834cd3d2d47ea.png"
+    },
+    "sources": [
+      {
+        "field": "縦ジャンプよだれ顔２グラベース",
+        "index": 0,
+        "sprite_id": 4745,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ジャンプ移動よだれ顔２グラベース",
+        "index": 0,
+        "sprite_id": 5026,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N049",
+    "origin": "new",
+    "review_pair": null
+  },
+  "landing": {
+    "id": "landing",
+    "label": "挤眼抿嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "omega",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/e444ad2c313fc637f8f9.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "着地１顔面グラベース",
+        "index": 0,
+        "sprite_id": 6863,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地２顔面グラベース",
+        "index": 0,
+        "sprite_id": 6377,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地３顔面グラベース",
+        "index": 0,
+        "sprite_id": 5970,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地４顔面グラベース",
+        "index": 0,
+        "sprite_id": 8666,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右バツ顔面グラベース",
+        "index": 0,
+        "sprite_id": 8087,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "デコピン１顔面グラベース",
+        "index": 0,
+        "sprite_id": 4643,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N050",
+    "origin": "new",
+    "review_pair": null
+  },
+  "open_cry": {
+    "id": "open_cry",
+    "label": "睁眼哭喊",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右泣き叫び顔グラベース",
+        "index": 0,
+        "sprite_id": 7294,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "デコピン２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5765,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N051",
+    "origin": "new",
+    "review_pair": null
+  },
+  "open_cry_b": {
+    "id": "open_cry_b",
+    "label": "睁眼哭喊 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右泣き叫びB顔グラベース",
+        "index": 0,
+        "sprite_id": 7246,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N052",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pursed": {
+    "id": "pursed",
+    "label": "睁眼抿嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "normal",
+      "mouth": "purse",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/2b8a2835163d5b8bfd8f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右口閉じ顔グラベース",
+        "index": 0,
+        "sprite_id": 4893,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N053",
+    "origin": "new",
+    "review_pair": null
+  },
+  "chewing": {
+    "id": "chewing",
+    "label": "咀嚼张嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "normal",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右むしゃむしゃ１顔グラベース",
+        "index": 0,
+        "sprite_id": 7193,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右むしゃむしゃ２顔グラベース",
+        "index": 0,
+        "sprite_id": 4462,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N054",
+    "origin": "new",
+    "review_pair": null
+  },
+  "chewing_closed": {
+    "id": "chewing_closed",
+    "label": "咀嚼闭嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "normal",
+      "mouth": "chew",
+      "tears": "none",
+      "blush": "puffed",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5617664e421bf1411685.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右むしゃむしゃ３顔グラベース",
+        "index": 0,
+        "sprite_id": 4474,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右むしゃむしゃ４顔グラベース",
+        "index": 0,
+        "sprite_id": 5353,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N055",
+    "origin": "new",
+    "review_pair": null
+  },
+  "bad_taste_small": {
+    "id": "bad_taste_small",
+    "label": "难吃缩嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "round",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右まずまず２顔グラベース",
+        "index": 0,
+        "sprite_id": 8580,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N056",
+    "origin": "new",
+    "review_pair": null
+  },
+  "bad_taste_closed": {
+    "id": "bad_taste_closed",
+    "label": "难吃闭嘴",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "chew",
+      "tears": "flow",
+      "blush": "puffed",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/5617664e421bf1411685.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右まずまず３顔グラベース",
+        "index": 0,
+        "sprite_id": 6069,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右まずまず４顔グラベース",
+        "index": 0,
+        "sprite_id": 7173,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N057",
+    "origin": "new",
+    "review_pair": null
+  },
+  "angry_stare": {
+    "id": "angry_stare",
+    "label": "不满凝视",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "angry",
+      "mouth": "beak",
+      "tears": "none",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "左右不穏顔グラベース",
+        "index": 0,
+        "sprite_id": 6939,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右怒り顔グラベース",
+        "index": 0,
+        "sprite_id": 5620,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N058",
+    "origin": "new",
+    "review_pair": null
+  },
+  "blank_happy": {
+    "id": "blank_happy",
+    "label": "白眼张嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "relaxed",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寝困惑顔４グラベース",
+        "index": 0,
+        "sprite_id": 7359,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N059",
+    "origin": "new",
+    "review_pair": null
+  },
+  "cold": {
+    "id": "cold",
+    "label": "寒冷发颤",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "weak",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/b96ac6f052a9998f915a.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/29b9299af733bf214512.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "寒さ震え左右顔面グラベース",
+        "index": 0,
+        "sprite_id": 8343,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N060",
+    "origin": "new",
+    "review_pair": null
+  },
+  "cold_b": {
+    "id": "cold_b",
+    "label": "寒冷发颤 · 泪帧 B",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "weak",
+      "brows": "sad",
+      "mouth": "beak",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/b96ac6f052a9998f915a.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/29b9299af733bf214512.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "寒さ震え左右顔面2グラベース",
+        "index": 0,
+        "sprite_id": 8091,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N061",
+    "origin": "new",
+    "review_pair": null
+  },
+  "cut_cry": {
+    "id": "cut_cry",
+    "label": "受损哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "cut_wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/919ab03cf9e23721f204.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "削れ左右顔面グラベース",
+        "index": 0,
+        "sprite_id": 7117,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N062",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pressed_teary": {
+    "id": "pressed_teary",
+    "label": "挤脸含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "caret",
+      "tears": "flow",
+      "blush": "puffed",
+      "effect": "none"
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "押しつぶし左右顔面１グラベース",
+        "index": 0,
+        "sprite_id": 6399,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "押しつぶし左右顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6868,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N063",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pressed_cry": {
+    "id": "pressed_cry",
+    "label": "挤脸哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "puffed",
+      "effect": "none"
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "押しつぶし左右顔面３グラベース",
+        "index": 0,
+        "sprite_id": 7846,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "押しつぶし左右顔面４グラベース",
+        "index": 0,
+        "sprite_id": 5453,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N064",
+    "origin": "new",
+    "review_pair": null
+  },
+  "licking": {
+    "id": "licking",
+    "label": "闭眼吐舌",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "happy",
+      "brows": "angry",
+      "mouth": "tongue_short",
+      "tears": "none",
+      "blush": "flushed",
+      "effect": "blush_bridge"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/e90a66b2028eead57c32.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "ぺろぺろ顔面グラベース",
+        "index": 0,
+        "sprite_id": 4383,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "斜めベロ出し顔面グラベース",
+        "index": 0,
+        "sprite_id": 7333,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N065",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dying": {
+    "id": "dying",
+    "label": "垂瞳含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "down",
+      "brows": "sad",
+      "mouth": "pant",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死１顔面グラベース",
+        "index": 0,
+        "sprite_id": 6328,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死２顔面グラベース",
+        "index": 0,
+        "sprite_id": 7222,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死３顔面グラベース",
+        "index": 0,
+        "sprite_id": 7378,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N066",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dying_b": {
+    "id": "dying_b",
+    "label": "垂瞳含泪 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "down",
+      "brows": "sad",
+      "mouth": "pant",
+      "tears": "flow_b",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死１泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 7219,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死２泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 8255,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死３泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 5562,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N067",
+    "origin": "new",
+    "review_pair": null
+  },
+  "old_dead": {
+    "id": "old_dead",
+    "label": "闭眼平嘴",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "sleep",
+      "brows": "relaxed",
+      "mouth": "wave",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面寿命１顔面グラベース",
+        "index": 0,
+        "sprite_id": 5151,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面寿命２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5018,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面寿命３顔面グラベース",
+        "index": 0,
+        "sprite_id": 6149,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N068",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dying_blank": {
+    "id": "dying_blank",
+    "label": "白眼喘嘴",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "pant",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死３死亡顔面グラベース",
+        "index": 0,
+        "sprite_id": 7782,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N069",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dying_closed": {
+    "id": "dying_closed",
+    "label": "虚弱闭眼",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "weak",
+      "brows": "worried",
+      "mouth": "pant",
+      "tears": "side",
+      "blush": "none",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/b96ac6f052a9998f915a.png",
+      "face_brow_left": "expressions/parts/ea48519afc490db1dc57.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/9d97e3064a50b9ba1550.png",
+      "face_eye_right": "expressions/parts/29b9299af733bf214512.png",
+      "face_brow_right": "expressions/parts/d8eadf3d7987b660aeb5.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/6961dca378507cd9a586.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "瀕死１顔面グラベース",
+        "index": 0,
+        "sprite_id": 4424,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5649,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死３顔面グラベース",
+        "index": 0,
+        "sprite_id": 6831,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N070",
+    "origin": "new",
+    "review_pair": null
+  },
+  "dying_closed_b": {
+    "id": "dying_closed_b",
+    "label": "虚弱闭眼 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "weak",
+      "brows": "worried",
+      "mouth": "pant",
+      "tears": "flow_b",
+      "blush": "none",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/b96ac6f052a9998f915a.png",
+      "face_brow_left": "expressions/parts/ea48519afc490db1dc57.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+      "face_eye_right": "expressions/parts/29b9299af733bf214512.png",
+      "face_brow_right": "expressions/parts/d8eadf3d7987b660aeb5.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "瀕死１顔面２グラベース",
+        "index": 0,
+        "sprite_id": 5412,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死２顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6158,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死３顔面２グラベース",
+        "index": 0,
+        "sprite_id": 8480,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N071",
+    "origin": "new",
+    "review_pair": null
+  },
+  "pressed_hidden": {
+    "id": "pressed_hidden",
+    "label": "被压遮挡",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "none",
+      "brows": "angry",
+      "mouth": "none",
+      "tears": "none",
+      "blush": "none",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/e55c75ce1fbe8d4c30b8.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/e55c75ce1fbe8d4c30b8.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/1332a3015fd54776920c.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "うんうん押し付け顔面グラベース",
+        "index": 0,
+        "sprite_id": 5805,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N072",
+    "origin": "new",
+    "review_pair": null
+  },
+  "satisfied": {
+    "id": "satisfied",
+    "label": "满足闭眼",
+    "group": "动作表情",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "relaxed",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面満腹１顔面グラベース",
+        "index": 0,
+        "sprite_id": 7890,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹２顔面グラベース",
+        "index": 0,
+        "sprite_id": 6038,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹３顔面グラベース",
+        "index": 0,
+        "sprite_id": 4748,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹４顔面グラベース",
+        "index": 0,
+        "sprite_id": 7480,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N073",
+    "origin": "new",
+    "review_pair": null
+  },
+  "blank_frown": {
+    "id": "blank_frown",
+    "label": "白眼哭丧",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寝困惑死亡顔グラベース",
+        "index": 0,
+        "sprite_id": 6477,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N074",
+    "origin": "new",
+    "review_pair": null
+  },
+  "impact": {
+    "id": "impact",
+    "label": "受击挤眼",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "frown_open",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右跳ね顔面グラベース",
+        "index": 0,
+        "sprite_id": 8180,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち１顔面グラベース",
+        "index": 0,
+        "sprite_id": 4484,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5019,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ハンマー１顔面グラベース",
+        "index": 0,
+        "sprite_id": 6298,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ハンマー２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5959,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N075",
+    "origin": "new",
+    "review_pair": null
+  },
+  "impact_teary": {
+    "id": "impact_teary",
+    "label": "受击挤眼含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "frown_open",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/777d22f692be83042a45.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右跳ね顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6335,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち３顔面グラベース",
+        "index": 0,
+        "sprite_id": 7175,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N076",
+    "origin": "new",
+    "review_pair": null
+  },
+  "shattered": {
+    "id": "shattered",
+    "label": "表情破碎",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "frown_open",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "mask": "fracture",
+    "parts": {
+      "face_eye_left": "expressions/parts/705a7563a4aebed0bcca.png",
+      "face_brow_left": "expressions/parts/d819ee97a515dc61d942.png",
+      "face_blush_left": "expressions/parts/b0a0d54ab0c63ce0eace.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/34d4ac5b9a79829633ad.png",
+      "face_brow_right": "expressions/parts/38563466f501e8c01bfa.png",
+      "face_blush_right": "expressions/parts/b0a0d54ab0c63ce0eace.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d72c7f5d13a82bac2960.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "ハンマー３顔面グラベース",
+        "index": 0,
+        "sprite_id": 7266,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N077",
+    "origin": "new",
+    "review_pair": null
+  },
+  "shattered_fade": {
+    "id": "shattered_fade",
+    "label": "破碎散落",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "angry",
+      "mouth": "frown_open",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "mask": "scatter",
+    "parts": {
+      "face_eye_left": "expressions/parts/ece43201d28a820a10c2.png",
+      "face_brow_left": "expressions/parts/c691c4d2a1f728a0adf2.png",
+      "face_blush_left": "expressions/parts/a710e608da828db386c8.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/1341c2d55f244560b218.png",
+      "face_brow_right": "expressions/parts/814e895f243461ff6655.png",
+      "face_blush_right": "expressions/parts/a710e608da828db386c8.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/982e05fa00e9fc2d5e95.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "ハンマー４顔面グラベース",
+        "index": 0,
+        "sprite_id": 5253,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N078",
+    "origin": "new",
+    "review_pair": null
+  },
+  "flick_dull": {
+    "id": "flick_dull",
+    "label": "受击失神",
+    "group": "特殊状态",
+    "recipe": {
+      "eyes": "dull",
+      "brows": "relaxed",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "puffed",
+      "effect": "none"
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/98b8d08eae4618af9b6b.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/98b8d08eae4618af9b6b.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "デコピン非ゆっくり症顔面グラベース",
+        "index": 0,
+        "sprite_id": 4675,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Draft adaptation; requires redraw before production use",
+    "aliases": [],
+    "review_code": "N079",
+    "origin": "new",
+    "review_pair": null
+  },
+  "sleepy": {
+    "id": "sleepy",
+    "label": "困倦",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "existing-project-art",
+      "preset": "sleepy"
+    },
+    "eye_left": "wink",
+    "parts": {
+      "face_eye_left": "expressions/parts/b5450aeb0586fccc3ec0.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/312577fa8d373c00b276.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+    },
+    "sources": [],
+    "status": "retained",
+    "art": "Existing project pixels restored; no redraw",
+    "aliases": [],
+    "retained_source": "standards/yukkuri-v1/textures/marisa/sleepy.png",
+    "review_code": "O13",
+    "origin": "original",
+    "review_pair": "sleepy__new"
+  },
+  "angry__new": {
+    "id": "angry__new",
+    "label": "生气",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "angry",
+      "mouth": "caret",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "stress"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+      "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    },
+    "sources": [
+      {
+        "field": "基本怒り顔グラベース",
+        "index": 0,
+        "sprite_id": 6360,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "angry",
+    "review_code": "N080",
+    "origin": "new"
+  },
+  "confused__new": {
+    "id": "confused__new",
+    "label": "困惑张嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 6401,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔グラベース",
+        "index": 0,
+        "sprite_id": 8414,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "confused",
+    "review_code": "N081",
+    "origin": "new"
+  },
+  "cry__new": {
+    "id": "cry__new",
+    "label": "闭眼哭喊",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫び顔グラベース",
+        "index": 0,
+        "sprite_id": 6927,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地２泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 6882,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地３泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 4755,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "着地４泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 5625,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右泣き叫び２顔グラベース",
+        "index": 0,
+        "sprite_id": 6204,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面ケツ振り泣き叫び２B顔面グラベース",
+        "index": 0,
+        "sprite_id": 5306,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り１顔面グラベース",
+        "index": 0,
+        "sprite_id": 7978,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り２顔面グラベース",
+        "index": 0,
+        "sprite_id": 6706,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "握り３顔面グラベース",
+        "index": 0,
+        "sprite_id": 5724,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い１顔面グラベース",
+        "index": 0,
+        "sprite_id": 8260,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5890,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6801,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１泣き叫び顔面グラベース",
+        "index": 0,
+        "sprite_id": 4389,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "cry",
+    "review_code": "N082",
+    "origin": "new"
+  },
+  "drool__new": {
+    "id": "drool__new",
+    "label": "闭眼流口水",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "relaxed",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    },
+    "sources": [
+      {
+        "field": "基本よだれ顔グラベース",
+        "index": 0,
+        "sprite_id": 6449,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "drool",
+    "review_code": "N083",
+    "origin": "new"
+  },
+  "happy__new": {
+    "id": "happy__new",
+    "label": "闭眼大笑",
+    "group": "笑脸",
+    "recipe": {
+      "eyes": "happy",
+      "brows": "relaxed",
+      "mouth": "smile",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本綴じ笑顔グラベース",
+        "index": 0,
+        "sprite_id": 6604,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔１グラベース",
+        "index": 0,
+        "sprite_id": 7808,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔２グラベース",
+        "index": 0,
+        "sprite_id": 6503,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔３グラベース",
+        "index": 0,
+        "sprite_id": 6533,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔４グラベース",
+        "index": 0,
+        "sprite_id": 7470,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "うんうんたいそう顔５グラベース",
+        "index": 0,
+        "sprite_id": 8633,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右閉じ笑顔グラベース",
+        "index": 0,
+        "sprite_id": 6403,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんグラベース",
+        "index": 0,
+        "sprite_id": 8153,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "happy",
+    "review_code": "N084",
+    "origin": "new"
+  },
+  "neutral__new": {
+    "id": "neutral__new",
+    "label": "普通",
+    "group": "日常",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "normal",
+      "mouth": "normal",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_mouth": "expressions/parts/a7b8b23ed01c7bf82df3.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "neutral",
+    "review_code": "N085",
+    "origin": "new",
+    "duplicate_of": "neutral"
+  },
+  "puff__new": {
+    "id": "puff__new",
+    "label": "闭眼噗咕",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "eyes": "squeeze",
+      "brows": "sad",
+      "mouth": "purse",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "requires": [
+      "puff-cheeks"
+    ],
+    "geometry_offsets": {
+      "face_eye_left": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "position": [
+          0,
+          1.219,
+          0
+        ]
+      },
+      "face_mouth": {
+        "position": [
+          0,
+          -0.053,
+          0
+        ],
+        "scale": [
+          0.75,
+          0.85,
+          1
+        ]
+      }
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/6f9e17f8ec5fad430612.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ぷくー１顔グラベース",
+        "index": 0,
+        "sprite_id": 6547,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ぷくー２顔グラベース",
+        "index": 0,
+        "sprite_id": 4503,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "puff",
+    "review_code": "N086",
+    "origin": "new"
+  },
+  "sleep__new": {
+    "id": "sleep__new",
+    "label": "睡眠",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "sleep",
+      "brows": "relaxed",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    },
+    "sources": [
+      {
+        "field": "基本睡眠顔グラベース",
+        "index": 0,
+        "sprite_id": 5335,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "sleep",
+    "review_code": "N087",
+    "origin": "new"
+  },
+  "sleepy__new": {
+    "id": "sleepy__new",
+    "label": "刚睡醒",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "relaxed",
+      "mouth": "round",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "drool"
+    },
+    "eye_left": "wink",
+    "parts": {
+      "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+      "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    },
+    "sources": [
+      {
+        "field": "基本寝起き顔グラベース",
+        "index": 0,
+        "sprite_id": 5778,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "sleepy",
+    "review_code": "N088",
+    "origin": "new",
+    "duplicate_of": "waking"
+  },
+  "smug__new": {
+    "id": "smug__new",
+    "label": "得意",
+    "group": "日常",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "angry",
+      "mouth": "wave",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本ドヤ顔グラベース",
+        "index": 0,
+        "sprite_id": 4478,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右ドヤ顔グラベース",
+        "index": 0,
+        "sprite_id": 6822,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "smug",
+    "review_code": "N089",
+    "origin": "new"
+  },
+  "surprise__new": {
+    "id": "surprise__new",
+    "label": "受惊逃跑",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "eyes": "hollow",
+      "brows": "sad",
+      "mouth": "wail",
+      "tears": "none",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "accepted_override": true,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本驚き顔グラベース",
+        "index": 0,
+        "sprite_id": 8207,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔４グラベース",
+        "index": 0,
+        "sprite_id": 7708,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "surprise",
+    "review_code": "N090",
+    "origin": "new",
+    "duplicate_of": "surprise"
+  },
+  "teary__new": {
+    "id": "teary__new",
+    "label": "含泪",
+    "group": "哭泣",
+    "recipe": {
+      "eyes": "normal",
+      "brows": "sad",
+      "mouth": "caret",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 5577,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 7798,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "横向き涙目顔グラベース",
+        "index": 0,
+        "sprite_id": 6339,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面１グラベース",
+        "index": 0,
+        "sprite_id": 7712,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 6416,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび２涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 6392,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび３涙目顔面グラベース",
+        "index": 0,
+        "sprite_id": 4661,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "teary",
+    "review_code": "N091",
+    "origin": "new"
+  },
+  "yawn__new": {
+    "id": "yawn__new",
+    "label": "打哈欠",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "eyes": "closed",
+      "brows": "relaxed",
+      "mouth": "yawn",
+      "tears": "flow",
+      "blush": "normal",
+      "effect": "none"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+      "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+      "face_mouth": "expressions/parts/3ef9ff0a643f1700de23.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本あくび顔グラベース",
+        "index": 0,
+        "sprite_id": 8564,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "original pixel adaptation; accepted neutral/fear retained",
+    "aliases": [],
+    "review_pair": "yawn",
+    "review_code": "N092",
+    "origin": "new"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "drool",
+  "label": "闭眼流口水",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "source": "accepted-component-review",
+    "parts": [
+      "E1-A",
+      "M2-accepted"
+    ]
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+  },
+  "sources": [
+    {
+      "field": "基本よだれ顔グラベース",
+      "index": 0,
+      "sprite_id": 6449,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/drool.png",
+  "review_code": "O06",
+  "origin": "original",
+  "review_pair": "drool__new",
+  "review_decision": {
+    "status": "accepted-for-specified-parts",
+    "parts": [
+      "E1-A",
+      "M2-accepted"
+    ]
+  }
+}

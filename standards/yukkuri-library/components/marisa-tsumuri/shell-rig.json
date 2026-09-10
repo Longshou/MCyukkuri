@@ -1,0 +1,13 @@
+{
+  "bones": [
+    {
+      "name": "shell",
+      "parent": "root",
+      "pivot": [
+        0,
+        5.9,
+        1.75
+      ]
+    }
+  ]
+}

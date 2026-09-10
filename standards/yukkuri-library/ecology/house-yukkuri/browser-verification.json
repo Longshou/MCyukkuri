@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "pair front/side/back",
+    "marisa front/side/back",
+    "reimu front/side/back",
+    "compare front/side/back",
+    "nest front/side/back",
+    "family front/side/back",
+    "rest 5 times",
+    "forage 5 times",
+    "build 5 times",
+    "flee 5 times",
+    "hatch 5 times",
+    "adult anatomy extend, mutually exclusive switch and retract while paused"
+  ],
+  "frame_rate_independent_births": true,
+  "no_duplicate_births": true,
+  "young_survive_nest_removal": true,
+  "timeline_scrub": true,
+  "orbit": true,
+  "zoom": true,
+  "play_pause": true,
+  "expressions": 11,
+  "mobileOverflow": false,
+  "pageErrors": []
+}

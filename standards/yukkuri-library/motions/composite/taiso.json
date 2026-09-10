@@ -1,0 +1,56 @@
+{
+  "id": "taiso",
+  "kind": "composite",
+  "loop": true,
+  "label": "整套体操",
+  "duration": 14,
+  "operator": "sequence",
+  "segments": [
+    {
+      "start": 0,
+      "end": 4.8,
+      "source": "press"
+    },
+    {
+      "start": 4.8,
+      "end": 7.42,
+      "source": "exercise_vertical"
+    },
+    {
+      "start": 7.42,
+      "end": 8,
+      "blend_from": {
+        "source": "idle",
+        "at": 0
+      },
+      "blend_to": {
+        "source": "stretch_shape",
+        "at": 1
+      }
+    },
+    {
+      "start": 8,
+      "end": 12.72,
+      "source": "exercise_sides",
+      "repeat": 2
+    },
+    {
+      "start": 12.72,
+      "end": 13.4,
+      "blend_from": {
+        "source": "stretch_shape",
+        "at": 1
+      },
+      "blend_to": {
+        "source": "idle",
+        "at": 0
+      }
+    },
+    {
+      "start": 13.4,
+      "end": 14,
+      "source": "idle"
+    }
+  ],
+  "description": "左右用力 → 上下体操 → 伸长过渡 → 左右体操×2 → 恢复 → 静止。"
+}

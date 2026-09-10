@@ -1,0 +1,19 @@
+{
+  "restored": [
+    "angry",
+    "confused",
+    "cry",
+    "drool",
+    "happy",
+    "neutral",
+    "puff",
+    "sleep",
+    "sleepy",
+    "smug",
+    "surprise",
+    "teary",
+    "yawn"
+  ],
+  "drafts": 79,
+  "policy": "Preserve existing art; redraw only missing expressions"
+}

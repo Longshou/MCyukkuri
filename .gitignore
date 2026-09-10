@@ -5,8 +5,15 @@
 /textures/
 /marisa-original/
 /preview/
-/tools/
+/tools/*
+!/tools/project-library/
+/art/library/**/*.partial*
 /docs/LOCAL_ART_HISTORY.md
+# Full local art backups include extracted references and rendered frames.
+# Portable, categorized source packs under art/library ARE version-controlled.
+/archives/*
+!/archives/README.md
+/temp/
 node_modules/
 __pycache__/
 *.pyc

@@ -1,0 +1,356 @@
+{
+  "marisa": [
+    {
+      "part": "mamu",
+      "action": "idle",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "stretch_shape",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "side_bend",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "waddle",
+      "changedChannels": 27
+    },
+    {
+      "part": "mamu",
+      "action": "puff",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "brace",
+      "changedChannels": 18
+    },
+    {
+      "part": "mamu",
+      "action": "startle",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "turn",
+      "changedChannels": 18
+    },
+    {
+      "part": "mamu",
+      "action": "hop",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "stretch",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "exercise_vertical",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "exercise_sides",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "press",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "taiso",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "flee",
+      "changedChannels": 24
+    },
+    {
+      "part": "peni",
+      "action": "idle",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "stretch_shape",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "side_bend",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "waddle",
+      "changedChannels": 258
+    },
+    {
+      "part": "peni",
+      "action": "puff",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "brace",
+      "changedChannels": 162
+    },
+    {
+      "part": "peni",
+      "action": "startle",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "turn",
+      "changedChannels": 336
+    },
+    {
+      "part": "peni",
+      "action": "hop",
+      "changedChannels": 258
+    },
+    {
+      "part": "peni",
+      "action": "stretch",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "exercise_vertical",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "exercise_sides",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "press",
+      "changedChannels": 333
+    },
+    {
+      "part": "peni",
+      "action": "taiso",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "flee",
+      "changedChannels": 388
+    }
+  ],
+  "marisa_tsumuri": [
+    {
+      "part": "mamu",
+      "action": "idle",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "still",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "shell_sway",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "shell_retract",
+      "changedChannels": 0
+    },
+    {
+      "part": "peni",
+      "action": "idle",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "still",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "shell_sway",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "shell_retract",
+      "changedChannels": 24
+    }
+  ],
+  "reimu": [
+    {
+      "part": "mamu",
+      "action": "idle",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "stretch_shape",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "side_bend",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "waddle",
+      "changedChannels": 27
+    },
+    {
+      "part": "mamu",
+      "action": "puff",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "brace",
+      "changedChannels": 18
+    },
+    {
+      "part": "mamu",
+      "action": "startle",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "turn",
+      "changedChannels": 18
+    },
+    {
+      "part": "mamu",
+      "action": "hop",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "stretch",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "exercise_vertical",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "exercise_sides",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "press",
+      "changedChannels": 24
+    },
+    {
+      "part": "mamu",
+      "action": "taiso",
+      "changedChannels": 30
+    },
+    {
+      "part": "mamu",
+      "action": "flee",
+      "changedChannels": 24
+    },
+    {
+      "part": "peni",
+      "action": "idle",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "stretch_shape",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "side_bend",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "waddle",
+      "changedChannels": 258
+    },
+    {
+      "part": "peni",
+      "action": "puff",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "brace",
+      "changedChannels": 162
+    },
+    {
+      "part": "peni",
+      "action": "startle",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "turn",
+      "changedChannels": 336
+    },
+    {
+      "part": "peni",
+      "action": "hop",
+      "changedChannels": 258
+    },
+    {
+      "part": "peni",
+      "action": "stretch",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "exercise_vertical",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "exercise_sides",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "press",
+      "changedChannels": 333
+    },
+    {
+      "part": "peni",
+      "action": "taiso",
+      "changedChannels": 264
+    },
+    {
+      "part": "peni",
+      "action": "flee",
+      "changedChannels": 388
+    }
+  ],
+  "interaction": {
+    "buttons": true,
+    "paused": true,
+    "orbitOnly": true,
+    "compareSynchronized": true,
+    "exclusive": true,
+    "pageErrors": []
+  }
+}

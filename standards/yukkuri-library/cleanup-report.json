@@ -1,0 +1,39 @@
+{
+  "active_library": "standards/yukkuri-library",
+  "expression_pixel_parts": 89,
+  "expression_presets": 91,
+  "effects": 2,
+  "basic_motions": 9,
+  "reference_only_composites": 6,
+  "common_hair_cubes_extracted": 3,
+  "surplus_reference_sprites_removed": [
+    "sprite-4417.png",
+    "sprite-4510.png",
+    "sprite-5038.png",
+    "sprite-5903.png",
+    "sprite-6029.png",
+    "sprite-6223.png",
+    "sprite-6262.png",
+    "sprite-6419.png",
+    "sprite-6743.png",
+    "sprite-6791.png",
+    "sprite-6903.png",
+    "sprite-7379.png",
+    "sprite-7511.png",
+    "sprite-8194.png",
+    "sprite-8356.png",
+    "sprite-8499.png",
+    "sprite-8517.png",
+    "sprite-8531.png",
+    "sprite-8549.png",
+    "sprite-8615.png",
+    "sprite-8634.png"
+  ],
+  "legacy_export_moved_to": "archives\\legacy-exports\\yukkuri-standard-v1.zip",
+  "compatibility_retained_for": [
+    "subspecies",
+    "lifecycle",
+    "viviparous"
+  ],
+  "historical_variants": "unchanged; source packages remain recoverable"
+}

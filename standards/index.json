@@ -1,0 +1,15 @@
+{
+  "active": "yukkuri-library",
+  "catalog": "yukkuri-library/index.html",
+  "preview": "yukkuri-library/compare.html",
+  "compatibility": [
+    {
+      "path": "yukkuri-v1",
+      "reason": "Existing subspecies/lifecycle/viviparous modules still read this layout; preserve their inputs."
+    }
+  ],
+  "historical_exports": [
+    "../archives/yukkuri-standard-before-catalog.zip",
+    "../archives/legacy-exports/yukkuri-standard-v1.zip"
+  ]
+}

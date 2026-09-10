@@ -1,0 +1,86 @@
+{
+  "name": "face_rest_mouth",
+  "uuid": "0a186a0c-6a93-5f70-8b59-060b8a57fb81",
+  "type": "cube",
+  "from": [
+    -1.5,
+    2.12,
+    -4.603
+  ],
+  "to": [
+    1.5,
+    3.445,
+    -4.602
+  ],
+  "origin": [
+    0,
+    0.0,
+    0
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 0,
+  "faces": {
+    "north": {
+      "uv": [
+        96,
+        36,
+        108,
+        41
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "face_rest_mouth"
+}

@@ -1,0 +1,2693 @@
+{
+  "id": "common.rump",
+  "elements": [
+    {
+      "name": "rump_core_slice_0",
+      "type": "cube",
+      "from": [
+        -5.6,
+        0.159,
+        2.675
+      ],
+      "to": [
+        5.6,
+        0.265,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_0_bend"
+    },
+    {
+      "name": "rump_core_slice_1",
+      "type": "cube",
+      "from": [
+        -5.6,
+        0.265,
+        2.675
+      ],
+      "to": [
+        5.6,
+        0.53,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_1_bend"
+    },
+    {
+      "name": "rump_core_slice_2",
+      "type": "cube",
+      "from": [
+        -5.6,
+        0.53,
+        2.675
+      ],
+      "to": [
+        5.6,
+        0.795,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_2_bend"
+    },
+    {
+      "name": "rump_core_slice_3",
+      "type": "cube",
+      "from": [
+        -5.6,
+        0.795,
+        2.675
+      ],
+      "to": [
+        5.6,
+        1.06,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_3_bend"
+    },
+    {
+      "name": "rump_core_slice_4",
+      "type": "cube",
+      "from": [
+        -5.6,
+        1.06,
+        2.675
+      ],
+      "to": [
+        5.6,
+        1.325,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_4_bend"
+    },
+    {
+      "name": "rump_core_slice_5",
+      "type": "cube",
+      "from": [
+        -5.6,
+        1.325,
+        2.675
+      ],
+      "to": [
+        5.6,
+        1.59,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_5_bend"
+    },
+    {
+      "name": "rump_core_slice_6",
+      "type": "cube",
+      "from": [
+        -5.6,
+        1.59,
+        2.675
+      ],
+      "to": [
+        5.6,
+        1.855,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_6_bend"
+    },
+    {
+      "name": "rump_core_slice_7",
+      "type": "cube",
+      "from": [
+        -5.6,
+        1.855,
+        2.675
+      ],
+      "to": [
+        5.6,
+        2.12,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_7_bend"
+    },
+    {
+      "name": "rump_core_slice_8",
+      "type": "cube",
+      "from": [
+        -5.6,
+        2.12,
+        2.675
+      ],
+      "to": [
+        5.6,
+        2.385,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_8_bend"
+    },
+    {
+      "name": "rump_core_slice_9",
+      "type": "cube",
+      "from": [
+        -5.6,
+        2.385,
+        2.675
+      ],
+      "to": [
+        5.6,
+        2.65,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_9_bend"
+    },
+    {
+      "name": "rump_core_slice_10",
+      "type": "cube",
+      "from": [
+        -5.6,
+        2.65,
+        2.675
+      ],
+      "to": [
+        5.6,
+        2.915,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_10_bend"
+    },
+    {
+      "name": "rump_core_slice_11",
+      "type": "cube",
+      "from": [
+        -5.6,
+        2.915,
+        2.675
+      ],
+      "to": [
+        5.6,
+        3.18,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_11_bend"
+    },
+    {
+      "name": "rump_core_slice_12",
+      "type": "cube",
+      "from": [
+        -5.6,
+        3.18,
+        2.675
+      ],
+      "to": [
+        5.6,
+        3.445,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_12_bend"
+    },
+    {
+      "name": "rump_core_slice_13",
+      "type": "cube",
+      "from": [
+        -5.6,
+        3.445,
+        2.675
+      ],
+      "to": [
+        5.6,
+        3.71,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_13_bend"
+    },
+    {
+      "name": "rump_core_slice_14",
+      "type": "cube",
+      "from": [
+        -5.6,
+        3.71,
+        2.675
+      ],
+      "to": [
+        5.6,
+        3.975,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_14_bend"
+    },
+    {
+      "name": "rump_core_slice_15",
+      "type": "cube",
+      "from": [
+        -5.6,
+        3.975,
+        2.675
+      ],
+      "to": [
+        5.6,
+        4.24,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_15_bend"
+    },
+    {
+      "name": "rump_core_slice_16",
+      "type": "cube",
+      "from": [
+        -5.6,
+        4.24,
+        2.675
+      ],
+      "to": [
+        5.6,
+        4.505,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_16_bend"
+    },
+    {
+      "name": "rump_core_slice_17",
+      "type": "cube",
+      "from": [
+        -5.6,
+        4.505,
+        2.675
+      ],
+      "to": [
+        5.6,
+        4.558,
+        7.675
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_core_slice_17_bend"
+    },
+    {
+      "name": "rump_round_end_slice_0",
+      "type": "cube",
+      "from": [
+        -4.8,
+        0.371,
+        7.075
+      ],
+      "to": [
+        4.8,
+        0.53,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            126.56716418,
+            128.0,
+            128.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_0_bend"
+    },
+    {
+      "name": "rump_round_end_slice_1",
+      "type": "cube",
+      "from": [
+        -4.8,
+        0.53,
+        7.075
+      ],
+      "to": [
+        4.8,
+        0.795,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            124.17910448,
+            128.0,
+            126.56716418
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_1_bend"
+    },
+    {
+      "name": "rump_round_end_slice_2",
+      "type": "cube",
+      "from": [
+        -4.8,
+        0.795,
+        7.075
+      ],
+      "to": [
+        4.8,
+        1.06,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            121.79104478,
+            128.0,
+            124.17910448
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_2_bend"
+    },
+    {
+      "name": "rump_round_end_slice_3",
+      "type": "cube",
+      "from": [
+        -4.8,
+        1.06,
+        7.075
+      ],
+      "to": [
+        4.8,
+        1.325,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            119.40298507,
+            128.0,
+            121.79104478
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_3_bend"
+    },
+    {
+      "name": "rump_round_end_slice_4",
+      "type": "cube",
+      "from": [
+        -4.8,
+        1.325,
+        7.075
+      ],
+      "to": [
+        4.8,
+        1.59,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            117.01492537,
+            128.0,
+            119.40298507
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_4_bend"
+    },
+    {
+      "name": "rump_round_end_slice_5",
+      "type": "cube",
+      "from": [
+        -4.8,
+        1.59,
+        7.075
+      ],
+      "to": [
+        4.8,
+        1.855,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            114.62686567,
+            128.0,
+            117.01492537
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_5_bend"
+    },
+    {
+      "name": "rump_round_end_slice_6",
+      "type": "cube",
+      "from": [
+        -4.8,
+        1.855,
+        7.075
+      ],
+      "to": [
+        4.8,
+        2.12,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            112.23880597,
+            128.0,
+            114.62686567
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_6_bend"
+    },
+    {
+      "name": "rump_round_end_slice_7",
+      "type": "cube",
+      "from": [
+        -4.8,
+        2.12,
+        7.075
+      ],
+      "to": [
+        4.8,
+        2.385,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            109.85074627,
+            128.0,
+            112.23880597
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_7_bend"
+    },
+    {
+      "name": "rump_round_end_slice_8",
+      "type": "cube",
+      "from": [
+        -4.8,
+        2.385,
+        7.075
+      ],
+      "to": [
+        4.8,
+        2.65,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            107.46268657,
+            128.0,
+            109.85074627
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_8_bend"
+    },
+    {
+      "name": "rump_round_end_slice_9",
+      "type": "cube",
+      "from": [
+        -4.8,
+        2.65,
+        7.075
+      ],
+      "to": [
+        4.8,
+        2.915,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            105.07462687,
+            128.0,
+            107.46268657
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_9_bend"
+    },
+    {
+      "name": "rump_round_end_slice_10",
+      "type": "cube",
+      "from": [
+        -4.8,
+        2.915,
+        7.075
+      ],
+      "to": [
+        4.8,
+        3.18,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            102.68656716,
+            128.0,
+            105.07462687
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_10_bend"
+    },
+    {
+      "name": "rump_round_end_slice_11",
+      "type": "cube",
+      "from": [
+        -4.8,
+        3.18,
+        7.075
+      ],
+      "to": [
+        4.8,
+        3.445,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            100.29850746,
+            128.0,
+            102.68656716
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_11_bend"
+    },
+    {
+      "name": "rump_round_end_slice_12",
+      "type": "cube",
+      "from": [
+        -4.8,
+        3.445,
+        7.075
+      ],
+      "to": [
+        4.8,
+        3.71,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            97.91044776,
+            128.0,
+            100.29850746
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_12_bend"
+    },
+    {
+      "name": "rump_round_end_slice_13",
+      "type": "cube",
+      "from": [
+        -4.8,
+        3.71,
+        7.075
+      ],
+      "to": [
+        4.8,
+        3.922,
+        8.375
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            96.0,
+            96.0,
+            128.0,
+            97.91044776
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            48.0,
+            16.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "rump_round_end_slice_13_bend"
+    }
+  ]
+}

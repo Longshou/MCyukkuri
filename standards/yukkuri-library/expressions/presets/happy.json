@@ -1,0 +1,96 @@
+{
+  "id": "happy",
+  "label": "闭眼大笑",
+  "group": "笑脸",
+  "recipe": {
+    "source": "accepted-component-review",
+    "parts": [
+      "E1-A",
+      "M1-N001"
+    ]
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+    "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+    "face_blush_right": "expressions/parts/1890bec72eaae44508bf.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本綴じ笑顔グラベース",
+      "index": 0,
+      "sprite_id": 6604,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔１グラベース",
+      "index": 0,
+      "sprite_id": 7808,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔２グラベース",
+      "index": 0,
+      "sprite_id": 6503,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔３グラベース",
+      "index": 0,
+      "sprite_id": 6533,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔４グラベース",
+      "index": 0,
+      "sprite_id": 7470,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔５グラベース",
+      "index": 0,
+      "sprite_id": 8633,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右閉じ笑顔グラベース",
+      "index": 0,
+      "sprite_id": 6403,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝顔面うんうんグラベース",
+      "index": 0,
+      "sprite_id": 8153,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/happy.png",
+  "review_code": "O02",
+  "origin": "original",
+  "review_pair": "happy__new",
+  "review_decision": {
+    "status": "accepted-for-specified-parts",
+    "parts": [
+      "E1-A",
+      "M1-N001"
+    ]
+  }
+}

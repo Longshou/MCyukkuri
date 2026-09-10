@@ -1,0 +1,57 @@
+{
+  "id": "smug",
+  "label": "得意",
+  "group": "日常",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "smug"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/4a98859cf98b258429a1.png",
+    "face_brow_right": "expressions/parts/87649084e12b80cab2ee.png",
+    "face_mouth": "expressions/parts/9ead1ae179dc2350cc0a.png",
+    "face_blush_left": "expressions/parts/4f872d58d23bdb669e29.png",
+    "face_blush_right": "expressions/parts/1890bec72eaae44508bf.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本ドヤ顔グラベース",
+      "index": 0,
+      "sprite_id": 4478,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右ドヤ顔グラベース",
+      "index": 0,
+      "sprite_id": 6822,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/smug.png",
+  "review_code": "O03",
+  "origin": "original",
+  "review_pair": "smug__new",
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        2.25,
+        2.25,
+        1
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "applied",
+    "note": "Mouth width and height exactly 1.5x; smug uses downward V."
+  }
+}

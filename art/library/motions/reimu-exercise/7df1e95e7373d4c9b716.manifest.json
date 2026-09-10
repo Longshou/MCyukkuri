@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "content_sha256": "7df1e95e7373d4c9b716aa3a04abc4cf8b0c497066830da956d5dbae47ee846a",
+  "files": [
+    {
+      "path": "variants/reimu-exercise/animation-rig.json",
+      "bytes": 31923198,
+      "sha256": "be726189e1c58601219b8710f89fa0bcacc6c2c4098c6800c7fc4120b7442f37"
+    },
+    {
+      "path": "variants/reimu-exercise/before-face-integration/generate.py",
+      "bytes": 15052,
+      "sha256": "b4dc9e9b8023ed917130213116a2a862e13dd99336be8d95b00dba0f53be9a06"
+    },
+    {
+      "path": "variants/reimu-exercise/before-face-integration/preview.html",
+      "bytes": 8778660,
+      "sha256": "ae801c9f033885811c621e5150799b90e6cc96c3f599074655f3057121d1686e"
+    },
+    {
+      "path": "variants/reimu-exercise/before-face-integration/reimu.bbmodel",
+      "bytes": 83054663,
+      "sha256": "d42b2940f4438433b2adfdbd96dfd0e8acd0e4db0f95a8150b6367821ea3b6c9"
+    },
+    {
+      "path": "variants/reimu-exercise/before-face-integration/reimu.png",
+      "bytes": 985,
+      "sha256": "7b61509905748b00e5ff7f57828960f4417ed31847d10299217a79fe5114f190"
+    },
+    {
+      "path": "variants/reimu-exercise/before-face-integration/texture.rgba",
+      "bytes": 65536,
+      "sha256": "d8378942ea1f9394afe117d5b8f5c82d8fa950e01f119580ffdb55bde9cde528"
+    },
+    {
+      "path": "variants/reimu-exercise/before-fixes/generate.py",
+      "bytes": 13765,
+      "sha256": "5a267bb01d69789b47714f7c92d8849711770419e5e96b2848b3540cd3261292"
+    },
+    {
+      "path": "variants/reimu-exercise/before-fixes/preview.html",
+      "bytes": 2524840,
+      "sha256": "bf826c4ecfafcd3885e88eadb631fb1cf7a183e8946f347ad9d56731500c298a"
+    },
+    {
+      "path": "variants/reimu-exercise/before-fixes/reimu.bbmodel",
+      "bytes": 22321337,
+      "sha256": "b45d2842a0c060cd32ce5452374732b4b0f1d2684e2bf5d6d0dacd2c5cc9072b"
+    },
+    {
+      "path": "variants/reimu-exercise/before-fixes/reimu.png",
+      "bytes": 883,
+      "sha256": "0bb8dd717a04cde807f10810b3f27c06d4878d1e29996edb91da90d7d065faaa"
+    },
+    {
+      "path": "variants/reimu-exercise/before-fixes/texture.rgba",
+      "bytes": 65536,
+      "sha256": "8af3c1677c65bcf350c6b87e17612e38a0017d46fc3e221c3179e9a3a5514279"
+    },
+    {
+      "path": "variants/reimu-exercise/blockbench-exercise.png",
+      "bytes": 106624,
+      "sha256": "7a366408b96630bf459a6170070660a141fc1d054da2a40462cdc6c101836073"
+    },
+    {
+      "path": "variants/reimu-exercise/blockbench-verification.json",
+      "bytes": 3900,
+      "sha256": "256e400d2897d5e4d50ae7f564979e024328e83a2d5405890dce3e8409c2270a"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-bend-front.png",
+      "bytes": 96253,
+      "sha256": "6624170d36c599a4485983953fab4fcec0f762b014691a76c4fa1556d9528d89"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-bend.png",
+      "bytes": 113749,
+      "sha256": "2f9b26e8909395ba9991414e2113855dcca54bf09a55c4c916569db8ddf26aa1"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-bow-back.png",
+      "bytes": 101870,
+      "sha256": "1fb09be466bff3bdad7cbcd25785fe246bcee02ff9f4eebc1c7b8b9c9c86d6e2"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-check.cjs",
+      "bytes": 4352,
+      "sha256": "1e1e0c736bc5c0982ab782b7fde40c5dd52950540f889f161c146d9056a71a62"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-mobile.png",
+      "bytes": 43484,
+      "sha256": "cd686655e4a033ef533e65ef322521beeb44ed6eb6465067c4f13541819afa63"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-press-side.png",
+      "bytes": 78560,
+      "sha256": "f0b5a577a974ca332fbcb28a3284d62104d9632ddbb8c74adeb02dc10a89c514"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-press.png",
+      "bytes": 56212,
+      "sha256": "c38a0ed9773334671f83341c4463f457a97f20f40d1b78907fbfc3249442c1e9"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-rest.png",
+      "bytes": 65437,
+      "sha256": "9285f85436f84a9c4abd0d63f4c6efaf6fbc265161eff1c7eac2dd517b57f9b3"
+    },
+    {
+      "path": "variants/reimu-exercise/browser-verification.json",
+      "bytes": 744,
+      "sha256": "50c4dcee64b7ea4c263a623f0812df5942bdc2541ab51aacac7cd001814357c3"
+    },
+    {
+      "path": "variants/reimu-exercise/build-info.json",
+      "bytes": 942,
+      "sha256": "0eaf6bcfa1bfee1bc4c1170b2756accebac8866f0689c429a119e2d50a790c8f"
+    },
+    {
+      "path": "variants/reimu-exercise/exercise_sides.gif",
+      "bytes": 1387344,
+      "sha256": "8e7b941be3fca978aed2cb09345cad4cffa29988593cee2d9e4bc59c6be5fee6"
+    },
+    {
+      "path": "variants/reimu-exercise/exercise_vertical.gif",
+      "bytes": 1306441,
+      "sha256": "6cdb4f2629b9f2f34ae75db92d92fed5109770d0ba0c26ffa60b15a9ba695556"
+    },
+    {
+      "path": "variants/reimu-exercise/face-integration-comparison.png",
+      "bytes": 96006,
+      "sha256": "4d8d033ce1c4db83eb108f40b377de1e8abcb83cdcb46ac50576d99eca7d9499"
+    },
+    {
+      "path": "variants/reimu-exercise/face-integration-previews.py",
+      "bytes": 924,
+      "sha256": "b5a3dcecc43ba66d997a6fbc53cb54c66482dcd1772a6650344c7845fa8d1655"
+    },
+    {
+      "path": "variants/reimu-exercise/generate.py",
+      "bytes": 16646,
+      "sha256": "c7db85ca3404d445b5f387a81f19bf94b037f7ccbc512db40daa6a1e5dc3137e"
+    },
+    {
+      "path": "variants/reimu-exercise/make-previews.py",
+      "bytes": 2616,
+      "sha256": "cb6dc23fee8f4c3c299f4b5808533707e2b83c695014b93e3066760fcba2b91c"
+    },
+    {
+      "path": "variants/reimu-exercise/motion-verification.json",
+      "bytes": 693,
+      "sha256": "269420becd01f2be3beb42405bc7b82e8aa27c4ce4cd0cb34aba997856331033"
+    },
+    {
+      "path": "variants/reimu-exercise/motion.js",
+      "bytes": 3264,
+      "sha256": "395bf3c3e4aeefba89ccc0068bd829a34ab80fd3686e18205610ed0273535b67"
+    },
+    {
+      "path": "variants/reimu-exercise/pose-sheet.png",
+      "bytes": 83423,
+      "sha256": "74893c88227cb8382fa59b053e91a42d5308a461297bf95e463c10faf0f7e11d"
+    },
+    {
+      "path": "variants/reimu-exercise/preview.html",
+      "bytes": 9179139,
+      "sha256": "2dc5dc47adcc4cc972c265706313437a92de584ef8d4cee51e56192cec230218"
+    },
+    {
+      "path": "variants/reimu-exercise/README.md",
+      "bytes": 5154,
+      "sha256": "e453776f5cd7850d0a2edcd7c8e587f6fcecfb070f39fd6d30ca9cf0d63f8d80"
+    },
+    {
+      "path": "variants/reimu-exercise/refinement-comparison.png",
+      "bytes": 41782,
+      "sha256": "970cc815759467b9dab26bba2648f979382d18a6e4bfa2ca3610dac22ea6a379"
+    },
+    {
+      "path": "variants/reimu-exercise/refinement-previews.py",
+      "bytes": 1351,
+      "sha256": "248ed451ab4037e34f58612e95105e23584829fa26e70135d9f7ef7f9571a5b3"
+    },
+    {
+      "path": "variants/reimu-exercise/reimu.animation.json",
+      "bytes": 22505533,
+      "sha256": "cf27e464065423cd9d501efda1219a87dfe3e436f5f703093eaeb01b13ca01ce"
+    },
+    {
+      "path": "variants/reimu-exercise/reimu.bbmodel",
+      "bytes": 86968086,
+      "sha256": "e11098852cf6906467bb834d36ade32f5f38ec430428484cead92150e8302b81"
+    },
+    {
+      "path": "variants/reimu-exercise/reimu.geo.json",
+      "bytes": 495070,
+      "sha256": "70021dde0b6ac5b6130ab40e5cb1f8c9a2be580940f7cda9506eb2cb8abc3a84"
+    },
+    {
+      "path": "variants/reimu-exercise/reimu.png",
+      "bytes": 1277,
+      "sha256": "d0736a14e1c4fa1ec783bb3465b2ac98d8b6808c8b7bad11b76abc00040fcdcf"
+    },
+    {
+      "path": "variants/reimu-exercise/render-frames.cjs",
+      "bytes": 939,
+      "sha256": "2874e20c1f864891f98bb50e713f25d62f4cbc0e870c97c325de904b4255fa65"
+    },
+    {
+      "path": "variants/reimu-exercise/render-refinement.cjs",
+      "bytes": 594,
+      "sha256": "ddddc4b88bca94e8492516f8289d01e3a6c349f310184eeacf248b2982eaa2d0"
+    },
+    {
+      "path": "variants/reimu-exercise/reuse/marisa-animation-rig.json",
+      "bytes": 21517204,
+      "sha256": "173f13e4d0c1164803fb10972a057bb560c83782d2d241c338610b3940924471"
+    },
+    {
+      "path": "variants/reimu-exercise/reuse/marisa-body-animation.bbmodel",
+      "bytes": 73936095,
+      "sha256": "feaa0062abedc5e3fe26657cdefa117a877b5ab18846ec415b5181c0effadf2a"
+    },
+    {
+      "path": "variants/reimu-exercise/rump-sheet.png",
+      "bytes": 12582,
+      "sha256": "f44374e0a6bc57cf20eb27e9d9ca9bb15c89e12840ae44332187d280926f7a40"
+    },
+    {
+      "path": "variants/reimu-exercise/software-viewer.js",
+      "bytes": 8461,
+      "sha256": "c83cdb36d73384becfaa8280cbc7e119bd72af8ec55c50f0fcdb2eca03130351"
+    },
+    {
+      "path": "variants/reimu-exercise/taiso.gif",
+      "bytes": 6447019,
+      "sha256": "1cc356f89595f0b8b08310b1a59080ab8db3c649e8ce4befa451e1dc62834af6"
+    },
+    {
+      "path": "variants/reimu-exercise/texture.rgba",
+      "bytes": 65536,
+      "sha256": "e02f38a86f8298fb20ee84d43c32a1f6b5fe50cf1f25f9f4633dbd6ed5951ead"
+    },
+    {
+      "path": "variants/reimu-exercise/verification.json",
+      "bytes": 1149,
+      "sha256": "818db171e0a87b58dd9a22cd10f4b85d1323d9d0b6ad2ab4c88eaee6885c5fca"
+    },
+    {
+      "path": "variants/reimu-exercise/verify-blockbench.cjs",
+      "bytes": 4375,
+      "sha256": "537c5294e621eb62f42609672cf1bf9ca689763acc084920900ea7cb37ddba71"
+    },
+    {
+      "path": "variants/reimu-exercise/verify-motion.cjs",
+      "bytes": 5192,
+      "sha256": "128c6de3c2d450de3c5335b6a9a2d9f6097c95883cd816be8a83f1fe30e94093"
+    },
+    {
+      "path": "variants/reimu-exercise/verify.py",
+      "bytes": 5147,
+      "sha256": "55dc00f1b24f31455753b91c96a2e9a6277b538666deed94f6581ce552e4e415"
+    },
+    {
+      "path": "variants/reimu-exercise/viewer.html.template",
+      "bytes": 4093,
+      "sha256": "248bc93d0b3dbaf8efeae235c8bedc268c8f4fa71f1397b17672c0bcbd236674"
+    }
+  ]
+}

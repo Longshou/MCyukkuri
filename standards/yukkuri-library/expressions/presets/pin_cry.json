@@ -1,0 +1,51 @@
+{
+  "id": "pin_cry",
+  "label": "灰瞳哭喊",
+  "group": "特殊状态",
+  "recipe": {
+    "eyes": "pin",
+    "brows": "sad",
+    "mouth": "wail",
+    "tears": "flow",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+    "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+    "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本キリ泣きA顔グラベース",
+      "index": 0,
+      "sprite_id": 8002,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝キリ泣きA顔グラベース",
+      "index": 0,
+      "sprite_id": 7469,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N022",
+  "origin": "new",
+  "review_pair": null,
+  "review_decision": {
+    "status": "retained",
+    "note": "按要求保留原版，不替换。"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "sleepy",
+  "label": "困倦",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "sleepy"
+  },
+  "eye_left": "wink",
+  "parts": {
+    "face_eye_left": "expressions/parts/b5450aeb0586fccc3ec0.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_mouth": "expressions/parts/312577fa8d373c00b276.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+  },
+  "sources": [],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/sleepy.png",
+  "review_code": "O13",
+  "origin": "original",
+  "review_pair": "sleepy__new"
+}

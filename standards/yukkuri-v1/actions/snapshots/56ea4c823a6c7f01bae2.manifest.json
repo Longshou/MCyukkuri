@@ -1,0 +1,113 @@
+{
+  "action": "action.reimu.stem_birth.v1",
+  "files": {
+    "LIFECYCLE.md": {
+      "bytes": 7513,
+      "sha256": "c1357d03a16b122ce879cc67b9c751c678387837774ddd3cf4668683e1242a75"
+    },
+    "actions/reimu-stem-birth.json": {
+      "bytes": 798,
+      "sha256": "2cbbfedd6b26f801a66d4a7e524eda625f670e532a1f12134ee1d40d2faa2182"
+    },
+    "behaviors/stem-birth.json": {
+      "bytes": 1939,
+      "sha256": "ce9c3b7e720413bbbb1777970c28fcc5cb9f891083404d7bc79cccc4ac011e3c"
+    },
+    "build_lifecycle.py": {
+      "bytes": 4148,
+      "sha256": "7b169eec124760ddc282fa83a4cfc35792396c0020b8e3ec187c64d0d06fd8ec"
+    },
+    "characters/reimu.json": {
+      "bytes": 1343,
+      "sha256": "2b6ef7ae5c47210fe34c5786e66bd4a1f191168f8585f4d94f214e3772f35781"
+    },
+    "components/common/body.json": {
+      "bytes": 142501,
+      "sha256": "55dd83c897a78a0a697f55cb5a165cc6494e70194919e02477be8d79f1142fdf"
+    },
+    "components/common/rump.json": {
+      "bytes": 48020,
+      "sha256": "dab4524f43d7a907be9e019f8e23a0be90485b2aff8577fa5062d88a60ed8eb5"
+    },
+    "components/common/stem.json": {
+      "bytes": 2055,
+      "sha256": "240eb391f887e2ca3e2133997de37b1bd5e3518e1c30b420636cb418f688e8af"
+    },
+    "components/reimu/accessories.json": {
+      "bytes": 53795,
+      "sha256": "702bfe162f9f9f5101ce1e2576c2bd1e64c1ee080e6a9323482e930cba5fd917"
+    },
+    "components/reimu/face.json": {
+      "bytes": 15266,
+      "sha256": "d899550d2070f7fac293f4574d7ef66e7a9eb13de18384ac7c2f00aa1fc02b24"
+    },
+    "components/reimu/hair.json": {
+      "bytes": 38504,
+      "sha256": "70aa0fabd13475955eb6665e0c1fcac6e0f0f942e6a76208d94fd5e0fd8762d4"
+    },
+    "components/reimu/hand-left.json": {
+      "bytes": 10645,
+      "sha256": "ba63a98e8184051f896dc9a2eb5b058fc9915b1edbfa8d05ac5f2c7a9df5d4c4"
+    },
+    "components/reimu/hand-right.json": {
+      "bytes": 10633,
+      "sha256": "f135054396bdf6151ce018b96f3f7513a8de4be1386dc85c22ef41d9f45e2143"
+    },
+    "components/reimu/puff.json": {
+      "bytes": 32036,
+      "sha256": "168895330388492da4dd42a9eae9ae6f4f9d5862618b0dc2b84ce5bff9b9bf3e"
+    },
+    "expressions/reimu/sleep.json": {
+      "bytes": 780,
+      "sha256": "7601637b1b47424281949b7ad8503cf94bffb2e076dce2b45259597614349e9a"
+    },
+    "lifecycle/index.html": {
+      "bytes": 540891,
+      "sha256": "212bcdcf5ee9c32e7210c86f7fb937ab29f5739f79676359d6b0555eec4d2ace"
+    },
+    "lifecycle/source-provenance.json": {
+      "bytes": 2132,
+      "sha256": "82b2df30a47d61f7e77e3dc584444f0d9136ab8fc80de206737caba3c69cc54b"
+    },
+    "lifecycle/verification.json": {
+      "bytes": 829,
+      "sha256": "072a5cad5fcd79e4deea89e4f4553d8b6bb201aee5d74539792ed48d957f54d9"
+    },
+    "profiles/growth.json": {
+      "bytes": 1104,
+      "sha256": "cdaca701d5888597ba4805b6f7f0c33057d2074223a7471a5d89964f25aaf410"
+    },
+    "runtime/growth.js": {
+      "bytes": 1080,
+      "sha256": "1e59240806d5502957f6472938afc3440f3c8134170977e3109384089dd2fae7"
+    },
+    "runtime/lifecycle.template.html": {
+      "bytes": 13699,
+      "sha256": "c6d8c7c0ba214fe13559513423cd5f0f37f2365794679318b10f4822782dc0b5"
+    },
+    "runtime/render.js": {
+      "bytes": 2492,
+      "sha256": "7b2db39f97b50e587d5db4255d9af46024d9ba6ccf2fad1bab2155b7ea68ecc5"
+    },
+    "runtime/stem-birth.js": {
+      "bytes": 11008,
+      "sha256": "58764f7aa6f49ffb441db721664fcd555b4190c90cd06e2d010123415bc3dc99"
+    },
+    "snapshot_stem.py": {
+      "bytes": 2115,
+      "sha256": "dedb23772e502ea9db86309762930fa326f2d20f15516404cd8c6fd4bb016d0e"
+    },
+    "tests/lifecycle-browser.cjs": {
+      "bytes": 5105,
+      "sha256": "4ace87609e26201b9f50a66758d2d74daccf9f5ee5da10c559fc17584b4cb7a8"
+    },
+    "tests/lifecycle.cjs": {
+      "bytes": 5924,
+      "sha256": "bbf891e36cceead393d9d79687f3de65d3386460e2943e4bde812a00cc4b7902"
+    },
+    "textures/reimu/neutral.png": {
+      "bytes": 1462,
+      "sha256": "362e5844038f4b540abd479ab34351f1266075bc529bb21d209ecf33c20ba687"
+    }
+  }
+}

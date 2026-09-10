@@ -1,0 +1,9 @@
+{
+  "source": "Accepted v1 body/components; motion extraction from v1 recipes and original generator",
+  "source_sha256": {
+    "components\\common\\body.json": "55dd83c897a78a0a697f55cb5a165cc6494e70194919e02477be8d79f1142fdf",
+    "components\\common\\rump.json": "dab4524f43d7a907be9e019f8e23a0be90485b2aff8577fa5062d88a60ed8eb5",
+    "animations\\common\\press.json": "44190ee2278d968a1744a61d19846f8b73a159d9455839f035ddd1f059613e12"
+  },
+  "raw_game_art_in_package": false
+}

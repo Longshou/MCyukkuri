@@ -1,0 +1,263 @@
+{
+  "id": "marisa.hand-left",
+  "elements": [
+    {
+      "name": "side_lock_-1",
+      "type": "cube",
+      "from": [
+        -7.1,
+        2.12,
+        -3.515625
+      ],
+      "to": [
+        -5.9,
+        8.48,
+        -1.1
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16.0,
+            48.0,
+            32.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left"
+    },
+    {
+      "name": "side_tip_-1",
+      "type": "cube",
+      "from": [
+        -6.95,
+        0.954,
+        -3.1089844
+      ],
+      "to": [
+        -6.1,
+        3.18,
+        -0.9402344
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32.0,
+            48.0,
+            48.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left_tip"
+    },
+    {
+      "name": "side_ribbon_-1",
+      "type": "cube",
+      "from": [
+        -7.18,
+        2.544,
+        -3.6240625
+      ],
+      "to": [
+        -5.82,
+        3.286,
+        -1.2113281
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            112.0,
+            48.0,
+            128.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left_ribbon"
+    }
+  ],
+  "owned_bones": [
+    "hand_left",
+    "hand_left_ribbon",
+    "hand_left_tip"
+  ],
+  "attachment": "see skeleton attachments; independent hands are not bound to skin slices"
+}

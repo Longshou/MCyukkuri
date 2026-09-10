@@ -1,0 +1,20 @@
+{
+  "id": "house_yukkuri",
+  "label": "家油",
+  "classification": "indoor_commensal",
+  "pet": false,
+  "reproduction": "oviparous",
+  "component_scale": 0.24,
+  "design": "standard_bevelled_egg_house_v3",
+  "body_dimensions": [3.28, 3.95, 2.36],
+  "hatchling_scale_relative_to_house_adult": 0.32,
+  "species": ["marisa", "reimu"],
+  "expressions": ["neutral", "happy", "cry", "teary", "drool", "confused", "yawn", "sleep", "angry", "surprise", "sleepy"],
+  "motions": ["idle", "waddle", "flee"],
+  "nest_materials": ["cotton_lint", "dust"],
+  "food": ["crumbs"],
+  "demo_egg_count": 3,
+  "demo_duration_seconds": 18,
+  "design_note": "Scale, egg count, proportions, colors and seconds are art preview parameters, not canonical biological measurements.",
+  "reference": "REFERENCES.md"
+}

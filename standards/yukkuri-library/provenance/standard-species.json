@@ -1,0 +1,171 @@
+{
+  "base_character": "reimu",
+  "base_registration": "characters/reimu.json",
+  "date": "2026-09-11",
+  "shared_sources": {
+    "components/common/body.json": "f495034a32c3a72e9038178e8aab4dfc32a14bce5c70c7ab74e4a392de6fdd52",
+    "components/common/rump.json": "c4d42811f2c834091eacde7dc5e80ef6e0bf36b4639047d5a155cae571a8f05c",
+    "components/common/face.json": "8d4d0b3624d45b0d3359898f2b4e63b1e2cb750f4767a651a0c146163c10de2d",
+    "components/common/puff.json": "218d611eabd25cf68de4ab1b054bfe1601781a2e13c7de167691d8d195e38cb8",
+    "components/common/anatomy.json": "e242351e76a33d722eb48cd065cb13cd17f9247aa83c4965bd5c8de2b64c6253",
+    "rigs/reimu.json": "4b49206d0f078dbe914fcc174689fe94d2c9ee462528d5dc8b6b1ba2567ec539"
+  },
+  "new_characters": [
+    "chen",
+    "alice",
+    "patchouli"
+  ],
+  "source_game": "ゆっくり八景U v8.3",
+  "source_file": "sharedassets0.assets",
+  "scene_object": 76216,
+  "external_file_id": 2,
+  "fields": [
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7038
+    },
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8508
+    },
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7487
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7607
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8511
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 8369
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 6880
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 5358
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7376
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7038
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8094
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7337
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 8110
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 7882
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 8253
+    }
+  ],
+  "documentation": "STANDARD-SPECIES.md",
+  "original_pixels_in_distribution": false,
+  "three_dimensional_geometry": "Original project adaptation of observed two-dimensional appearance",
+  "chen_tail_source": "https://w.atwiki.jp/slowlove/pages/400.html",
+  "user_refinements": {
+    "chen_tail_roots": [
+      [
+        -0.48,
+        3.35,
+        8.25
+      ],
+      [
+        0.48,
+        3.35,
+        8.25
+      ]
+    ],
+    "chen_tail_position": "后侧中央、油菊上方",
+    "patchouli_bonnet_scale": [
+      1.12,
+      1.1,
+      1.12
+    ],
+    "hairstyles": {
+      "chen": "参差短发和尖发束",
+      "alice": "内收短发轮廓",
+      "patchouli": "齐刘海、长后发和分段束发"
+    },
+    "chen_ears": {
+      "shape": "使用与头发饰物一致的粗块面、斜生宽耳形、削平耳尖、浅色内耳",
+      "parent": "hair"
+    },
+    "chen_tails": {
+      "direction": "+Z, longitudinal behind body",
+      "max_center_x": 1.27,
+      "root_y": 3.35,
+      "tip_z": 19.255,
+      "length_multiplier_from_previous": 1.35,
+      "length_multiplier_from_first_longitudinal_tail": 1.55,
+      "white_terminal_segments": 2,
+      "white_tip_source": "用户本轮明确指定"
+    },
+    "patchouli_fringe": {
+      "sprite": 8511,
+      "shape": "中央宽发片、两侧斜下轮廓、少量深分缝；弧面厚度"
+    },
+    "patchouli_bonnet": "保留加大尺寸，收圆边角",
+    "patchouli_braids": {
+      "direction": "从太阳穴前弯，在脸侧向前垂地",
+      "tip_center_z": -6.70715,
+      "tip_minimum_y": 0.13,
+      "tip_shape": "松散纺锤形，颈部收窄，中下部膨大，末端五束散开",
+      "tip_width_max": 2.72,
+      "visual_reference_sprite": 5358
+    },
+    "patchouli_loose_hair": "刘海少量长短不齐的细发梢，两侧增加碎发"
+  }
+}

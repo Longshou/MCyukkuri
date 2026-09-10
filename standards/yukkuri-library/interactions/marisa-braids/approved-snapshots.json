@@ -1,0 +1,12 @@
+[
+  {
+    "action": "action.marisa.braid_interactions.v1",
+    "archive": "snapshots/156bec42878424fc95b3.zip",
+    "manifest": "snapshots/156bec42878424fc95b3.manifest.json",
+    "sha256": "b469ea54dd8fcdc7502d6a17696a53c670081e20ac02043e13ef63299642f40c",
+    "files": 30,
+    "verified": true,
+    "preview": "interactions/marisa-braids/index.html",
+    "rebuild": "python interactions/marisa-braids/build.py"
+  }
+]

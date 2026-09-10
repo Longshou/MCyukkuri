@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "action.reimu.viviparous_birth.v1",
+  "label": "标准灵梦 · 胎生复合动作",
+  "status": "user_approved_standard",
+  "approved_on": "2026-09-11",
+  "kind": "procedural_multi_entity_action",
+  "character": "characters/reimu.json",
+  "behavior": "behaviors/viviparous-birth.json",
+  "runtime": "runtime/viviparous-birth.js",
+  "preview": "viviparous/index.html",
+  "duration_seconds": 32,
+  "loop": false,
+  "composition": [
+    "Mother: lower-body pregnancy deformation, contractions and effort expression",
+    "Delivery outlet: continuous closed rim and inner wall below the front mouth",
+    "Offspring: 1–5 baby-stage newborns, local contact compression and release",
+    "Birth sequence: emergence, once-only birth event, landing, waking and maternal recovery"
+  ],
+  "constraints": ["Separate front delivery and rear reproductive-interaction anchors", "Rim follows the newborn contact section", "Existing skin and mamu crease texture colors", "No external fetal visibility before emergence"],
+  "minecraft_integration": false,
+  "snapshot_index": "actions/approved-snapshots.json"
+}

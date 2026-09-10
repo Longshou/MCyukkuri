@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "content_sha256": "eedf2140f51365b58856e0d16b0d604fedef99291fef823471da924535bdff19",
+  "files": [
+    {
+      "path": "variants/marisa-waddle/back.rgba",
+      "bytes": 1440000,
+      "sha256": "0e3b08d105d5929d456d309ff7b9011a234c09e2c807717591a5c649a12faf04"
+    },
+    {
+      "path": "variants/marisa-waddle/blockbench-import.png",
+      "bytes": 84205,
+      "sha256": "7956728dcfdf76cb0acc7023bccd9a44b99bcae64fb83389cec77e92ac161522"
+    },
+    {
+      "path": "variants/marisa-waddle/blockbench-verification.json",
+      "bytes": 13712,
+      "sha256": "81bcf67e95720b7433148d92b858567c6c2231d01afa8a016618b0d4430f10ed"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-back.png",
+      "bytes": 66356,
+      "sha256": "d6b43fd9930da1fffcdad2544fa31a32ad9eb991bc17939dd1e209abf23765d6"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-check.cjs",
+      "bytes": 2840,
+      "sha256": "f75b13d7da2e4508eee951e458812caf861ba18ab057e3da30535f9f60d6201e"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-front.png",
+      "bytes": 47256,
+      "sha256": "4ae8cc7b8f719e67d6a12f5fcc288bc60e85712b5f9790ac12a93aefc3e6ac6d"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-mobile.png",
+      "bytes": 39298,
+      "sha256": "e2f92009406da1dab04e0f21acec30b9eb0cc867e6abc7ca8bb6013fb83390e8"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-preview.png",
+      "bytes": 80540,
+      "sha256": "b0bbf7a3a5b29219cc4174e9200f4135bda99c803f5559494d73a00b8c63b770"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-quarter.png",
+      "bytes": 71637,
+      "sha256": "188587a5d5777292ad37bb5f5caa10d9fbfa008cd2d1bf42faab615af73228d7"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-side.png",
+      "bytes": 42768,
+      "sha256": "e96d41ca965c406d347296285a75ffd1a6c03a90b5571a03016cf1787a8197fa"
+    },
+    {
+      "path": "variants/marisa-waddle/browser-verification.json",
+      "bytes": 255,
+      "sha256": "4d245131de2eb67244e487b76bcb99e153a2062db46502421e65a8fd86f1542c"
+    },
+    {
+      "path": "variants/marisa-waddle/check-blockbench.cjs",
+      "bytes": 1602,
+      "sha256": "f2ad196415b02a463e108e1e559cfcaeeb1adb2ad420cd334107d6d287a0eadb"
+    },
+    {
+      "path": "variants/marisa-waddle/compare.py",
+      "bytes": 1057,
+      "sha256": "051060bdebfdc9c543c0f717fa014f9f34f85867fa6b930990bb5f80ca3ef46c"
+    },
+    {
+      "path": "variants/marisa-waddle/comparison.png",
+      "bytes": 31476,
+      "sha256": "6022b68cc34eaf8edaa367e62564f87a1a931423cc4182420540b06988e9e654"
+    },
+    {
+      "path": "variants/marisa-waddle/front.rgba",
+      "bytes": 1440000,
+      "sha256": "39a96c431fdac122d9dc0f3a27b20b40c66ef33065f9594656bdb26aec26902f"
+    },
+    {
+      "path": "variants/marisa-waddle/generate.py",
+      "bytes": 13955,
+      "sha256": "7d0cd4a46287114100d552992886d91ebf70b9116cff62eb3d5b79d91f40d95b"
+    },
+    {
+      "path": "variants/marisa-waddle/inspect-reference.py",
+      "bytes": 724,
+      "sha256": "d6f95b4c963609cf52d28873c67b2a968b75628434bb96cf58135aeab2408a1f"
+    },
+    {
+      "path": "variants/marisa-waddle/make-motion-preview.py",
+      "bytes": 1262,
+      "sha256": "c077a0ed40814e6f59c84d50f9f4252af1d6f08d7fa2ef8b3418aa6891baa022"
+    },
+    {
+      "path": "variants/marisa-waddle/marisa.animation.json",
+      "bytes": 33723,
+      "sha256": "054bb5cd0925ffdc9b58aa1146e1f1729c614be30483cb6f954d83b232f846f7"
+    },
+    {
+      "path": "variants/marisa-waddle/marisa.bbmodel",
+      "bytes": 211952,
+      "sha256": "44c694f6474fb36189a992ab533f6d294f2fbaa75e6e9c1f39b94a2d7a2a64a2"
+    },
+    {
+      "path": "variants/marisa-waddle/marisa.geo.json",
+      "bytes": 98174,
+      "sha256": "4b501c9b866a5b4a59439fbe41b480812d9f407e8aadf4257eeea5e96123909b"
+    },
+    {
+      "path": "variants/marisa-waddle/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-frames.json",
+      "bytes": 7298976,
+      "sha256": "89cb980158b8c870c7d2bfce4eccfdd2e7fdf10331672c94b08eb1ac18ab8515"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-0.rgba",
+      "bytes": 774400,
+      "sha256": "510ac4ef7c6ff6f1b422d5d8b3625c344887258686f8b7d8bda8ca506e7904eb"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-1.rgba",
+      "bytes": 774400,
+      "sha256": "42f6de6bd6cdb2d4d8b44763c6708ef4165256d95042f768d3fb5cc35e0fed91"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-10.rgba",
+      "bytes": 774400,
+      "sha256": "5b9b2fc6efce52fafb535052e43dd243f9e9293e5e726cbdec013fe27dd3bf42"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-11.rgba",
+      "bytes": 774400,
+      "sha256": "19439b940a121701306873fc50aa7475a1ba60f286fbf3fb8e50028fc9a9ded8"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-12.rgba",
+      "bytes": 774400,
+      "sha256": "ede854c1cd3442f81a0363d6ae0a3a11cb6b27247e2af90d2ff473ae8e288fcd"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-13.rgba",
+      "bytes": 774400,
+      "sha256": "005df70b31a58c163361a494880e9f7c3f3754ea0e18570c65d0b4ff3ec9fd9f"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-14.rgba",
+      "bytes": 774400,
+      "sha256": "a3d214a5aef90f76b54c3e33b4073abf6c0c114d4dc676946c64ee4ab263b0e0"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-15.rgba",
+      "bytes": 774400,
+      "sha256": "486b7627276411e724d640a0d178f28982e9b33795ff831f488a716c4a1c9651"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-16.rgba",
+      "bytes": 774400,
+      "sha256": "4011b7b45dffa145118ab59508b9850aba42e76b722c95b4f2f00e4e4c42dabd"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-17.rgba",
+      "bytes": 774400,
+      "sha256": "0a6c4b1c4febb7cb25160b6694d87495f90215b3243c309c9c3512680247b9a3"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-18.rgba",
+      "bytes": 774400,
+      "sha256": "2ddb7ab47d4381db7002265b6ed1519755369b4f4ae35bb82cf6a0eb513f691a"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-19.rgba",
+      "bytes": 774400,
+      "sha256": "4c3b58510ee3aee1869ef160839bb60b8320563207d6c4da16cc892bbbe37ebb"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-2.rgba",
+      "bytes": 774400,
+      "sha256": "1db1d28713d56ee47127c80874ba040a9d78fc53951e97c4b246455e3cbd3449"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-20.rgba",
+      "bytes": 774400,
+      "sha256": "eaed03520d362bd3094fae75f1b7bdbf28a68f8b660592495f805c16068ff013"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-21.rgba",
+      "bytes": 774400,
+      "sha256": "361d83916a2e7c82b1ac354f8ec4e40e66a934fa86de6f329f5817bf8be3a234"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-22.rgba",
+      "bytes": 774400,
+      "sha256": "dd476646f7ae816462e1bd8a02ea8539a413345eafb121201f0aad4f140bb628"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-23.rgba",
+      "bytes": 774400,
+      "sha256": "e870e8e3c511cabb64d83a92e3cf46cecf6bf1a5b0fdd10d9d634248af12d8e4"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-24.rgba",
+      "bytes": 774400,
+      "sha256": "fefb9724a019463a4bf0b257bb88526d32f90db78927c62b78444f84b46e8b19"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-25.rgba",
+      "bytes": 774400,
+      "sha256": "2bac563a6a2f272eca074cea243a5fee722c765a135d6784b4574d3b5fbf983a"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-26.rgba",
+      "bytes": 774400,
+      "sha256": "1c98800111e10e979d5d56ee1cf0b3dd23ec74445f7c05612e9583f5ce5db352"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-27.rgba",
+      "bytes": 774400,
+      "sha256": "27ca7d433aca1fb6787417e5f32e8ddd8da8483a42da07e5de5b7ddf3db9b80b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-28.rgba",
+      "bytes": 774400,
+      "sha256": "308f52e0896c59ff9d167a4c3c57f92fc198dbb29ed858f6129934bc97a9b1e0"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-29.rgba",
+      "bytes": 774400,
+      "sha256": "acdb27fe6ca9d0dd81641d1bdeb590422b24a52c5e9193f7fcbbeb695932fdf4"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-3.rgba",
+      "bytes": 774400,
+      "sha256": "88976be1bfb314502df1e3c5156d134949480f542302e2391004e66afd94377b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-30.rgba",
+      "bytes": 774400,
+      "sha256": "da539c732c3306341bc7f3cf522666834b921f5b1229397f9f92cc97b1df7902"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-31.rgba",
+      "bytes": 774400,
+      "sha256": "ac188b76dc96aa1f65f7c30bd40f7a4d72cedde3bd43f746e53d79df842ffcf2"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-4.rgba",
+      "bytes": 774400,
+      "sha256": "d7b55229220f50420f2cb89417253362e8f2ff48f6310d954be4db54a726188b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-5.rgba",
+      "bytes": 774400,
+      "sha256": "912a33b3d7c47e971c3582eb7c4d932b86328616439d007f88e31c42a276f7ad"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-6.rgba",
+      "bytes": 774400,
+      "sha256": "22852fdee7cec0f8d521d2913d8bf7a5dc6c4685bd3a35771f6d30c1659de740"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-7.rgba",
+      "bytes": 774400,
+      "sha256": "ccde237d0de440157a9f9d0abef169a9b7860af0c7ee0f5324aa5d7fc5d9e275"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-8.rgba",
+      "bytes": 774400,
+      "sha256": "b617121f70953caa0251298238435466729636011e0a96cbf046d07f8e8ac40b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-front-9.rgba",
+      "bytes": 774400,
+      "sha256": "c61f1dabc2653a3d7b4abb7e0b398bb3349b9406fa61377e1975d37ad6eb4d0e"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-0.rgba",
+      "bytes": 774400,
+      "sha256": "e321d5e10d65168daf7349363dd21baad43806aa9c3ca5b49376c3b5c25044ef"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-1.rgba",
+      "bytes": 774400,
+      "sha256": "21e486e697a964cd31041740743e086b33347f116ccc181b5bddc6fbcb491e6c"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-10.rgba",
+      "bytes": 774400,
+      "sha256": "bd0c6fcc2265e8c66c3e462e8fc5132a84a11e233d7f2f74bbacb5dcc517e39c"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-11.rgba",
+      "bytes": 774400,
+      "sha256": "1d99ad9235a68ed456fda4e322547c581bd647af005a5afe846dbae10e6bc84d"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-12.rgba",
+      "bytes": 774400,
+      "sha256": "357756398b31d2b95204ed8f9ad6378723d633ed0b14dfebc5e68d8c390b7795"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-13.rgba",
+      "bytes": 774400,
+      "sha256": "754fe82b6d991deba25837e84763154f7458e8590224cc63cf8ad6ff6e29d79f"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-14.rgba",
+      "bytes": 774400,
+      "sha256": "64324b595dc4b58f29ace81db99096be41ccfc2a2877cc4b61a30212145746ac"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-15.rgba",
+      "bytes": 774400,
+      "sha256": "ecef90535d100593ca6d15484efc2368c3b22d68d5d44258dff80ad0fd5cd385"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-16.rgba",
+      "bytes": 774400,
+      "sha256": "7d9674e005884d0b99264b289ee4007e5fd03d0018aa3dbc81cbc3ee1f647a90"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-17.rgba",
+      "bytes": 774400,
+      "sha256": "af603ceebcfca18f7d0c852442eb137997e8a4c96b4e3c315b52b24ea44a189b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-18.rgba",
+      "bytes": 774400,
+      "sha256": "106302634acb72fdc802a05d79271ed91317751032736629353a39ae001c795d"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-19.rgba",
+      "bytes": 774400,
+      "sha256": "f33e0b07d4e2e62a0a3a07830f58a3a1199ec93a33fe228a0a5ddc766bd3b84e"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-2.rgba",
+      "bytes": 774400,
+      "sha256": "eac711d1add6152984a7961dd55a274cc112d5e081f5e2360f4d963566893a25"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-20.rgba",
+      "bytes": 774400,
+      "sha256": "80e1f9a304f65829bbbd1a833750155ae9154ebf6d54cea1c69b61973bfbd48d"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-21.rgba",
+      "bytes": 774400,
+      "sha256": "e3bedb90cb0f1854bd4496162077bb083790a09ad33a0a51ca0bf35d14a538c1"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-22.rgba",
+      "bytes": 774400,
+      "sha256": "68517298d27b01eb03240cac72ca3650631703b0244503f5b756cac7f661f1ff"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-23.rgba",
+      "bytes": 774400,
+      "sha256": "ccfd37441e11a697948438ab6fb7a65de69fcf04dff57b0fc085fbd3a7cff3a3"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-24.rgba",
+      "bytes": 774400,
+      "sha256": "156d656d3d0e8ce605c056db4d0cb51d534acb2b11c21a047fb77e5adc8c79e0"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-25.rgba",
+      "bytes": 774400,
+      "sha256": "4c14873542f0d7eccdaca8824a4ff1d49289765732bcc86423f8617fd9ff2abf"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-26.rgba",
+      "bytes": 774400,
+      "sha256": "fdaa46c8dbc8fb1701739164a9efcbd432b70d012cc13e36e84a6702141f5689"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-27.rgba",
+      "bytes": 774400,
+      "sha256": "56b2815ac5483c86314a28ccadad318072eeb159624ff8e21333e313025385ec"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-28.rgba",
+      "bytes": 774400,
+      "sha256": "460e5d4485da0c4cfe83e1b10f23212dfd81429a3dc254e7543c689520ee3ca5"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-29.rgba",
+      "bytes": 774400,
+      "sha256": "168631a80389ac53d19a396ea4a5c7ab5dcc07f107489ede27a4cdeec5ccfd6b"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-3.rgba",
+      "bytes": 774400,
+      "sha256": "d4bddb9d610ca3d3693b2dd491cecddfd03abc84fa6a071c0ae69aa6c6231316"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-30.rgba",
+      "bytes": 774400,
+      "sha256": "79c4e853ba9cf4bda94be2bfe6807031203dca0a1099892d5afd8d39d8715f2a"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-31.rgba",
+      "bytes": 774400,
+      "sha256": "0dc20178af07ebb10fcbfe38787bf1d53f553316ab9152920aa4dc1b0949effa"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-4.rgba",
+      "bytes": 774400,
+      "sha256": "bfc6638c097b20978c475805ebfd37270d82f558d82d129710596b69130d5b81"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-5.rgba",
+      "bytes": 774400,
+      "sha256": "a7e54459675bf4f48ec038a87c1546c91ea1e89c8d9f1122aa90e3619989eb16"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-6.rgba",
+      "bytes": 774400,
+      "sha256": "ccc840a5d7132e6b782a1cb9dcb18ade23faff2c72fc4458a2eef6e4ba93c8bd"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-7.rgba",
+      "bytes": 774400,
+      "sha256": "6cbb6a7bc691e6d5a9e21a421bb8e47d676c78e1918a3ed76607e9653898a604"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-8.rgba",
+      "bytes": 774400,
+      "sha256": "ee1c32b7bcaf0992fbf2eb2c4bcd9c3ab3551501ebfb98199e2dd53b8f446447"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-rear-9.rgba",
+      "bytes": 774400,
+      "sha256": "e51abcc120103a489b08f5ab549940d1366d8a7003d606a34d4d259c045e1eb6"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-sheet.png",
+      "bytes": 90637,
+      "sha256": "167e30146abcd53aafe5eab8f4cdb4946874d9f801685c0cd3d3559036c74e4c"
+    },
+    {
+      "path": "variants/marisa-waddle/motion-verification.json",
+      "bytes": 413,
+      "sha256": "1881fe210852e1e313c0a0ac29e5a8ef58f6752c80655ed2f08913ca9119494d"
+    },
+    {
+      "path": "variants/marisa-waddle/motion.js",
+      "bytes": 1822,
+      "sha256": "29b402e28fd464b39a19e6c95205feafe5281b37785b460f9f798193199e14af"
+    },
+    {
+      "path": "variants/marisa-waddle/preview-motion.png",
+      "bytes": 31476,
+      "sha256": "6022b68cc34eaf8edaa367e62564f87a1a931423cc4182420540b06988e9e654"
+    },
+    {
+      "path": "variants/marisa-waddle/preview-sheet.png",
+      "bytes": 41230,
+      "sha256": "8bf436fdb84b158713c6db7aa0268fa55bb7592beabd453b5056cd832422f42d"
+    },
+    {
+      "path": "variants/marisa-waddle/preview.html",
+      "bytes": 106801,
+      "sha256": "d26fa0f3c814872c8d8a1f3a5b06ea0948c6f315720dd15beaf6ca41253faa01"
+    },
+    {
+      "path": "variants/marisa-waddle/preview.png",
+      "bytes": 14440,
+      "sha256": "864abb7f41a210c658a533ed82db773aebccd23a0c31c11a9a1f775950da707b"
+    },
+    {
+      "path": "variants/marisa-waddle/quarter.rgba",
+      "bytes": 1440000,
+      "sha256": "5d120474ecc355d4699c9e72ed8495d3f5906d6d22f69410661dd247f6a0022a"
+    },
+    {
+      "path": "variants/marisa-waddle/README.md",
+      "bytes": 4195,
+      "sha256": "85ffa6bf1d3f03834056486f161fc7e55b3a3944c4c74574029ec5a4bfc13bd5"
+    },
+    {
+      "path": "variants/marisa-waddle/render-motion.cjs",
+      "bytes": 602,
+      "sha256": "b20189e2238b1c4ee6a25e8773d2bd3d07f4b576a7f142d2c4d557ed9b12b33e"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 64802,
+      "sha256": "b97b612e2fb3b92de7c200765759e855b5e1bb8c8e0122c8c9ad445a668712df"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-waddle/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-waddle/rig.py",
+      "bytes": 4689,
+      "sha256": "4de014520c35fb815998a8a2d44999934831ef34a123f788e506db9429b41af5"
+    },
+    {
+      "path": "variants/marisa-waddle/side.rgba",
+      "bytes": 1440000,
+      "sha256": "6639a4ce0ca52f97e4f6b1e29ff1b02226736d0869829e9bc429db03679b860b"
+    },
+    {
+      "path": "variants/marisa-waddle/software-viewer.js",
+      "bytes": 6819,
+      "sha256": "c1931c578708be8a4de32ac2d37470c7e100958be648a76e549de040e5a44fbb"
+    },
+    {
+      "path": "variants/marisa-waddle/texture.rgba",
+      "bytes": 65536,
+      "sha256": "592ead6bdcc20237676638cd9c0b50536c0bfb91f5bdcec174914d4851d7efe7"
+    },
+    {
+      "path": "variants/marisa-waddle/verification.json",
+      "bytes": 1174,
+      "sha256": "622b569407702fdc83d37c37d612801ad449a4c54ff88d67c8e24382930fb2fa"
+    },
+    {
+      "path": "variants/marisa-waddle/verify-blockbench-pose.cjs",
+      "bytes": 1046,
+      "sha256": "921552c9ffedc973d6ccf73c98ec2deaea9bf3b43363c4c22bd57e129edf6c69"
+    },
+    {
+      "path": "variants/marisa-waddle/verify-motion.cjs",
+      "bytes": 2197,
+      "sha256": "903871478aaa0f33a39f7a5097112ff6715d1b00a8b1d87d8990d45f967394b6"
+    },
+    {
+      "path": "variants/marisa-waddle/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/marisa-waddle/verify.py",
+      "bytes": 3956,
+      "sha256": "00d7f96ccbc3e161b714ce77d44120b6d0dc24bb978c7e645f1ca5b029d4cc0b"
+    },
+    {
+      "path": "variants/marisa-waddle/viewer-render-check.png",
+      "bytes": 18127,
+      "sha256": "79f497bda7d31834247cb4cb39be46e0098abfeb66e6b892101c616366a3f996"
+    },
+    {
+      "path": "variants/marisa-waddle/viewer-template.html",
+      "bytes": 3276,
+      "sha256": "50792a9c12205acb04c94e71522ad132504af3b02a607689eba349263ef1743c"
+    },
+    {
+      "path": "variants/marisa-waddle/waddle-rig.json",
+      "bytes": 29343,
+      "sha256": "c48fed4725ecc1b670d4b24ec5e7d9af5c2e29065f1de7167ed1819767f53ed3"
+    },
+    {
+      "path": "variants/marisa-waddle/waddle.gif",
+      "bytes": 843681,
+      "sha256": "a6987f3d00fbcd9aa61368c681b46cc3b4a939b7dcfdc858b9aac617bb8150e6"
+    }
+  ]
+}

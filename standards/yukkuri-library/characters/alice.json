@@ -1,0 +1,31 @@
+{
+  "id": "alice",
+  "label": "爱丽丝",
+  "components": [
+    "components/common/body.json",
+    "components/common/rump.json",
+    "components/common/face.json",
+    "components/common/puff.json",
+    "components/common/anatomy.json",
+    "components/alice/hair.json",
+    "components/alice/hand-left.json",
+    "components/alice/hand-right.json",
+    "components/alice/accessories.json"
+  ],
+  "rig": "rigs/reimu.json",
+  "base_texture": "textures/alice/base.png",
+  "expression_binding": "bindings/alice.json",
+  "motion_catalog": "motions/index.json",
+  "expression_catalog": "expressions/index.json",
+  "rig_components": [
+    "components/common/anatomy-rig.json",
+    "components/alice/rig.json"
+  ],
+  "anatomy": "behaviors/anatomy.json",
+  "preview": {
+    "span": 12.8,
+    "centerY": 6.4,
+    "hand_label": "侧发"
+  },
+  "provenance": "provenance/standard-species.json"
+}

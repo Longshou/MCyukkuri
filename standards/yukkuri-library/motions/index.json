@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "base": {
+    "idle": "motions/base/idle.json",
+    "stretch_shape": "motions/base/stretch_shape.json",
+    "side_bend": "motions/base/side_bend.json",
+    "waddle": "motions/base/waddle.json",
+    "puff": "motions/base/puff.json",
+    "brace": "motions/base/brace.json",
+    "startle": "motions/base/startle.json",
+    "turn": "motions/base/turn.json",
+    "hop": "motions/base/hop.json"
+  },
+  "composite": {
+    "stretch": "motions/composite/stretch.json",
+    "exercise_vertical": "motions/composite/exercise_vertical.json",
+    "exercise_sides": "motions/composite/exercise_sides.json",
+    "press": "motions/composite/press.json",
+    "taiso": "motions/composite/taiso.json",
+    "flee": "motions/composite/flee.json"
+  },
+  "aliases": {
+    "walk": "waddle",
+    "effort": "press",
+    "full_exercise": "taiso"
+  },
+  "rules": [
+    "Compound motion files reference base motions and contain no baked tracks.",
+    "Face and accessory geometry are not stored in motion files.",
+    "Generated engine clips are build outputs only."
+  ]
+}

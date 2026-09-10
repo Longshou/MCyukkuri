@@ -1,0 +1,86 @@
+{
+  "name": "face_rest_right_blush",
+  "uuid": "043ef34f-f053-5121-a383-3e3f543d9abc",
+  "type": "cube",
+  "from": [
+    -5.5,
+    2.12,
+    -4.603
+  ],
+  "to": [
+    -2.5,
+    3.18,
+    -4.602
+  ],
+  "origin": [
+    0,
+    0.0,
+    0
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 0,
+  "faces": {
+    "north": {
+      "uv": [
+        108,
+        32,
+        120,
+        36
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        0,
+        24,
+        1,
+        25
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "face_rest_right_blush"
+}

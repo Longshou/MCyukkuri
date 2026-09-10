@@ -1,0 +1,129 @@
+{
+  "action": "action.reimu.viviparous_birth.v1",
+  "files": {
+    "LIFECYCLE.md": {
+      "bytes": 9773,
+      "sha256": "50d5f1d6774042e805d41f927e37888c9d796644339983e9d20a96aa85cf0b03"
+    },
+    "actions/reimu-viviparous-birth.json": {
+      "bytes": 1131,
+      "sha256": "ec24d76564cdf7423d5b0cbd88b9670d2558c9399ae8d0b3ce188ba27c4c9950"
+    },
+    "behaviors/viviparous-birth.json": {
+      "bytes": 1751,
+      "sha256": "c4fdf48f8d24ac51d76e8068c296542bfddfeb32cd56b895c0e36fbd142170a6"
+    },
+    "build_lifecycle.py": {
+      "bytes": 4148,
+      "sha256": "7b169eec124760ddc282fa83a4cfc35792396c0020b8e3ec187c64d0d06fd8ec"
+    },
+    "build_viviparous.py": {
+      "bytes": 4289,
+      "sha256": "f0908649aaa2d431a22effbd98c67c3cf82215e63c4bc325393153a8835b4c32"
+    },
+    "characters/reimu.json": {
+      "bytes": 1343,
+      "sha256": "2b6ef7ae5c47210fe34c5786e66bd4a1f191168f8585f4d94f214e3772f35781"
+    },
+    "components/common/body.json": {
+      "bytes": 142501,
+      "sha256": "55dd83c897a78a0a697f55cb5a165cc6494e70194919e02477be8d79f1142fdf"
+    },
+    "components/common/rump.json": {
+      "bytes": 48020,
+      "sha256": "dab4524f43d7a907be9e019f8e23a0be90485b2aff8577fa5062d88a60ed8eb5"
+    },
+    "components/reimu/accessories.json": {
+      "bytes": 53795,
+      "sha256": "702bfe162f9f9f5101ce1e2576c2bd1e64c1ee080e6a9323482e930cba5fd917"
+    },
+    "components/reimu/face.json": {
+      "bytes": 15266,
+      "sha256": "d899550d2070f7fac293f4574d7ef66e7a9eb13de18384ac7c2f00aa1fc02b24"
+    },
+    "components/reimu/hair.json": {
+      "bytes": 38504,
+      "sha256": "70aa0fabd13475955eb6665e0c1fcac6e0f0f942e6a76208d94fd5e0fd8762d4"
+    },
+    "components/reimu/hand-left.json": {
+      "bytes": 10645,
+      "sha256": "ba63a98e8184051f896dc9a2eb5b058fc9915b1edbfa8d05ac5f2c7a9df5d4c4"
+    },
+    "components/reimu/hand-right.json": {
+      "bytes": 10633,
+      "sha256": "f135054396bdf6151ce018b96f3f7513a8de4be1386dc85c22ef41d9f45e2143"
+    },
+    "components/reimu/puff.json": {
+      "bytes": 32036,
+      "sha256": "168895330388492da4dd42a9eae9ae6f4f9d5862618b0dc2b84ce5bff9b9bf3e"
+    },
+    "expressions/reimu/sleep.json": {
+      "bytes": 780,
+      "sha256": "7601637b1b47424281949b7ad8503cf94bffb2e076dce2b45259597614349e9a"
+    },
+    "profiles/growth.json": {
+      "bytes": 1104,
+      "sha256": "cdaca701d5888597ba4805b6f7f0c33057d2074223a7471a5d89964f25aaf410"
+    },
+    "references/viviparous-comics.md": {
+      "bytes": 5600,
+      "sha256": "822b4cabdfa2d9dae552b454724f192b27aeca28162f6f36c87f9ed62df59120"
+    },
+    "runtime/growth.js": {
+      "bytes": 1080,
+      "sha256": "1e59240806d5502957f6472938afc3440f3c8134170977e3109384089dd2fae7"
+    },
+    "runtime/render.js": {
+      "bytes": 2492,
+      "sha256": "7b2db39f97b50e587d5db4255d9af46024d9ba6ccf2fad1bab2155b7ea68ecc5"
+    },
+    "runtime/stem-birth.js": {
+      "bytes": 11008,
+      "sha256": "58764f7aa6f49ffb441db721664fcd555b4190c90cd06e2d010123415bc3dc99"
+    },
+    "runtime/viviparous-birth.js": {
+      "bytes": 14331,
+      "sha256": "deb2f7d02fd92b99659970a8c76def4eca03d974b1f52e9428bbe38f44b5b0a4"
+    },
+    "runtime/viviparous.template.html": {
+      "bytes": 11261,
+      "sha256": "eedfa86f8a125793372d3d8897c9b4c34994131bb3efa853da48bf82b14b222e"
+    },
+    "snapshot_viviparous.py": {
+      "bytes": 2457,
+      "sha256": "75d37a4a3d7640f3791467e7c3e041a96764c1bc7f156256d3b4dae857e0dc76"
+    },
+    "tests/viviparous-browser.cjs": {
+      "bytes": 4014,
+      "sha256": "a9f2c3b297ef90bbd054f54f414bbea8038daeff42b169224acff979d53d8d85"
+    },
+    "tests/viviparous-contact.cjs": {
+      "bytes": 3178,
+      "sha256": "c39c0d84a4d299c76bd418dd5ddd9f81c6b9971a106808d84f61c4133c955974"
+    },
+    "tests/viviparous.cjs": {
+      "bytes": 2881,
+      "sha256": "2fda2407fb2cd8d803f3c477bc7b93a9d515b2642ab320451fe68a39d1eca2aa"
+    },
+    "textures/reimu/neutral.png": {
+      "bytes": 1462,
+      "sha256": "362e5844038f4b540abd479ab34351f1266075bc529bb21d209ecf33c20ba687"
+    },
+    "viviparous/contact-closeup.png": {
+      "bytes": 139667,
+      "sha256": "af6377b330cd7d51e966c1843211aedafc5d5643b49717f5c3a5f3c9a9f732fa"
+    },
+    "viviparous/index.html": {
+      "bytes": 7626109,
+      "sha256": "498f48a5f83a4b31844a0993d50fa237cce142f83e8dad4b9cc812957ad4a26a"
+    },
+    "viviparous/source-provenance.json": {
+      "bytes": 2254,
+      "sha256": "da0e5873b40c459615fd50cb6fbd1b15916d53e3bbf1d0e7710c34e60dce57b1"
+    },
+    "viviparous/verification.json": {
+      "bytes": 629,
+      "sha256": "29cbbfb394ab8019a0d6e609f1ee65c87a486a7fd40530e88c3d482ec83f17a3"
+    }
+  }
+}

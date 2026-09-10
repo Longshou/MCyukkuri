@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "content_sha256": "c375911eea821876bb00fc747718f764a8284c57283717640051d290a6a1fcfe",
+  "files": [
+    {
+      "path": "variants/marisa-stretch-source/animation-rig.json",
+      "bytes": 6844567,
+      "sha256": "45183645a0cfdac6ae88482b207a1010bee5b67dbe316711060c25ff37e717e7"
+    },
+    {
+      "path": "variants/marisa-stretch-source/blockbench-stretch.png",
+      "bytes": 91413,
+      "sha256": "1b54dda0be553eca8a3dc5568cf948993121b354b32d1e984c5a57cab606c2b5"
+    },
+    {
+      "path": "variants/marisa-stretch-source/blockbench-verification.json",
+      "bytes": 562,
+      "sha256": "b3d4df87577cc864a96a8c63256160508466ae63c166f1069e8026a49dbcb1e4"
+    },
+    {
+      "path": "variants/marisa-stretch-source/browser-check.cjs",
+      "bytes": 2669,
+      "sha256": "c296833fc1815ac4b17d9c8d1be6c28264386d89f50f898f1650fb7995e70762"
+    },
+    {
+      "path": "variants/marisa-stretch-source/browser-mobile.png",
+      "bytes": 40545,
+      "sha256": "716ae1c89fb82064e6f95b25e930f4346d0c28daee32993091dcae754b469a98"
+    },
+    {
+      "path": "variants/marisa-stretch-source/browser-stretch.png",
+      "bytes": 68500,
+      "sha256": "b9a9ab27e03cbaf2409ab1487f109e5ed80f1d783808d853efc163cd21ed6d06"
+    },
+    {
+      "path": "variants/marisa-stretch-source/browser-verification.json",
+      "bytes": 328,
+      "sha256": "92c320b1bf6e7c619ecbfba751ee38f6a797e815b2995bd26a73d0b0c421fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/generate.py",
+      "bytes": 14967,
+      "sha256": "6e5c4924837d0379eaf0e6f6cc032f92fd0eccabdc07a01601d79c0cae755f01"
+    },
+    {
+      "path": "variants/marisa-stretch-source/make-previews.py",
+      "bytes": 1473,
+      "sha256": "b8fe68760e20ef20dba185a560b88e182b7bf8d98f135bb396871b481b95df61"
+    },
+    {
+      "path": "variants/marisa-stretch-source/marisa.animation.json",
+      "bytes": 3799959,
+      "sha256": "fc110dfc628db2f71e1eaaf305ffbac095a88e0779dacd70bbdcc5ebee9e4bde"
+    },
+    {
+      "path": "variants/marisa-stretch-source/marisa.bbmodel",
+      "bytes": 14486535,
+      "sha256": "d2a1188c4dc471525c7caa36f311b96c51ba9bf8493f30bb4afade008c91267b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/marisa.geo.json",
+      "bytes": 350336,
+      "sha256": "6982db34e9b8be7f8cb7de39bed491bda252ba32dd3d9d6fa99a882eba7ae572"
+    },
+    {
+      "path": "variants/marisa-stretch-source/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/motion-verification.json",
+      "bytes": 210,
+      "sha256": "c1aadab168586a44d67e105bcebef8bcbe96334fe31646613d23b94f9723035c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/motion.js",
+      "bytes": 2115,
+      "sha256": "cef0f6d32ec0e1bb9f2bbe593af50e3e66d3953f8c7a30f3e268e8853ae29246"
+    },
+    {
+      "path": "variants/marisa-stretch-source/preview-sheet.png",
+      "bytes": 40350,
+      "sha256": "a978e47f0c0a723bb7184109cbe7961bf700c88ef50a82d4501a124f946648a3"
+    },
+    {
+      "path": "variants/marisa-stretch-source/preview.html",
+      "bytes": 2174312,
+      "sha256": "49da33d671e129fbdab8b5d3c3bae6ad0ae4dc8a678031c3fec2c2c2ddf60af9"
+    },
+    {
+      "path": "variants/marisa-stretch-source/preview.png",
+      "bytes": 14512,
+      "sha256": "b65a678323e8c1cdb532bfb6c33f94210cdd2e643edb62d9e8f95f4eb5c69a5d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/README.md",
+      "bytes": 2218,
+      "sha256": "d659fff290ec3ed92e0f6c58a9f4539dbe5736eafab439e802e2e093fdc3ae64"
+    },
+    {
+      "path": "variants/marisa-stretch-source/render-stretch.cjs",
+      "bytes": 604,
+      "sha256": "58978fa198804b51f808028ed42b0e6b2f10af916c0d50f73cae5982ed19cbe3"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 214707,
+      "sha256": "81b7d8ed4b69bf9ce29ba1a384dd47cc3040484c115551d8f3cea54c6188e50c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-stretch-source/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-stretch-source/rig.py",
+      "bytes": 5954,
+      "sha256": "fafdb340504cefbe8f60b51364f064f11fca0622ccc636440fe45042a2d71bfa"
+    },
+    {
+      "path": "variants/marisa-stretch-source/software-viewer.js",
+      "bytes": 7587,
+      "sha256": "81defa95f1e8b417d63931e9aaadba5d0c7a99f415ab1716d1faf049bc53e933"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-0.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-1.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-10.rgba",
+      "bytes": 907200,
+      "sha256": "0d9381c6cf0a7041749c3b8d231d0d912504d96b96a4926a41b62e874613bd80"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-11.rgba",
+      "bytes": 907200,
+      "sha256": "12c003dea2fedbe994cfc490950d45f1f00b7b59a7af0993db7f9f4b9ca035e2"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-12.rgba",
+      "bytes": 907200,
+      "sha256": "c1e767743180235427c819300ff04bf412c255dbc60dcd617949e0a68cd37b09"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-13.rgba",
+      "bytes": 907200,
+      "sha256": "7b0836c1397a2dcfe8ea5411712050750a784d29cc259ffa4c1da63707125e3c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-14.rgba",
+      "bytes": 907200,
+      "sha256": "81daf0f4ec0a5e1f1ffa13baea540fb408e014c944f0722d5706ef5116e4258b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-15.rgba",
+      "bytes": 907200,
+      "sha256": "9029b5cd64d3d1ab22b0e64ae47fc32e039c1fda3f61fa2bdaff20c5eb4945b4"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-16.rgba",
+      "bytes": 907200,
+      "sha256": "01f9a33bda3bafe8d59289f547c2e554dd4de26c614a09a6461b03505d109d1b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-17.rgba",
+      "bytes": 907200,
+      "sha256": "7bba21c000a39fd3b91bb33337bfa6c14c2768f915464c2accff4a32627c8fb0"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-18.rgba",
+      "bytes": 907200,
+      "sha256": "3d55b31ef4605845d568db2cca1e221194c2c6a6f5c992ef780348492764924e"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-19.rgba",
+      "bytes": 907200,
+      "sha256": "251a945049e749591037218ee8d4642330fdb6eb92f49b692549a5ba2170ec2e"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-2.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-20.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-21.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-22.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-23.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-24.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-25.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-26.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-27.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-28.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-29.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-3.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-30.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-31.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-32.rgba",
+      "bytes": 907200,
+      "sha256": "4e3640d1b319f037f49fd1738ffdfb10e5f4d5a2e86450b9210e52ef9e5f2d1c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-33.rgba",
+      "bytes": 907200,
+      "sha256": "87b362fd94fcea8a4b973f39267961b4b37bd8844071ecd51041315e44876c61"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-34.rgba",
+      "bytes": 907200,
+      "sha256": "07e138b004c1da8bd5d9b248cd4b99fabc5f24d8d29e2540eb9f8de35b1743b8"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-35.rgba",
+      "bytes": 907200,
+      "sha256": "ba89496ffdca8acdc83f4bdd47ca8db1938e6752ee96db69276b0dc72c5e712f"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-36.rgba",
+      "bytes": 907200,
+      "sha256": "3c818d58edc46d1de84e7437e72010ab7388e51fcdd370a115b2c0c4541262ae"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-37.rgba",
+      "bytes": 907200,
+      "sha256": "15078528c62b5603fcdaf90898220781e198d5ff2c646bc0304eb5f799ac6661"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-38.rgba",
+      "bytes": 907200,
+      "sha256": "627e511090af4d10ece95125a36c40b62bd5effdb89744478d67329a296ec399"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-39.rgba",
+      "bytes": 907200,
+      "sha256": "d2963d5cc47c7c02a75cc8b4380e3af5c5786f40bada4cac91f77dd1c90791cf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-4.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-40.rgba",
+      "bytes": 907200,
+      "sha256": "fdc8fde362897e007983f59cc1a6b2f0c5907b6d9f71a36ca98f91b3c27dca3b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-41.rgba",
+      "bytes": 907200,
+      "sha256": "0aad2c68a30041f59ba22d5c42a36b50055ef751e0e667cbb9c7d47690f69ec9"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-42.rgba",
+      "bytes": 907200,
+      "sha256": "02e563b283878bcb27e3beb8b859c4857fc941e6f919b25ef3302e8591cf986d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-43.rgba",
+      "bytes": 907200,
+      "sha256": "04d5945525a0533f01cf7dae9889cc96b56faec3d0dfd3d8e35bcb1b77413d30"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-44.rgba",
+      "bytes": 907200,
+      "sha256": "dd4c6148a1cfc6637f0bb11d7352ac9e6bcfd25889e20d20efc8ffdffc0b9372"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-45.rgba",
+      "bytes": 907200,
+      "sha256": "6bc694255aeaf9d321de03e1c0f84d00a08442d11f42d86d4e7104f78600acbe"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-46.rgba",
+      "bytes": 907200,
+      "sha256": "be2741271f2e3ea42d322eb01735106849141c33e47b4e24fe9f372cecd6d60e"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-47.rgba",
+      "bytes": 907200,
+      "sha256": "21edbde69e86055e61c439f6d3e7aa2ff70fa4376b5c6eafcb594bc48bf4f770"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-48.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-49.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-5.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-50.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-51.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-52.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-53.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-54.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-55.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-6.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-7.rgba",
+      "bytes": 907200,
+      "sha256": "0561341010f43a6e233f4bd3fddf0cac378b568ff578b9f42534f2f0b2bb6a9f"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-8.rgba",
+      "bytes": 907200,
+      "sha256": "d42f3c1ad9e4386fe3e153dc59b7496793b271ee533e4197c53e0dd110dbd68d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-front-9.rgba",
+      "bytes": 907200,
+      "sha256": "5b9b4a75a1df24728fd99b4c78b9ad254074179216b7329a3ca1ea6ae74a24ad"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-maximum.png",
+      "bytes": 28529,
+      "sha256": "ced7155b826239d904828de8dba6b079340a8bdf412eca01ecf182642ca320b7"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-0.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-1.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-10.rgba",
+      "bytes": 907200,
+      "sha256": "5ff22c2f99f0439f6e0dbf8c31c37bd3ee68ae424bb339a091cdb7bbce3cfb34"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-11.rgba",
+      "bytes": 907200,
+      "sha256": "5de6816f3f10907c3acd9b0d88688b54aa2f8962dc9941f5c20088b6e79a111d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-12.rgba",
+      "bytes": 907200,
+      "sha256": "c9378c28c718867c1b7c77677b4f57adc88a7dd4e910cb0108b0648eb37b1000"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-13.rgba",
+      "bytes": 907200,
+      "sha256": "551c972627f5271f7a503df48ade532dede60927775d74d32bc01098a4043c45"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-14.rgba",
+      "bytes": 907200,
+      "sha256": "e930e12f8ab4deaec1d01334aed344b89d5c31314afe890624817ccb6304d851"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-15.rgba",
+      "bytes": 907200,
+      "sha256": "60a5cd779a42ffd8b16042d4e5ea2a0d0eafe32c1ee481a9d12de5aa5ff7f5e2"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-16.rgba",
+      "bytes": 907200,
+      "sha256": "c74163d0fc251fe10129b860073e41b1090c61ef297d9baf1ecd832acd2544b6"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-17.rgba",
+      "bytes": 907200,
+      "sha256": "54bd10eb9e6499df5cdf11aa6ca776c44cea8edc70c0c5a15b7fc7136973455c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-18.rgba",
+      "bytes": 907200,
+      "sha256": "c4c47808a0fdb7af2284f859dcf55332b2e57280b86bea483d5252424a40fb7d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-19.rgba",
+      "bytes": 907200,
+      "sha256": "394fc8443d4c21ad94e8f62d5733738e83ab7bc1298a8a28260bc797c569cdfd"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-2.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-20.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-21.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-22.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-23.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-24.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-25.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-26.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-27.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-28.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-29.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-3.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-30.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-31.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-32.rgba",
+      "bytes": 907200,
+      "sha256": "057f2090d0a947e4488942e46c56edb210d39b65fd6a67642220d9ef1d4b995b"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-33.rgba",
+      "bytes": 907200,
+      "sha256": "df8639f9ec02b913f2253d62b1a7b2590321301fc2f1d9839b1308fe1ddeb59f"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-34.rgba",
+      "bytes": 907200,
+      "sha256": "2c8eec574bb3ba28fbfb46cdc6c37886c31e89d894a298ef68ce5b58a4519002"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-35.rgba",
+      "bytes": 907200,
+      "sha256": "61048626086d254c7987d18df87203d18855bc654a2ccb7f6ab0c3886711d9e6"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-36.rgba",
+      "bytes": 907200,
+      "sha256": "c38a13f6cef44c986c1f274da861b2e85aa3181ad46231d174d0e0b73df02804"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-37.rgba",
+      "bytes": 907200,
+      "sha256": "6658617ea675fceb0ca32bc20bf79d78ceb309fdff6b7a43a390c4de0295e43d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-38.rgba",
+      "bytes": 907200,
+      "sha256": "bff3dff17310ebabad540299034c1c64f87e79cb33ed65d03caf50b33e7cb204"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-39.rgba",
+      "bytes": 907200,
+      "sha256": "bf31a50c7b45eae1c8fca6645de46f1cf3c3e0d47e21312f9ab81183f7291091"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-4.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-40.rgba",
+      "bytes": 907200,
+      "sha256": "66c0ccf64862bdba6cfcc66c257bb68ff4baaf516b52a9a58e99424dc3c6ee29"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-41.rgba",
+      "bytes": 907200,
+      "sha256": "741e5b42436549abe7dcaddf1a06c731a1ce9ca3bcf0a1a84f205cf52fbb8131"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-42.rgba",
+      "bytes": 907200,
+      "sha256": "47ddb8f7217ba88809c4f8b6f65256d1e7f524ceeaffd3d95b926f2b3f3b20f6"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-43.rgba",
+      "bytes": 907200,
+      "sha256": "0230864e19380141c4983d96ab513c064245ddc55bd27d07e4b16e7bdb4e6dfb"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-44.rgba",
+      "bytes": 907200,
+      "sha256": "7538baf4cebde06240fecc11d67f198cddb71256817ddb96a400884ac7004ff6"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-45.rgba",
+      "bytes": 907200,
+      "sha256": "4a3d0dc60c6dbe766514cafb963cca2a233d4ee12b08c03a4c7131cd1d150a8a"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-46.rgba",
+      "bytes": 907200,
+      "sha256": "d9a1813b92464f9ad46f9f393d6a49f534ce998fd7be49b3b057f392e32d9eb2"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-47.rgba",
+      "bytes": 907200,
+      "sha256": "9d614ff72b1fafcdbfb23163baa7c5915e9bce33b98f58f61ca2315254ec3c7d"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-48.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-49.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-5.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-50.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-51.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-52.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-53.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-54.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-55.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-6.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-7.rgba",
+      "bytes": 907200,
+      "sha256": "9e85e9bee82fc614d975d025a8179e945f8d723cdee012b13c16e74645cb0714"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-8.rgba",
+      "bytes": 907200,
+      "sha256": "08e9c4129df174277a30efe73c32fd2de3126681de66e03b551ecd97a4ca7885"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-quarter-9.rgba",
+      "bytes": 907200,
+      "sha256": "f0842f679e3aa44dfb2a6d15a05f09364e83229ca877654740911be18338773f"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch-sheet.png",
+      "bytes": 25518,
+      "sha256": "0044c14117f47a87443722e719b7b0f21cdf7a97c550ee7ec5b76712c044dd98"
+    },
+    {
+      "path": "variants/marisa-stretch-source/stretch.gif",
+      "bytes": 801426,
+      "sha256": "ef347e9863b9fa0ffea767388a5067525128bd694e2b9912dd577035497a398c"
+    },
+    {
+      "path": "variants/marisa-stretch-source/texture.rgba",
+      "bytes": 65536,
+      "sha256": "592ead6bdcc20237676638cd9c0b50536c0bfb91f5bdcec174914d4851d7efe7"
+    },
+    {
+      "path": "variants/marisa-stretch-source/verify-blockbench.cjs",
+      "bytes": 3300,
+      "sha256": "545c23bef75bedf2e0e77da93d763078c98e92c52601a3940cf143457063ea57"
+    },
+    {
+      "path": "variants/marisa-stretch-source/verify-motion.cjs",
+      "bytes": 2259,
+      "sha256": "658ddb7033035fdeafdd8292ec885d68b27eeee4363a08e734996e0d55b5e1a6"
+    },
+    {
+      "path": "variants/marisa-stretch-source/viewer-template.html",
+      "bytes": 3427,
+      "sha256": "000859c2a2d6c74f89b7b964794d0f3f11ba4cf2d1901b3ca5f112562af7da11"
+    }
+  ]
+}

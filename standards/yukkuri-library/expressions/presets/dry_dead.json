@@ -1,0 +1,40 @@
+{
+  "id": "dry_dead",
+  "label": "干枯失神",
+  "group": "特殊状态",
+  "recipe": {
+    "eyes": "dry",
+    "brows": "worried",
+    "mouth": "dry",
+    "tears": "none",
+    "blush": "none",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/66ea3e051de1433bb95b.png",
+    "face_brow_left": "expressions/parts/ea48519afc490db1dc57.png",
+    "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/66ea3e051de1433bb95b.png",
+    "face_brow_right": "expressions/parts/d8eadf3d7987b660aeb5.png",
+    "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/1d047e66cab8e7c56400.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "干物死顔グラベース",
+      "index": 0,
+      "sprite_id": 7055,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N044",
+  "origin": "new",
+  "review_pair": null
+}

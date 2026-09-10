@@ -1,0 +1,1481 @@
+{
+  "schema_version": 1,
+  "content_sha256": "c3d0d8a1848bee9dcd98b16dd8ea477d26e7e0f798c885a07aae7faa5242227f",
+  "files": [
+    {
+      "path": "variants/marisa-exercise/animation-rig.json",
+      "bytes": 21517204,
+      "sha256": "173f13e4d0c1164803fb10972a057bb560c83782d2d241c338610b3940924471"
+    },
+    {
+      "path": "variants/marisa-exercise/blockbench-exercise.png",
+      "bytes": 101619,
+      "sha256": "242cbce41375a0a91767f9414d2218a0c2f389ff9c88774c93668956902014be"
+    },
+    {
+      "path": "variants/marisa-exercise/blockbench-stretch.png",
+      "bytes": 101563,
+      "sha256": "5ee8261a529ea00fca6cfb3d59fc95981da63dcea317ed403413db9c705cff82"
+    },
+    {
+      "path": "variants/marisa-exercise/blockbench-verification.json",
+      "bytes": 4270,
+      "sha256": "34d6d21c864ed26e9b8a29f390cabfec4fa4fd16e2c66f117cd43fa01828064f"
+    },
+    {
+      "path": "variants/marisa-exercise/browser-check.cjs",
+      "bytes": 2589,
+      "sha256": "393e07b58aed9a875f579f5cbd7f3763c68cec8716a3293dc9e26ceaa1614b23"
+    },
+    {
+      "path": "variants/marisa-exercise/browser-exercise.png",
+      "bytes": 109549,
+      "sha256": "c7e0da1e70e179ce494ff1c45ce10dd988007e41cd8d6b28987d7ca9c4b0b84b"
+    },
+    {
+      "path": "variants/marisa-exercise/browser-mobile.png",
+      "bytes": 47257,
+      "sha256": "c0cc7e8badf682d45b06908cf11b2c5e19524c573d7d1d27ccdf3c2266ef0616"
+    },
+    {
+      "path": "variants/marisa-exercise/browser-performance.json",
+      "bytes": 137,
+      "sha256": "eb132c58705777e1b004f3145f2cfa72eb0ce20d8b9ca9707700dfcc7ef35b93"
+    },
+    {
+      "path": "variants/marisa-exercise/browser-verification.json",
+      "bytes": 275,
+      "sha256": "ad56f0918d1bbf46cfdf58287831ae94bedbc603eb232ffb9f290aaeaa3e0e18"
+    },
+    {
+      "path": "variants/marisa-exercise/check-editor-time.cjs",
+      "bytes": 768,
+      "sha256": "b5472b91b9981945e6953c8c56d45edd23ff1d961b2f3cb205d49f16817c1135"
+    },
+    {
+      "path": "variants/marisa-exercise/check-performance.cjs",
+      "bytes": 1194,
+      "sha256": "846d1151b902bea9f0e94ecbb8d926e6a1d936d61e84674b32446927d586da4f"
+    },
+    {
+      "path": "variants/marisa-exercise/check-pose.cjs",
+      "bytes": 912,
+      "sha256": "360a3bab4a5998fb3e34c7090eb56b82f43fc5d4f5cd6a0ca06533c5666f9852"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise-comparison.gif",
+      "bytes": 6629126,
+      "sha256": "689f50d46607e46c3c3db8df216b9c5651342a1a43a402fb4b205399b401ceac"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise-sheet.png",
+      "bytes": 46033,
+      "sha256": "1bee94f53313f84767f906db1ed225e0b60804111a18c7e8905f91466c74debc"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-0.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-1.rgba",
+      "bytes": 1206400,
+      "sha256": "d4d2bc9a1c095a4ffea1955ab3da8ca52c2b51a2a7a7b25080143143adf713d1"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-10.rgba",
+      "bytes": 1206400,
+      "sha256": "dc4072b6049e075dd87b437910062b04fa38a266980c1e6b59c379a8580a526e"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-100.rgba",
+      "bytes": 1206400,
+      "sha256": "17fc666e48f94e5c2721bc7a091f73aacd366ae12d01352b54f68a97630d9444"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-101.rgba",
+      "bytes": 1206400,
+      "sha256": "f739639abf7e9087f1e7869d622ab63481f1dc1c39c1f9d1591b7d53b17c27b0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-102.rgba",
+      "bytes": 1206400,
+      "sha256": "8cec58554d9117854b1f572765402771de9b6cac945a2ca3c09cb1b2dfa5d401"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-103.rgba",
+      "bytes": 1206400,
+      "sha256": "2310efb501ce40155cd8aedf818b4cb6f90ffa16f025310ab71250ab3570828c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-104.rgba",
+      "bytes": 1206400,
+      "sha256": "af03edf3dcc8627d087259494f3ea716df52bec5b6734a04e800fc163087987a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-105.rgba",
+      "bytes": 1206400,
+      "sha256": "d2822dda18c1bfdd9f8a3ebd0e7974b7f2ef70aed96c4893c68c8d4fac08b342"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-106.rgba",
+      "bytes": 1206400,
+      "sha256": "86ef908f89c8b91c73ced12e578d9ab43ae1be127ad769230fa7bfba11b34cfd"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-107.rgba",
+      "bytes": 1206400,
+      "sha256": "d53a6ce6b15b0a64ba954f801ca863b51e70d87aa01dd6c31f2073a923e9f565"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-108.rgba",
+      "bytes": 1206400,
+      "sha256": "7bd3d1eb0b6712771fda49d3b4d234aaa6ba0cdcf52ce80de3becbc286ce174f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-109.rgba",
+      "bytes": 1206400,
+      "sha256": "79a4ed174ab06b638b79e85cd1c354f65c77a8e6ce09e080bdd7cf397a7efc1c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-11.rgba",
+      "bytes": 1206400,
+      "sha256": "68aaf6f1a27c688592ef25d225793d44089cbcbfcffe3801b670c99018dd5b60"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-110.rgba",
+      "bytes": 1206400,
+      "sha256": "5667ce53fecf6c19065c0eb6f7ecaeee48c226fa8720705ce85e6f70b64ad0f7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-111.rgba",
+      "bytes": 1206400,
+      "sha256": "901f66eaecf518b59c406061c823d1bb72c02129c9155aa6195d3dbdf46200ec"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-112.rgba",
+      "bytes": 1206400,
+      "sha256": "e77d5d06ae223db68dbc0e37e11bae3a0fddfa06b8a6e90f14fe9c3cfbc490e6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-113.rgba",
+      "bytes": 1206400,
+      "sha256": "6e80d0beaf9a4ac9cc8f5e178a9495a626b7deedd9ce575db95aa80646a21c18"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-114.rgba",
+      "bytes": 1206400,
+      "sha256": "a8c79324a711ffbbd62e788de84e48af0d5791615487d6c526410ddf258dab56"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-115.rgba",
+      "bytes": 1206400,
+      "sha256": "9d98754fb5f246aa787e35fce9e7977539a5b8d7d1d30d5ed506da1d18107cc4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-116.rgba",
+      "bytes": 1206400,
+      "sha256": "28ee3edbae5e1a5e58a395afe32c3b2b97e17bb53ceeae3c2d8a36b8f537beaf"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-117.rgba",
+      "bytes": 1206400,
+      "sha256": "f57e2e3413c05b9137b4adb1f97a34486d756c949ea014b4daa545ca6576e68c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-12.rgba",
+      "bytes": 1206400,
+      "sha256": "f26805632792453494d7c3a65e3d1d072ff194dc64872e8a5c734c0f331246a5"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-13.rgba",
+      "bytes": 1206400,
+      "sha256": "9e168ad8260101c51d01b59f4009483d0cbe98b04156ee4a76ccc0ee3ef77250"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-14.rgba",
+      "bytes": 1206400,
+      "sha256": "bc3b439273922fe040ccd9f5aa6287711d552e596cd183889c20c466dc52e367"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-15.rgba",
+      "bytes": 1206400,
+      "sha256": "cebbe24df122234a26b881e4bfa7f643e824cce328854ff19b2ebcf1be78af00"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-16.rgba",
+      "bytes": 1206400,
+      "sha256": "0c9d291e929e547b54eb8ead6707995106654137ac9c59a9f1f90656fd8c787c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-17.rgba",
+      "bytes": 1206400,
+      "sha256": "e470da08e982819b6fb6d1e764bcdcfa4456ac448380d2d619e526c901e95bd4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-18.rgba",
+      "bytes": 1206400,
+      "sha256": "afa8eb4f7f0d4311f742e4102845662b8b095756ecf1e5bc2e5870d34333c8be"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-19.rgba",
+      "bytes": 1206400,
+      "sha256": "1bb8721dc29f1ba13c331ec6d39c8708093dd92cb2cdb9a80192d7baf35a31f0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-2.rgba",
+      "bytes": 1206400,
+      "sha256": "174a5c98c23f60571ab49a22c261277ec174a84c78025b9474242bd647c53199"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-20.rgba",
+      "bytes": 1206400,
+      "sha256": "1ce153c50caaf9b92440283eed1d82f991ffd9308562606080423f6474bc8b4a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-21.rgba",
+      "bytes": 1206400,
+      "sha256": "237f21152a52e4bafadc8eb84898d793072f11a8d9b6633cf518daa040cb0fc3"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-22.rgba",
+      "bytes": 1206400,
+      "sha256": "a00ce3670b73e2ed4f1dbfbc12b3b9f89dd605fd0133272c005f161d5af8992f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-23.rgba",
+      "bytes": 1206400,
+      "sha256": "d53af8f2f3d69f7e5519b56860473b7350ea0c736cae8921cf891b47896222da"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-24.rgba",
+      "bytes": 1206400,
+      "sha256": "5ec7a3fc65aa100a069ded8128d0f140c7331b9ed4f352da934a418b055a514e"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-25.rgba",
+      "bytes": 1206400,
+      "sha256": "5aeeb0d6c971c751f0d5dfb53f7523f7666ef527cf10e47661dd34fdb237c8c9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-26.rgba",
+      "bytes": 1206400,
+      "sha256": "0cdf805ceb973ef87c3cd93698ad7a80366f8eb2047ee81c808b9ace73bb3d55"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-27.rgba",
+      "bytes": 1206400,
+      "sha256": "73af48207f7c209ac76589bf409db661dc193030530e8318898a3662d4c31937"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-28.rgba",
+      "bytes": 1206400,
+      "sha256": "2b0518836e31c8332e5e98d76b7707fe08898675ea0d0492c32bd100350400ef"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-29.rgba",
+      "bytes": 1206400,
+      "sha256": "8618d31134c4ae7643b510d4ee71c85e6ba120116927ae5ad37a3ceca08f0f36"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-3.rgba",
+      "bytes": 1206400,
+      "sha256": "2929b50eb33fc7fbdc61ce85a3294622506471f5f13b512d56577f4422ea110f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-30.rgba",
+      "bytes": 1206400,
+      "sha256": "a6dea037f9c606a418a513dd2a238069e23afa7f6b23cdc537316c56fc34d13c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-31.rgba",
+      "bytes": 1206400,
+      "sha256": "8618d31134c4ae7643b510d4ee71c85e6ba120116927ae5ad37a3ceca08f0f36"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-32.rgba",
+      "bytes": 1206400,
+      "sha256": "2b0518836e31c8332e5e98d76b7707fe08898675ea0d0492c32bd100350400ef"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-33.rgba",
+      "bytes": 1206400,
+      "sha256": "73af48207f7c209ac76589bf409db661dc193030530e8318898a3662d4c31937"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-34.rgba",
+      "bytes": 1206400,
+      "sha256": "0cdf805ceb973ef87c3cd93698ad7a80366f8eb2047ee81c808b9ace73bb3d55"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-35.rgba",
+      "bytes": 1206400,
+      "sha256": "5aeeb0d6c971c751f0d5dfb53f7523f7666ef527cf10e47661dd34fdb237c8c9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-36.rgba",
+      "bytes": 1206400,
+      "sha256": "5ec7a3fc65aa100a069ded8128d0f140c7331b9ed4f352da934a418b055a514e"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-37.rgba",
+      "bytes": 1206400,
+      "sha256": "d53af8f2f3d69f7e5519b56860473b7350ea0c736cae8921cf891b47896222da"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-38.rgba",
+      "bytes": 1206400,
+      "sha256": "a00ce3670b73e2ed4f1dbfbc12b3b9f89dd605fd0133272c005f161d5af8992f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-39.rgba",
+      "bytes": 1206400,
+      "sha256": "237f21152a52e4bafadc8eb84898d793072f11a8d9b6633cf518daa040cb0fc3"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-4.rgba",
+      "bytes": 1206400,
+      "sha256": "3d151976a2b696423c96128e3e78b8b4e5a034f0e088fa8d60c962eeadc4993f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-40.rgba",
+      "bytes": 1206400,
+      "sha256": "1ce153c50caaf9b92440283eed1d82f991ffd9308562606080423f6474bc8b4a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-41.rgba",
+      "bytes": 1206400,
+      "sha256": "1bb8721dc29f1ba13c331ec6d39c8708093dd92cb2cdb9a80192d7baf35a31f0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-42.rgba",
+      "bytes": 1206400,
+      "sha256": "afa8eb4f7f0d4311f742e4102845662b8b095756ecf1e5bc2e5870d34333c8be"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-43.rgba",
+      "bytes": 1206400,
+      "sha256": "e470da08e982819b6fb6d1e764bcdcfa4456ac448380d2d619e526c901e95bd4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-44.rgba",
+      "bytes": 1206400,
+      "sha256": "0c9d291e929e547b54eb8ead6707995106654137ac9c59a9f1f90656fd8c787c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-45.rgba",
+      "bytes": 1206400,
+      "sha256": "cebbe24df122234a26b881e4bfa7f643e824cce328854ff19b2ebcf1be78af00"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-46.rgba",
+      "bytes": 1206400,
+      "sha256": "c8bf70e90c4e45296e81da5805f3f9bade19535e45428cbf0de5ac7b0365330c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-47.rgba",
+      "bytes": 1206400,
+      "sha256": "fe5b1b6f1d8360c910f74cc8a92958e516703b02e176d194f755a754ed88e665"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-48.rgba",
+      "bytes": 1206400,
+      "sha256": "83ac9b729f2aa8edf8d8e019e7d9b93f3d08b0d2e0d5aa7eb27d0bea7e9489c4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-49.rgba",
+      "bytes": 1206400,
+      "sha256": "5ba9559301c21b54b7e6477a8afe9a3dbb2ed93c0f1b343e4a100514b91e4a64"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-5.rgba",
+      "bytes": 1206400,
+      "sha256": "01509180a26d4970498519a99ff69e904d1d05326b15870c2e348391a2c21721"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-50.rgba",
+      "bytes": 1206400,
+      "sha256": "05f889830dc2086c8057e1ed572efaac4464b973378312f31d337bd81df00bc0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-51.rgba",
+      "bytes": 1206400,
+      "sha256": "71136ce323c978cd77fd3cdae6e0eaa4e2511ac199b0078c66f09dbfb8dac959"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-52.rgba",
+      "bytes": 1206400,
+      "sha256": "947d48ac069d385c1786ac9f5483c982ae0167e7afabc3cd4b63d43c3df3e639"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-53.rgba",
+      "bytes": 1206400,
+      "sha256": "6de39a68b25e8a8ed49eac1e0ca77017aa998fb54af7df4242396074cda5de93"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-54.rgba",
+      "bytes": 1206400,
+      "sha256": "5adee1c940e9a78df95c1d7a7c9de3730708dda4ca99001f06df85c3f1371854"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-55.rgba",
+      "bytes": 1206400,
+      "sha256": "ae99f0a51b99447c99537ce962591f3175d0c9b237f7d181ab22fb4e852844a7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-56.rgba",
+      "bytes": 1206400,
+      "sha256": "a92913282ca9d845f8dbcaa57adee62d740587ce23e5533dbee1abd3c4ed29b4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-57.rgba",
+      "bytes": 1206400,
+      "sha256": "00b637ae3cbfb610808d036963113a4cebdc40457ff309653c661bfb6750d3a6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-58.rgba",
+      "bytes": 1206400,
+      "sha256": "abd806219c0c214112bd139c1cd6027fab74ef4651c4c234a8077c1131178a02"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-59.rgba",
+      "bytes": 1206400,
+      "sha256": "b04bca8d251c217b93ecbbdb8fc238c8a225f725160cd26af13affddef1e87fd"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-6.rgba",
+      "bytes": 1206400,
+      "sha256": "cc2d2a1236c0e6bd532a278e7ca05d616777f9b2417e13ce0991204058bcff25"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-60.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-61.rgba",
+      "bytes": 1206400,
+      "sha256": "e43496dec18d2fcbbc39a6749569236f73345bac70bf44254b0b3019a6c27176"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-62.rgba",
+      "bytes": 1206400,
+      "sha256": "a15ed7b3eb39c2da338a859a2a1753edd4252f6e3388c659588727b325598507"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-63.rgba",
+      "bytes": 1206400,
+      "sha256": "685d0900902643d88420e2e8d2711fe5d63b454fc4bc1b2a4692b72b54cc6a57"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-64.rgba",
+      "bytes": 1206400,
+      "sha256": "4e7e8525c7a13596abcfcb86b0a50ee87665d3e4840534ba8a70568e9bebdcd6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-65.rgba",
+      "bytes": 1206400,
+      "sha256": "d875fcd8ddde4243830f50c1ca69a3a0d299b18d28041dec19d8d4b15ebab2cc"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-66.rgba",
+      "bytes": 1206400,
+      "sha256": "c05ae212883ade8bdb2210371dd26b2f96aa4fe8213a6c545bf70bd522a55c8c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-67.rgba",
+      "bytes": 1206400,
+      "sha256": "52e964800fad20da6438f094314cbdc485a84dcc9b9b40b35628bbafe0a55ab0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-68.rgba",
+      "bytes": 1206400,
+      "sha256": "1ee397165610fdf164c55e0fca8f01450736ddff1be940fa40167603bb9af738"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-69.rgba",
+      "bytes": 1206400,
+      "sha256": "ac27fe448d53e4f924440d1da5622006a3c38995661dca317fcc264edf838cf1"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-7.rgba",
+      "bytes": 1206400,
+      "sha256": "89523133b76f8ae91e984a9f24fe80badc98c49673cd360fdb56af8bbf017e85"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-70.rgba",
+      "bytes": 1206400,
+      "sha256": "df7294652b1ce8f4840a9ed646272c7f38daa9b6c620fa58513629f4f90f6b72"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-71.rgba",
+      "bytes": 1206400,
+      "sha256": "c045157c192288766fdcfc2e0ac721b42dc3737d6f4dab519cc6819b9ff236b9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-72.rgba",
+      "bytes": 1206400,
+      "sha256": "ff35aa7e26120b823c6082d0422edd56ecbe21f6286342ae80bd2707570ab4eb"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-73.rgba",
+      "bytes": 1206400,
+      "sha256": "4af283e245001313f2cb96900354376a838bed50680d9ef7b9acd835ad010884"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-74.rgba",
+      "bytes": 1206400,
+      "sha256": "491a073ca330167e7f1749be27023852f1ca4339c300bfed595519c691d0db0c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-75.rgba",
+      "bytes": 1206400,
+      "sha256": "d2822dda18c1bfdd9f8a3ebd0e7974b7f2ef70aed96c4893c68c8d4fac08b342"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-76.rgba",
+      "bytes": 1206400,
+      "sha256": "d90251239f199cd10a182f9d86b4a0c718d9be946ac719f274d3eb3552d9e143"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-77.rgba",
+      "bytes": 1206400,
+      "sha256": "bcdab2ab65016d9bd307f94a322bded39f1d518ccc67b5c48454ec057fd29426"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-78.rgba",
+      "bytes": 1206400,
+      "sha256": "af1065e568bc7cd9e59c081edc8eaac7e9f578b1d7c8b22e2132f4de2314a4a9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-79.rgba",
+      "bytes": 1206400,
+      "sha256": "194132ea691caf701d05c253366384ae202d667b98d95b98720ec83881dce3b3"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-8.rgba",
+      "bytes": 1206400,
+      "sha256": "fbad67dde41eca4af5af8875c1dd329dc60aa36cd3f84a68fb9e965c4958304a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-80.rgba",
+      "bytes": 1206400,
+      "sha256": "9af4b53cb6c009cb2676cd18759addf14ac2511135609d27e4d42b0530cb7cd0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-81.rgba",
+      "bytes": 1206400,
+      "sha256": "0d1230167aa093bb221b5eb7e1ecbe51253c86a2e73bd2e6662331b8155a296e"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-82.rgba",
+      "bytes": 1206400,
+      "sha256": "daa12ed470a2dcac943fbeb65cb33f442906c92b1cdff17ab0b4a3b0553cd7dd"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-83.rgba",
+      "bytes": 1206400,
+      "sha256": "8cf9f613ee9d2ae49ef115876b29f5ae56d37a97bac0907ffedbc04e19237944"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-84.rgba",
+      "bytes": 1206400,
+      "sha256": "2e9a1f2b87057775dda155826d3dcbc802ada115b348302b1d8ccea2d69ecd49"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-85.rgba",
+      "bytes": 1206400,
+      "sha256": "709478f9f1072cb9e007be1e06693efdac3b9a0a38483c7ac32f4c96d0abb01d"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-86.rgba",
+      "bytes": 1206400,
+      "sha256": "7af504e3fde263deb58b75835e1a9976e58e9ef58c34af5884c78dccb1b19bca"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-87.rgba",
+      "bytes": 1206400,
+      "sha256": "96a4c123d148c518c78d1b1d941b8a2a3f47bde661c1d9cf41ac4ac938e69016"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-88.rgba",
+      "bytes": 1206400,
+      "sha256": "a60b1b143206a9bca6095d0eca271fb85c365a7f80a4229a382021dc8f14b41e"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-89.rgba",
+      "bytes": 1206400,
+      "sha256": "1a2bba9e7af063a5c12b26b41186963e9f94bbeb3ca973637da4425ea0a11362"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-9.rgba",
+      "bytes": 1206400,
+      "sha256": "b90a574530a00d57b6444bd6b595a896cbd1c5cc449a10e23f54a22ae8dc4ec9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-90.rgba",
+      "bytes": 1206400,
+      "sha256": "165454c25a73104040ce02c1141613f9175d7212ed73db28cd88927ecc591c84"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-91.rgba",
+      "bytes": 1206400,
+      "sha256": "1fd96f59abbf95690fd1f6864dbb7912efdfd73d4946cd8a2b9e264d10edf3c0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-92.rgba",
+      "bytes": 1206400,
+      "sha256": "1fa9630fe22450d851dc15efda7a15a89fe6f8c2d85c30733f7ba5bbe5c4ef0b"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-93.rgba",
+      "bytes": 1206400,
+      "sha256": "2bd138cb38400a97c296dd4069452ab693592a15193f89cd796ca6da66d0fcb7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-94.rgba",
+      "bytes": 1206400,
+      "sha256": "5d9d4da48df8f547d1373d75ab53361ae2e77f81a28c9d195f7d032896d5b178"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-95.rgba",
+      "bytes": 1206400,
+      "sha256": "09a140d6c706265e7b02408150beae2e926f50487a2a9fdb531c8933923bcfd6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-96.rgba",
+      "bytes": 1206400,
+      "sha256": "0a8106889e036abc928ef4e62165cf30e1b067aaa2a55e0ea14b952a90ea3ef4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-97.rgba",
+      "bytes": 1206400,
+      "sha256": "fe885231d84deff8101c41bc333d3847f1a57835ffe8cbc2da272e6377df7670"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-98.rgba",
+      "bytes": 1206400,
+      "sha256": "d48391ee8a11e2461b7f4e9467caa635ad953212bc323e049d840ca428a0714c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides-99.rgba",
+      "bytes": 1206400,
+      "sha256": "a1bdc646872a0fa5639a301dabdb39daee7781df981df88a0495b2a25d967770"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_sides.gif",
+      "bytes": 1697414,
+      "sha256": "89b8bba025b0421eab731b9a524c723056f0f5edcbbf7e7f02ffd29256396ef7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-0.rgba",
+      "bytes": 1206400,
+      "sha256": "97d820efdc28947d152af06df5816aea31b534c19fd62ae6aa0a5ecf383de606"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-1.rgba",
+      "bytes": 1206400,
+      "sha256": "7449dfd9ebf5c38c897353688b662212cb1f8eb1d227d056c2c79918ef4ab3ed"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-10.rgba",
+      "bytes": 1206400,
+      "sha256": "005210c637f1c462cf13981980e2ab3f2975c3fe0ad35868df2ba372c963106b"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-100.rgba",
+      "bytes": 1206400,
+      "sha256": "934c7f84755074b3f03632cf184a6c251da0c33f6298e66c688916b895f79fec"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-101.rgba",
+      "bytes": 1206400,
+      "sha256": "d35437432b8b44210256ce9c40c0ce511b081450aa26bcaf0f81be363e5a6db5"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-102.rgba",
+      "bytes": 1206400,
+      "sha256": "d0b0074f17fad0f38efd5666224878693d16fb1fb66f6c30714b56aeb9be26ae"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-103.rgba",
+      "bytes": 1206400,
+      "sha256": "6955e898a76abf0a021e91d286240dbf155f9a99b62b89b709aec0f25b0252a3"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-104.rgba",
+      "bytes": 1206400,
+      "sha256": "f4f1cb5d86a75e10d00c2f08c896675ded7b5e53c7b6e717ad76fa090637cc25"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-105.rgba",
+      "bytes": 1206400,
+      "sha256": "a79fd839551b17b7903f214e27a79edb576cb1868eee9524fba4410973d59fe5"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-106.rgba",
+      "bytes": 1206400,
+      "sha256": "49691827297030f30ad261e905fe3fe6bf81ed0eaa2c96a668d6924a25113d62"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-107.rgba",
+      "bytes": 1206400,
+      "sha256": "86356ef71f5eb3417c218c40434233a9dc35e3be0814bc86edcf7b0f82f55fc1"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-108.rgba",
+      "bytes": 1206400,
+      "sha256": "a2cc79301cd5ee9757f86023840d86dabc6083e69259cf1c7887e89bb15c7280"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-109.rgba",
+      "bytes": 1206400,
+      "sha256": "a1bb00fb45e191e691595af0aea950717b2337d574d79d2996a5f7f73febb7ae"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-11.rgba",
+      "bytes": 1206400,
+      "sha256": "70d17e84ee812b6b5c25603a7139b71335331c5799ee47e9d8aa58fe0530835c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-110.rgba",
+      "bytes": 1206400,
+      "sha256": "26ccef0efc1e7a47998d48b7cf8b7c33a9220e917820a9b2d6797a6815188cfa"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-111.rgba",
+      "bytes": 1206400,
+      "sha256": "4897391377f6b89477c681dafe70db492669e599de328372882fb2a4c2bc7072"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-112.rgba",
+      "bytes": 1206400,
+      "sha256": "fa93636ccf948b1b9bab722fce7eef6e94167f3b35b23f4be866d2f227c6ce43"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-113.rgba",
+      "bytes": 1206400,
+      "sha256": "cbaf781663f37c285484f152ef0f0dc5e3c2111523ce89c332885e19989ebad7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-114.rgba",
+      "bytes": 1206400,
+      "sha256": "a5d7cea75e9aacc50fd92ab8a332f21c62d77b41c65240897626c8aa3e1a20fd"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-115.rgba",
+      "bytes": 1206400,
+      "sha256": "e7ef997e83b46dc85ff7ed70c19fc57ee428ba7835320f2763f49585ab6e68a9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-116.rgba",
+      "bytes": 1206400,
+      "sha256": "e3cd1e4d59ad0e142e8cd7c941d6909860c6223c78f13d85d50aec56051eda71"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-117.rgba",
+      "bytes": 1206400,
+      "sha256": "e0eda58a5bf7f42f3dfd03ba791e4f587ea6a10e08031db1153704127f8670d0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-118.rgba",
+      "bytes": 1206400,
+      "sha256": "0b9461af380818dbc902cdb2eb316edc9463f33dd37e3cdace9c2540ff9cc5a5"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-119.rgba",
+      "bytes": 1206400,
+      "sha256": "fcc662f6c73bdd2cac9a72d82e5aaa3525e7d7f88d0ff379a101a2e527172cd6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-12.rgba",
+      "bytes": 1206400,
+      "sha256": "ae6a84f3d072138aaba9d05a3cd4f3c43d4de342328e68d2b23161d3ca06bf83"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-120.rgba",
+      "bytes": 1206400,
+      "sha256": "60ead3d760e7a6f2ca99b8deb92c869594839b01eacfff5d71d5cb68f276fded"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-121.rgba",
+      "bytes": 1206400,
+      "sha256": "31fef58eeb341b49fb9984d96bfee1ad986618e6665e09e9f226b3cf5f9919e6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-122.rgba",
+      "bytes": 1206400,
+      "sha256": "9ec9f3728e0de4561dcab5b8ffd5ec85052d24bbec333823e686c9f2cf8e6973"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-123.rgba",
+      "bytes": 1206400,
+      "sha256": "67791aa6ae1ff7ef80c89e8f2a53917f8954d233da11c67e52c190930cf44582"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-124.rgba",
+      "bytes": 1206400,
+      "sha256": "588da9daed5bc75994905cc57dc5d7b57085a96ae8141474dba8bbc5d97a13c6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-125.rgba",
+      "bytes": 1206400,
+      "sha256": "fb71c388afe4582acfbfa3058559500a32d75a49585729b69502400e0443aa0f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-126.rgba",
+      "bytes": 1206400,
+      "sha256": "c4d567a9220f531a67a2ad8df8ff23f02501c47a74757628cc728c6604bbc71f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-127.rgba",
+      "bytes": 1206400,
+      "sha256": "e167491c464386f64db3bbce9d8716def1491c7de235a673ed34b2f4d8c5d962"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-128.rgba",
+      "bytes": 1206400,
+      "sha256": "8ed5c177407380e4d01f68fe20d47e829302ad0ce680202abfc3665ee938c55f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-129.rgba",
+      "bytes": 1206400,
+      "sha256": "5ecb3b8c85d6878ab3364551fdbd8c5dac47a35eff4d5c8c8c5d33b4889f296b"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-13.rgba",
+      "bytes": 1206400,
+      "sha256": "1891f616703cf9df2514a02c4597002863e56befd77a570bb01d29ecdd0beefe"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-130.rgba",
+      "bytes": 1206400,
+      "sha256": "24ccded1876f6fa6fdfa19075be02d630e700042aeb5725d9d0ed246b270ab7a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-14.rgba",
+      "bytes": 1206400,
+      "sha256": "a2920a53c1abfcaa696447e6a6b0b57579f8df2ba4802ab3667d707408e2ffd7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-15.rgba",
+      "bytes": 1206400,
+      "sha256": "f8df14a9561b036679500c0e81b654834e3a2e48dc06d25f72e657bd265aa3c6"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-16.rgba",
+      "bytes": 1206400,
+      "sha256": "68007080e2ca2f7223fcd5cd987a1fb5af11db43ff986016ea53df6ecb3b9392"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-17.rgba",
+      "bytes": 1206400,
+      "sha256": "80016d9939bb01137678d45ac3f1122282bc860750865af4499a3c8e3a9c71e9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-18.rgba",
+      "bytes": 1206400,
+      "sha256": "ca6e381bc438b7dcbfb8bc528551fc79dfb09b777344c8a2f850aaee1b251933"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-19.rgba",
+      "bytes": 1206400,
+      "sha256": "2946dcb468ce523f68497d57038b926ac7f20d66a08061b9320860fc51378eff"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-2.rgba",
+      "bytes": 1206400,
+      "sha256": "346bf132ce4d5578b3e136ccadb522d46e88638fabf6b35deb0a3968ffaa2c4b"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-20.rgba",
+      "bytes": 1206400,
+      "sha256": "6b476b5fffe4082da250efe503fd33493896a57e2e6df5fe928463d29516df4b"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-21.rgba",
+      "bytes": 1206400,
+      "sha256": "044f808ce199028d3fc06fa73504a039edb5a722bb632f3b9a16cb228f21bc1a"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-22.rgba",
+      "bytes": 1206400,
+      "sha256": "144313da95fa621eb3613a94e238c8a3b898cca9e10e1b522eb66809c4a06991"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-23.rgba",
+      "bytes": 1206400,
+      "sha256": "17f47ef56f523d98426f54bd6622d781646f3573b9d80ac74b12ca1055656fcf"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-24.rgba",
+      "bytes": 1206400,
+      "sha256": "5a92f273c09df423212ea3f5dc7d6311c96a9bfffcbe9eb34a359dcd8cb054f2"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-25.rgba",
+      "bytes": 1206400,
+      "sha256": "f4bd2bd7e7750d4d79c30769e2fa4c45c035df0573308281c56b13c3fdbdb0e9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-26.rgba",
+      "bytes": 1206400,
+      "sha256": "80ee5ca8f224208932dcd6518641ed48cbe98806034aee48c1664adfd21879e3"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-27.rgba",
+      "bytes": 1206400,
+      "sha256": "e4a6a6aad03ee331563167c1e1e7ce8d34677a680444dff293cded3e634fceaf"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-28.rgba",
+      "bytes": 1206400,
+      "sha256": "0ebf786d5d18173568006584585bc4380b7cd6fac98dacaf7cc47cf926f2ae1f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-29.rgba",
+      "bytes": 1206400,
+      "sha256": "8e8a499eb85df54215607e6f9debcabfb522816bad19875a9ff0edb9395e3376"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-3.rgba",
+      "bytes": 1206400,
+      "sha256": "ec149dba14f060533a101fd45b577632306b5effbe413ba6c17b51d425626ad1"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-30.rgba",
+      "bytes": 1206400,
+      "sha256": "69aace12a58387fce3bd26742973342c3ea0677d5dff8a248842a75c20390af0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-31.rgba",
+      "bytes": 1206400,
+      "sha256": "72b4d2c934f57c7604071740c8955362f11a2c15b9c3f1ffaefdc96f126bff51"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-32.rgba",
+      "bytes": 1206400,
+      "sha256": "698f18c1ed8c77d9dcb8fe9640a712844b45143780317b35d1db86262bde00f4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-33.rgba",
+      "bytes": 1206400,
+      "sha256": "fb7885f6f5a728fdba111cd7aa92deed800c8c023ef0bbe650d68f83f5a69092"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-34.rgba",
+      "bytes": 1206400,
+      "sha256": "f2ef7f0a891214252960d31bbd2ef3903253b6a33c9323d2a027cf1cd6046003"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-35.rgba",
+      "bytes": 1206400,
+      "sha256": "5a5b00d7ab29a7c80dfb3eb0de51753f38c78907fb8fd6bffe1fb3d42e66076f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-36.rgba",
+      "bytes": 1206400,
+      "sha256": "34b18c5fc6a1e55da0ac59a850378ea8f600d9e69621d3ac368bffcee06eba24"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-37.rgba",
+      "bytes": 1206400,
+      "sha256": "0be4ec59516e2ac346b480d128c743d9a4590839e9216101af43d8843e7fbecc"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-38.rgba",
+      "bytes": 1206400,
+      "sha256": "45f235a632f4bcd7416954a7ee16316b6631d3684fee9967b249ccd67c637975"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-39.rgba",
+      "bytes": 1206400,
+      "sha256": "c29ad2cc91c1d666912e039fd9e9c2b31226a42c68c3daa6a40e09c765f116d8"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-4.rgba",
+      "bytes": 1206400,
+      "sha256": "bd7d52b2d425bfa6dc6e691a6c2667adfa9f642400d9de6e46cc79204a776f9f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-40.rgba",
+      "bytes": 1206400,
+      "sha256": "7f30ca3e0150c0d01dd19636736ed82d946c20b77babab1651228720ee6c1327"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-41.rgba",
+      "bytes": 1206400,
+      "sha256": "2942be1fdf940b686118f234f17e888e1ea99f67985c003d1f089ee0f866d7e0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-42.rgba",
+      "bytes": 1206400,
+      "sha256": "883d951d4f7606029fad06f54a1b9ef11e0e02a1d41b39d31a2e8498c6a931ec"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-43.rgba",
+      "bytes": 1206400,
+      "sha256": "5dc240ce6338775fe5a9b3bd93ac56b83feef1dc0d4aac4ec6d18e1656ea927d"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-44.rgba",
+      "bytes": 1206400,
+      "sha256": "b1928e77cf258bd022970dbad5eafb150c3bf94a04cdea2fd1bfb3fbe89749ab"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-45.rgba",
+      "bytes": 1206400,
+      "sha256": "13a0dfea3cac6a837e2424881428b6177fa5c6c12b5a9e33328b1124036e9fa7"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-46.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-47.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-48.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-49.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-5.rgba",
+      "bytes": 1206400,
+      "sha256": "942c85cc5a9a2b6cc0b7757b9beb315c5c3559e726b60b629bc0ee1193913b6f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-50.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-51.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-52.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-53.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-54.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-55.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-56.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-57.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-58.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-59.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-6.rgba",
+      "bytes": 1206400,
+      "sha256": "e0e581d839c2affc34665e59dfa657b307fdad7bdcecf2434d14677f5234f262"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-60.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-61.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-62.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-63.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-64.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-65.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-66.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-67.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-68.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-69.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-7.rgba",
+      "bytes": 1206400,
+      "sha256": "6d56a53a216eef9d82d5c03de75da6a201cf63826bc6e80929717b71fccb84ba"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-70.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-71.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-72.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-73.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-74.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-75.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-76.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-77.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-78.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-79.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-8.rgba",
+      "bytes": 1206400,
+      "sha256": "dbfb321be25363e09634f2e6e9024282b57955c3439b8e9e54317385ccfcdf81"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-80.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-81.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-82.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-83.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-84.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-85.rgba",
+      "bytes": 1206400,
+      "sha256": "206a70ce3d32147ceae956e6c3590447996d3c38731d76fcab60c4b4a68569f9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-86.rgba",
+      "bytes": 1206400,
+      "sha256": "f2150053ac1c13896e474cdf3d1601058fab6eba2e1056043c00b808b4c72bcb"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-87.rgba",
+      "bytes": 1206400,
+      "sha256": "2f975ee62bf675203665605bda58e05a224d455b9823f217879eb25ef90553d9"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-88.rgba",
+      "bytes": 1206400,
+      "sha256": "cb789556293e36c8dddbdf50f2268d3e7d8aba5c16adec97d66c4ed32d00fc2f"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-89.rgba",
+      "bytes": 1206400,
+      "sha256": "aebd036651930264a45e46f1b0c8f26259fa0a684fe750b1c3f41d3492aff804"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-9.rgba",
+      "bytes": 1206400,
+      "sha256": "ce41dc8765c2ee0d7d9a7018838fd61564c91ed8eb28063b4c3e920b4b3474b0"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-90.rgba",
+      "bytes": 1206400,
+      "sha256": "e529150e6f7b1963192d29c16ebc8cc638bb9d281d576d1ffe97a71e6ce42afd"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-91.rgba",
+      "bytes": 1206400,
+      "sha256": "46a32b070df3aa14b47cc349db9575cf4e2d53ac8618b2ee832fbb4024bfeda4"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-92.rgba",
+      "bytes": 1206400,
+      "sha256": "8c8a2e4a36b3ab455b5c01da19d6cad02e13b038c14bfcfb3afd8a8155de03d2"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-93.rgba",
+      "bytes": 1206400,
+      "sha256": "bca4558b81091cb329a06eb0b24b60c8b4bb77258e2389c01599799283469436"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-94.rgba",
+      "bytes": 1206400,
+      "sha256": "21ea521bc0ec16d80df62353f0201664fd22922cba63adaec2e3505f1e52b4b1"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-95.rgba",
+      "bytes": 1206400,
+      "sha256": "17a6a4e2d41e1c5806e6559ea6d66310f845f44eaf58562754efa3cbbcf05e8c"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-96.rgba",
+      "bytes": 1206400,
+      "sha256": "f135add83ec5bb8c29623980b46d3681de5f7471fdc6da91a3edbcf5b3c53d37"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-97.rgba",
+      "bytes": 1206400,
+      "sha256": "5fe73eea989f91049ba06df12bc60921f2d2351b91215106c8029bcc05fef5e5"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-98.rgba",
+      "bytes": 1206400,
+      "sha256": "810d832d1a08a8d35b4b4f21e135985e3e07221ea4a63ddd65b9ced1ce1aa588"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical-99.rgba",
+      "bytes": 1206400,
+      "sha256": "8d2b67c943a689a1fd881d23a7ad5f73060605619d47622b219162c79408f2de"
+    },
+    {
+      "path": "variants/marisa-exercise/exercise_vertical.gif",
+      "bytes": 1172223,
+      "sha256": "ea0fce6c352055fdf75c7a104b88b868cb072ab540faae3e5cc832830b77a26d"
+    },
+    {
+      "path": "variants/marisa-exercise/generate.py",
+      "bytes": 14968,
+      "sha256": "972e8d0416cc93957c6ae64e029482b35f462950b94ccc78ad698beb55178f70"
+    },
+    {
+      "path": "variants/marisa-exercise/make-previews.py",
+      "bytes": 1170,
+      "sha256": "d07a510f15540fde13b6e125c67f526d725f787f742a9a235a86b5c462b85935"
+    },
+    {
+      "path": "variants/marisa-exercise/marisa.animation.json",
+      "bytes": 18559700,
+      "sha256": "42700c99a8552469f593ddb9049905fe367f00cab973232d3e6ef6f68831bd55"
+    },
+    {
+      "path": "variants/marisa-exercise/marisa.bbmodel",
+      "bytes": 73936095,
+      "sha256": "feaa0062abedc5e3fe26657cdefa117a877b5ab18846ec415b5181c0effadf2a"
+    },
+    {
+      "path": "variants/marisa-exercise/marisa.geo.json",
+      "bytes": 351802,
+      "sha256": "f0c3c8aa428204fe767b8247dbb92a9799c4c45ad02973639c030ea0cf09525f"
+    },
+    {
+      "path": "variants/marisa-exercise/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-exercise/motion-before-rate.js",
+      "bytes": 2115,
+      "sha256": "cef0f6d32ec0e1bb9f2bbe593af50e3e66d3953f8c7a30f3e268e8853ae29246"
+    },
+    {
+      "path": "variants/marisa-exercise/motion-verification.json",
+      "bytes": 349,
+      "sha256": "b22638ab0c6d757445d7d8d306db3c1ef551364cc93d489d2bd10fe730cc02ea"
+    },
+    {
+      "path": "variants/marisa-exercise/motion.js",
+      "bytes": 3180,
+      "sha256": "881e750e27e0e9ba3c19249ee07a10644849db375536af53539106b2687e6d3a"
+    },
+    {
+      "path": "variants/marisa-exercise/pose-performance.json",
+      "bytes": 131,
+      "sha256": "58c90ca63c20b661b7c830b2ee5c744d58a7b7a7349aa55b9397cfc83c2c4734"
+    },
+    {
+      "path": "variants/marisa-exercise/preview-sheet.png",
+      "bytes": 38617,
+      "sha256": "2d1a323e2ffd41ee848c2416d8f34689dcba8c1ee7558dd19f3afb73bdc1487e"
+    },
+    {
+      "path": "variants/marisa-exercise/preview-timing.json",
+      "bytes": 137,
+      "sha256": "75571d230497b4d1a362bdbead9383873c91ce50a35e1707b4caf9df16419274"
+    },
+    {
+      "path": "variants/marisa-exercise/preview.html",
+      "bytes": 5426002,
+      "sha256": "8ab371982b07aefd1ea8c033260fdad139eecf3b838e2eae580a4787b61bd930"
+    },
+    {
+      "path": "variants/marisa-exercise/preview.png",
+      "bytes": 14578,
+      "sha256": "a8e655721f33d9cd240afdd134be9f102df590534a33d3fa0ab34b243b5eaa10"
+    },
+    {
+      "path": "variants/marisa-exercise/README.md",
+      "bytes": 4776,
+      "sha256": "4b303990a44de6594614ebf37bc55705d0a2b95051f6d3c63600fa2073bb2f2a"
+    },
+    {
+      "path": "variants/marisa-exercise/render-exercise.cjs",
+      "bytes": 782,
+      "sha256": "3ba8a391fcfe0879d07a3359919645103af54d0cbe716b62efe13e0439e7f81e"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 215295,
+      "sha256": "26825d911856da196d81fade16261e1036de62bf372672dd2f41301aa35c5d63"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-exercise/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-exercise/retime-verification.json",
+      "bytes": 178,
+      "sha256": "5b00b28d1f0d4684391afd5965f5b8ca4fb95082c01ce3e54c939c9cc196548b"
+    },
+    {
+      "path": "variants/marisa-exercise/rig-before-rate.py",
+      "bytes": 8228,
+      "sha256": "d21033317666db0cfda3379455232fed9428c88896771fc9daab25a5ad057122"
+    },
+    {
+      "path": "variants/marisa-exercise/rig.py",
+      "bytes": 9203,
+      "sha256": "2e68b9536b886fd88037ab1d10ac510333716781f9046fbd4065e294c1b2eb74"
+    },
+    {
+      "path": "variants/marisa-exercise/software-viewer.js",
+      "bytes": 7712,
+      "sha256": "4a27d55e73b7dc55165d0898d550f7ad108a1f66050e5aef454d985ffd8e07d4"
+    },
+    {
+      "path": "variants/marisa-exercise/texture.rgba",
+      "bytes": 65536,
+      "sha256": "592ead6bdcc20237676638cd9c0b50536c0bfb91f5bdcec174914d4851d7efe7"
+    },
+    {
+      "path": "variants/marisa-exercise/verify-blockbench.cjs",
+      "bytes": 3879,
+      "sha256": "fee99327a50048d85ed2960b4a6841aeb8de2febbc83735f9270a4841de73d99"
+    },
+    {
+      "path": "variants/marisa-exercise/verify-motion.cjs",
+      "bytes": 3552,
+      "sha256": "a65933bb405660274e3bc97c839d3dec942af6e1f3f87692a80a7e054e388523"
+    },
+    {
+      "path": "variants/marisa-exercise/viewer-template.html",
+      "bytes": 3593,
+      "sha256": "1e82aa02a2512e8529415a3c524babbaf07bb248a51391e0b96eb006f10fb646"
+    }
+  ]
+}

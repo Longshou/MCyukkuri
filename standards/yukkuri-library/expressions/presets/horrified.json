@@ -1,0 +1,60 @@
+{
+  "id": "horrified",
+  "label": "嫌恶惊惧",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "eyes": "shiny",
+    "brows": "arched",
+    "mouth": "fear-wide-parted-frown",
+    "tears": "flow",
+    "blush": "normal",
+    "effect": "stress"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/6662f16214fba20b606f.png",
+    "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_eye_right": "expressions/parts/6662f16214fba20b606f.png",
+    "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_mouth": "expressions/parts/c65e88644f22808b9f2a.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本ドン引き顔グラベース",
+      "index": 0,
+      "sprite_id": 6602,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右ドン引き顔グラベース",
+      "index": 0,
+      "sprite_id": 7345,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N039",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "redrawn-awaiting-review",
+    "note": "沿用修订版眼睛和泪光，横向惊惧嘴稍微张大。"
+  }
+}

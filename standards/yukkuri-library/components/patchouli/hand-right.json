@@ -1,0 +1,4877 @@
+{
+  "id": "patchouli.hand-right",
+  "elements": [
+    {
+      "name": "patchouli_hanging_braid_right1",
+      "type": "cube",
+      "from": [
+        4.797062155354544,
+        0.77,
+        -7.4294515964968735
+      ],
+      "to": [
+        7.492820197586633,
+        1.1400000000000001,
+        -5.7200718827571
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right1-0.35",
+      "type": "cube",
+      "from": [
+        5.734941176470589,
+        0.77,
+        -7.459451596496874
+      ],
+      "to": [
+        5.8549411764705885,
+        1.1400000000000001,
+        -7.419451596496874
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right10.25",
+      "type": "cube",
+      "from": [
+        6.334941176470589,
+        0.77,
+        -7.459451596496874
+      ],
+      "to": [
+        6.454941176470588,
+        1.1400000000000001,
+        -7.419451596496874
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right2",
+      "type": "cube",
+      "from": [
+        4.876927873424978,
+        1.1199999999999999,
+        -7.315946099663353
+      ],
+      "to": [
+        7.445895655986786,
+        1.4899999999999998,
+        -5.6621125949219895
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right2-0.35",
+      "type": "cube",
+      "from": [
+        5.751411764705883,
+        1.1199999999999999,
+        -7.345946099663354
+      ],
+      "to": [
+        5.871411764705882,
+        1.4899999999999998,
+        -7.305946099663354
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right20.25",
+      "type": "cube",
+      "from": [
+        6.351411764705882,
+        1.1199999999999999,
+        -7.345946099663354
+      ],
+      "to": [
+        6.4714117647058815,
+        1.4899999999999998,
+        -7.305946099663354
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right3",
+      "type": "cube",
+      "from": [
+        5.248307419585975,
+        1.4699999999999998,
+        -7.072831464416891
+      ],
+      "to": [
+        7.107457286296377,
+        1.8399999999999999,
+        -5.729965808524715
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right4",
+      "type": "cube",
+      "from": [
+        5.865514499453375,
+        1.8199999999999998,
+        -6.722836958278482
+      ],
+      "to": [
+        6.523191382899566,
+        2.19,
+        -5.9006172577845755
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right5",
+      "type": "cube",
+      "from": [
+        5.454096154191911,
+        2.17,
+        -6.883307800673961
+      ],
+      "to": [
+        6.967550904631619,
+        2.54,
+        -5.556398588876185
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right6",
+      "type": "cube",
+      "from": [
+        5.2372336093548775,
+        2.5199999999999996,
+        -6.926653784647259
+      ],
+      "to": [
+        7.21735462593924,
+        2.8899999999999997,
+        -5.324531133841097
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right6-0.35",
+      "type": "cube",
+      "from": [
+        5.81729411764706,
+        2.5199999999999996,
+        -6.956653784647259
+      ],
+      "to": [
+        5.937294117647059,
+        2.8899999999999997,
+        -6.916653784647259
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right60.25",
+      "type": "cube",
+      "from": [
+        6.417294117647059,
+        2.5199999999999996,
+        -6.956653784647259
+      ],
+      "to": [
+        6.5372941176470585,
+        2.8899999999999997,
+        -6.916653784647259
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right7",
+      "type": "cube",
+      "from": [
+        5.156558345834238,
+        2.8699999999999997,
+        -6.887085221876132
+      ],
+      "to": [
+        7.330971065930468,
+        3.2399999999999998,
+        -5.170380284383483
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right7-0.35",
+      "type": "cube",
+      "from": [
+        5.833764705882354,
+        2.8699999999999997,
+        -6.917085221876132
+      ],
+      "to": [
+        5.953764705882353,
+        3.2399999999999998,
+        -6.877085221876132
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right70.25",
+      "type": "cube",
+      "from": [
+        6.4337647058823535,
+        2.8699999999999997,
+        -6.917085221876132
+      ],
+      "to": [
+        6.553764705882353,
+        3.2399999999999998,
+        -6.877085221876132
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right8",
+      "type": "cube",
+      "from": [
+        5.21480586024129,
+        3.2199999999999998,
+        -6.762742762367247
+      ],
+      "to": [
+        7.305664727994005,
+        3.59,
+        -5.09531317369257
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right9",
+      "type": "cube",
+      "from": [
+        5.4102690034865235,
+        3.57,
+        -6.554344922458703
+      ],
+      "to": [
+        7.14314276121936,
+        3.94,
+        -5.098034757641902
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right10",
+      "type": "cube",
+      "from": [
+        5.748959751734659,
+        3.92,
+        -6.258004818090145
+      ],
+      "to": [
+        6.837393189441811,
+        4.29,
+        -5.181749200980798
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right11",
+      "type": "cube",
+      "from": [
+        5.840962691129189,
+        4.27,
+        -6.100923628751167
+      ],
+      "to": [
+        6.77833142651787,
+        4.64,
+        -5.118436605902675
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right11-0.35",
+      "type": "cube",
+      "from": [
+        5.89964705882353,
+        4.27,
+        -6.130923628751167
+      ],
+      "to": [
+        6.019647058823529,
+        4.64,
+        -6.090923628751167
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right110.25",
+      "type": "cube",
+      "from": [
+        6.4996470588235296,
+        4.27,
+        -6.130923628751167
+      ],
+      "to": [
+        6.619647058823529,
+        4.64,
+        -6.090923628751167
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right12",
+      "type": "cube",
+      "from": [
+        5.63750007629586,
+        4.619999999999999,
+        -6.112806124378134
+      ],
+      "to": [
+        7.014735217821787,
+        4.989999999999999,
+        -4.877395918000727
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right12-0.35",
+      "type": "cube",
+      "from": [
+        5.916117647058824,
+        4.619999999999999,
+        -6.142806124378135
+      ],
+      "to": [
+        6.036117647058823,
+        4.989999999999999,
+        -6.102806124378135
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right120.25",
+      "type": "cube",
+      "from": [
+        6.516117647058824,
+        4.619999999999999,
+        -6.142806124378135
+      ],
+      "to": [
+        6.636117647058823,
+        4.989999999999999,
+        -6.102806124378135
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right13",
+      "type": "cube",
+      "from": [
+        5.489368725965406,
+        4.97,
+        -6.087874229112323
+      ],
+      "to": [
+        7.1958077446228295,
+        5.34,
+        -4.663171793384304
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right14",
+      "type": "cube",
+      "from": [
+        5.382416918174638,
+        5.319999999999999,
+        -6.033485823261153
+      ],
+      "to": [
+        7.335700728884186,
+        5.6899999999999995,
+        -4.466847632103163
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right15",
+      "type": "cube",
+      "from": [
+        5.315220253849379,
+        5.67,
+        -5.949450106614101
+      ],
+      "to": [
+        7.435838569680033,
+        6.04,
+        -4.286594575011474
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right16",
+      "type": "cube",
+      "from": [
+        5.288379698727253,
+        6.02,
+        -5.834071813866487
+      ],
+      "to": [
+        7.495620301272748,
+        6.39,
+        -4.121408467402828
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right16-0.35",
+      "type": "cube",
+      "from": [
+        5.982000000000001,
+        6.02,
+        -5.864071813866487
+      ],
+      "to": [
+        6.102,
+        6.39,
+        -5.824071813866487
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right160.25",
+      "type": "cube",
+      "from": [
+        6.582000000000001,
+        6.02,
+        -5.864071813866487
+      ],
+      "to": [
+        6.702,
+        6.39,
+        -5.824071813866487
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right17",
+      "type": "cube",
+      "from": [
+        5.302502069088498,
+        6.369999999999999,
+        -5.685125086690032
+      ],
+      "to": [
+        7.514439107382089,
+        6.739999999999999,
+        -3.969761289671217
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right17-0.35",
+      "type": "cube",
+      "from": [
+        5.998470588235294,
+        6.369999999999999,
+        -5.7151250866900325
+      ],
+      "to": [
+        6.118470588235294,
+        6.739999999999999,
+        -5.6751250866900325
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right170.25",
+      "type": "cube",
+      "from": [
+        6.598470588235294,
+        6.369999999999999,
+        -5.7151250866900325
+      ],
+      "to": [
+        6.718470588235293,
+        6.739999999999999,
+        -5.6751250866900325
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right18",
+      "type": "cube",
+      "from": [
+        5.357624819297623,
+        6.72,
+        -5.499837606857387
+      ],
+      "to": [
+        7.492257533643553,
+        7.09,
+        -3.828923796108478
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right19",
+      "type": "cube",
+      "from": [
+        5.4531903216809265,
+        7.069999999999999,
+        -5.2741930882459
+      ],
+      "to": [
+        7.429633207730838,
+        7.4399999999999995,
+        -3.694238428767201
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right20",
+      "type": "cube",
+      "from": [
+        5.588538900868819,
+        7.42,
+        -5.000942963712129
+      ],
+      "to": [
+        7.3272258050135335,
+        7.79,
+        -3.557697993828919
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right21",
+      "type": "cube",
+      "from": [
+        5.76464701425138,
+        7.77,
+        -4.663379654461126
+      ],
+      "to": [
+        7.184058868101562,
+        8.139999999999999,
+        -3.4037178384972715
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right21-0.35",
+      "type": "cube",
+      "from": [
+        6.064352941176471,
+        7.77,
+        -4.693379654461126
+      ],
+      "to": [
+        6.184352941176471,
+        8.139999999999999,
+        -4.653379654461126
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right210.25",
+      "type": "cube",
+      "from": [
+        6.664352941176471,
+        7.77,
+        -4.693379654461126
+      ],
+      "to": [
+        6.78435294117647,
+        8.139999999999999,
+        -4.653379654461126
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_hanging_braid_right22",
+      "type": "cube",
+      "from": [
+        5.992508228737302,
+        8.12,
+        -4.203493419475394
+      ],
+      "to": [
+        6.989138830086228,
+        8.489999999999998,
+        -3.186930823699762
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right22-0.35",
+      "type": "cube",
+      "from": [
+        6.080823529411766,
+        8.12,
+        -4.233493419475394
+      ],
+      "to": [
+        6.200823529411765,
+        8.489999999999998,
+        -4.193493419475394
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_braid_strand_right220.25",
+      "type": "cube",
+      "from": [
+        6.680823529411765,
+        8.12,
+        -4.233493419475394
+      ],
+      "to": [
+        6.8008235294117645,
+        8.489999999999998,
+        -4.193493419475394
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_loose_end_right-2",
+      "type": "cube",
+      "from": [
+        5.0988235294117645,
+        0.54,
+        -7.3271219877487015
+      ],
+      "to": [
+        5.658823529411765,
+        1.01,
+        -6.217121987748701
+      ],
+      "origin": [
+        6.118823529411765,
+        1.1,
+        -6.707121987748701
+      ],
+      "rotation": [
+        0,
+        0,
+        -14
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_long_tip_right-2",
+      "type": "cube",
+      "from": [
+        5.228823529411764,
+        0.3,
+        -7.277121987748702
+      ],
+      "to": [
+        5.528823529411765,
+        0.76,
+        -6.387121987748701
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_loose_end_right-1",
+      "type": "cube",
+      "from": [
+        5.468823529411765,
+        0.44999999999999996,
+        -7.397121987748701
+      ],
+      "to": [
+        6.028823529411765,
+        1.0899999999999999,
+        -6.217121987748701
+      ],
+      "origin": [
+        6.118823529411765,
+        1.1,
+        -6.707121987748701
+      ],
+      "rotation": [
+        0,
+        0,
+        -7
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_long_tip_right-1",
+      "type": "cube",
+      "from": [
+        5.5988235294117645,
+        0.21,
+        -7.347121987748701
+      ],
+      "to": [
+        5.898823529411765,
+        0.67,
+        -6.387121987748701
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_loose_end_right0",
+      "type": "cube",
+      "from": [
+        5.838823529411765,
+        0.36,
+        -7.467121987748701
+      ],
+      "to": [
+        6.398823529411765,
+        1.17,
+        -6.217121987748701
+      ],
+      "origin": [
+        6.118823529411765,
+        1.1,
+        -6.707121987748701
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_long_tip_right0",
+      "type": "cube",
+      "from": [
+        5.968823529411765,
+        0.12,
+        -7.417121987748701
+      ],
+      "to": [
+        6.268823529411765,
+        0.5800000000000001,
+        -6.387121987748701
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_loose_end_right1",
+      "type": "cube",
+      "from": [
+        6.208823529411765,
+        0.44999999999999996,
+        -7.397121987748701
+      ],
+      "to": [
+        6.768823529411765,
+        1.0899999999999999,
+        -6.217121987748701
+      ],
+      "origin": [
+        6.118823529411765,
+        1.1,
+        -6.707121987748701
+      ],
+      "rotation": [
+        0,
+        0,
+        7
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_long_tip_right1",
+      "type": "cube",
+      "from": [
+        6.338823529411765,
+        0.21,
+        -7.347121987748701
+      ],
+      "to": [
+        6.6388235294117655,
+        0.67,
+        -6.387121987748701
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_loose_end_right2",
+      "type": "cube",
+      "from": [
+        6.578823529411765,
+        0.54,
+        -7.3271219877487015
+      ],
+      "to": [
+        7.1388235294117655,
+        1.01,
+        -6.217121987748701
+      ],
+      "origin": [
+        6.118823529411765,
+        1.1,
+        -6.707121987748701
+      ],
+      "rotation": [
+        0,
+        0,
+        14
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_long_tip_right2",
+      "type": "cube",
+      "from": [
+        6.708823529411765,
+        0.3,
+        -7.277121987748702
+      ],
+      "to": [
+        7.008823529411766,
+        0.76,
+        -6.387121987748701
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_knot_right0",
+      "type": "cube",
+      "from": [
+        5.9141176470588235,
+        1.78,
+        -7.253023226846507
+      ],
+      "to": [
+        6.474117647058824,
+        2.22,
+        -6.913023226846507
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_loop_right0-1",
+      "type": "cube",
+      "from": [
+        5.174117647058823,
+        1.66,
+        -7.193023226846507
+      ],
+      "to": [
+        5.974117647058824,
+        2.34,
+        -6.9230232268465075
+      ],
+      "origin": [
+        6.194117647058824,
+        2.0,
+        -7.013023226846507
+      ],
+      "rotation": [
+        0,
+        0,
+        -12
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_loop_right01",
+      "type": "cube",
+      "from": [
+        6.4141176470588235,
+        1.66,
+        -7.193023226846507
+      ],
+      "to": [
+        7.214117647058824,
+        2.34,
+        -6.9230232268465075
+      ],
+      "origin": [
+        6.194117647058824,
+        2.0,
+        -7.013023226846507
+      ],
+      "rotation": [
+        0,
+        0,
+        12
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_knot_right1",
+      "type": "cube",
+      "from": [
+        6.017647058823529,
+        3.98,
+        -6.630369533635136
+      ],
+      "to": [
+        6.57764705882353,
+        4.42,
+        -6.290369533635136
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_loop_right1-1",
+      "type": "cube",
+      "from": [
+        5.277647058823529,
+        3.8600000000000003,
+        -6.570369533635136
+      ],
+      "to": [
+        6.07764705882353,
+        4.54,
+        -6.300369533635137
+      ],
+      "origin": [
+        6.29764705882353,
+        4.2,
+        -6.390369533635137
+      ],
+      "rotation": [
+        0,
+        0,
+        -12
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "patchouli_ribbon_loop_right11",
+      "type": "cube",
+      "from": [
+        6.517647058823529,
+        3.8600000000000003,
+        -6.570369533635136
+      ],
+      "to": [
+        7.31764705882353,
+        4.54,
+        -6.300369533635137
+      ],
+      "origin": [
+        6.29764705882353,
+        4.2,
+        -6.390369533635137
+      ],
+      "rotation": [
+        0,
+        0,
+        12
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    }
+  ]
+}

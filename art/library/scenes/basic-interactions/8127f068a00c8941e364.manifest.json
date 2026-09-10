@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "content_sha256": "8127f068a00c8941e364bb6de4095d4ca07609b90e0ba6f3abd0ba37ccdd99b5",
+  "files": [
+    {
+      "path": "variants/basic-interactions/accessory.png",
+      "bytes": 97346,
+      "sha256": "8671c4ed936f34a736fa62e0c86a2e22ae6f3b9697a40d1966bf4c8cb31d43f3"
+    },
+    {
+      "path": "variants/basic-interactions/archive.py",
+      "bytes": 4287,
+      "sha256": "c0d018a720eacf47c0994a374b0c3ff9a86beb15b4b5f2585132020a90f2bc1a"
+    },
+    {
+      "path": "variants/basic-interactions/browser-check.cjs",
+      "bytes": 4439,
+      "sha256": "520c4b284789861b320609f9fa78299bbc4dee79905c73d4ea21299b6770a5f7"
+    },
+    {
+      "path": "variants/basic-interactions/browser-report.json",
+      "bytes": 1574,
+      "sha256": "2d5e9d968fc5e0e18102c024c9d8a0028106995e819b2a6a0e5b66ad1399a2f6"
+    },
+    {
+      "path": "variants/basic-interactions/build-info.json",
+      "bytes": 505,
+      "sha256": "4b6fdf13bd653b5bcedd09e1fcda0ca7f6829649e97cdc0c5a9dd88c50746d82"
+    },
+    {
+      "path": "variants/basic-interactions/build.py",
+      "bytes": 2119,
+      "sha256": "add2b7dbeffbf67059c24f42fc98de38c4a085f54c9c0bd3c3bfc612d1f44acd"
+    },
+    {
+      "path": "variants/basic-interactions/hold.png",
+      "bytes": 81922,
+      "sha256": "a868cfaa9bff48046f453bd0520a9b8d9f595c7bd79e805c594d4ef6c155ad05"
+    },
+    {
+      "path": "variants/basic-interactions/index.html",
+      "bytes": 844155,
+      "sha256": "c63df44aa714ad8b0555411f3f730b6f2eea5b4edb8cc592cbf5a1570351de22"
+    },
+    {
+      "path": "variants/basic-interactions/interactions.js",
+      "bytes": 6169,
+      "sha256": "b92d6e2960ff945465bdcba5d62e1146fcb861901eb266a58ad1f69aa020a354"
+    },
+    {
+      "path": "variants/basic-interactions/lick.png",
+      "bytes": 113172,
+      "sha256": "fab6efd73ca7e26ae7720b13b91c84ff23e0ce3034479ad01827431af755572f"
+    },
+    {
+      "path": "variants/basic-interactions/marisa.bbmodel",
+      "bytes": 36918752,
+      "sha256": "26e9bfcc727c5bea8d1b9912e1c497e0e79f05d4e6509c6ce5688d9fc4650ff7"
+    },
+    {
+      "path": "variants/basic-interactions/mobile.png",
+      "bytes": 73598,
+      "sha256": "f10924f20f5ad725ec9649d9078548974d38525fa920b3d9d9b7cf6d1bfc6364"
+    },
+    {
+      "path": "variants/basic-interactions/model-data.js",
+      "bytes": 214002,
+      "sha256": "cda628da468de492b5ec95d279df2822019fa3e72e6ec64ea3d444dbd636e0ba"
+    },
+    {
+      "path": "variants/basic-interactions/nuzzle.png",
+      "bytes": 124228,
+      "sha256": "d4e102f26bc75f604818d6350368b8f5b6743d38a39ed4134f21a9a3e4f38293"
+    },
+    {
+      "path": "variants/basic-interactions/README.md",
+      "bytes": 5636,
+      "sha256": "adbcf96546c1e49bbefd8f4476f5267873f55f80706bdfb3fb1894613f172de1"
+    },
+    {
+      "path": "variants/basic-interactions/reimu-accessory.png",
+      "bytes": 91849,
+      "sha256": "d7238ff7eb614738de82f321c51d8ab0f1163ae85b8b32cd1d045c16e2e72311"
+    },
+    {
+      "path": "variants/basic-interactions/reimu-nuzzle.png",
+      "bytes": 123228,
+      "sha256": "6c265b8bef71d6c7b68457d042ed1e5d5f935b5dbdd89a74e1052aa0ab5ee7f0"
+    },
+    {
+      "path": "variants/basic-interactions/reimu.bbmodel",
+      "bytes": 86968086,
+      "sha256": "e11098852cf6906467bb834d36ade32f5f38ec430428484cead92150e8302b81"
+    },
+    {
+      "path": "variants/basic-interactions/rub.png",
+      "bytes": 82759,
+      "sha256": "4228ee7bc92164243da3d7c7eb3feb813d11bea64e831d764b5f7634c0988699"
+    },
+    {
+      "path": "variants/basic-interactions/talk.png",
+      "bytes": 80974,
+      "sha256": "f76dabc3b766ccbe13a9b3664641c02fbbd04b0665c746be2483f71363d3bb57"
+    },
+    {
+      "path": "variants/basic-interactions/three.min.js",
+      "bytes": 603445,
+      "sha256": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+    },
+    {
+      "path": "variants/basic-interactions/verification.json",
+      "bytes": 273,
+      "sha256": "75a1f47d4eeb71202e2cea726711cc3a0438b68612ae2cd23eed20c98ead76d4"
+    },
+    {
+      "path": "variants/basic-interactions/verify.cjs",
+      "bytes": 1866,
+      "sha256": "fdc1543cc526d92557e39895124971186fab65838d2f74744a60bbaaca25236b"
+    },
+    {
+      "path": "variants/basic-interactions/viewer.html",
+      "bytes": 5954,
+      "sha256": "434d2afa90e559a871e5715947113fd69b197a8e44e08e2a76b92f3b52b9ba8b"
+    },
+    {
+      "path": "variants/basic-interactions/viewer.js",
+      "bytes": 14403,
+      "sha256": "3f302d4a2461ebe16874493b9e70947d61a8a40ed4dc23615e01f8b4379be7d3"
+    }
+  ]
+}

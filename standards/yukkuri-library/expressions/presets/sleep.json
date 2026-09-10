@@ -1,0 +1,45 @@
+{
+  "id": "sleep",
+  "label": "睡眠",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "source": "accepted-component-review",
+    "parts": [
+      "E2-B"
+    ]
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+    "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_mouth": "expressions/parts/312577fa8d373c00b276.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
+  },
+  "sources": [
+    {
+      "field": "基本睡眠顔グラベース",
+      "index": 0,
+      "sprite_id": 5335,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/sleep.png",
+  "review_code": "O09",
+  "origin": "original",
+  "review_pair": "sleep__new",
+  "review_decision": {
+    "status": "accepted-for-specified-parts",
+    "parts": [
+      "E2-B"
+    ]
+  }
+}

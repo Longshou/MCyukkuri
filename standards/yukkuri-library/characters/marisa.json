@@ -1,0 +1,25 @@
+{
+  "id": "marisa",
+  "label": "魔理沙",
+  "components": [
+    "components/common/body.json",
+    "components/common/rump.json",
+    "components/common/face.json",
+    "components/common/puff.json",
+    "components/common/hair.json",
+    "components/marisa/hair.json",
+    "components/marisa/hand-left.json",
+    "components/marisa/hand-right.json",
+    "components/marisa/accessories.json",
+    "components/common/anatomy.json"
+  ],
+  "rig": "rigs/marisa.json",
+  "base_texture": "textures/marisa/base.png",
+  "expression_binding": "bindings/marisa.json",
+  "motion_catalog": "motions/index.json",
+  "expression_catalog": "expressions/index.json",
+  "rig_components": [
+    "components/common/anatomy-rig.json"
+  ],
+  "anatomy": "behaviors/anatomy.json"
+}

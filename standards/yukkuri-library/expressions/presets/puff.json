@@ -1,0 +1,75 @@
+{
+  "id": "puff",
+  "label": "闭眼噗咕",
+  "group": "生气 / 鼓脸",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "puff"
+  },
+  "requires": [
+    "puff-cheeks"
+  ],
+  "geometry_offsets": {
+    "face_eye_left": {
+      "position": [
+        0,
+        1.219,
+        0
+      ]
+    },
+    "face_eye_right": {
+      "position": [
+        0,
+        1.219,
+        0
+      ]
+    },
+    "face_mouth": {
+      "position": [
+        0,
+        -0.053,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.85,
+        1
+      ]
+    }
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_mouth": "expressions/parts/6f9e17f8ec5fad430612.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本ぷくー１顔グラベース",
+      "index": 0,
+      "sprite_id": 6547,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右ぷくー２顔グラベース",
+      "index": 0,
+      "sprite_id": 4503,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/puff.png",
+  "review_code": "O10",
+  "origin": "original",
+  "review_pair": "puff__new"
+}

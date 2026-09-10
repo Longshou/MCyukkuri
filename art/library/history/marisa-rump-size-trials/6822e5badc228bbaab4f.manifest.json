@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "content_sha256": "6822e5badc228bbaab4f1633f0f584c23d20918a4203dd762f63588634533d31",
+  "files": [
+    {
+      "path": "variants/marisa-rump-size-trials/a/marisa.bbmodel",
+      "bytes": 34028313,
+      "sha256": "3c5426abb9664259bc9c87da0a884500faf2121659119097e6013a7314ae77b8"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/a/preview.png",
+      "bytes": 5356,
+      "sha256": "581f2515a25faae333a71e707226b7db566399c86632cb42a11b025abe2961f0"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/a/preview.rgba",
+      "bytes": 672000,
+      "sha256": "bed96c180f8e4665c4b94f09cf30be4a07432a1948cd57784dfdaacc62eb63b9"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/a/proportions.json",
+      "bytes": 106,
+      "sha256": "39ae2206aa81ef1c1bec33479c12add84b03e7ff13c351d17fd7eeccc2c370f4"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/a/side.png",
+      "bytes": 2938,
+      "sha256": "fa2095ab4545d56e6a7854cda3badae6fa9e7eb8cbaf181e3a685624e14dd547"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/a/side.rgba",
+      "bytes": 672000,
+      "sha256": "4dc9e22540168daf883024849042d020ad7b5a41d62163542431967e0b48be18"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/marisa.bbmodel",
+      "bytes": 34032802,
+      "sha256": "2f6a97429755c40f1324c5f771a3a24860df4c14bc3c12882bac1bbe59768143"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/preview.png",
+      "bytes": 4908,
+      "sha256": "a21ef70c1b4126833ff268a1576817472ff1ce811580605733ba9dd316f5acd0"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/preview.rgba",
+      "bytes": 672000,
+      "sha256": "697b29bf28a7be6a44a427211b8ea1d83c17edd037fe90fba01b307e71e5b8a5"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/proportions.json",
+      "bytes": 125,
+      "sha256": "2bcc54f9528563e52674d6d33da4d3660f6cf50bfa965cb17d2aa1a46fd2ea22"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/side.png",
+      "bytes": 2820,
+      "sha256": "dc258bb3d18e70ae9f9181efb672c17addfefa0669ccda33ee37a4b42618b072"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/b/side.rgba",
+      "bytes": 672000,
+      "sha256": "52a89f47d7ebaed4671aac6298c507eff151d6448254473c86aa01b7e50e77c9"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/browser-check.png",
+      "bytes": 106688,
+      "sha256": "dc7c2efc153b9dbf54d71571725867e9c568a6e0d99b42a897f0337068e8dd94"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/build.py",
+      "bytes": 2533,
+      "sha256": "1c5ac5fdec14ec701db477ae889d486745661b95bacb21681cf469c10acd7a77"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/marisa.bbmodel",
+      "bytes": 34032897,
+      "sha256": "dff757aeb172d7dd871998c56ad60dcfbdd8572b1cc6547833b48bf8871fe0cf"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/preview.png",
+      "bytes": 4933,
+      "sha256": "f39a3fb5c1214ae1776d53f19d2510787e668a2ecf0d07de5496f27fedfe4188"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/preview.rgba",
+      "bytes": 672000,
+      "sha256": "ac44f8ace6946c583592111fd32f25faf3088e0ab39dc256327c867b698d1e4a"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/proportions.json",
+      "bytes": 127,
+      "sha256": "2b12f5dad83ff3a5cb59005ca2a5efaaa6e3340e5e5a49b6d7aa30b60d067a68"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/side.png",
+      "bytes": 2921,
+      "sha256": "5a8ae77b2cc768afe74096c1acaf04993e79bba33cbe39697821fb8354d500c8"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/c/side.rgba",
+      "bytes": 672000,
+      "sha256": "34f5d6f5b491540ae11b4fc958cf5c77da2c13f1855ef6ce715595a8b0f6d823"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/comparison.png",
+      "bytes": 35092,
+      "sha256": "647385cd6cfc99f24e5bf577e370474948d9efbeb4474f24d14b4841f4ec2f59"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/marisa.bbmodel",
+      "bytes": 34028903,
+      "sha256": "7363e9d0dedd3dd965c7daef13d3124a9231e7399650cf944e3bda26e592b7e4"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/preview.png",
+      "bytes": 5350,
+      "sha256": "c253980c9a9ce4f331ce139902e0304efa050a68a39849da1b9cc74c7222388d"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/preview.rgba",
+      "bytes": 672000,
+      "sha256": "d2acb110e310caf737d099137d04bd1f76decf857e546e1b630063d98a21817c"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/proportions.json",
+      "bytes": 124,
+      "sha256": "5687f347f2f78c7d7a3b3a8ae0ea0753646dbf917510c7862af2a43d48794052"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/side.png",
+      "bytes": 2984,
+      "sha256": "ab6fa9b8794ce05af9cf44a10c2f17e573ae80ca6b05a5869f3f993c8e62e6b6"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/d/side.rgba",
+      "bytes": 672000,
+      "sha256": "67c18e9bcfb93b4dec06b421701b4b4d3dff113ac87b6fd12363dba0095cf915"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/marisa.bbmodel",
+      "bytes": 34032826,
+      "sha256": "af40c4ca1162c8b5902ed4b255c858d108578cec2776dee0f2890fcae3a32ca7"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/preview.png",
+      "bytes": 5573,
+      "sha256": "f05b1d27d1c03c937a9c4baee06894334d85f91e24ebd9ba29c0669eaa28b388"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/preview.rgba",
+      "bytes": 672000,
+      "sha256": "2cf1bf274d8b09e5a53c7411d465358657ac043d1756f956d1be39801cfdb70e"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/proportions.json",
+      "bytes": 125,
+      "sha256": "cafb5d864acde1785f95ad67980a0be503b780b8da5ff366dec8cea261debf33"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/side.png",
+      "bytes": 2946,
+      "sha256": "43145c2800bdfa0164806476c482f50c58aaf8df3b1e6b3ed5440f71c66abf9e"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/e/side.rgba",
+      "bytes": 672000,
+      "sha256": "e31c6ee51ff9e90523d55d7e89d0e243b64b87f7abf3d3be514bbe40697290e6"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/flee-comparison.gif",
+      "bytes": 2381126,
+      "sha256": "54b1537571b57e0f1223e73f0b5c097a5778bd58d9657f9e048f3d3526c05733"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/index.html",
+      "bytes": 5750793,
+      "sha256": "1b7e6033557727a956df6792565b1fd647cec79adf266becaa701da5c809d116"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/proportions.js",
+      "bytes": 1462,
+      "sha256": "539575bd5725e8c2b95e320091de592b7d2ce8eeaa6a9f2f0ef6a313a39c3cd0"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/README.md",
+      "bytes": 1518,
+      "sha256": "5cf612e7562daf47a7a6e5aadcae009ec687bab07dead2d8a7acd96fcff94a6d"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/render.cjs",
+      "bytes": 907,
+      "sha256": "fe7d38e28b3f3c69906f1b929e82f98e5ed5ba5cfe396eaecb2bd7fce30c0e3d"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/runtime.js",
+      "bytes": 5746011,
+      "sha256": "aa433a29e8fa2ea240cfc858714c2bb083903c143bc7c10ca1bb2842eb53dde8"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/template.html",
+      "bytes": 4784,
+      "sha256": "a1108de3455c097c41db35db5093698bb9659587cca7cac6bf473d38be8e42f4"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/verification.json",
+      "bytes": 143,
+      "sha256": "e9c971c3a95bf55b9d5b1139c95cb16bb2f3a8e24da67d60f54ff5bbb4085f9c"
+    },
+    {
+      "path": "variants/marisa-rump-size-trials/verify.cjs",
+      "bytes": 1893,
+      "sha256": "de5bcb3ff67b0d6ba828249f655bce30687f6d70010ccfb939a5e8dc3acc16c2"
+    }
+  ]
+}

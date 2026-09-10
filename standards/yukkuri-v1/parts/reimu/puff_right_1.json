@@ -1,0 +1,86 @@
+{
+  "name": "puff_right_1",
+  "uuid": "217d17db-ae2d-5367-bdf7-f6341ba7766c",
+  "type": "cube",
+  "from": [
+    2.0836089,
+    1.64088,
+    -4.602
+  ],
+  "to": [
+    5.5163911,
+    2.02248,
+    -4.6000000000000005
+  ],
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 2,
+  "faces": {
+    "north": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        0,
+        48,
+        16,
+        64
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "puff_right_1"
+}

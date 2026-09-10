@@ -1,0 +1,40 @@
+{
+  "id": "angry__new",
+  "label": "生气",
+  "group": "生气 / 鼓脸",
+  "recipe": {
+    "eyes": "normal",
+    "brows": "angry",
+    "mouth": "caret",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "stress"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+    "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+  },
+  "sources": [
+    {
+      "field": "基本怒り顔グラベース",
+      "index": 0,
+      "sprite_id": 6360,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": [],
+  "review_pair": "angry",
+  "review_code": "N080",
+  "origin": "new"
+}

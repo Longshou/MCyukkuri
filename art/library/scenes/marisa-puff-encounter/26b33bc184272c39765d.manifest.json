@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "content_sha256": "26b33bc184272c39765dde347e75fc920e941374e6e44f5d18dcbf6c1d550a64",
+  "files": [
+    {
+      "path": "variants/marisa-puff-encounter/build.py",
+      "bytes": 1254,
+      "sha256": "9d0e4c6299ae964c86e4c8455839b837b5552b29a2081407b10e16c35dab85ed"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/encounter.gif",
+      "bytes": 990678,
+      "sha256": "0003c746999266aa5fe288670cc3d0b7e8fe75f129c1d13ef4dcfacc2d27b93b"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/flee.png",
+      "bytes": 50617,
+      "sha256": "0d941c45ae7fb9f818a1d7c0f1542e8cd54b05939894374d7f25204aece34018"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/index.html",
+      "bytes": 5753115,
+      "sha256": "3cf17ff7eab65611db8f0826948d1db6ed80dde7cd9d95adfdb7c601f68ad346"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/preview.png",
+      "bytes": 13536,
+      "sha256": "c03076ae97cf3d6d17faa417a0e09699b9d13edb3bfd162f3e5eb98a57abfc8f"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/puff.png",
+      "bytes": 53857,
+      "sha256": "2fee14c6789d235b3e5ce1e8ed7637e46ff748a4fe1112b6590f0ae32770b9fd"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/README.md",
+      "bytes": 1310,
+      "sha256": "5881f3d0e6f95c327c954f16ca0731d707a1e2287da0bb0699f566eb35eb0e93"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/render.cjs",
+      "bytes": 720,
+      "sha256": "3a5d9b2346ce03d15db8032628504df6dfa6f0ad8c1d0f09c66e1204e492c8e8"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/runtime.js",
+      "bytes": 5747993,
+      "sha256": "5da98b9a6639d005571a57c492c63bfaeb0ecd63b7dc4723cb2b405348a63832"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/scene.js",
+      "bytes": 2670,
+      "sha256": "9b7096b5de812818699de1f273e646dbe76f9a0a719dd418c4745e6c3ff46daf"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/shock.png",
+      "bytes": 54945,
+      "sha256": "55d43dd1d51952df2c14f2d604bd949679151902cfb47e247bc484715314fb2b"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/template.html",
+      "bytes": 5114,
+      "sha256": "5a14eae32168bef33c6cb2c608a831818c6d6fee7a155e417c7b0c000a8701d2"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/verification.json",
+      "bytes": 93,
+      "sha256": "2352a1cbcb18ed8fa889375c86830be43631e7ec9aaed47795e071178344f81e"
+    },
+    {
+      "path": "variants/marisa-puff-encounter/verify.cjs",
+      "bytes": 1867,
+      "sha256": "e1305668ed7c07d771d297f7d47cd18fa50c27e6ceafe0d0bacbe0b6febae5de"
+    }
+  ]
+}

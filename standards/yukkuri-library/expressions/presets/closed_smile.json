@@ -1,0 +1,36 @@
+{
+  "id": "closed_smile",
+  "label": "闭口微笑",
+  "group": "笑脸",
+  "recipe": {
+    "source": "accepted-component-review",
+    "parts": [
+      "E1-B"
+    ]
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/89d0b82329725d97cb83.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "pending-review",
+  "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+  "aliases": [],
+  "review_code": "N002",
+  "origin": "new",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted-for-specified-parts",
+    "parts": [
+      "E1-B"
+    ]
+  }
+}

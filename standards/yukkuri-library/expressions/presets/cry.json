@@ -1,0 +1,121 @@
+{
+  "id": "cry",
+  "label": "闭眼哭喊",
+  "group": "哭泣",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "cry"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/99ff610a168018f97a63.png",
+    "face_tear_right": "expressions/parts/99ff610a168018f97a63.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本泣き叫び顔グラベース",
+      "index": 0,
+      "sprite_id": 6927,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地２泣き顔面グラベース",
+      "index": 0,
+      "sprite_id": 6882,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地３泣き顔面グラベース",
+      "index": 0,
+      "sprite_id": 4755,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地４泣き顔面グラベース",
+      "index": 0,
+      "sprite_id": 5625,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右泣き叫び２顔グラベース",
+      "index": 0,
+      "sprite_id": 6204,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "正面ケツ振り泣き叫び２B顔面グラベース",
+      "index": 0,
+      "sprite_id": 5306,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "握り１顔面グラベース",
+      "index": 0,
+      "sprite_id": 7978,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "握り２顔面グラベース",
+      "index": 0,
+      "sprite_id": 6706,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "握り３顔面グラベース",
+      "index": 0,
+      "sprite_id": 5724,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "臭い１顔面グラベース",
+      "index": 0,
+      "sprite_id": 8260,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "臭い２顔面グラベース",
+      "index": 0,
+      "sprite_id": 5890,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝泣き叫び顔面２グラベース",
+      "index": 0,
+      "sprite_id": 6801,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "なすび１泣き叫び顔面グラベース",
+      "index": 0,
+      "sprite_id": 4389,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/cry.png",
+  "review_code": "O04",
+  "origin": "original",
+  "review_pair": "cry__new"
+}

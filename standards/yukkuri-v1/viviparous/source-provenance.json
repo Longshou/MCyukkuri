@@ -1,0 +1,27 @@
+{
+  "character": "standard Reimu",
+  "minecraft_integration": false,
+  "source_sha256": {
+    "components/common/body.json": "55dd83c897a78a0a697f55cb5a165cc6494e70194919e02477be8d79f1142fdf",
+    "components/common/rump.json": "dab4524f43d7a907be9e019f8e23a0be90485b2aff8577fa5062d88a60ed8eb5",
+    "components/reimu/hair.json": "70aa0fabd13475955eb6665e0c1fcac6e0f0f942e6a76208d94fd5e0fd8762d4",
+    "components/reimu/hand-left.json": "ba63a98e8184051f896dc9a2eb5b058fc9915b1edbfa8d05ac5f2c7a9df5d4c4",
+    "components/reimu/hand-right.json": "f135054396bdf6151ce018b96f3f7513a8de4be1386dc85c22ef41d9f45e2143",
+    "components/reimu/accessories.json": "702bfe162f9f9f5101ce1e2576c2bd1e64c1ee080e6a9323482e930cba5fd917",
+    "components/reimu/face.json": "d899550d2070f7fac293f4574d7ef66e7a9eb13de18384ac7c2f00aa1fc02b24",
+    "components/reimu/puff.json": "168895330388492da4dd42a9eae9ae6f4f9d5862618b0dc2b84ce5bff9b9bf3e",
+    "runtime/growth.js": "1e59240806d5502957f6472938afc3440f3c8134170977e3109384089dd2fae7",
+    "runtime/stem-birth.js": "58764f7aa6f49ffb441db721664fcd555b4190c90cd06e2d010123415bc3dc99",
+    "runtime/viviparous-birth.js": "deb2f7d02fd92b99659970a8c76def4eca03d974b1f52e9428bbe38f44b5b0a4",
+    "runtime/render.js": "7b2db39f97b50e587d5db4255d9af46024d9ba6ccf2fad1bab2155b7ea68ecc5",
+    "characters/reimu.json": "2b6ef7ae5c47210fe34c5786e66bd4a1f191168f8585f4d94f214e3772f35781",
+    "textures/reimu/neutral.png": "362e5844038f4b540abd479ab34351f1266075bc529bb21d209ecf33c20ba687",
+    "behaviors/viviparous-birth.json": "c4fdf48f8d24ac51d76e8068c296542bfddfeb32cd56b895c0e36fbd142170a6",
+    "profiles/growth.json": "cdaca701d5888597ba4805b6f7f0c33057d2074223a7471a5d89964f25aaf410",
+    "expressions/reimu/sleep.json": "7601637b1b47424281949b7ad8503cf94bffb2e076dce2b45259597614349e9a",
+    "runtime/viviparous.template.html": "eedfa86f8a125793372d3d8897c9b4c34994131bb3efa853da48bf82b14b222e",
+    "references/viviparous-comics.md": "822b4cabdfa2d9dae552b454724f192b27aeca28162f6f36c87f9ed62df59120",
+    "build_lifecycle.py": "7b169eec124760ddc282fa83a4cfc35792396c0020b8e3ec187c64d0d06fd8ec",
+    "build_viviparous.py": "f0908649aaa2d431a22effbd98c67c3cf82215e63c4bc325393153a8835b4c32"
+  }
+}

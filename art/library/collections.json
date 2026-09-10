@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "categories": {
+    "models": "基础造型",
+    "motions": "角色动作",
+    "expressions": "表情与脸部试验",
+    "scenes": "互动与生活场景",
+    "history": "历史造型与动作方案",
+    "shared": "共享生成与预览工具"
+  },
+  "collections": {
+    "marisa-body": {
+      "category": "models",
+      "title": "魔理沙 · 选定基础体型",
+      "status": "selected-base"
+    },
+    "reimu-hakkei": {
+      "category": "models",
+      "title": "灵梦 · 基础造型",
+      "status": "selected-base"
+    },
+    "marisa-rump": {
+      "category": "motions",
+      "title": "魔理沙 · 独立臀部甩动",
+      "dependencies": [
+        "marisa-waddle",
+        "marisa-body"
+      ]
+    },
+    "marisa-exercise": {
+      "category": "motions",
+      "title": "魔理沙 · 伸长与半速体操",
+      "dependencies": [
+        "marisa-rump"
+      ]
+    },
+    "marisa-puff": {
+      "category": "motions",
+      "title": "魔理沙 · 噗咕鼓腮",
+      "dependencies": [
+        "marisa-rump"
+      ]
+    },
+    "marisa-poop": {
+      "category": "motions",
+      "title": "魔理沙 · 排嗯嗯与馅料",
+      "dependencies": [
+        "marisa-expressions",
+        "marisa-puff"
+      ]
+    },
+    "reimu-exercise": {
+      "category": "motions",
+      "title": "灵梦 · 完整体操与分段动作",
+      "dependencies": [
+        "reimu-hakkei",
+        "marisa-exercise"
+      ]
+    },
+    "marisa-expressions": {
+      "category": "expressions",
+      "title": "魔理沙 · 分层表情工坊",
+      "dependencies": [
+        "marisa-rump"
+      ]
+    },
+    "marisa-puff-eye-a": {
+      "category": "expressions",
+      "title": "噗咕眼形 · A",
+      "status": "selected-base",
+      "dependencies": [
+        "marisa-puff",
+        "marisa-rump"
+      ]
+    },
+    "marisa-puff-eye-a-clear": {
+      "category": "expressions",
+      "title": "噗咕眼形 · A 完整眼线",
+      "status": "candidate",
+      "dependencies": [
+        "marisa-puff-eye-a",
+        "marisa-rump"
+      ]
+    },
+    "expression-trials": {
+      "category": "expressions",
+      "title": "神态与刘海 · A–D 试验",
+      "status": "candidate"
+    },
+    "diary-combinations": {
+      "category": "expressions",
+      "title": "表情组合 · 四套方案",
+      "status": "candidate"
+    },
+    "marisa-feeding": {
+      "category": "scenes",
+      "title": "魔理沙 · 进食、食盆与油粮",
+      "dependencies": [
+        "marisa-body"
+      ]
+    },
+    "marisa-puff-encounter": {
+      "category": "scenes",
+      "title": "双魔理沙 · 噗咕较量与逃跑",
+      "dependencies": [
+        "marisa-puff-eye-a-clear"
+      ]
+    },
+    "marisa-gentle": {
+      "category": "history",
+      "title": "魔理沙 · 憨厚造型留档",
+      "status": "historical"
+    },
+    "marisa-hakkei": {
+      "category": "history",
+      "title": "魔理沙 · 八景神态方案",
+      "status": "historical"
+    },
+    "marisa-waddle": {
+      "category": "history",
+      "title": "魔理沙 · 早期移动方案",
+      "status": "historical"
+    },
+    "marisa-rump-size-trials": {
+      "category": "history",
+      "title": "魔理沙 · 体型与臀部比例 A–E",
+      "status": "candidate",
+      "dependencies": [
+        "marisa-puff-eye-a-clear"
+      ]
+    },
+    "marisa-body-length-trials": {
+      "category": "history",
+      "title": "魔理沙 · 躯干加长、臀部尺寸保持",
+      "status": "candidate",
+      "dependencies": [
+        "marisa-puff-eye-a-clear"
+      ]
+    },
+    "marisa-stretch": {
+      "category": "history",
+      "title": "伸长 · 初版",
+      "status": "historical",
+      "dependencies": [
+        "marisa-rump"
+      ]
+    },
+    "marisa-stretch-source": {
+      "category": "history",
+      "title": "伸长 · 原作比例方案",
+      "status": "historical",
+      "dependencies": [
+        "marisa-rump",
+        "marisa-stretch"
+      ]
+    },
+    "marisa-b-taller": {
+      "category": "models",
+      "title": "魔理沙 · B 躯干长度稍增高与逃跑修正",
+      "status": "working",
+      "dependencies": [
+        "marisa-body-length-trials"
+      ]
+    },
+    "marisa-b-actions": {
+      "category": "motions",
+      "title": "魔理沙 · 已选 B 体型三动作与自由视角",
+      "status": "working",
+      "dependencies": [
+        "marisa-b-taller"
+      ]
+    },
+    "basic-interactions": {
+      "category": "scenes",
+      "title": "魔理沙与灵梦 · 六项基础互动",
+      "status": "frozen",
+      "freeze_reason": "用户要求等待其他任务完成后，调整本结果再纳入；不得自动恢复。"
+    }
+  },
+  "retired": {
+    "marisa-stretch-waist": "强烈收腰方案，已有明确否定记录",
+    "marisa-depth-trials": "后身纵深方案，已有方向错误记录",
+    "marisa-puff-eye-b": "用户确认 B/C/D 删除，保留 A",
+    "marisa-puff-eye-c": "用户确认 B/C/D 删除，保留 A",
+    "marisa-puff-eye-d": "用户确认 B/C/D 删除，保留 A",
+    "marisa-puff-eye-trials": "包含已弃用 B/C/D 的四版比较页及合成图"
+  }
+}

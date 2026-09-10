@@ -1,0 +1,6809 @@
+{
+  "id": "patchouli.hair",
+  "elements": [
+    {
+      "name": "patchouli_cap",
+      "type": "cube",
+      "from": [
+        -6.35,
+        8.18,
+        -4.58
+      ],
+      "to": [
+        6.35,
+        9.5,
+        6.85
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_crown",
+      "type": "cube",
+      "from": [
+        -5.35,
+        9.4,
+        -3.6
+      ],
+      "to": [
+        5.35,
+        9.78,
+        5.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "crown"
+    },
+    {
+      "name": "patchouli_back",
+      "type": "cube",
+      "from": [
+        -6.2,
+        1.65,
+        6.02
+      ],
+      "to": [
+        6.2,
+        8.9,
+        7.45
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_0",
+      "type": "cube",
+      "from": [
+        -6.2,
+        1.58,
+        7.1
+      ],
+      "to": [
+        -4.550000000000001,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_0",
+      "type": "cube",
+      "from": [
+        -6.3,
+        1.1,
+        7.08
+      ],
+      "to": [
+        -4.42,
+        1.82,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_1",
+      "type": "cube",
+      "from": [
+        -4.42,
+        1.13,
+        7.1
+      ],
+      "to": [
+        -2.77,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_1",
+      "type": "cube",
+      "from": [
+        -4.52,
+        0.65,
+        7.08
+      ],
+      "to": [
+        -2.6399999999999997,
+        1.37,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_2",
+      "type": "cube",
+      "from": [
+        -2.64,
+        1.53,
+        7.1
+      ],
+      "to": [
+        -0.9900000000000002,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_2",
+      "type": "cube",
+      "from": [
+        -2.74,
+        1.05,
+        7.08
+      ],
+      "to": [
+        -0.8600000000000001,
+        1.77,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_3",
+      "type": "cube",
+      "from": [
+        -0.8600000000000003,
+        1.25,
+        7.1
+      ],
+      "to": [
+        0.7899999999999996,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_3",
+      "type": "cube",
+      "from": [
+        -0.9600000000000003,
+        0.77,
+        7.08
+      ],
+      "to": [
+        0.9199999999999997,
+        1.49,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_4",
+      "type": "cube",
+      "from": [
+        0.9199999999999999,
+        1.43,
+        7.1
+      ],
+      "to": [
+        2.57,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_4",
+      "type": "cube",
+      "from": [
+        0.82,
+        0.95,
+        7.08
+      ],
+      "to": [
+        2.7,
+        1.67,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_5",
+      "type": "cube",
+      "from": [
+        2.7,
+        1.13,
+        7.1
+      ],
+      "to": [
+        4.35,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_5",
+      "type": "cube",
+      "from": [
+        2.6,
+        0.65,
+        7.08
+      ],
+      "to": [
+        4.48,
+        1.37,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_back_lock_6",
+      "type": "cube",
+      "from": [
+        4.4799999999999995,
+        1.63,
+        7.1
+      ],
+      "to": [
+        6.129999999999999,
+        8.35,
+        7.8
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_back_hem_6",
+      "type": "cube",
+      "from": [
+        4.38,
+        1.15,
+        7.08
+      ],
+      "to": [
+        6.26,
+        1.8699999999999999,
+        7.95
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_fringe_surface_0",
+      "type": "cube",
+      "from": [
+        -6.4,
+        5.3,
+        -4.74953125
+      ],
+      "to": [
+        -5.985,
+        9.22,
+        -4.029531250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_1",
+      "type": "cube",
+      "from": [
+        -6.0,
+        5.484,
+        -4.80578125
+      ],
+      "to": [
+        -5.585,
+        9.22,
+        -4.08578125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_2",
+      "type": "cube",
+      "from": [
+        -5.6000000000000005,
+        5.667999999999999,
+        -4.85828125
+      ],
+      "to": [
+        -5.1850000000000005,
+        9.22,
+        -4.13828125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_3",
+      "type": "cube",
+      "from": [
+        -5.2,
+        5.851999999999999,
+        -4.90703125
+      ],
+      "to": [
+        -4.785,
+        9.22,
+        -4.18703125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_4",
+      "type": "cube",
+      "from": [
+        -4.800000000000001,
+        6.036,
+        -4.95203125
+      ],
+      "to": [
+        -4.385000000000001,
+        9.22,
+        -4.23203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_5",
+      "type": "cube",
+      "from": [
+        -4.4,
+        6.22,
+        -4.99328125
+      ],
+      "to": [
+        -3.9850000000000003,
+        9.22,
+        -4.27328125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_6",
+      "type": "cube",
+      "from": [
+        -4.0,
+        6.3,
+        -5.03078125
+      ],
+      "to": [
+        -3.585,
+        9.22,
+        -4.310781250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_7",
+      "type": "cube",
+      "from": [
+        -3.6,
+        6.38,
+        -5.06453125
+      ],
+      "to": [
+        -3.185,
+        9.22,
+        -4.34453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_8",
+      "type": "cube",
+      "from": [
+        -3.2,
+        6.46,
+        -5.09453125
+      ],
+      "to": [
+        -2.785,
+        9.22,
+        -4.37453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_9",
+      "type": "cube",
+      "from": [
+        -2.8000000000000003,
+        6.54,
+        -5.12078125
+      ],
+      "to": [
+        -2.3850000000000002,
+        9.22,
+        -4.4007812500000005
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_10",
+      "type": "cube",
+      "from": [
+        -2.4000000000000004,
+        6.88,
+        -5.14328125
+      ],
+      "to": [
+        -1.9850000000000003,
+        9.22,
+        -4.4232812500000005
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_11",
+      "type": "cube",
+      "from": [
+        -2.0,
+        6.634545454545455,
+        -5.16203125
+      ],
+      "to": [
+        -1.585,
+        9.22,
+        -4.44203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_12",
+      "type": "cube",
+      "from": [
+        -1.5999999999999996,
+        6.649090909090909,
+        -5.17703125
+      ],
+      "to": [
+        -1.1849999999999996,
+        9.22,
+        -4.45703125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_13",
+      "type": "cube",
+      "from": [
+        -1.2000000000000002,
+        6.663636363636364,
+        -5.18828125
+      ],
+      "to": [
+        -0.7850000000000001,
+        9.22,
+        -4.46828125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_14",
+      "type": "cube",
+      "from": [
+        -0.7999999999999998,
+        6.678181818181819,
+        -5.1957812500000005
+      ],
+      "to": [
+        -0.38499999999999984,
+        9.22,
+        -4.475781250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_15",
+      "type": "cube",
+      "from": [
+        -0.40000000000000036,
+        6.692727272727272,
+        -5.199531250000001
+      ],
+      "to": [
+        0.014999999999999625,
+        9.22,
+        -4.479531250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_16",
+      "type": "cube",
+      "from": [
+        0.0,
+        6.692727272727272,
+        -5.199531250000001
+      ],
+      "to": [
+        0.415,
+        9.22,
+        -4.479531250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_17",
+      "type": "cube",
+      "from": [
+        0.40000000000000036,
+        6.678181818181819,
+        -5.1957812500000005
+      ],
+      "to": [
+        0.8150000000000004,
+        9.22,
+        -4.475781250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_18",
+      "type": "cube",
+      "from": [
+        0.7999999999999998,
+        6.663636363636364,
+        -5.18828125
+      ],
+      "to": [
+        1.2149999999999999,
+        9.22,
+        -4.46828125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_19",
+      "type": "cube",
+      "from": [
+        1.2000000000000002,
+        6.649090909090909,
+        -5.17703125
+      ],
+      "to": [
+        1.6150000000000002,
+        9.22,
+        -4.45703125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_20",
+      "type": "cube",
+      "from": [
+        1.5999999999999996,
+        6.634545454545455,
+        -5.16203125
+      ],
+      "to": [
+        2.0149999999999997,
+        9.22,
+        -4.44203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_21",
+      "type": "cube",
+      "from": [
+        2.0,
+        6.88,
+        -5.14328125
+      ],
+      "to": [
+        2.415,
+        9.22,
+        -4.4232812500000005
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_22",
+      "type": "cube",
+      "from": [
+        2.4000000000000004,
+        6.54,
+        -5.12078125
+      ],
+      "to": [
+        2.8150000000000004,
+        9.22,
+        -4.4007812500000005
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_23",
+      "type": "cube",
+      "from": [
+        2.8000000000000007,
+        6.46,
+        -5.09453125
+      ],
+      "to": [
+        3.2150000000000007,
+        9.22,
+        -4.37453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_24",
+      "type": "cube",
+      "from": [
+        3.200000000000001,
+        6.38,
+        -5.06453125
+      ],
+      "to": [
+        3.615000000000001,
+        9.22,
+        -4.34453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_25",
+      "type": "cube",
+      "from": [
+        3.5999999999999996,
+        6.3,
+        -5.03078125
+      ],
+      "to": [
+        4.015,
+        9.22,
+        -4.310781250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_26",
+      "type": "cube",
+      "from": [
+        4.0,
+        6.22,
+        -4.99328125
+      ],
+      "to": [
+        4.415,
+        9.22,
+        -4.27328125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_27",
+      "type": "cube",
+      "from": [
+        4.4,
+        6.036,
+        -4.95203125
+      ],
+      "to": [
+        4.815,
+        9.22,
+        -4.23203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_28",
+      "type": "cube",
+      "from": [
+        4.800000000000001,
+        5.851999999999999,
+        -4.90703125
+      ],
+      "to": [
+        5.215000000000001,
+        9.22,
+        -4.18703125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_29",
+      "type": "cube",
+      "from": [
+        5.200000000000001,
+        5.667999999999999,
+        -4.85828125
+      ],
+      "to": [
+        5.615000000000001,
+        9.22,
+        -4.13828125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_30",
+      "type": "cube",
+      "from": [
+        5.6,
+        5.484,
+        -4.80578125
+      ],
+      "to": [
+        6.015,
+        9.22,
+        -4.08578125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_surface_31",
+      "type": "cube",
+      "from": [
+        6.0,
+        5.3,
+        -4.74953125
+      ],
+      "to": [
+        6.415,
+        9.22,
+        -4.029531250000001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_parting_-1_0",
+      "type": "cube",
+      "from": [
+        -2.4050000000000002,
+        6.68,
+        -5.170283203125
+      ],
+      "to": [
+        -2.295,
+        8.35,
+        -5.1452832031249995
+      ],
+      "origin": [
+        -2.35,
+        6.68,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        9
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_parting_-1_1",
+      "type": "cube",
+      "from": [
+        -4.234999999999999,
+        6.25,
+        -5.0302453125
+      ],
+      "to": [
+        -4.125,
+        8.05,
+        -5.0052453125
+      ],
+      "origin": [
+        -4.18,
+        6.25,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        17
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_sheen_-1",
+      "type": "cube",
+      "from": [
+        -1.7000000000000002,
+        8.15,
+        -5.217
+      ],
+      "to": [
+        -0.5000000000000001,
+        8.55,
+        -5.202
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_parting_1_0",
+      "type": "cube",
+      "from": [
+        2.295,
+        6.68,
+        -5.170283203125
+      ],
+      "to": [
+        2.4050000000000002,
+        8.35,
+        -5.1452832031249995
+      ],
+      "origin": [
+        2.35,
+        6.68,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        -9
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_parting_1_1",
+      "type": "cube",
+      "from": [
+        4.125,
+        6.25,
+        -5.0302453125
+      ],
+      "to": [
+        4.234999999999999,
+        8.05,
+        -5.0052453125
+      ],
+      "origin": [
+        4.18,
+        6.25,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        -17
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_fringe_sheen_1",
+      "type": "cube",
+      "from": [
+        0.5000000000000001,
+        8.15,
+        -5.217
+      ],
+      "to": [
+        1.7000000000000002,
+        8.55,
+        -5.202
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            80,
+            64,
+            88,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_0",
+      "type": "cube",
+      "from": [
+        -5.94,
+        5.462,
+        -4.8592578125
+      ],
+      "to": [
+        -5.46,
+        5.93,
+        -4.5592578125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_0",
+      "type": "cube",
+      "from": [
+        -5.7864,
+        5.27,
+        -4.8442578125
+      ],
+      "to": [
+        -5.6136,
+        5.558,
+        -4.5792578125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_1",
+      "type": "cube",
+      "from": [
+        -3.7399999999999998,
+        6.215999999999999,
+        -5.092314453125001
+      ],
+      "to": [
+        -3.36,
+        6.569999999999999,
+        -4.792314453125001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_1",
+      "type": "cube",
+      "from": [
+        -3.6184,
+        6.1,
+        -5.077314453125001
+      ],
+      "to": [
+        -3.4816,
+        6.274,
+        -4.812314453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_2",
+      "type": "cube",
+      "from": [
+        -2.11,
+        6.458,
+        -5.1976953125000005
+      ],
+      "to": [
+        -1.69,
+        6.83,
+        -4.897695312500001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_2",
+      "type": "cube",
+      "from": [
+        -1.9756,
+        6.33,
+        -5.182695312500001
+      ],
+      "to": [
+        -1.8243999999999998,
+        6.522,
+        -4.9176953125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_3",
+      "type": "cube",
+      "from": [
+        0.49,
+        6.538,
+        -5.2350488281250005
+      ],
+      "to": [
+        0.81,
+        6.88,
+        -4.935048828125001
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_3",
+      "type": "cube",
+      "from": [
+        0.5924,
+        6.43,
+        -5.220048828125001
+      ],
+      "to": [
+        0.7076,
+        6.5920000000000005,
+        -4.955048828125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_4",
+      "type": "cube",
+      "from": [
+        2.705,
+        6.25,
+        -5.1414453125
+      ],
+      "to": [
+        3.0949999999999998,
+        6.67,
+        -4.8414453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_4",
+      "type": "cube",
+      "from": [
+        2.8298,
+        6.09,
+        -5.1264453125000005
+      ],
+      "to": [
+        2.9701999999999997,
+        6.33,
+        -4.8614453125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_5",
+      "type": "cube",
+      "from": [
+        5.33,
+        5.534,
+        -4.879033203125
+      ],
+      "to": [
+        5.77,
+        5.93,
+        -4.579033203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_loose_fringe_tip_5",
+      "type": "cube",
+      "from": [
+        5.4708,
+        5.39,
+        -4.864033203125
+      ],
+      "to": [
+        5.6292,
+        5.606,
+        -4.599033203125
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            72,
+            64,
+            80,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "bangs"
+    },
+    {
+      "name": "patchouli_side_left",
+      "type": "cube",
+      "from": [
+        -7.13,
+        0.95,
+        -2.5
+      ],
+      "to": [
+        -5.87,
+        8.6,
+        6.3
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_left0",
+      "type": "cube",
+      "from": [
+        -7.38,
+        0.6,
+        -2.4
+      ],
+      "to": [
+        -6.0200000000000005,
+        2.2,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_left1",
+      "type": "cube",
+      "from": [
+        -7.56,
+        0.96,
+        -2.4
+      ],
+      "to": [
+        -6.2,
+        2.8200000000000003,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_left2",
+      "type": "cube",
+      "from": [
+        -7.74,
+        1.3199999999999998,
+        -2.4
+      ],
+      "to": [
+        -6.380000000000001,
+        3.4400000000000004,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_left0",
+      "type": "cube",
+      "from": [
+        -7.22,
+        1.1,
+        -1.7
+      ],
+      "to": [
+        -6.819999999999999,
+        1.92,
+        -0.9
+      ],
+      "origin": [
+        -7.02,
+        1.92,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_left1",
+      "type": "cube",
+      "from": [
+        -7.35,
+        2.35,
+        -1.7
+      ],
+      "to": [
+        -6.949999999999999,
+        3.17,
+        -0.9
+      ],
+      "origin": [
+        -7.1499999999999995,
+        3.17,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_left2",
+      "type": "cube",
+      "from": [
+        -7.4799999999999995,
+        3.6,
+        -1.7
+      ],
+      "to": [
+        -7.079999999999999,
+        4.42,
+        -0.9
+      ],
+      "origin": [
+        -7.279999999999999,
+        4.42,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_side_right",
+      "type": "cube",
+      "from": [
+        5.87,
+        0.95,
+        -2.5
+      ],
+      "to": [
+        7.13,
+        8.6,
+        6.3
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_right0",
+      "type": "cube",
+      "from": [
+        6.0200000000000005,
+        0.6,
+        -2.4
+      ],
+      "to": [
+        7.38,
+        2.2,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_right1",
+      "type": "cube",
+      "from": [
+        6.2,
+        0.96,
+        -2.4
+      ],
+      "to": [
+        7.56,
+        2.8200000000000003,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_long_side_flare_right2",
+      "type": "cube",
+      "from": [
+        6.380000000000001,
+        1.3199999999999998,
+        -2.4
+      ],
+      "to": [
+        7.74,
+        3.4400000000000004,
+        6.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_right0",
+      "type": "cube",
+      "from": [
+        6.819999999999999,
+        1.1,
+        -1.7
+      ],
+      "to": [
+        7.22,
+        1.92,
+        -0.9
+      ],
+      "origin": [
+        7.02,
+        1.92,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        -20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_right1",
+      "type": "cube",
+      "from": [
+        6.949999999999999,
+        2.35,
+        -1.7
+      ],
+      "to": [
+        7.35,
+        3.17,
+        -0.9
+      ],
+      "origin": [
+        7.1499999999999995,
+        3.17,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        -20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    },
+    {
+      "name": "patchouli_wispy_side_right2",
+      "type": "cube",
+      "from": [
+        7.079999999999999,
+        3.6,
+        -1.7
+      ],
+      "to": [
+        7.4799999999999995,
+        4.42,
+        -0.9
+      ],
+      "origin": [
+        7.279999999999999,
+        4.42,
+        -1.3
+      ],
+      "rotation": [
+        0,
+        0,
+        -20
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hair"
+    }
+  ]
+}
