@@ -1,0 +1,29 @@
+name: 问题报告
+description: 记录崩溃、行为错误或显示问题
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 填写 Mod 版本或 commit、NeoForge / GeckoLib 版本、其他模组及单人或服务器。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与截图
+      description: 附 latest.log 或崩溃报告；发送前移除账户信息和令牌。

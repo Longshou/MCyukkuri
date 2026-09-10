@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/Longshou/MCyukkuri/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+displayURL="https://github.com/Longshou/MCyukkuri"
+authors="Longshou"
+description='''
+A Minecraft foundation for a living Yukkuri world: species, behavior, habitats and field notes.
+Early development build. Entities and ecology are not implemented yet.
+'''
+
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="[${neo_version},21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="geckolib"
+type="required"
+versionRange="[${geckolib_version},5)"
+ordering="NONE"
+side="BOTH"

@@ -1,0 +1,23 @@
+name: 功能任务
+description: 将一个生态、美术或工程目标拆成可验收任务
+title: '[Feature] '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 玩家能观察到的结果
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Wiki 与参考来源
+      description: 附本库 Wiki 路径；原创设计请标明，不混合作品设定。
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收条件
+      description: 描述可操作的验证步骤，包括存档或多人同步要求。
+    validations:
+      required: true

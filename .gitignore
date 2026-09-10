@@ -1,0 +1,36 @@
+# Local art experiments and generated previews (curated assets live in art/).
+/reference/
+/variants/
+/models/
+/textures/
+/marisa-original/
+/preview/
+/tools/
+/docs/LOCAL_ART_HISTORY.md
+node_modules/
+__pycache__/
+*.pyc
+
+# Build outputs, local worlds, IDE state and machine-specific settings.
+.gradle/
+/build/
+/run/
+/runs/
+/run-data/
+/repo/
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+/bin/
+/out/
+src/generated/resources/.cache/
+*.log
+.env
+.env.*
+!.env.example
+local.properties
+Thumbs.db
+.DS_Store
