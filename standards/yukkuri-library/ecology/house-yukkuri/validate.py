@@ -22,10 +22,10 @@ for species in cfg['species']:
     result=read(out/('house_'+species+'.bbmodel'))
     br=read(LIB/'assembled'/species/'animation-rig.json');rr=read(out/('house_'+species+'.rig.json'))
     skin=[e for e in result['elements'] if e['name'].startswith('house_body_')]
-    shape=[(e['name'],e['from'],e['to']) for e in skin]
+    shape=[(e['name'],e['from'],e['to'],e['origin'],e['rotation']) for e in skin]
     if shared_body is not None:assert shape==shared_body
     shared_body=shape
-    assert len(skin)==10 and len(result['elements'])<=120
+    assert len(skin)<=80 and len(result['elements'])<=200
     coords=[vertices(e) for e in skin]
     for axis,expected in enumerate(BODY_DIMENSIONS):
         values=[v for cube in coords for v in cube[axis::8]]
@@ -58,7 +58,7 @@ for species in cfg['species']:
         assert im.tobytes()==Image.open(LIB/'assembled'/species/'textures'/(expr+'.png')).convert('RGBA').tobytes()
         hashes.append(hashlib.sha256(im.tobytes()).hexdigest())
     assert len(set(hashes))==len(cfg['expressions'])
-    report[species]={'cubes':len(result['elements']),'quads':len(result['elements'])*6,'bones':len(rr['bones']),'shared_body_cubes':10,'canonical_face_accessories_anatomy':True,'anus_uv_restored':True,'canonical_motion_curves_reused':True,'canonical_expression_pixels':len(cfg['expressions'])}
+    report[species]={'cubes':len(result['elements']),'quads':len(result['elements'])*6,'bones':len(rr['bones']),'shared_body_cubes':len(skin),'canonical_face_accessories_anatomy':True,'anus_uv_restored':True,'canonical_motion_curves_reused':True,'canonical_expression_pixels':len(cfg['expressions'])}
 for p in out.glob('*.bbmodel'):
     bb=read(p);ids={e['uuid'] for e in bb['elements']};seen=[]
     def visit(n):
@@ -73,5 +73,9 @@ for p in out.glob('*.bbmodel'):
         assert all(math.isfinite(x) for k in ['from','to','origin','rotation'] for x in e[k])
         for f in e['faces'].values():assert all(0<=v<=bb['resolution']['width'] for v in f['uv'])
 report['exports']=len(list(out.glob('*.bbmodel')))
-(HERE/'verification.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+report['design']=cfg['design']
+report['design_sources']=prov['design_sources']
+report['scope']='static_asset_structure_only'
+report_dir=HERE/'reports/current';report_dir.mkdir(parents=True,exist_ok=True)
+(report_dir/'verification.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print(json.dumps(report))

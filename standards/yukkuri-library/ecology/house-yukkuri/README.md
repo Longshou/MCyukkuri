@@ -2,9 +2,9 @@
 
 [打开三维预览](index.html) · [参考核读](REFERENCES.md) · [设计参数](config.json)
 
-家油保留较高的卵形体态，身体使用 10 个方块，以旋转斜面连接底缘和收窄的头顶，消除多层台阶。头发沿卵形适配，五官、辫子、帽子和蝴蝶结仍保留标准形状、UV 与贴图。已恢复油臀、油菊和七个标准伸缩部件方块。
+当前为卵形调整 v4，**造型待确认**。身体最宽处位于离地 1.45 单位、约 37% 身高处；底缘圆收，上部逐段收窄。主体采用八边截面填充与连续斜面，脸部只保留承托标准五官的浅平面。身体尺寸仍为宽 3.28、高 3.95、深 2.36 单位。
 
-魔理沙由 1,687 个方块降至 **83 个**，灵梦由 1,703 个降至 **107 个**，对应 498 / 642 个四边面（包含内部与透明面），合计减少约 94%。两角色使用 11 种统一表情；逐像素对比确认与标准导出相同。上一版的大圆眼、自绘嘴形、短侧发和细分饰品已撤下。
+两种家油共用 71 个身体方块；魔理沙合计 144 个方块，灵梦合计 168 个，对应 864 / 1,008 个四边面（包含内部与透明面）。头发、五官、辫子、帽子、蝴蝶结、油臀与伸缩部件沿用 v3 的几何、UV 和挂接位置，11 种表情贴图及动作不变。为形成腹部与肩部的连续轮廓，身体分段数高于 v3。
 
 预览提供双角色、单角色、普通成体对比与巢卵观察，以及五种生活片段。支持旋转、缩放、拖动时间、暂停和家具显隐。孵化后幼体保留独立身份，移除巢不会删除已经出生的幼体。
 
@@ -12,9 +12,15 @@
 
 ## 编辑与重建
 
-家油专用身体和装配参数在 `reference_design.py`；其余几何通过角色的组件清单从当前标准导出中读取，不保存另一套饰品或表情源。`HEAD_OFFSET`、`FACE_OFFSET`、`RUMP_OFFSET` 与 `PENI_OFFSET` 控制挂接位置，标准组件缩放为 0.24。头发几何适配收尖轮廓，其余五官、饰品及伸缩部件保留标准形状与 UV；标准分层油臀合并成两个方块，保留完整油菊 UV。标准角色源仍由本库 `characters/`、`components/`、`motions/` 和 `expressions/` 维护。来源及设计文件哈希登记于 [provenance.json](assembled/provenance.json)。
+家油专用身体和装配参数在 `reference_design.py`。`BODY_PROFILE` 记录各高度的半宽、半深；斜向实体连接相邻截面，内收方块填充各段内部。其余几何通过角色的组件清单从当前标准导出中读取，不保存另一套饰品或表情源。`HEAD_OFFSET`、`FACE_OFFSET`、`RUMP_OFFSET` 与 `PENI_OFFSET` 控制挂接位置，标准组件缩放为 0.24。标准角色源仍由本库 `characters/`、`components/`、`motions/` 和 `expressions/` 维护。来源及设计文件哈希登记于 [provenance.json](assembled/provenance.json)。
 
-先在角色源有修改时运行本库的 `build.py`；随后运行：
+仅调整家油造型时，以下命令只导出静态美术文件并刷新预览数据，保留既有道具和普通成体对照数据，不启动渲染器、服务器或浏览器：
+
+```powershell
+python standards/yukkuri-library/ecology/house-yukkuri/build.py --characters-only
+```
+
+标准角色源发生变化时，需要在指定环境先更新基础库，再重新导出完整场景。下列完整构建和验证命令仅供指定环境使用，本机不执行；浏览器验收由用户在允许的环境中操作：
 
 ```powershell
 python standards/yukkuri-library/ecology/house-yukkuri/build.py
@@ -30,5 +36,4 @@ node standards/yukkuri-library/ecology/house-yukkuri/verify.cjs
 - [棉絮巢](assembled/lint_nest.bbmodel)、[卵](assembled/house_egg.bbmodel)、[壳片](assembled/house_eggshell.bbmodel)与另外三种道具：同目录提供 PNG、BBModel、几何与绑定骨架。
 - 生活片段的多对象路线与孵化事件由 JavaScript 驱动，未烘焙为单体动画；导入游戏需移植服务端状态和场景协调。单体模型动画已经导出。
 
-坐标每格 16 单位、+Y 向上、−Z 为正面。浏览器和结构验证结果见 `verification.json`、`browser-verification.json`。未在 Blockbench 界面或 Minecraft 中做导入验收。
-
+坐标每格 16 单位、+Y 向上、−Z 为正面。v4 已完成静态导出；造型、浏览器表现、Blockbench 导入及 Minecraft 运行均待验收。`verification.json`、`browser-verification.json` 和本目录已有 PNG 截图属于 v3 历史证据，不能说明 v4 的效果；当前造型以 `index.html` 和 `assembled/` 为准。新的结构检查结果写入 `reports/current/verification.json`。

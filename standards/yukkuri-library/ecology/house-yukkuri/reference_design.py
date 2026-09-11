@@ -1,6 +1,6 @@
 """Low-poly house body with canonical library face, hair and accessories.
 
-Bevelled body and fitted hair retain the library's cuboid construction.
+A low-bellied egg profile and fitted hair retain the library's cuboid construction.
 Face, accessories and anatomy retain canonical geometry and UVs.
 """
 import copy, math
@@ -11,6 +11,10 @@ FACE_OFFSET=[0,1.15,-.08]
 RUMP_OFFSET=[0,.30,-.71]
 PENI_OFFSET=[0,.42,0]
 BODY_DIMENSIONS=[3.28,3.95,2.36]
+# Height, half width, half depth: round base, low belly, progressively narrower shoulders.
+BODY_PROFILE=[(0,.60,.43),(.35,1.20,.86),(.85,1.53,1.10),(1.45,1.64,1.18),
+              (2.05,1.55,1.11),(2.70,1.32,.95),(3.35,.88,.63),(3.95,.28,.20)]
+
 
 def transform_point(p,offset):return [round(v*SCALE+o,9) for v,o in zip(p,offset)]
 
@@ -21,22 +25,42 @@ def make(species,base_bb,base_rig,standard_names):
         e=copy.deepcopy(source);e.update(name=name,origin=origin or [0,0,0],rotation=rotation or [0,0,0])
         e['from']=lo;e['to']=hi;elements.append(e);groups.append(group)
         return e
-    box('house_body_core',[-1.04,0,-.90],[1.04,3.25,.90])
-    box('house_body_face',[-1.04,.28,-1.18],[1.04,3.20,1.18])
-    box('house_body_middle',[-1.64,.6,-.90],[1.64,2.50,.90])
-    box('house_body_tip',[-.55,2.5,-.90],[.55,3.95,.90])
-    # Rotated squares give continuous bottom bevels instead of horizontal tiers.
-    for side in [-1,1]:
-        x=side*1.04;r=.6/math.sqrt(2)
-        box('house_body_base_x_'+str(side),[x-r,.6-r,-.90],[x+r,.6+r,.90],[x,.6,0],[0,0,45])
-        z=side*.90;r=.28/math.sqrt(2)
-        box('house_body_base_z_'+str(side),[-1.04,.28-r,z-r],[1.04,.28+r,z+r],[0,.28,z],[45,0,0])
-        # Outer edge runs from the wide belly to the narrow crown.
-        dx,dy=1.09,1.45;length=math.hypot(dx,dy);a=math.degrees(math.atan2(dx,dy))*side
-        pivot=[side*1.64,2.50,0]
-        lo=[pivot[0]-length if side==1 else pivot[0],2.50,-.9]
-        hi=[pivot[0] if side==1 else pivot[0]+length,2.50+length,.9]
-        box('house_body_shoulder_'+str(side),lo,hi,pivot,[0,0,a])
+    def mirrored(e,axis):
+        e=copy.deepcopy(e)
+        e['from'][axis],e['to'][axis]=-e['to'][axis],-e['from'][axis]
+        e['origin'][axis]*=-1
+        # Reflect the two axes of each rotation plane consistently with geometry.vertices.
+        for k in range(3):
+            if k!=axis:e['rotation'][k]*=-1
+        return e
+    def add_mirror(e,axis,suffix):
+        other=mirrored(e,axis);other['name']+=suffix
+        elements.append(other);groups.append('body')
+        return other
+    for i,((y0,x0,z0),(y1,x1,z1)) in enumerate(zip(BODY_PROFILE,BODY_PROFILE[1:])):
+        x,z=min(x0,x1),min(z0,z1)
+        # Solid octagonal infill stays inside both ends of each sloping interval.
+        box(f'house_body_fill_x_{i}',[-x,y0,-.7*z],[x,y1,.7*z])
+        box(f'house_body_fill_z_{i}',[-.7*x,y0,-z],[.7*x,y1,z])
+        dx,dz=-.3*x,.3*z;length=math.hypot(dx,dz)
+        corner=box(f'house_body_corner_{i}',[x,y0,.7*z],[x+length,y1,.7*z+.65*min(x,z)],
+                   [x,y0,.7*z],[0,math.degrees(math.atan2(dz,dx)),0])
+        opposite=add_mirror(corner,0,'_left')
+        add_mirror(corner,2,'_front');add_mirror(opposite,2,'_front')
+        # Continuous angled solids cover the outer silhouette; no full-height straight wall.
+        for axis,r0,r1,span in [(0,x0,x1,.7*z),(2,z0,z1,.7*x)]:
+            dr=r1-r0;dy=y1-y0;length=math.hypot(dr,dy)
+            depth=abs(dr)*length/dy+.04
+            angle=math.degrees(math.atan2(-dr,dy))
+            if axis==0:
+                e=box(f'house_body_side_x_{i}',[r0-depth,y0,-span],[r0,y0+length,span],
+                      [r0,y0,0],[0,0,angle])
+            else:
+                e=box(f'house_body_side_z_{i}',[-span,y0,r0-depth],[span,y0+length,r0],
+                      [0,y0,r0],[angle,0,0])
+            add_mirror(e,axis,'_opposite')
+    # The canonical pixel face remains flat; only this shallow support reaches its plane.
+    box('house_body_face_support',[-1.27,1.10,-1.18],[1.27,2.98,-.95])
     for src in base_bb['elements']:
         if src['name'] not in standard_names:continue
         kind=standard_names[src['name']];offset=FACE_OFFSET if kind=='face' else HEAD_OFFSET

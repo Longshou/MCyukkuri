@@ -53,7 +53,7 @@ function paint(){
   }else if(subject==='pair'){
     const clip=action==='flee'?'flee':action==='forage'||action==='build'?'waddle':'idle';
     centerY=2.7;char('marisa',[-2.5,0,0],1,0,clip);char('reimu',[2.3,0,0],1,0,clip);
-    $('viewLabel').textContent='低面数 · 标准魔理沙与灵梦组件';
+    $('viewLabel').textContent='卵形调整 · 下腹圆润、上部收窄';
   }else if(subject==='compare'){
     add(DATA.ordinaryCharacters.marisa,[-11,0,0],1,0,'idle',t,640);add(DATA.ordinaryCharacters.reimu,[11,0,0],1,0,'idle',t,768);
     char('marisa',[-3,0,-8]);char('reimu',[3,0,-8]);centerY=8;
@@ -110,7 +110,7 @@ function paint(){
   $('stage').classList.toggle('night',action==='forage');
   $('time').value=t;$('clock').textContent=t.toFixed(1)+' / 18 s';
   const captions={rest:'白天在家具下休息。棉絮围成低矮的巢，卵集中在旁侧。',forage:'魔理沙离巢寻找碎食，停下来进食，再回到巢边。',build:'魔理沙搬回一团棉絮，补到巢的边缘。棉絮与食物分别展示。',hatch:'依次展示巢内出现卵、临近孵化时轻晃、破壳后幼体离开壳。',flee:'受惊后向家具下躲避，回到藏身处后停下。'};
-  $('caption').textContent=subject==='pair'?'斜面收起底缘，头顶向上收窄。沿用统一五官、表情与饰品；背面可查看油菊，标准身体部件可单独伸缩。':captions[action]+(subject==='compare'?' 家油保留较高的体态，与普通成体在相同世界尺度下对比。':'');
+  $('caption').textContent=subject==='pair'?'最宽处位于下腹，底缘圆收，肩部逐段收窄。沿用统一五官、表情与饰品；背面可查看油菊，标准身体部件可单独伸缩。':captions[action]+(subject==='compare'?' 家油保留较高的体态，与普通成体在相同世界尺度下对比。':'');
   $('state').textContent=action==='hatch'?`巢：${state.nest.intact?'完整':'已移除'} · 待孵 ${state.eggs.filter(e=>e.status==='incubating').length} · 已出生 ${state.young.length} · 失巢卵 ${state.eggs.filter(e=>e.status==='lost').length}`:(removed?'巢已移除；恢复场景可重新观察。':'棉絮巢 / 碎食 / 浅色圆卵');
 }
 function resetCamera(){
