@@ -1,0 +1,37 @@
+{
+  "id": "yawn",
+  "label": "打哈欠",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "yawn"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/49f8cbd04c7b4262afc2.png",
+    "face_eye_right": "expressions/parts/49f8cbd04c7b4262afc2.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_mouth": "expressions/parts/0f0860feba202ca1b2a3.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/613c33ad86f2e8940fa6.png",
+    "face_tear_right": "expressions/parts/613c33ad86f2e8940fa6.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本あくび顔グラベース",
+      "index": 0,
+      "sprite_id": 8564,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/yawn.png",
+  "review_code": "O08",
+  "origin": "original",
+  "review_pair": "yawn__new"
+}

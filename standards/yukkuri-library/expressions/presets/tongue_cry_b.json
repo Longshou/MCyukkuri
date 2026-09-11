@@ -1,0 +1,68 @@
+{
+  "id": "tongue_cry_b",
+  "label": "灰瞳伸舌哭喊 · 泪帧 B",
+  "group": "特殊状态",
+  "recipe": {
+    "eyes": "pin",
+    "brows": "sad",
+    "mouth": "tongue_long",
+    "tears": "accepted-lower-eyelid-sheen",
+    "blush": "pale",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/1cadef959b1def31db66.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/1219e3a3aec64b7705b0.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_eye_right": "expressions/parts/1cadef959b1def31db66.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/1219e3a3aec64b7705b0.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_mouth": "expressions/parts/7425436c510ac9dab5b4.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本キリ泣き舌B顔グラベース",
+      "index": 0,
+      "sprite_id": 8643,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝キリ泣き舌B顔グラベース",
+      "index": 0,
+      "sprite_id": 7234,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N025",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_tear_left": {
+      "position": [
+        0,
+        -0.145,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "position": [
+        0,
+        -0.145,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "redrawn-awaiting-review",
+    "note": "保留现有眼口，将泪珠替换为已确认泪光；共享相同部件。"
+  },
+  "duplicate_of": "tongue_cry"
+}

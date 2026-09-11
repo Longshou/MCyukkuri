@@ -1,0 +1,9 @@
+{
+  "id": "side_tears",
+  "kind": "overlay",
+  "label": "横向眼泪",
+  "parts": {
+    "face_tear_left": "expressions/parts/9d97e3064a50b9ba1550.png",
+    "face_tear_right": "expressions/parts/6961dca378507cd9a586.png"
+  }
+}

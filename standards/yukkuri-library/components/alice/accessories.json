@@ -1,0 +1,2105 @@
+{
+  "id": "alice.accessories",
+  "elements": [
+    {
+      "name": "alice_band_white_0",
+      "type": "cube",
+      "from": [
+        -6.45,
+        8.5,
+        -3.88
+      ],
+      "to": [
+        -5.2,
+        9.27,
+        -2.6
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_red_0",
+      "type": "cube",
+      "from": [
+        -6.45,
+        8.65,
+        -3.94
+      ],
+      "to": [
+        -5.2,
+        9.09,
+        -2.55
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_white_1",
+      "type": "cube",
+      "from": [
+        -5.2,
+        9.25,
+        -3.88
+      ],
+      "to": [
+        -3.7,
+        10.02,
+        -2.6
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_red_1",
+      "type": "cube",
+      "from": [
+        -5.2,
+        9.4,
+        -3.94
+      ],
+      "to": [
+        -3.7,
+        9.84,
+        -2.55
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_white_2",
+      "type": "cube",
+      "from": [
+        -3.7,
+        9.75,
+        -3.88
+      ],
+      "to": [
+        3.7,
+        10.52,
+        -2.6
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_red_2",
+      "type": "cube",
+      "from": [
+        -3.7,
+        9.9,
+        -3.94
+      ],
+      "to": [
+        3.7,
+        10.34,
+        -2.55
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_white_3",
+      "type": "cube",
+      "from": [
+        3.7,
+        9.25,
+        -3.88
+      ],
+      "to": [
+        5.2,
+        10.02,
+        -2.6
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_red_3",
+      "type": "cube",
+      "from": [
+        3.7,
+        9.4,
+        -3.94
+      ],
+      "to": [
+        5.2,
+        9.84,
+        -2.55
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_white_4",
+      "type": "cube",
+      "from": [
+        5.2,
+        8.5,
+        -3.88
+      ],
+      "to": [
+        6.45,
+        9.27,
+        -2.6
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_red_4",
+      "type": "cube",
+      "from": [
+        5.2,
+        8.65,
+        -3.94
+      ],
+      "to": [
+        6.45,
+        9.09,
+        -2.55
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_0",
+      "type": "cube",
+      "from": [
+        -6.15,
+        9.25,
+        -3.9
+      ],
+      "to": [
+        -5.75,
+        9.51,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_1",
+      "type": "cube",
+      "from": [
+        -5.23,
+        10.0,
+        -3.9
+      ],
+      "to": [
+        -4.83,
+        10.26,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_2",
+      "type": "cube",
+      "from": [
+        -4.3100000000000005,
+        10.0,
+        -3.9
+      ],
+      "to": [
+        -3.91,
+        10.26,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_3",
+      "type": "cube",
+      "from": [
+        -3.39,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        -2.9899999999999998,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_4",
+      "type": "cube",
+      "from": [
+        -2.47,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        -2.07,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_5",
+      "type": "cube",
+      "from": [
+        -1.5499999999999996,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        -1.1499999999999997,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_6",
+      "type": "cube",
+      "from": [
+        -0.6299999999999997,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        -0.2299999999999997,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_7",
+      "type": "cube",
+      "from": [
+        0.2900000000000002,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        0.6900000000000002,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_8",
+      "type": "cube",
+      "from": [
+        1.2100000000000002,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        1.61,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_9",
+      "type": "cube",
+      "from": [
+        2.130000000000001,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        2.530000000000001,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_10",
+      "type": "cube",
+      "from": [
+        3.0500000000000007,
+        10.5,
+        -3.9
+      ],
+      "to": [
+        3.450000000000001,
+        10.76,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_11",
+      "type": "cube",
+      "from": [
+        3.9700000000000006,
+        10.0,
+        -3.9
+      ],
+      "to": [
+        4.370000000000001,
+        10.26,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_lace_12",
+      "type": "cube",
+      "from": [
+        4.890000000000001,
+        10.0,
+        -3.9
+      ],
+      "to": [
+        5.290000000000001,
+        10.26,
+        -2.62
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_side_-1",
+      "type": "cube",
+      "from": [
+        -6.58,
+        6.9,
+        -3.1
+      ],
+      "to": [
+        -6.34,
+        8.9,
+        -2.0
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    },
+    {
+      "name": "alice_band_side_1",
+      "type": "cube",
+      "from": [
+        6.34,
+        6.9,
+        -3.1
+      ],
+      "to": [
+        6.58,
+        8.9,
+        -2.0
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "alice_headband"
+    }
+  ]
+}

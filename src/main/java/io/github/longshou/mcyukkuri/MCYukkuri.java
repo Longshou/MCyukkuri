@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri;
 
 import com.mojang.logging.LogUtils;
 import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -16,8 +17,10 @@ public final class MCYukkuri {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public MCYukkuri(IEventBus modBus) {
+        ModEntities.TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
+        modBus.addListener(ModEntities::registerAttributes);
         modBus.addListener(this::commonSetup);
     }
 
@@ -26,6 +29,6 @@ public final class MCYukkuri {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Yukkuri World foundation initialized. Entity and ecology implementation is planned.");
+        LOGGER.info("Yukkuri World initialized with Reimu and Marisa entities.");
     }
 }

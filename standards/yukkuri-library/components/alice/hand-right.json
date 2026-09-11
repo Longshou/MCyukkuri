@@ -1,0 +1,425 @@
+{
+  "id": "alice.hand-right",
+  "elements": [
+    {
+      "name": "alice_bob_front_right",
+      "type": "cube",
+      "from": [
+        5.8100000000000005,
+        3.65,
+        -3.95
+      ],
+      "to": [
+        7.1899999999999995,
+        8.45,
+        -2.45
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "alice_bob_inward_tip_right0",
+      "type": "cube",
+      "from": [
+        5.84,
+        2.8,
+        -3.93
+      ],
+      "to": [
+        7.16,
+        3.9,
+        -2.53
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "alice_bob_inward_tip_right1",
+      "type": "cube",
+      "from": [
+        5.665,
+        2.03,
+        -3.93
+      ],
+      "to": [
+        6.815,
+        3.05,
+        -2.53
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            64,
+            16,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "alice_bob_inward_tip_right2",
+      "type": "cube",
+      "from": [
+        5.45,
+        1.39,
+        -3.93
+      ],
+      "to": [
+        6.3500000000000005,
+        2.25,
+        -2.53
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    },
+    {
+      "name": "alice_bob_inward_tip_right3",
+      "type": "cube",
+      "from": [
+        5.359999999999999,
+        0.98,
+        -3.93
+      ],
+      "to": [
+        5.84,
+        1.5499999999999998,
+        -2.53
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right"
+    }
+  ]
+}

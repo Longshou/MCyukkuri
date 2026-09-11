@@ -1,0 +1,54 @@
+{
+  "id": "teary_smile_b",
+  "label": "含泪笑 · 泪帧 B",
+  "group": "笑脸",
+  "recipe": {
+    "eyes": "normal",
+    "brows": "sad",
+    "mouth": "smile",
+    "tears": "flow_b",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+    "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本涙目笑顔２顔グラベース",
+      "index": 0,
+      "sprite_id": 5146,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右涙目笑顔２グラベース",
+      "index": 0,
+      "sprite_id": 6292,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝顔面うんうんフィニッシュ２グラベース",
+      "index": 0,
+      "sprite_id": 4878,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N009",
+  "origin": "new",
+  "review_pair": null
+}

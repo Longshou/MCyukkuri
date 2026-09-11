@@ -4,36 +4,32 @@
 
 为 Minecraft Java 开发有种族、习性、家庭和巢穴的油库里世界。
 
-**当前阶段：项目基础。** 已加入模组入口、观察笔记物品、创造模式分类、中英文资源与 GeckoLib 依赖。生物实体、动画控制器、觅食、成长和繁殖尚未实现。
+**当前阶段：M1 实体与动画开发，待运行验收。** 已加入灵梦、魔理沙的实体与生成蛋注册、GeckoLib 模型渲染及待机／移动动画代码和资源。当前改动尚未完成编译和实机验收；觅食、成长和繁殖尚未实现。
 
 ## 环境
 
 Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21** · GeckoLib **4.8.4**
 
-## 快速开始
+## 开始开发
 
-使用 JDK 21，克隆仓库后在根目录运行：
+先读 [项目地图](PROJECT_MAP.md) 和 [开发约定](AGENTS.md)，再进入目标目录。本工作区只进行代码、美术素材与文档开发，以及允许的静态核对；不在本机编译、测试、运行游戏或启动预览服务器，也不使用浏览器验证项目。
 
-```powershell
-.\gradlew.bat build
-.\gradlew.bat runClient
-```
-
-macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。首次构建会下载开发依赖。
-
-产物：`build/libs/mcyukkuri-0.1.0-dev.jar`。手动安装还需要对应版本的 NeoForge 与 GeckoLib。
-
-进入创造模式可检查“油库里世界”分类与观察笔记；观察笔记当前是注册验证物品，尚无阅读功能。
+构建与游戏验收在 CI 或指定验证环境完成，命令和人工验收项目见 [开发指南](docs/DEVELOPMENT.md)。M1 已加入灵梦、魔理沙生成蛋及两个实体 ID，当前仍待运行验收。
 
 ## 开发入口
 
-- [开发指南与运行验证](docs/DEVELOPMENT.md)
+- [项目地图与文件归类](PROJECT_MAP.md)
+- [项目开发规则](AGENTS.md)
+- [开发指南与指定环境验收](docs/DEVELOPMENT.md)
 - [开发路线与里程碑](docs/ROADMAP.md)
+- [实体与动画开发记录](docs/ENTITY_IMPLEMENTATION.md)
 - [协作约定](CONTRIBUTING.md)
 - [GitHub 任务](https://github.com/Longshou/MCyukkuri/issues)
 - [自动构建与开发 Jar](https://github.com/Longshou/MCyukkuri/actions)
 - [油库里 Wiki](wiki/README.md)
-- [精选基础模型](art/README.md)
+- [标准美术素材](standards/README.md)
+- [当前实体接入素材](art/README.md)
+- [项目脚本](scripts/README.md)
 - [来源与第三方说明](THIRD_PARTY_NOTICES.md)
 
 ## 仓库结构
@@ -42,12 +38,15 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。首次构建�
 src/main/java/        模组入口、注册及后续生态代码
 src/main/resources/   实际游戏资源
 src/main/templates/   模组声明与版本信息模板
-art/source/           精选可编辑模型与贴图
+standards/            标准素材制作源、当前导出与独立派生包
+art/source/           当前实体接入所用的选定素材快照
 wiki/                 设定、作品出处与核读记录
 docs/                 开发指南和路线
+scripts/              跨目录的资源处理与验证脚本
 .github/              自动构建、Issue 与 PR 模板
+.local/               不提交的本机临时工作文件
 ```
 
-本地历史美术试验、浏览器配置、生成预览与运行世界不纳入 Git；原有文件保留在本地。后续通过 Issue → 分支 → PR 推进开发。
+素材包内的 `archive/` 保存必要的历史预览与证据，`drafts/` 保存待确认方案；正式素材和当前导出随项目维护。临时工作文件、凭据、构建缓存与运行世界不纳入 Git。完整职责与命名规则见项目地图。
 
 项目暂按 **All Rights Reserved** 管理。不是 Mojang 或 Microsoft 官方产品。

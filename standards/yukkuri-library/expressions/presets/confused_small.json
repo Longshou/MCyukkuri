@@ -1,0 +1,47 @@
+{
+  "id": "confused_small",
+  "label": "困惑小嘴",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "eyes": "normal",
+    "brows": "sad",
+    "mouth": "beak",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本困惑顔２グラベース",
+      "index": 0,
+      "sprite_id": 4494,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右困惑顔２グラベース",
+      "index": 0,
+      "sprite_id": 6014,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N006",
+  "origin": "new",
+  "review_pair": null
+}

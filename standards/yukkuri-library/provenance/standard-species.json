@@ -1,0 +1,213 @@
+{
+  "base_character": "reimu",
+  "base_registration": "characters/reimu.json",
+  "date": "2026-09-11",
+  "shared_sources": {
+    "components/common/body.json": "f495034a32c3a72e9038178e8aab4dfc32a14bce5c70c7ab74e4a392de6fdd52",
+    "components/common/rump.json": "c4d42811f2c834091eacde7dc5e80ef6e0bf36b4639047d5a155cae571a8f05c",
+    "components/common/face.json": "8d4d0b3624d45b0d3359898f2b4e63b1e2cb750f4767a651a0c146163c10de2d",
+    "components/common/puff.json": "218d611eabd25cf68de4ab1b054bfe1601781a2e13c7de167691d8d195e38cb8",
+    "components/common/anatomy.json": "e242351e76a33d722eb48cd065cb13cd17f9247aa83c4965bd5c8de2b64c6253",
+    "rigs/reimu.json": "4b49206d0f078dbe914fcc174689fe94d2c9ee462528d5dc8b6b1ba2567ec539"
+  },
+  "new_characters": [
+    "chen",
+    "alice",
+    "patchouli"
+  ],
+  "source_game": "ゆっくり八景U v8.3",
+  "source_file": "sharedassets0.assets",
+  "scene_object": 76216,
+  "external_file_id": 2,
+  "fields": [
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7038
+    },
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8508
+    },
+    {
+      "field": "基本おかざり裏グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7487
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7607
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8511
+    },
+    {
+      "field": "基本髪グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 8369
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 6880
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 5358
+    },
+    {
+      "field": "基本もみあげグラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7376
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 7038
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 8094
+    },
+    {
+      "field": "基本おかざりグラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 7337
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 2,
+      "file": 2,
+      "id": 8110
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 3,
+      "file": 2,
+      "id": 7882
+    },
+    {
+      "field": "基本顔面グラベース",
+      "slot": 4,
+      "file": 2,
+      "id": 8253
+    }
+  ],
+  "documentation": "STANDARD-SPECIES.md",
+  "original_pixels_in_distribution": false,
+  "three_dimensional_geometry": "Original project adaptation of observed two-dimensional appearance",
+  "chen_tail_source": "https://w.atwiki.jp/slowlove/pages/400.html",
+  "user_refinements": {
+    "chen_tail_roots": [
+      [
+        -0.48,
+        3.35,
+        8.25
+      ],
+      [
+        0.48,
+        3.35,
+        8.25
+      ]
+    ],
+    "chen_tail_position": "后侧中央、油菊上方",
+    "patchouli_bonnet_scale": [
+      1.12,
+      1.1,
+      1.12
+    ],
+    "hairstyles": {
+      "chen": "参差短发和尖发束",
+      "alice": "内收短发轮廓",
+      "patchouli": "齐刘海、长后发、从帽檐连续包脸垂地的宽厚侧发与小束尾"
+    },
+    "chen_ears": {
+      "shape": "使用与头发饰物一致的粗块面、斜生宽耳形、削平耳尖、浅色内耳",
+      "parent": "hair"
+    },
+    "chen_tails": {
+      "direction": "+Z, longitudinal behind body",
+      "max_center_x": 1.27,
+      "root_y": 3.35,
+      "tip_z": 19.255,
+      "length_multiplier_from_previous": 1.35,
+      "length_multiplier_from_first_longitudinal_tail": 1.55,
+      "white_terminal_segments": 2,
+      "white_tip_source": "用户本轮明确指定"
+    },
+    "patchouli_fringe": {
+      "sprite": 8511,
+      "shape": "五撮不等宽厚发束、中央略偏分、两侧垂落衔接侧发；下缘错落，发梢内收圆钝",
+      "color": "沿用侧发 hair / hair_light 色块",
+      "adaptation": "具体分束、弧面厚度和高光为模型制作选择"
+    },
+    "patchouli_bonnet": "保留加大尺寸，收圆边角",
+    "patchouli_braids": {
+      "authoring": "Independent Patchouli side curtain and full cheek-lock profiles",
+      "direction": "从帽檐沿脸颊外侧连续下垂，下半部膨大，末端圆收贴地",
+      "shape": "整条侧发呈长纺锤形，中段无束腰；低位小束带连接短圆尾",
+      "maximum_profile_width": 4.4,
+      "maximum_profile_depth": 3.18,
+      "terminal_tie_y_range": [
+        0.29,
+        0.94
+      ],
+      "tip_minimum_y": 0,
+      "comic_reference": {
+        "author": "適当あき",
+        "title": "ぱちゅりーの冒険",
+        "page": "http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html",
+        "images": [
+          "5960f723.jpg",
+          "a13d6c10.jpg"
+        ],
+        "observed": "宽大侧发连续垂到脸颊两侧，下半部膨大，束口与短圆尾靠近地面",
+        "adaptation": "完整侧发曲面、三维厚度、连接方式与具体坐标为模型制作参数"
+      },
+      "validation": "仅静态审查；未执行本机测试、编译或运行验收，旧截图与验证记录不代表本次造型"
+    },
+    "patchouli_loose_hair": "刘海采用宽厚圆钝发束；侧发连续垂地，带短圆尾"
+  },
+  "approved_standards": {
+    "patchouli": {
+      "status": "user_approved",
+      "approved_on": "2026-09-11",
+      "character": "characters/patchouli.json",
+      "model": "assembled/patchouli/patchouli.bbmodel",
+      "preview": "assembled/patchouli/index.html",
+      "appearance": "五撮宽厚略偏分刘海、连续包脸垂地侧发、近地红蓝小束尾、浅粉褶边新月软帽",
+      "reuse_policy": "后续帕秋莉制作与派生造型以登记组件为基准",
+      "approval_scope": "静态造型",
+      "runtime_validation": "not_performed",
+      "sha256": {
+        "characters/patchouli.json": "98dafa64cc3ca4cd951596860efd828f4ffd405062d1b439876c92b9e78669b5",
+        "components/patchouli/hair.json": "0580dd0c73ac684ba3e32f60d255f10d9f291e674d623ac5dc8e888c517554f8",
+        "components/patchouli/hand-left.json": "c36705da2c6305c1dee1194af047d7c607fc25c2a0658fcab459032c4174f2f8",
+        "components/patchouli/hand-right.json": "1c62d9c79304eeb981661cf67d5118bfd22d3a478bd2d371aa9a1ed9a6834896",
+        "components/patchouli/accessories.json": "f7accc33890b8e9382401f7314dd0ea9a3ea8c0c49dc0508ff9dd4600cf8016c",
+        "components/patchouli/rig.json": "cc4a0a127dd792f194ac742f8267a4aa4fa765c75cad8b64437702361ac6d37a",
+        "textures/patchouli/base.png": "25e9ab39584970ca73ea982ab5383a34f08d2bc8da9de4afbf10b3f35be4b4d2",
+        "assembled/patchouli/patchouli.bbmodel": "9222e2934318685c18438f0e0f43413886a30df1603808ea011eeac7c9d21f90",
+        "assembled/patchouli/patchouli.geo.json": "3e0441aa07f0fee2f5e2d9741206867f01158bdb6e5fc7c90ca9356ea380a9e7"
+      }
+    }
+  }
+}

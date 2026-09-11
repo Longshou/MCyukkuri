@@ -11,7 +11,7 @@ displayURL="https://github.com/Longshou/MCyukkuri"
 authors="Longshou"
 description='''
 A Minecraft foundation for a living Yukkuri world: species, behavior, habitats and field notes.
-Early development build. Entities and ecology are not implemented yet.
+Early development build with Reimu and Marisa entities. Ecology is not implemented yet.
 '''
 
 [[dependencies.${mod_id}]]

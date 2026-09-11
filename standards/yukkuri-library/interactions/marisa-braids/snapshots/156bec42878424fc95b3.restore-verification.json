@@ -1,0 +1,15 @@
+{
+  "snapshot": "snapshots/156bec42878424fc95b3.zip",
+  "zip_sha256": "b469ea54dd8fcdc7502d6a17696a53c670081e20ac02043e13ef63299642f40c",
+  "restore_verified": true,
+  "rebuild_byte_identical": true,
+  "rebuilt_files": [
+    "interactions/marisa-braids/assembled/animation-rig.json",
+    "interactions/marisa-braids/assembled/marisa-braids.animation.json",
+    "interactions/marisa-braids/assembled/marisa-braids.bbmodel",
+    "interactions/marisa-braids/assembled/marisa-braids.geo.json",
+    "interactions/marisa-braids/assembled/marisa-braids.png",
+    "interactions/marisa-braids/assembled/provenance.json",
+    "interactions/marisa-braids/index.html"
+  ]
+}

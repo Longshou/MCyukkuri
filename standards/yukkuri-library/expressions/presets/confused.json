@@ -1,0 +1,44 @@
+{
+  "id": "confused",
+  "label": "困惑张嘴",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "confused"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_mouth": "expressions/parts/d9daf979e2c947b8ee45.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本困惑顔グラベース",
+      "index": 0,
+      "sprite_id": 6401,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右困惑顔グラベース",
+      "index": 0,
+      "sprite_id": 8414,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/confused.png",
+  "review_code": "O07",
+  "origin": "original",
+  "review_pair": "confused__new"
+}

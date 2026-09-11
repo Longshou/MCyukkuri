@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "status": "design_draft",
+  "units_per_block": 16,
+  "source": "../../assembled/{base}/{base}.bbmodel + index.html",
+  "variants": {
+    "reimu_wasa": {
+      "label": "多毛灵梦",
+      "base": "reimu",
+      "shape": "wasa",
+      "scale": 1,
+      "description": "直接连在头侧的外炸浓密鬓角，搭配分层刘海、头顶和后脑毛束。",
+      "preview": {
+        "span": 15.5,
+        "centerY": 6.3
+      },
+      "fur": {
+        "center": [
+          7.3,
+          4.2,
+          -2.65
+        ],
+        "radii": [
+          2.1,
+          2.35,
+          1.85
+        ],
+        "layers": 12
+      },
+      "world_scale": 0.28872180451127816
+    },
+    "reimu_deibu": {
+      "label": "灵胖",
+      "base": "reimu",
+      "shape": "deibu",
+      "scale": 1,
+      "description": "增高的壮硕体型，上窄下宽，脸颊与下腹圆润过渡，头顶略尖，面容成熟。",
+      "preview": {
+        "span": 18,
+        "centerY": 9.2,
+        "default_expression": "mature"
+      },
+      "body_scale": [
+        1.42,
+        1.48,
+        1.25
+      ],
+      "upper_width": 0.98,
+      "face_scale": [
+        1.1,
+        0.8
+      ],
+      "face_raise": 0.32,
+      "puff_eye_lower": 0.8,
+      "signature_expression": "mature",
+      "world_scale": 0.28872180451127816,
+      "cheek_roundness": 0.075,
+      "lower_corner_tuck": 0.18
+    },
+    "marisa_dos": {
+      "label": "DOS 魔理沙",
+      "base": "marisa",
+      "shape": "dos",
+      "scale": 6.032293178519594,
+      "description": "高椭圆的 DOS，面部位于上方，目光沉稳有威严，低帽沿贴合头顶。",
+      "preview": {
+        "span": 91.39838149272113,
+        "centerY": 67.63480230461363,
+        "default_expression": "dignified"
+      },
+      "body_scale": [
+        0.95,
+        1.95,
+        0.74
+      ],
+      "hat_scale": [
+        0.72,
+        0.68,
+        0.66
+      ],
+      "hat_sink": 0.77,
+      "hair_cap_scale": [
+        0.68,
+        0.38,
+        0.64
+      ],
+      "bang_height_scale": 0.65,
+      "bang_height_offset": 10.2,
+      "face_scale": [
+        0.92,
+        0.52
+      ],
+      "face_raise": 1.72,
+      "signature_expression": "dignified",
+      "scale_note": "普通主体宽约24厘米；DOS主体高1.8米，帽子另算。导出按16模型单位=1米标定。",
+      "world_scale": 0.28872180451127816
+    }
+  },
+  "physical_scale": {
+    "ordinary_body_width_m": 0.24,
+    "dos_body_height_m": 1.8,
+    "hat_included": false,
+    "world_scale": 0.28872180451127816,
+    "note": "普通成体以主体宽约24厘米表示篮球大小；DOS按主体高1.8米标定，帽子另算。"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "wet_highlight",
+  "kind": "overlay",
+  "label": "眼部湿润高光",
+  "parts": {
+    "face_tear_left": "expressions/parts/92a9551b06587ee862ac.png",
+    "face_tear_right": "expressions/parts/92a9551b06587ee862ac.png"
+  }
+}

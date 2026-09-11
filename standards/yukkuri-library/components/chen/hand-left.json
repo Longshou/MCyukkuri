@@ -1,0 +1,341 @@
+{
+  "id": "chen.hand-left",
+  "elements": [
+    {
+      "name": "chen_side_lock_left",
+      "type": "cube",
+      "from": [
+        -7.07,
+        2.05,
+        -3.8
+      ],
+      "to": [
+        -5.93,
+        8.5,
+        -2.5
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left"
+    },
+    {
+      "name": "chen_tuft_left0",
+      "type": "cube",
+      "from": [
+        -7.0200000000000005,
+        1.95,
+        -3.85
+      ],
+      "to": [
+        -6.38,
+        3.3,
+        -2.55
+      ],
+      "origin": [
+        -6.5,
+        4,
+        -3.2
+      ],
+      "rotation": [
+        0,
+        0,
+        14
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            16,
+            64,
+            24,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left"
+    },
+    {
+      "name": "chen_tuft_left1",
+      "type": "cube",
+      "from": [
+        -7.220000000000001,
+        2.9,
+        -3.85
+      ],
+      "to": [
+        -6.58,
+        4.1499999999999995,
+        -2.55
+      ],
+      "origin": [
+        -6.5,
+        4,
+        -3.2
+      ],
+      "rotation": [
+        0,
+        0,
+        14
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left"
+    },
+    {
+      "name": "chen_tuft_left2",
+      "type": "cube",
+      "from": [
+        -7.42,
+        3.8499999999999996,
+        -3.85
+      ],
+      "to": [
+        -6.779999999999999,
+        5.0,
+        -2.55
+      ],
+      "origin": [
+        -6.5,
+        4,
+        -3.2
+      ],
+      "rotation": [
+        0,
+        0,
+        14
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            64,
+            8,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_left"
+    }
+  ]
+}

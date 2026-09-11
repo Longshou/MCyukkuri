@@ -1,0 +1,45 @@
+{
+  "id": "surprise",
+  "label": "受惊逃跑",
+  "group": "惊吓 / 困惑",
+  "recipe": {
+    "source": "existing-project-art",
+    "preset": "surprise"
+  },
+  "accepted_override": true,
+  "parts": {
+    "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+    "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本驚き顔グラベース",
+      "index": 0,
+      "sprite_id": 8207,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右困惑顔４グラベース",
+      "index": 0,
+      "sprite_id": 7708,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "retained",
+  "art": "Existing project pixels restored; no redraw",
+  "aliases": [],
+  "retained_source": "standards/yukkuri-v1/textures/marisa/surprise.png",
+  "review_code": "O12",
+  "origin": "original",
+  "review_pair": "surprise__new"
+}

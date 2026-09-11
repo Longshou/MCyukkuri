@@ -1,0 +1,32 @@
+{
+  "id": "anatomy.standard.rig",
+  "bones": [
+    {
+      "name": "anatomy_peni_skin_anchor",
+      "parent": "head",
+      "pivot": [
+        0,
+        1.15,
+        2.3128906
+      ]
+    },
+    {
+      "name": "anatomy_mamu",
+      "parent": "rump_round_end_slice_1_bend",
+      "pivot": [
+        0.3,
+        0.71,
+        8.2
+      ]
+    },
+    {
+      "name": "anatomy_peni",
+      "parent": "anatomy_peni_skin_anchor",
+      "pivot": [
+        0,
+        1.15,
+        -0.88
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "patchouli",
+  "label": "帕秋莉",
+  "status": "user_approved",
+  "components": [
+    "components/common/body.json",
+    "components/common/rump.json",
+    "components/common/face.json",
+    "components/common/puff.json",
+    "components/common/anatomy.json",
+    "components/patchouli/hair.json",
+    "components/patchouli/hand-left.json",
+    "components/patchouli/hand-right.json",
+    "components/patchouli/accessories.json"
+  ],
+  "rig": "rigs/reimu.json",
+  "base_texture": "textures/patchouli/base.png",
+  "expression_binding": "bindings/patchouli.json",
+  "motion_catalog": "motions/index.json",
+  "expression_catalog": "expressions/index.json",
+  "rig_components": [
+    "components/common/anatomy-rig.json",
+    "components/patchouli/rig.json"
+  ],
+  "anatomy": "behaviors/anatomy.json",
+  "preview": {
+    "span": 12.8,
+    "centerY": 6.4,
+    "hand_label": "侧发"
+  },
+  "provenance": "provenance/standard-species.json"
+}

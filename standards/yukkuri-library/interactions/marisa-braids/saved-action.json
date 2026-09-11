@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": "action.marisa.braid_interactions.v1",
+  "label": "普通魔理沙 · 七项辫子互动 v1",
+  "status": "user_approved_saved",
+  "approved_on": "2026-09-11",
+  "character": "marisa",
+  "revision": "绷直辫身、减少脸侧穿模、帽子转向自己并放低护理",
+  "minecraft_integration": false,
+  "clips": [
+    {
+      "id": "animation.marisa.pick_stone",
+      "label": "捡拾石头",
+      "duration": 6.4,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.swing_sword",
+      "label": "挥舞宝剑",
+      "duration": 6.8,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.pull_grass",
+      "label": "拔草",
+      "duration": 6.6,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.remove_hat",
+      "label": "取下帽子",
+      "duration": 9.2,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.care_hat",
+      "label": "护理帽子",
+      "duration": 26.3,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.wave_goodbye",
+      "label": "挥“手”道别",
+      "duration": 5.2,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.lift_child",
+      "label": "托子油上帽子",
+      "duration": 8.4,
+      "loop": false
+    }
+  ],
+  "snapshot_index": "approved-snapshots.json"
+}

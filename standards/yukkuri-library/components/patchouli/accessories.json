@@ -1,0 +1,8237 @@
+{
+  "id": "patchouli.accessories",
+  "elements": [
+    {
+      "name": "patchouli_bonnet_rim",
+      "type": "cube",
+      "from": [
+        -6.16,
+        9.1,
+        -5.62
+      ],
+      "to": [
+        6.16,
+        9.705,
+        7.764
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_body",
+      "type": "cube",
+      "from": [
+        -5.376,
+        9.595,
+        -5.228
+      ],
+      "to": [
+        5.376,
+        11.355,
+        7.372
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_top",
+      "type": "cube",
+      "from": [
+        -4.256,
+        11.3,
+        -4.052
+      ],
+      "to": [
+        4.256,
+        12.048,
+        6.364
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_rim-1",
+      "type": "cube",
+      "from": [
+        -7.84,
+        9.1,
+        -4.276
+      ],
+      "to": [
+        -6.16,
+        9.705,
+        6.476
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_body-1",
+      "type": "cube",
+      "from": [
+        -7.504,
+        9.595,
+        -3.94
+      ],
+      "to": [
+        -5.376,
+        11.135,
+        6.14
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_top-1",
+      "type": "cube",
+      "from": [
+        -5.712,
+        11.3,
+        -2.932
+      ],
+      "to": [
+        -4.256,
+        11.795,
+        5.132
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_rim1",
+      "type": "cube",
+      "from": [
+        6.16,
+        9.1,
+        -4.276
+      ],
+      "to": [
+        7.84,
+        9.705,
+        6.476
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            40,
+            64,
+            48,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_body1",
+      "type": "cube",
+      "from": [
+        5.376,
+        9.595,
+        -3.94
+      ],
+      "to": [
+        7.504,
+        11.135,
+        6.14
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_bonnet_corner_top1",
+      "type": "cube",
+      "from": [
+        4.256,
+        11.3,
+        -2.932
+      ],
+      "to": [
+        5.712,
+        11.795,
+        5.132
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_0_-3.78",
+      "type": "cube",
+      "from": [
+        -7.9408,
+        8.858,
+        -4.612
+      ],
+      "to": [
+        -6.7312,
+        9.87,
+        -4.0296
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_0_5.72",
+      "type": "cube",
+      "from": [
+        -7.9408,
+        8.858,
+        6.028
+      ],
+      "to": [
+        -6.7312,
+        9.87,
+        6.6104
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_1_-4.96",
+      "type": "cube",
+      "from": [
+        -6.5408,
+        9.078,
+        -5.9336
+      ],
+      "to": [
+        -5.3312,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_1_6.8",
+      "type": "cube",
+      "from": [
+        -6.5408,
+        9.078,
+        7.2376
+      ],
+      "to": [
+        -5.3312,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_2_-4.96",
+      "type": "cube",
+      "from": [
+        -5.1408,
+        8.858,
+        -5.9336
+      ],
+      "to": [
+        -3.9312,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_2_6.8",
+      "type": "cube",
+      "from": [
+        -5.1408,
+        8.858,
+        7.2376
+      ],
+      "to": [
+        -3.9312,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_3_-4.96",
+      "type": "cube",
+      "from": [
+        -3.7408,
+        9.078,
+        -5.9336
+      ],
+      "to": [
+        -2.5312,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_3_6.8",
+      "type": "cube",
+      "from": [
+        -3.7408,
+        9.078,
+        7.2376
+      ],
+      "to": [
+        -2.5312,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_4_-4.96",
+      "type": "cube",
+      "from": [
+        -2.3408,
+        8.858,
+        -5.9336
+      ],
+      "to": [
+        -1.1312,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_4_6.8",
+      "type": "cube",
+      "from": [
+        -2.3408,
+        8.858,
+        7.2376
+      ],
+      "to": [
+        -1.1312,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_5_-4.96",
+      "type": "cube",
+      "from": [
+        -0.9408,
+        9.078,
+        -5.9336
+      ],
+      "to": [
+        0.2688,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_5_6.8",
+      "type": "cube",
+      "from": [
+        -0.9408,
+        9.078,
+        7.2376
+      ],
+      "to": [
+        0.2688,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_6_-4.96",
+      "type": "cube",
+      "from": [
+        0.4592,
+        8.858,
+        -5.9336
+      ],
+      "to": [
+        1.6688,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_6_6.8",
+      "type": "cube",
+      "from": [
+        0.4592,
+        8.858,
+        7.2376
+      ],
+      "to": [
+        1.6688,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_7_-4.96",
+      "type": "cube",
+      "from": [
+        1.8592,
+        9.078,
+        -5.9336
+      ],
+      "to": [
+        3.0688,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_7_6.8",
+      "type": "cube",
+      "from": [
+        1.8592,
+        9.078,
+        7.2376
+      ],
+      "to": [
+        3.0688,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_8_-4.96",
+      "type": "cube",
+      "from": [
+        3.2592,
+        8.858,
+        -5.9336
+      ],
+      "to": [
+        4.4688,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_8_6.8",
+      "type": "cube",
+      "from": [
+        3.2592,
+        8.858,
+        7.2376
+      ],
+      "to": [
+        4.4688,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_9_-4.96",
+      "type": "cube",
+      "from": [
+        4.6592,
+        9.078,
+        -5.9336
+      ],
+      "to": [
+        5.8688,
+        9.87,
+        -5.3512
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_9_6.8",
+      "type": "cube",
+      "from": [
+        4.6592,
+        9.078,
+        7.2376
+      ],
+      "to": [
+        5.8688,
+        9.87,
+        7.82
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            32,
+            64,
+            40,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_10_-3.78",
+      "type": "cube",
+      "from": [
+        6.0592,
+        8.858,
+        -4.612
+      ],
+      "to": [
+        7.2688,
+        9.87,
+        -4.0296
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_frill_10_5.72",
+      "type": "cube",
+      "from": [
+        6.0592,
+        8.858,
+        6.028
+      ],
+      "to": [
+        7.2688,
+        9.87,
+        6.6104
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_0",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.045,
+        -4.164
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        -2.484
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_1",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.221,
+        -2.148
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        -0.468
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_2",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.045,
+        -0.132
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        1.548
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_3",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.221,
+        1.884
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        3.564
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_4",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.045,
+        3.9
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        5.58
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_-1_5",
+      "type": "cube",
+      "from": [
+        -8.0864,
+        9.221,
+        5.916
+      ],
+      "to": [
+        -7.4816,
+        9.925,
+        7.596
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_hat_ribbon_-1",
+      "type": "cube",
+      "from": [
+        -8.008,
+        9.87,
+        3.9
+      ],
+      "to": [
+        -6.552,
+        10.365,
+        4.908
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            56,
+            64,
+            64,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_0",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.045,
+        -4.164
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        -2.484
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_1",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.221,
+        -2.148
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        -0.468
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_2",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.045,
+        -0.132
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        1.548
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_3",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.221,
+        1.884
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        3.564
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_4",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.045,
+        3.9
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        5.58
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_side_frill_1_5",
+      "type": "cube",
+      "from": [
+        7.4816,
+        9.221,
+        5.916
+      ],
+      "to": [
+        8.0864,
+        9.925,
+        7.596
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            24,
+            64,
+            32,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_hat_ribbon_1",
+      "type": "cube",
+      "from": [
+        6.552,
+        9.87,
+        3.9
+      ],
+      "to": [
+        8.008,
+        10.365,
+        4.908
+      ],
+      "origin": [
+        0.0,
+        -0.91,
+        -0.132
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48,
+            64,
+            56,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_0_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        9.474,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        9.716,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_0_4",
+      "type": "cube",
+      "from": [
+        2.3968,
+        9.474,
+        -5.7096
+      ],
+      "to": [
+        2.6432,
+        9.716,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_0_5",
+      "type": "cube",
+      "from": [
+        2.6432,
+        9.474,
+        -5.7096
+      ],
+      "to": [
+        2.8896,
+        9.716,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_0_6",
+      "type": "cube",
+      "from": [
+        2.8896,
+        9.474,
+        -5.7096
+      ],
+      "to": [
+        3.136,
+        9.716,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_4",
+      "type": "cube",
+      "from": [
+        2.3968,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        2.6432,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_5",
+      "type": "cube",
+      "from": [
+        2.6432,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        2.8896,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_6",
+      "type": "cube",
+      "from": [
+        2.8896,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        3.136,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_7",
+      "type": "cube",
+      "from": [
+        3.136,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        3.3824,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_1_8",
+      "type": "cube",
+      "from": [
+        3.3824,
+        9.716,
+        -5.7096
+      ],
+      "to": [
+        3.6288,
+        9.958,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_4",
+      "type": "cube",
+      "from": [
+        2.3968,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        2.6432,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_5",
+      "type": "cube",
+      "from": [
+        2.6432,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        2.8896,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_6",
+      "type": "cube",
+      "from": [
+        2.8896,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        3.136,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_7",
+      "type": "cube",
+      "from": [
+        3.136,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        3.3824,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_8",
+      "type": "cube",
+      "from": [
+        3.3824,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        3.6288,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_2_9",
+      "type": "cube",
+      "from": [
+        3.6288,
+        9.958,
+        -5.7096
+      ],
+      "to": [
+        3.8752,
+        10.2,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_4",
+      "type": "cube",
+      "from": [
+        2.3968,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        2.6432,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_3_9",
+      "type": "cube",
+      "from": [
+        3.6288,
+        10.2,
+        -5.7096
+      ],
+      "to": [
+        3.8752,
+        10.442,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_4_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        10.442,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        10.684,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_4_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        10.442,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        10.684,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_4_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        10.442,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        10.684,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_4_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        10.442,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        10.684,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_5_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        10.684,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        10.926,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_5_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        10.684,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        10.926,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_5_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        10.684,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        10.926,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_6_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        10.926,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        11.168,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_6_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        10.926,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        11.168,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_6_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        10.926,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        11.168,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_7_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        11.168,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        11.41,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_7_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        11.168,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        11.41,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_7_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        11.168,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        11.41,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_8_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        11.41,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        11.652,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_8_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        11.41,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        11.652,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_8_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        11.41,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        11.652,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_9_0",
+      "type": "cube",
+      "from": [
+        1.4112,
+        11.652,
+        -5.7096
+      ],
+      "to": [
+        1.6576,
+        11.894,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_9_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        11.652,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        11.894,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_9_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        11.652,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        11.894,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_10_1",
+      "type": "cube",
+      "from": [
+        1.6576,
+        11.894,
+        -5.7096
+      ],
+      "to": [
+        1.904,
+        12.136,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_10_2",
+      "type": "cube",
+      "from": [
+        1.904,
+        11.894,
+        -5.7096
+      ],
+      "to": [
+        2.1504,
+        12.136,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_10_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        11.894,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        12.136,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_11_3",
+      "type": "cube",
+      "from": [
+        2.1504,
+        12.136,
+        -5.7096
+      ],
+      "to": [
+        2.3968,
+        12.378,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_11_4",
+      "type": "cube",
+      "from": [
+        2.3968,
+        12.136,
+        -5.7096
+      ],
+      "to": [
+        2.6432,
+        12.378,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    },
+    {
+      "name": "patchouli_crescent_11_5",
+      "type": "cube",
+      "from": [
+        2.6432,
+        12.136,
+        -5.7096
+      ],
+      "to": [
+        2.8896,
+        12.378,
+        -5.3176
+      ],
+      "origin": [
+        2.6432,
+        10.926,
+        -5.508
+      ],
+      "rotation": [
+        0,
+        0,
+        25
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            64,
+            64,
+            72,
+            72
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "patchouli_bonnet"
+    }
+  ]
+}

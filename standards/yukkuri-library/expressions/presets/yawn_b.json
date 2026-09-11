@@ -1,0 +1,84 @@
+{
+  "id": "yawn_b",
+  "label": "打哈欠 · 泪帧 B",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "eyes": "closed",
+    "brows": "relaxed",
+    "mouth": "yawn",
+    "tears": "flow_b",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_eye_right": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_mouth": "expressions/parts/e795f4314efc0abdbf23.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本あくび２顔グラベース",
+      "index": 0,
+      "sprite_id": 5295,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N010",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_blush_left": {
+      "scale": [
+        0.75,
+        0.65,
+        1
+      ],
+      "position": [
+        0,
+        -0.3,
+        0
+      ]
+    },
+    "face_tear_left": {
+      "position": [
+        0,
+        0.2,
+        0
+      ]
+    },
+    "face_blush_right": {
+      "scale": [
+        0.75,
+        0.65,
+        1
+      ],
+      "position": [
+        0,
+        -0.3,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "position": [
+        0,
+        0.2,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "applied",
+    "note": "Independent N010 repair: smaller lower blush, thin upper tear sheen, taller yawn opening."
+  }
+}

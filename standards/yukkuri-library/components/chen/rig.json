@@ -1,0 +1,49 @@
+{
+  "bones": [
+    {
+      "name": "chen_hat",
+      "parent": "features_squash",
+      "pivot": [
+        0,
+        9.4,
+        1
+      ]
+    },
+    {
+      "name": "chen_ear_left",
+      "parent": "hair",
+      "pivot": [
+        -5.65,
+        7.95,
+        -2.85
+      ]
+    },
+    {
+      "name": "chen_tail_left",
+      "parent": "rump_roll",
+      "pivot": [
+        -0.48,
+        3.35,
+        8.25
+      ]
+    },
+    {
+      "name": "chen_ear_right",
+      "parent": "hair",
+      "pivot": [
+        5.65,
+        7.95,
+        -2.85
+      ]
+    },
+    {
+      "name": "chen_tail_right",
+      "parent": "rump_roll",
+      "pivot": [
+        0.48,
+        3.35,
+        8.25
+      ]
+    }
+  ]
+}

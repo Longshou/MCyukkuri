@@ -1,4 +1,8 @@
 {
   "itemGroup.mcyukkuri": "油库里世界",
-  "item.mcyukkuri.field_notebook": "油库里观察笔记（开发中）"
+  "item.mcyukkuri.field_notebook": "油库里观察笔记（开发中）",
+  "entity.mcyukkuri.reimu": "灵梦油库里",
+  "entity.mcyukkuri.marisa": "魔理沙油库里",
+  "item.mcyukkuri.reimu_spawn_egg": "灵梦油库里生成蛋",
+  "item.mcyukkuri.marisa_spawn_egg": "魔理沙油库里生成蛋"
 }

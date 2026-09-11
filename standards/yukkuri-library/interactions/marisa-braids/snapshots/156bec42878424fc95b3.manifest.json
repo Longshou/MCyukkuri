@@ -1,0 +1,125 @@
+{
+  "action": "action.marisa.braid_interactions.v1",
+  "files": {
+    "assembled/marisa/index.html": {
+      "bytes": 7447320,
+      "sha256": "54683e0f3fc8c4ef1ac1719da5101ff50a4b0d7e2a96937115317e257896bf09"
+    },
+    "assembled/marisa/marisa.bbmodel": {
+      "bytes": 40663423,
+      "sha256": "e0a05645243f091f7891fa7ad35c1f45a1df9db98bda9adc1bcec58de5d54c41"
+    },
+    "assembled/marisa/marisa.png": {
+      "bytes": 972,
+      "sha256": "c13b670de3e131e937a7f76ba0048fbaece4adf89832e3f3887cbf0904c3f65d"
+    },
+    "geometry.py": {
+      "bytes": 1211,
+      "sha256": "a3c981d56bad598d2fdad091515494699fa5129491f2ab498d6c733c29c608ea"
+    },
+    "interactions/marisa-braids/assembled/animation-rig.json": {
+      "bytes": 3873483,
+      "sha256": "8023809568c85e0a6a8580e8e40765959c0b2e05c6ccac5ce7e348952245b357"
+    },
+    "interactions/marisa-braids/assembled/marisa-braids.animation.json": {
+      "bytes": 2613861,
+      "sha256": "e3da6b9149aa0c74d5e078cbf46285e05aa419d033671a4713e79c5354295e3f"
+    },
+    "interactions/marisa-braids/assembled/marisa-braids.bbmodel": {
+      "bytes": 13529114,
+      "sha256": "41b9729c9dba4fd785f31e42c9f932cd00b6e2bd59c05de5389ceec714c82446"
+    },
+    "interactions/marisa-braids/assembled/marisa-braids.geo.json": {
+      "bytes": 165019,
+      "sha256": "20e99dc3034a8149c05ad3d75aceb3283755e5cc7b909bc42d7f467145eb5001"
+    },
+    "interactions/marisa-braids/assembled/marisa-braids.png": {
+      "bytes": 1321,
+      "sha256": "c0a7f2030c3f171ce4d2fb0e0c0b68cd527d374c76e5ab0aef87af1b5044c5c3"
+    },
+    "interactions/marisa-braids/assembled/provenance.json": {
+      "bytes": 299,
+      "sha256": "e9d23793b0dff870c751e507f057093953eadf737f026386d43442eca6bafc4b"
+    },
+    "interactions/marisa-braids/build.py": {
+      "bytes": 19892,
+      "sha256": "0ca9f82833fb2daaa0881009a4d200d16d0dded796249ef4a2738bf7c92863ee"
+    },
+    "interactions/marisa-braids/checks/care_hat.png": {
+      "bytes": 17427,
+      "sha256": "6ee5f755707a0fd524232207c1f7812a6cbbde1da26182e603a4bc0337d25c7a"
+    },
+    "interactions/marisa-braids/checks/lift_child.png": {
+      "bytes": 34115,
+      "sha256": "cdb0f9992e663f4d877d2b336fb2979ca7dd269705f8bd619c94bb7388bc42c6"
+    },
+    "interactions/marisa-braids/checks/pick_stone.png": {
+      "bytes": 32438,
+      "sha256": "14dc8413f8f8d0d77cb095bb456bf9a3f962b3061920ba1664ba7c2d48bcb06e"
+    },
+    "interactions/marisa-braids/checks/pull_grass.png": {
+      "bytes": 18896,
+      "sha256": "bc01b3059b59bf0913ba1ffc22683e66dd66abcedea060ac835d3c205df4dc39"
+    },
+    "interactions/marisa-braids/checks/remove_hat.png": {
+      "bytes": 24117,
+      "sha256": "69dd64b965b4e85f4855d0291071d6cd69c28594a0a4e0a885f94eed757187a9"
+    },
+    "interactions/marisa-braids/checks/swing_sword.png": {
+      "bytes": 19722,
+      "sha256": "6046a3d73a89a48924828ab466a0c10f9dbcf784662eeeba294c6f6def0df4f4"
+    },
+    "interactions/marisa-braids/checks/wave_goodbye.png": {
+      "bytes": 17886,
+      "sha256": "7385710e53f56b3d03b9088e0a54421817f0fb512666c636dd4d0e49b4e29fe6"
+    },
+    "interactions/marisa-braids/clearance-comparison.json": {
+      "bytes": 758,
+      "sha256": "1922e24bac534a595ae2b0ce8a37bee10d4c956a0295126f5563dd8f3930088e"
+    },
+    "interactions/marisa-braids/index.html": {
+      "bytes": 4684564,
+      "sha256": "b5308391e156543bde77e97884ed72c497e3125d97cfa135e42ef248891a852a"
+    },
+    "interactions/marisa-braids/README.md": {
+      "bytes": 4746,
+      "sha256": "fa41ff24afff8b6f629d12b3070f5e52ce34979d06c746df33dafb3a30f184b7"
+    },
+    "interactions/marisa-braids/recipes.json": {
+      "bytes": 4518,
+      "sha256": "44608a67f6f95b3a5a04c9e6a03708ebc310ec9a031d2c0f6eab0427c40863f4"
+    },
+    "interactions/marisa-braids/REFERENCES.md": {
+      "bytes": 3298,
+      "sha256": "27542ef61981455bd199dc521871124e73458957c7cb3f23e2ad0958e2bf0f81"
+    },
+    "interactions/marisa-braids/saved-action.json": {
+      "bytes": 1377,
+      "sha256": "1d656233c0fe9dc199eb1ab1c3cbf129d121f78cd85620a80c80191fb4f9cae1"
+    },
+    "interactions/marisa-braids/snapshot.py": {
+      "bytes": 3086,
+      "sha256": "1a9beb610f84ed12eaf8a5e1b5bf1b732ddf72adadce50e589e1aa78e82812d4"
+    },
+    "interactions/marisa-braids/verification.json": {
+      "bytes": 2106,
+      "sha256": "99d83d6780d2e2488d83824adebea78130d1f09f732ef42bb99d170da11613b0"
+    },
+    "interactions/marisa-braids/verify.cjs": {
+      "bytes": 10996,
+      "sha256": "f627caffa08c2a44fa11e1e3ea0f00f3cce3eb510439bbe7da2d2e1d31ef4961"
+    },
+    "interactions/marisa-braids/viewer.html": {
+      "bytes": 8186,
+      "sha256": "ef6c3015dadb0332916d0b203a982c1fd5afdb59a4361da3a324f18b259663a5"
+    },
+    "runtime/motion.js": {
+      "bytes": 3410,
+      "sha256": "44bcefb1e14f2ab931d6f9a719ef9398a6418109d574e0fad991302a0074d8f8"
+    },
+    "runtime/render.js": {
+      "bytes": 2545,
+      "sha256": "c7dfd470925bcd961656ccbe474148f83ea76b070e0d5471aa50963f37d8e7d6"
+    }
+  }
+}

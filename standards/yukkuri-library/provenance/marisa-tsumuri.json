@@ -1,0 +1,19 @@
+{
+  "status": "user_approved",
+  "source": "Approved centered shell from yukkuri-v1/subspecies; imported once as editable component.",
+  "pivot": [
+    0,
+    5.9,
+    1.75
+  ],
+  "rotation": [
+    -25,
+    0,
+    0
+  ],
+  "size": 0.9,
+  "whorls": 6,
+  "spikes": 8,
+  "rear_edge_y": 2.6642408454,
+  "anatomy": "Shared standard adult components, rig and behavior; no copied anatomy source."
+}

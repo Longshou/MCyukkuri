@@ -1,0 +1,707 @@
+{
+  "yawn_animation": "accepted including half-open recovery",
+  "completed_named_revision_batch": true,
+  "accepted_new_codes": [
+    "N001",
+    "N002",
+    "N005",
+    "N010",
+    "N011",
+    "N012",
+    "N013",
+    "N014",
+    "N015"
+  ],
+  "pending_count": 56,
+  "pending_includes": "A/B tear frames; pending means no explicit individual confirmation, not necessarily needs redraw.",
+  "records": [
+    {
+      "code": "O01",
+      "id": "neutral",
+      "label": "普通",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N001",
+      "id": "open_smile",
+      "label": "睁眼笑",
+      "status": "accepted"
+    },
+    {
+      "code": "O02",
+      "id": "happy",
+      "label": "闭眼大笑",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N002",
+      "id": "closed_smile",
+      "label": "闭口微笑",
+      "status": "accepted"
+    },
+    {
+      "code": "O03",
+      "id": "smug",
+      "label": "得意",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "O04",
+      "id": "cry",
+      "label": "闭眼哭喊",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N003",
+      "id": "cry_b",
+      "label": "闭眼哭喊 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "O05",
+      "id": "teary",
+      "label": "含泪",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N004",
+      "id": "teary_b",
+      "label": "含泪 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "O06",
+      "id": "drool",
+      "label": "闭眼流口水",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N005",
+      "id": "drool_b",
+      "label": "闭眼流口水 · 滴落",
+      "status": "accepted"
+    },
+    {
+      "code": "O07",
+      "id": "confused",
+      "label": "困惑张嘴",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N006",
+      "id": "confused_small",
+      "label": "困惑小嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N007",
+      "id": "blank_confused",
+      "label": "困惑白眼",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N008",
+      "id": "teary_smile",
+      "label": "含泪笑",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N009",
+      "id": "teary_smile_b",
+      "label": "含泪笑 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "O08",
+      "id": "yawn",
+      "label": "打哈欠",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N010",
+      "id": "yawn_b",
+      "label": "打哈欠 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "O09",
+      "id": "sleep",
+      "label": "睡眠",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N011",
+      "id": "sleep_b",
+      "label": "睡眠 · 滴落",
+      "status": "accepted"
+    },
+    {
+      "code": "N012",
+      "id": "tear_sleep",
+      "label": "含泪睡眠",
+      "status": "accepted"
+    },
+    {
+      "code": "N013",
+      "id": "tear_sleep_b",
+      "label": "含泪睡眠 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "N014",
+      "id": "squeezed_teary",
+      "label": "挤眼含泪",
+      "status": "accepted"
+    },
+    {
+      "code": "N015",
+      "id": "squeezed_teary_b",
+      "label": "挤眼含泪 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "N016",
+      "id": "squeezed_frown",
+      "label": "挤眼哭丧",
+      "status": "accepted"
+    },
+    {
+      "code": "N017",
+      "id": "squeezed_frown_b",
+      "label": "挤眼哭丧 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "N018",
+      "id": "waking",
+      "label": "刚睡醒",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "O10",
+      "id": "puff",
+      "label": "闭眼噗咕",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "O11",
+      "id": "angry",
+      "label": "生气",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N019",
+      "id": "puff_open",
+      "label": "睁眼噗咕",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N020",
+      "id": "puff_teary",
+      "label": "含泪噗咕",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "O12",
+      "id": "surprise",
+      "label": "受惊逃跑",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N021",
+      "id": "look_down",
+      "label": "低头困惑",
+      "status": "accepted"
+    },
+    {
+      "code": "N022",
+      "id": "pin_cry",
+      "label": "灰瞳哭喊",
+      "status": "accepted"
+    },
+    {
+      "code": "N023",
+      "id": "pin_cry_b",
+      "label": "灰瞳哭喊 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "N024",
+      "id": "tongue_cry",
+      "label": "灰瞳伸舌哭喊",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N025",
+      "id": "tongue_cry_b",
+      "label": "灰瞳伸舌哭喊 · 泪帧 B",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N026",
+      "id": "dead_tongue",
+      "label": "失神垂舌",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N027",
+      "id": "blank_cry",
+      "label": "白眼哭喊",
+      "status": "accepted"
+    },
+    {
+      "code": "N028",
+      "id": "blank_cry_b",
+      "label": "白眼哭喊 · 泪帧 B",
+      "status": "accepted"
+    },
+    {
+      "code": "N029",
+      "id": "squeezed_cry",
+      "label": "挤眼喊叫",
+      "status": "accepted"
+    },
+    {
+      "code": "N030",
+      "id": "squeezed_cry_tears",
+      "label": "挤眼喊叫含泪",
+      "status": "accepted"
+    },
+    {
+      "code": "N031",
+      "id": "teary_pant",
+      "label": "含泪喘嘴",
+      "status": "accepted"
+    },
+    {
+      "code": "N032",
+      "id": "teary_pant_b",
+      "label": "含泪喘嘴 · 泪帧 B",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N033",
+      "id": "dull",
+      "label": "失去高光",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N034",
+      "id": "flushed_smile",
+      "label": "潮红闭眼笑",
+      "status": "accepted"
+    },
+    {
+      "code": "N035",
+      "id": "flushed_tongue",
+      "label": "潮红闭眼伸舌",
+      "status": "accepted"
+    },
+    {
+      "code": "N036",
+      "id": "teary_tongue",
+      "label": "含泪伸舌",
+      "status": "accepted"
+    },
+    {
+      "code": "N037",
+      "id": "teary_tongue_b",
+      "label": "含泪伸舌 · 泪帧 B",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N038",
+      "id": "endure",
+      "label": "白眼忍耐",
+      "status": "accepted"
+    },
+    {
+      "code": "N039",
+      "id": "horrified",
+      "label": "嫌恶惊惧",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N040",
+      "id": "horrified_b",
+      "label": "嫌恶惊惧 · 泪帧 B",
+      "status": "redrawn-awaiting-review"
+    },
+    {
+      "code": "N041",
+      "id": "side_teary",
+      "label": "垂眼哭丧",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N042",
+      "id": "side_teary_b",
+      "label": "垂眼哭丧 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N043",
+      "id": "down_angry",
+      "label": "低头生气",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N044",
+      "id": "dry_dead",
+      "label": "干枯失神",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N045",
+      "id": "squashed",
+      "label": "压扁失神",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N046",
+      "id": "teary_frown",
+      "label": "睁眼哭丧",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N047",
+      "id": "teary_frown_b",
+      "label": "睁眼哭丧 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N048",
+      "id": "open_drool",
+      "label": "睁眼流口水",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N049",
+      "id": "open_drool_b",
+      "label": "睁眼流口水 · 滴落",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N050",
+      "id": "landing",
+      "label": "挤眼抿嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N051",
+      "id": "open_cry",
+      "label": "睁眼哭喊",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N052",
+      "id": "open_cry_b",
+      "label": "睁眼哭喊 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N053",
+      "id": "pursed",
+      "label": "睁眼抿嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N054",
+      "id": "chewing",
+      "label": "咀嚼张嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N055",
+      "id": "chewing_closed",
+      "label": "咀嚼闭嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N056",
+      "id": "bad_taste_small",
+      "label": "难吃缩嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N057",
+      "id": "bad_taste_closed",
+      "label": "难吃闭嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N058",
+      "id": "angry_stare",
+      "label": "不满凝视",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N059",
+      "id": "blank_happy",
+      "label": "白眼张嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N060",
+      "id": "cold",
+      "label": "寒冷发颤",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N061",
+      "id": "cold_b",
+      "label": "寒冷发颤 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N062",
+      "id": "cut_cry",
+      "label": "受损哭喊",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N063",
+      "id": "pressed_teary",
+      "label": "挤脸含泪",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N064",
+      "id": "pressed_cry",
+      "label": "挤脸哭喊",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N065",
+      "id": "licking",
+      "label": "闭眼吐舌",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N066",
+      "id": "dying",
+      "label": "垂瞳含泪",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N067",
+      "id": "dying_b",
+      "label": "垂瞳含泪 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N068",
+      "id": "old_dead",
+      "label": "闭眼平嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N069",
+      "id": "dying_blank",
+      "label": "白眼喘嘴",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N070",
+      "id": "dying_closed",
+      "label": "虚弱闭眼",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N071",
+      "id": "dying_closed_b",
+      "label": "虚弱闭眼 · 泪帧 B",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N072",
+      "id": "pressed_hidden",
+      "label": "被压遮挡",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N073",
+      "id": "satisfied",
+      "label": "满足闭眼",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N074",
+      "id": "blank_frown",
+      "label": "白眼哭丧",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N075",
+      "id": "impact",
+      "label": "受击挤眼",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N076",
+      "id": "impact_teary",
+      "label": "受击挤眼含泪",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N077",
+      "id": "shattered",
+      "label": "表情破碎",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N078",
+      "id": "shattered_fade",
+      "label": "破碎散落",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "N079",
+      "id": "flick_dull",
+      "label": "受击失神",
+      "status": "not-individually-confirmed"
+    },
+    {
+      "code": "O13",
+      "id": "sleepy",
+      "label": "困倦",
+      "status": "retained-or-reviewed"
+    },
+    {
+      "code": "N080",
+      "id": "angry__new",
+      "label": "生气",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N081",
+      "id": "confused__new",
+      "label": "困惑张嘴",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N082",
+      "id": "cry__new",
+      "label": "闭眼哭喊",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N083",
+      "id": "drool__new",
+      "label": "闭眼流口水",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N084",
+      "id": "happy__new",
+      "label": "闭眼大笑",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N085",
+      "id": "neutral__new",
+      "label": "普通",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N086",
+      "id": "puff__new",
+      "label": "闭眼噗咕",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N087",
+      "id": "sleep__new",
+      "label": "睡眠",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N088",
+      "id": "sleepy__new",
+      "label": "刚睡醒",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N089",
+      "id": "smug__new",
+      "label": "得意",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N090",
+      "id": "surprise__new",
+      "label": "受惊逃跑",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N091",
+      "id": "teary__new",
+      "label": "含泪",
+      "status": "historical-comparison-only"
+    },
+    {
+      "code": "N092",
+      "id": "yawn__new",
+      "label": "打哈欠",
+      "status": "historical-comparison-only"
+    }
+  ],
+  "pending_order": [
+    "waking",
+    "puff_open",
+    "puff_teary",
+    "tongue_cry",
+    "tongue_cry_b",
+    "dead_tongue",
+    "teary_pant_b",
+    "dull",
+    "teary_tongue_b",
+    "horrified",
+    "horrified_b",
+    "side_teary",
+    "side_teary_b",
+    "down_angry",
+    "dry_dead",
+    "squashed",
+    "teary_frown",
+    "teary_frown_b",
+    "open_drool",
+    "open_drool_b",
+    "landing",
+    "open_cry",
+    "open_cry_b",
+    "pursed",
+    "chewing",
+    "chewing_closed",
+    "bad_taste_small",
+    "bad_taste_closed",
+    "angry_stare",
+    "blank_happy",
+    "cold",
+    "cold_b",
+    "cut_cry",
+    "pressed_teary",
+    "pressed_cry",
+    "licking",
+    "dying",
+    "dying_b",
+    "old_dead",
+    "dying_blank",
+    "dying_closed",
+    "dying_closed_b",
+    "pressed_hidden",
+    "satisfied",
+    "blank_frown",
+    "impact",
+    "impact_teary",
+    "shattered",
+    "shattered_fade",
+    "flick_dull",
+    "cry_b",
+    "teary_b",
+    "confused_small",
+    "blank_confused",
+    "teary_smile",
+    "teary_smile_b"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "squeezed_teary_b",
+  "label": "挤眼含泪 · 泪帧 B",
+  "group": "哭泣",
+  "recipe": {
+    "source": "accepted-component-review",
+    "parts": [
+      "E3-PUFF",
+      "M3-accepted"
+    ]
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
+    "face_mouth": "expressions/parts/8ce5c296916c97bac7b2.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本バツ涙目顔２グラベース",
+      "index": 0,
+      "sprite_id": 7004,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "User-selected component revisions; unchanged parts retain prior pixels.",
+  "aliases": [],
+  "review_code": "N015",
+  "origin": "new",
+  "review_pair": null,
+  "review_decision": {
+    "status": "applied",
+    "note": "Mouth width and height exactly 1.5x; smug uses downward V."
+  },
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        1.5,
+        1.5,
+        1
+      ]
+    }
+  }
+}

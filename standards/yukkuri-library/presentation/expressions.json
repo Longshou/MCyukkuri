@@ -1,0 +1,47 @@
+{
+  "flee": [
+    {
+      "from": 0,
+      "to": 5,
+      "expression": "surprise"
+    }
+  ],
+  "puff": [
+    {
+      "from": 0.65,
+      "to": 4.5,
+      "expression": "puff"
+    }
+  ],
+  "brace": [
+    {
+      "from": 0.6,
+      "to": 1.76,
+      "expression": "happy"
+    }
+  ],
+  "press": [
+    {
+      "from": 0.6,
+      "to": 1.76,
+      "expression": "happy"
+    },
+    {
+      "from": 3,
+      "to": 4.16,
+      "expression": "happy"
+    }
+  ],
+  "taiso": [
+    {
+      "from": 0.6,
+      "to": 1.76,
+      "expression": "happy"
+    },
+    {
+      "from": 3,
+      "to": 4.16,
+      "expression": "happy"
+    }
+  ]
+}

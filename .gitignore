@@ -1,12 +1,7 @@
-# Local art experiments and generated previews (curated assets live in art/).
-/reference/
-/variants/
-/models/
-/textures/
-/marisa-original/
-/preview/
-/tools/
-/docs/LOCAL_ART_HISTORY.md
+# Project-local scratch work and optional isolated worktrees.
+# Authored assets, current exports and curated archives are versioned normally.
+/.local/
+/.worktrees/
 node_modules/
 __pycache__/
 *.pyc

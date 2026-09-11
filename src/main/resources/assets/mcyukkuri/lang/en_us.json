@@ -1,4 +1,8 @@
 {
   "itemGroup.mcyukkuri": "Yukkuri World",
-  "item.mcyukkuri.field_notebook": "Yukkuri Field Notebook (In Development)"
+  "item.mcyukkuri.field_notebook": "Yukkuri Field Notebook (In Development)",
+  "entity.mcyukkuri.reimu": "Reimu Yukkuri",
+  "entity.mcyukkuri.marisa": "Marisa Yukkuri",
+  "item.mcyukkuri.reimu_spawn_egg": "Reimu Yukkuri Spawn Egg",
+  "item.mcyukkuri.marisa_spawn_egg": "Marisa Yukkuri Spawn Egg"
 }

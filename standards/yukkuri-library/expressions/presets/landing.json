@@ -1,0 +1,75 @@
+{
+  "id": "landing",
+  "label": "挤眼抿嘴",
+  "group": "动作表情",
+  "recipe": {
+    "eyes": "squeeze",
+    "brows": "sad",
+    "mouth": "omega",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/e444ad2c313fc637f8f9.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "着地１顔面グラベース",
+      "index": 0,
+      "sprite_id": 6863,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地２顔面グラベース",
+      "index": 0,
+      "sprite_id": 6377,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地３顔面グラベース",
+      "index": 0,
+      "sprite_id": 5970,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地４顔面グラベース",
+      "index": 0,
+      "sprite_id": 8666,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右バツ顔面グラベース",
+      "index": 0,
+      "sprite_id": 8087,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "デコピン１顔面グラベース",
+      "index": 0,
+      "sprite_id": 4643,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Draft adaptation; requires redraw before production use",
+  "aliases": [],
+  "review_code": "N050",
+  "origin": "new",
+  "review_pair": null
+}

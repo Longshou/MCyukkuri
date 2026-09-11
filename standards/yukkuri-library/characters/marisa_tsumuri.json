@@ -1,0 +1,41 @@
+{
+  "id": "marisa_tsumuri",
+  "label": "螺壳魔理沙",
+  "components": [
+    "components/common/body.json",
+    "components/common/rump.json",
+    "components/common/face.json",
+    "components/common/puff.json",
+    "components/common/hair.json",
+    "components/marisa/hair.json",
+    "components/marisa/hand-left.json",
+    "components/marisa/hand-right.json",
+    "components/common/anatomy.json",
+    "components/marisa-tsumuri/shell.json"
+  ],
+  "rig": "rigs/marisa.json",
+  "base_texture": "textures/marisa-tsumuri/base.png",
+  "expression_binding": "bindings/marisa_tsumuri.json",
+  "motion_catalog": "motions/index.json",
+  "expression_catalog": "expressions/index.json",
+  "rig_components": [
+    "components/common/anatomy-rig.json",
+    "components/marisa-tsumuri/shell-rig.json"
+  ],
+  "anatomy": "behaviors/anatomy.json",
+  "status": "user_approved",
+  "base_character": "marisa",
+  "motion_ids": [
+    "idle"
+  ],
+  "extra_motions": {
+    "still": "motions/variants/marisa-tsumuri/still.json",
+    "shell_sway": "motions/variants/marisa-tsumuri/shell_sway.json",
+    "shell_retract": "motions/variants/marisa-tsumuri/shell_retract.json"
+  },
+  "preview": {
+    "span": 18.5,
+    "centerY": 10.5,
+    "default_motion": "still"
+  }
+}

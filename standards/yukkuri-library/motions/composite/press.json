@@ -1,0 +1,36 @@
+{
+  "id": "press",
+  "kind": "composite",
+  "loop": true,
+  "label": "左右用力体操",
+  "duration": 4.8,
+  "operator": "brace_pair",
+  "posture": "brace",
+  "sway": "waddle",
+  "sway_bones": [
+    "rump_sway",
+    "rump_roll",
+    "rump"
+  ],
+  "sway_rate": 0.75,
+  "sway_weight": 0.65,
+  "effort_curve": {
+    "0": 0,
+    ".4": 0,
+    ".75": 0.5,
+    "1": 1,
+    "1.5": 1,
+    "1.85": 0,
+    "2.4": 0
+  },
+  "description": "转身 × 左右各一次 + 用力下压 + 复用走动中的摆臀。与走动不同：额外转身 32°、俯身 12°、身体下压。",
+  "turn": "turn",
+  "turn_target": "root",
+  "turn_degrees": 32,
+  "turn_curve": {
+    "0": 0,
+    ".4": 1,
+    "1.85": 1,
+    "2.4": 0
+  }
+}

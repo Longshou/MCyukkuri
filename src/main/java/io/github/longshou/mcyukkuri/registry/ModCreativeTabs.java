@@ -15,7 +15,11 @@ public final class ModCreativeTabs {
             TABS.register("yukkuri_world", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.mcyukkuri"))
                     .icon(() -> ModItems.FIELD_NOTEBOOK.get().getDefaultInstance())
-                    .displayItems((parameters, output) -> output.accept(ModItems.FIELD_NOTEBOOK.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(ModItems.FIELD_NOTEBOOK.get());
+                        output.accept(ModItems.REIMU_SPAWN_EGG.get());
+                        output.accept(ModItems.MARISA_SPAWN_EGG.get());
+                    })
                     .build());
 
     private ModCreativeTabs() {}
