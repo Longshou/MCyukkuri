@@ -1,0 +1,59 @@
+{
+  "id": "marisa",
+  "schema_version": 1,
+  "body_profile": "profiles/body.json",
+  "skeleton": "skeletons/marisa.json",
+  "components": [
+    "components/common/body.json",
+    "components/common/rump.json",
+    "components/marisa/face.json",
+    "components/marisa/hair.json",
+    "components/marisa/hand-left.json",
+    "components/marisa/hand-right.json",
+    "components/marisa/accessories.json",
+    "components/marisa/puff.json",
+    "components/marisa/contact-anatomy.json"
+  ],
+  "clips": {
+    "stretch": "animations/marisa/stretch.json",
+    "waddle": "animations/marisa/waddle.json",
+    "exercise_vertical": "animations/marisa/exercise_vertical.json",
+    "exercise_sides": "animations/marisa/exercise_sides.json",
+    "puff": "animations/marisa/puff.json",
+    "press": "animations/common/press.json",
+    "taiso": "animations/common/taiso.json",
+    "contact_mamu": "animations/marisa/contact_mamu.json",
+    "contact_peni": "animations/marisa/contact_peni.json"
+  },
+  "textures": {
+    "neutral": "textures/marisa/neutral.png",
+    "happy": "textures/marisa/happy.png",
+    "smug": "textures/marisa/smug.png",
+    "angry": "textures/marisa/angry.png",
+    "puff": "textures/marisa/puff.png",
+    "surprise": "textures/marisa/surprise.png",
+    "confused": "textures/marisa/confused.png",
+    "teary": "textures/marisa/teary.png",
+    "cry": "textures/marisa/cry.png",
+    "sleepy": "textures/marisa/sleepy.png",
+    "sleep": "textures/marisa/sleep.png",
+    "yawn": "textures/marisa/yawn.png",
+    "drool": "textures/marisa/drool.png"
+  },
+  "default_texture": "neutral",
+  "default_clip": "puff",
+  "default_hidden": [],
+  "behaviors": [
+    "behaviors/flee.json",
+    "behaviors/puff-contest.json",
+    "behaviors/contact-reveal.json"
+  ],
+  "animation_bindings": {
+    "press": "bindings/marisa/press.json",
+    "taiso": "bindings/marisa/taiso.json"
+  },
+  "expression_bindings": {
+    "surprise": "bindings/marisa/surprise.json"
+  },
+  "contact_reveal": "behaviors/contact-reveal.json"
+}

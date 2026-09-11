@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "reimu-viviparous-birth-v1",
+  "character": "reimu",
+  "status": "user_approved_standard",
+  "eligibility": {"stage": "adult", "ecology": "ordinary", "reproduction_mode": "viviparous"},
+  "offspring_count": {"min": 1, "max": 5, "preview_default": 3, "note": "Preview control, not a universal comic litter-size claim"},
+  "birth_stage": "baby",
+  "birth_scale": 0.18,
+  "preview_seconds": {"pregnant": 9, "labor": 10, "first_start": 14, "interval": 2.4, "emergence": 1.8, "landing": 1.1, "recovery": 3.5, "end": 32},
+  "birth_outlet": {"anchor": [0, 1.02, -4.63], "direction": [0, 0, -1], "label": "正面嘴巴下方", "radii": [1.15, 0.58]},
+  "outlet_surface": {"patch": {"half_width": 2.8, "top": 3.18, "back_z": -2.2}, "segments": 64, "rim_width": 0.14, "rim_depth": 0.12, "contact_band": 0.60, "compression": [0.76, 0.82], "skin_color": 9, "crease_color": 10, "inner_color": 11, "color_source": "textures/reimu/neutral.png skin (1,49), existing mamu mark (111,111)"},
+  "anatomy_policy": "User confirmed: reproductive interaction uses the rear site below the anus; delivery uses a separate outlet below the front mouth. This action does not move or reveal the rear interaction anatomy.",
+  "pregnant_shape": {"lower_width": 0.22, "lower_depth": 0.24, "lower_height": 2.5, "transition_y": 4.2},
+  "palette": [[95,118,73],[177,198,140],[142,119,67],[192,202,178],[65,43,34],[135,66,65],[157,216,211],[92,54,49],[222,164,142]],
+  "references": ["references/viviparous-comics.md"],
+  "adaptation": "Comic-supported lower-body swelling, strained face, front chin outlet and sequential births; scale, smooth deformation, litter control and 32-second timing are project adaptations.",
+  "minecraft_integration": false
+}

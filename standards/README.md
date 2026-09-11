@@ -9,5 +9,8 @@
 | [标准帕秋莉](yukkuri-library/assembled/patchouli/patchouli.bbmodel) | 已确认的宽厚刘海、完整侧发与贴地小束尾造型 |
 | [帕秋莉独立预览](yukkuri-library/assembled/patchouli/index.html) | 由用户打开并查看当前导出 |
 | [游戏接入素材](../art/README.md) | 查看当前 M1 的选定源文件和运行资源关系 |
+| [旧版兼容素材](yukkuri-v1/README.md) | 保留生命周期与亚种原型所依赖的源文件和快照 |
+
+`yukkuri-library.zip` 是历史导出，不能覆盖当前制作源；目录索引见 [index.json](index.json)。
 
 角色是否已确认，以各自登记和适用的文件指纹为准；位于标准库中并不表示所有草稿、表情和派生设计都已通过确认。执行边界遵循项目根目录的 [AGENTS.md](../AGENTS.md)。

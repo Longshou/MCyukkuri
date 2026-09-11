@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "action.reimu.stem_birth.v2",
+  "label": "标准灵梦 · 茎生复合动作 v2",
+  "status": "user_approved_standard",
+  "approved_on": "2026-09-11",
+  "supersedes": "action.reimu.stem_birth.v1",
+  "kind": "procedural_multi_entity_action",
+  "character": "characters/reimu.json",
+  "behavior": "behaviors/stem-birth.json",
+  "runtime": "runtime/stem-birth.js",
+  "preview": "lifecycle/index.html",
+  "duration_seconds": 28,
+  "loop": false,
+  "composition": ["Adult mother and one forward arched main stalk", "Solid tapered pedicels thinner than their main-stalk attachment", "1–5 sleeping offspring growing on the stem", "Sequential detachment, juvenile birth events, landing and waking"],
+  "constraints": ["Forward vertical YZ plane", "Pedicel length 0.30 reference units", "Pedicel radius at most 60% of local main-stalk radius; tapered tip 78% of base", "Count chosen once per pregnancy and persisted"],
+  "recorded_rules": ["Maternal size affects offspring count", "Offspring count affects stem length and thickness", "Individual variation exists in these relationships"],
+  "deferred": ["Complete maternal-size/count/stem-dimension relationship: recorded only; numerical mapping and variation distribution unspecified", "Stalk root detachment and item 油库里的茎: recorded only"],
+  "minecraft_integration": false,
+  "snapshot_index": "actions/approved-snapshots.json"
+}

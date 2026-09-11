@@ -29,6 +29,8 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21** · GeckoLib **4.8.4
 - [油库里 Wiki](wiki/README.md)
 - [标准美术素材](standards/README.md)
 - [当前实体接入素材](art/README.md)
+- [历史动作、表情与冻结方案](art/library/README.md)
+- [旧版生命周期与亚种原型](standards/yukkuri-v1/README.md)
 - [项目脚本](scripts/README.md)
 - [来源与第三方说明](THIRD_PARTY_NOTICES.md)
 

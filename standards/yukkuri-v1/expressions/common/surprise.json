@@ -1,0 +1,50 @@
+{
+  "id": "surprise",
+  "parts": {
+    "left_eye": {
+      "image": "expressions/common/surprise/left_eye.png",
+      "geometry": {
+        "from": [
+          0.75,
+          2.915,
+          -4.6032399999999996
+        ],
+        "to": [
+          4.5,
+          6.095,
+          -4.602239999999999
+        ]
+      }
+    },
+    "right_eye": {
+      "image": "expressions/common/surprise/right_eye.png",
+      "geometry": {
+        "from": [
+          -4.5,
+          2.915,
+          -4.60332
+        ],
+        "to": [
+          -0.75,
+          6.095,
+          -4.60232
+        ]
+      }
+    },
+    "mouth": {
+      "image": "expressions/common/surprise/mouth.png",
+      "geometry": {
+        "from": [
+          -1.75,
+          0.265,
+          -4.60356
+        ],
+        "to": [
+          1.75,
+          3.445,
+          -4.6025599999999995
+        ]
+      }
+    }
+  }
+}

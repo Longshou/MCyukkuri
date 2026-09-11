@@ -1,0 +1,109 @@
+{
+  "presets": [
+    "neutral",
+    "surprise"
+  ],
+  "parts": [
+    {
+      "part": "face_rest_left_eye",
+      "uv": [
+        7,
+        31,
+        21,
+        46
+      ],
+      "geometry": "parts/reimu/face_rest_left_eye.json"
+    },
+    {
+      "part": "face_rest_right_eye",
+      "uv": [
+        27,
+        31,
+        41,
+        46
+      ],
+      "geometry": "parts/reimu/face_rest_right_eye.json"
+    },
+    {
+      "part": "face_rest_left_blush",
+      "uv": [
+        96,
+        32,
+        108,
+        36
+      ],
+      "geometry": "parts/reimu/face_rest_left_blush.json"
+    },
+    {
+      "part": "face_rest_right_blush",
+      "uv": [
+        108,
+        32,
+        120,
+        36
+      ],
+      "geometry": "parts/reimu/face_rest_right_blush.json"
+    },
+    {
+      "part": "face_rest_mouth",
+      "uv": [
+        96,
+        36,
+        108,
+        41
+      ],
+      "geometry": "parts/reimu/face_rest_mouth.json"
+    },
+    {
+      "part": "face_effort_left_eye",
+      "uv": [
+        55,
+        31,
+        69,
+        46
+      ],
+      "geometry": "parts/reimu/face_effort_left_eye.json"
+    },
+    {
+      "part": "face_effort_right_eye",
+      "uv": [
+        75,
+        31,
+        89,
+        46
+      ],
+      "geometry": "parts/reimu/face_effort_right_eye.json"
+    },
+    {
+      "part": "face_effort_left_blush",
+      "uv": [
+        96,
+        42,
+        108,
+        46
+      ],
+      "geometry": "parts/reimu/face_effort_left_blush.json"
+    },
+    {
+      "part": "face_effort_right_blush",
+      "uv": [
+        108,
+        42,
+        120,
+        46
+      ],
+      "geometry": "parts/reimu/face_effort_right_blush.json"
+    },
+    {
+      "part": "face_effort_mouth",
+      "uv": [
+        108,
+        36,
+        120,
+        41
+      ],
+      "geometry": "parts/reimu/face_effort_mouth.json"
+    }
+  ],
+  "notes": "Transparent pigment only. Puff geometry/animation is a separate reusable component."
+}

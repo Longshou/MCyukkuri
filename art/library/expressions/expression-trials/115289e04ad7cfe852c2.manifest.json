@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "content_sha256": "115289e04ad7cfe852c24e195dc9595314f7a0323fe1f151947acdf5f092c339",
+  "files": [
+    {
+      "path": "variants/expression-trials/a/browser-front.png",
+      "bytes": 48176,
+      "sha256": "9b3230e29cc277523d877de9911db62e4b3aecc90100e234a745431a3f7d9750"
+    },
+    {
+      "path": "variants/expression-trials/a/generate.py",
+      "bytes": 14411,
+      "sha256": "42cac9e7002650db1d3cc21d65c745c6bd4aa67b8d235b0f7dac14b6e30faf2a"
+    },
+    {
+      "path": "variants/expression-trials/a/marisa.bbmodel",
+      "bytes": 84661,
+      "sha256": "c29b24e80de875066673802e0e4c13c030e05331b3590fb3170158e54276823f"
+    },
+    {
+      "path": "variants/expression-trials/a/marisa.geo.json",
+      "bytes": 98774,
+      "sha256": "d7bdcba769fe5f0a19c0164a70982a0291b356db000410204f142c9dbb93ca4f"
+    },
+    {
+      "path": "variants/expression-trials/a/marisa.png",
+      "bytes": 1295,
+      "sha256": "b76d59b2135005a8d719e1d72a01c1ef8763be355b71f0c4292947eb57809419"
+    },
+    {
+      "path": "variants/expression-trials/a/preview-sheet.png",
+      "bytes": 33945,
+      "sha256": "818a830767c6db1ee5c9634d4065f6c2a429f0e45c06d809bdda72aa1bff7c07"
+    },
+    {
+      "path": "variants/expression-trials/a/preview.html",
+      "bytes": 96423,
+      "sha256": "f47b5c2cfad89d9d48fa693ec3857bad83ea9c5a4c1190e70e9dff6f1d0de851"
+    },
+    {
+      "path": "variants/expression-trials/a/preview.png",
+      "bytes": 17141,
+      "sha256": "1f3edb74ad3b93eefa62b2ddd83624204ef10f9193e4abf7a0ab455c1f30b35f"
+    },
+    {
+      "path": "variants/expression-trials/a/README.md",
+      "bytes": 279,
+      "sha256": "6db7914eb1aadc773b89dc725826b2339609e06790e31d5c8187832014c6f86c"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 66433,
+      "sha256": "be6ee5139d527924d7603abe6901c94ac6aec563b45e13c9d580aac0add178db"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 1295,
+      "sha256": "b76d59b2135005a8d719e1d72a01c1ef8763be355b71f0c4292947eb57809419"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/expression-trials/a/resourcepack/pack.png",
+      "bytes": 2309,
+      "sha256": "78dcb1f6c3e2ba6ae1740adfbc62d347101902fef5cdc830e4102fe32685858b"
+    },
+    {
+      "path": "variants/expression-trials/a/software-viewer.js",
+      "bytes": 5007,
+      "sha256": "c7ecccc5babcaedb4918fc62c7bb54e0d5cbf9190c14c7b8557e8c169308ea7c"
+    },
+    {
+      "path": "variants/expression-trials/a/verification.json",
+      "bytes": 1207,
+      "sha256": "222f0f3dca76cae591234a53612333b667ff13ede47809706ac8225a40a13936"
+    },
+    {
+      "path": "variants/expression-trials/a/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/expression-trials/a/verify.py",
+      "bytes": 3184,
+      "sha256": "270427f1e8a758d37dd82d98b1b3e5c20fe715b2f3880fe0e169ba7290e36547"
+    },
+    {
+      "path": "variants/expression-trials/a/viewer-template.html",
+      "bytes": 2914,
+      "sha256": "512e3ef0d6272820767e8b1cde188d86e25a19cbf431cb09ec4539f369103bb2"
+    },
+    {
+      "path": "variants/expression-trials/b/browser-front.png",
+      "bytes": 46412,
+      "sha256": "2a0b7eb41a99f6b90f7a18d4e3dfe56891185fb7481f6a9c9c3623d912aad84e"
+    },
+    {
+      "path": "variants/expression-trials/b/generate.py",
+      "bytes": 14090,
+      "sha256": "554decf8da1dbb01c79a1742e69b826c4f489b0c0cd5d005584cf4aae296afbf"
+    },
+    {
+      "path": "variants/expression-trials/b/marisa.bbmodel",
+      "bytes": 84481,
+      "sha256": "91e79d2e6eb83a52236ad80994d91bed955bc50a368b2f23e382c1dd088c4238"
+    },
+    {
+      "path": "variants/expression-trials/b/marisa.geo.json",
+      "bytes": 98774,
+      "sha256": "d7bdcba769fe5f0a19c0164a70982a0291b356db000410204f142c9dbb93ca4f"
+    },
+    {
+      "path": "variants/expression-trials/b/marisa.png",
+      "bytes": 1161,
+      "sha256": "db72f6d3baa8063551578822a4dae9c15efd2971cc5d9a8fad2a8d09b63e12a6"
+    },
+    {
+      "path": "variants/expression-trials/b/preview-sheet.png",
+      "bytes": 34108,
+      "sha256": "552112a586a8a37815aec5ca73300d8c6d6698bf1367ccded8191a57991ee3ca"
+    },
+    {
+      "path": "variants/expression-trials/b/preview.html",
+      "bytes": 95867,
+      "sha256": "3b4928e64de47b1bcd8f1090e13dd37c2ab0868fde3bc0ac65c8807cf17ad7a9"
+    },
+    {
+      "path": "variants/expression-trials/b/preview.png",
+      "bytes": 16858,
+      "sha256": "bc14c8e3f1b029f6ca6366d81ca0737d7178f080b42c9e3b1781b684b1f0eb51"
+    },
+    {
+      "path": "variants/expression-trials/b/README.md",
+      "bytes": 276,
+      "sha256": "e5e106c9774001dcd8c033819263f8d25ce2773e7537caa3ea6745e2d672619b"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 66433,
+      "sha256": "be6ee5139d527924d7603abe6901c94ac6aec563b45e13c9d580aac0add178db"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 1161,
+      "sha256": "db72f6d3baa8063551578822a4dae9c15efd2971cc5d9a8fad2a8d09b63e12a6"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/expression-trials/b/resourcepack/pack.png",
+      "bytes": 2225,
+      "sha256": "fc5910adc2848fea996ee8fa915980285743a722f57da16ae8c16c14603a3677"
+    },
+    {
+      "path": "variants/expression-trials/b/software-viewer.js",
+      "bytes": 5007,
+      "sha256": "c7ecccc5babcaedb4918fc62c7bb54e0d5cbf9190c14c7b8557e8c169308ea7c"
+    },
+    {
+      "path": "variants/expression-trials/b/verification.json",
+      "bytes": 1207,
+      "sha256": "834527c4534184e756fa3d5e488f35fdee74cee664a21e2a0321df3e78f4469d"
+    },
+    {
+      "path": "variants/expression-trials/b/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/expression-trials/b/verify.py",
+      "bytes": 3184,
+      "sha256": "270427f1e8a758d37dd82d98b1b3e5c20fe715b2f3880fe0e169ba7290e36547"
+    },
+    {
+      "path": "variants/expression-trials/b/viewer-template.html",
+      "bytes": 2914,
+      "sha256": "0a58ba710be84a6d061cfe23a542a55cd564b488dcf7cdf08cb9ada15d6ed5f6"
+    },
+    {
+      "path": "variants/expression-trials/browser-check.json",
+      "bytes": 334,
+      "sha256": "1f88c8f0c56dc56da7bb3cec9c2cab48712e576ca9fe419a97e24d34f6ada970"
+    },
+    {
+      "path": "variants/expression-trials/c/browser-front.png",
+      "bytes": 45177,
+      "sha256": "40d8a047ea7e93a4697d8a1de3ef8acd53aae4f9e1e3a0ee8019500118cbfd6f"
+    },
+    {
+      "path": "variants/expression-trials/c/generate.py",
+      "bytes": 14088,
+      "sha256": "db7bc6f1e0320c78e29a73e86accc1a583b089ea9515f4801c39f11d2ac745c0"
+    },
+    {
+      "path": "variants/expression-trials/c/marisa.bbmodel",
+      "bytes": 84455,
+      "sha256": "a7131c0a70c0cd4ae80b1ee02b8bbc6eb2e27e81df24bfb3b4d997854d43ed28"
+    },
+    {
+      "path": "variants/expression-trials/c/marisa.geo.json",
+      "bytes": 98786,
+      "sha256": "2f52d188df51bd520ea64935feb944bf3e89ccb46506a192ba5feff459b856fc"
+    },
+    {
+      "path": "variants/expression-trials/c/marisa.png",
+      "bytes": 1151,
+      "sha256": "11d83cf9761694f0e91f8279be9cc4233a787c63b5c12fdce227a722c16b67b8"
+    },
+    {
+      "path": "variants/expression-trials/c/preview-sheet.png",
+      "bytes": 33381,
+      "sha256": "15e51faf581e3b98d8c7c1d1f7dcee3cd07adc2fca9a1abcd508c3e1ee372d80"
+    },
+    {
+      "path": "variants/expression-trials/c/preview.html",
+      "bytes": 94647,
+      "sha256": "d41674971ed912322e09cf55bc5ceff30c05ff2f73fe00ffe39b529a11d8d87c"
+    },
+    {
+      "path": "variants/expression-trials/c/preview.png",
+      "bytes": 16141,
+      "sha256": "0b97837db014a0844f3dd27d07b5529789fbccdb22186e6b0e31640cd192878d"
+    },
+    {
+      "path": "variants/expression-trials/c/README.md",
+      "bytes": 291,
+      "sha256": "7f2a1b738d7761555f36657b65cba2dedbfa8a3e092a8c09675afb84ccc3e41e"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 66447,
+      "sha256": "60f2375a862a1959053b3e8b205b8e4305d19bdf9ed196ee464bd720c0ac86b6"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 1151,
+      "sha256": "11d83cf9761694f0e91f8279be9cc4233a787c63b5c12fdce227a722c16b67b8"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/expression-trials/c/resourcepack/pack.png",
+      "bytes": 2099,
+      "sha256": "7fcf9760e18c57455e51d4adcb5013f230ad974b8e65c6ec52d8c8a1c36556c0"
+    },
+    {
+      "path": "variants/expression-trials/c/software-viewer.js",
+      "bytes": 5007,
+      "sha256": "c7ecccc5babcaedb4918fc62c7bb54e0d5cbf9190c14c7b8557e8c169308ea7c"
+    },
+    {
+      "path": "variants/expression-trials/c/verification.json",
+      "bytes": 1207,
+      "sha256": "bb43e2ab70c77c74694f73b49e53b2d80912fd15f59f65105f5b97d4d0118086"
+    },
+    {
+      "path": "variants/expression-trials/c/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/expression-trials/c/verify.py",
+      "bytes": 3184,
+      "sha256": "270427f1e8a758d37dd82d98b1b3e5c20fe715b2f3880fe0e169ba7290e36547"
+    },
+    {
+      "path": "variants/expression-trials/c/viewer-template.html",
+      "bytes": 2914,
+      "sha256": "051846d2af0c68003caaa07752cf881f5d76c2c643cc624c14151c76a8ba3586"
+    },
+    {
+      "path": "variants/expression-trials/comparison.png",
+      "bytes": 106367,
+      "sha256": "c4ae6f7c5d7b80aeb94be28f18d1cc5c541f58c9c018deaccae9f19a588bcb34"
+    },
+    {
+      "path": "variants/expression-trials/d/browser-front.png",
+      "bytes": 45509,
+      "sha256": "fca36b901bd7a59ab9f75e7017a3f8803a6fea4a5232e400df59af95f7f74e67"
+    },
+    {
+      "path": "variants/expression-trials/d/generate.py",
+      "bytes": 13966,
+      "sha256": "f40ea955f3e22952d78d1afc9984ead427986fb1435780ffd45f686895925a2c"
+    },
+    {
+      "path": "variants/expression-trials/d/marisa.bbmodel",
+      "bytes": 84415,
+      "sha256": "92dc2d2d2edbf1fc14a50e54ca7d5873b2802c6830ce183cc40bf0a0da1974bd"
+    },
+    {
+      "path": "variants/expression-trials/d/marisa.geo.json",
+      "bytes": 98786,
+      "sha256": "2f52d188df51bd520ea64935feb944bf3e89ccb46506a192ba5feff459b856fc"
+    },
+    {
+      "path": "variants/expression-trials/d/marisa.png",
+      "bytes": 1121,
+      "sha256": "8a21c6a1aac59a1ef80152926a553244bbea5501a25dd8fdc170cae1a47bb198"
+    },
+    {
+      "path": "variants/expression-trials/d/preview-sheet.png",
+      "bytes": 33582,
+      "sha256": "a2c53ff894c2dbfd0fd52343a725bbbf42e9caaa1c95ea920697f94460b0e8ab"
+    },
+    {
+      "path": "variants/expression-trials/d/preview.html",
+      "bytes": 94623,
+      "sha256": "338c60afcc6593e404c086734c73a5d3783223eac460ad1a6ea6cee545395f28"
+    },
+    {
+      "path": "variants/expression-trials/d/preview.png",
+      "bytes": 16155,
+      "sha256": "9f26c9a1f5e430d15587f34c877f25696c6ead09983b9e5e6a422fc986c8d5e9"
+    },
+    {
+      "path": "variants/expression-trials/d/README.md",
+      "bytes": 285,
+      "sha256": "e6dedfa8b0f31a88720d5977bab80395a5abc95c86776cb5b296999730bc9e81"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 66447,
+      "sha256": "60f2375a862a1959053b3e8b205b8e4305d19bdf9ed196ee464bd720c0ac86b6"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 1121,
+      "sha256": "8a21c6a1aac59a1ef80152926a553244bbea5501a25dd8fdc170cae1a47bb198"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/expression-trials/d/resourcepack/pack.png",
+      "bytes": 2049,
+      "sha256": "8b29a2498bdaaea14b24a6dd625a3442f9efeff531207e0bece75461fe2bb6fc"
+    },
+    {
+      "path": "variants/expression-trials/d/software-viewer.js",
+      "bytes": 5007,
+      "sha256": "c7ecccc5babcaedb4918fc62c7bb54e0d5cbf9190c14c7b8557e8c169308ea7c"
+    },
+    {
+      "path": "variants/expression-trials/d/verification.json",
+      "bytes": 1207,
+      "sha256": "e18efd7d9c728c0d433e3f683c296889d50edf08fa2b1ef4b3566d1903e79fb0"
+    },
+    {
+      "path": "variants/expression-trials/d/verify-viewer.cjs",
+      "bytes": 1309,
+      "sha256": "9db041b66892b6a3b7696a1267b9776d2a8eb74ad38eeaf6c0ba97ad9579a1c5"
+    },
+    {
+      "path": "variants/expression-trials/d/verify.py",
+      "bytes": 3184,
+      "sha256": "270427f1e8a758d37dd82d98b1b3e5c20fe715b2f3880fe0e169ba7290e36547"
+    },
+    {
+      "path": "variants/expression-trials/d/viewer-template.html",
+      "bytes": 2914,
+      "sha256": "eeaf0e6c2fc689a689271ec003533b71d08d8bcba51cdfe96cd3ae1ef88dbc1e"
+    },
+    {
+      "path": "variants/expression-trials/index.html",
+      "bytes": 1448,
+      "sha256": "e61736353e00d7d9976907cd8397ed7085fe553a58dc12b9d80fde7d07176518"
+    },
+    {
+      "path": "variants/expression-trials/README.md",
+      "bytes": 1562,
+      "sha256": "13f524faa96dc0bfb602741b1c6af2f074a7efdafebf787d2c96c918aac126af"
+    }
+  ]
+}

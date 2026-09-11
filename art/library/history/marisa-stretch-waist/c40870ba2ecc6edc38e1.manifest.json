@@ -1,0 +1,741 @@
+{
+  "schema_version": 1,
+  "content_sha256": "c40870ba2ecc6edc38e1a7de8173d07b6c674ec6997178e4fe8e26d1e7ce44ef",
+  "files": [
+    {
+      "path": "variants/marisa-stretch-waist/animation-rig.json",
+      "bytes": 6892523,
+      "sha256": "6fe251cf426f892817d558eb87c235eeb405a7dc88e416868be082702ceb410a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/blockbench-stretch.png",
+      "bytes": 93251,
+      "sha256": "ef52d317ac84f4fd6eb4c46d6747af296eb55985af2163f280ac2d28082c8723"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/blockbench-verification.json",
+      "bytes": 562,
+      "sha256": "128119d3adcad4aa3f4376e83c364104caee54808f50b560ae5574738e7aca15"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/browser-check.cjs",
+      "bytes": 2669,
+      "sha256": "c296833fc1815ac4b17d9c8d1be6c28264386d89f50f898f1650fb7995e70762"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/browser-mobile.png",
+      "bytes": 41273,
+      "sha256": "2108dd5487b8e14aca0dffed849d0506b70bbeca16cf1ae7586a2b7b230f3eda"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/browser-stretch.png",
+      "bytes": 81541,
+      "sha256": "2fb0816a82a0b96df3b9a1e08700a7d7f07c518c7a6f7386eea8bcbd457a50e2"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/browser-verification.json",
+      "bytes": 328,
+      "sha256": "bcbddbece3e10878a0b61962d7c75abc8b01e98baf91ae30142776d6f779c479"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/generate.py",
+      "bytes": 14961,
+      "sha256": "e5277575f530223d2e5ed9f27214ef81595f52a43383c75bdd7525fdeb5fb998"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/make-previews.py",
+      "bytes": 1464,
+      "sha256": "e4a13cb3e3b90ec5cfba6453233f71579391457f06e43a754ce23cf205b370e9"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/marisa.animation.json",
+      "bytes": 3823937,
+      "sha256": "2da07c2eea18152000105d86b36bb134d61690d5eb28fa808e37df549302a52d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/marisa.bbmodel",
+      "bytes": 14510513,
+      "sha256": "9b1e673d8b0e37177f0a6f71d28abb7d54bb037d17deb69ac9413a0036fc7296"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/marisa.geo.json",
+      "bytes": 350336,
+      "sha256": "6982db34e9b8be7f8cb7de39bed491bda252ba32dd3d9d6fa99a882eba7ae572"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/motion-verification.json",
+      "bytes": 199,
+      "sha256": "fcf0d540badd5503c453c29c1833b2efeef1595a19b7b463a9bbcd5dc4a29f90"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/motion.js",
+      "bytes": 2115,
+      "sha256": "cef0f6d32ec0e1bb9f2bbe593af50e3e66d3953f8c7a30f3e268e8853ae29246"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/preview-sheet.png",
+      "bytes": 38868,
+      "sha256": "873759aaad30ab138ef28bf312698235c5cb097995f5e30b48ef3b83897bcd4d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/preview.html",
+      "bytes": 2222256,
+      "sha256": "8cc49163b326f83c80f01b6967e630e3bc34afe41e939f3afabfe895c4b9e838"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/preview.png",
+      "bytes": 14512,
+      "sha256": "b65a678323e8c1cdb532bfb6c33f94210cdd2e643edb62d9e8f95f4eb5c69a5d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/README.md",
+      "bytes": 2414,
+      "sha256": "5092a2d8b45eb1d1ebf9bb654087522186c1375deefc921b5288c6bd5237644e"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/render-stretch.cjs",
+      "bytes": 604,
+      "sha256": "58978fa198804b51f808028ed42b0e6b2f10af916c0d50f73cae5982ed19cbe3"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 214707,
+      "sha256": "81b7d8ed4b69bf9ce29ba1a384dd47cc3040484c115551d8f3cea54c6188e50c"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/rig.py",
+      "bytes": 5969,
+      "sha256": "6826eaa3be9cfa59e7e9f27539cdfe147f9ab4c3c30b8e30cf477d91b4f4101f"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/software-viewer.js",
+      "bytes": 7587,
+      "sha256": "81defa95f1e8b417d63931e9aaadba5d0c7a99f415ab1716d1faf049bc53e933"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-0.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-1.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-10.rgba",
+      "bytes": 907200,
+      "sha256": "b670139e65426f404325f11ac1b676b09760f73d6b347a45fe258e1d29303dd4"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-11.rgba",
+      "bytes": 907200,
+      "sha256": "e188df538fca1ecb72010a56de54a179bdd4dfd27d7bc6ad896c2bf57e4484e2"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-12.rgba",
+      "bytes": 907200,
+      "sha256": "3218833cf29dfb19e46de89f2f1a23811486ad4915ebde494c591db3bff227c9"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-13.rgba",
+      "bytes": 907200,
+      "sha256": "9e60a7bca22e732b55c0829e1265619ebce83a1f37006deb2ed2884cf0fc4f0b"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-14.rgba",
+      "bytes": 907200,
+      "sha256": "2effcdd0bee709b77bb936a3d9e63006b174e673c841081344cd3ede33e55105"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-15.rgba",
+      "bytes": 907200,
+      "sha256": "b05ff9112c8ce9a34ea9012ee822c6753ed1c8ebf9c6b0d96aec3b8ff947f5ff"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-16.rgba",
+      "bytes": 907200,
+      "sha256": "46d52bb8d49507bc6279b47a0e48aec1da83b73273e67e7fd7107c73d430ebac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-17.rgba",
+      "bytes": 907200,
+      "sha256": "ed084983c0ed2a76cc89c3d731f1287c58a4786cd2e6a035ac3a746f3f6cea7a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-18.rgba",
+      "bytes": 907200,
+      "sha256": "b5a40cc9ebe4cb9bca0e103d1d019f48fbbd3919b815ca5621e0823bbc6a11e7"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-19.rgba",
+      "bytes": 907200,
+      "sha256": "3ae80f8bb5b18492924da9af18251ea6faee44494d76a3333583adbaeaa2dd3e"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-2.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-20.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-21.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-22.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-23.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-24.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-25.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-26.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-27.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-28.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-29.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-3.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-30.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-31.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-32.rgba",
+      "bytes": 907200,
+      "sha256": "bdfc5d7af5fa0a0465ee1ded1116b171065f0803f59257348688ebf0785a6a87"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-33.rgba",
+      "bytes": 907200,
+      "sha256": "b0c70bc4ae8807d0bd7f9fbde61200bf58f3b3c1c1aebb0b9ca5eeddf5c8b5aa"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-34.rgba",
+      "bytes": 907200,
+      "sha256": "04c71b1fc1a292d4e302ae2d1b563a62ba64f47ee1750b19b11641254307f15a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-35.rgba",
+      "bytes": 907200,
+      "sha256": "f24327bf772fb65ec34753974dbb161c728791badb2179e8010867bcfe285e73"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-36.rgba",
+      "bytes": 907200,
+      "sha256": "5ca0a69afb1c26de52f214890549215b4c085f79eac51e8fe904e7f971f47b9f"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-37.rgba",
+      "bytes": 907200,
+      "sha256": "9efd439c9dd292c30fb2821def9dd791ee4a15432d9423fcbae12f1d97308fb6"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-38.rgba",
+      "bytes": 907200,
+      "sha256": "d71686d07b825bd1e29519d4390cca73b05d455f2bcfebf20feaf646779d7766"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-39.rgba",
+      "bytes": 907200,
+      "sha256": "c1ebeb1fcaf6b623583431f9c5c8e7be525f6c9587a6623ef2bbc8ffd15723a2"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-4.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-40.rgba",
+      "bytes": 907200,
+      "sha256": "f6bc7f43036be298379b92f045705d8faa290cce008fc6c946c511bd96c15d8a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-41.rgba",
+      "bytes": 907200,
+      "sha256": "e198820e3660f9ddb2a5b9f5dc709066c1fd9cb4faae329c02b45c09afae4cc6"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-42.rgba",
+      "bytes": 907200,
+      "sha256": "a975c68a98d8d357ef86df0dfcb0fecf17fb5b100ac143334e3676a780d2f867"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-43.rgba",
+      "bytes": 907200,
+      "sha256": "842ecc40c6458b33397b8da43c8e71793614327873edd85d22937ac910eb2729"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-44.rgba",
+      "bytes": 907200,
+      "sha256": "37ca2c30d4bfa9c615dd1bf2e31405f49974f36294155e9bbe7a2b4ab3e14642"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-45.rgba",
+      "bytes": 907200,
+      "sha256": "5e5d9970e3a3f5763b7af9d2620cb5507e53b56fbefd15c857fa89e51c1ccaa2"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-46.rgba",
+      "bytes": 907200,
+      "sha256": "65b42209f22ad32a00a038ec3b267871f42391272fbb2471768e38a44b5258d8"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-47.rgba",
+      "bytes": 907200,
+      "sha256": "65014f1d6d9ecb9c8907345233d963f3091ce1a4a61db2ad7ee6f55c8d8e744b"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-48.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-49.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-5.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-50.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-51.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-52.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-53.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-54.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-55.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-6.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-7.rgba",
+      "bytes": 907200,
+      "sha256": "93da8c269618c162ca4c15b7673284ed508c79a8e95d6ea2c64c15e0f8b725cf"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-8.rgba",
+      "bytes": 907200,
+      "sha256": "cb2927de142f7fa25177e6b9a545efc1abb79f04b86c2d12f730ce9a15d15cf3"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-front-9.rgba",
+      "bytes": 907200,
+      "sha256": "c93a99f45787a72d64bda39db8d8d38747bc06fc4dfa2e1d011f3c861bc4dcb8"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-maximum.png",
+      "bytes": 28049,
+      "sha256": "14df794e8ee43449ec5dcdd19571102f7e816554f351aaa946284761a8f25db0"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-0.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-1.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-10.rgba",
+      "bytes": 907200,
+      "sha256": "36b3b046d45029fbdcdee55a162929d9f17d836913f601d0fc2bbcce3a2f532d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-11.rgba",
+      "bytes": 907200,
+      "sha256": "ef3315895fec74a727481c292813b074f748618b4e3100f628f19d843e88773d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-12.rgba",
+      "bytes": 907200,
+      "sha256": "1e12d71051e13e6b06641517e8d82a41898a9cfd5897344ae29bc7c2c1e31f12"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-13.rgba",
+      "bytes": 907200,
+      "sha256": "93321799c87373cd525c739e62c8a5f6c406a3a82763d0703e52e022ad5f0f43"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-14.rgba",
+      "bytes": 907200,
+      "sha256": "761e7d91e6b492fd338d3cfce17b4347392b251ddc47f23ca941b86a332e80f3"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-15.rgba",
+      "bytes": 907200,
+      "sha256": "19334bb795ad5c34ed887547178626fa590384d4701766142ac3d302d0833e0c"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-16.rgba",
+      "bytes": 907200,
+      "sha256": "1f078211b0b54a562a0a84b551e270bdb42d64c67aab5657a8353a914be1cf0e"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-17.rgba",
+      "bytes": 907200,
+      "sha256": "52ef8b2246a74284e930ed478a17cfee16c8c05bb25777180725a0e8e9bfbb5a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-18.rgba",
+      "bytes": 907200,
+      "sha256": "2affb154d1e55d0df3a4bf5f82d872a7a5d13433dec353e9d3537b66181a08da"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-19.rgba",
+      "bytes": 907200,
+      "sha256": "a77d4745459f18119bef0294133f5072dab1a32c723fb0a655508274adcf4a2d"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-2.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-20.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-21.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-22.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-23.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-24.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-25.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-26.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-27.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-28.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-29.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-3.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-30.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-31.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-32.rgba",
+      "bytes": 907200,
+      "sha256": "e8aaa3f59e824578b7f76017d110c65d8df40f69e29a3dbcef94aea6e8f1a499"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-33.rgba",
+      "bytes": 907200,
+      "sha256": "814c6175f53c08811338d27e0d28a7329643d1b85b5a76321565f9a2802082e5"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-34.rgba",
+      "bytes": 907200,
+      "sha256": "7e8e23ceed02e0df0710596151d6306120e8feb4d424f34de97559110522f66e"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-35.rgba",
+      "bytes": 907200,
+      "sha256": "a9ade88f9f2c810186d5fea4f1779cefc7768d84340a6cce9b9e544241d0302a"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-36.rgba",
+      "bytes": 907200,
+      "sha256": "c85999187d2fced4600c65eef6c714d9ab67e72737dd4db25d39ad2f69bc1846"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-37.rgba",
+      "bytes": 907200,
+      "sha256": "ea5c3790a03500451436418bab90847a242c902932954487dec6b01579575b49"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-38.rgba",
+      "bytes": 907200,
+      "sha256": "c5b1ecb14f728d4a0a655fa4baab3cece614b521a513a186eb585a6cc735cbec"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-39.rgba",
+      "bytes": 907200,
+      "sha256": "ca40817d8ebf7ee3a54ec9c9d4f05f5d5e20c88f57296d6ef2a5ae1bb86e0a92"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-4.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-40.rgba",
+      "bytes": 907200,
+      "sha256": "02783b2d1408f3c47557c551f3ba7faf1f9d4abaa32de4cccfb0f72b69dbba17"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-41.rgba",
+      "bytes": 907200,
+      "sha256": "60e9ebd83c7b39f864d501e7435ef257d51a134833183ea530ebc9772e5fc3f5"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-42.rgba",
+      "bytes": 907200,
+      "sha256": "cc168ff1223544aed1bc1af34d4f7d7b973a6b9f5d1cc88e543bdd417508f128"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-43.rgba",
+      "bytes": 907200,
+      "sha256": "17cc50fd84810d22c0f37e5ad343bf99df10fe4b063c109f92268128c04d9bb8"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-44.rgba",
+      "bytes": 907200,
+      "sha256": "76e262dfa7d70dbb1e7190feda63dd01774ace2987a62a43c1f08cd0c1381076"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-45.rgba",
+      "bytes": 907200,
+      "sha256": "2902e9557140fc7dadbaee6c4424f66de463e5b5ea1f0a8685f94189f3db6fa8"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-46.rgba",
+      "bytes": 907200,
+      "sha256": "0071f5d25a08b0a7acb3151047046252b3d54f6df6694ca6154a6d1b6567eca5"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-47.rgba",
+      "bytes": 907200,
+      "sha256": "a160a3ed64b04bd3d91f031372b43e5c3169a372aea244666620aa9780f44a64"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-48.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-49.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-5.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-50.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-51.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-52.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-53.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-54.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-55.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-6.rgba",
+      "bytes": 907200,
+      "sha256": "cd4dd380638ebc3b3a06749a8f2c3c5a3f24af60b87057a0d7638c7673db58ac"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-7.rgba",
+      "bytes": 907200,
+      "sha256": "3fc4fe4992cb23a29b7dab509f11eb079370a5cd56ec41660ba3231021b64b5f"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-8.rgba",
+      "bytes": 907200,
+      "sha256": "65a0a3073bf8e6a617b9f87f76a346e01edc8f89e528a2a4447e94d393a2f0da"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-quarter-9.rgba",
+      "bytes": 907200,
+      "sha256": "968d573601c4974b30642d0f154511a01d97847a30a7bb406489749d88a56160"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch-sheet.png",
+      "bytes": 28055,
+      "sha256": "369f6a13b3334a7bea1fffdb0e8534459c82075e4d73ce8d037b9067eca4c3ce"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/stretch.gif",
+      "bytes": 802124,
+      "sha256": "7fdf2fad52512012d572648439b2b9e83e0d26c396b9bcd573514ffc014e8aa4"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/texture.rgba",
+      "bytes": 65536,
+      "sha256": "592ead6bdcc20237676638cd9c0b50536c0bfb91f5bdcec174914d4851d7efe7"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/verify-blockbench.cjs",
+      "bytes": 3300,
+      "sha256": "545c23bef75bedf2e0e77da93d763078c98e92c52601a3940cf143457063ea57"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/verify-motion.cjs",
+      "bytes": 2239,
+      "sha256": "3417b820df9b61f6845f039ddc67c4490b7c6e5b11d6334c8156b346f2d2cc82"
+    },
+    {
+      "path": "variants/marisa-stretch-waist/viewer-template.html",
+      "bytes": 3415,
+      "sha256": "179bf8921a4e8f17ea3b8bb3f2ff753df3a27d56837fbf79318e02dc9c135c18"
+    }
+  ]
+}

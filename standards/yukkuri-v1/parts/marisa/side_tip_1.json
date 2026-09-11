@@ -1,0 +1,86 @@
+{
+  "name": "side_tip_1",
+  "uuid": "85ca68d7-2ec0-514c-924d-19606f3a4932",
+  "type": "cube",
+  "from": [
+    6.05,
+    0.954,
+    -3.1089844
+  ],
+  "to": [
+    6.9,
+    3.18,
+    -0.9402344
+  ],
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 0,
+  "faces": {
+    "north": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        32,
+        48,
+        48,
+        64
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "hand_right_tip"
+}

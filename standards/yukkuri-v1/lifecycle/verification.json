@@ -1,0 +1,32 @@
+{
+  "errors": [],
+  "screenshots": [
+    "stem-sprout.png",
+    "stem-young.png",
+    "stem-mature.png",
+    "stem-falling.png",
+    "stem-complete.png",
+    "stem-front.png",
+    "stem-side.png",
+    "stem-back.png",
+    "stem-count-1.png",
+    "stem-count-2.png",
+    "stem-count-3.png",
+    "stem-count-4.png",
+    "stem-count-5.png",
+    "growth-ranges.png",
+    "growth-min.png",
+    "growth-max.png",
+    "stem-large-parent.png",
+    "stem-mobile.png"
+  ],
+  "checks": [
+    "1–5 offspring counts with closed eyes and no extra child cards",
+    "save and reload restores timeline and camera",
+    "offspring count persists through reload",
+    "three independent stage sliders reach both endpoints",
+    "nonloop playback stops at completion and can restart",
+    "paused orbit and zoom",
+    "mobile fits viewport"
+  ]
+}

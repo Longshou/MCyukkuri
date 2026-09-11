@@ -2,6 +2,9 @@
 # Authored assets, current exports and curated archives are versioned normally.
 /.local/
 /.worktrees/
+/archives/*
+!/archives/README.md
+/art/library/**/*.partial*
 node_modules/
 __pycache__/
 *.pyc

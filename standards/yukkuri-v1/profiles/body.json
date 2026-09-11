@@ -1,0 +1,17 @@
+{
+  "id": "B-tall",
+  "units_per_block": 16,
+  "front_axis": "-Z",
+  "up_axis": "+Y",
+  "height_factor": 1.06,
+  "torso_extra_depth": 2.275,
+  "rump_translation": [
+    0,
+    0,
+    2.275
+  ],
+  "rump_depth_scale": 1,
+  "front_skin_z": -4.6,
+  "front_stretch_depth_scale": 1,
+  "front_width_taper_multiplier": 0.5
+}

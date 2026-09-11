@@ -1,0 +1,1101 @@
+{
+  "schema_version": 1,
+  "content_sha256": "025f7af676ddb79313fff165a3ead1b31d0dad0158b46442ab1a8f22ad0d6ec4",
+  "files": [
+    {
+      "path": "variants/marisa-expressions/angry.rgba",
+      "bytes": 604800,
+      "sha256": "4dd6667986f0edd385fe2221d9fb93bb6f372cb40019d4005b0b50ddedfd6b16"
+    },
+    {
+      "path": "variants/marisa-expressions/animation-rig.json",
+      "bytes": 21518975,
+      "sha256": "675ff0ba40a0e3e28de5d1535843007fe3a5beb50664d061e5647a6c5807730a"
+    },
+    {
+      "path": "variants/marisa-expressions/asset-verification.json",
+      "bytes": 218,
+      "sha256": "e250982596a459044dde74ac1d81103e34fbc694f935f8a44a4926c02caab1a5"
+    },
+    {
+      "path": "variants/marisa-expressions/blockbench-exercise.png",
+      "bytes": 103952,
+      "sha256": "c7e56faa108191f01b70363cab269be2e67f2a529a75ee09706e8a7832052271"
+    },
+    {
+      "path": "variants/marisa-expressions/blockbench-stretch.png",
+      "bytes": 103906,
+      "sha256": "01f781e83efdbd284b9ec5b854e03ecef0b73d21dc271259bf84598afe3f8bc0"
+    },
+    {
+      "path": "variants/marisa-expressions/blockbench-verification.json",
+      "bytes": 4270,
+      "sha256": "47e8d35dbdbf13f620dba19162c5a3472290041f0a7416542a1a8d5139843bd1"
+    },
+    {
+      "path": "variants/marisa-expressions/browser-check.cjs",
+      "bytes": 3157,
+      "sha256": "6b905ded341ac2f02717e3df4250db4586e1491697b73e3c93e046d3d116f2b5"
+    },
+    {
+      "path": "variants/marisa-expressions/browser-expressions.png",
+      "bytes": 106108,
+      "sha256": "ca31390d22f1c10ec1a03c5dd0716b36c3f2a298838c5026fbb9132854bf3e27"
+    },
+    {
+      "path": "variants/marisa-expressions/browser-mobile.png",
+      "bytes": 68279,
+      "sha256": "5219880d29ff6bcd933df70d3bb946a1efb0ea4603fe4c08b2fa360b263a8d9d"
+    },
+    {
+      "path": "variants/marisa-expressions/browser-verification.json",
+      "bytes": 376,
+      "sha256": "29614cd276b18e5a63e1879eb4a100d192c34ee0ad712d3044607fc530ef388e"
+    },
+    {
+      "path": "variants/marisa-expressions/confused.rgba",
+      "bytes": 604800,
+      "sha256": "31f4a0a92b35d82fcbc70b56638bcf55aaae20e734139c06f4afe77d0f41041b"
+    },
+    {
+      "path": "variants/marisa-expressions/cry.rgba",
+      "bytes": 604800,
+      "sha256": "5a8be284b287508ca34f08ddc7bf20e3074f76caee755cfe2a8ea535fcad9c0b"
+    },
+    {
+      "path": "variants/marisa-expressions/custom-expression-check.bbmodel",
+      "bytes": 71533094,
+      "sha256": "0a224c8f914f7d989553475e679bab34f7ba66647e4aa4bf828ef29273d8bef5"
+    },
+    {
+      "path": "variants/marisa-expressions/drool.rgba",
+      "bytes": 604800,
+      "sha256": "995316eecc3ae50040a413dfc04ce70a5f6741f2ea751bb300cb9a3f01f619f3"
+    },
+    {
+      "path": "variants/marisa-expressions/expression-gallery.png",
+      "bytes": 50580,
+      "sha256": "0777bbc550aeffbbecb69afaa3cd88ae169aa785f9f72665963cc8a76b7a79cc"
+    },
+    {
+      "path": "variants/marisa-expressions/expression-sheet.png",
+      "bytes": 46014,
+      "sha256": "66815f4491dfa4a5583a2d613980cfcee8b408e8318852b207bf833f785f2150"
+    },
+    {
+      "path": "variants/marisa-expressions/expression-ui.js",
+      "bytes": 3561,
+      "sha256": "7fe6c64d21e368a5998d1fc0699e518a6bcc4d09893a728a1263468514b9b18c"
+    },
+    {
+      "path": "variants/marisa-expressions/expressions.json",
+      "bytes": 17981,
+      "sha256": "4cb613f198db1396865f951088b1d298034cec21baf5ce5e506ff9f913c5d493"
+    },
+    {
+      "path": "variants/marisa-expressions/expressions.py",
+      "bytes": 5009,
+      "sha256": "c04a07e2629fbc360d80f47982d0552c32f430abdf2002690cfd8e2d255161de"
+    },
+    {
+      "path": "variants/marisa-expressions/generate.py",
+      "bytes": 15008,
+      "sha256": "55b7c1b5d94017bf5030a88158c4ebe772af0b9daa40263035568596e46d9638"
+    },
+    {
+      "path": "variants/marisa-expressions/happy.rgba",
+      "bytes": 604800,
+      "sha256": "5f4ed67111f8e8f29a3cc997f807429d1b96e9d3c20c46d154ce579d673b6eaa"
+    },
+    {
+      "path": "variants/marisa-expressions/marisa.animation.json",
+      "bytes": 18559700,
+      "sha256": "42700c99a8552469f593ddb9049905fe367f00cab973232d3e6ef6f68831bd55"
+    },
+    {
+      "path": "variants/marisa-expressions/marisa.bbmodel",
+      "bytes": 73955511,
+      "sha256": "61ab70734dfb425ebc5c80c24398673556ce5038d64fc675388c1bf186b06061"
+    },
+    {
+      "path": "variants/marisa-expressions/marisa.geo.json",
+      "bytes": 373800,
+      "sha256": "694a45605a5262cf11d21fac4269c1fea631b50a54f5a7dc17278a4060b785bf"
+    },
+    {
+      "path": "variants/marisa-expressions/marisa.png",
+      "bytes": 751,
+      "sha256": "08442b6891f62fa3ff1207408c61d0d10ed3d13af5bf095ced4c9793dd000172"
+    },
+    {
+      "path": "variants/marisa-expressions/motion.js",
+      "bytes": 3180,
+      "sha256": "881e750e27e0e9ba3c19249ee07a10644849db375536af53539106b2687e6d3a"
+    },
+    {
+      "path": "variants/marisa-expressions/neutral.rgba",
+      "bytes": 604800,
+      "sha256": "51d821591ed9c63f74f6d55d45e5e0a90ddee56573d57b67a8647f8159c96714"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/assembled.png",
+      "bytes": 320,
+      "sha256": "deff34b6ab97459580df6bc7ba85e93e66c6d53f74f79cc95aac4c803ce697dd"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/brow_left.png",
+      "bytes": 92,
+      "sha256": "d8a8ca30da49173da33ed60a368515c573e9538cdc49847cd90110b37b4252b6"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/brow_right.png",
+      "bytes": 92,
+      "sha256": "5dddd546bb7ac19c9c7b397f089154950003b21088d49ee0764616428e414987"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/eye_left.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/mouth.png",
+      "bytes": 93,
+      "sha256": "58f27c9d123940a7a156522c3acb3c9dcc41949f0ac4731409fd7aa45372d85f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/angry/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/assembled.png",
+      "bytes": 359,
+      "sha256": "2c668bf55aca63056f8f583d039248cd9020178f30b33c8cd131d5cd66435afd"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/brow_left.png",
+      "bytes": 95,
+      "sha256": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/brow_right.png",
+      "bytes": 94,
+      "sha256": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/eye_left.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/mouth.png",
+      "bytes": 127,
+      "sha256": "9d2b6a7161915e4bbd8b9a7727256658c0d6952befd1da555c115eb47fed070f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/confused/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/assembled.png",
+      "bytes": 460,
+      "sha256": "e8f33871e6baa6ea9a8e4722ae937235fdc9ae56ce5297dd55f06375fe433b9b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/brow_left.png",
+      "bytes": 95,
+      "sha256": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/brow_right.png",
+      "bytes": 94,
+      "sha256": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/eye_left.png",
+      "bytes": 115,
+      "sha256": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/eye_right.png",
+      "bytes": 118,
+      "sha256": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/mouth.png",
+      "bytes": 140,
+      "sha256": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/tear_left.png",
+      "bytes": 151,
+      "sha256": "11db4ec2dbcd2e6b8cca4a858fe9f2823a8f5c46ab76830904e4e24bf169d2ba"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/cry/tear_right.png",
+      "bytes": 151,
+      "sha256": "11db4ec2dbcd2e6b8cca4a858fe9f2823a8f5c46ab76830904e4e24bf169d2ba"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/assembled.png",
+      "bytes": 324,
+      "sha256": "e2d76aaa51d95ea339b2125b91eaf9def02e59fee842cc3badef18d87835ace1"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/effect_mouth.png",
+      "bytes": 113,
+      "sha256": "2aa34c2c4a90cefca89e2a8676368196aa06a3e70c5692acadf9436df91211b7"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/eye_left.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/eye_right.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/mouth.png",
+      "bytes": 141,
+      "sha256": "5158860abe24d4c26a7762a8131694ac9b901a72a7152d2ae959ae6ac6198f07"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/drool/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/assembled.png",
+      "bytes": 282,
+      "sha256": "3d95d54ac3372e67ae07d9a84ca1aaa91815633ccc1b981acb159a2652ff5bfc"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/blush_left.png",
+      "bytes": 97,
+      "sha256": "3eaff351e1c8cce64ebc8d05640c19f2c4d9d9d052a90492517614130ffa9db8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/blush_right.png",
+      "bytes": 96,
+      "sha256": "08902bfa0903b672a63e4aa868fa3b231fe9dced3b753e86a65c9cb462d1f920"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/eye_left.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/eye_right.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/mouth.png",
+      "bytes": 141,
+      "sha256": "5158860abe24d4c26a7762a8131694ac9b901a72a7152d2ae959ae6ac6198f07"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/happy/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/assembled.png",
+      "bytes": 319,
+      "sha256": "ba5b8fc756fd258e07996c2c9484f4253eb292d87936c66258b67689cf4564ab"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/eye_left.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/mouth.png",
+      "bytes": 106,
+      "sha256": "3602c13f5e0140359dfbc57b7d10b02866b6e1e69b2a739cfe297d85adf4a601"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/neutral/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/assembled.png",
+      "bytes": 292,
+      "sha256": "21b3388b53963db62ef913ae00cbbea2a27fa632b85db41fc016783567fb1e81"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/brow_left.png",
+      "bytes": 95,
+      "sha256": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/brow_right.png",
+      "bytes": 94,
+      "sha256": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/eye_left.png",
+      "bytes": 115,
+      "sha256": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/eye_right.png",
+      "bytes": 118,
+      "sha256": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/mouth.png",
+      "bytes": 99,
+      "sha256": "2b5793f65ef43c870aff599dccafaddfac4ad64aa1cbd667a58d757d2001370b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/puff/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/assembled.png",
+      "bytes": 313,
+      "sha256": "b888c6e57b4393d548655d7ed52278d041a6a76ea492417317defdb6efec9bba"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/effect_mouth.png",
+      "bytes": 113,
+      "sha256": "2aa34c2c4a90cefca89e2a8676368196aa06a3e70c5692acadf9436df91211b7"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/eye_left.png",
+      "bytes": 110,
+      "sha256": "58f79796ea106696e2e677914d41c4c5e1d6659e7f8909a8605671f1d76dab63"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/eye_right.png",
+      "bytes": 110,
+      "sha256": "58f79796ea106696e2e677914d41c4c5e1d6659e7f8909a8605671f1d76dab63"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/mouth.png",
+      "bytes": 129,
+      "sha256": "7df3b2f2c38729ac81ab488b4ffb816629dcfecb91066f492a0264b23ee8b483"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleep/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/assembled.png",
+      "bytes": 398,
+      "sha256": "ed7137a2dfb0f7b4b3d5fed58758d105b2b38d770af579d9accd9e7ab8d18005"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/effect_mouth.png",
+      "bytes": 113,
+      "sha256": "2aa34c2c4a90cefca89e2a8676368196aa06a3e70c5692acadf9436df91211b7"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/eye_left.png",
+      "bytes": 110,
+      "sha256": "58f79796ea106696e2e677914d41c4c5e1d6659e7f8909a8605671f1d76dab63"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/mouth.png",
+      "bytes": 129,
+      "sha256": "7df3b2f2c38729ac81ab488b4ffb816629dcfecb91066f492a0264b23ee8b483"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/sleepy/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/assembled.png",
+      "bytes": 316,
+      "sha256": "41de4fdcaac538a9c75f0fdf53eda32c6c651d2587d2a05c00db4a39e8f3fb7c"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/blush_left.png",
+      "bytes": 97,
+      "sha256": "3eaff351e1c8cce64ebc8d05640c19f2c4d9d9d052a90492517614130ffa9db8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/blush_right.png",
+      "bytes": 96,
+      "sha256": "08902bfa0903b672a63e4aa868fa3b231fe9dced3b753e86a65c9cb462d1f920"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/brow_left.png",
+      "bytes": 92,
+      "sha256": "d8a8ca30da49173da33ed60a368515c573e9538cdc49847cd90110b37b4252b6"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/brow_right.png",
+      "bytes": 92,
+      "sha256": "5dddd546bb7ac19c9c7b397f089154950003b21088d49ee0764616428e414987"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/eye_left.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/mouth.png",
+      "bytes": 94,
+      "sha256": "285d576371445f527bb186f2ad4609a81a5849c4c715e773ffd485f4e7540273"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/smug/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/assembled.png",
+      "bytes": 378,
+      "sha256": "dee282ffd8149d4642c187e46d700e187bf57169a85b65e2119b780a8a777ba6"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/brow_left.png",
+      "bytes": 95,
+      "sha256": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/brow_right.png",
+      "bytes": 94,
+      "sha256": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/eye_left.png",
+      "bytes": 156,
+      "sha256": "db79cfd72f89c02a72f4412d94154569cea7000911a708467c1a79188df2ed64"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/eye_right.png",
+      "bytes": 156,
+      "sha256": "db79cfd72f89c02a72f4412d94154569cea7000911a708467c1a79188df2ed64"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/mouth.png",
+      "bytes": 140,
+      "sha256": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/tear_left.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/surprise/tear_right.png",
+      "bytes": 74,
+      "sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/assembled.png",
+      "bytes": 371,
+      "sha256": "b01fd49c7aaa63abb31950d78a026fe36453fdaf759d91314c62d2d4d69ba425"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/brow_left.png",
+      "bytes": 95,
+      "sha256": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/brow_right.png",
+      "bytes": 94,
+      "sha256": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/eye_left.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/eye_right.png",
+      "bytes": 177,
+      "sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/mouth.png",
+      "bytes": 93,
+      "sha256": "58f27c9d123940a7a156522c3acb3c9dcc41949f0ac4731409fd7aa45372d85f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/tear_left.png",
+      "bytes": 124,
+      "sha256": "a99ffe5e07830070770bfff9027aa0c4e4f3fbaf2acab6ad7ff2deb85d824be0"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/teary/tear_right.png",
+      "bytes": 124,
+      "sha256": "a99ffe5e07830070770bfff9027aa0c4e4f3fbaf2acab6ad7ff2deb85d824be0"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/assembled.png",
+      "bytes": 354,
+      "sha256": "67b332a65c91eb03ca31e66f25d73711070305f05bbee29de8f0313e1708e9ff"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/blush_left.png",
+      "bytes": 97,
+      "sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/blush_right.png",
+      "bytes": 96,
+      "sha256": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/brow_left.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/brow_right.png",
+      "bytes": 92,
+      "sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/effect_mouth.png",
+      "bytes": 72,
+      "sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/eye_left.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/eye_right.png",
+      "bytes": 106,
+      "sha256": "a3c3b4351cda1dc7014b55b62275ed986727de228bdc144e7b535a024cc9871f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/mouth.png",
+      "bytes": 147,
+      "sha256": "ed880d17e0a5e280122557e9ebf1aef777d3899441cc39a190c1ec88bbe4892f"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/tear_left.png",
+      "bytes": 124,
+      "sha256": "a99ffe5e07830070770bfff9027aa0c4e4f3fbaf2acab6ad7ff2deb85d824be0"
+    },
+    {
+      "path": "variants/marisa-expressions/parts/yawn/tear_right.png",
+      "bytes": 124,
+      "sha256": "a99ffe5e07830070770bfff9027aa0c4e4f3fbaf2acab6ad7ff2deb85d824be0"
+    },
+    {
+      "path": "variants/marisa-expressions/preview-sheet.png",
+      "bytes": 35574,
+      "sha256": "878ff8fb37b91b66f6cf35ba808b7d5bc072cfc301697ab909eb62995bbfb4b9"
+    },
+    {
+      "path": "variants/marisa-expressions/preview.html",
+      "bytes": 37123346,
+      "sha256": "0dfce98ce6d00737569a556a45d6922691bab69b81a19679173c275049032107"
+    },
+    {
+      "path": "variants/marisa-expressions/preview.png",
+      "bytes": 14587,
+      "sha256": "a2f80ed0a96769ec28de08974fb133978198dfb07253f5e2fa5a83863c8d2bba"
+    },
+    {
+      "path": "variants/marisa-expressions/puff.rgba",
+      "bytes": 604800,
+      "sha256": "0613453b6d8411b799aab6b5e5a74d8b1ad6fe292618f8a43e841a641d3aa06f"
+    },
+    {
+      "path": "variants/marisa-expressions/README.md",
+      "bytes": 3290,
+      "sha256": "f42f5629701c6d485b7ac4c271423fd81bb7f6d69b6da9c20de5ed9796a2dde6"
+    },
+    {
+      "path": "variants/marisa-expressions/render-expressions.cjs",
+      "bytes": 529,
+      "sha256": "af8b3d892eca3e94b231fb94c5397fb291c2cb288decf5daa95e8875c0d2889d"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 228098,
+      "sha256": "ac86a4f03d18040ae721d33055aa8cf35d02aac56c1a6f3e7012cb5cce6f1880"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 751,
+      "sha256": "08442b6891f62fa3ff1207408c61d0d10ed3d13af5bf095ced4c9793dd000172"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-expressions/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-expressions/rig.py",
+      "bytes": 9382,
+      "sha256": "cf735c972af3fc7ca59c503679e87a44dad9d13f2e79ed67f5bf58f66c60a8b1"
+    },
+    {
+      "path": "variants/marisa-expressions/separated-parts.png",
+      "bytes": 12259,
+      "sha256": "9d84d25d73060213ac36b676898b1ee4e07c90e2759dca04f16d69731ecc79af"
+    },
+    {
+      "path": "variants/marisa-expressions/sleep.rgba",
+      "bytes": 604800,
+      "sha256": "2fa225819543b6cc5a44b5ca38149e8c9299df9029b9094555b1627c3b69fdad"
+    },
+    {
+      "path": "variants/marisa-expressions/sleepy.rgba",
+      "bytes": 604800,
+      "sha256": "fb222cd10445b89338d005dd9603d9729dd88fff4a7fd331c8c463ea90610b4f"
+    },
+    {
+      "path": "variants/marisa-expressions/smug.rgba",
+      "bytes": 604800,
+      "sha256": "d50427198b62df268b3848195bb9476c799d9c4040adbcebf8f26b5d6109e7be"
+    },
+    {
+      "path": "variants/marisa-expressions/software-viewer.js",
+      "bytes": 7771,
+      "sha256": "d8c5beef53561db2aa8920a052a9117d456457dee67206dba9365382e46ddef4"
+    },
+    {
+      "path": "variants/marisa-expressions/surprise.rgba",
+      "bytes": 604800,
+      "sha256": "88e5e284a770ca299444df15c597ff2883e7e5fd186e3cef21d4a7b74e94cb88"
+    },
+    {
+      "path": "variants/marisa-expressions/teary.rgba",
+      "bytes": 604800,
+      "sha256": "3c1b365013588164ab59866ef1b44365df41d2cf308b17677281e77874ceddcc"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/angry.png",
+      "bytes": 753,
+      "sha256": "55f639579bfb79906f8139ee52a314a40f112dce314b7c6c65ae3f7c89eb817b"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/angry.rgba",
+      "bytes": 65536,
+      "sha256": "7c1e80864cf505bc57e599f2b6c0178d977e7e5f0738785ab8bc46f6f833b7c4"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/confused.png",
+      "bytes": 826,
+      "sha256": "c194db87a627f0fd1a3db1dbe298783383908ce8bd2b9a10179e0ae76de0fb74"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/confused.rgba",
+      "bytes": 65536,
+      "sha256": "95fb684061924ce1bc0ae14825a4cade669a7934f2987d97f30efba0f0506f55"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/cry.png",
+      "bytes": 910,
+      "sha256": "472286b9bee812a55d8c214a80328a46bd68de54ce79359ebbb5eddfa3758ed8"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/cry.rgba",
+      "bytes": 65536,
+      "sha256": "c4c05294532ed43a303f270bd559fd60842fa056f339eaee759c05ecede92511"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/drool.png",
+      "bytes": 753,
+      "sha256": "e6009e21beee169fb470edc88f0d907fc34af771181e00808f227d47876b2126"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/drool.rgba",
+      "bytes": 65536,
+      "sha256": "135c4e0ebecab72ae1bb56b49b7016339dd2095d98764a96d90fe74c02d1d9a3"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/happy.png",
+      "bytes": 706,
+      "sha256": "b41f288d63ca4b678c46da0303b6771e8391796a8b91910aa2ff6095c1b83fc2"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/happy.rgba",
+      "bytes": 65536,
+      "sha256": "cb8443d025ec28caca615897afebd658d8cfc206363067a1755092077493ca14"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/neutral.png",
+      "bytes": 751,
+      "sha256": "08442b6891f62fa3ff1207408c61d0d10ed3d13af5bf095ced4c9793dd000172"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/neutral.rgba",
+      "bytes": 65536,
+      "sha256": "426fc93cca7741c4bd8187b95a8a564bf005f2e6c91dab7721397fc59a5a94e8"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/puff.png",
+      "bytes": 715,
+      "sha256": "89b584671521f278fda52150b40b71ba94520acd59b797661b41f6b6e83fbbe5"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/puff.rgba",
+      "bytes": 65536,
+      "sha256": "e258a5ecd0986ea826c8ca0d077a00c4470a04cdce438f4587f4b91e93c4e125"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/sleep.png",
+      "bytes": 756,
+      "sha256": "bab5df4a39d936a5b60fd58fc8b367718cdd51435597dea7b4ca1d8d7cc4bead"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/sleep.rgba",
+      "bytes": 65536,
+      "sha256": "4adb5095fd953af296e66d5d383907c8f47f4d7ad785fb7c50df32205d186b2c"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/sleepy.png",
+      "bytes": 842,
+      "sha256": "7576bb7b20cde521a12cbe08c94341073fe1df07ffd568884c4530bad1186272"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/sleepy.rgba",
+      "bytes": 65536,
+      "sha256": "b7c7a902a27f7d1addeb594ca208faac3d1ed5a46ccf3e3eb968d3fcbc634264"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/smug.png",
+      "bytes": 759,
+      "sha256": "3b9600b8f8bc56370570cf4c5f4a416a3991d0290010a9e2337365db4d894e20"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/smug.rgba",
+      "bytes": 65536,
+      "sha256": "0f8883cc6eca2ecc99f5aa1a43bcdeb0f15316baad4c804b84eb3dfceff2aa89"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/surprise.png",
+      "bytes": 826,
+      "sha256": "146dba53af19ce9f51e2bcd0c550a75f03833229b1733b7d639a9e6e046a5528"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/surprise.rgba",
+      "bytes": 65536,
+      "sha256": "73621e36d879930650ef42f9aaea985a0db1df7502c6650e2142f7c3fcae7537"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/teary.png",
+      "bytes": 885,
+      "sha256": "175665006955a6ce79ba4263755eb49ee9f7aaa8a6ad4d000ed557577236ce2e"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/teary.rgba",
+      "bytes": 65536,
+      "sha256": "3d5552f4cc3aef4fd9d395fba4ce4df06e455b89c64bf36689273f963b620d99"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/yawn.png",
+      "bytes": 812,
+      "sha256": "371b7ce0e642edc30aee8802d1e0908fa0bf694afc88b501213a6784e44f802e"
+    },
+    {
+      "path": "variants/marisa-expressions/textures/yawn.rgba",
+      "bytes": 65536,
+      "sha256": "05380de839f3c626972ef8b8c3dbedcc4b02bfe39c04a6b57e8cbe857596dc47"
+    },
+    {
+      "path": "variants/marisa-expressions/verify-blockbench.cjs",
+      "bytes": 3896,
+      "sha256": "0fc16ad4758640e9d43f649e2389e19337791d002c896d81fb54d163ce1b0031"
+    },
+    {
+      "path": "variants/marisa-expressions/viewer-template.html",
+      "bytes": 4747,
+      "sha256": "fa1a14a91d0c843949168839e386403ca372827b28cb35db6865dd406f2ab2d2"
+    },
+    {
+      "path": "variants/marisa-expressions/yawn.rgba",
+      "bytes": 604800,
+      "sha256": "bfa1fd0256a09e231642f1744d3146713dbc61a16f41ab60504fccae895fd70a"
+    }
+  ]
+}

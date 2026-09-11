@@ -1,0 +1,23 @@
+[
+  {
+    "action": "action.reimu.stem_birth.v1",
+    "archive": "actions/snapshots/56ea4c823a6c7f01bae2.zip",
+    "manifest": "actions/snapshots/56ea4c823a6c7f01bae2.manifest.json",
+    "sha256": "80a910598fc3341254523423c967b2c431d49157ecb46ccda850074b2baca941",
+    "files": 27
+  },
+  {
+    "action": "action.reimu.viviparous_birth.v1",
+    "archive": "actions/snapshots/7a393afd9041c10d410f.zip",
+    "manifest": "actions/snapshots/7a393afd9041c10d410f.manifest.json",
+    "sha256": "cf778c73a973d3f76195bda3b73cea7496893ea349ed09854d57250238c73c12",
+    "files": 31
+  },
+  {
+    "action": "action.reimu.stem_birth.v2",
+    "archive": "actions/snapshots/18efffb79da7c8b1c311.zip",
+    "manifest": "actions/snapshots/18efffb79da7c8b1c311.manifest.json",
+    "sha256": "c240435e08082395f72dd77a563ced451434f0ed9ddb5517bc462d0780864bd5",
+    "files": 27
+  }
+]

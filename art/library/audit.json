@@ -1,0 +1,16 @@
+{
+  "critical_files_preserved": 269,
+  "classified_collections": 24,
+  "links_checked": 152,
+  "broken_links": [],
+  "source_packages_ignored_by_git": false,
+  "retired_excluded_from_catalog": true,
+  "retired_workspace_dirs_remaining": [
+    "marisa-depth-trials",
+    "marisa-puff-eye-b",
+    "marisa-puff-eye-c",
+    "marisa-puff-eye-d",
+    "marisa-puff-eye-trials",
+    "marisa-stretch-waist"
+  ]
+}

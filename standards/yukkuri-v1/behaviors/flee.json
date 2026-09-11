@@ -1,0 +1,23 @@
+{
+  "id": "flee",
+  "duration": 5,
+  "phases": [
+    {
+      "until": 0.6,
+      "action": "startle"
+    },
+    {
+      "until": 1,
+      "action": "turn"
+    },
+    {
+      "until": 5,
+      "action": "waddle",
+      "playback_rate": 1.8
+    }
+  ],
+  "turn_radians": -1.5707963267948966,
+  "hop_amplitude": 0.28,
+  "hop_frequency": 12,
+  "camera": "independent orbit; follow runner"
+}

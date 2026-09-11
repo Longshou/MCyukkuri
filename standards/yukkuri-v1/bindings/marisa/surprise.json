@@ -1,0 +1,32 @@
+{
+  "source": "expressions/common/surprise.json",
+  "parts": {
+    "left_eye": {
+      "element": "face_eye_left",
+      "uv": [
+        0,
+        0,
+        15,
+        12
+      ]
+    },
+    "right_eye": {
+      "element": "face_eye_right",
+      "uv": [
+        32,
+        0,
+        47,
+        12
+      ]
+    },
+    "mouth": {
+      "element": "face_mouth",
+      "uv": [
+        0,
+        16,
+        14,
+        28
+      ]
+    }
+  }
+}

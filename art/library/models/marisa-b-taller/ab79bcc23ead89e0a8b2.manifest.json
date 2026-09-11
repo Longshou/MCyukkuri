@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "content_sha256": "ab79bcc23ead89e0a8b27c894cdecb101fcfc0eda897290a691c689ed083d5a0",
+  "files": [
+    {
+      "path": "variants/marisa-b-taller/a/marisa.bbmodel",
+      "bytes": 34029949,
+      "sha256": "bd7c599609796a79c8c735861c5f6cfb32afd118dc4ce67a6b9bce74aaf69400"
+    },
+    {
+      "path": "variants/marisa-b-taller/a/preview.png",
+      "bytes": 2936,
+      "sha256": "3069c10efc0ea567709248bd35e6cfed6c16a6a8a93dc34d3dcdf50e646d4e3f"
+    },
+    {
+      "path": "variants/marisa-b-taller/a/preview.rgba",
+      "bytes": 672000,
+      "sha256": "bc7e8a861d12d2d5d1d1a7c4765bc17d2702eefeb5c7c23b752e34f5c865abf4"
+    },
+    {
+      "path": "variants/marisa-b-taller/a/proportions.json",
+      "bytes": 104,
+      "sha256": "07f0820ce067dc0a77ef7c4af48b7bbb1dbe1e3f1cada9cc663f59a48021468f"
+    },
+    {
+      "path": "variants/marisa-b-taller/a/side.png",
+      "bytes": 2936,
+      "sha256": "3069c10efc0ea567709248bd35e6cfed6c16a6a8a93dc34d3dcdf50e646d4e3f"
+    },
+    {
+      "path": "variants/marisa-b-taller/a/side.rgba",
+      "bytes": 672000,
+      "sha256": "bc7e8a861d12d2d5d1d1a7c4765bc17d2702eefeb5c7c23b752e34f5c865abf4"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/marisa.bbmodel",
+      "bytes": 34030694,
+      "sha256": "38adc03300d15cccebc8190dec341b5c9bfb6e50e66e7af76d16773d9bb03968"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/preview.png",
+      "bytes": 2916,
+      "sha256": "3f67e0185d8ae06cc5c7c728428d68ea0a4dd832ba0c61be3f92c89223e0b24c"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/preview.rgba",
+      "bytes": 672000,
+      "sha256": "322c265cc4a39d2d06a5b06780a4d152e79dcd3bd0f5533ab8dfd9d1dad76689"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/proportions.json",
+      "bytes": 117,
+      "sha256": "729012c239f2f3729395b41dbd62754762f8e8686e24393f525a02e9d86c6753"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/side.png",
+      "bytes": 2916,
+      "sha256": "3f67e0185d8ae06cc5c7c728428d68ea0a4dd832ba0c61be3f92c89223e0b24c"
+    },
+    {
+      "path": "variants/marisa-b-taller/b/side.rgba",
+      "bytes": 672000,
+      "sha256": "322c265cc4a39d2d06a5b06780a4d152e79dcd3bd0f5533ab8dfd9d1dad76689"
+    },
+    {
+      "path": "variants/marisa-b-taller/browser-check.png",
+      "bytes": 69514,
+      "sha256": "01ce5e62eab1f9f299a55f395002330e565a197bc76076ba5b357258d877ed46"
+    },
+    {
+      "path": "variants/marisa-b-taller/build.py",
+      "bytes": 4906,
+      "sha256": "c90b64071cccc4d90a776077f59bfa31a83510296e973fc65d98d04ee5d314d7"
+    },
+    {
+      "path": "variants/marisa-b-taller/comparison.gif",
+      "bytes": 761334,
+      "sha256": "def997f781f41a908df455b31856dc11612a2722a1166315150ce7ad6183ae39"
+    },
+    {
+      "path": "variants/marisa-b-taller/comparison.png",
+      "bytes": 11364,
+      "sha256": "6dd4da22a26ca93f8ad1deae6566da7b17303170982377eae2532763963caefa"
+    },
+    {
+      "path": "variants/marisa-b-taller/index.html",
+      "bytes": 11519009,
+      "sha256": "35908d944e41a7652459e994c05181fed1f7204195da9a652c442fe91136d372"
+    },
+    {
+      "path": "variants/marisa-b-taller/proportions.js",
+      "bytes": 640,
+      "sha256": "b9c9bb3d50589e37915e5c31145c48106de006ce52a4acdbc620be1a9192ac4d"
+    },
+    {
+      "path": "variants/marisa-b-taller/README.md",
+      "bytes": 948,
+      "sha256": "f12767d3f3b2a3d913218eb447053f45eaf70d22dd18b84a866815aee7881239"
+    },
+    {
+      "path": "variants/marisa-b-taller/render.cjs",
+      "bytes": 903,
+      "sha256": "dadf8239ffe73e947a47b4edbcedfe3685af7628a84c6460d681b2b631521b04"
+    },
+    {
+      "path": "variants/marisa-b-taller/runtime.js",
+      "bytes": 11514370,
+      "sha256": "7b7b8a55d08a5b25f408f0166588448dfb9fb729b985117f05afa42b4666c092"
+    },
+    {
+      "path": "variants/marisa-b-taller/template.html",
+      "bytes": 4650,
+      "sha256": "912a8dc3cb222e3d34c8cc7f432109a85a7319607ee9ae21d67e9a72a8e1404d"
+    },
+    {
+      "path": "variants/marisa-b-taller/verification.json",
+      "bytes": 143,
+      "sha256": "690824c76a3f70c740c8255703383caca46837325c55b88f8ed296b77b8743ca"
+    },
+    {
+      "path": "variants/marisa-b-taller/verify.cjs",
+      "bytes": 1902,
+      "sha256": "757b1ccaa620e490687cbdb27b57ddc2405af00312a11383f50c186259eb94c6"
+    }
+  ]
+}

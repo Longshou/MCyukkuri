@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "ordinary-yukkuri-growth-v1",
+  "reference_body": "profiles/body.json",
+  "scale_basis": "Uniform linear scale; standard adult body = 1.0; accessories excluded from body dimensions",
+  "provenance": {
+    "stages": "../../wiki/hakkei-reference/world/rules.md; 赤 → 子 → 成",
+    "source_url": "https://wikiwiki.jp/yukkuri8kei/ゆっくりとは",
+    "scale_ranges": "Project adaptation, not numerical values quoted from the Wiki",
+    "age_policy": "Stage is explicit life-history state, never inferred from size or speech; no fixed real-world month conversion"
+  },
+  "stages": [
+    {"id": "baby", "label": "赤体 / 实子", "min_scale": 0.12, "max_scale": 0.30, "note": "本次茎生在茎上完成赤体阶段，出生后直接进入子体"},
+    {"id": "juvenile", "label": "子体", "min_scale": 0.30, "max_scale": 0.80, "note": "落地从 0.30 倍开始；营养和个体差异影响成长速度"},
+    {"id": "adult", "label": "成体", "min_scale": 0.80, "max_scale": 1.20, "note": "标准灵梦为 1.00 倍；普通大个体不自动成为 DOS"}
+  ]
+}

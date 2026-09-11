@@ -1,5 +1,7 @@
 # 当前实体接入素材
 
+历史动作与表情源文件包见 [分类资料库](library/README.md)，独立馅料、食盆等模型见 [道具目录](props/README.md)。这些资料保留用于复用与追溯，尚未自动接入游戏；恢复与使用边界见 [资产流程](../docs/ASSET_WORKFLOW.md)。
+
 已确认的[标准帕秋莉模型](../standards/yukkuri-library/assembled/patchouli/patchouli.bbmodel)及其共用组件位于项目内的 `standards/yukkuri-library/`。角色登记、造型基准和预览见[素材库说明](../standards/yukkuri-library/README.md)。
 
 `art/source/` 保存当前 M1 灵梦、魔理沙使用的选定模型快照，不自动打入 Mod Jar。标准库中的同名角色可能属于另一制作版本，不覆盖这里的接入基准。M1 在 `src/main/resources/assets/mcyukkuri/geo/entity/` 和 `textures/entity/` 中保留几何与贴图的原样副本，并在 `animations/entity/` 中加入待机与移动动画。文件对应关系及指纹见 [runtime-sources.json](runtime-sources.json)。

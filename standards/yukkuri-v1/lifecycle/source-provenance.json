@@ -1,0 +1,39 @@
+{
+  "character": "standard Reimu, neutral binding pose",
+  "body_bounds": [
+    [
+      -6.65,
+      6.65
+    ],
+    [
+      0.0,
+      8.48
+    ],
+    [
+      -4.6,
+      6.775
+    ]
+  ],
+  "crown_y": 9.646,
+  "source_sha256": {
+    "components/common/body.json": "55dd83c897a78a0a697f55cb5a165cc6494e70194919e02477be8d79f1142fdf",
+    "components/common/rump.json": "dab4524f43d7a907be9e019f8e23a0be90485b2aff8577fa5062d88a60ed8eb5",
+    "components/reimu/hair.json": "70aa0fabd13475955eb6665e0c1fcac6e0f0f942e6a76208d94fd5e0fd8762d4",
+    "components/reimu/hand-left.json": "ba63a98e8184051f896dc9a2eb5b058fc9915b1edbfa8d05ac5f2c7a9df5d4c4",
+    "components/reimu/hand-right.json": "f135054396bdf6151ce018b96f3f7513a8de4be1386dc85c22ef41d9f45e2143",
+    "components/reimu/accessories.json": "702bfe162f9f9f5101ce1e2576c2bd1e64c1ee080e6a9323482e930cba5fd917",
+    "components/reimu/face.json": "d899550d2070f7fac293f4574d7ef66e7a9eb13de18384ac7c2f00aa1fc02b24",
+    "components/reimu/puff.json": "168895330388492da4dd42a9eae9ae6f4f9d5862618b0dc2b84ce5bff9b9bf3e",
+    "textures/reimu/neutral.png": "362e5844038f4b540abd479ab34351f1266075bc529bb21d209ecf33c20ba687",
+    "profiles/growth.json": "cdaca701d5888597ba4805b6f7f0c33057d2074223a7471a5d89964f25aaf410",
+    "behaviors/stem-birth.json": "e8e473c810998f5ea618a79cfaef1af63ca843a55b7d34114fd24c43060d727c",
+    "components/common/stem.json": "9b5384876228afd6257848f20bcb6fa33d4253f0b9756033a8a55b942e43e940",
+    "expressions/reimu/sleep.json": "7601637b1b47424281949b7ad8503cf94bffb2e076dce2b45259597614349e9a",
+    "runtime/growth.js": "1e59240806d5502957f6472938afc3440f3c8134170977e3109384089dd2fae7",
+    "runtime/stem-birth.js": "4753883b3ff05b7b7e072cd2f9170716b11aca7fd8a142ae890904a03b6b2172",
+    "runtime/render.js": "7b2db39f97b50e587d5db4255d9af46024d9ba6ccf2fad1bab2155b7ea68ecc5",
+    "runtime/lifecycle.template.html": "7c0ae1a6f2c14ee05fc03f23cb9f111080e822ed6b3958041670d66431e9fb39",
+    "build_lifecycle.py": "7b169eec124760ddc282fa83a4cfc35792396c0020b8e3ec187c64d0d06fd8ec"
+  },
+  "minecraft_integration": false
+}

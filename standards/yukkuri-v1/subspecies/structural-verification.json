@@ -1,0 +1,43 @@
+{
+  "base_source_hashes_unchanged": true,
+  "variants": {
+    "tsumuri": {
+      "cubes": 1393,
+      "inherited_cubes_exact": 176,
+      "bones": 201,
+      "texture_pixels_preserved": true,
+      "independent_braids": true,
+      "geometry_matches_bbmodel": true,
+      "loop_closure": true
+    },
+    "aquatic": {
+      "cubes": 371,
+      "inherited_cubes_exact": 176,
+      "bones": 202,
+      "texture_pixels_preserved": true,
+      "independent_braids": true,
+      "geometry_matches_bbmodel": true,
+      "loop_closure": true
+    },
+    "kotatsu": {
+      "cubes": 339,
+      "inherited_cubes_exact": 176,
+      "bones": 205,
+      "texture_pixels_preserved": true,
+      "independent_braids": true,
+      "geometry_matches_bbmodel": true,
+      "loop_closure": true
+    }
+  },
+  "tower_profile": {
+    "whorl_widths": [
+      20.195684,
+      16.852206,
+      13.09657,
+      9.533534,
+      5.970496,
+      2.985248
+    ],
+    "basal_whorl_height": 2.4524999999999997
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "content_sha256": "8dd59f50647e7ecffac5d285b5ae97105140931d0e31c5529ead65a911a3eb96",
+  "files": [
+    {
+      "path": "variants/marisa-body-length-trials/a/marisa.bbmodel",
+      "bytes": 34029357,
+      "sha256": "2ca9619a11dbc43a9d39489aeff4e58340b268b2d994e3c1c72d9078e2bd8922"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/a/preview.png",
+      "bytes": 2938,
+      "sha256": "fa2095ab4545d56e6a7854cda3badae6fa9e7eb8cbaf181e3a685624e14dd547"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/a/preview.rgba",
+      "bytes": 672000,
+      "sha256": "4dc9e22540168daf883024849042d020ad7b5a41d62163542431967e0b48be18"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/a/proportions.json",
+      "bytes": 62,
+      "sha256": "f3269f0f7d17c40236156499e1bb8087f4137f5835b735e8619f431cf87a9161"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/a/side.png",
+      "bytes": 2938,
+      "sha256": "fa2095ab4545d56e6a7854cda3badae6fa9e7eb8cbaf181e3a685624e14dd547"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/a/side.rgba",
+      "bytes": 672000,
+      "sha256": "4dc9e22540168daf883024849042d020ad7b5a41d62163542431967e0b48be18"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/marisa.bbmodel",
+      "bytes": 34029952,
+      "sha256": "cd5680711c055b007d7601567c228909b111b6e4fe8ea4cc57f4240fd5389916"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/preview.png",
+      "bytes": 2936,
+      "sha256": "3069c10efc0ea567709248bd35e6cfed6c16a6a8a93dc34d3dcdf50e646d4e3f"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/preview.rgba",
+      "bytes": 672000,
+      "sha256": "bc7e8a861d12d2d5d1d1a7c4765bc17d2702eefeb5c7c23b752e34f5c865abf4"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/proportions.json",
+      "bytes": 72,
+      "sha256": "ac7c3fcf1430354899a361d3c81fe46679d3e2274be0fa3a866aeee9f744b4fe"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/side.png",
+      "bytes": 2936,
+      "sha256": "3069c10efc0ea567709248bd35e6cfed6c16a6a8a93dc34d3dcdf50e646d4e3f"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/b/side.rgba",
+      "bytes": 672000,
+      "sha256": "bc7e8a861d12d2d5d1d1a7c4765bc17d2702eefeb5c7c23b752e34f5c865abf4"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/browser-check.png",
+      "bytes": 80790,
+      "sha256": "345cc349729b4551580b1fe3e9b2a9819287253443ea09c4221e9435c3a4d5be"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/build.py",
+      "bytes": 3696,
+      "sha256": "a2560de49a974c0983d54312b116c53a80782bbe246cfac97e0d960753fc6940"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/marisa.bbmodel",
+      "bytes": 34029740,
+      "sha256": "ba93087ac4ab93b8e29917b45cbefe22a4fcad9ed82e46efd3af36b52a8ad67e"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/preview.png",
+      "bytes": 2969,
+      "sha256": "60309de3c865d3160aee07694a722982b077a4cd3eacc1354db1e92c3f114d52"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/preview.rgba",
+      "bytes": 672000,
+      "sha256": "0d5c165846ebe48fe45120d6e19aa63fb728dcf7883a364ee0d371bc6ff597ce"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/proportions.json",
+      "bytes": 71,
+      "sha256": "632930b55b4acb8e036f6f36b337decb48d239ee4715790fd68dbb57578ad32d"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/side.png",
+      "bytes": 2969,
+      "sha256": "60309de3c865d3160aee07694a722982b077a4cd3eacc1354db1e92c3f114d52"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/c/side.rgba",
+      "bytes": 672000,
+      "sha256": "0d5c165846ebe48fe45120d6e19aa63fb728dcf7883a364ee0d371bc6ff597ce"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/comparison.png",
+      "bytes": 17455,
+      "sha256": "fcb774e338158c75ada1260dd93c9fee197e08ac864617290a1aec92f81328a5"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/marisa.bbmodel",
+      "bytes": 34030038,
+      "sha256": "4a7e4f5e7ef88fabed3538c1b3ef9e3a1803aa2e3226f1a7096f0ad156ab1095"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/preview.png",
+      "bytes": 2957,
+      "sha256": "657ec8871e28d03133c7c4a1c2713884cf6fdb7340cfa4f3a46399c24c2628f5"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/preview.rgba",
+      "bytes": 672000,
+      "sha256": "821115af5b648c27283489fc4777a024f8b7d32fed29a3d49386b4b024c981b9"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/proportions.json",
+      "bytes": 72,
+      "sha256": "30467fc1661d048e5a014d3f12189fb4809bc925818b1938dc955f9822a4651c"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/side.png",
+      "bytes": 2957,
+      "sha256": "657ec8871e28d03133c7c4a1c2713884cf6fdb7340cfa4f3a46399c24c2628f5"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/d/side.rgba",
+      "bytes": 672000,
+      "sha256": "821115af5b648c27283489fc4777a024f8b7d32fed29a3d49386b4b024c981b9"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/flee-comparison.gif",
+      "bytes": 1374527,
+      "sha256": "2766dcd80303c014811634f99f98ffc0e295cae3400dc73b2b9c71917e266bba"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/index.html",
+      "bytes": 22953129,
+      "sha256": "48ef878c819dcfe203e7f8e70a7be34b9ef98d929cd9dbc0c6e7efd3eb150b3c"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/proportions.js",
+      "bytes": 640,
+      "sha256": "b9c9bb3d50589e37915e5c31145c48106de006ce52a4acdbc620be1a9192ac4d"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/README.md",
+      "bytes": 1050,
+      "sha256": "4014a1c620985f0fab579c9108b0cee3bafb8fbfdb251c40c31d3a3b0177a40e"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/render.cjs",
+      "bytes": 907,
+      "sha256": "0136d76f5ef992f0d3fe8933be86390d92f9829545bd469133c1ea2ad6b30b2a"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/runtime.js",
+      "bytes": 22948391,
+      "sha256": "24fb2f17425fe4a406e86163ae17c249c57870b4a9ba9496dfb2d28d4b29bf93"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/template.html",
+      "bytes": 4749,
+      "sha256": "0411df9253d622e7be49ee547a3cea16905ee8f247f27b6cb9618eb53bfa599c"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/verification.json",
+      "bytes": 286,
+      "sha256": "792f94f537cc21524c70373a887c13b95f7608e9b4ce60475fd19dfaa0630242"
+    },
+    {
+      "path": "variants/marisa-body-length-trials/verify.cjs",
+      "bytes": 1904,
+      "sha256": "76c35492589ebffd71864ffd10a6ec01dc62eb661c5f8bd21451908754185eba"
+    }
+  ]
+}

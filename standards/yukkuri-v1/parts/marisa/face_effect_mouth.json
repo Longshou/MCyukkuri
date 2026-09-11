@@ -1,0 +1,86 @@
+{
+  "name": "face_effect_mouth",
+  "uuid": "2e7e7540-4a0b-58d2-b42f-523c4de5f22e",
+  "type": "cube",
+  "from": [
+    -2.0,
+    0.0,
+    -4.60316
+  ],
+  "to": [
+    1.5,
+    2.915,
+    -4.60216
+  ],
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "rotation": [
+    0,
+    0,
+    0
+  ],
+  "box_uv": false,
+  "rescale": false,
+  "autouv": 0,
+  "color": 7,
+  "faces": {
+    "north": {
+      "uv": [
+        32,
+        32,
+        46,
+        43
+      ],
+      "texture": 0
+    },
+    "east": {
+      "uv": [
+        127,
+        47,
+        127.01,
+        47.01
+      ],
+      "texture": 0
+    },
+    "south": {
+      "uv": [
+        127,
+        47,
+        127.01,
+        47.01
+      ],
+      "texture": 0
+    },
+    "west": {
+      "uv": [
+        127,
+        47,
+        127.01,
+        47.01
+      ],
+      "texture": 0
+    },
+    "up": {
+      "uv": [
+        127,
+        47,
+        127.01,
+        47.01
+      ],
+      "texture": 0
+    },
+    "down": {
+      "uv": [
+        127,
+        47,
+        127.01,
+        47.01
+      ],
+      "texture": 0
+    }
+  },
+  "bone": "face_effect_mouth"
+}

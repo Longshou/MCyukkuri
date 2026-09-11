@@ -1,0 +1,18 @@
+{
+  "marisa": {
+    "elements": 218,
+    "bones": 200,
+    "clips": 9,
+    "shared_body_rump": true,
+    "independent_hand_hierarchy": true,
+    "references_and_numeric_values": "pass"
+  },
+  "reimu": {
+    "elements": 235,
+    "bones": 182,
+    "clips": 7,
+    "shared_body_rump": true,
+    "independent_hand_hierarchy": true,
+    "references_and_numeric_values": "pass"
+  }
+}

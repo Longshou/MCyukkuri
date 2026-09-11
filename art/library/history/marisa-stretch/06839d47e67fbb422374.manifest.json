@@ -1,0 +1,746 @@
+{
+  "schema_version": 1,
+  "content_sha256": "06839d47e67fbb4223742e79a0d37a20728e685ba3013ac4fc447e96f61ced67",
+  "files": [
+    {
+      "path": "variants/marisa-stretch/animation-rig.json",
+      "bytes": 109009,
+      "sha256": "3310b0032ce6fee4559eb3ca3b0da82140c9644b96aff668d283fc566c9a7e28"
+    },
+    {
+      "path": "variants/marisa-stretch/asset-verification.json",
+      "bytes": 196,
+      "sha256": "dfb69b84fdbacb59efd3ca893c8ba6bbedc521bc2c783bc4fa8d38e2841e3eac"
+    },
+    {
+      "path": "variants/marisa-stretch/blockbench-stretch.png",
+      "bytes": 89669,
+      "sha256": "6e14767c17263a09a5f613555a52f8ed73a333ec7684eb55838738661b2616ea"
+    },
+    {
+      "path": "variants/marisa-stretch/blockbench-verification.json",
+      "bytes": 320,
+      "sha256": "5bfd7abb3ff945b6702eba564061defab35d751cf9d6aa0277951dc8ac26b4e9"
+    },
+    {
+      "path": "variants/marisa-stretch/browser-check.cjs",
+      "bytes": 2669,
+      "sha256": "c296833fc1815ac4b17d9c8d1be6c28264386d89f50f898f1650fb7995e70762"
+    },
+    {
+      "path": "variants/marisa-stretch/browser-mobile.png",
+      "bytes": 39420,
+      "sha256": "9ed864d0d8d1eb1ffc40cc36e38f6043d60485144fee5ad15c7e03c4883dcd14"
+    },
+    {
+      "path": "variants/marisa-stretch/browser-stretch.png",
+      "bytes": 66048,
+      "sha256": "1b5ce884f827783a586b1e9a0dddb835968d22497c910daa2cafbbe108261740"
+    },
+    {
+      "path": "variants/marisa-stretch/browser-verification.json",
+      "bytes": 328,
+      "sha256": "bcbddbece3e10878a0b61962d7c75abc8b01e98baf91ae30142776d6f779c479"
+    },
+    {
+      "path": "variants/marisa-stretch/generate.py",
+      "bytes": 14394,
+      "sha256": "64199577fb212b9a39025c5ee0d01c6312fbf6883f12baf9b48c33b985b844ef"
+    },
+    {
+      "path": "variants/marisa-stretch/make-previews.py",
+      "bytes": 1829,
+      "sha256": "432c5bc23a2b7246dab5f00cc00f8384ed4eac71059e269af8938a61a03d2cab"
+    },
+    {
+      "path": "variants/marisa-stretch/marisa.animation.json",
+      "bytes": 84195,
+      "sha256": "47ff47693612a64ffc8cd467468acc41536f78bd587bb8fcb53a4960d8b48990"
+    },
+    {
+      "path": "variants/marisa-stretch/marisa.bbmodel",
+      "bytes": 412676,
+      "sha256": "78f1939af3e676198bc424985bb4f5a19692c5f1910b1dbb73746cc198b3e6a2"
+    },
+    {
+      "path": "variants/marisa-stretch/marisa.geo.json",
+      "bytes": 106555,
+      "sha256": "d42a6dfe1f763abc0db967736b58f5c181dd2ecdad6abe53195f8c2295a1d59c"
+    },
+    {
+      "path": "variants/marisa-stretch/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch/motion-verification.json",
+      "bytes": 486,
+      "sha256": "20b355f7fbf408f80d54224cb9155f5eae48a1fd1add9cb02fd94e32bd2673af"
+    },
+    {
+      "path": "variants/marisa-stretch/motion.js",
+      "bytes": 2115,
+      "sha256": "cef0f6d32ec0e1bb9f2bbe593af50e3e66d3953f8c7a30f3e268e8853ae29246"
+    },
+    {
+      "path": "variants/marisa-stretch/preview-sheet.png",
+      "bytes": 38718,
+      "sha256": "266dbb38a226938f9fde22ebed79baab5b7007d7b3759eafae25953368e439cc"
+    },
+    {
+      "path": "variants/marisa-stretch/preview.html",
+      "bytes": 129553,
+      "sha256": "0954745c7489cec448e4e9b86a7be84d91547053bd5dec9e6c37e729ad525149"
+    },
+    {
+      "path": "variants/marisa-stretch/preview.png",
+      "bytes": 14533,
+      "sha256": "b1b34507011526774fb571797c831ec97fc2395eae255894b515b7cf90753555"
+    },
+    {
+      "path": "variants/marisa-stretch/README.md",
+      "bytes": 2658,
+      "sha256": "fe73a50dacd3e3c2361014d9d7443555f0790833ccb319b0798955fab81dfa1b"
+    },
+    {
+      "path": "variants/marisa-stretch/render-stretch.cjs",
+      "bytes": 604,
+      "sha256": "58978fa198804b51f808028ed42b0e6b2f10af916c0d50f73cae5982ed19cbe3"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/assets/minecraft/models/item/paper.json",
+      "bytes": 377,
+      "sha256": "e0784d741a577d3ccd6e7c3adea68a9d1fbb3ce789fef963ff543755a6c6a609"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/assets/minecraft/models/item/paper_plain.json",
+      "bytes": 105,
+      "sha256": "36c249bcb01ad9722060cd478e23f47773e3291bd1d0836e1b29c6fc7a4b64ec"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/assets/yukkuri/models/item/marisa.json",
+      "bytes": 69548,
+      "sha256": "ec0673a53a66ed0e74251b0bd56384a1d4225faa77d054c6ab7519834f119208"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/assets/yukkuri/textures/entity/marisa.png",
+      "bytes": 821,
+      "sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/pack.mcmeta",
+      "bytes": 129,
+      "sha256": "7cb89a1efa5d1997fca00b4817ca7ebc261a03aceb688522549a8f051d5a05da"
+    },
+    {
+      "path": "variants/marisa-stretch/resourcepack/pack.png",
+      "bytes": 2010,
+      "sha256": "40343014c6cefc11495fd79cc93978eb43aad3daf2b47b98161b56674c3ca5f1"
+    },
+    {
+      "path": "variants/marisa-stretch/rig.py",
+      "bytes": 5029,
+      "sha256": "0dc8843758103151f0c9b56008a40a1dd60f18f3d20cc8e1bbdf132765414e86"
+    },
+    {
+      "path": "variants/marisa-stretch/software-viewer.js",
+      "bytes": 7587,
+      "sha256": "81defa95f1e8b417d63931e9aaadba5d0c7a99f415ab1716d1faf049bc53e933"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-0.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-1.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-10.rgba",
+      "bytes": 907200,
+      "sha256": "3eb2b7abfcd87bc8f26cb8de68ddac1857cf3e074efac0f2d4249187e5ac3af9"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-11.rgba",
+      "bytes": 907200,
+      "sha256": "bc26e3331784b42eb1df3fc446f833005e86955288790ae51c2722d13108821e"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-12.rgba",
+      "bytes": 907200,
+      "sha256": "9e81e5f1e35d796dd808e8d9887ecb16954b6a70e98bad9bbcdbb887d6f611a2"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-13.rgba",
+      "bytes": 907200,
+      "sha256": "f313f960a56f391c83ae3cfc36992cd679c0fc8de0306f9cb21c5bab0652fdb9"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-14.rgba",
+      "bytes": 907200,
+      "sha256": "1e399cc9cc123605f7edd979e17f4ed08cd1c421b93c6a0e29fccfc097c53552"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-15.rgba",
+      "bytes": 907200,
+      "sha256": "1c33171e7f24a616693e054ec02bc06fa7304953baca050438ac22df5335558e"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-16.rgba",
+      "bytes": 907200,
+      "sha256": "a0aaacab430133aab7a88e201a47319bdec56ed8258b617d780444b880aa24bc"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-17.rgba",
+      "bytes": 907200,
+      "sha256": "b355e58dcc1f5edb33e4a381faead22c912ce2258678f311fff177cdb8a240e4"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-18.rgba",
+      "bytes": 907200,
+      "sha256": "4599661242128d1def45bae5ca8c1e90fad4139656a2198881eaa6cc2e0d91cb"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-19.rgba",
+      "bytes": 907200,
+      "sha256": "009e3cdd24879cac20d8a897ad0b5f1b9fa18b1a253d1a0afdb58e4f9bc01968"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-2.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-20.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-21.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-22.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-23.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-24.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-25.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-26.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-27.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-28.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-29.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-3.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-30.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-31.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-32.rgba",
+      "bytes": 907200,
+      "sha256": "b5fa49f90bf5ffdff42841ba0247d6502c12df33be6f1590361157154f9e665b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-33.rgba",
+      "bytes": 907200,
+      "sha256": "ce733c7df4eaa7c97a1a260d1e69a3179c5ca00de6f4651d2ae2dae239ad054d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-34.rgba",
+      "bytes": 907200,
+      "sha256": "5feb085923dbfefb7cfc45b5035c8985e2e7c61f3ddd0cafc62f86630914646e"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-35.rgba",
+      "bytes": 907200,
+      "sha256": "799eef23cecd2109197e64eebff652a57dc94a7d7c441dc86bd5e407e9c7889c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-36.rgba",
+      "bytes": 907200,
+      "sha256": "032d1ba7d12d0716363a8ca64583bc301c1c5ad80577d7130a82412d0a4716dc"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-37.rgba",
+      "bytes": 907200,
+      "sha256": "4a6fda7c157db2b4b41d8b2fc36be914ee1d7535a457690d12f335a72dba899b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-38.rgba",
+      "bytes": 907200,
+      "sha256": "d112a52ab9956fa30a0700ed8f6db7dc41a32548a047ba306089670511d7eacf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-39.rgba",
+      "bytes": 907200,
+      "sha256": "c0329102f27994f856a6bd86eb9cad2854cd978a00bbcd35748b100001dfeed8"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-4.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-40.rgba",
+      "bytes": 907200,
+      "sha256": "84254fd0638654fa62d9231da13921cfe3856d4462de481eeed846a4832e5374"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-41.rgba",
+      "bytes": 907200,
+      "sha256": "7cea2886652ae1997e51542f34ed3b4daeb341f03429336f4beaa74932fa9b19"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-42.rgba",
+      "bytes": 907200,
+      "sha256": "caff794aeb86240ce3b27075c3dae88dcd5be18bd22bb58699eed11cf35f9a2b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-43.rgba",
+      "bytes": 907200,
+      "sha256": "9674c01671afd5c01a84f813a0429f6d11e3493b64d2bd3fecfb5bab596c4b97"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-44.rgba",
+      "bytes": 907200,
+      "sha256": "a0caa81a35bfcddf56395a94c6eae89c9d2330a0af1a8ee88c5a6a29271ac48c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-45.rgba",
+      "bytes": 907200,
+      "sha256": "31c7ed967d39830be2fde520aa1db0cf3bc003b459564cb6c3010c721ed07c35"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-46.rgba",
+      "bytes": 907200,
+      "sha256": "235a862480083422ba3fed36d98bc95a722a2a373098bb4837c6727ce289cbc4"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-47.rgba",
+      "bytes": 907200,
+      "sha256": "ad693cbbbe9451053c0c30d54ef0380f7467c9eb28cbd037b4be6ed8195ef637"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-48.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-49.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-5.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-50.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-51.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-52.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-53.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-54.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-55.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-6.rgba",
+      "bytes": 907200,
+      "sha256": "24f1d705b16f25ab2be3dd503677edaa543572881bb45136dc790a6a8f70ffdf"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-7.rgba",
+      "bytes": 907200,
+      "sha256": "ece3d206ea1caf564c10ae6b6e9d4c84652bf3bb5eb0fef3df01c19e8af89344"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-8.rgba",
+      "bytes": 907200,
+      "sha256": "085ac352513c73f80c0505dcf7b0dc3627be5bc304f7048010fcee2edbb8bf25"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-front-9.rgba",
+      "bytes": 907200,
+      "sha256": "9c807353f523b0109286d0d12bb5f2d2226cd12e07a29c08674bb45ca065d2b5"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-maximum.png",
+      "bytes": 24832,
+      "sha256": "f9539f1f81a988ae0a53b9194643e477effe267b3ec08f3bdfa5fc8a5b3c773e"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-0.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-1.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-10.rgba",
+      "bytes": 907200,
+      "sha256": "6cf058cf363261b7887c1721c3b3269a464a1878ced00b4d75aec7920c46094b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-11.rgba",
+      "bytes": 907200,
+      "sha256": "33a34318851affa6a6d093f275a72a0e9bab7d447628959964e9dc9c552d9e13"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-12.rgba",
+      "bytes": 907200,
+      "sha256": "84279f0ebdb20503164a7b29b94162634b6f5661326f032bfede6fb0573cc800"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-13.rgba",
+      "bytes": 907200,
+      "sha256": "995dd8defec5e51563b49b78f9a71ddafadf8fe15bad4acf6414a50c2166300a"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-14.rgba",
+      "bytes": 907200,
+      "sha256": "69576a97743539a5e096a693e6a1cc047512a5e49a82ef02dcbf9d05f195f3a1"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-15.rgba",
+      "bytes": 907200,
+      "sha256": "dface32464fc9bc6efead7d8561eba9a2496e3e1f5ce592b3794425f10db171a"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-16.rgba",
+      "bytes": 907200,
+      "sha256": "4e397985b4ce8c207b38edc78d075871e90a180a8cdbe3cfd2514d7967c15a7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-17.rgba",
+      "bytes": 907200,
+      "sha256": "d40ae63c7d844940c3baf73d5c10b1534ddc193083c84b44aab9edd8f4fb485f"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-18.rgba",
+      "bytes": 907200,
+      "sha256": "20daa52ee3457dedd83d2c62fd53f8f5d7de5f27faf3e49dc32ad8f1c15c77c9"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-19.rgba",
+      "bytes": 907200,
+      "sha256": "5b222e160c849769bca08a51e5bd100a5b16f76cae04235b14bc96b8e7ef9938"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-2.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-20.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-21.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-22.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-23.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-24.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-25.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-26.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-27.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-28.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-29.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-3.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-30.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-31.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-32.rgba",
+      "bytes": 907200,
+      "sha256": "e7485a9b822f4a534696708300bb72516c5ed721a5e91a9ee403b4fe3277fc7c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-33.rgba",
+      "bytes": 907200,
+      "sha256": "58356e3999815a17443cbecc5c57e3cb8b55b51a17b9c7ce7654835813ac9c71"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-34.rgba",
+      "bytes": 907200,
+      "sha256": "6ac59119fe7056e3988579939c3529fe7597d07f5534bf9c69431919ce1cc98c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-35.rgba",
+      "bytes": 907200,
+      "sha256": "2211d6f880aea1844bcbd70e0bb3fb13fb89a3de3d824477958e40ce91613973"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-36.rgba",
+      "bytes": 907200,
+      "sha256": "51dbd5e5e2282e79d65e007b1875d63f6cd58e61233fa9e42fa2d6749d9e61e2"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-37.rgba",
+      "bytes": 907200,
+      "sha256": "8443ca15ff36742e49d9ad0df6caec4652c22bb0706cad60060b25c986157fc2"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-38.rgba",
+      "bytes": 907200,
+      "sha256": "f213dfcb382347381cd6fe18f7ef409bdf54d915857e00011aaff26f1c5e9b89"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-39.rgba",
+      "bytes": 907200,
+      "sha256": "1bcc745ad07a188d7c02827a4ca9047d962c11ec4021781abb3f1e6a93dc2b34"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-4.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-40.rgba",
+      "bytes": 907200,
+      "sha256": "bd84ab0eb752eada73125843bdebf262ec9b52b386f4f62f7bad227784ba228b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-41.rgba",
+      "bytes": 907200,
+      "sha256": "87559522240643223083d3d230a9bc2a089204f98cc9554d74dd967ccfeb63c9"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-42.rgba",
+      "bytes": 907200,
+      "sha256": "4bf997b87fbd248e4a34d6e9ce11070a2482417a886b7ac000e5d7ce6ab67697"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-43.rgba",
+      "bytes": 907200,
+      "sha256": "863aa8a2bd218a987a8066daa120e9e0a0f0a10f9fdcbb1aa9cafa5b63236515"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-44.rgba",
+      "bytes": 907200,
+      "sha256": "4d9920824d7d30ddb0a488d805d300ac7d048973c0e69ccc8ea8be8698ce771d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-45.rgba",
+      "bytes": 907200,
+      "sha256": "7a53203a7413cd58da4f659a041b42077589cc734e3c52fad52d66d1aef94a0c"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-46.rgba",
+      "bytes": 907200,
+      "sha256": "06799496419242726c5bdfdd07fc9ef995cac570d3b042fd274c0356b73d2e17"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-47.rgba",
+      "bytes": 907200,
+      "sha256": "d19f93ccbb859191da4d383883371de25569cee7ad34ff3711c89c567dd962d2"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-48.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-49.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-5.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-50.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-51.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-52.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-53.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-54.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-55.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-6.rgba",
+      "bytes": 907200,
+      "sha256": "ed18b8ce564f4ae9da6acbe6c49a7601c8b736f752748e03246ac13b92e2144d"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-7.rgba",
+      "bytes": 907200,
+      "sha256": "f67bd14673bcdab7b8523b25dc856637dfee836bca11293eaa96cd507745416b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-8.rgba",
+      "bytes": 907200,
+      "sha256": "375539f96a6b6f1bffd6a96bdc272c90829fd0824eecc2f80a8f70b99f1b207f"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-quarter-9.rgba",
+      "bytes": 907200,
+      "sha256": "c79bac2e0c20bc2c36b6be12c7a636f34bbad7ca13a6f19fe93b80e3705bbd89"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch-sheet.png",
+      "bytes": 25020,
+      "sha256": "f033becae3bfb1ea91f88b3e8c3b656b32a91700d7e62ee017cae92094e95f5b"
+    },
+    {
+      "path": "variants/marisa-stretch/stretch.gif",
+      "bytes": 775924,
+      "sha256": "592c4054434ecf525bf54d188ebb1a89d74c4c29836d5eb0927353b155b07e74"
+    },
+    {
+      "path": "variants/marisa-stretch/texture.rgba",
+      "bytes": 65536,
+      "sha256": "592ead6bdcc20237676638cd9c0b50536c0bfb91f5bdcec174914d4851d7efe7"
+    },
+    {
+      "path": "variants/marisa-stretch/verify-blockbench.cjs",
+      "bytes": 3078,
+      "sha256": "a5b131e4f11e6aaa3cedeaf9a7f87734fefbca01387b94136d3b06261434aa2c"
+    },
+    {
+      "path": "variants/marisa-stretch/verify-motion.cjs",
+      "bytes": 3346,
+      "sha256": "0a489c28ffb32977919d20bab760eb265955ba65e0124563eeb3495fe7e54c4a"
+    },
+    {
+      "path": "variants/marisa-stretch/viewer-template.html",
+      "bytes": 3414,
+      "sha256": "70f585705e532a1f84d4edde340be0f97bd0164ee20d551850cc47e7bbe3139b"
+    }
+  ]
+}

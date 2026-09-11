@@ -1,0 +1,120 @@
+{
+  "presets": [
+    "neutral",
+    "happy",
+    "smug",
+    "angry",
+    "puff",
+    "surprise",
+    "confused",
+    "teary",
+    "cry",
+    "sleepy",
+    "sleep",
+    "yawn",
+    "drool"
+  ],
+  "parts": [
+    {
+      "part": "face_eye_left",
+      "uv": [
+        0,
+        0,
+        15,
+        12
+      ],
+      "geometry": "parts/marisa/face_eye_left.json"
+    },
+    {
+      "part": "face_eye_right",
+      "uv": [
+        32,
+        0,
+        47,
+        12
+      ],
+      "geometry": "parts/marisa/face_eye_right.json"
+    },
+    {
+      "part": "face_brow_left",
+      "uv": [
+        64,
+        0,
+        81,
+        6
+      ],
+      "geometry": "parts/marisa/face_brow_left.json"
+    },
+    {
+      "part": "face_brow_right",
+      "uv": [
+        96,
+        0,
+        113,
+        6
+      ],
+      "geometry": "parts/marisa/face_brow_right.json"
+    },
+    {
+      "part": "face_mouth",
+      "uv": [
+        0,
+        16,
+        14,
+        28
+      ],
+      "geometry": "parts/marisa/face_mouth.json"
+    },
+    {
+      "part": "face_blush_left",
+      "uv": [
+        32,
+        16,
+        42,
+        22
+      ],
+      "geometry": "parts/marisa/face_blush_left.json"
+    },
+    {
+      "part": "face_blush_right",
+      "uv": [
+        64,
+        16,
+        74,
+        22
+      ],
+      "geometry": "parts/marisa/face_blush_right.json"
+    },
+    {
+      "part": "face_tear_left",
+      "uv": [
+        96,
+        16,
+        111,
+        32
+      ],
+      "geometry": "parts/marisa/face_tear_left.json"
+    },
+    {
+      "part": "face_tear_right",
+      "uv": [
+        0,
+        32,
+        15,
+        48
+      ],
+      "geometry": "parts/marisa/face_tear_right.json"
+    },
+    {
+      "part": "face_effect_mouth",
+      "uv": [
+        32,
+        32,
+        46,
+        43
+      ],
+      "geometry": "parts/marisa/face_effect_mouth.json"
+    }
+  ],
+  "notes": "Transparent pigment only. Puff geometry/animation is a separate reusable component."
+}

@@ -1,0 +1,40 @@
+{
+  "id": "contact-reveal",
+  "reveal_seconds": 0.24,
+  "restore_seconds": 0.65,
+  "parts": [
+    {
+      "id": "mamu",
+      "label": "麻姆麻姆",
+      "bone": "anatomy_mamu",
+      "offset": [
+        0,
+        0,
+        1.05
+      ]
+    },
+    {
+      "id": "peni",
+      "label": "佩尼佩尼",
+      "bone": "anatomy_peni",
+      "offset": [
+        0,
+        0,
+        -3.35
+      ],
+      "rotation": [
+        25,
+        0,
+        0
+      ]
+    }
+  ],
+  "trigger": "contact",
+  "rest": "retracted inside body",
+  "scope": "adult standard marisa preview",
+  "placement": "mamu: rear below anus; peni: front below mouth",
+  "reference": "references/contact-position.md",
+  "default_part": "peni",
+  "mutually_exclusive": true,
+  "switch_policy": "retract current completely before revealing selected part"
+}
