@@ -1,0 +1,2195 @@
+{
+  "createdAt": "2026-09-13T07:06:17.781Z",
+  "status": "passed",
+  "inputs": {
+    "previewData": "78f9dc447d0c9bb26055038ce7f5f024c61f0f25b0e0431b8a312ade6ceb25cc",
+    "birthAdapter": "97b84879fe3593162300c840525986122eee3afb03ce3bff3b2504651cb4e750"
+  },
+  "checks": [
+    {
+      "name": "reimu/shared_site",
+      "passed": true
+    },
+    {
+      "name": "reimu/axis_surface_intersection",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/0/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/0/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/0/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/13/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/13/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/13/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/23/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/23/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/23/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/29/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/29/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/29/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/32/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/32/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/32/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/complete",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "reimu/1/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/0/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/0/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/0/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/13/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/13/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/13/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/23/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/23/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/23/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/29/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/29/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/29/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/32/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/32/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/32/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/complete",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "reimu/3/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/0/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/0/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/0/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/13/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/13/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/13/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/23/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/23/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/23/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/29/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/29/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/29/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/32/finite",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/32/identity",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/32/ground",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/complete",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "reimu/5/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "reimu/face_clearance_through_pregnancy",
+      "passed": true,
+      "minimumClearance": 0.034999999999998366,
+      "sampledTimes": 48,
+      "triangleSamples": 7
+    },
+    {
+      "name": "reimu/face_pixels_0_-0.6",
+      "passed": true,
+      "paintedPixels": 5693,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_0_0",
+      "passed": true,
+      "paintedPixels": 6874,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_0_0.6",
+      "passed": true,
+      "paintedPixels": 5692,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_3_-0.6",
+      "passed": true,
+      "paintedPixels": 6207,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_3_0",
+      "passed": true,
+      "paintedPixels": 7523,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_3_0.6",
+      "passed": true,
+      "paintedPixels": 6208,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_6_-0.6",
+      "passed": true,
+      "paintedPixels": 7338,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_6_0",
+      "passed": true,
+      "paintedPixels": 8791,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_6_0.6",
+      "passed": true,
+      "paintedPixels": 7331,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_9_-0.6",
+      "passed": true,
+      "paintedPixels": 7910,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_9_0",
+      "passed": true,
+      "paintedPixels": 9525,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_9_0.6",
+      "passed": true,
+      "paintedPixels": 7917,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_13_-0.6",
+      "passed": true,
+      "paintedPixels": 7827,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_13_0",
+      "passed": true,
+      "paintedPixels": 9531,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_13_0.6",
+      "passed": true,
+      "paintedPixels": 7828,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_19_-0.6",
+      "passed": true,
+      "paintedPixels": 6681,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_19_0",
+      "passed": true,
+      "paintedPixels": 8112,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/face_pixels_19_0.6",
+      "passed": true,
+      "paintedPixels": 6686,
+      "occludedPixels": 0
+    },
+    {
+      "name": "reimu/neutral_render_matches",
+      "passed": true,
+      "differentChannels": 0
+    },
+    {
+      "name": "reimu/seek_repeatable",
+      "passed": true
+    },
+    {
+      "name": "marisa/shared_site",
+      "passed": true
+    },
+    {
+      "name": "marisa/axis_surface_intersection",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/0/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/0/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/0/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/13/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/13/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/13/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/23/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/23/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/23/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/29/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/29/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/29/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/32/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/32/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/32/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/complete",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "marisa/1/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/0/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/0/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/0/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/13/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/13/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/13/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/23/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/23/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/23/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/29/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/29/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/29/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/32/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/32/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/32/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/complete",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "marisa/3/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/0/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/0/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/0/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/0/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/initial_clear",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/13/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/13/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/13/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/13/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/14.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.8/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.8/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.8/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/15.8/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/16.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/16.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/16.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/16.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/17.3/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/17.3/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/17.3/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/17.3/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/18.2/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/18.2/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/18.2/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/18.2/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/19.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/19.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/19.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/19.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/20.6/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/20.6/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/20.6/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/20.6/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/21.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/21.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/21.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/21.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/23/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/23/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/23/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/23/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/24.9/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/24.9/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/24.9/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/24.9/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/26.5/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/26.5/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/26.5/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/26.5/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/29/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/29/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/29/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/29/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/32/finite",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/32/birth_order",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/32/identity",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/32/ground",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/complete",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/newborn_spacing",
+      "passed": true
+    },
+    {
+      "name": "marisa/5/contact_sampled",
+      "passed": true
+    },
+    {
+      "name": "marisa/face_clearance_through_pregnancy",
+      "passed": true,
+      "minimumClearance": 0.034999999999998366,
+      "sampledTimes": 48,
+      "triangleSamples": 7
+    },
+    {
+      "name": "marisa/face_pixels_0_-0.6",
+      "passed": true,
+      "paintedPixels": 5693,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_0_0",
+      "passed": true,
+      "paintedPixels": 6874,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_0_0.6",
+      "passed": true,
+      "paintedPixels": 5692,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_3_-0.6",
+      "passed": true,
+      "paintedPixels": 6207,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_3_0",
+      "passed": true,
+      "paintedPixels": 7523,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_3_0.6",
+      "passed": true,
+      "paintedPixels": 6208,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_6_-0.6",
+      "passed": true,
+      "paintedPixels": 7338,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_6_0",
+      "passed": true,
+      "paintedPixels": 8791,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_6_0.6",
+      "passed": true,
+      "paintedPixels": 7331,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_9_-0.6",
+      "passed": true,
+      "paintedPixels": 7910,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_9_0",
+      "passed": true,
+      "paintedPixels": 9525,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_9_0.6",
+      "passed": true,
+      "paintedPixels": 7917,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_13_-0.6",
+      "passed": true,
+      "paintedPixels": 7827,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_13_0",
+      "passed": true,
+      "paintedPixels": 9531,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_13_0.6",
+      "passed": true,
+      "paintedPixels": 7828,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_19_-0.6",
+      "passed": true,
+      "paintedPixels": 6681,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_19_0",
+      "passed": true,
+      "paintedPixels": 8112,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/face_pixels_19_0.6",
+      "passed": true,
+      "paintedPixels": 6686,
+      "occludedPixels": 0
+    },
+    {
+      "name": "marisa/neutral_render_matches",
+      "passed": true,
+      "differentChannels": 0
+    },
+    {
+      "name": "marisa/seek_repeatable",
+      "passed": true
+    }
+  ],
+  "failures": []
+}

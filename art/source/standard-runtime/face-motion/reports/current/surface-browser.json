@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "page": "all-models",
+      "id": "house_reimu",
+      "az": 0,
+      "geometry_matches_runtime": true
+    },
+    {
+      "page": "all-models",
+      "id": "house_reimu",
+      "az": 0.55,
+      "geometry_matches_runtime": true
+    },
+    {
+      "page": "all-models",
+      "id": "house_marisa",
+      "az": 0,
+      "geometry_matches_runtime": true
+    },
+    {
+      "page": "all-models",
+      "id": "house_marisa",
+      "az": 0.55,
+      "geometry_matches_runtime": true
+    },
+    {
+      "page": "standard-runtime",
+      "id": "house_reimu",
+      "az": 0.55
+    },
+    {
+      "page": "standard-runtime",
+      "id": "house_marisa",
+      "az": 0.55
+    }
+  ],
+  "errors": [],
+  "closed": true
+}

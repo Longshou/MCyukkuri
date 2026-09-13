@@ -7,7 +7,7 @@ fields=['基本おかざり裏グラベース','基本ボディグラベース',
 rows=[dict(field=f,slot=i,**v) for f in fields for i,v in enumerate(m[f][:5]) if v['id']]
 (R/'fields.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8')
 ids=sorted(set(x['id'] for x in rows))
-subprocess.run([sys.executable,'C:/Users/shaoli/.codex/skills/hakkei-u-art-reference/scripts/extract_sprites.py','--assets','E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets','--ids',*map(str,ids),'--out',str(R/'hakkei')],check=True)
+subprocess.run([sys.executable,'C:/Users/shaoli/.codex/skills/hakkei-u-art-reference/scripts/extract_sprites.py','--assets','E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets','--ids',*map(str,ids),'--out',str(R/'hakkei')],check=True)
 idx={x['id']:x for x in json.loads((R/'hakkei/sprite-index.json').read_text())}
 sheet=Image.new('RGB',(1500,800),'#ebe7df');d=ImageDraw.Draw(sheet)
 for slot in range(5):

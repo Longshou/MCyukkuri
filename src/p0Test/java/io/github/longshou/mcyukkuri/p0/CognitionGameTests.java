@@ -67,7 +67,7 @@ public final class CognitionGameTests {
         var f=e.family().save();f.putBoolean("Initialized",true);f.putString("Stage",young?"JUVENILE":"ADULT");
         f.putLong("Age",young?1000:24001);f.putLong("Nourishment",young?1000:24000);f.putLong("Lifespan",72000);e.family().load(f);
         var life=e.life().save();life.putFloat("Nutrition",95);life.putFloat("Energy",95);life.putFloat("Hygiene",100);life.putFloat("Bladder",0);e.life().load(life);
-        var p=e.life().personality().save();p.putIntArray("Innate",new int[]{50,50,50,50,50,60});e.life().personality().load(p);
+        var p=e.life().personality().save();PersonalityFixtures.preferences(p,new int[]{50,50,50,50,50,60});e.life().personality().load(p);
         if(!level.addFreshEntity(e))throw new IllegalStateException("cognition fixture spawn refused");return e;
     }
     private WildEventData.Scene scene(YukkuriEntity a,YukkuriEntity b) {
@@ -76,7 +76,7 @@ public final class CognitionGameTests {
     }
     private void rules() {
         var old=spawn(3,-1,0,false);check("old save receives stable default without personality inference",Cognition.get(old).innate()==100&&Cognition.get(old).learned()==0);
-        var personality=old.life().personality().save();personality.putIntArray("Innate",new int[]{0,100,0,100,100,100});old.life().personality().load(personality);
+        var personality=old.life().personality().save();PersonalityFixtures.preferences(personality,new int[]{0,100,0,100,100,100});old.life().personality().load(personality);
         check("changing ORDER curiosity and other traits does not change ability",Cognition.get(old).ability()==100);
         old.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.NORMAL,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.BEAN_BODY);
         check("congenital shape does not change ability",Cognition.get(old).ability()==100);

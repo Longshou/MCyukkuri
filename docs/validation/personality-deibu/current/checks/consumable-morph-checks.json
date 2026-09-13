@@ -1,0 +1,58 @@
+[
+  {
+    "name": "conception fixes UUID-derived morph before birth reimu_bean",
+    "pass": true
+  },
+  {
+    "name": "unborn morph survives save and selects the matching model reimu_bean",
+    "pass": true
+  },
+  {
+    "name": "ordinary newborn fits the low solid-entity overhang",
+    "pass": true
+  },
+  {
+    "name": "taller bean is rejected before addition under the same overhang",
+    "pass": true
+  },
+  {
+    "name": "real birth uses the saved morph rather than rerolling current parents reimu_bean",
+    "pass": true
+  },
+  {
+    "name": "bean collision height is already correct on world insertion",
+    "pass": true
+  },
+  {
+    "name": "bean growth checks its taller target shape under a low overhang",
+    "pass": true
+  },
+  {
+    "name": "bean growth resumes after real clearance becomes available",
+    "pass": true
+  },
+  {
+    "name": "conception fixes UUID-derived morph before birth reimu_wasa",
+    "pass": true
+  },
+  {
+    "name": "unborn morph survives save and selects the matching model reimu_wasa",
+    "pass": true
+  },
+  {
+    "name": "real birth uses the saved morph rather than rerolling current parents reimu_wasa",
+    "pass": true
+  },
+  {
+    "name": "conception fixes UUID-derived morph before birth marisa_tsumuri",
+    "pass": true
+  },
+  {
+    "name": "unborn morph survives save and selects the matching model marisa_tsumuri",
+    "pass": true
+  },
+  {
+    "name": "real birth uses the saved morph rather than rerolling current parents marisa_tsumuri",
+    "pass": true
+  }
+]

@@ -1,1 +1,126 @@
-{"marisa_tsumuri":{"accessory_prefixes":["shell_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"reimu_wasa":{"accessory_prefixes":["bow_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"reimu_sparse":{"accessory_prefixes":["bow_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"reimu_face":{"accessory_prefixes":["bow_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"reimu_bean":{"accessory_prefixes":["bow_"],"mouth":[0,9.2146,-3.854],"food_scale":0.09100000000000001},"marisa_sparse":{"accessory_prefixes":["brim_","hat_","bow_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"marisa_face":{"accessory_prefixes":["brim_","hat_","bow_"],"mouth":[0,1.855,-4.7],"food_scale":0.14},"marisa_bean":{"accessory_prefixes":["brim_","hat_","bow_"],"mouth":[0,9.2146,-3.854],"food_scale":0.09100000000000001}}
+{
+  "marisa_tsumuri": {
+    "accessory_prefixes": [
+      "shell_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/marisa_tsumuri.json"
+  },
+  "reimu_wasa": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/reimu_wasa.json"
+  },
+  "reimu_sparse": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/reimu_sparse.json"
+  },
+  "reimu_face": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0.48,
+      1.8634,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/reimu_face.json"
+  },
+  "reimu_bean": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0,
+      9.2146,
+      -3.854
+    ],
+    "food_scale": 0.09100000000000001
+  },
+  "marisa_sparse": {
+    "accessory_prefixes": [
+      "brim_",
+      "hat_",
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/marisa_sparse.json"
+  },
+  "marisa_face": {
+    "accessory_prefixes": [
+      "brim_",
+      "hat_",
+      "bow_"
+    ],
+    "mouth": [
+      0.48,
+      1.8634,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/marisa_face.json"
+  },
+  "marisa_bean": {
+    "accessory_prefixes": [
+      "brim_",
+      "hat_",
+      "bow_"
+    ],
+    "mouth": [
+      0,
+      9.2146,
+      -3.854
+    ],
+    "food_scale": 0.09100000000000001
+  },
+  "reimu_deibu": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.89872,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/reimu_deibu.json"
+  },
+  "reimu_wasa_deibu": {
+    "accessory_prefixes": [
+      "bow_"
+    ],
+    "mouth": [
+      0.0,
+      2.0034,
+      -5.215
+    ],
+    "food_scale": 0.14,
+    "selected_runtime": "yukkuri/reimu_wasa_deibu.json"
+  }
+}

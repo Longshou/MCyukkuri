@@ -15,5 +15,11 @@
   "whorls": 6,
   "spikes": 8,
   "rear_edge_y": 2.6642408454,
-  "anatomy": "Shared standard adult components, rig and behavior; no copied anatomy source."
+  "anatomy": "Shared standard adult components, rig and behavior; no copied anatomy source.",
+  "current_body_standard": {
+    "record": "provenance/standard-body.json",
+    "profile": "body-standard/profile.json",
+    "approved_on": "2026-09-13",
+    "note": "本文件既有指纹和尺寸保留为推广前基线；当前身体及挂接以 standard-body.json 为准。"
+  }
 }

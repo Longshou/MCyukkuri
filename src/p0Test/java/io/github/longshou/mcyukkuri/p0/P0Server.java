@@ -77,12 +77,15 @@ public final class P0Server {
             if (integrated.isDedicatedServer() || !integrated.getWorldPath(LevelResource.ROOT).normalize()
                     .getFileName().toString().equals("p0-preview")) throw new IllegalStateException("Not the isolated P0 preview world");
             String operation = request.get("command").getAsString();
+            if(operation.startsWith("hat-")){HatPreview.command(integrated,request);return;}
+            if(operation.startsWith("rounded-")){RoundedPreview.command(integrated,request);return;}
             if(operation.startsWith("subspecies-")){SubspeciesPreview.command(integrated,request);return;}
             if(operation.startsWith("consumable-")){ConsumablePreview.command(integrated,request);return;}
             if(operation.startsWith("predator-")){PredatorPreview.command(integrated,request);return;}
             if(operation.equals("waddle-setup")){WaddlePreview.command(integrated,request);return;}
             if(operation.startsWith("house-interaction-")){HouseInteractionPreview.command(integrated,request);return;}
             if(operation.startsWith("wound-")){WoundPreview.command(integrated,request);return;}
+            if(operation.startsWith("remains-")){RemainsPreview.command(integrated,request);return;}
             if (operation.startsWith("human-")) { HumanPreview.command(integrated, request); return; }
             if (operation.startsWith("badge-")) { BadgePreview.command(integrated, request); return; }
             if (operation.startsWith("settlement-")) { SettlementPreview.command(integrated, request); return; }
@@ -381,7 +384,7 @@ public final class P0Server {
                 check(subject.getVariant() + " spawn egg and both creative tabs", egg != null &&
                         ModCreativeTabs.YUKKURI_WORLD.get().contains(new ItemStack(egg)) && eggs.contains(new ItemStack(egg)), type.get());
                 check(subject.getVariant() + " body and initial state", subject.getHealth() == 10 && subject.getAnimationId().equals("idle")
-                        && Math.abs(subject.getBbWidth() - (subject.getVariant().isHouse() ? .27 : .75)) < .001, state(subject));
+                        && Math.abs(subject.getBbWidth() - (subject.getVariant().isHouse() ? .27 : .8)) < .001, state(subject));
                 subject.discard();
                 player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(egg, 2));
                 egg.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,

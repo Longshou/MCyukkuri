@@ -1,0 +1,91 @@
+{
+  "created_at": "2026-09-13T10:31:38.993Z",
+  "status": "passed",
+  "results": [
+    {
+      "id": "reimu_bean",
+      "t": 0,
+      "total": 4280,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 0.1,
+      "total": 4248,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 0.25,
+      "total": 4215,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 0.5,
+      "total": 4248,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 0.75,
+      "total": 4260,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 0.9,
+      "total": 4209,
+      "hidden": 0
+    },
+    {
+      "id": "reimu_bean",
+      "t": 1.1,
+      "total": 4248,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0,
+      "total": 2966,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0.1,
+      "total": 2887,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0.25,
+      "total": 2891,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0.5,
+      "total": 2887,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0.75,
+      "total": 2888,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 0.9,
+      "total": 2907,
+      "hidden": 0
+    },
+    {
+      "id": "marisa_bean",
+      "t": 1.1,
+      "total": 2886,
+      "hidden": 0
+    }
+  ],
+  "errors": []
+}

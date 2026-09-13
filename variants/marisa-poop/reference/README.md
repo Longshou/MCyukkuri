@@ -1,6 +1,6 @@
 # 本地八景 U 参考
 
-读取版本：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。字段定位：`E:/yukkuri/Eight景U-ModLab/analysis/decompiled/y_graphic.cs`，动作定位：同目录 `yu_base.cs`。缓存 PPtr 来源是项目既有 `marisa-rump/reference/graphic-map.json`；提取时已在指定 assets 中验证 Sprite ID 存在。提取元数据见 `sprite-index.json`。
+读取版本：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。字段定位：`E:/yukkuri/Eight景U-ModLab/analysis/decompiled/y_graphic.cs`，动作定位：同目录 `yu_base.cs`。缓存 PPtr 来源是项目既有 `marisa-rump/reference/graphic-map.json`；提取时已在指定 assets 中验证 Sprite ID 存在。提取元数据见 `sprite-index.json`。
 
 | 字段 | 下标 | fileID / pathID |
 | --- | --- | --- |

@@ -22,6 +22,7 @@ def outputs():
     accepted={entry['id'] for entry in approved['entries']}
     files={}; records={}
     for variant in VARIANTS:
+        if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and not variant.startswith('house_'):continue
         species=variant.removeprefix('house_'); entries={}
         for expression in IDS:
             assert expression in accepted

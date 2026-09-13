@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-13T07:52:20.915815+00:00",
+  "scale": 1.5,
+  "reference": "reimu",
+  "status": "passed",
+  "maximum_vertex_scale_error": 0.0,
+  "other_models_unchanged": [
+    "reimu",
+    "marisa",
+    "chen",
+    "alice",
+    "patchouli",
+    "marisa_tsumuri",
+    "reimu_wasa"
+  ],
+  "body_dimensions": {
+    "width": 19.2,
+    "height": 14.4,
+    "depth": 16.095
+  },
+  "runtime_sha256": "bcd44d6b9d28865acf984ed1e89265288ea6bf9551ba53262dba022329ceaf12",
+  "reports": {
+    "reimu_deibu-structure": "ee32f6d24077c1238248675e8894f9c9b451eb50cd0440c2acc83d1acc6ab5ec",
+    "reimu_deibu-anatomy": "cbfc0c133f326a83f0b982652ca26c1fa889d3bf018dcde91352603ba7d076c2",
+    "reimu_deibu-birth": "5cd9013168e86970fc031c1dbb554a5533c880bf69c904d17f43aa90926b6317",
+    "browser": "655361fc0c4241658335007c3899f7ef6b84de6eaca2362146c791777e892a6f",
+    "sources": "79bb05936ed7aa17a4e7156c7fbe9d1c72b0cf58414d3499a3670845b7f6e44c"
+  },
+  "preview_sha256": "626f73d749e981339e63b0b6f49e796e80e9c8fef536064e64a7ef759f46001e"
+}

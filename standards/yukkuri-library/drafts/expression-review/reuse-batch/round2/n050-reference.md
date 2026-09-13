@@ -4,7 +4,7 @@
 
 ## 原图证据
 
-图层来自 `E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。已提取索引为项目内 `reference/hakkei-u-expression-audit/sprites/sprite-index.json`；以下字段均为数组下标 0、外部文件 ID 2，资源 ID 与登记相符。
+图层来自 `E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。已提取索引为项目内 `reference/hakkei-u-expression-audit/sprites/sprite-index.json`；以下字段均为数组下标 0、外部文件 ID 2，资源 ID 与登记相符。
 
 | 字段 | Sprite ID | 可见特征 |
 | --- | --- | --- |

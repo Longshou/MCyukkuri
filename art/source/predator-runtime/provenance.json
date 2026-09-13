@@ -4,7 +4,7 @@
   "entities": {
     "remilia": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
-      "selected_model_sha256": "ef4b443cd5401e01b4e329f6c5b2343d84301ba773bcd07e5747b25d58b1221d",
+      "selected_model_sha256": "25dfefffb956b9f82c311279cf4cba04127abbf7b2bef5b0772b443fdc143c3e",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
       "selected_rig_sha256": "c3bc0245adb117ac748d6e7013e121bb61f2f78db52bd0dadc53b1c9d17d7efe",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
@@ -12,7 +12,7 @@
       "snapshot": "art/source/standard-runtime/remilia/remilia.bbmodel",
       "rig": "art/source/standard-runtime/remilia/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "runtime_sha256": "cc524b7c5194c7f3df8b374039e7fe57e4679e0082c0f90d241ba38cf74d2bf2",
+      "runtime_sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
       "geometry_identifier": "remilia",
       "bone_count": 204,
       "clips": [
@@ -46,62 +46,62 @@
         "neutral": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/neutral.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/neutral.png",
-          "sha256": "42f5653464ace0d7d7dc0661786454c42ac92611730147cf7697f7e3c033b2c5"
+          "sha256": "722cc5b6d9a9e74892a88281baa290d7a33cfd6a4c9a3c404616572e4620d24d"
         },
         "happy": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/happy.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/happy.png",
-          "sha256": "fff8243cb28db333a5d3285c06481d917511b86087f780fb19ac447c965c7fb8"
+          "sha256": "95d85a053490945b8eb941fdee31aebc2e3b1acd8ece9a422b576cfe288c638f"
         },
         "cry": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/cry.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cry.png",
-          "sha256": "097136a5065e6b6bfcb9e805e5402656b789566d62f454277134144a506de9c8"
+          "sha256": "58b737094e46792dfff49d9d657cbc9e8fdd72942ce5634f01bb51dbcae66b46"
         },
         "teary": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/teary.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/teary.png",
-          "sha256": "aaa8e70ad084f93f6e2eb01a4ea8803a5703f8137cd2ccd3955c375243b15687"
+          "sha256": "75bdcee87a05697d1b269fd5d9b91e5e215be03951399972db882d8b3d76b7b7"
         },
         "drool": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/drool.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/drool.png",
-          "sha256": "6eb22db83a34237ba041109345f917da2798ca7af4fbee1b3e96d81aa6ec1a37"
+          "sha256": "7b9515235ec260e070619c7552dbfc9fcb2ab8ef95572669d4fde67da4da5771"
         },
         "confused": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/confused.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/confused.png",
-          "sha256": "51c303ea291e768be66b6565bac36e0dcb857900491fde5c72aded9f0fa92293"
+          "sha256": "4e06b8c8c7e44b56dd1dc0edaaf9dc677b77c01c3486e35508f50a0ec9d4052d"
         },
         "yawn": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/yawn.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/yawn.png",
-          "sha256": "aad1a9b180153c2e425fc0e3bd50031bc695e678f94e8e7415726d2f5b4a01ae"
+          "sha256": "7ab6b433a9e5c446aa6865be0b62bb3c8281fc4c87b4162b06658375a368c673"
         },
         "sleep": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/sleep.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/sleep.png",
-          "sha256": "6c8df966023912f87a32e16dc43cce362c4427efa965c20732b7465aebd8ed59"
+          "sha256": "9e453eb778797a8d713a9d3950ad405cb9160e926b868beab6cee04faabd967c"
         },
         "angry": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/angry.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",
-          "sha256": "f4c09afc54e6bb8d90834effd0973790e27dc98bd96c08d5992f35d7b9cc473b"
+          "sha256": "440040135562903b530728a84236e07def9e42dc9e0f1c5c2136bc7d79d074fc"
         },
         "surprise": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/surprise.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/surprise.png",
-          "sha256": "fb955b1d8273af144eaf099e696a1e5cc3bc476cd5927bae3e9b6333efb1badc"
+          "sha256": "d4dd793159a73042a3ffd94f833f9cc72e8c22911695d1e74a03893946e91402"
         },
         "sleepy": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/sleepy.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/sleepy.png",
-          "sha256": "54e52a712970beb864e9b587cb503f6849d604f0b0553456a065d96c34c8f145"
+          "sha256": "89d48ca9f06e9873a20120c80c71ac9258536808774e19388d2d7aa0a63e198e"
         },
         "biting": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/textures/biting.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/biting.png",
-          "sha256": "61b8393a0fc831cb9d7eca3005ae05d5ac8e6a273dd5731735a1156e020d3477"
+          "sha256": "cd279fa17b40aad11db9526b67d900ad95cfd9e4767fab5444cf1631a229147d"
         }
       },
       "shape_status": "pending_confirmation",
@@ -113,7 +113,7 @@
     },
     "flandre": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
-      "selected_model_sha256": "cb593820fb7cf6d2b97fbc28c69899c060d45776252dbf32a8e1b3c4603c5ba5",
+      "selected_model_sha256": "e3fd9ba002478e0d72ef8e565e894eaf410057e37f0c8e066699dd31e6908164",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
       "selected_rig_sha256": "7daaa407fe8f0c2c89c2a58edeccd06ab90c8b9785af32024829f6d01020f16e",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
@@ -121,7 +121,7 @@
       "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
       "rig": "art/source/standard-runtime/flandre/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "runtime_sha256": "64796c750c0932a4fd77cb94b223e62f5d89d86212e40887294b80467ffd3d9c",
+      "runtime_sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
       "geometry_identifier": "flandre",
       "bone_count": 212,
       "clips": [
@@ -155,62 +155,62 @@
         "neutral": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/neutral.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/neutral.png",
-          "sha256": "f9f7fd39aaa56823ff77499328ba8977737f2effab780dd70485fc7495011c76"
+          "sha256": "3b4af7990bf9348fc0edfb5bb931e156ab637fb29eae84cbe090aef8f9e9d4c4"
         },
         "happy": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/happy.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/happy.png",
-          "sha256": "e6dceeeca6a91d9a95b486caa0543819628f6f31450027d1ae6864118b33d4b5"
+          "sha256": "0391519d28b6acfa2c014a3417026cca2ca3ee86184ad905b2bab4803027e1ca"
         },
         "cry": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/cry.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/cry.png",
-          "sha256": "3e13e3894672a4e93619375b8aacdb9193011180c21d829383ffbc2c308be498"
+          "sha256": "2f046ea503a320b617604c775308e1c8869944418f3f6c1dc3146829df160dde"
         },
         "teary": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/teary.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/teary.png",
-          "sha256": "5f18bc754085b5f8de39598bbcbb3a335cbdb19d95a3030c61ea962d990d198e"
+          "sha256": "ad393d3b159e1c5b612cdedd4926092a47894a7efc2391cdbc04f32a674cbfb6"
         },
         "drool": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/drool.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/drool.png",
-          "sha256": "fac590b451e9d2d5c8e0166354aa8f2e709575f37bb1b4aae169b819d5649002"
+          "sha256": "2c7c6e360f2fe3fb8be14efb72aea1391ece6d169aae6da4ac95e05f3a73101c"
         },
         "confused": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/confused.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/confused.png",
-          "sha256": "592f3703ea6347b8266ca72b3ebec0b45f0f414223424a49cb2a95d4bb858ef3"
+          "sha256": "4b86ab1d1593d8e691debd9978b9772b67b628f363942b71b6a5621b7e5c378b"
         },
         "yawn": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/yawn.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/yawn.png",
-          "sha256": "75be30e4bd66c88d22e4e85511be972165acbd553fb0acb87bec93e2cc0ad4ce"
+          "sha256": "cf8246dc4543ef953d05fd505524ab81e75cc38bc0b9df9664ca426cf9550a4d"
         },
         "sleep": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/sleep.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/sleep.png",
-          "sha256": "d387324b51c37ae90a167ce9aac868aa82857a32f1a7bdf2370dfa3c676ad52e"
+          "sha256": "de7e7f5076331f26012f90efa6c1565e75acd52b1b7e595ed10607681ae673f9"
         },
         "angry": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/angry.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
-          "sha256": "c4f4e75058ff980bef00f9da9503b779aa9acf0a2a961f4c372e94ed05c799db"
+          "sha256": "2e83efc0e45f04fdc5aa0c48e340ccb50f3acd41d83f5c501f498a1e9cda855d"
         },
         "surprise": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/surprise.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/surprise.png",
-          "sha256": "1523914e59699003492277df84265f6f5837a5f2024bc49cd50a360837a08bd3"
+          "sha256": "481a64dfde949ce0cd1a3b7f60ea626f8bcdf246d84fdf29c0fa58fd351e935a"
         },
         "sleepy": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/sleepy.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/sleepy.png",
-          "sha256": "441177397a8114f88d4fd6f8b050f2b8b8a0d9a321c4a14db73bb4fe3712012c"
+          "sha256": "7a995a9374f30ee792af49d92e1ae5fbd5e8c8ab5dc1498982444498ed79e935"
         },
         "biting": {
           "source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/textures/biting.png",
           "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/biting.png",
-          "sha256": "c8c7745e44f40ee57e9386d067bd96a26ee63f0567119dd3c64666fa949c542b"
+          "sha256": "db37560dc643af855ed1379dce92c2ebb36d577d223a15d8a2bbe499c3a44223"
         }
       },
       "shape_status": "pending_confirmation",

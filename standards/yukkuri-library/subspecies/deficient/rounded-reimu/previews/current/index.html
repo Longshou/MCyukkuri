@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MC 接入模型 · 动作预览</title>
+<style>
+body{margin:0;background:#e9e5dc;color:#292c26;font:16px system-ui,sans-serif}main{max-width:1050px;margin:auto;padding:24px}h1{font-size:26px;margin:0 0 8px}p{line-height:1.6}nav{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}label{display:flex;gap:6px;align-items:center}select,button{font:inherit;padding:8px;border:1px solid #aaa99e;border-radius:7px;background:#faf9f4}canvas{width:100%;height:570px;display:block;background:linear-gradient(#fbfaf4,#d9dac9);border-radius:12px;touch-action:none}input[type=range]{width:70%}#status{font-variant-numeric:tabular-nums}.note{font-size:14px;color:#62665b}
+</style>
+<main>
+<h1>MC 接入模型 · 动作预览</h1>
+<p>稀毛与歪脸当前 · 侧面：圆润体态修复。保留各自外观特征；可旋转、暂停和切换动作。当前造型待确认。</p>
+<nav>
+<label>角色 <select id="subject"><option value="reimu_sparse">稀毛灵梦</option><option value="reimu_face">歪脸灵梦</option></select></label>
+<label>动作 <select id="action"></select></label>
+<label>表情 <select id="expression"></select></label>
+<button id="play">暂停</button><button id="reset">恢复常态</button>
+<label><input id="ground" type="checkbox" checked>显示地面</label>
+<button data-angle="0">正面</button><button data-angle="1.570796">侧面</button><button data-angle="3.141593">背面</button>
+</nav>
+<canvas id="view" width="1000" height="570"></canvas>
+<p><input id="time" type="range" min="0" max="1" step=".005"> <span id="status"></span></p>
+<p class="note">本轮源模型与游戏资源同步。<a href="overview.png">四视图</a> · <a href="../../README.md">来源与检查范围</a></p>
+</main>
+<script src="models.js"></script>
+<script src="../../../../../runtime/render.js"></script>
+<script src="../../../../../../../art/source/rounded-runtime/previews/current/preview.js"></script>
+</html>

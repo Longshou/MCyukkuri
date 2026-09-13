@@ -22,6 +22,7 @@ public final class WoundSurface {
     private final JsonArray bones;
     private final JsonObject clips;
     private final JsonArray envelope,accessoryPrefixes;
+    private final java.util.Map<String,float[]> expressionPoints=new java.util.HashMap<>();
     private final Node tree;
     private record Node(float[] box,Node left,Node right,int[] triangles) {}
     public record Hit(int triangle,float u,float v,float distance) {}
@@ -39,6 +40,13 @@ public final class WoundSurface {
         for(int i=0;i<raw.size();i++){var a=raw.get(i).getAsJsonArray();weights[i]=new float[a.size()*2];for(int j=0;j<a.size();j++){var w=a.get(j).getAsJsonArray();weights[i][j*2]=w.get(0).getAsInt();weights[i][j*2+1]=w.get(1).getAsFloat();}}
         replaced=new HashSet<>();data.getAsJsonArray("replaced").forEach(v->replaced.add(v.getAsString()));bones=data.getAsJsonArray("bones");clips=data.getAsJsonObject("clips");envelope=data.getAsJsonArray("envelope");accessoryPrefixes=data.getAsJsonArray("accessoryPrefixes");
         faceParts=new ArrayList<>();for(var rawPart:data.getAsJsonArray("faceParts")){var p=rawPart.getAsJsonObject();faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
+        if(data.has("expressionPoints"))for(var entry:data.getAsJsonObject("expressionPoints").entrySet()){
+            float[] values=points.clone();for(var rawPatch:entry.getValue().getAsJsonArray()){
+                var patch=rawPatch.getAsJsonObject();int start=patch.get("start").getAsInt()*5;float[] changed=floats(patch.getAsJsonArray("points"));
+                if(start<skinCount*5||start+changed.length>values.length)throw new IllegalArgumentException("Invalid wound expression range");
+                System.arraycopy(changed,0,values,start,changed.length);
+            }expressionPoints.put(entry.getKey(),values);
+        }
         tree=tree(java.util.stream.IntStream.range(0,skinCount/3).map(i->i*3).boxed().toArray(Integer[]::new),0,skinCount/3);
     }
     private Node tree(Integer[] triangles,int from,int to){float[] box={Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE,-Float.MAX_VALUE,-Float.MAX_VALUE,-Float.MAX_VALUE};
@@ -59,15 +67,43 @@ public final class WoundSurface {
     }
     private static float[] floats(JsonArray a){float[] f=new float[a.size()];for(int i=0;i<f.length;i++)f[i]=a.get(i).getAsFloat();return f;}
     public Vector3f rest(int i){return new Vector3f(points[i*5],points[i*5+1],points[i*5+2]);}
+    public Vector3f rest(int i,String expression){var values=expressionPoints.getOrDefault(expression,points);return new Vector3f(values[i*5],values[i*5+1],values[i*5+2]);}
     public float contactLift(float angle,boolean accessory,int loss){float min=Float.MAX_VALUE,c=(float)Math.cos(Math.toRadians(angle)),s=(float)Math.sin(Math.toRadians(angle));
         for(var raw:envelope){var p=raw.getAsJsonObject();String name=p.get("name").getAsString();if(!accessory&&accessoryPrefixes.asList().stream().anyMatch(v->name.startsWith(v.getAsString())))continue;
-            if(loss!=0&&(name.contains("hair")||name.contains("bang")||name.contains("braid"))){if((loss&4)!=0)continue;if(!(name.contains("bang")||name.contains("crown")||name.contains("wrap"))&&(p.get("x").getAsFloat()<0?(loss&1)!=0:(loss&2)!=0))continue;}
+            if(loss!=0&&(name.contains("hair")||name.contains("bang")||name.contains("braid")||name.startsWith("wasa_"))){if((loss&4)!=0)continue;if(!(name.contains("bang")||name.contains("crown")||name.contains("wrap")||name.startsWith("wasa_scalp"))&&(p.get("x").getAsFloat()<0?(loss&1)!=0:(loss&2)!=0))continue;}
             for(var pair:p.getAsJsonArray("yz")){var yz=pair.getAsJsonArray();min=Math.min(min,(yz.get(0).getAsFloat()*c-yz.get(1).getAsFloat()*s)/16);}}
         return min==Float.MAX_VALUE?0:.006f-min;
     }
     public Vector3f normal(int i){return rest(i+1).sub(rest(i)).cross(rest(i+2).sub(rest(i))).normalize();}
     public boolean valid(BodyWound w){return w.triangle()>=0&&w.triangle()<=skinCount-3;}
     public Vector3f anchor(BodyWound w){return rest(w.triangle()).mul(1-w.u()-w.v()).add(rest(w.triangle()+1).mul(w.u())).add(rest(w.triangle()+2).mul(w.v()));}
+    public float[] bounds(){return tree.box.clone();}
+    /** Preserve the surface region when the selected body changes shape or triangulation. */
+    public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
+        var point=new Vector3f(anchor);
+        if(oldBounds!=null&&oldBounds.length==6)for(int k=0;k<3;k++){
+            float span=oldBounds[k+3]-oldBounds[k];if(span>1e-6f)point.setComponent(k,tree.box[k]+(anchor.get(k)-oldBounds[k])/span*(tree.box[k+3]-tree.box[k]));
+        }
+        var direction=new Vector3f(outward);if(!direction.isFinite()||direction.lengthSquared()<1e-8)direction.set(0,0,-1);direction.normalize();
+        Hit hit=ray(new Vector3f(point).fma(32,direction),new Vector3f(direction).negate(),null,List.of());
+        if(hit==null)hit=nearest(point);
+        if(hit==null)return wound;
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease());
+    }
+    private Hit nearest(Vector3f point){
+        Hit best=null;float distance=Float.MAX_VALUE;
+        for(int i=0;i<skinCount;i+=3){
+            Vector3f a=rest(i),b=rest(i+1),c=rest(i+2),ab=new Vector3f(b).sub(a),ac=new Vector3f(c).sub(a),ap=new Vector3f(point).sub(a);
+            float aa=ab.dot(ab),bb=ac.dot(ac),cross=ab.dot(ac),det=aa*bb-cross*cross;
+            if(det>1e-12f){float u=(ap.dot(ab)*bb-ap.dot(ac)*cross)/det,v=(ap.dot(ac)*aa-ap.dot(ab)*cross)/det;
+                if(u>=0&&v>=0&&u+v<=1){float d=new Vector3f(a).fma(u,ab).fma(v,ac).distanceSquared(point);if(d<distance){distance=d;best=new Hit(i,u,v,0);}}}
+            Vector3f[] vertices={a,b,c};for(int e=0;e<3;e++){
+                var from=vertices[e];var edge=new Vector3f(vertices[(e+1)%3]).sub(from);float len=edge.lengthSquared();
+                float t=len<1e-12f?0:Math.clamp(new Vector3f(point).sub(from).dot(edge)/len,0,1);float d=new Vector3f(from).fma(t,edge).distanceSquared(point);
+                if(d<distance){distance=d;best=new Hit(i,e==0?t:e==1?1-t:0,e==1?t:e==2?1-t:0,0);}
+            }
+        }return best;
+    }
     public Vector3f deform(Vector3f p,List<BodyWound> wounds){var result=new Vector3f(p);
         for(var w:wounds){if(!valid(w)||!(w.kind().equals("tear")||w.kind().equals("dent")))continue;
             var n=normal(w.triangle());var d=new Vector3f(p).sub(anchor(w));float distance=d.dot(n);if(Math.abs(distance)>.16)continue;

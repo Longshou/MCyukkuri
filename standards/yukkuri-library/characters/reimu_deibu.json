@@ -1,0 +1,22 @@
+{
+  "id": "reimu_deibu",
+  "label": "灵胖",
+  "components": [
+    "body-standard/components/reimu_deibu.json"
+  ],
+  "rig": "body-standard/rigs/reimu_deibu.json",
+  "rig_components": [],
+  "anatomy": "body-standard/anatomy/reimu_deibu.json",
+  "construction_recipe": "body-standard/recipe.json",
+  "body_standard": "body-standard/profile.json",
+  "body_status": "user_approved_standard",
+  "export": "subspecies/reimu-dos/assembled/reimu_deibu",
+  "feature_source": "body-standard/inputs/reimu_deibu",
+  "base_texture": "subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.png",
+  "overall_scale": 1.5,
+  "scale_reference": "reimu",
+  "appearance_status": "pending_confirmation",
+  "appearance_recipe": "body-standard/features/deibu-mature/recipe.json",
+  "appearance_candidate": "body-standard/features/deibu-bow/candidate.json",
+  "accessory_size_reference": "reimu"
+}

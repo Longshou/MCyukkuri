@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>圆润标准体型 · 已保存</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#ece8df;color:#303229;font:16px system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:28px 24px}header{display:flex;gap:16px;align-items:center;justify-content:space-between}h1{font-size:26px;margin:0}.tag{font-size:13px;background:#dfdccb;padding:7px 12px;border-radius:99px;white-space:nowrap}p{line-height:1.6;color:#66695b;margin:10px 0 18px}nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0}label{display:flex;gap:7px;align-items:center}select,button{font:inherit;border:1px solid #b8b9a8;background:#faf9f3;padding:8px 13px;border-radius:8px;color:inherit;cursor:pointer}button.active{background:#50674c;color:white;border-color:#50674c}.stage{background:#f4f0e6;border:1px solid #d7d5c7;border-radius:14px;overflow:hidden}.labels{display:flex;text-align:center;padding-top:15px;font-weight:600}.labels span{width:50%}canvas{display:block;width:100%;height:auto;touch-action:none;background:radial-gradient(ellipse at 50% 90%,#dedfcf,#f5f1e8 70%)}.timeline{display:flex;align-items:center;gap:12px}.timeline input{flex:1;min-width:100px}#status{min-width:115px;font-variant-numeric:tabular-nums}.links{font-size:14px}.links a{color:#42613e;margin-right:18px}details{margin-top:20px;color:#66695b;font-size:14px}details img{width:100%;margin-top:15px;border-radius:12px}@media(max-width:650px){main{padding:16px}h1{font-size:21px}header{align-items:flex-start}.tag{font-size:11px}select,button{font-size:14px;padding:7px}}
+</style>
+<main>
+<header><h1>圆润标准体型 · 已保存</h1><span class="tag">2026-09-13 · 标准体型</span></header>
+<p>普通种、螺壳种、多毛种与灵胖共用已确认的圆润身体；蕾米莉亚／弗兰原有身体已符合。灵胖身体为普通灵梦的 1.5 倍，蝴蝶结保持普通灵梦大小；成熟面容及缩小的蝴蝶结待确认。家油、DOS、不足油保持原体型。拖动画面转向，滚轮缩放；可暂停、拖动时间查看动作。</p>
+<p><a href="all-models/index.html">查看全部油库里模型与本轮头发修复</a>：背发已补足贴合余量并随身体分段摆动，灵胖刘海发根已补齐；头发修订待确认。</p>
+<nav>
+<label>查看 <select id="mode"><option value="reimu">灵梦</option><option value="marisa">魔理沙</option><option value="chen">橙</option><option value="alice">爱丽丝</option><option value="patchouli">帕秋莉</option><option value="marisa_tsumuri">螺壳魔理沙</option><option value="reimu_wasa">多毛灵梦</option><option value="reimu_deibu">灵胖</option></select></label>
+<label>表情 <select id="expression"><option value="neutral">普通</option><option value="happy">开心</option><option value="angry">生气</option><option value="surprise">惊讶</option><option value="sleep">睡觉</option></select></label>
+<button id="reset">恢复常态</button>
+</nav>
+<nav id="actions"><button data-action="idle">静止</button><button data-action="waddle" class="active">走路</button><button data-action="hop">跳跃</button><button data-action="stretch">伸展</button><button data-action="side_bend">侧弯</button><button data-action="startle">受惊</button><button data-action="birth">胎生全过程</button></nav>
+<nav><label>胎数 <select id="birth-count" disabled><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label><span id="birth-status">胎生时使用同一前下方出口，并锁定伸缩部件</span></nav>
+<div class="stage"><div class="labels"><span id="labelLeft">灵梦 · 圆润身体</span><span id="labelRight">魔理沙 · 圆润身体</span></div><canvas id="view" width="900" height="620" aria-label="当前角色动作预览"></canvas></div>
+<nav class="timeline"><button id="play">暂停</button><input id="time" aria-label="动作时间" type="range" min="0" max="1.2" step="0.001" value="0"><span id="status">载入中…</span></nav>
+<nav><button data-angle="0">正面</button><button data-angle="0.6">斜侧</button><button data-angle="1.570796">侧面</button><button data-angle="3.141593">背面</button><label><input id="bodyOnly" type="checkbox">只看身体</label></nav>
+<nav id="anatomy-controls"><label>伸缩部位 <select id="anatomy-part"><option value="peni">佩尼佩尼</option><option value="mamu">麻姆麻姆</option></select></label><button id="anatomy-extend">伸出</button><button id="anatomy-retract">收回</button><button id="anatomy-front">查看共用挂点</button><button id="anatomy-rear">查看油菊</button><span id="anatomy-status" role="status">已收回</span></nav>
+<p class="links">油菊在后部常态显示。两个伸缩部件位于同一前下方位置，默认收回，切换时先完整收回；胎生期间仅使用麻姆麻姆出口。当前体型已保存。</p>
+<p class="links"><a href="../../README.md">标准说明</a><a id="full-preview" href="../../../assembled/reimu/index.html" target="_blank">全部动作与标准表情</a><a id="model-link" href="../../../assembled/reimu/reimu.bbmodel">可编辑模型</a><a id="views-link" href="reimu-views.png">当前角色四视图</a></p>
+<p><a href="deibu-size-comparison.png">普通灵梦与灵胖 · 同镜头大小对照</a></p><details open><summary>八种角色总览</summary><img src="overview.png" alt="本轮实际导出的八种角色"></details>
+</main>
+<script src="preview-data.js"></script>
+<script src="../../../runtime/render.js"></script>
+<script src="../../../runtime/anatomy.js"></script>
+<script src="pose.js"></script>
+<script src="../../../../yukkuri-v1/runtime/growth.js"></script>
+<script src="../../../../yukkuri-v1/runtime/viviparous-birth.js"></script>
+<script src="birth.js"></script>
+<script src="viewer.js"></script>
+</html>

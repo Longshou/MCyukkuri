@@ -63,6 +63,70 @@ public final class ConsumableGameTests {
         helper.startSequence().thenWaitUntil(()->chunksReady(helper))
         .thenExecute(()->{try{t.rules(level);}catch(Throwable e){t.check("unexpected "+e,false);P0Control.write("consumable-rule-error",java.util.Arrays.toString(e.getStackTrace()));}t.finish(helper,"consumable-rule-checks");});
     }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="fertility_rules")
+    public static void fertilityRules(GameTestHelper helper){
+        var test=new ConsumableGameTests();var level=helper.getLevel();floor(level);
+        helper.startSequence().thenWaitUntil(()->chunksReady(helper)).thenExecute(()->{
+            try{test.fertilityRules(level);}catch(Throwable error){test.check("unexpected "+error,false);}
+            test.finish(helper,"fertility-checks");
+        });
+    }
+    private void fertilityRules(ServerLevel level){
+        var data=io.github.longshou.mcyukkuri.family.FamilyData.get(level);
+        for(int x=1935;x<=1972;x++)for(int z=3;z<=13;z++)level.setBlockAndUpdate(new BlockPos(x,68,z),Blocks.OAK_PLANKS.defaultBlockState());
+        var first=spawn(level,1940.5);var second=spawn(level,1942.5,io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA);
+        check("fertility fixture claims covered homes",first.life().assignNaturalHome(first.blockPosition())&&second.life().assignNaturalHome(second.blockPosition()));
+        var relations=io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level);
+        relations.relate(first.getUUID(),second.getUUID(),30);relations.relate(second.getUUID(),first.getUUID(),30);
+        check("ordinary pair is eligible before changing congenital form",first.family().canReproduceWith(second)&&data.canAssist(first));
+        var player=net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"Fertility"));
+        player.moveTo(1941.5,65,8.5);player.getAbilities().instabuild=false;level.addNewPlayer(player);
+        try{
+            for(var actor:List.of(first,second))for(var shape:io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.values()){
+                if(shape==io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL)continue;
+                actor.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.NORMAL,shape);
+                String label=actor.getVariant()+" "+shape;
+                float nutrition=actor.life().nutrition();int conceptions=actor.family().conceptions();
+                player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Consumables.ITEMS.get(Kind.REPRODUCTIVE).get(),2));
+                check(label+" rejects either parental role",!first.family().canReproduceWith(second)&&!second.family().canReproduceWith(first)
+                        &&data.conceive(first,second,io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.STEM,net.minecraft.core.GlobalPos.of(level.dimension(),first.blockPosition()))==null
+                        &&data.conceive(second,first,io.github.longshou.mcyukkuri.family.FamilyData.BirthKind.LIVE,net.minecraft.core.GlobalPos.of(level.dimension(),second.blockPosition()))==null);
+                check(label+" rejects assistance without consuming a dose",!data.canAssist(actor)&&data.assist(actor)==null
+                        &&!actor.operations().beginAssistance(player,net.minecraft.world.InteractionHand.MAIN_HAND)&&player.getMainHandItem().getCount()==2);
+                check(label+" rejects stimulation without charging nutrition or a conception",actor.family().sterile()&&!actor.family().takeStimulant()&&!actor.family().stimulate()
+                        &&actor.life().nutrition()==nutrition&&actor.family().conceptions()==conceptions&&actor.family().brood()==null);
+                var stored=actor.subspecies().save();actor.subspecies().load(stored);actor.family().load(actor.family().save());
+                check(label+" infertility survives save without setting surgical sterile flag",actor.family().sterile()&&!actor.family().save().getBoolean("Sterile"));
+                actor.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.NORMAL,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
+            }
+            first.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.WASA_REIMU,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
+            second.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
+            check("Wasa and shell retain natural reproduction eligibility",first.family().canReproduceWith(second)&&!first.family().sterile()&&!second.family().sterile());
+            var selected=first.family().save();int serial=0;
+            while(io.github.longshou.mcyukkuri.family.FamilyData.offspringCount(first.family().adultScale(),first.getUUID().getMostSignificantBits()^serial)!=2)serial++;
+            selected.putInt("Conceptions",serial);first.family().load(selected);
+            var brood=data.assist(first);check("Wasa can actually conceive with assistance",brood!=null);
+            if(brood!=null){
+                // Simulate an old invalid mother after one real child has already been born.
+                brood.elapsed=brood.duration+200;first.syncFamily();
+                var born=data.birth(brood,0,level,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(first,0));
+                check("eligible mother can deliver a real child",born!=null);
+                first.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.NORMAL,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.BEAN_BODY);
+                first.setNoAi(true);first.family().tick();
+                check("legacy invalid maternal gestation stops even with NoAI",first.family().brood()==null&&(brood.complete()||brood.cancelled));
+                check("legacy repair retains born identity and retires only unborn reservations",brood.children.stream().allMatch(c->data.person(c.id).status==(c.born?io.github.longshou.mcyukkuri.family.FamilyData.Status.ALIVE:io.github.longshou.mcyukkuri.family.FamilyData.Status.LOST))
+                        &&born!=null&&level.getEntity(born.getUUID())==born);
+            }
+            var direct=spawn(level,1970.5);direct.life().assignNaturalHome(direct.blockPosition());var invalid=data.assist(direct);
+            check("direct birth guard fixture conceived before legacy form restore",invalid!=null);
+            if(invalid!=null){
+                invalid.elapsed=invalid.duration+200;
+                direct.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.NORMAL,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.SPARSE_HAIR);
+                check("direct birth cannot bypass invalid maternal form",data.birth(invalid,0,level,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(direct,0))==null&&invalid.cancelled
+                        &&invalid.children.stream().allMatch(c->level.getEntity(c.id)==null));
+            }
+        }finally{player.discard();}
+    }
     private void rules(ServerLevel level){
         var e=spawn(level,1904.5);e.setHealth(6);float nutrition=e.life().nutrition();
         check("water rejects a redundant serving",!e.life().beginDose(water(),null,true));
@@ -133,7 +197,7 @@ public final class ConsumableGameTests {
             var base=e.family().save();var altered=base.copy();altered.putString("Stage","JUVENILE");e.family().load(altered);
             check("juvenile cannot receive reproductive filling",!data.canAssist(e));e.family().load(base);
             altered=base.copy();altered.putBoolean("Sterile",true);e.family().load(altered);check("sterile mother cannot receive dose",!data.canAssist(e));e.family().load(base);
-            altered=base.copy();altered.putLong("Age",70000);e.family().load(altered);check("elder mother cannot receive dose",!data.canAssist(e));e.family().load(base);
+            altered=base.copy();altered.putLong("Age",e.family().lifespan()-1);e.family().load(altered);check("elder mother cannot receive dose",!data.canAssist(e));e.family().load(base);
             e.setNoAi(true);check("NoAI cannot reserve an unadvanceable birth",!data.canAssist(e));e.setNoAi(false);
             var human=new net.minecraft.nbt.CompoundTag();human.putUUID("Owner",java.util.UUID.randomUUID());human.putString("Use","breeder");io.github.longshou.mcyukkuri.human.HumanCommerce.set(e,human);
             check("unloaded factory owner cannot bypass factory budget",!data.canAssist(e));io.github.longshou.mcyukkuri.human.HumanCommerce.set(e,new net.minecraft.nbt.CompoundTag());
@@ -274,7 +338,7 @@ public final class ConsumableGameTests {
             check("real birth uses the saved morph rather than rerolling current parents "+assets[scene],born!=null&&born.subspecies().assetId().equals(assets[scene])&&born.family().father()==null);
             if(scene==0)check("bean collision height is already correct on world insertion",born!=null&&Math.abs(born.getBbHeight()-ModEntities.REIMU.get().getDimensions().height()*.18f*1.55f)<.0001);
             if(scene==0&&born!=null){
-                var growth=born.family().save();growth.putLong("Nourishment",born.family().lifespan()/12);growth.putLong("Age",0);born.family().load(growth);
+                var growth=born.family().save();growth.putLong("Nourishment",born.family().maturityAge()/4);growth.putLong("Age",0);born.family().load(growth);
                 var roof=net.minecraft.world.entity.EntityType.SHULKER.create(level);roof.setNoAi(true);roof.setNoGravity(true);
                 roof.moveTo(born.getX(),born.getY()+ModEntities.REIMU.get().getDimensions().height()*.3*(1+1.55)*.5,born.getZ()+.45,0,0);level.addFreshEntity(roof);
                 double lip=born.getY()+ModEntities.REIMU.get().getDimensions().height()*.3*(1+1.55)*.5;

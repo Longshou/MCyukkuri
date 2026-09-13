@@ -1,0 +1,108 @@
+{
+  "reimu": {
+    "source": "standards\\yukkuri-library\\assembled\\reimu\\reimu.bbmodel",
+    "sha256": "a172f448cf10f6c114c4a53cf4b7e5e7fb9156c8dd925f68a25a50046d1bfbbb",
+    "group": "本轮头发修复"
+  },
+  "marisa": {
+    "source": "standards\\yukkuri-library\\assembled\\marisa\\marisa.bbmodel",
+    "sha256": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
+    "group": "本轮头发修复"
+  },
+  "chen": {
+    "source": "standards\\yukkuri-library\\assembled\\chen\\chen.bbmodel",
+    "sha256": "ff99482cfa129ef9048b63c170555110673b6adfc9f730956b5dbc9e49655042",
+    "group": "本轮头发修复"
+  },
+  "alice": {
+    "source": "standards\\yukkuri-library\\assembled\\alice\\alice.bbmodel",
+    "sha256": "72253941a7fbe87311ae0dbb6a22294b9b2a3d701f616347982530b071db8f5c",
+    "group": "本轮头发修复"
+  },
+  "patchouli": {
+    "source": "standards\\yukkuri-library\\assembled\\patchouli\\patchouli.bbmodel",
+    "sha256": "1d763c97377ef1ab4b58db820db491c8e6cb81fd087655d6c32a2eab3c13ddc5",
+    "group": "本轮头发修复"
+  },
+  "marisa_tsumuri": {
+    "source": "standards\\yukkuri-library\\assembled\\marisa_tsumuri\\marisa_tsumuri.bbmodel",
+    "sha256": "5d4c959f59f7e5b27af355e244b1ff116303cf1ad06d92233bdc830e26e8bec2",
+    "group": "本轮头发修复"
+  },
+  "reimu_wasa": {
+    "source": "standards\\yukkuri-library\\subspecies\\reimu-dos\\assembled\\reimu_wasa\\reimu_wasa.bbmodel",
+    "sha256": "aed58a117ca964a997f4f01e7decb888aea53909dc89237d327ac295ef55c84f",
+    "group": "本轮头发修复"
+  },
+  "reimu_deibu": {
+    "source": "standards\\yukkuri-library\\subspecies\\reimu-dos\\assembled\\reimu_deibu\\reimu_deibu.bbmodel",
+    "sha256": "b752c7a8495c491e3bbfb8b795227ad71011da2394fe3c2d593fab1ccd194d21",
+    "group": "本轮头发修复"
+  },
+  "house_reimu": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\house_reimu.json",
+    "sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+    "group": "保留现有造型"
+  },
+  "house_marisa": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\house_marisa.json",
+    "sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+    "group": "保留现有造型"
+  },
+  "remilia": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\remilia.json",
+    "sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+    "group": "日常吸血鬼尖牙"
+  },
+  "flandre": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\flandre.json",
+    "sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
+    "group": "日常吸血鬼尖牙"
+  },
+  "reimu_sparse": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_sparse.json",
+    "sha256": "5838de370072eefb3005c3f76f821fe302deb469ac03995d57fe7e5b10d612de",
+    "group": "保留现有造型"
+  },
+  "marisa_sparse": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_sparse.json",
+    "sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+    "group": "稀毛／歪脸魔理沙圆润体态修复"
+  },
+  "reimu_face": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_face.json",
+    "sha256": "40aefcfec6f6f483e01192bf076c6ed5407644e0c028bb5e54c4dfe79c946e88",
+    "group": "保留现有造型"
+  },
+  "marisa_face": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_face.json",
+    "sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+    "group": "稀毛／歪脸魔理沙圆润体态修复"
+  },
+  "reimu_bean": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_bean.json",
+    "sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+    "group": "豆油头发贴合修订"
+  },
+  "marisa_bean": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_bean.json",
+    "sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "group": "豆油头发贴合修订"
+  },
+  "marisa_dos": {
+    "source": "standards\\yukkuri-library\\subspecies\\reimu-dos\\assembled\\marisa_dos\\marisa_dos.bbmodel",
+    "sha256": "baa0a00e4d7a3e725233ad0910b04e2c159736b7c1eb5ed5660a3231719ab4ed",
+    "group": "保留现有造型"
+  },
+  "reimu_wasa_deibu": {
+    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_wasa_deibu.json",
+    "sha256": "acbb0ee21e76d501992206a18e69c5b1e23cb1375201356ad38ce7cb8f61e652",
+    "group": "本轮头发修复 · 游戏组合"
+  },
+  "gallery": {
+    "models": 20,
+    "views": 4,
+    "animation_frames": 12,
+    "scale_note": "Each card is framed separately, not a size comparison"
+  }
+}

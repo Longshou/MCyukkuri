@@ -1,0 +1,25 @@
+{
+  "runtime": "E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628",
+  "jarSha256": "497c4433d5347ea6e0f6a1d3e2b23047fe3d594c7c9abd5d40b625586de149d7",
+  "jarBytes": 90618559,
+  "changedSourceMatchesFrozen": {
+    "main/java/io/github/longshou/mcyukkuri/subspecies/SubspeciesLife.java": "7325400a399aadca29841fa706e05c6a1e6680318f318dc79196e2f1c9207df4",
+    "main/java/io/github/longshou/mcyukkuri/family/FamilyLife.java": "8177bcca1533cde8a63b4036c2d169f2039a96fe011f8c5805ea19bccabb3bf2",
+    "main/java/io/github/longshou/mcyukkuri/family/FamilyData.java": "abaed63f25cb0e93119f0c02453d21fa5e1b54703fd945ded72a6ed0ff705628",
+    "p0Test/java/io/github/longshou/mcyukkuri/p0/ConsumableGameTests.java": "41a7e009686c283d8a32d436ef754589b7e09d155b1dbbaf0e430f84d313416f",
+    "p0Test/java/io/github/longshou/mcyukkuri/p0/IntegrationAcceptance.java": "578b96004fbfa9c087594475e791e783eff503e47f706e16030d005f4869db71"
+  },
+  "checks": 134,
+  "fertilityChecks": 33,
+  "gameTests": 6,
+  "firstRun": {
+    "runtime": "runtime-20260913-105349",
+    "failed": 4,
+    "reason": "New fixture omitted shelter roof; 101 existing assertions passed. Corrected fixture only; production classes/resources/Jar identical."
+  },
+  "limitations": [
+    "DOS has no runtime type; infertility recorded as required design.",
+    "No new client, visual, multiplayer or full integration run.",
+    "Other tasks resumed resource editing after freeze; this result covers the frozen production snapshot."
+  ]
+}

@@ -66,7 +66,7 @@ def main(build_directory):
             (snapshot / (run + suffix)).write_text(contents, encoding='utf-8')
         reports = work / 'p0-control'
         reports.mkdir(exist_ok=True)
-        for name in ('badge-checks',):
+        for name in ('badge-checks','badge-timing-checks'):
             (reports / (name + '.json')).unlink(missing_ok=True)
         command = [str(java), '@' + str(snapshot / (run + 'RunClasspath.txt')),
                    '@' + str(snapshot / (run + 'RunVmArgs.txt')),
@@ -77,9 +77,10 @@ def main(build_directory):
                                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
         if (snapshot / 'p0-control').is_dir():
             shutil.copytree(snapshot / 'p0-control', reports, dirs_exist_ok=True)
-    report = reports / 'badge-checks.json'
-    checks = json.loads(report.read_text(encoding='utf-8')) if report.exists() else []
-    passed = bool(checks) and all(c.get('pass') for c in checks) and result.returncode == 0
+    collected = {name:json.loads((reports / (name+'.json')).read_text(encoding='utf-8'))
+                 if (reports / (name+'.json')).exists() else [] for name in ('badge-checks','badge-timing-checks')}
+    checks = [row for rows in collected.values() for row in rows]
+    passed = all(collected.values()) and all(c.get('pass') for c in checks) and result.returncode == 0
     print(f'Badge GameTest: {len(checks)} checks, passed={passed}; log: {logfile}')
     raise SystemExit(0 if passed else 1)
 

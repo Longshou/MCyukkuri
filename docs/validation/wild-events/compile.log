@@ -1,0 +1,24 @@
+> Task :createMinecraftArtifacts UP-TO-DATE
+
+> Task :compileJava
+注: E:\yukkuri\MCyukkuri\src\main\java\io\github\longshou\mcyukkuri\event\RiverEncounter.java使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+
+> Task :generateModMetadata UP-TO-DATE
+> Task :processResources
+> Task :classes
+> Task :compileP0TestJava
+> Task :processP0TestResources UP-TO-DATE
+> Task :p0TestClasses
+> Task :downloadAssets UP-TO-DATE
+> Task :writeP0GameTestLegacyClasspath UP-TO-DATE
+> Task :prepareP0GameTestRun UP-TO-DATE
+> Task :createP0GameTestLaunchScript
+> Task :writeP0PreviewLegacyClasspath UP-TO-DATE
+> Task :prepareP0PreviewRun UP-TO-DATE
+> Task :createP0PreviewLaunchScript
+
+[Incubating] Problems report is available at: file:///E:/yukkuri/MCyukkuri/.local/wild-events/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 5s
+13 actionable tasks: 5 executed, 8 up-to-date

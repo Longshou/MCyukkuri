@@ -25,7 +25,7 @@
 
 ```powershell
 python scripts/catalogue_hakkei_dialogue.py --original 'E:/yukkuri/テスト版ゆっくり八景U.v9.8' --mod-reference 'E:/yukkuri/Eight景U-ModLab'
-python scripts/build_aquestalk_dialogue.py --player 'E:/yukkuri/aquestalkplayer/AquesTalkPlayer.exe'
+python scripts/build_aquestalk_dialogue.py --player 'E:/yukkuri/工具/aquestalkplayer/AquesTalkPlayer.exe'
 python scripts/export_dialogue.py
 python scripts/export_dialogue.py --check
 ```

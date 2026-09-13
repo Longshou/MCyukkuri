@@ -1,1 +1,50 @@
-{"reimu_wasa":{"base":"reimu","cube_count":374,"bones":197,"source_sha256":"f8ac69cf44c0a39289570431378fcf4711419650d1c09c8827cee7abad6dd700","base_scale":1,"world_scale":0.28872180451127816,"units_per_meter":16,"shape":"wasa","status":"design_draft"},"reimu_deibu":{"base":"reimu","cube_count":362,"bones":197,"source_sha256":"f8ac69cf44c0a39289570431378fcf4711419650d1c09c8827cee7abad6dd700","base_scale":1,"world_scale":0.28872180451127816,"units_per_meter":16,"shape":"deibu","status":"design_draft"},"marisa_dos":{"base":"marisa","cube_count":339,"bones":202,"source_sha256":"9c5056ab31fcc7d03fa34c8056e2f35f68d37c614a3c6c4db474fb5201ceb08f","base_scale":6.032293178519594,"world_scale":0.28872180451127816,"units_per_meter":16,"shape":"dos","status":"design_draft"}}
+{
+  "reimu_wasa": {
+    "status": "body_standard_approved",
+    "body_standard": "../../body-standard/profile.json",
+    "source": "../../body-standard/recipe.json",
+    "current_record": "../../provenance/standard-body.json",
+    "previous_baseline": {
+      "base": "reimu",
+      "cube_count": 374,
+      "bones": 197,
+      "source_sha256": "f8ac69cf44c0a39289570431378fcf4711419650d1c09c8827cee7abad6dd700",
+      "base_scale": 1,
+      "world_scale": 0.28872180451127816,
+      "units_per_meter": 16,
+      "shape": "wasa",
+      "status": "design_draft"
+    }
+  },
+  "reimu_deibu": {
+    "status": "body_standard_approved",
+    "body_standard": "../../body-standard/profile.json",
+    "source": "../../body-standard/recipe.json",
+    "current_record": "../../provenance/standard-body.json",
+    "previous_baseline": {
+      "base": "reimu",
+      "cube_count": 362,
+      "bones": 197,
+      "source_sha256": "f8ac69cf44c0a39289570431378fcf4711419650d1c09c8827cee7abad6dd700",
+      "base_scale": 1,
+      "world_scale": 0.28872180451127816,
+      "units_per_meter": 16,
+      "shape": "deibu",
+      "status": "design_draft"
+    },
+    "overall_scale": 1.5,
+    "scale_reference": "reimu",
+    "runtime_sha256": "bcd44d6b9d28865acf984ed1e89265288ea6bf9551ba53262dba022329ceaf12"
+  },
+  "marisa_dos": {
+    "base": "marisa",
+    "cube_count": 339,
+    "bones": 202,
+    "source_sha256": "9c5056ab31fcc7d03fa34c8056e2f35f68d37c614a3c6c4db474fb5201ceb08f",
+    "base_scale": 6.032293178519594,
+    "world_scale": 0.28872180451127816,
+    "units_per_meter": 16,
+    "shape": "dos",
+    "status": "design_draft"
+  }
+}

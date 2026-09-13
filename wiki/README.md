@@ -17,6 +17,7 @@
 | 种族、亚种与图片 | [种族目录](hakkei-reference/lore/species/README.md) |
 | 家油、不足油等类别 | [形态与生态类别](hakkei-reference/lore/species/forms.md) |
 | 成长、食物、水、温度与繁殖 | [共通生态](hakkei-reference/lore/ecology.md) |
+| 营养良好且低友善度环境下灵梦成熟后转为灵胖的项目设定 | [灵胖成长转变](reimu-deibu-development.md) |
 | 室内家油、筑巢与卵 | [家油与巢穴](hakkei-reference/lore/house-nest-sources.md) |
 | 馅料、中枢馅与身体特征 | [身体与馅料](hakkei-reference/lore/entities-sources.md) |
 | 固定口癖、幼语与例句 | [对白](hakkei-reference/dialogue/README.md) |

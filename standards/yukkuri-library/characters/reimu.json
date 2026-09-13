@@ -2,24 +2,18 @@
   "id": "reimu",
   "label": "灵梦",
   "components": [
-    "components/common/body.json",
-    "components/common/rump.json",
-    "components/common/face.json",
-    "components/common/puff.json",
-    "components/common/hair.json",
-    "components/reimu/hair.json",
-    "components/reimu/hand-left.json",
-    "components/reimu/hand-right.json",
-    "components/reimu/accessories.json",
-    "components/common/anatomy.json"
+    "body-standard/components/reimu.json"
   ],
-  "rig": "rigs/reimu.json",
-  "base_texture": "textures/reimu/base.png",
+  "rig": "body-standard/rigs/reimu.json",
+  "base_texture": "assembled/reimu/reimu.png",
   "expression_binding": "bindings/reimu.json",
   "motion_catalog": "motions/index.json",
   "expression_catalog": "expressions/index.json",
-  "rig_components": [
-    "components/common/anatomy-rig.json"
-  ],
-  "anatomy": "behaviors/anatomy.json"
+  "rig_components": [],
+  "anatomy": "body-standard/anatomy.json",
+  "construction_recipe": "body-standard/recipe.json",
+  "body_standard": "body-standard/profile.json",
+  "body_status": "user_approved_standard",
+  "export": "assembled/reimu",
+  "feature_source": "body-standard/inputs/reimu"
 }

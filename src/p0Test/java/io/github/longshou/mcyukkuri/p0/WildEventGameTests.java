@@ -121,7 +121,7 @@ public final class WildEventGameTests {
         var e=(marisa?ModEntities.MARISA:ModEntities.REIMU).get().create(level);
         e.moveTo(center.getX()+dx,65,center.getZ()+dz,0,0);e.setOnGround(true);e.setPersistenceRequired();
         var family=e.family().save();family.putBoolean("Initialized",true);family.putString("Stage","ADULT");family.putLong("Age",20000);family.putLong("Nourishment",20000);family.putLong("Lifespan",72000);e.family().load(family);
-        life(e,80,90);var personality=e.life().personality().save();personality.putIntArray("Innate",new int[]{50,60,50,70,50,70});e.life().personality().load(personality);
+        life(e,80,90);var personality=e.life().personality().save();PersonalityFixtures.preferences(personality,new int[]{50,60,50,70,50,70});e.life().personality().load(personality);
         var cognition=new CompoundTag();cognition.putInt("Innate",fixtureAbility);cognition.putString("Origin","gametest_fixture");e.getPersistentData().put(io.github.longshou.mcyukkuri.cognition.Cognition.KEY,cognition);
         level.addFreshEntity(e);FamilyData.get(level).register(e);actors.add(e);return e;
     }
@@ -320,7 +320,7 @@ public final class WildEventGameTests {
         next();first=spawn(false,.5,.5);second=spawn(true,.8,.5);life(first,35,90);life(second,35,90);
         group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);second.settlement().join(group);
         food=groundFood(2);scene=WildCards.begin("group-turn",first,List.of(second),null);
-        if(scene!=null){eatTicks(first,10);first.life().interrupt();check("interrupting a claimed mouthful never credits another meal",scene.phase==Phase.INTERRUPTED&&scene.fed.isEmpty(),scene.phase+":"+scene.result);}
+        if(scene!=null){for(int i=0;i<150&&first.life().mouth().isEmpty();i++)eatTicks(first,1);first.life().interrupt();check("interrupting a claimed mouthful never credits another meal",scene.phase==Phase.INTERRUPTED&&scene.fed.isEmpty(),scene.phase+":"+scene.result);}
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false,level.getServer());
     }
     private void naturalResult() {
@@ -345,7 +345,7 @@ public final class WildEventGameTests {
         check("song and audience finish through real AI ticks",scene!=null&&scene.phase==Phase.COMPLETE&&first.dailyLife().songs()==1&&second.dailyLife().songs()==1,scene==null?"none":scene.phase+":"+scene.result);
         check("audience responded without double song reward",scene!=null&&scene.responses>=3&&first.dailyLife().songs()==1,scene==null?"none":scene.responses);
     }
-    private void dialectSetup(){next();first=spawn(false,.5,.5);second=spawn(true,1.5,.5);var tag=first.life().personality().save();tag.putIntArray("Innate",new int[]{75,60,50,70,50,70});first.life().personality().load(tag);settlePair();}
+    private void dialectSetup(){next();first=spawn(false,.5,.5);second=spawn(true,1.5,.5);var tag=first.life().personality().save();PersonalityFixtures.preferences(tag,new int[]{75,60,50,70,50,70});first.life().personality().load(tag);settlePair();}
     private void settlePair(){for(var e:List.of(first,second)){var tag=new CompoundTag();tag.putInt("Cooldown",1200);e.groupInteraction().load(tag);e.life().deferSocial(1200);}}
     private void dialectStart(){scene=WildCards.begin("imitate",first,List.of(second),null);check("different species begin actual dialect imitation",scene!=null,scene);}
     private void dialectResult(){
@@ -358,7 +358,7 @@ public final class WildEventGameTests {
     private void expeditionSetup(){
         next();first=spawn(true,.5,.5);second=spawn(true,1.5,.5);settlePair();
         var group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FOREST,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);second.settlement().join(group);
-        var personality=first.life().personality().save();personality.putIntArray("Innate",new int[]{75,60,75,70,50,70});first.life().personality().load(personality);
+        var personality=first.life().personality().save();PersonalityFixtures.preferences(personality,new int[]{75,60,75,70,50,70});first.life().personality().load(personality);
         level.setBlockAndUpdate(center.offset(7,-1,0),Blocks.GRASS_BLOCK.defaultBlockState());level.setBlockAndUpdate(center.offset(7,0,0),Blocks.SHORT_GRASS.defaultBlockState());
         check("ordinary same group does not grant expedition roles",io.github.longshou.mcyukkuri.event.Expedition.role(first).equals("none"),first.settlement().groupId());
     }
@@ -399,7 +399,7 @@ public final class WildEventGameTests {
             case "weak-escort" -> {second.moveTo(center.getX()+3.5,65,center.getZ()+.5);life(second,80,45);}
             case "little-gap" -> {var parent=spawn(false,5,4);second.family().generatedChild(parent,null);FamilyData.get(level).register(second);parent.setNoAi(true);}
             case "crowd" -> peers.add(spawn(false,.5,1.4));
-            case "territory" -> {var tag=first.life().personality().save();tag.putIntArray("Innate",new int[]{50,60,85,10,50,70});first.life().personality().load(tag);YukkuriWorldData.get(level).relate(first.getUUID(),second.getUUID(),-20);}
+            case "territory" -> {var tag=first.life().personality().save();PersonalityFixtures.preferences(tag,new int[]{50,60,85,10,50,70});tag.putIntArray("DispositionInnate",new int[]{90,85,60,60});first.life().personality().load(tag);YukkuriWorldData.get(level).relate(first.getUUID(),second.getUUID(),-20);}
             case "plea" -> life(first,35,90);
             case "lookout" -> {first.life().personality().hurt(player.getUUID());first.life().personality().hurt(player.getUUID());}
             case "sibling-game" -> {var parent=spawn(false,5,4);first.family().generatedChild(parent,null);second.family().generatedChild(parent,null);FamilyData.get(level).register(first);FamilyData.get(level).register(second);parent.setNoAi(true);}
@@ -409,7 +409,7 @@ public final class WildEventGameTests {
                 var placed=ShelterPlacement.place(level,new ShelterPlacement.Plan(mouth,ShelterBlock.Kind.BURROW,Direction.SOUTH));
                 if(placed==null||!first.habitat().choose(placed.shelter())||!second.habitat().choose(placed.shelter()))throw new IllegalStateException("actual shared family cave refused");
                 first.habitat().stop();second.habitat().stop();first.moveTo(mouth.getX()+.5,65,mouth.getZ()+1.5);second.moveTo(first.getX()+.9,65,first.getZ());}
-            case "tank-doll" -> {var tag=first.life().personality().save();tag.putIntArray("Innate",new int[]{85,60,50,70,50,70});first.life().personality().load(tag);var toy=new net.minecraft.world.entity.item.ItemEntity(level,center.getX()+.95,65,center.getZ()+.5,new ItemStack(io.github.longshou.mcyukkuri.life.Facilities.ITEMS.get("reimu_doll").get()));toy.setNoPickUpDelay();toy.setDeltaMovement(Vec3.ZERO);level.addFreshEntity(toy);}
+            case "tank-doll" -> {var tag=first.life().personality().save();PersonalityFixtures.preferences(tag,new int[]{85,60,50,70,50,70});first.life().personality().load(tag);var toy=new net.minecraft.world.entity.item.ItemEntity(level,center.getX()+.95,65,center.getZ()+.5,new ItemStack(io.github.longshou.mcyukkuri.life.Facilities.ITEMS.get("reimu_doll").get()));toy.setNoPickUpDelay();toy.setDeltaMovement(Vec3.ZERO);level.addFreshEntity(toy);}
             case "forest-family" -> {second.family().generatedChild(first,null);FamilyData.get(level).register(second);var third=spawn(false,.5,1.5);third.family().generatedChild(first,null);FamilyData.get(level).register(third);peers.add(third);var group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FOREST,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);}
             case "park-family" -> {second.family().generatedChild(first,null);FamilyData.get(level).register(second);}
             case "rain-close" -> {second.moveTo(center.getX()+3.5,65,center.getZ()+.5);level.setWeatherParameters(0,6000,true,false);level.setRainLevel(1);}

@@ -1,0 +1,173 @@
+{
+  "createdAt": "2026-09-13T07:51:31.172Z",
+  "status": "passed",
+  "previewDataSha256": "626f73d749e981339e63b0b6f49e796e80e9c8fef536064e64a7ef759f46001e",
+  "poseSha256": "c4da71d3b8946710c2e4523016d6cdd8b574aaff900bcfe45b2ddcd3ca9edb72",
+  "checks": [
+    {
+      "name": "reimu_deibu/idle/0/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.25/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.25/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.25/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.25/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.75/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.75/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.75/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/idle/0.75/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.25/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.25/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.25/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.25/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.75/0/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.75/1.5707963267948966/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.75/3.141592653589793/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/waddle/0.75/4.71238898038469/rest_inside",
+      "passed": true,
+      "changedPixels": 0
+    },
+    {
+      "name": "reimu_deibu/peni/visible",
+      "passed": true,
+      "changedPixels": 2447
+    },
+    {
+      "name": "reimu_deibu/peni/above_ground",
+      "passed": true,
+      "minY": 0.6891529431427349
+    },
+    {
+      "name": "reimu_deibu/mamu/visible",
+      "passed": true,
+      "changedPixels": 210
+    },
+    {
+      "name": "reimu_deibu/mamu/above_ground",
+      "passed": true,
+      "minY": 1.3719075
+    },
+    {
+      "name": "reimu_deibu/anus_visible",
+      "passed": true
+    },
+    {
+      "name": "reimu_deibu/controller_default",
+      "passed": true
+    },
+    {
+      "name": "reimu_deibu/controller_extend",
+      "passed": true
+    },
+    {
+      "name": "reimu_deibu/controller_switch_retracts_first",
+      "passed": true
+    },
+    {
+      "name": "reimu_deibu/controller_switch_complete",
+      "passed": true
+    },
+    {
+      "name": "reimu_deibu/controller_retract",
+      "passed": true
+    }
+  ],
+  "failures": []
+}

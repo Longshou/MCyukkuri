@@ -1,0 +1,23 @@
+{
+  "status": "pending_user_confirmation",
+  "scope": [
+    "marisa",
+    "marisa_sparse",
+    "marisa_face",
+    "marisa_bean",
+    "house_marisa"
+  ],
+  "motion": "Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.",
+  "carry": "One small young entity on the right brim; foot margin and full model part bounds must fit without intersecting the hat or bow.",
+  "exporter": "scripts/export_hat_interactions.py",
+  "exporter_sha256": "9e52f51b686888cc8a81dffaee4a5978982bb6329559044daeb9bac054d30d8c",
+  "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
+  "runtime_sha256": "757ddc113ba3b05793233d573e8a0dbf6700c1e57ed76bf7e4d37e63db65e549",
+  "sources": {
+    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398"
+  }
+}

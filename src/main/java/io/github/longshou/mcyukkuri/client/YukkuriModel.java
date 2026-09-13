@@ -25,6 +25,12 @@ public final class YukkuriModel {
     private static Map<String, JsonObject> detachedBadges = Map.of();
     private static final float DEGREES = (float) (Math.PI / 180);
     private final float[] vertices;
+    private final float[] restVertices;
+    private final int[] featureBones;
+    private final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
+    private record ExpressionPatch(int start,float[] values) {}
+    private final Map<String,List<ExpressionPatch>> expressionPatches=new HashMap<>();
+    private List<ExpressionPatch> activePatches=List.of();
     private final String id;
     private final String sourceHash;
     private boolean warnedWoundMismatch;
@@ -32,6 +38,7 @@ public final class YukkuriModel {
     private final Binding[] bindings;
     private final Bone[] bones;
     private final List<Part> parts = new ArrayList<>();
+    private final HouseNormals houseNormals;
     private int woundTriangle=-1;
     private boolean drawingWoundedBody;
     private float pregnancyBelly,pregnancyContraction;
@@ -43,14 +50,16 @@ public final class YukkuriModel {
         var output=new ArrayList<Float>();
         for(var part:parts){
             if(!part.anatomy.isEmpty()||part.name.contains("puff"))continue;
-            if(skinOnly&&!part.name.startsWith("soft_head_slice_")&&!part.name.equals("house_body_surface")&&!part.name.equals("predator_body_surface")&&!part.name.equals("deficient_body_surface"))continue;
-            for(int i=part.start*8;i<(part.start+part.count)*8;i++)output.add(vertices[i]);
+            if(skinOnly&&!bodySurface(part.name))continue;
+            for(int i=part.start*8;i<(part.start+part.count)*8;i++)output.add(restVertices[i]);
         }
         float[] result=new float[output.size()];for(int i=0;i<result.length;i++)result[i]=output.get(i);return result;
     }
     private int[] gripBones;
     private Vector3f[] gripPoints;
     private boolean gripping,carrying;
+    private String hatMotion="";
+    private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
     private final Map<String, Clip> clips = new HashMap<>();
     // Rendering is serial on the render thread; these buffers are not entity state.
@@ -62,6 +71,27 @@ public final class YukkuriModel {
     private record Bone(String name, int parent, float x, float y, float z) {}
     private record Binding(int first, int second, float weight) {}
     private record Part(String name, int start, int count, String anatomy) {}
+    /** Share light across a deforming skin plane, while preserving authored hard edges. */
+    private static final class HouseNormals {
+        final int[] groups;
+        final List<Integer> triangles=new ArrayList<>();
+        final Vector3f[] normals;
+        HouseNormals(float[] vertices,List<Part> parts){
+            groups=new int[vertices.length/8];java.util.Arrays.fill(groups,-1);
+            var ids=new HashMap<String,Integer>();
+            for(var part:parts)if(part.name.equals("house_body_surface")){
+                for(int first=part.start;first<part.start+part.count;first+=3)triangles.add(first);
+                for(int i=part.start;i<part.start+part.count;i++){
+                    int offset=i*8;
+                    String key=Math.round(vertices[offset]*100000)+","+Math.round(vertices[offset+1]*100000)+","+Math.round(vertices[offset+2]*100000)+":"+
+                            Math.round(vertices[offset+5]*1000)+","+Math.round(vertices[offset+6]*1000)+","+Math.round(vertices[offset+7]*1000);
+                    groups[i]=ids.computeIfAbsent(key,k->ids.size());
+                }
+            }
+            normals=new Vector3f[ids.size()];for(int i=0;i<normals.length;i++)normals[i]=new Vector3f();
+        }
+    }
+    private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
         float depth=0;
@@ -117,7 +147,7 @@ public final class YukkuriModel {
         if(woundTriangle<0){
             float x=id.startsWith("house_")?1.2f:3.6f,y=id.startsWith("house_")?1.4f:2.2f,z=id.startsWith("house_")?-1.65f:-4.8f;
             float best=Float.MAX_VALUE;
-            for(var part:parts)if(part.name.startsWith("soft_head_slice_")||part.name.equals("house_body_surface")||part.name.equals("predator_body_surface")||part.name.equals("deficient_body_surface")){
+            for(var part:parts)if(bodySurface(part.name)){
                 for(int first=part.start;first<part.start+part.count;first+=3){
                     float a=0,b=0,c=0;for(int i=0;i<3;i++){int v=(first+i)*8;a+=vertices[v]/3;b+=vertices[v+1]/3;c+=vertices[v+2]/3;}
                     float distance=(a-x)*(a-x)+(b-y)*(b-y)+(c-z)*(c-z);if(distance<best){best=distance;woundTriangle=first;}
@@ -222,6 +252,7 @@ public final class YukkuriModel {
         if (data.get("format").getAsInt() != 1 || data.get("units_per_block").getAsInt() != 16)
             throw new IllegalArgumentException("Unsupported Yukkuri model format");
         vertices = floats(data.getAsJsonArray("vertices"));
+        restVertices=vertices.clone();featureBones=new int[vertices.length/8];java.util.Arrays.fill(featureBones,-1);
         JsonArray sourceBones = data.getAsJsonArray("bones");
         bones = new Bone[sourceBones.size()];
         world = new Matrix4f[bones.length];
@@ -251,6 +282,17 @@ public final class YukkuriModel {
             if (start < 0 || count < 0 || count % 3 != 0 || start + count > bindings.length)
                 throw new IllegalArgumentException("Invalid triangle range");
             parts.add(new Part(part.get("name").getAsString(), start, count, part.get("anatomy").getAsString()));
+            if(part.has("feature_bone")){
+                int bone=part.get("feature_bone").getAsInt();if(bone<0||bone>=bones.length)throw new IllegalArgumentException("Invalid face feature bone");
+                java.util.Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
+            }
+        }
+        if(data.has("expression_patches"))for(var entry:data.getAsJsonObject("expression_patches").entrySet()){
+            var list=new ArrayList<ExpressionPatch>();for(var raw:entry.getValue().getAsJsonArray()){
+                var patch=raw.getAsJsonObject();int index=patch.get("index").getAsInt();if(index<0||index>=parts.size())throw new IllegalArgumentException("Invalid expression part");
+                var part=parts.get(index);float[] values=floats(patch.getAsJsonArray("vertices"));if(values.length!=part.count*8)throw new IllegalArgumentException("Expression topology differs");
+                list.add(new ExpressionPatch(part.start*8,values));
+            }expressionPatches.put(entry.getKey(),List.copyOf(list));
         }
         JsonObject allClips=data.getAsJsonObject("clips").deepCopy();
         if(data.has("behavior_clips"))for(var entry:data.getAsJsonObject("behavior_clips").entrySet())allClips.add(entry.getKey(),entry.getValue());
@@ -283,6 +325,7 @@ public final class YukkuriModel {
             clips.put(entry.getKey(), new Clip(duration, clip.get("loop").getAsBoolean(), tracks));
         }
         if (!clips.containsKey("idle")) throw new IllegalArgumentException("Missing idle defaults");
+        houseNormals=id.startsWith("house_")?new HouseNormals(restVertices,parts):null;
     }
 
     private static float[] floats(JsonArray values) {
@@ -330,6 +373,14 @@ public final class YukkuriModel {
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;
         }
+        var hat=io.github.longshou.mcyukkuri.family.HatCarry.shape(id);
+        if(hat!=null&&!hatMotion.isEmpty()){
+            float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
+            float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
+            float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
+            var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
+            root[2]+=hat.get("forward").getAsFloat()*forward;
+        }
         for (int i = 0; i < bones.length; i++) {
             Bone bone = bones[i];
             float[] v = pose[i];
@@ -341,6 +392,20 @@ public final class YukkuriModel {
                     .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
         }
         PoseStack.Pose transform = stack.last();
+        featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
+        if(houseNormals!=null&&!drawingWoundedBody){
+            for(var n:houseNormals.normals)n.zero();
+            for(int first:houseNormals.triangles){
+                for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
+                normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);normal.cross(edge);
+                for(int corner=0;corner<3;corner++)houseNormals.normals[houseNormals.groups[first+corner]].add(normal);
+            }
+            for(var n:houseNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
+        }
+        var pregnantSurface=new PregnancyFaces.Surface();
+        if(pregnancyBelly>.001f)for(var part:parts)if(bodySurface(part.name))for(int first=part.start;first<part.start+part.count;first+=3){
+            for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);pregnantSurface.add(triangle);
+        }
         for (Part part : parts) {
             if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
@@ -348,13 +413,17 @@ public final class YukkuriModel {
             // Explicit visibility also covers interruption, idle and resource reload.
             if (!part.anatomy.isEmpty() && !action.startsWith("anatomy_" + part.anatomy + "_")) continue;
             for (int first = part.start; first < part.start + part.count; first += 3) {
+                // House expression cards overlap on the curved face. Their opaque
+                // backs can hide neighbouring eyes with the no-cull entity material.
+                // Keep the authored front ink; the head already supplies the skin.
+                if(id.startsWith("house_")&&part.name.startsWith("face_")&&vertices[first*8+7]>=-.15f)continue;
                 if(pregnancyBelly>.001f&&part.name.startsWith("face_")){
                     // The thin sprite boxes have opaque skin-coloured backs. On a curved face those backs
                     // receive inverted lighting through transparent pixels; the underlying head supplies skin.
                     if(vertices[first*8+7]>=-.15f)continue;
                     float[] uv=new float[6];
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
-                    PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay);continue;
+                    PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
                 normal.set(triangle[1]).sub(triangle[0]);
@@ -362,7 +431,7 @@ public final class YukkuriModel {
                 normal.cross(edge);
                 if (normal.lengthSquared() < 1.0e-16f) continue;
                 normal.normalize();
-                if(delivery!=null&&(part.name.startsWith("soft_head_slice_")||part.name.equals("deficient_body_surface"))&&normal.z<-.15f){
+                if(delivery!=null&&bodySurface(part.name)&&normal.z<-.15f){
                     float[] uv=new float[6];for(int corner=0;corner<3;corner++){uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
                     if(delivery.drawMotherTriangle(stack,buffer,light,overlay,triangle,uv))continue;
                 }
@@ -371,10 +440,12 @@ public final class YukkuriModel {
                     int index = Math.min(corner, 2);
                     Vector3f point = triangle[index];
                     int uv = (first + index) * 8 + 3;
+                    Vector3f vertexNormal=houseNormals!=null&&houseNormals.groups[first+index]>=0
+                            ?houseNormals.normals[houseNormals.groups[first+index]]:normal;
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(255, 255, 255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
-                            .setNormal(transform, normal.x, normal.y, normal.z);
+                            .setNormal(transform, vertexNormal.x, vertexNormal.y, vertexNormal.z);
                 }
             }
         }
@@ -388,15 +459,39 @@ public final class YukkuriModel {
         if(drawingWoundedBody&&!woundGeometryCompatible()){
             drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
         }
-        try{render(action,elapsed,stack,buffer,light,overlay,accessory,behavior,behaviorTicks,hairLoss);
+        setExpression(entity.getExpressionId());
+        hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
+        hatPhase=entity.contactTurn();
+        try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;}
+        }finally{drawingWoundedBody=false;hatMotion="";setExpression("");}
+    }
+    public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
+                              net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
+        var body=data.getCompound("Body");
+        var mesh=io.github.longshou.mcyukkuri.body.WoundSurface.get(id);
+        var wounds=io.github.longshou.mcyukkuri.body.BodyWound.read(body).stream()
+                .map(w->io.github.longshou.mcyukkuri.body.WoundMigration.restore(id,mesh,body,w))
+                .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
+        drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
+        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
+        try{
+            render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));
+            if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
+            if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
+        }finally{drawingWoundedBody=false;setExpression("");}
+    }
+    private void setExpression(String name){
+        for(var patch:activePatches)System.arraycopy(restVertices,patch.start,vertices,patch.start,patch.values.length);
+        activePatches=expressionPatches.getOrDefault(name,List.of());
+        for(var patch:activePatches)System.arraycopy(patch.values,0,vertices,patch.start,patch.values.length);
     }
 
     private boolean hairHidden(Part part,int loss){
-        if(loss==0||!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")))return false;
+        if(loss==0||!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")))return false;
         if((loss&4)!=0)return true;
-        if(part.name.contains("bang")||part.name.contains("crown")||part.name.contains("wrap"))return false;
+        if(part.name.contains("bang")||part.name.contains("crown")||part.name.contains("wrap")||part.name.startsWith("wasa_scalp"))return false;
         float x=0;for(int v=part.start;v<part.start+part.count;v++)x+=vertices[v*8];
         return x<0?(loss&1)!=0:(loss&2)!=0;
     }
@@ -431,5 +526,6 @@ public final class YukkuriModel {
         }
         world[binding.first].transformPosition(target);
         if (binding.weight > 0) target.lerp(second, binding.weight);
+        int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
     }
 }

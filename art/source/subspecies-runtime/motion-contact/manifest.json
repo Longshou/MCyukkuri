@@ -1,0 +1,110 @@
+{
+  "script": "scripts/deficient_motion_contact.py",
+  "script_sha256": "60158ded2a3218c46bc6503be10432df6fda3840652bd8a1daa6dbfcebe24780",
+  "method": "frozen_deficient_rear_hair_envelope_and_rump_tip_binding",
+  "status": "offline_reviewed_client_pending",
+  "published": true,
+  "models": {
+    "reimu_sparse": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/reimu_sparse",
+      "input_model_sha256": "d36f99a280a21d6fbd8710c6deae81839e3f9efac99de1646a818c2927e58001",
+      "input_rig_sha256": "8221707a02ac4f686a9f9a4c81a5dbea9edd4402a6f391cb119c7036a7e240eb",
+      "modified_parts": [
+        "back_lock_0",
+        "back_lock_1",
+        "back_lock_2",
+        "back_lock_3",
+        "back_lock_4"
+      ],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/reimu_sparse/runtime.model.json",
+      "output_sha256": "acca6142135eb4c7cfae63dc5b7c56a7d2a49ef4634dc463e2b3de41fe7b1bae",
+      "rig_sha256": "4006aa48f7ad20b500c1f649aaa5adf5eca4173a966c7f7d78ce723e0cb5a583",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json"
+    },
+    "reimu_face": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/reimu_face",
+      "input_model_sha256": "69b349a0cede6561e2ebf99769f822aefc74c9f1054daefb2a24cf9f627ae4d4",
+      "input_rig_sha256": "cbceed351973f20760607dacdc4a494855e312772eb392e4eeb1357d185c3776",
+      "modified_parts": [
+        "back_hair",
+        "back_hair_lower",
+        "back_lock_0",
+        "back_lock_1",
+        "back_lock_2",
+        "back_lock_3",
+        "back_lock_4"
+      ],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/reimu_face/runtime.model.json",
+      "output_sha256": "e5af62034a95a799d813760556073e4e8178f604e439287c2ab438b3f35ff7ba",
+      "rig_sha256": "2a90a40d9bcc87109fbe2d851862523d3f9773f5105662953de69bd5f1bbc865",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json"
+    },
+    "reimu_bean": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/reimu_bean",
+      "input_model_sha256": "44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d",
+      "input_rig_sha256": "e89831dbf968222f709594e9b48eb096c8797821e4504d2ca365df1df0446705",
+      "modified_parts": [],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/reimu_bean/runtime.model.json",
+      "output_sha256": "44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d",
+      "rig_sha256": "7e31dabcbcc307006c47a47abf6e515d202fc1d0d849605ea9a1c03b7b415f88",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json"
+    },
+    "marisa_sparse": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/marisa_sparse",
+      "input_model_sha256": "23b6c2934da5665c07a59ac849f1eaa2209e74bb39b01400b78cc2c628999570",
+      "input_rig_sha256": "367ed2825d1269b955853b8bec6a057bde612fd94b4ea375fbc0a4c7ac930769",
+      "modified_parts": [
+        "back_lock_0",
+        "back_lock_1",
+        "back_lock_2",
+        "back_lock_3",
+        "back_lock_4"
+      ],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/marisa_sparse/runtime.model.json",
+      "output_sha256": "226593bf3418f3e931dce4ea1cb17b8c1dd77ba4c9f01efbfa60b0b21b10f5d3",
+      "rig_sha256": "65d70d4f2106095933a652f798b3659f28cae6afbb3bc28b00cfe28b5fdc8623",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json"
+    },
+    "marisa_face": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/marisa_face",
+      "input_model_sha256": "2c7cd4d83a65fe9f217c03d91fefb6ceba730ebb7eb94bfb46e31d8970a91d8e",
+      "input_rig_sha256": "6bee15973121979e2f58955829379290c5ff96446c06b7651f1e83b3380d2ee8",
+      "modified_parts": [
+        "back_hair",
+        "back_hair_lower",
+        "back_lock_0",
+        "back_lock_1",
+        "back_lock_2",
+        "back_lock_3",
+        "back_lock_4"
+      ],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/marisa_face/runtime.model.json",
+      "output_sha256": "ab838d4f7e0e32606992a466537d16d7dea3376aa0112ecb1a6559dd93e560ca",
+      "rig_sha256": "c6514c375afa7319a5ef6fd74f72e9485293b2eadabf3a014ec423f3fe480548",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json"
+    },
+    "marisa_bean": {
+      "input": "art/source/subspecies-runtime/motion-contact/input/marisa_bean",
+      "input_model_sha256": "dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48",
+      "input_rig_sha256": "5a2d43cdbb9988d603e0bbe523925b0923d12545493c14ca13495d3e1c54dc82",
+      "modified_parts": [],
+      "output": "art/source/subspecies-runtime/motion-contact/assembled/marisa_bean/runtime.model.json",
+      "output_sha256": "dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48",
+      "rig_sha256": "9d75c2471c542827c2d3614167f9cd2d7090d5fcfaac30f8f425dce9cacad9cc",
+      "clips_and_bones_unchanged": true,
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json"
+    }
+  },
+  "publish_scope": [
+    "reimu_sparse",
+    "marisa_sparse",
+    "reimu_face",
+    "marisa_face"
+  ],
+  "bean_status": "Historical outputs superseded by standards/yukkuri-library/subspecies/deficient/hair-fit-manifest.json"
+}

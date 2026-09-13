@@ -1,0 +1,16 @@
+{
+  "time": "2026-09-13T08:28:32.954207+00:00",
+  "run": "E:\\yukkuri\\MCyukkuri\\.local\\deibu-life-design\\gametest-o9b5m_0u",
+  "exit": 0,
+  "passed": true,
+  "count": 270,
+  "reports": {
+    "growth-checks": 28,
+    "family-checks": 141,
+    "consumable-rule-checks": 36,
+    "consumable-live-checks": 4,
+    "consumable-birth-checks": 42,
+    "consumable-live-birth-checks": 5,
+    "consumable-morph-checks": 14
+  }
+}

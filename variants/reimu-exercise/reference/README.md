@@ -1,6 +1,6 @@
 # 八景 U · 灵梦嗯嗯体操参考
 
-源游戏为本机 `E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/`，Sprite 实际读取自 `sharedassets0.assets`。映射缓存来自 `variants/marisa-rump/reference/graphic-map.json`，其 fileID 2 指向该 assets 文件；完整字段、下标、路径、ID、800×800 rect、pivot、PPU 与裁剪偏移记录在 [source-index.json](source-index.json)。
+源游戏为本机 `E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/`，Sprite 实际读取自 `sharedassets0.assets`。映射缓存来自 `variants/marisa-rump/reference/graphic-map.json`，其 fileID 2 指向该 assets 文件；完整字段、下标、路径、ID、800×800 rect、pivot、PPU 与裁剪偏移记录在 [source-index.json](source-index.json)。
 
 [本次原始图层重组](source-taiso.png) 展示侧向准备、中间压低、抬臀用力三阶段。已实际查看三张完整重组及复用的伸长、侧弯原始参考图。重组采用同一画布和同一裁剪/缩放，按 `textureRectOffset` 恢复图层位置，没有将各帧独立拉满。场景所有父节点变换与排序没有完整重现，图是核读重组，**不是实机截图**。
 

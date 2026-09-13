@@ -4,7 +4,7 @@
 
 ## 原作证据
 
-- 原始 Sprite 来源：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。提取图及完整 pivot、裁剪偏移记录在项目本地 `archives/contact-position-reference/`，不进入模型贴图。
+- 原始 Sprite 来源：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。提取图及完整 pivot、裁剪偏移记录在项目本地 `archives/contact-position-reference/`，不进入模型贴图。
 - 已查看 `基本ぺにぺにグラベース[0]` / `[1]`，Sprite 5526 / 6881，原名「小 のコピー」/「中 のコピー」。这是同一部件的尺寸图层，不把数组下标当成角色年龄。
 - 成年脸参考为 `基本顔面グラベース[1]`，Sprite 4654，已看图。`yu_base.cs:32143` 按种族偏移加 `成長フラグ` 选择脸；`menu.cs:11261` 在生成父亲时设置该标记为 1。此前伸长参考使用的 6280 是「子顔面」，本次不将它作为成年脸的依据。
 - `E:/yukkuri/Eight景U-ModLab/analysis/decompiled/yu_base.cs:836` 将佩尼佩尼挂点设为 `(0, 顔面位置.y - 0.65, 0)`；839 行是躺下时的水平偏移。图层与代码支持正面脸下的位置关系。裁剪图大小或中心不能直接当成完整角色的挂点。

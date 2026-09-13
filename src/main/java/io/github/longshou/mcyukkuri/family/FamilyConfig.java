@@ -5,14 +5,16 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 /** Minecraft simulation rates, independently configurable from the source game's day clock. */
 public final class FamilyConfig {
     public static final ModConfigSpec SPEC;
-    public static final ModConfigSpec.IntValue LIFESPAN, GESTATION, RECOVERY, POPULATION_CAP, EGG_INCUBATION,HOUSE_ARRIVAL_TIME;
+    public static final ModConfigSpec.IntValue MATURITY, ADULT_LIFESPAN, GESTATION, RECOVERY, POPULATION_CAP, EGG_INCUBATION,HOUSE_ARRIVAL_TIME;
     public static final ModConfigSpec.BooleanValue NATURAL_PAIRING, AGING,HOUSE_ARRIVALS;
     public static final ModConfigSpec.DoubleValue LIVE_BIRTH_CHANCE;
     static {
         var b = new ModConfigSpec.Builder();
         b.push("family");
-        LIFESPAN = b.comment("Base loaded simulation ticks in a lifespan. Maturity is checked on waking after one third.")
-                .defineInRange("lifespanTicks", 72000, 600, 24000000);
+        MATURITY = b.comment("Loaded ticks from birth to maturity; checked on waking with sufficient nourishment. Independent of adult lifespan.")
+                .defineInRange("maturityTicks", (int)GrowthTiming.DEFAULT_MATURITY, 200, 2400000);
+        ADULT_LIFESPAN = b.comment("Loaded ticks from maturity age to natural death. Defaults to 30 hours at 20 TPS; no offline catch-up.")
+                .defineInRange("adultLifespanTicks", (int)GrowthTiming.DEFAULT_ADULT_LIFESPAN, 400, 24000000);
         GESTATION = b.comment("Well-supported loaded ticks for stem gestation; food, safety and room are required.")
                 .defineInRange("gestationTicks", 6000, 200, 2400000);
         RECOVERY = b.defineInRange("reproductionRecoveryTicks", 12000, 200, 2400000);

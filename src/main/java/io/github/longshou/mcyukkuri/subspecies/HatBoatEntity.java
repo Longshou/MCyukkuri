@@ -64,7 +64,7 @@ public final class HatBoatEntity extends Entity {
     public static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water) {
         if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA
                 || owner.subspecies().kind() != SubspeciesLife.Kind.NORMAL || owner.subspecies().boatId() != null
-                || !owner.isAlive() || owner.isPassenger() || !owner.life().hasAccessory() || owner.isInWaterOrBubble()
+                || !owner.isAlive() || owner.isPassenger() || owner.isVehicle() || !owner.life().hasAccessory() || owner.isInWaterOrBubble()
                 || !level.getFluidState(owner.blockPosition()).isEmpty() || owner.operations().active()
                 || owner.distanceToSqr(Vec3.atCenterOf(water)) > 9 || !level.hasChunkAt(water)) return null;
         var fluid = level.getFluidState(water);

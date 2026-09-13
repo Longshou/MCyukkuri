@@ -1,0 +1,192 @@
+{
+  "viviparous": {
+    "schema_version": 1,
+    "id": "rounded-reimu_deibu-viviparous",
+    "character": "reimu_deibu",
+    "status": "user_approved_standard",
+    "eligibility": {
+      "stage": "adult",
+      "ecology": "ordinary",
+      "reproduction_mode": "viviparous"
+    },
+    "offspring_count": {
+      "min": 1,
+      "max": 5,
+      "preview_default": 3,
+      "note": "Preview control, not a universal comic litter-size claim"
+    },
+    "birth_stage": "baby",
+    "birth_scale": 0.18,
+    "preview_seconds": {
+      "pregnant": 9,
+      "labor": 10,
+      "first_start": 14,
+      "interval": 2.4,
+      "emergence": 1.8,
+      "landing": 1.1,
+      "recovery": 3.5,
+      "end": 32
+    },
+    "birth_outlet": {
+      "anchor": [
+        0.0,
+        1.9213575327476202,
+        -7.046190758312857
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "label": "正面嘴巴下方",
+      "radii": [
+        1.7249999999999999,
+        0.8699999999999999
+      ]
+    },
+    "outlet_surface": {
+      "patch": {
+        "half_width": 4.199999999999999,
+        "top": 4.7700000000000005,
+        "back_z": -3.3000000000000003
+      },
+      "segments": 64,
+      "rim_width": 0.21000000000000002,
+      "rim_depth": 0.18,
+      "contact_band": 0.8999999999999999,
+      "compression": [
+        0.76,
+        0.82
+      ],
+      "skin_color": 9,
+      "crease_color": 10,
+      "inner_color": 11,
+      "color_source": "textures/reimu/neutral.png skin (1,49), existing mamu mark (111,111)"
+    },
+    "anatomy_policy": "Front mamu site is the delivery outlet; peni and mamu are mutually exclusive. Delivery locks independent controls.",
+    "pregnant_shape": {
+      "lower_width": 0.22,
+      "lower_depth": 0.24,
+      "lower_height": 4.125,
+      "transition_y": 6.9300000000000015
+    },
+    "palette": [
+      [
+        95,
+        118,
+        73
+      ],
+      [
+        177,
+        198,
+        140
+      ],
+      [
+        142,
+        119,
+        67
+      ],
+      [
+        192,
+        202,
+        178
+      ],
+      [
+        65,
+        43,
+        34
+      ],
+      [
+        135,
+        66,
+        65
+      ],
+      [
+        157,
+        216,
+        211
+      ],
+      [
+        92,
+        54,
+        49
+      ],
+      [
+        222,
+        164,
+        142
+      ]
+    ],
+    "references": [
+      "../../../../../yukkuri-v1/references/viviparous-comics.md"
+    ],
+    "adaptation": "Comic-supported lower-body swelling, strained face, front chin outlet and sequential births; scale, smooth deformation, litter control and 32-second timing are project adaptations.",
+    "minecraft_integration": false,
+    "newborn_spacing": 5.246967618
+  },
+  "body_height": 14.399999999999999,
+  "face_clearance": 0.052500000000000005,
+  "palette_skin": [
+    132.5,
+    132.5
+  ],
+  "profile": [
+    [
+      0.0,
+      5.699999999999999,
+      6.1499999999999995,
+      5.550000000000001
+    ],
+    [
+      1.0499999999999998,
+      7.949999999999999,
+      7.6499999999999995,
+      6.75
+    ],
+    [
+      3.0,
+      9.149999999999999,
+      8.625,
+      7.245
+    ],
+    [
+      6.0,
+      9.600000000000001,
+      8.850000000000001,
+      7.245
+    ],
+    [
+      9.600000000000001,
+      9.3,
+      8.55,
+      7.245
+    ],
+    [
+      12.0,
+      8.25,
+      7.5,
+      6.8999999999999995
+    ],
+    [
+      13.799999999999999,
+      5.85,
+      5.550000000000001,
+      5.1
+    ],
+    [
+      14.399999999999999,
+      2.7,
+      2.7,
+      2.4749999999999996
+    ]
+  ],
+  "growth": {
+    "stages": [
+      {
+        "id": "adult",
+        "min_scale": 0.6,
+        "max_scale": 1.4
+      }
+    ]
+  }
+}

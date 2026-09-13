@@ -1,0 +1,66 @@
+[
+  {
+    "name": "NoAI pauses exposure",
+    "pass": true
+  },
+  {
+    "name": "good nutrition is jointly required and missed time decays",
+    "pass": true
+  },
+  {
+    "name": "friendliness threshold is strict",
+    "pass": true
+  },
+  {
+    "name": "juveniles cannot transform",
+    "pass": true
+  },
+  {
+    "name": "non-susceptible individual never rerolls on repeated checks",
+    "pass": true
+  },
+  {
+    "name": "qualified susceptible adult develops acquired form",
+    "pass": true
+  },
+  {
+    "name": "adult body and collision enlarge exactly once",
+    "pass": true
+  },
+  {
+    "name": "transformation preserves UUID and innate temperament",
+    "pass": true
+  },
+  {
+    "name": "full entity save-load preserves acquired form, rank and scale",
+    "pass": true
+  },
+  {
+    "name": "repeated ticks never multiply form scale again",
+    "pass": true
+  },
+  {
+    "name": "Wasa ancestry and fur survive acquired development",
+    "pass": true
+  },
+  {
+    "name": "undefined congenital combination preserves existing body",
+    "pass": true
+  },
+  {
+    "name": "birth flags cannot create an acquired adult form",
+    "pass": true
+  },
+  {
+    "name": "newborn adopts reserved four genes without maternal learned state",
+    "pass": true
+  },
+  {
+    "name": "solid obstacle delays growth rather than clipping the new body",
+    "pass": true
+  },
+  {
+    "name": "clearing the obstacle allows the same saved opportunity",
+    "pass": true
+  }
+]

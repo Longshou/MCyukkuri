@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "createdAt": "2026-09-13T08:01:32.047Z",
+  "errors": [],
+  "checks": [
+    {
+      "expression": "neutral",
+      "pixels": 266612,
+      "passed": true
+    },
+    {
+      "expression": "angry",
+      "pixels": 266612,
+      "passed": true
+    },
+    {
+      "expression": "happy",
+      "pixels": 266612,
+      "passed": true
+    },
+    {
+      "expression": "sleep",
+      "pixels": 266612,
+      "passed": true
+    },
+    {
+      "state": "pregnant",
+      "passed": true
+    },
+    {
+      "entry": "full",
+      "expression": "mature",
+      "passed": true
+    }
+  ]
+}

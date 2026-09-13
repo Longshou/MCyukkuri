@@ -1,0 +1,21 @@
+{
+  "jar": ".local/house-carry/release/mcyukkuri-0.1.0-dev.jar",
+  "sha256": "d49be96b237d1dddbcc6ac3b7d0eb0b4e71595cb3a1be2fa9f9b3249006cbf48",
+  "client_run": ".local/personality-deibu/preview-tdzmjt8l",
+  "all_main_classes_and_resources_match_snapshot": true,
+  "verified_files": {
+    "resources": 1474,
+    "classes": 252
+  },
+  "models": {
+    "house_reimu": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+    "house_marisa": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+    "reimu_bean": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+    "marisa_bean": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "remilia": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+    "flandre": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4"
+  },
+  "scope": "fixed_snapshot_targeted_house_face_and_carry",
+  "build_command": "gradlew.bat -I scripts/personality_deibu_checks.init.gradle --project-cache-dir .local/personality-deibu/gradle-cache --no-configuration-cache build createP0PreviewLaunchScript verifyPersonalityOutputs",
+  "java_home": "E:/yukkuri/.devtools/mcyukkuri/java/jdk-21.0.12.1+1"
+}

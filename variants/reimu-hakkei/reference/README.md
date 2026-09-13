@@ -1,6 +1,6 @@
 # 本地八景 U 灵梦原始美术核读
 
-版本路径：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/`。本次只读源游戏；提取输出位于本目录。
+版本路径：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/`。本次只读源游戏；提取输出位于本目录。
 
 Sprite 来源为 `sharedassets0.assets`。使用现有 `variants/marisa-rump/reference/graphic-map.json` 辅助定位，并用 UnityPy 实际读取对应 Sprite。另核对 `level0` 的 external 列表，fileID 2 指向 `sharedassets0.assets`。字段、下标、ID、原画布 rect、pivot、裁剪偏移、PPU 见 [source-index.json](source-index.json)。重名图层不作为唯一定位依据。
 

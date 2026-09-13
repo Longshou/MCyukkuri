@@ -120,7 +120,7 @@ public final class LivingGameTests {
         YukkuriEntity entity=type.create(level);if(entity==null)throw new IllegalStateException("create failed");
         entity.moveTo(x,y,z,0,0);entity.addTag("living_case");entity.setPersistenceRequired();entity.getRandom().setSeed(57);
         CompoundTag life=entity.life().save();
-        CompoundTag personality=life.getCompound("Personality");personality.putIntArray("Innate",new int[]{20,20,20,20,20,20});life.put("Personality",personality);
+        CompoundTag personality=life.getCompound("Personality");PersonalityFixtures.preferences(personality,new int[]{20,20,20,20,20,20});life.put("Personality",personality);
         entity.life().load(life);
         if(!level.addFreshEntity(entity))throw new IllegalStateException("spawn failed");return entity;
     }
@@ -132,7 +132,7 @@ public final class LivingGameTests {
         CompoundTag state=entity.life().save();edit.accept(state);entity.life().load(state);
     }
     private void born(YukkuriEntity entity,int curiosity,int social,int bold,int care,int order,int patience) {
-        life(entity,data->{CompoundTag person=data.getCompound("Personality");person.putIntArray("Innate",new int[]{curiosity,social,bold,care,order,patience});data.put("Personality",person);});
+        life(entity,data->{CompoundTag person=data.getCompound("Personality");PersonalityFixtures.preferences(person,new int[]{curiosity,social,bold,care,order,patience});data.put("Personality",person);});
     }
     private void trust(YukkuriEntity entity,UUID player,int amount) {
         life(entity,data->{CompoundTag person=data.getCompound("Personality");ListTag memories=person.getList("Players",10);

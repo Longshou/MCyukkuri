@@ -1,0 +1,43 @@
+{
+  "author": "scripts/runtime_house_interactions.py",
+  "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+  "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+  "exporter": "scripts/export_house_carry_motion.py",
+  "exporter_sha256": "b691f847afc8418e3702d60e1977c17247febe3b795e3d308c676eb199c470d5",
+  "models": {
+    "house_reimu": {
+      "input_runtime_sha256": "3c58baa9724763e066dd4d459724ce90e40542c9c6c4b30a1926381e64ce8223",
+      "runtime_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+      "rig_sha256": "75df1e33aeca95dea2f834a655e5fde593e2c51c8ea5a3d373850c1215dc25ef",
+      "unchanged": [
+        "rest_geometry",
+        "UV",
+        "textures",
+        "weights",
+        "bones",
+        "grip_points",
+        "common_clips_including_waddle",
+        "house_crawl",
+        "non_hand_behavior_tracks"
+      ],
+      "idempotence": "passed"
+    },
+    "house_marisa": {
+      "input_runtime_sha256": "37096acdd138e00e0dc780d28fa2d0b63b86fb54531c4920d7805420433a4396",
+      "runtime_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+      "rig_sha256": "bba900ef1d4f64620b0b90b7b3cc27d5f5eb8be2314bf25ccee4086158968df2",
+      "unchanged": [
+        "rest_geometry",
+        "UV",
+        "textures",
+        "weights",
+        "bones",
+        "grip_points",
+        "common_clips_including_waddle",
+        "house_crawl",
+        "non_hand_behavior_tracks"
+      ],
+      "idempotence": "passed"
+    }
+  }
+}

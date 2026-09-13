@@ -68,7 +68,7 @@ public final class YukkuriSocial {
         }
         stop(); target = player; elapsed = 0; retreat = false; teachingWait = 240;
         if (personality().knowsWait()) { task = Task.WAIT; duration = 100; entity.showReaction("happy", "wait_learned", 80); }
-        else { task = Task.TEACH; duration = 140 - personality().trait(Trait.PATIENCE); entity.showReaction("neutral", "lesson_start", 80); }
+        else { task = Task.TEACH; duration = personality().lessonDuration(); personality().decided("attend_lesson");entity.showReaction("neutral", "lesson_start", 80); }
         return true;
     }
     public boolean canUse() {
@@ -158,6 +158,9 @@ public final class YukkuriSocial {
         if (task == Task.TEACH || task == Task.WAIT) {
             entity.getNavigation().stop();
             if (entity.distanceToSqr(target) > 16 || personality().fear(target.getUUID()) >= 30) { stop(); return; }
+            if(task==Task.TEACH&&elapsed==duration/2&&entity.dailyLife().boredom()>70&&personality().selfControl()<30) {
+                personality().decided("lesson_distracted");stop();return;
+            }
             if (elapsed == duration && task == Task.TEACH) {
                 io.github.longshou.mcyukkuri.cognition.Cognition.get(entity);
                 personality().lessonCompleted(target.getUUID());

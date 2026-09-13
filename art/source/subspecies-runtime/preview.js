@@ -34,7 +34,7 @@ function posed(model,action,t){
   if(parent>=0){const w=world[parent],n=[];for(let r=0;r<3;r++)for(let k=0;k<4;k++)n[r*4+k]=w[r*4]*m[k]+w[r*4+1]*m[k+4]+w[r*4+2]*m[k+8]+(k===3?w[r*4+3]:0);m=n;}
   world.push(m);
  }
- const out=[],src=model.vertices;
+ const out=[],src=model.vertices,surface=[];
  for(const part of model.parts){
   if(part.anatomy&&!action.startsWith('anatomy_'+part.anatomy+'_'))continue;
   for(let first=part.start;first<part.start+part.count;first+=3){
@@ -47,9 +47,14 @@ function posed(model,action,t){
    const a=tri[1].slice(0,3).map((v,i)=>v-tri[0][i]),b=tri[2].slice(0,3).map((v,i)=>v-tri[0][i]);
    const n=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],length=Math.hypot(...n);
    if(length<1e-8)continue;
-   for(const v of tri){v.splice(5,3,...n.map(x=>x/length));out.push(...v);}
+   for(let corner=0;corner<3;corner++){
+    const v=tri[corner];v.splice(5,3,...n.map(x=>x/length));
+    if(part.name==='house_body_surface')surface.push([out.length,first+corner]);
+    out.push(...v);
+   }
   }
  }
+ smoothHouseSurface(model,out,surface);
  return out;
 }
 function groundVertices(){

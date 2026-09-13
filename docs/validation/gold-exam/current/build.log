@@ -1,0 +1,27 @@
+> Task :createMinecraftArtifacts UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :generateModMetadata UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :jarJar NO-SOURCE
+> Task :jar UP-TO-DATE
+> Task :assemble UP-TO-DATE
+> Task :compileP0TestJava
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check
+> Task :build
+> Task :processP0TestResources UP-TO-DATE
+> Task :p0TestClasses
+> Task :downloadAssets UP-TO-DATE
+> Task :writeP0GameTestLegacyClasspath UP-TO-DATE
+> Task :prepareP0GameTestRun UP-TO-DATE
+> Task :createP0GameTestLaunchScript
+
+> Task :integrationIsolation
+ISOLATION VERIFIED: E:\yukkuri\MCyukkuri\.local\gold-exam\isolation.json
+
+BUILD SUCCESSFUL in 3s
+12 actionable tasks: 3 executed, 9 up-to-date

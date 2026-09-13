@@ -1,0 +1,41 @@
+{
+  "status": "pending_confirmation",
+  "createdAt": "2026-09-13T08:32:38.020240+00:00",
+  "request": "灵胖蝴蝶结缩小，身体大但头饰不随之放大",
+  "body_scale": 1.5,
+  "accessory_size_reference": "reimu",
+  "geometry_recipe": "body-standard/recipe.json",
+  "scale_about_knot": [
+    0.6153846153846154,
+    0.6666666666666666,
+    0.6666666666666666
+  ],
+  "face_recipe": "body-standard/features/deibu-mature/recipe.json",
+  "previous_geometry": "body-standard/archive/before-deibu-bow/component.json",
+  "previous_face_candidate": "body-standard/archive/before-deibu-bow/mature-candidate.json",
+  "other_seven_runtime_models_unchanged": true,
+  "game_integration": "not_performed",
+  "sha256": {
+    "body-standard/recipe.json": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
+    "body-standard/build.py": "12eb9458d27bb72b26181141bedeb94261bfb3925b8d18804dd61418a86d420d",
+    "body-standard/components/reimu_deibu.json": "11041a4fd32b4157872280b85085ff9bedc1b76a85ab05af37c0bc8bfb9549ca",
+    "body-standard/rigs/reimu_deibu.json": "ee2bab2d5eecf0e12795486a8d4a650bc237b887dfcf66aa7866689a3a37cd64",
+    "characters/reimu_deibu.json": "fb106759ba4a0874bd5284584dcf3d0dff1f18cbd935b8f470508ef70a9f1eeb",
+    "body-standard/previews/current/index.html": "cb9d3674086dfaae5a10538450df364670f7aa21ca05fb53e868361ea7e85216",
+    "body-standard/previews/current/deibu-size-comparison.png": "40adaf7e9a137db4eb7c72975da16d9091766d77b9f6cc2a68f66d8aeb3b5d80",
+    "body-standard/previews/current/reimu_deibu-views.png": "edfe3bcac75129f4b64d552abcf02e7141b0e31b4a268625ce6d6617dc8af405",
+    "body-standard/previews/current/deibu-bow-actions.png": "a25abdfe703ec96c8d66375f355af06e7a50919ba185a975c61f0bde2781ecfb",
+    "subspecies/reimu-dos/assembled/reimu_deibu/animation-rig.json": "ee2bab2d5eecf0e12795486a8d4a650bc237b887dfcf66aa7866689a3a37cd64",
+    "subspecies/reimu-dos/assembled/reimu_deibu/birth.json": "e66547fe78d94f38247cb4753fc9a4fa5d743dffa21375e3267266aee496629f",
+    "subspecies/reimu-dos/assembled/reimu_deibu/index.html": "b4c02af73996a0e6fa44aa079f43083926ab07b5a6ea18ede064d0b1f9e0c892",
+    "subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.animation.json": "45e1faf4c2d6484d3fddc2fd7ecad1670af9bdd50466b5cd1d7dc1b37025c9f6",
+    "subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.bbmodel": "2ad44515d2fda1a1e823da25b58ac2c3c22a93236a1d7ec80c7f4cf07f8b01ac",
+    "subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.geo.json": "d88fb07df38444e70058c24499f88db2e0d44cf0165658612554a66bdc500fb8",
+    "subspecies/reimu-dos/assembled/reimu_deibu/reimu_deibu.png": "0a14618936612587909793d52489fb9d834565debf2015b8622ec5974fc63d01",
+    "subspecies/reimu-dos/assembled/reimu_deibu/runtime.model.json": "f6680dc5168bd48416c2baf96a1bed4035ca3861f939935ba44afcb3c0bdbf52",
+    "body-standard/reports/current/reimu_deibu-bow.json": "496421a0e447bddae1af03ec2a89d6e08c550ada18f1e7d57a16eb7977c3266e",
+    "body-standard/reports/current/reimu_deibu-structure.json": "0f889617db11c40c47cecf09ff465e5f97a4386e592aa6cc476e322d7048fa8b",
+    "body-standard/reports/current/sources.json": "36ed811dd960b2f46410f58712ef22475c9ed86a3a2d273db81aa7b07c8ab06e",
+    "body-standard/reports/current/browser.json": "ed05c419619f198d049a2a6a1dd1c614c15d6b2d1ecc2ac923cc104113729378"
+  }
+}

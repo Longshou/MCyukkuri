@@ -1,52 +1,40 @@
 {
   "exporter": "scripts/export_subspecies_wounds.cjs",
-  "sha256": "32e504a0e6d92eb3480b71a9ced38f28de87a53a8aacaa29c17609e222a76ed6",
+  "sha256": "e3a428cd43277f471343db30895bb25bb7fa8008b13f5ce18511e1b2c9430845",
   "models": {
-    "marisa_tsumuri": {
-      "runtime_sha256": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a",
-      "surface_sha256": "e29bf35bb83a58f65f5e301628b7ec67daaba9ee93baa59e0e5efccb4c1f7ca1",
-      "skin_vertices": 73392,
-      "face_vertices": 11520
-    },
-    "reimu_wasa": {
-      "runtime_sha256": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5",
-      "surface_sha256": "a288a89d261be991abb075139a3cc9c0e15d60d7670428ad2020a2c8f6f4548f",
-      "skin_vertices": 66912,
-      "face_vertices": 11520
-    },
     "reimu_sparse": {
-      "runtime_sha256": "d36f99a280a21d6fbd8710c6deae81839e3f9efac99de1646a818c2927e58001",
-      "surface_sha256": "1db6cb669ecb86556f71a36c05a06164194fbc67eb3ab1856347a4f094e8a5ad",
+      "runtime_sha256": "acca6142135eb4c7cfae63dc5b7c56a7d2a49ef4634dc463e2b3de41fe7b1bae",
+      "surface_sha256": "14c09a93a914938dea3dd35086b9e47345a9565118135b8d3104c041da57017b",
       "skin_vertices": 73392,
       "face_vertices": 11520
     },
     "reimu_face": {
-      "runtime_sha256": "69b349a0cede6561e2ebf99769f822aefc74c9f1054daefb2a24cf9f627ae4d4",
-      "surface_sha256": "0a7775d967700c2219bd7c4dc2cdc4948fcd19de381b75a4ef5a4c5d19eef06c",
+      "runtime_sha256": "e5af62034a95a799d813760556073e4e8178f604e439287c2ab438b3f35ff7ba",
+      "surface_sha256": "3229ee675c02fadea91539f457e30e126a58acdbab4cab0e4825b6c75b216db9",
       "skin_vertices": 73392,
       "face_vertices": 9342
     },
     "reimu_bean": {
-      "runtime_sha256": "44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d",
-      "surface_sha256": "91ad9af1a441158113c9870fd501fd6b04fd09f87e2e324e59c9c49d9da5545d",
+      "runtime_sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+      "surface_sha256": "0016bf1b303096b7b9d48d64dd7c4b18ebdc8233041bae83e169c58841d3ecb0",
       "skin_vertices": 96786,
       "face_vertices": 3306
     },
     "marisa_sparse": {
-      "runtime_sha256": "23b6c2934da5665c07a59ac849f1eaa2209e74bb39b01400b78cc2c628999570",
-      "surface_sha256": "1b6538bc04fa8844ab6ba45ed7b322513045918764552ac9e61e2f3f8b5a6221",
+      "runtime_sha256": "226593bf3418f3e931dce4ea1cb17b8c1dd77ba4c9f01efbfa60b0b21b10f5d3",
+      "surface_sha256": "bbc57ef9d0c3c83a2d9502701c84ef01d6d63adebac185a43b08c597bb7a1f49",
       "skin_vertices": 73392,
       "face_vertices": 11520
     },
     "marisa_face": {
-      "runtime_sha256": "2c7cd4d83a65fe9f217c03d91fefb6ceba730ebb7eb94bfb46e31d8970a91d8e",
-      "surface_sha256": "1d0a6a937222f42f5f79ba9bda7d9f16594e2cd7404008ea09b830912d1e587d",
+      "runtime_sha256": "ab838d4f7e0e32606992a466537d16d7dea3376aa0112ecb1a6559dd93e560ca",
+      "surface_sha256": "33dc3a534c2bc7a7f014065bf976d88ea52989fd381a051f14238f14a921a6d1",
       "skin_vertices": 73392,
       "face_vertices": 9342
     },
     "marisa_bean": {
-      "runtime_sha256": "dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48",
-      "surface_sha256": "e205da5a2485e81baeddeb3f7ce529dd18452ceeaa68f5f2ab92a507777c4e81",
+      "runtime_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+      "surface_sha256": "d46e4e683ca2433a16055ae903f3df7a4ca8c46acdb5ac39355ce8838779ceb1",
       "skin_vertices": 96786,
       "face_vertices": 3306
     }

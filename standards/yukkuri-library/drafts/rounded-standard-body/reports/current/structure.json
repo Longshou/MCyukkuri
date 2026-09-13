@@ -1,0 +1,323 @@
+{
+  "status": "passed",
+  "createdAt": "2026-09-13T07:06:44.974Z",
+  "manifestSha256": "3f0ee6c3042fd2684c2893bcd8b2858c8d2a6d6d902a0fa000dd3c5ba8c3f06d",
+  "previewDataSha256": "78f9dc447d0c9bb26055038ce7f5f024c61f0f25b0e0431b8a312ade6ceb25cc",
+  "scope": "geometry counts, bone weights, removed old body, finite and changing poses",
+  "models": [
+    {
+      "id": "reimu",
+      "elements": 95,
+      "vertices": 4602,
+      "actions": [
+        {
+          "action": "idle",
+          "samples": 25,
+          "distinctPoses": 1,
+          "min": [
+            -8.6826667,
+            0,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            13.4673,
+            7.1782
+          ]
+        },
+        {
+          "action": "waddle",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -9.080543419850796,
+            0,
+            -5.525568944662529
+          ],
+          "max": [
+            9.080543419850796,
+            13.4673,
+            7.195454174689266
+          ]
+        },
+        {
+          "action": "hop",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -8.6826667,
+            0,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            13.773037559185761,
+            7.1782
+          ]
+        },
+        {
+          "action": "stretch",
+          "samples": 25,
+          "distinctPoses": 14,
+          "min": [
+            -8.6826667,
+            -0.0000016890683333381507,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            16.7321,
+            7.1782
+          ]
+        },
+        {
+          "action": "side_bend",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -11.74363852652211,
+            -2.7755575615628914e-17,
+            -5.3025
+          ],
+          "max": [
+            11.72566244179703,
+            19.728991952292255,
+            7.1782
+          ]
+        },
+        {
+          "action": "startle",
+          "samples": 25,
+          "distinctPoses": 21,
+          "min": [
+            -8.6826667,
+            0,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            13.7973,
+            7.1782
+          ]
+        },
+        {
+          "action": "anatomy_mamu_extend",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -8.6826667,
+            0,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            13.4673,
+            7.1782
+          ]
+        },
+        {
+          "action": "anatomy_mamu_retract",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -8.6826667,
+            0,
+            -5.3025
+          ],
+          "max": [
+            8.6826667,
+            13.4673,
+            7.1782
+          ]
+        },
+        {
+          "action": "anatomy_peni_extend",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -8.6826667,
+            0,
+            -7.2638508315342865
+          ],
+          "max": [
+            8.6826667,
+            13.4673,
+            7.1782
+          ]
+        },
+        {
+          "action": "anatomy_peni_retract",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -8.6826667,
+            0,
+            -7.2638508315342865
+          ],
+          "max": [
+            8.6826667,
+            13.4673,
+            7.1782
+          ]
+        }
+      ]
+    },
+    {
+      "id": "marisa",
+      "elements": 71,
+      "vertices": 3738,
+      "actions": [
+        {
+          "action": "idle",
+          "samples": 25,
+          "distinctPoses": 1,
+          "min": [
+            -10.1333333,
+            0,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            21.2795,
+            6.745
+          ]
+        },
+        {
+          "action": "waddle",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -10.480727148240181,
+            0,
+            -7.252939503978728
+          ],
+          "max": [
+            10.480727148240181,
+            21.2795,
+            7.009699571566157
+          ]
+        },
+        {
+          "action": "hop",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -10.1333333,
+            0,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            21.58523755918576,
+            6.745
+          ]
+        },
+        {
+          "action": "stretch",
+          "samples": 25,
+          "distinctPoses": 14,
+          "min": [
+            -10.1333333,
+            -0.0000016890683333381507,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            24.5443,
+            6.745
+          ]
+        },
+        {
+          "action": "side_bend",
+          "samples": 25,
+          "distinctPoses": 24,
+          "min": [
+            -12.301944698458259,
+            -2.7755575615628914e-17,
+            -6.9825
+          ],
+          "max": [
+            13.112208915686777,
+            24.992921196830153,
+            6.745
+          ]
+        },
+        {
+          "action": "startle",
+          "samples": 25,
+          "distinctPoses": 21,
+          "min": [
+            -10.1333333,
+            0,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            21.609499999999997,
+            6.745
+          ]
+        },
+        {
+          "action": "anatomy_mamu_extend",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -10.1333333,
+            0,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            21.2795,
+            6.745
+          ]
+        },
+        {
+          "action": "anatomy_mamu_retract",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -10.1333333,
+            0,
+            -6.9825
+          ],
+          "max": [
+            10.1333333,
+            21.2795,
+            6.745
+          ]
+        },
+        {
+          "action": "anatomy_peni_extend",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -10.1333333,
+            0,
+            -7.2638508315342865
+          ],
+          "max": [
+            10.1333333,
+            21.2795,
+            6.745
+          ]
+        },
+        {
+          "action": "anatomy_peni_retract",
+          "samples": 25,
+          "distinctPoses": 25,
+          "min": [
+            -10.1333333,
+            0,
+            -7.2638508315342865
+          ],
+          "max": [
+            10.1333333,
+            21.2795,
+            6.745
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,6 +16,8 @@ def save(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 
 out = root / 'assembled/patchouli'
+if read(root/'characters/patchouli.json').get('body_standard'):
+    raise SystemExit('Patchouli uses the rounded standard mesh and weighted rig. Revise body-standard inputs and run body-standard/build.py; legacy partial export is disabled.')
 bb = read(out / 'patchouli.bbmodel')
 rig = read(out / 'animation-rig.json')
 replacements = {}

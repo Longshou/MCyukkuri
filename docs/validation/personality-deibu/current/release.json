@@ -1,0 +1,11 @@
+{
+  "jar": ".local/personality-deibu/release/mcyukkuri-0.1.0-dev.jar",
+  "sha256": "0a82e088b8863a99f755d4204bc47ea855a1378e43c15c529f9bea6ac45ba4bb",
+  "bytes": 90453636,
+  "verified_resource_files": 1470,
+  "all_packaged_main_classes_match_tested_snapshot": true,
+  "current_main_sources_match_tested_snapshot": null,
+  "scope": "fixed_tested_snapshot_only",
+  "test_run": ".local/personality-deibu/gametest-t7c97llh",
+  "harness_scope": "Preview and GameTest fixtures are separate development classes and do not enter the Jar."
+}

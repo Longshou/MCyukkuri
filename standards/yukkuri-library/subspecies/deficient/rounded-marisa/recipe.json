@@ -1,0 +1,10 @@
+{
+  "status": "pending_user_confirmation",
+  "models": ["marisa_sparse", "marisa_face"],
+  "runtime_expressions": ["neutral", "happy", "cry", "teary", "drool", "confused", "yawn", "sleep", "angry", "surprise", "sleepy", "closed_smile", "chewing", "chewing_closed", "satisfied", "open_smile", "smug", "puff"],
+  "body_source": "inputs/standards/yukkuri-library/assembled/marisa",
+  "feature_recipe": "../recipes.json",
+  "author": "../../../../../scripts/export_marisa_deficient_rounded.py",
+  "body_policy": "Preserve rounded donor skin, rump and their continuous weights exactly; retain each congenital feature recipe.",
+  "scope": "Explicit user correction on 2026-09-13 supersedes the former exclusion only for sparse and uneven-face Marisa. Reimu variants and bean shapes remain unchanged."
+}

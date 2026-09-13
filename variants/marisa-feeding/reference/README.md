@@ -1,6 +1,6 @@
 # 八景 U 进食参考
 
-版本：本机 `E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。映射线索为 `variants/marisa-rump/reference/graphic-map.json` 的 fileID=2 引用，已在目标 assets 文件按实际 Sprite pathID 提取核对；原始名称、尺寸、裁剪偏移、pivot 见 `sprite-index.json`。
+版本：本机 `E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。映射线索为 `variants/marisa-rump/reference/graphic-map.json` 的 fileID=2 引用，已在目标 assets 文件按实际 Sprite pathID 提取核对；原始名称、尺寸、裁剪偏移、pivot 见 `sprite-index.json`。
 
 | 字段 | 下标 | Sprite ID |
 |---|---:|---:|

@@ -7,7 +7,7 @@
 WAV 为本目录母带，OGG 位于 `src/main/resources/assets/mcyukkuri/sounds/ecology/`；工具副本与原始单音节位于项目 `.local/ecology/audio/`。制作脚本只合并 `ecology.song.*` 两个声音条目，不替换原版对白目录。
 
 ```powershell
-.local/audio-env/Scripts/python.exe scripts/build_ecology_audio.py --player 'E:/yukkuri/aquestalkplayer/AquesTalkPlayer.exe'
+.local/audio-env/Scripts/python.exe scripts/build_ecology_audio.py --player 'E:/yukkuri/工具/aquestalkplayer/AquesTalkPlayer.exe'
 .local/audio-env/Scripts/python.exe scripts/build_ecology_audio.py --check
 ```
 

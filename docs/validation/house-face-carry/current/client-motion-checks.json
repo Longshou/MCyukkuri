@@ -1,0 +1,16 @@
+{
+  "housesOnly": [
+    {
+      "idleRestored": true,
+      "walking": true,
+      "variant": "house_reimu",
+      "carryChecked": true
+    },
+    {
+      "idleRestored": true,
+      "walking": true,
+      "variant": "house_marisa",
+      "carryChecked": true
+    }
+  ]
+}

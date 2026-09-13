@@ -1,0 +1,203 @@
+{
+  "status": "user_approved_standard",
+  "body_profile": [
+    [
+      0,
+      3.8,
+      4.1,
+      3.7
+    ],
+    [
+      0.7,
+      5.3,
+      5.1,
+      4.5
+    ],
+    [
+      2,
+      6.1,
+      5.75,
+      4.83
+    ],
+    [
+      4,
+      6.4,
+      5.9,
+      4.83
+    ],
+    [
+      6.4,
+      6.2,
+      5.7,
+      4.83
+    ],
+    [
+      8,
+      5.5,
+      5.0,
+      4.6
+    ],
+    [
+      9.2,
+      3.9,
+      3.7,
+      3.4
+    ],
+    [
+      9.6,
+      1.8,
+      1.8,
+      1.65
+    ]
+  ],
+  "recipe_sha256": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
+  "builder_sha256": "da185d640853a1ffa37e9ca20231c56212682981bf8170ad74932a57092a0b39",
+  "inputs": {
+    "standards\\yukkuri-library\\body-standard\\recipe.json": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
+    "standards\\yukkuri-library\\body-standard\\profile.json": "c5c39412f968008b13a46da81192cc1742c7277cc7f173fccef1196e92f8cf04",
+    "standards\\yukkuri-library\\body-standard\\build.py": "da185d640853a1ffa37e9ca20231c56212682981bf8170ad74932a57092a0b39",
+    "standards\\yukkuri-library\\body-standard\\previews\\current\\birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
+    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "75b74ef8e9b2791cd1d84a2dd46c669a71eaa86530bb52e253e9df3f90a511da",
+    "standards\\yukkuri-library\\runtime\\motion.js": "ca6b894dc51a7feaef777605d700b531032b3a3e53fbbfcceed7219ac4e21c38",
+    "standards\\yukkuri-library\\runtime\\viewer.html": "a0485a33d89d3cf22f78e8af7500edf1002f0fb0fa15969ea571ca18bcaa3b3e",
+    "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\recipe.json": "7a0009b95af08c186ba04447ceed34fbd7ac3568257cae18e280ef2536666fe4",
+    "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\author.py": "074b6485160ac8700ef5b05892232bf70f7df10f2f023ef3c06d234e0d70ea11",
+    "standards\\yukkuri-library\\body-standard\\features\\deibu-mature\\recipe.json": "0fe00848712e8084c6aa99e820734d02386e80e5f50ba76b936d435744aa994b",
+    "standards\\yukkuri-library\\body-standard\\features\\deibu-mature\\author.py": "786a413ba32563c712c7b9a6bed1b7545b7ba20c79222d2afa97fae4ff38954f"
+  },
+  "characters": {
+    "reimu": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\reimu\\reimu.bbmodel",
+      "source_model_sha256": "f8ac69cf44c0a39289570431378fcf4711419650d1c09c8827cee7abad6dd700",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\reimu\\selected-rig.json",
+      "source_rig_sha256": "cbceed351973f20760607dacdc4a494855e312772eb392e4eeb1357d185c3776",
+      "model_sha256": "a172f448cf10f6c114c4a53cf4b7e5e7fb9156c8dd925f68a25a50046d1bfbbb",
+      "rig_sha256": "75398213bc445a9033a12dfb2085bac5f9d9129544d3aa6c725792924d1f16b8",
+      "runtime_sha256": "b5dd76af66d5a03687cdf44ebdb46e66e86e658206bc594f89897a144d667ac0",
+      "elements": 95,
+      "vertices": 18858
+    },
+    "marisa": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\marisa\\marisa.bbmodel",
+      "source_model_sha256": "9c5056ab31fcc7d03fa34c8056e2f35f68d37c614a3c6c4db474fb5201ceb08f",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\marisa\\selected-rig.json",
+      "source_rig_sha256": "6bee15973121979e2f58955829379290c5ff96446c06b7651f1e83b3380d2ee8",
+      "model_sha256": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
+      "rig_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "runtime_sha256": "66397cbe90c124472e662c4118c4111f52e6529ac0ede69a4c7ff31b47a82c2b",
+      "elements": 71,
+      "vertices": 14490
+    },
+    "chen": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\chen\\chen.bbmodel",
+      "source_model_sha256": "186a6c0dda4bd469e22fda6ee4b1d85f0376572ce437f77f406fc15b0e54370b",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\chen\\selected-rig.json",
+      "source_rig_sha256": "4cbf6d0fa0c401e42b987abc8305cbc87b207b600e8037eeb637c726ea27da56",
+      "model_sha256": "ff99482cfa129ef9048b63c170555110673b6adfc9f730956b5dbc9e49655042",
+      "rig_sha256": "b99fbb5ffc6680770489128281aa351b537f9b497edde2ab96c3ce92bb8c5859",
+      "runtime_sha256": "f7f9955289502089a0a5584015a214bdf7653ce001e9c8045100b197bc3d0057",
+      "elements": 159,
+      "vertices": 29376
+    },
+    "alice": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\alice.bbmodel",
+      "source_model_sha256": "759f01e37f8d92f1bc63ac29d7e6f70ce0fc6aa1adee52dbc1885edf563de241",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\alice\\selected-rig.json",
+      "source_rig_sha256": "5a5e7cda76636be599d68a24b72e85a65911feaf8b4beb8cb839085a5e6e9297",
+      "model_sha256": "72253941a7fbe87311ae0dbb6a22294b9b2a3d701f616347982530b071db8f5c",
+      "rig_sha256": "d0667dc7dfb4fb40c18f8fb6f12e07c162c7677f7825f5476d4087ec14e772e7",
+      "runtime_sha256": "2dfe960552576616e0c2266ad5326987c18bb691fc1fbb4eb972811c0bad9a4c",
+      "elements": 107,
+      "vertices": 26874
+    },
+    "patchouli": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\patchouli\\patchouli.bbmodel",
+      "source_model_sha256": "9222e2934318685c18438f0e0f43413886a30df1603808ea011eeac7c9d21f90",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\patchouli\\selected-rig.json",
+      "source_rig_sha256": "9d9590a51b1c5039fceecb697fcde347c50a1604a734df1e864d8f65ad577266",
+      "model_sha256": "1d763c97377ef1ab4b58db820db491c8e6cb81fd087655d6c32a2eab3c13ddc5",
+      "rig_sha256": "14647054ea8b0bc7da623709a3ccb0fc9bda97d1a695872f424706f0c4bc6c8b",
+      "runtime_sha256": "ab24e057d2e818e03b91445e9d59ef6c7c68e9cb0baf5d75d53e438bd0fcce94",
+      "elements": 715,
+      "vertices": 92442
+    },
+    "marisa_tsumuri": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\marisa_tsumuri\\marisa_tsumuri.bbmodel",
+      "source_model_sha256": "ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\marisa_tsumuri\\animation-rig.json",
+      "source_rig_sha256": "7773e66ec1e002b40fcd5612e80ba8a9904670e125666833e315217e94c20787",
+      "model_sha256": "5d4c959f59f7e5b27af355e244b1ff116303cf1ad06d92233bdc830e26e8bec2",
+      "rig_sha256": "4ffad33360aad3d39b1e234fbdab0ddd567d2d9768057d2dc34832e090d2ad60",
+      "runtime_sha256": "9ef6d3c58df934a12037f518d954605ba66bd27ad196b04945c97a5ce1ad3773",
+      "elements": 1267,
+      "vertices": 57546
+    },
+    "reimu_wasa": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\reimu_wasa\\reimu_wasa.bbmodel",
+      "source_model_sha256": "4f1e6ed1923f32f9953a3f39571ed1ec5bf83a17c29b2c0cfd0547ed63cca0b4",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\reimu_wasa\\animation-rig.json",
+      "source_rig_sha256": "36dc9a6481224b790f4d260c617fd33b5e2a20013624dd66b3044f8518eb16f8",
+      "model_sha256": "aed58a117ca964a997f4f01e7decb888aea53909dc89237d327ac295ef55c84f",
+      "rig_sha256": "d10b475577ae0159d9dc2b3047b5be897059795bd5145ce9f6dd2e1c49f7000c",
+      "runtime_sha256": "90f3db7a3f28331bf240eedda4c5ff446d53e875bcb33a2addfd0977c203c4b6",
+      "elements": 227,
+      "vertices": 36288
+    },
+    "reimu_deibu": {
+      "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\reimu_deibu\\reimu_deibu.bbmodel",
+      "source_model_sha256": "f12fb8f8cac8386f3f2af0e320d6e24146b8a21b2b8b98fe5f9b0c7d04c654ae",
+      "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\reimu_deibu\\animation-rig.json",
+      "source_rig_sha256": "8929a95fccc8e9cb322a7de594d72bb5b7fdf99cfaad79cca0080c961043dc11",
+      "model_sha256": "b752c7a8495c491e3bbfb8b795227ad71011da2394fe3c2d593fab1ccd194d21",
+      "rig_sha256": "cf8b8ef5534886afc0921eda877d5cf6c297d4bc322073e9ab67e37e18039d17",
+      "runtime_sha256": "940ffc7866ae9be84525a72901e2888337019a78cbc9911140dc60cca3d0b996",
+      "elements": 215,
+      "vertices": 23118
+    }
+  },
+  "already_matching": [
+    "remilia",
+    "flandre"
+  ],
+  "excluded": [
+    "house_reimu",
+    "house_marisa",
+    "marisa_dos",
+    "reimu_sparse",
+    "reimu_face",
+    "reimu_bean",
+    "marisa_sparse",
+    "marisa_face",
+    "marisa_bean"
+  ],
+  "appearance_revisions": {
+    "reimu_deibu": {
+      "status": "pending_confirmation",
+      "recipe": "features/deibu-mature/recipe.json",
+      "candidate": "features/deibu-bow/candidate.json",
+      "bow_scale": [
+        0.6153846153846154,
+        0.6666666666666666,
+        0.6666666666666666
+      ],
+      "bow_source": "recipe.json"
+    },
+    "hair_contact": {
+      "status": "pending_confirmation",
+      "recipe": "features/hair-contact/recipe.json",
+      "characters": [
+        "reimu",
+        "marisa",
+        "chen",
+        "alice",
+        "patchouli",
+        "marisa_tsumuri",
+        "reimu_wasa",
+        "reimu_deibu"
+      ],
+      "baseline_approval": "../provenance/standard-body.json"
+    }
+  },
+  "game_integration": "not_performed",
+  "approval": "provenance/standard-body.json"
+}

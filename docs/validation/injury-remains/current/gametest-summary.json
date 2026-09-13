@@ -1,0 +1,21 @@
+{
+  "exit": 0,
+  "reports": {
+    "core-checks": {
+      "count": 40,
+      "failed": []
+    },
+    "remains-checks": {
+      "count": 139,
+      "failed": []
+    },
+    "wound-checks": {
+      "count": 348,
+      "failed": []
+    }
+  },
+  "count": 527,
+  "failed": 0,
+  "missingReports": [],
+  "gameTests": 3
+}

@@ -2,10 +2,14 @@
 
 本轮沿用家灵梦、家魔理沙 v9.1 的选定造型，只增加游戏动作适配。制作源为 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py)，由 [`export_runtime_models.py`](../../../scripts/export_runtime_models.py) 同步生成两份 `animation-rig.json`、`runtime.model.json`、游戏 JSON 和预览数据。标准造型的待确认状态不变。
 
+2026-09-13 搬运修订：两根短辫把物品举至额前上方，避开普通走路时的眼睛；夹取、搬运和放下保持相同交接姿态，长度与地面接触点不变。当前配方见 [carry-motion/recipe.json](carry-motion/recipe.json)，局部重导入口为 [export_house_carry_motion.py](../../../scripts/export_house_carry_motion.py)，保留已发布的普通走动五官挂接曲线。Minecraft 同时剔除两种家油五官薄片的背面与侧面，避免无背面剔除材质下的薄片互相遮眼；伤口替换表面使用相同规则。本轮实机与指纹见[五官及携物验收](../../../docs/validation/house-face-carry/current/README.md)，下方旧动图仅代表各自历史版本。
+
+随后修正了家油身体逐三角面光照形成的浮动横带：仅共点、同原始法线的身体顶点共享变形后法线，轮廓硬边保留。模型、贴图和动作均未改变。当前固定模组与14组实机对照见[脸部明暗修正](../../../docs/validation/house-surface/current/README.md)。
+
 | 行为 | 动作与接触 |
 | --- | --- |
 | 夹取碎食、巢材 | 下腹弯曲、上部俯下，两侧短辫提前合拢；0.65 秒接触时从真实掉落物拆出一份，1.3 秒衔接搬运 |
-| 搬运 | 保持短辫夹持；显示位置取两个实际变换后的辫梢中点 |
+| 搬运 | 两侧短辫在额前上方夹持；显示位置取两个实际变换后的辫梢中点 |
 | 放下 | 俯身后在 0.65 秒复核入口距离并入库，随后抬身收辫；满仓时放回真实物品 |
 | 蠕动 | 贴近掉落物及进入／探出缝隙时，腰部保持 22°–32° 俯身并随腹底伸缩拖行；循环 0.6 秒，成体每周期前进 0.12 格 |
 

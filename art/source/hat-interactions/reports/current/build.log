@@ -1,0 +1,80 @@
+> Task :createMinecraftArtifacts UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :generateModMetadata UP-TO-DATE
+> Task :processResources
+> Task :classes
+> Task :compileP0TestJava
+> Task :processP0TestResources UP-TO-DATE
+> Task :p0TestClasses
+> Task :downloadAssets UP-TO-DATE
+> Task :writeP0GameTestLegacyClasspath UP-TO-DATE
+> Task :prepareP0GameTestRun UP-TO-DATE
+
+> Task :runP0GameTest
+WARN StatusConsoleListener Advanced terminal features are not available in this environment
+[21:45:32] [main/INFO] [cp.mo.mo.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeserverdev, --gameDir, ., --fml.fmlVersion, 4.0.44, --fml.mcVersion, 1.21.1, --fml.neoForgeVersion, 21.1.250, --fml.neoFormVersion, 20240808.144430]
+[21:45:32] [main/INFO] [cp.mo.mo.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.12.1+1-LTS
+[21:45:32] [main/INFO] [cp.mo.mo.Launcher/MODLAUNCHER]: ModLauncher 11.0.5+main.901c6ea8 starting: java version 21.0.12.1 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
+[21:45:32] [main/INFO] [ne.ne.fm.lo.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgeserverdev
+[21:45:32] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/shaoli/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%2394!/ Service=ModLauncher Env=SERVER
+[21:45:32] [main/INFO] [ne.ne.fm.lo.mo.lo.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[21:45:32] [main/INFO] [ne.ne.fm.lo.mo.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		MCyukkuri P0 acceptance fixture 1.0.0 (mcyukkuri_p0)
+		Minecraft 1.21.1 (minecraft)
+		NeoForge 21.1.250 (neoforge)
+		Yukkuri World 0.1.0-dev (mcyukkuri)
+[21:45:33] [main/INFO] [cp.mo.mo.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeserverdev' with arguments [--gameDir, .]
+[21:45:34] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.3).
+[21:45:39] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[21:45:39] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[21:45:39] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[21:45:39] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[21:45:39] [main/WARN] [minecraft/Commands]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[21:45:39] [modloading-worker-0/INFO] [ne.ne.ne.co.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.250, for MC 1.21.1
+[21:45:39] [modloading-worker-0/INFO] [io.gi.lo.mc.MCYukkuri/]: Yukkuri World initialized with five standard species and two house variants.
+[21:45:39] [main/INFO] [mojang/YggdrasilAuthenticationService]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[21:45:39] [main/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/E:/yukkuri/MCyukkuri/.local/hat-interactions/build/moddev/artifacts/neoforge-21.1.250.jar%23126!/assets/.mcassetsroot' uses unexpected schema
+[21:45:39] [main/WARN] [minecraft/VanillaPackResourcesBuilder]: Assets URL 'union:/E:/yukkuri/MCyukkuri/.local/hat-interactions/build/moddev/artifacts/neoforge-21.1.250.jar%23126!/data/.mcassetsroot' uses unexpected schema
+[21:45:39] [main/INFO] [ne.ne.ne.ga.GameTestHooks/]: Enabled Gametest Namespaces: [mcyukkuri_p0]
+[21:45:40] [main/INFO] [minecraft/RecipeManager]: Loaded 1347 recipes
+[21:45:41] [main/INFO] [minecraft/AdvancementTree]: Loaded 1424 advancements
+[21:45:41] [Server thread/INFO] [minecraft/MinecraftServer]: Preparing start region for dimension minecraft:overworld
+[21:45:41] [worldgen/INFO] [minecraft/LoggerChunkProgressListener]: Preparing spawn area: 2%
+[21:45:41] [Server thread/INFO] [minecraft/LoggerChunkProgressListener]: Time elapsed: 109 ms
+[21:45:41] [Server thread/INFO] [minecraft/GameTestServer]: Started game test server
+[21:45:41] [Server thread/INFO] [ne.ne.ne.se.pe.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[21:45:41] [Server thread/INFO] [minecraft/GameTestServer]: 1 tests are now running at position -7453666, -59, 6971830!
+[21:45:42] [Server thread/INFO] [minecraft/GameTestRunner]: Running test batch 'hats:0' (1 tests)...
+[21:45:42] [Server thread/INFO] [minecraft/GameTestServer]: [ ]
+[21:45:42] [Server thread/INFO] [minecraft/GameTestServer]: [ ]
+[21:45:42] [Server thread/INFO] [minecraft/GameTestServer]: [_]
+[21:45:42] [Server thread/INFO] [minecraft/GameTestServer]: [_]
+[21:45:43] [Server thread/INFO] [minecraft/GameTestServer]: [_]
+[21:45:43] [Server thread/INFO] [minecraft/GameTestServer]: [+]
+[21:45:43] [Server thread/INFO] [minecraft/GameTestServer]: ========= 1 GAME TESTS COMPLETE IN 1.845 s ======================
+[21:45:43] [Server thread/INFO] [minecraft/GameTestServer]: All 1 required tests passed :)
+[21:45:43] [Server thread/INFO] [minecraft/GameTestServer]: ====================================================
+[21:45:43] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[21:45:43] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[21:45:43] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[Test Level]'/minecraft:overworld
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[Test Level]'/minecraft:the_end
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[Test Level]'/minecraft:the_nether
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[21:45:44] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+[21:45:44] [Server thread/INFO] [minecraft/GameTestServer]: Game test server shutting down
+
+> Task :hatIsolation
+> Task :jarJar NO-SOURCE
+> Task :jar
+> Task :writeP0PreviewLegacyClasspath UP-TO-DATE
+> Task :prepareP0PreviewRun UP-TO-DATE
+> Task :createP0PreviewLaunchScript
+
+BUILD SUCCESSFUL in 26s
+15 actionable tasks: 6 executed, 9 up-to-date

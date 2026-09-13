@@ -1,0 +1,117 @@
+{
+  "status": "passed",
+  "samples": 6600,
+  "counts": {
+    "waddle": 3300,
+    "carry_waddle": 3300
+  },
+  "hidden_pixels": 0,
+  "failures": [],
+  "rendering": {
+    "material": "NoCull",
+    "body_and_accessories": "all_faces",
+    "face_front_filter": true,
+    "expected": "front_face_ink_only",
+    "front_normal_z_threshold": -0.15
+  },
+  "created_at": "2026-09-13T11:16:17.422507+00:00",
+  "runtime_sha256": {
+    "house_reimu": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+    "house_marisa": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e"
+  },
+  "textures": {
+    "house_reimu": {
+      "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+      "happy": "0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d",
+      "cry": "b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e",
+      "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+      "drool": "49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0",
+      "confused": "1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b",
+      "yawn": "3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1",
+      "sleep": "8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f",
+      "angry": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045",
+      "surprise": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
+      "sleepy": "d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b"
+    },
+    "house_marisa": {
+      "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
+      "happy": "f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a",
+      "cry": "10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690",
+      "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
+      "drool": "eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0",
+      "confused": "cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f",
+      "yawn": "61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9",
+      "sleep": "3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2",
+      "angry": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68",
+      "surprise": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639",
+      "sleepy": "7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d"
+    }
+  },
+  "scope": {
+    "actions": [
+      "waddle",
+      "carry_waddle"
+    ],
+    "expressions": [
+      "neutral",
+      "happy",
+      "cry",
+      "teary",
+      "drool",
+      "confused",
+      "yawn",
+      "sleep",
+      "angry",
+      "surprise",
+      "sleepy"
+    ],
+    "phases": [
+      0.0,
+      0.041666666666666664,
+      0.08333333333333333,
+      0.125,
+      0.16666666666666666,
+      0.20833333333333334,
+      0.25,
+      0.2916666666666667,
+      0.3333333333333333,
+      0.375,
+      0.4166666666666667,
+      0.4583333333333333,
+      0.5,
+      0.5416666666666666,
+      0.5833333333333334,
+      0.625,
+      0.6666666666666666,
+      0.7083333333333334,
+      0.75,
+      0.7916666666666666,
+      0.8333333333333334,
+      0.875,
+      0.9166666666666666,
+      0.9583333333333334,
+      1.0
+    ],
+    "views": [
+      0,
+      0.55
+    ],
+    "features": [
+      "face_eye_left",
+      "face_eye_right",
+      "face_mouth"
+    ],
+    "image_size": [
+      320,
+      240
+    ]
+  },
+  "verifier_sha256": {
+    "verify.py": "0c4f546f663801d2519b02623a1017d2f14c27574ea114144c218e325d32b62f",
+    "verify.cjs": "9198ed18a28f79c16516351f93fec8e08b2caa8938c3a23838e936bdd363b330"
+  },
+  "criterion": "Zero unexpected coverage of visible front eye/mouth ink; intentional face-to-face tear overlays retained.",
+  "slow_walk": "Uses the same waddle clip and elapsed game clock; no separate slow animation curve.",
+  "minecraft": "current_targeted_client_recheck_pending",
+  "user_confirmation": "pending"
+}

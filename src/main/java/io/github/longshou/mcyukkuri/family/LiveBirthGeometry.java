@@ -12,6 +12,16 @@ import org.joml.Vector3f;
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
 public final class LiveBirthGeometry {
     private static final java.util.Map<String,Vector3f> OUTLETS=new java.util.concurrent.ConcurrentHashMap<>();
+    private static final com.google.gson.JsonObject BODY=readBodies();
+    private static com.google.gson.JsonObject readBodies(){
+        try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_geometry.json")){
+            if(stream==null)throw new IllegalStateException("Missing selected body geometry");
+            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
+        }catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}
+    }
+    public static float modelHeight(String id){
+        return BODY.has(id)?BODY.getAsJsonObject(id).get("height").getAsFloat():id.startsWith("house_")?3.82f:id.equals("remilia")||id.equals("flandre")?9.6f:8.48f*(id.endsWith("_bean")?1.55f:1);
+    }
     public static final float BABY_SCALE=.18f;
     public static final int EMERGENCE=36, INTERVAL=48;
     public static int birthTick(int index){return index*INTERVAL+EMERGENCE;}
@@ -25,17 +35,26 @@ public final class LiveBirthGeometry {
                 (point.y+2.5f*belly*blend)*(1-.04f*contraction),point.z*(1+.24f*belly*lower));
     }
     public static boolean bean(int flags){return ((flags>>4)&15)==3;}
+    private static net.minecraft.world.entity.EntityDimensions selectedDimensions(io.github.longshou.mcyukkuri.entity.YukkuriVariant variant,int flags){
+        var original=io.github.longshou.mcyukkuri.registry.ModEntities.forVariant(variant).getDimensions();
+        String id=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.assetId(variant,flags);
+        if(BODY.has(id)){
+            var data=BODY.getAsJsonObject(id);var bounds=data.getAsJsonArray("bounds");
+            float width=(bounds.get(0).getAsJsonArray().get(1).getAsFloat()-bounds.get(0).getAsJsonArray().get(0).getAsFloat())/16;
+            return original.scale(width/original.width(),data.get("height").getAsFloat()/16/original.height());
+        }
+        return original.scale(bean(flags)?.82f:1,bean(flags)?1.55f:1);
+    }
     public static net.minecraft.world.entity.EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
-        boolean bean=bean(entity.subspeciesFlags());
-        return entity.getType().getDimensions().scale(growth*(1+.22f*belly)*(bean?.82f:1),growth*(1+.295f*belly)*(bean?1.55f:1));
+        var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
+        return size.scale(growth*(1+.22f*belly),growth*(1+2.5f/modelHeight(entity.subspecies().assetId())*belly));
     }
     public static net.minecraft.world.entity.EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
-        boolean bean=bean(child.subspeciesFlags);
-        return io.github.longshou.mcyukkuri.registry.ModEntities.forVariant(child.variant).getDimensions()
-                .scale(BABY_SCALE*globalScale*(bean?.82f:1),BABY_SCALE*globalScale*(bean?1.55f:1));
+        return selectedDimensions(child.variant,child.subspeciesFlags).scale(BABY_SCALE*globalScale);
     }
     public static Vector3f modelOutlet(YukkuriEntity mother,float belly,float contraction){
         var anchor=OUTLETS.computeIfAbsent(mother.subspecies().assetId(),id->{
+            if(BODY.has(id)){var point=BODY.getAsJsonObject(id).getAsJsonArray("outlet");return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());}
             if(!id.endsWith("_bean"))return new Vector3f(0,1.02f,-4.63f);
             var origin=new Vector3f(0,1.02f*1.55f,-32);
             var hit=io.github.longshou.mcyukkuri.body.WoundSurface.get(id).ray(origin,new Vector3f(0,0,1),null,java.util.List.of());
@@ -47,7 +66,7 @@ public final class LiveBirthGeometry {
         return new Vec3(modelOutlet(mother,mother.family().liveBelly(),0)).scale(1/16d);
     }
     public static Vec3 localExit(YukkuriEntity mother,int index){
-        float size=mother.family().scale();
+        float size=mother.growthScale();
         var outlet=outlet(mother).scale(size);
         // The full newborn must clear the maternal collision volume before becoming an entity.
         double front=Math.max(-outlet.z+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
@@ -74,7 +93,7 @@ public final class LiveBirthGeometry {
             if(support.getType()!=HitResult.Type.BLOCK||Math.abs(support.getLocation().y-y)>.03)return false;
         }
         // Prevent a wall between the front outlet and the checked destination.
-        var origin=FamilyGeometry.toWorld(mother,outlet(mother).scale(mother.family().scale()));
+        var origin=FamilyGeometry.toWorld(mother,outlet(mother).scale(mother.growthScale()));
         return level.clip(new ClipContext(origin,position.add(0,dimensions.height()*.5,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()==HitResult.Type.MISS;
     }
     private LiveBirthGeometry(){}

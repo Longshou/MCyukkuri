@@ -1,0 +1,37 @@
+{
+  "before": {
+    "runtime": ".local/playtest-update/runtime-20260913-170243",
+    "java": "E:/yukkuri/.devtools/mcyukkuri/java/jdk-21.0.12.1+1/bin/java.exe",
+    "jar": ".local/playtest-update/runtime-20260913-170243/libs/mcyukkuri-0.1.0-dev.jar",
+    "jar_sha256": "8bf26c0ad3b14e92f020d77456bc2f057b193114a20b0b65bb65ce62411be944",
+    "map_sha256": "b5ab890295da0dcb2c43323ef8c118365f293a977b2f0ef04f8f8e90f4698d8b"
+  },
+  "after": {
+    "runtime": ".local/reimu-deficient-rounded/runtime-20260913-171128",
+    "java": "E:/yukkuri/.devtools/mcyukkuri/java/jdk-21.0.12.1+1/bin/java.exe",
+    "jar": ".local/reimu-deficient-rounded/runtime-20260913-171128/libs/mcyukkuri-0.1.0-dev.jar",
+    "jar_sha256": "a4e29b0ea269e724afe40c469d19441a103f850aef52904889fe190a73e140c1",
+    "map_sha256": "b5ab890295da0dcb2c43323ef8c118365f293a977b2f0ef04f8f8e90f4698d8b"
+  },
+  "world_unchanged": true,
+  "source_resources_match": true,
+  "jar_matches_classes_and_resources": true,
+  "models": {
+    "reimu_sparse": "5838de370072eefb3005c3f76f821fe302deb469ac03995d57fe7e5b10d612de",
+    "reimu_face": "40aefcfec6f6f483e01192bf076c6ed5407644e0c028bb5e54c4dfe79c946e88"
+  },
+  "screenshots": {
+    "reimu_face-angle.png": "3a4248898debf4f2edaf64e0c0c6a287583aa980295957cfea333797915de12a",
+    "reimu_face-back.png": "6b754bea6608f6726ca163fcda4536c21ebfc0056d1363452a53770ec32ce394",
+    "reimu_face-browser.png": "7fc289bd9ba29f6fb4b6ab85589517fb18d80fc2c50748f1637ae54d9fee9ce0",
+    "reimu_face-front.png": "1365d03cad5c22da95ac2b519a90951d9b0df884ab1dd0cdd23e5969b71f47c3",
+    "reimu_face-side.png": "4842e510c3bc634adf8c8a63ae1c6dba4cd54efdac3605cf7ccd1292c1367098",
+    "reimu_face-wound.png": "1fc60ee1872dbf2abfdf2ea675a27dd482b8407a5e07426713ca70d8e85cd3b6",
+    "reimu_sparse-angle.png": "9c5ca6f69ed174a788b8a6b7f77810652f69b1ec0029e02fdb78b9b6266453b3",
+    "reimu_sparse-back.png": "f89864888a0c401c05ce7deefcadbc3baedf707d7564e666e17a89dc76f65476",
+    "reimu_sparse-browser.png": "5098243ccd7541bf0b22989e6cabc52ae1a775c0e0a9b1c69a873816741c3c1d",
+    "reimu_sparse-front.png": "89d27ff7fd7f01a4069aef2c0dbfd6a4f411bd1f0cc33a462bb5476d02274910",
+    "reimu_sparse-side.png": "470e3ba12cd2f7ad4c21a13f7d7452215110f6033613aaea05d752cadaef5c15",
+    "reimu_sparse-wound.png": "4580c8624780bfb86130761c6a7606dd67a4364b2de7ed2af2687f7bff861673"
+  }
+}

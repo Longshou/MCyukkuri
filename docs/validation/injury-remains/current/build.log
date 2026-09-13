@@ -1,0 +1,51 @@
+> Task :createMinecraftArtifacts UP-TO-DATE
+
+> Task :compileJava
+E:\yukkuri\MCyukkuri\src\main\java\io\github\longshou\mcyukkuri\client\ClientEvents.java:12: 警告: [removal] EventBusSubscriber 中的 bus() 已过时, 且标记为待删除
+@EventBusSubscriber(modid = MCYukkuri.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+                                              ^
+E:\yukkuri\MCyukkuri\src\main\java\io\github\longshou\mcyukkuri\client\ClientEvents.java:12: 警告: [removal] EventBusSubscriber 中的 Bus 已过时, 且标记为待删除
+@EventBusSubscriber(modid = MCYukkuri.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+                                                                      ^
+E:\yukkuri\MCyukkuri\src\main\java\io\github\longshou\mcyukkuri\client\HatBoatRenderer.java:18: 警告: [removal] EventBusSubscriber 中的 bus() 已过时, 且标记为待删除
+@EventBusSubscriber(modid=MCYukkuri.MOD_ID,bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
+                                           ^
+E:\yukkuri\MCyukkuri\src\main\java\io\github\longshou\mcyukkuri\client\HatBoatRenderer.java:18: 警告: [removal] EventBusSubscriber 中的 Bus 已过时, 且标记为待删除
+@EventBusSubscriber(modid=MCYukkuri.MOD_ID,bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
+                                                                 ^
+注: 某些输入文件使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+4 个警告
+
+> Task :processResources
+> Task :classes
+> Task :jarJar NO-SOURCE
+> Task :jar
+> Task :assemble
+> Task :compileP0TestJava UP-TO-DATE
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+> Task :processP0TestResources UP-TO-DATE
+> Task :p0TestClasses UP-TO-DATE
+> Task :downloadAssets UP-TO-DATE
+> Task :writeP0GameTestLegacyClasspath UP-TO-DATE
+> Task :prepareP0GameTestRun UP-TO-DATE
+> Task :createP0GameTestLaunchScript
+> Task :writeP0PreviewLegacyClasspath UP-TO-DATE
+> Task :prepareP0PreviewRun UP-TO-DATE
+> Task :createP0PreviewLaunchScript
+> Task :writeClientLegacyClasspath UP-TO-DATE
+> Task :prepareClientRun UP-TO-DATE
+> Task :createClientLaunchScript
+
+> Task :integrationIsolation
+ISOLATION VERIFIED: E:\yukkuri\MCyukkuri\.local\injury-remains\isolation.json
+
+[Incubating] Problems report is available at: file:///E:/yukkuri/MCyukkuri/.local/injury-remains/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 13s
+17 actionable tasks: 7 executed, 10 up-to-date

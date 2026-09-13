@@ -1,0 +1,314 @@
+{
+  "sampling": "Actual framebuffer, 20 Hz tick phase; render interpolation can add less than .05 seconds.",
+  "cases": [
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "frames": 29,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0005.png",
+          "sha256": "2c70d9a8c98964d2120ec86ee8626fe58617e6793e6293b6424353ab7146f242"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0006.png",
+          "sha256": "faae04ee4459e1cdb96b6f09f23aacb7f5caceda71589a774b2c0147e949124e"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0009.png",
+          "sha256": "c354ebb5483a6f6dc764e363309da391a6ef12e18a3185718070692c6ee818f1"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0013.png",
+          "sha256": "6ca41757bfdde1495da0545f0ba56b236b75d90850a7cccf03ad7e8282d3ca77"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.7,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0016.png",
+          "sha256": "78417be13b859712502d031d0d9669bc6a5a020e1d518aedd0a64347a791715b"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.9,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0000.png",
+          "sha256": "4c0f07e4dbfa0b627da450902baf3781796914dabb91b3d8c1ca62d8e5e8db35"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-neutral-0003.png",
+          "sha256": "5ec51d97eee947cc3ede97ab7b8cc44a9c2b9c5063fa7bf25f3978eefbcbc72d"
+        }
+      ],
+      "manifest": "capture-reimu_bean-waddle-neutral.json"
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "happy",
+      "frames": 30,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0003.png",
+          "sha256": "84156a0cd9c10599db788a527525e6b9c27c9cbd598edf0172a5caa1713fe993"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0005.png",
+          "sha256": "543288291df94bee0c80c1f879daea56a3fc012df75382791c6553bc3e2bc827"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0007.png",
+          "sha256": "c075bf4293733003c2b7448a0b261b079cba8c079270fc28b14629119fb85681"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0011.png",
+          "sha256": "258a8c75fcd2df8b46c9ae4b3f53c98721176d8a9ae63c7fc6af8b2cc29765d0"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.7,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0015.png",
+          "sha256": "2e5792f8e8c49b14a2820c72b2717cd58b0e37fa16ec20419508168e9aa3a382"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.9,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0018.png",
+          "sha256": "45a1bd8706614bbe738f3c62cc6b1700bc1dc7be6eda3caec1a1d36203e20f47"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-happy-0002.png",
+          "sha256": "e3c9ddd6b460a49b7a92fabfc45845b96e1ad2348fd8ddf06cecac3fae65515c"
+        }
+      ],
+      "manifest": "capture-reimu_bean-waddle-happy.json"
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "cry",
+      "frames": 31,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0004.png",
+          "sha256": "5a3dee53326f1856c856b0002448ddf7af3412c7d4f367fb1c14d4addb2b7183"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0005.png",
+          "sha256": "6950dd0948a3ce133b70964bd448d4ab5620c98117be77e811b48ffbf5ee6114"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0008.png",
+          "sha256": "5d4ac285b6ee5ae12438b69cb147ccd58ecc6ad8a88fdb94ff80c0063bf178c9"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0012.png",
+          "sha256": "b246b97aa7cd958ffffa29caf2f0eba0378ca0ad221634d69a3344b5de3b7676"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.75,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0016.png",
+          "sha256": "1d2d6d66300d7c48c2b7884e4dd78559229fadf17c6c47d8ee29e36114814a44"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.9,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0018.png",
+          "sha256": "675f575c14e0d9aab0edfd9aaf36ecdf46eacd72d5680834e30b2c85b37afebb"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/reimu_bean-waddle-cry-0002.png",
+          "sha256": "31937fd73d2b4d2af009ff2a5d6bf46cd1b1f74d14423e2bb99f463f382a58ce"
+        }
+      ],
+      "manifest": "capture-reimu_bean-waddle-cry.json"
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "frames": 30,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0004.png",
+          "sha256": "a040c93e78a4e2379c33787452035faae3e295b11bf8a1edb9201538534b18da"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0005.png",
+          "sha256": "33b7c11938b184634648faa509d9471e00e9af24c9a7a1538a0e060007d79733"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0008.png",
+          "sha256": "9425fc46952dac69ba4558495ba709596385674a141420a6c83110db892c9b80"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0011.png",
+          "sha256": "1ce24428e1822348aff68caf5114fb790e5358d46f308c7f529a4a8c55d16833"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.8,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0015.png",
+          "sha256": "492f2942f09196ea5dea2eb021c45ad46567427d53bfa3d4deb94c1b4e91a455"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.9,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0017.png",
+          "sha256": "8fd1b52d759b6f65a53c89bf813006eb34c41f27921dd13989dd3d3e1804cf32"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-neutral-0002.png",
+          "sha256": "e6b10b23b5177cf495ea2c701b1a0f3428683d7bafbec6ab81892f750ae86678"
+        }
+      ],
+      "manifest": "capture-marisa_bean-waddle-neutral.json"
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "happy",
+      "frames": 31,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0022.png",
+          "sha256": "13d34ed05d4ea96ed143a4260a5f2c76be902ca975f6110ef216aa81536d87c3"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0005.png",
+          "sha256": "9eb20685f1ef3dca827ee6da6378bb0e639c75761119c9eb9ffbef7281c590c9"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0008.png",
+          "sha256": "c2b8ae48e55ce7af0ff0c7c2e62dda73e28d270da4e91f96668d515a35b76632"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0011.png",
+          "sha256": "c6588248e42d9ecae23aba855bfddbbd8cb3927c25f03b65ca07a035558d178f"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.75,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0015.png",
+          "sha256": "1d67a6cfaa28a616367d4925bb466cca57f18349874f9128c0a9c3ccb9dc162d"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.95,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0018.png",
+          "sha256": "c360a9ca5f17f625b3c37f368e6337ee7e3b72bc74384291cb909666fd985ed1"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-happy-0002.png",
+          "sha256": "86fe2e2f7ec217d219566286961db7776b2ce4ce67010d48bf85151e17dd051b"
+        }
+      ],
+      "manifest": "capture-marisa_bean-waddle-happy.json"
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "cry",
+      "frames": 34,
+      "selected": [
+        {
+          "requested": 0,
+          "tick_phase": 0.0,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0004.png",
+          "sha256": "f00241035ec7769afdd3aef9c0003d33825654c7c625f6563bf6972ed76e3f67"
+        },
+        {
+          "requested": 0.1,
+          "tick_phase": 0.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0006.png",
+          "sha256": "0ee27917d8e03f1777b45c7d89aafdd0fdad7e23876bc0facc3e5c8707176582"
+        },
+        {
+          "requested": 0.25,
+          "tick_phase": 0.25,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0008.png",
+          "sha256": "2c01bff5ff4df003fe0713011fc0d23bb97eadadb18249f4e39079e74c06eb2c"
+        },
+        {
+          "requested": 0.5,
+          "tick_phase": 0.5,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0013.png",
+          "sha256": "14aed8aac3f3f5d3889ad5845ea206f5a055a96dbdc38f85fc485ff01d7a35b0"
+        },
+        {
+          "requested": 0.75,
+          "tick_phase": 0.7,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0017.png",
+          "sha256": "eac79688bba52cefdf37a645ad86ec2aa1145b95271d759bbbf652ea7c12c05e"
+        },
+        {
+          "requested": 0.9,
+          "tick_phase": 0.9,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0020.png",
+          "sha256": "9d4056ceb030c6af2fb393dac8cdfdc724ebf4f9f206fb8c696126f64ba553a7"
+        },
+        {
+          "requested": 1.1,
+          "tick_phase": 1.1,
+          "file": "art/source/rounded-runtime/previews/current/minecraft/frames/bean-face-motion/marisa_bean-waddle-cry-0002.png",
+          "sha256": "4799fda6f84e8db01307921a07c906f19cceeb9e0fd80bccb94aa66fee194ddc"
+        }
+      ],
+      "manifest": "capture-marisa_bean-waddle-cry.json"
+    }
+  ],
+  "run": ".local/personality-deibu/preview-f_xae01e",
+  "snapshot_manifest": ".local/personality-deibu/preview-f_xae01e/runtime-manifest.json",
+  "visually_reviewed_samples": 42,
+  "captured_frames": 185,
+  "review": "Both eyes (including authored blinking/closed expressions), mouth and tears remain visible throughout sampled phases; no swallowed eye or half mouth observed.",
+  "runtime_sha256": {
+    "reimu_bean": "2d5861c87a7f1dbf482096864760943b04055ec37fff313ecff94da41a57da7e",
+    "marisa_bean": "286885c6dc17ac6118e08975bf118b59ad28af9ad5372a5dfdf5d9391b0570a3"
+  }
+}

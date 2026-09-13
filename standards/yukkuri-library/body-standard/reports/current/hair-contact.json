@@ -1,0 +1,76 @@
+{
+  "createdAt": "2026-09-13T09:08:42.340Z",
+  "status": "passed",
+  "scope": "rear skin occlusion by deformed hair at 121 walk times, interior rear only; no Minecraft claim",
+  "input": "E:\\yukkuri\\MCyukkuri\\standards\\yukkuri-library\\body-standard\\previews\\current\\preview-data.json",
+  "sha256": "cd73fcc2eb89d9c8ee1462c82ed3e045903e42e5d54c06d603da26793cc11d9b",
+  "models": [
+    {
+      "id": "reimu",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.2334116997324749,
+      "failures": []
+    },
+    {
+      "id": "marisa",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.2334116997324749,
+      "failures": []
+    },
+    {
+      "id": "chen",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.3869537543015067,
+      "failures": []
+    },
+    {
+      "id": "alice",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.3869537543015067,
+      "failures": []
+    },
+    {
+      "id": "patchouli",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.3869537543015067,
+      "failures": []
+    },
+    {
+      "id": "marisa_tsumuri",
+      "walk": "not_present_in_standard_export"
+    },
+    {
+      "id": "reimu_wasa",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.23380169156523856,
+      "failures": []
+    },
+    {
+      "id": "reimu_deibu",
+      "phases": 121,
+      "surfaceSamples": 39,
+      "total": 4719,
+      "failed": 0,
+      "minClearance": 0.2366038866684015,
+      "failures": []
+    }
+  ]
+}

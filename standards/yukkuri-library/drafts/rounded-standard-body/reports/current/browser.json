@@ -1,0 +1,244 @@
+{
+  "createdAt": "2026-09-13T07:05:07.688Z",
+  "browser": "153.0.8010.36",
+  "inputs": {
+    "index.html": "ac0f36bd92ee629ffd735a0400f306f159801bb8d8259d623f9f0720be2cf5fc",
+    "viewer.js": "12ead98af97f52d2ef19343b1cbc5e6bbc34c69d2072bc53c667bcdf9b5ac32e",
+    "pose.js": "c4da71d3b8946710c2e4523016d6cdd8b574aaff900bcfe45b2ddcd3ca9edb72",
+    "birth.js": "97b84879fe3593162300c840525986122eee3afb03ce3bff3b2504651cb4e750",
+    "preview-data.js": "acb50ac260f43dbc74a565c61f51db33e645a5fdafc4359a28388f77f2ac3bb8"
+  },
+  "errors": [],
+  "checks": [
+    {
+      "mode": "pair",
+      "action": "idle",
+      "rendered": true,
+      "changes": false,
+      "passed": true
+    },
+    {
+      "mode": "pair",
+      "action": "waddle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "pair",
+      "action": "hop",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "pair",
+      "action": "stretch",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "pair",
+      "action": "side_bend",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "pair",
+      "action": "startle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "idle",
+      "rendered": true,
+      "changes": false,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "waddle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "hop",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "stretch",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "side_bend",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "reimu",
+      "action": "startle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "idle",
+      "rendered": true,
+      "changes": false,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "waddle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "hop",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "stretch",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "side_bend",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "mode": "marisa",
+      "action": "startle",
+      "rendered": true,
+      "changes": true,
+      "passed": true
+    },
+    {
+      "expression": "neutral",
+      "passed": true
+    },
+    {
+      "expression": "happy",
+      "passed": true
+    },
+    {
+      "expression": "angry",
+      "passed": true
+    },
+    {
+      "expression": "surprise",
+      "passed": true
+    },
+    {
+      "expression": "sleep",
+      "passed": true
+    },
+    {
+      "view": "side",
+      "passed": true
+    },
+    {
+      "bodyOnly": true,
+      "passed": true
+    },
+    {
+      "reset": true,
+      "passed": true
+    },
+    {
+      "anatomyDefault": true,
+      "passed": true
+    },
+    {
+      "anatomyExtendsWhilePaused": true,
+      "passed": true
+    },
+    {
+      "anatomySwitchRetractsFirst": true,
+      "passed": true
+    },
+    {
+      "anatomyHeldDuringWalking": true,
+      "passed": true
+    },
+    {
+      "anatomyRetracted": true,
+      "passed": true
+    },
+    {
+      "anatomyModelChangeReset": true,
+      "passed": true
+    },
+    {
+      "anatomyReset": true,
+      "passed": true
+    },
+    {
+      "birthClearsAndLocksParts": true,
+      "passed": true
+    },
+    {
+      "birthRejectsPeni": true,
+      "passed": true
+    },
+    {
+      "birthPregnancyVisible": true,
+      "passed": true
+    },
+    {
+      "birthTimelineSeek": true,
+      "passed": true
+    },
+    {
+      "birthRecovery": true,
+      "passed": true
+    },
+    {
+      "birthSeekRepeatable": true,
+      "passed": true
+    },
+    {
+      "birthCount": "1",
+      "passed": true
+    },
+    {
+      "birthCount": "5",
+      "passed": true
+    },
+    {
+      "birthReplay": true,
+      "passed": true
+    },
+    {
+      "birthExitResets": true,
+      "passed": true
+    },
+    {
+      "reopen": true,
+      "passed": true
+    }
+  ]
+}

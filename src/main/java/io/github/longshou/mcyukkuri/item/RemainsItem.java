@@ -1,20 +1,31 @@
 package io.github.longshou.mcyukkuri.item;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
-import io.github.longshou.mcyukkuri.registry.ModBlocks;
 public final class RemainsItem extends Item {
     public RemainsItem(Properties properties){super(properties);}
+    @Override public boolean onEntityItemUpdate(net.minecraft.world.item.ItemStack stack,net.minecraft.world.entity.item.ItemEntity original){
+        if(original.level().isClientSide||!original.isAlive())return false;
+        var corpse=io.github.longshou.mcyukkuri.registry.ModEntities.REMAINS.get().create(original.level());
+        if(corpse==null)return false;
+        corpse.setRemains(stack);corpse.moveTo(original.getX(),original.getY(),original.getZ(),original.getYRot(),0);corpse.setDeltaMovement(original.getDeltaMovement());
+        if(!original.level().addFreshEntity(corpse))return false;
+        original.discard();return true;
+    }
+    @Override public void appendHoverText(net.minecraft.world.item.ItemStack stack,TooltipContext context,java.util.List<net.minecraft.network.chat.Component> lines,net.minecraft.world.item.TooltipFlag flag){
+        lines.add(net.minecraft.network.chat.Component.translatable("item.mcyukkuri.yukkuri_remains.help"));
+    }
     @Override public InteractionResult useOn(UseOnContext context){
-        var level=context.getLevel();var soil=context.getClickedPos();var top=soil.above();
-        if(context.getClickedFace()!=Direction.UP||!level.getBlockState(soil).is(BlockTags.DIRT)||!level.isEmptyBlock(top)
-                ||context.getPlayer()!=null&&!context.getPlayer().mayUseItemAt(top,Direction.UP,context.getItemInHand()))return InteractionResult.FAIL;
-        if(!level.isClientSide&&level.setBlockAndUpdate(top,ModBlocks.GRAVE.get().defaultBlockState())){
-            if(level.getBlockEntity(top) instanceof io.github.longshou.mcyukkuri.body.GraveBlockEntity grave)
-                grave.bury(context.getItemInHand().getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag());
-            context.getItemInHand().shrink(1);
+        var level=context.getLevel();var top=context.getClickedPos().relative(context.getClickedFace());var player=context.getPlayer();
+        if(context.getClickedFace()!=Direction.UP||!level.isEmptyBlock(top)||player==null||!player.mayBuild()
+                ||!level.mayInteract(player,top)||!player.mayUseItemAt(top,Direction.UP,context.getItemInHand()))return InteractionResult.FAIL;
+        if(!level.isClientSide){
+            if(!io.github.longshou.mcyukkuri.entity.RemainsEntity.place(level,context.getClickLocation().add(0,.002,0),player.getYRot(),context.getItemInHand(),true))return InteractionResult.FAIL;
+            // Creative use restores the count on the original stack after useOn returns.
+            // Replace the hand slot so placing a body transfers it in either game mode.
+            var remainder=context.getItemInHand().copy();remainder.shrink(1);
+            player.setItemInHand(context.getHand(),remainder);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

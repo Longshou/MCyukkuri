@@ -6,5 +6,11 @@
   "shared_component": "components/common/anatomy.json",
   "geometry_preserved": true,
   "raw_game_pixels_in_package": false,
-  "binding_change": "Front component follows a dedicated local skin anchor at its approved height."
+  "binding_change": "Front component follows a dedicated local skin anchor at its approved height.",
+  "current_body_standard": {
+    "record": "provenance/standard-body.json",
+    "profile": "body-standard/profile.json",
+    "approved_on": "2026-09-13",
+    "note": "本文件既有指纹和尺寸保留为推广前基线；当前身体及挂接以 standard-body.json 为准。"
+  }
 }

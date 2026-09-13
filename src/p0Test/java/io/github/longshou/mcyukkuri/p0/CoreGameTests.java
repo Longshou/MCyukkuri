@@ -165,9 +165,16 @@ public final class CoreGameTests {
             player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
             var soil=new BlockPos(270,64,17);level.setBlockAndUpdate(soil,Blocks.DIRT.defaultBlockState());player.moveTo(270,65,18,0,0);
             var remains=new ItemStack(ModItems.REMAINS.get());player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,remains);
-            var use=new net.minecraft.world.item.context.UseOnContext(player,net.minecraft.world.InteractionHand.MAIN_HAND,new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(soil),net.minecraft.core.Direction.UP,soil,false));
-            remains.useOn(use);
-            check("survival burial consumes remains and creates an actual mound",remains.isEmpty()&&level.getBlockState(soil.above()).is(ModBlocks.GRAVE.get()),level.getBlockState(soil.above()));
+            var hit=new net.minecraft.world.phys.BlockHitResult(Vec3.atBottomCenterOf(soil.above()),net.minecraft.core.Direction.UP,soil,false);
+            player.gameMode.useItemOn(player,level,remains,net.minecraft.world.InteractionHand.MAIN_HAND,hit);
+            var corpses=level.getEntitiesOfClass(io.github.longshou.mcyukkuri.entity.RemainsEntity.class,new net.minecraft.world.phys.AABB(soil.above()));
+            check("placing remains creates a body before burial",player.getMainHandItem().isEmpty()&&corpses.size()==1&&level.isEmptyBlock(soil.above()),corpses.size());
+            if(!corpses.isEmpty()){
+                var corpse=corpses.getFirst();for(int i=0;i<5;i++)corpse.tick();
+                player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.IRON_SHOVEL));
+                player.interactOn(corpse,net.minecraft.world.InteractionHand.MAIN_HAND);
+                check("survival shovel burial consumes body and creates an actual mound",corpse.isRemoved()&&level.getBlockState(soil.above()).is(ModBlocks.GRAVE.get()),level.getBlockState(soil.above()));
+            }
             level.setBlockAndUpdate(soil.above(),Blocks.AIR.defaultBlockState());
         });
     }
@@ -271,7 +278,7 @@ public final class CoreGameTests {
             check("medicine consumes an infection treatment",subject.body().treat(true)&&subject.body().infection()==1,subject.body().infection());
             check("medicine finishes infection but cannot heal a healthy body",subject.body().treat(true)&&!subject.body().treat(true),subject.body().infection());
             subject.hurt(level.damageSources().generic(),100);subject.body().died();
-            check("death settles one remains despite duplicate callback",level.getEntitiesOfClass(ItemEntity.class,AREA,e->e.getItem().is(ModItems.REMAINS.get())).stream().mapToInt(e->e.getItem().getCount()).sum()==1,"remains");
+            check("death settles one physical remains despite duplicate callback",level.getEntitiesOfClass(io.github.longshou.mcyukkuri.entity.RemainsEntity.class,AREA).size()==1,"remains");
             check("dead body no longer retains extractable filling",subject.body().filling()==0,subject.body().save());
         });
     }

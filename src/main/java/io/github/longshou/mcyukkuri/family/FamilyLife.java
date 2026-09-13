@@ -18,7 +18,8 @@ public final class FamilyLife {
     private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
-    private long age=24001, nourishment=24000, lifespan=72000;
+    private long maturity=GrowthTiming.DEFAULT_MATURITY, age=maturity+1, nourishment=maturity,
+            lifespan=maturity+GrowthTiming.DEFAULT_ADULT_LIFESPAN;
     private float adultScale=1, scale=1;
     private UUID mother, father, birthId, gestation, partner;
     private int conceptions, recovery, wait, taskTicks, spentStemCount;
@@ -44,6 +45,7 @@ public final class FamilyLife {
     public Stage stage() { return stage; }
     public long age() { return age; }
     public long lifespan() { return lifespan; }
+    public long maturityAge() { return maturity; }
     public float adultScale() { return adultScale; }
     public float scale() { return scale; }
     public UUID mother() { return mother; }
@@ -59,7 +61,7 @@ public final class FamilyLife {
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
     public int sexDrive(){return sexDrive;}
-    public boolean canTakeStimulant(){return adult()&&!sterile&&!elder()&&sexDrive==0;}
+    public boolean canTakeStimulant(){return adult()&&!sterile()&&!elder()&&sexDrive==0;}
     public boolean takeStimulant(){if(!canTakeStimulant())return false;sexDrive=1200;entity.setPersistenceRequired();return true;}
     public boolean adult() { return stage==Stage.ADULT; }
     public boolean caresFor(YukkuriEntity child) {
@@ -69,7 +71,7 @@ public final class FamilyLife {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
                 &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
     }
-    public boolean elder() { return age>=lifespan*.85; }
+    public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
     public boolean active() { return task!=Task.NONE; }
     public String activity() { return switch(task) {
         case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
@@ -79,16 +81,25 @@ public final class FamilyLife {
         var result=gestation==null||entity.level().isClientSide?null:FamilyData.get(level()).brood(gestation);
         return result!=null&&result.detachedHolder==null?result:null;
     }
-    public boolean sterile(){return sterile;}
+    public boolean sterile(){return sterile||!entity.subspecies().canReproduce();}
     public int stimulation(){return stimulation;}
-    public boolean stimulate(){if(!adult()||sterile)return false;stimulation=Math.min(1200,stimulation+240);return true;}
-    public boolean sterilize(){if(!adult()||sterile||stimulation==0)return false;sterile=true;stimulation=0;return true;}
+    public boolean stimulate(){if(!adult()||sterile())return false;stimulation=Math.min(1200,stimulation+240);return true;}
+    public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=0;return true;}
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
-        if(entity.level().isClientSide||!entity.isAlive()||entity.isNoAi())return;
+        if(entity.level().isClientSide||!entity.isAlive())return;
+        if(!entity.subspecies().canReproduce()) {
+            // Retire invalid legacy maternal gestation while retaining born children and ancestry records.
+            var pending=brood();
+            if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending);
+            gestation=null;stimulation=sexDrive=0;
+        }
+        if(entity.isNoAi())return;
         if(!initialized) {
-            initialized=true;lifespan=Math.round(FamilyConfig.LIFESPAN.get()*(.95+new java.util.Random(entity.getUUID().getLeastSignificantBits()).nextDouble()*.1));
-            age=lifespan/3+1;nourishment=lifespan/3;
+            initialized=true;double variation=.95+new java.util.Random(entity.getUUID().getLeastSignificantBits()).nextDouble()*.1;
+            maturity=Math.round(FamilyConfig.MATURITY.get()*variation);
+            lifespan=maturity+Math.round(FamilyConfig.ADULT_LIFESPAN.get()*variation);
+            age=maturity+1;nourishment=maturity;
         }
         age++;if(entity.life().nutrition()>=45&&entity.getHealth()>=entity.getMaxHealth()*.6)nourishment++;
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;if(liveRecovery>0)liveRecovery--;
@@ -105,26 +116,29 @@ public final class FamilyLife {
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
         if(entity.level().isClientSide||entity.life().nutrition()<35)return false;
-        Stage next=stage;long threshold=Math.max(1,lifespan/3);
+        Stage next=stage;long threshold=maturity;
         float desired=scale;
-        if(stage==Stage.BABY&&age>=lifespan/12&&nourishment>=lifespan/16)next=Stage.JUVENILE;
+        if(stage==Stage.BABY&&age>=threshold/4&&nourishment>=threshold*3/16)next=Stage.JUVENILE;
         if(next==Stage.JUVENILE&&age>threshold&&nourishment>=threshold*.75)next=Stage.ADULT;
-        if(next==Stage.BABY)desired=entity.getVariant().isHouse()?Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,lifespan/12)),.32f,.5f):Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,lifespan/12)),.12f,.3f);
+        if(next==Stage.BABY)desired=entity.getVariant().isHouse()?Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,threshold/4)),.32f,.5f):Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,threshold/4)),.12f,.3f);
         else if(next==Stage.JUVENILE)desired=Mth.lerp(Math.min(1,nourishment/(float)threshold),entity.getVariant().isHouse()?.5f:.3f,.8f);
-        else desired=Mth.lerp(Math.min(1,Math.max(0,nourishment-threshold)/(float)Math.max(1,lifespan/6)),.8f,adultScale);
+        else desired=Mth.lerp(Math.min(1,Math.max(0,nourishment-threshold)/(float)Math.max(1,threshold/2)),.8f,adultScale);
         desired=Math.max(scale,desired);
-        var box=LiveBirthGeometry.bodyDimensions(entity,desired,liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
+        var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
         boolean changed=next!=stage||Math.abs(desired-scale)>.001f;stage=next;scale=desired;
         entity.syncFamily();if(changed)entity.showReaction("happy","grown",100);return changed;
     }
     public void newborn(FamilyData.Child child,FamilyData.Brood brood) {
         initialized=true;mother=brood.mother;father=brood.father;birthId=brood.id;adultScale=child.adultScale;lifespan=child.lifespan;
+        maturity=Math.clamp(child.maturity,1,Math.max(1,lifespan-1));
         age=nourishment=0;stage=brood.kind==FamilyData.BirthKind.STEM?Stage.JUVENILE:Stage.BABY;
         scale=brood.kind==FamilyData.BirthKind.STEM?.3f:brood.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.BABY_SCALE:.32f;
         awaitingLanding=brood.kind!=FamilyData.BirthKind.EGG;
         juvenileVoice=new java.util.Random(child.id.getLeastSignificantBits()).nextInt(10)==0;
-        CompoundTag personality=entity.life().personality().save();personality.putIntArray("Innate",child.traits);personality.putIntArray("Experience",new int[6]);entity.life().personality().load(personality);
+        CompoundTag personality=new CompoundTag();personality.putIntArray("Innate",child.traits);personality.putIntArray("Experience",new int[6]);
+        if(child.dispositions.length==4){personality.putInt("Version",2);personality.putIntArray("DispositionInnate",child.dispositions);}
+        entity.life().personality().load(personality);
         entity.syncFamily();
     }
     public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
@@ -136,7 +150,7 @@ public final class FamilyLife {
     }
     public boolean readyForAssistance() {
         return !entity.level().isClientSide&&!entity.getVariant().isHouse()&&!entity.getVariant().isPredator()
-                &&!entity.isNoAi()&&gestation==null&&adult()&&!sterile&&!elder()&&recovery==0
+                &&!entity.isNoAi()&&gestation==null&&adult()&&!sterile()&&!elder()&&recovery==0
                 &&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.predator().active()
                 &&(!entity.operations().active()||entity.operations().pose()==io.github.longshou.mcyukkuri.interaction.OperationLife.Pose.ASSIST)
                 &&!entity.dailyLife().active()
@@ -150,7 +164,8 @@ public final class FamilyLife {
     /** An already-born juvenile in a naturally discovered household, not a simulated conception. */
     public void generatedChild(YukkuriEntity first, YukkuriEntity second) {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
-        lifespan = FamilyConfig.LIFESPAN.get(); age = lifespan / 8; nourishment = age;
+        maturity = FamilyConfig.MATURITY.get(); lifespan = maturity + FamilyConfig.ADULT_LIFESPAN.get();
+        age = maturity * 3 / 8; nourishment = age;
         stage = Stage.JUVENILE; scale = .4f; adultScale = 1;
         entity.syncFamily();
         var relations = YukkuriWorldData.get(level());
@@ -171,7 +186,7 @@ public final class FamilyLife {
         return true;
     }
     public boolean ready() {
-        return adult()&&!sterile&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()
+        return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&entity.life().homeStand()!=null;
     }
@@ -195,7 +210,7 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();
         for(int i=0;i<brood.children.size();i++) {
             if(brood.children.get(i).born||brood.elapsed<brood.duration+i*8)continue;
-            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,scale,brood.variation,entity.getVariant(),brood.children.get(i).variant);
+            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,entity.growthScale(),brood.variation,entity.getVariant(),brood.children.get(i).variant);
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
@@ -235,7 +250,7 @@ public final class FamilyLife {
             if(!LiveBirthGeometry.clear(entity,brood.children.get(next),next))return;
         }
         float nextBelly=LiveBirthGeometry.belly(Math.min(1,(brood.elapsed+1f)/brood.duration),brood.children.size()-brood.unborn(),brood.children.size());
-        var room=LiveBirthGeometry.bodyDimensions(entity,scale,nextBelly).scale(entity.getScale()).makeBoundingBox(entity.position());
+        var room=LiveBirthGeometry.bodyDimensions(entity,entity.growthScale(),nextBelly).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,room))return;
         brood.elapsed++;if(brood.elapsed%200==0)entity.life().spendNutrition(1);FamilyData.get(level()).setDirty();
         if(brood.elapsed>=brood.duration){
@@ -345,7 +360,7 @@ public final class FamilyLife {
             }
     }
     public CompoundTag save() {
-        CompoundTag tag=new CompoundTag();tag.putInt("Version",1);tag.putString("Stage",stage.name());tag.putLong("Age",age);tag.putLong("Nourishment",nourishment);
+        CompoundTag tag=new CompoundTag();tag.putInt("Version",2);tag.putLong("Maturity",maturity);tag.putString("Stage",stage.name());tag.putLong("Age",age);tag.putLong("Nourishment",nourishment);
         tag.putLong("Lifespan",lifespan);tag.putFloat("AdultScale",adultScale);tag.putFloat("Scale",scale);tag.putInt("Conceptions",conceptions);tag.putInt("Recovery",recovery);
         tag.putBoolean("Initialized",initialized);tag.putBoolean("AwaitingLanding",awaitingLanding);tag.putBoolean("JuvenileVoice",juvenileVoice);
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
@@ -358,6 +373,13 @@ public final class FamilyLife {
     public void load(CompoundTag tag) {
         try { stage=Stage.valueOf(tag.getString("Stage")); }catch(IllegalArgumentException ignored){stage=Stage.ADULT;}
         lifespan=Math.max(600,tag.getLong("Lifespan"));age=Math.max(0,tag.getLong("Age"));nourishment=Math.max(0,tag.getLong("Nourishment"));
+        if(tag.getInt("Version")<2) {
+            long oldLifespan=lifespan;
+            maturity=GrowthTiming.migratedMaturity(oldLifespan,FamilyConfig.MATURITY.get());
+            lifespan=GrowthTiming.migratedLifespan(oldLifespan,FamilyConfig.MATURITY.get(),FamilyConfig.ADULT_LIFESPAN.get());
+            age=GrowthTiming.migrateAge(age,oldLifespan,maturity,lifespan);
+            nourishment=GrowthTiming.migrateNourishment(nourishment,oldLifespan,maturity);
+        } else maturity=Math.clamp(tag.getLong("Maturity"),1,Math.max(1,lifespan-1));
         adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.12f,1.2f);
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");

@@ -1,0 +1,53 @@
+{
+  "accessory_reimu": {
+    "source_model": "reimu"
+  },
+  "accessory_marisa": {
+    "source_model": "marisa"
+  },
+  "accessory_chen": {
+    "source_model": "chen"
+  },
+  "accessory_alice": {
+    "source_model": "alice"
+  },
+  "accessory_patchouli": {
+    "source_model": "patchouli"
+  },
+  "accessory_marisa_tsumuri": {
+    "source_model": "marisa_tsumuri"
+  },
+  "accessory_reimu_wasa": {
+    "source_model": "reimu_wasa"
+  },
+  "accessory_reimu_deibu": {
+    "source_model": "reimu_deibu"
+  },
+  "accessory_reimu_wasa_deibu": {
+    "source_model": "reimu_wasa_deibu"
+  },
+  "accessory_reimu_bean": {
+    "source_model": "reimu_bean"
+  },
+  "accessory_marisa_bean": {
+    "source_model": "marisa_bean"
+  },
+  "accessory_remilia": {
+    "source_model": "remilia"
+  },
+  "accessory_flandre": {
+    "source_model": "flandre"
+  },
+  "accessory_marisa_sparse": {
+    "source_model": "marisa_sparse"
+  },
+  "accessory_marisa_face": {
+    "source_model": "marisa_face"
+  },
+  "accessory_reimu_sparse": {
+    "source_model": "reimu_sparse"
+  },
+  "accessory_reimu_face": {
+    "source_model": "reimu_face"
+  }
+}

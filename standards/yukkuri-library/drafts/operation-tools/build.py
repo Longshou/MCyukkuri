@@ -105,9 +105,13 @@ def hull(points):
 
 def fitted(bare=False):
     recipes={};sockets={};sources={};lifts={}
-    for path in sorted((ROOT/'art/source/standard-runtime').glob('*/runtime.model.json')):
-        data=json.loads(path.read_text(encoding='utf-8'));name=data['id'];v=data['vertices'];triangles=[];body=[]
-        presentation=json.loads((ROOT/'art/props/care-facilities/recipe.json').read_text(encoding='utf-8'))['presentation']['variants'][name]
+    presentations=json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']
+    presentations.update(json.loads((ASSETS/'yukkuri_presentation/subspecies.json').read_text(encoding='utf-8')))
+    for path in sorted((ASSETS/'yukkuri').glob('*.json')):
+        data=json.loads(path.read_text(encoding='utf-8'))
+        if not all(k in data for k in ('id','vertices','weights','bones','clips')):continue
+        name=data['id'];v=data['vertices'];triangles=[];body=[]
+        presentation=presentations[name]
         prefixes=tuple(presentation['accessory_prefixes'])
         if bare:name+='_bare'
         for part in data['parts']:
@@ -115,7 +119,7 @@ def fitted(bare=False):
             if bare and part['name'].startswith(prefixes):continue
             for first in range(part['start'],part['start']+part['count'],3):
                 tri=[v[(first+i)*8:(first+i)*8+3] for i in range(3)];triangles.append(tri)
-                if part['name'].startswith('soft_head_slice_') or part['name'] in ('house_body_surface','predator_body_surface'):body.extend(tri)
+                if part['name'].startswith('soft_head_slice_') or part['name'] in ('house_body_surface','predator_body_surface','rounded_body_surface','deficient_body_surface'):body.extend(tri)
         if not body:raise ValueError(f'{name}: no recognized body surface for operation fitting')
         points=[p for tri in triangles for p in tri];top=max(p[1] for p in points)
         def section(tris,axis,value):

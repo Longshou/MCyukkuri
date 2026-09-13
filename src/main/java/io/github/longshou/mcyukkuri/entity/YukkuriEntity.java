@@ -127,6 +127,7 @@ public final class YukkuriEntity extends PathfinderMob {
         setPathfindingMalus(PathType.WATER_BORDER, 8);
         setPathfindingMalus(PathType.DANGER_FIRE, 16);
         setPathfindingMalus(PathType.DAMAGE_FIRE, -1);
+        refreshDimensions();
     }
 
     public YukkuriVariant getVariant() { return variant; }
@@ -229,6 +230,16 @@ public final class YukkuriEntity extends PathfinderMob {
     public ItemStack getCarriedItem(){return entityData.get(CARRYING);}
     public io.github.longshou.mcyukkuri.body.BodyLife body(){return body;}
     public io.github.longshou.mcyukkuri.interaction.OperationLife operations(){return operations;}
+    @Override protected boolean canAddPassenger(net.minecraft.world.entity.Entity passenger){
+        return io.github.longshou.mcyukkuri.family.HatCarry.canSeat(this,passenger);
+    }
+    @Override public net.minecraft.world.entity.LivingEntity getControllingPassenger(){return null;}
+    @Override protected void positionRider(net.minecraft.world.entity.Entity passenger,MoveFunction move){
+        if(io.github.longshou.mcyukkuri.family.HatCarry.riding(this,passenger)){
+            var point=io.github.longshou.mcyukkuri.family.HatCarry.seatWorld(this,0);
+            move.accept(passenger,point.x,point.y,point.z);
+        }else super.positionRider(passenger,move);
+    }
     public String contactPose(){return entityData.get(CONTACT_POSE);}
     public float contactTurn(){return entityData.get(CONTACT_TURN);}
     public int visibleHairLoss(){return entityData.get(HAIR_LOSS);}
@@ -240,7 +251,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public int visibleFilling(){return entityData.get(FILLING);}
     public void syncBody(){if(body==null||level().isClientSide)return;entityData.set(WOUND,Math.max(body.wound(),body.burns()));entityData.set(WOUNDS,io.github.longshou.mcyukkuri.body.BodyWound.write(body.wounds()));entityData.set(FILLING,body.filling());entityData.set(BANDAGED,body.bandage()>0);entityData.set(HAIR_LOSS,body.hairLoss());}
     public boolean visibleBandage(){return entityData.get(BANDAGED);}
-    public float growthScale() { return entityData.get(GROWTH_SCALE); }
+    public float growthScale() { return entityData.get(GROWTH_SCALE)*((subspeciesFlags()&io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1); }
     public int lifeStage() { return entityData.get(LIFE_STAGE); }
     public int broodCount() { return entityData.get(BROOD_COUNT); }
     public int broodBornMask() { return entityData.get(BROOD_BORN); }
@@ -282,6 +293,7 @@ public final class YukkuriEntity extends PathfinderMob {
         entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,family.liveBelly());
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
+        if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
         return io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bodyDimensions(this,growthScale(),livePregnancyProgress());
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
@@ -481,18 +493,27 @@ public final class YukkuriEntity extends PathfinderMob {
         return true;
     }
 
+    private boolean boutDamage;
+    private float pendingHitHealth;
+    public boolean hurtInBout(DamageSource source,float amount) {
+        boutDamage=true;try{return hurt(source,amount);}finally{boutDamage=false;}
+    }
     @Override
     public boolean hurt(DamageSource source, float amount) {
         float before=getHealth();
-        boolean damaged = super.hurt(source, amount);
+        float previousHit=pendingHitHealth;
+        pendingHitHealth=before;
+        boolean damaged;
+        try { damaged = super.hurt(source, amount); }
+        finally { pendingHitHealth=previousHit; }
         if (damaged && !level().isClientSide && isAlive()) {
             body.injured(source,before-getHealth());
             groupInteraction.stop();dailyLife.stop();playLife.stop();
-            if(source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
+            if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
             operations.damaged(source);
             requestedAction = null;
             life.interrupt(); social.stop();
-            life.personality().hurt(source.getEntity() instanceof Player player ? player.getUUID() : null);
+            if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
             panicTicks = 112;
             navigation.stop();
             setAnimation(YukkuriAction.STARTLE, true);
@@ -503,10 +524,11 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void die(DamageSource source) {
         if (!level().isClientSide) {
+            if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
             groupInteraction.stop();dailyLife.stop();playLife.stop();
             requestedAction = null;
             operations.end();
-            if(!deathRecorded) { deathRecorded=true;family.died();house.dropCarrying();habitat.dropCarrying();body.died(); }
+            if(!deathRecorded) { deathRecorded=true;family.died();house.dropCarrying();habitat.dropCarrying();body.died(source); }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);
             entityData.set(EXPRESSION, "neutral");
@@ -527,13 +549,7 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         if (stack.is(Items.SHEARS) && player.isSecondaryUseActive()) {
             if (!level().isClientSide) {
-                var token = life.takeAccessory(player.getUUID());
-                if (token != null) {
-                    ItemStack accessory = new ItemStack(ModItems.accessoryFor(this));
-                    CustomData.update(DataComponents.CUSTOM_DATA, accessory, data -> { data.putUUID("Owner",getUUID()); data.putUUID("Token",token);data.putFloat("SourceScale",family.scale()*(variant.isHouse()?.32f:1)); });
-                    badges.markAccessory(accessory);
-                    if (!player.getInventory().add(accessory)) player.drop(accessory, false);
-                }
+                operations.perform(player,io.github.longshou.mcyukkuri.interaction.CareAction.TAKE_ACCESSORY);
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }

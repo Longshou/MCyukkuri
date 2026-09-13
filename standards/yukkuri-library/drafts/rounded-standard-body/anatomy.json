@@ -1,0 +1,74 @@
+{
+  "id": "anatomy.rounded_standard_body",
+  "parts": [
+    {
+      "id": "mamu",
+      "label": "麻姆麻姆",
+      "bone": "anatomy_mamu",
+      "offset": [
+        0,
+        0,
+        -0.6
+      ]
+    },
+    {
+      "id": "peni",
+      "label": "佩尼佩尼",
+      "bone": "anatomy_peni",
+      "offset": [
+        0,
+        0,
+        -3.35
+      ],
+      "rotation": [
+        25,
+        0,
+        0
+      ]
+    }
+  ],
+  "trigger": "explicit_extend_retract_buttons",
+  "rest": "retracted inside body",
+  "scope": "standard adult models",
+  "placement": "mamu: rear below anus; peni: front below mouth",
+  "reference": "ANATOMY.md",
+  "default_part": "peni",
+  "mutually_exclusive": true,
+  "switch_policy": "retract current completely before revealing selected part",
+  "schema_version": 1,
+  "status": "pending_confirmation",
+  "component": {
+    "reimu": "components/reimu.json",
+    "marisa": "components/marisa.json"
+  },
+  "rig": {
+    "reimu": "rigs/reimu.json",
+    "marisa": "rigs/marisa.json"
+  },
+  "runtime": "runtime/anatomy.js",
+  "exported_actions": {
+    "anatomy_mamu_extend": {
+      "part": "mamu",
+      "direction": "extend"
+    },
+    "anatomy_mamu_retract": {
+      "part": "mamu",
+      "direction": "retract"
+    },
+    "anatomy_peni_extend": {
+      "part": "peni",
+      "direction": "extend"
+    },
+    "anatomy_peni_retract": {
+      "part": "peni",
+      "direction": "retract"
+    }
+  },
+  "extend_seconds": 0.24,
+  "retract_seconds": 0.65,
+  "surface_site": [
+    0,
+    1.2809050218317468,
+    -4.647460505541905
+  ]
+}

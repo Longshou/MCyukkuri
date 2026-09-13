@@ -1,0 +1,732 @@
+{
+  "createdAt": "2026-09-13T08:31:17.030Z",
+  "status": "passed",
+  "inputs": {
+    "manifest": "ea5cfe83051ad6559c3bf54ddea881b18d6e6a74fd6a039ccbef423a16bf5654",
+    "viewer": "71219dbaac5b478c8e95be1fdc548190f67b3ca9832190047c30b402fda7d935"
+  },
+  "checks": [
+    {
+      "id": "reimu",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 117827,
+      "state": {
+        "mode": "reimu",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 117117,
+      "state": {
+        "mode": "reimu",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 104836,
+      "state": {
+        "mode": "reimu",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "reimu",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "marisa",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 164281,
+      "state": {
+        "mode": "marisa",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 162865,
+      "state": {
+        "mode": "marisa",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 137483,
+      "state": {
+        "mode": "marisa",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "marisa",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "chen",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 108568,
+      "state": {
+        "mode": "chen",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "chen",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 109008,
+      "state": {
+        "mode": "chen",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "chen",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 96477,
+      "state": {
+        "mode": "chen",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "chen",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "chen",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "alice",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 100519,
+      "state": {
+        "mode": "alice",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "alice",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 99672,
+      "state": {
+        "mode": "alice",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "alice",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 92126,
+      "state": {
+        "mode": "alice",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "alice",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "alice",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "patchouli",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 146135,
+      "state": {
+        "mode": "patchouli",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "patchouli",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 144655,
+      "state": {
+        "mode": "patchouli",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "patchouli",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 133912,
+      "state": {
+        "mode": "patchouli",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "patchouli",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "patchouli",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 189268,
+      "state": {
+        "mode": "marisa_tsumuri",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 189268,
+      "state": {
+        "mode": "marisa_tsumuri",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 154758,
+      "state": {
+        "mode": "marisa_tsumuri",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 123203,
+      "state": {
+        "mode": "reimu_wasa",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 121856,
+      "state": {
+        "mode": "reimu_wasa",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 108057,
+      "state": {
+        "mode": "reimu_wasa",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "gallery",
+      "action": "idle",
+      "passed": true,
+      "pixels": 230296,
+      "state": {
+        "mode": "reimu_deibu",
+        "action": "idle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "gallery",
+      "action": "waddle",
+      "passed": true,
+      "pixels": 227893,
+      "state": {
+        "mode": "reimu_deibu",
+        "action": "waddle",
+        "expression": "neutral",
+        "time": 0.3,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "gallery",
+      "action": "birth",
+      "passed": true,
+      "pixels": 210610,
+      "state": {
+        "mode": "reimu_deibu",
+        "action": "birth",
+        "expression": "neutral",
+        "time": 13,
+        "playing": false,
+        "az": 0.6,
+        "el": 0.16,
+        "zoom": 1,
+        "bodyOnly": false,
+        "focus": false
+      }
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "gallery",
+      "action": "extend",
+      "passed": true
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "gallery",
+      "action": "switch",
+      "passed": true
+    },
+    {
+      "id": "reimu",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 95883
+    },
+    {
+      "id": "reimu",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 95883
+    },
+    {
+      "id": "reimu",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 95883
+    },
+    {
+      "id": "marisa",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 133613
+    },
+    {
+      "id": "marisa",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 133613
+    },
+    {
+      "id": "marisa",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 133613
+    },
+    {
+      "id": "chen",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 87776
+    },
+    {
+      "id": "chen",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 87776
+    },
+    {
+      "id": "chen",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 87776
+    },
+    {
+      "id": "alice",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 81274
+    },
+    {
+      "id": "alice",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 81274
+    },
+    {
+      "id": "alice",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 81274
+    },
+    {
+      "id": "patchouli",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 118513
+    },
+    {
+      "id": "patchouli",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 118513
+    },
+    {
+      "id": "patchouli",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 118513
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 76047
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 76047
+    },
+    {
+      "id": "marisa_tsumuri",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 76047
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 100589
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 100589
+    },
+    {
+      "id": "reimu_wasa",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 100589
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "full",
+      "expression": "neutral",
+      "passed": true,
+      "pixels": 186447
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "full",
+      "expression": "angry",
+      "passed": true,
+      "pixels": 186447
+    },
+    {
+      "id": "reimu_deibu",
+      "entry": "full",
+      "expression": "puff",
+      "passed": true,
+      "pixels": 186447
+    }
+  ],
+  "failures": [],
+  "errors": []
+}

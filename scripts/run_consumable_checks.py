@@ -17,7 +17,7 @@ import tempfile
 from run_p0 import ROOT, java_path
 
 REPORTS = ('consumable-rule-checks', 'consumable-live-checks',
-           'consumable-birth-checks', 'consumable-live-birth-checks', 'consumable-morph-checks')
+           'consumable-birth-checks', 'consumable-live-birth-checks', 'consumable-morph-checks', 'fertility-checks')
 
 
 def main(build_directory):

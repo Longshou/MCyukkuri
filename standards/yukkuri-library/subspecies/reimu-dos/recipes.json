@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "design_draft",
   "units_per_block": 16,
-  "source": "../../assembled/{base}/{base}.bbmodel + index.html",
+  "source": "../../body-standard/inputs/{base}/{base}.bbmodel + index.html",
   "variants": {
     "reimu_wasa": {
       "label": "多毛灵梦",
@@ -27,7 +27,10 @@
         ],
         "layers": 12
       },
-      "world_scale": 0.28872180451127816
+      "world_scale": 0.28872180451127816,
+      "current_builder": "../../body-standard/build.py",
+      "body_status": "user_approved_standard",
+      "legacy_shape_parameters": "保留作为推广前制作输入，当前体型以圆润标准配方为准。"
     },
     "reimu_deibu": {
       "label": "灵胖",
@@ -55,7 +58,10 @@
       "signature_expression": "mature",
       "world_scale": 0.28872180451127816,
       "cheek_roundness": 0.075,
-      "lower_corner_tuck": 0.18
+      "lower_corner_tuck": 0.18,
+      "current_builder": "../../body-standard/build.py",
+      "body_status": "user_approved_standard",
+      "legacy_shape_parameters": "保留作为推广前制作输入，当前体型以圆润标准配方为准。"
     },
     "marisa_dos": {
       "label": "DOS 魔理沙",
@@ -102,5 +108,6 @@
     "hat_included": false,
     "world_scale": 0.28872180451127816,
     "note": "普通成体以主体宽约24厘米表示篮球大小；DOS按主体高1.8米标定，帽子另算。"
-  }
+  },
+  "current_body_standard": "../../body-standard/profile.json"
 }

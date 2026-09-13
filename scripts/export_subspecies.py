@@ -144,6 +144,13 @@ def author(base, shape):
             if n in ('world_motion','root','body_motion','body_stretch') or 'slice_' in n or n.startswith(('rump','anatomy')):
                 bone['pivot']=[p[0]*width,p[1]*r['body_height'],p[2]*r['depth']]
             else: bone['pivot']=[p[0]*r['head_scale'],p[1]*r['head_scale']+r['head_raise'],p[2]*r['depth']]
+    if shape=='bean' and recipe.get('hair_fit'):
+        sys.path.insert(0,str(OWN))
+        from bean_hair import author as fit_bean_hair
+        pairs=fit_bean_hair(pairs,rig,base,recipe)
+        bb['elements']=[p[0] for p in pairs];rig['groups']=[p[1] for p in pairs]
+        rig['element_vertex_counts']=[len(vertices(e,bb['resolution']['width']))//8 for e,g in pairs]
+        rig.pop('vertex_weights',None)
     # Rebuild the editable hierarchy so removed hair elements cannot remain dangling.
     groups={}; roots=[]
     import uuid
@@ -178,7 +185,7 @@ def load_existing(ident):
         normalize_tree(bb['outliner'])
     return bb,rig,bp,rp,d/'textures'
 
-def export(ident, base, selection, stage):
+def export(ident, base, selection, stage, preserve_textures=False):
     bb,rig,bp,rp,textures=selection; names={b['name']:i for i,b in enumerate(rig['bones'])}
     flat=[]; weights=[]; parts=[]
     for e,g in zip(bb['elements'],rig['groups']):
@@ -189,7 +196,7 @@ def export(ident, base, selection, stage):
             if sum(n[k]*vv[i+5+k] for k in range(3))<0: vv[i+8:i+24]=vv[i+16:i+24]+vv[i+8:i+16]
         count=len(vv)//8; parts.append({'name':e['name'],'start':len(weights),'count':count,'anatomy':g.removeprefix('anatomy_') if g.startswith('anatomy_') else ''})
         flat.extend(round(v,7) for v in vv)
-        if e['name'] in ('deficient_body_surface','bean_rear_mark'):
+        if e['name'] in ('deficient_body_surface','bean_rear_mark') or (ident.endswith('_bean') and g=='body_stretch'):
             for i in range(0,len(vv),8):
                 q=max(0,min(31,vv[i+1]/(8.48*1.55)*32-.5));lo=int(q);hi=min(31,lo+1)
                 weights.append([names[f'soft_head_slice_{lo}_bend'],names[f'soft_head_slice_{hi}_bend'],round(q-lo,7)])
@@ -229,9 +236,21 @@ def export(ident, base, selection, stage):
                 if t['channel']=='position':
                     for k in t['keys']: k[1]*=.65; k[2]*=1.3; k[3]*=.82
     model={'format':1,'id':ident,'units_per_block':16,'house':False,'vertices':flat,'weights':weights,'parts':parts,'bones':bones,'clips':clips}
+    if ident.endswith('_bean'):
+        recipe=read(OWN/'recipes.json')['shape_rules']['bean']
+        if recipe.get('face_fit'):
+            sys.path.insert(0,str(OWN))
+            from bean_face import fit as fit_bean_face
+            fit_bean_face(model,bb,rig,recipe)
+            save(bp,bb);save(rp,rig)
     dest=OUT/ident; save(dest/(ident+'.bbmodel'),bb); save(dest/'animation-rig.json',rig); save(dest/'runtime.model.json',model)
     if not stage: save(ASSETS/'yukkuri'/(ident+'.json'),model)
-    texture_records=export_textures(ident,base,textures,bb['resolution'],stage)
+    if preserve_textures:
+        texture_records=copy.deepcopy(read(OUT/'manifest.json')['models'][ident]['textures'])
+        for expr,entry in texture_records.items():
+            assert sha(OUT/ident/'textures'/(expr+'.png'))==sha(ASSETS/'textures/entity'/ident/(expr+'.png'))==entry['sha256'], expr
+    else:
+        texture_records=export_textures(ident,base,textures,bb['resolution'],stage)
     record={'geometry_identifier':ident,'base_species':base,'selected_model':rel(bp),'selected_model_sha256':sha(bp),
         'selected_rig':rel(rp),'selected_rig_sha256':sha(rp),'snapshot':rel(dest/(ident+'.bbmodel')),
         'runtime':rel(ASSETS/'yukkuri'/(ident+'.json')),'runtime_sha256':sha(dest/'runtime.model.json'),
@@ -265,9 +284,13 @@ def main():
     mode.add_argument('--textures-only',action='store_true',help='Refresh expression selection without rebuilding geometry or motion')
     mode.add_argument('--check-textures',action='store_true',help='Read-only coverage, decode, size, provenance and snapshot/runtime equality checks')
     args=parser.parse_args()
+    if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and not (args.textures_only or args.check_textures):
+        raise SystemExit('Rounded shell/Wasa selection is active. Use export_rounded_runtime.py and deficient_motion_contact.py; legacy regeneration would replace the selected bodies.')
     if args.textures_only or args.check_textures:
         manifest=read(OUT/'manifest.json')
         for ident,record in manifest['models'].items():
+            if record.get('revision')in ('rounded-marisa-deficient-v1','rounded-reimu-deficient-v1'):continue  # Matching 256px atlases are owned by the rounded deficient exporter.
+            if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and ident in ('marisa_tsumuri','reimu_wasa'):continue
             source=(ROOT/record['selected_model']).parent/'textures' if ident in ('marisa_tsumuri','reimu_wasa') else ROOT/'art/source/standard-runtime'/record['base_species']/'textures'
             bb=read(ROOT/record['snapshot'])
             records=export_textures(ident,record['base_species'],source,bb['resolution'],args.stage,args.check_textures)

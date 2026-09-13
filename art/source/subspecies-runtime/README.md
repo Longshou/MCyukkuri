@@ -1,5 +1,9 @@
 # 亚种与先天形态的游戏选用
 
+2026-09-14：稀毛、歪脸灵梦也已完成[圆润体态接入](../../../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。两种均使用 256 像素图集，定向导出为 `python scripts/export_reimu_deficient_rounded.py`；本轮源与游戏资源、四视图和实机均已同步，715 条专项检查通过。下方 128 像素说明为此前选用记录。
+
+2026-09-13 后续修正：稀毛、歪脸魔理沙已采用[圆润身体制作源](../../../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)，对应两种快照与运行资源、256 像素图集、伤口、帽饰和嘴部挂点同步更新。定向重建用 `python scripts/export_marisa_deficient_rounded.py`；旧全量／后发适配器不得恢复这两种旧体态。[本轮预览与检查](../../../standards/yukkuri-library/subspecies/deficient/rounded-marisa/previews/current/index.html)，造型待确认，实机验收待共同冻结后的接入任务执行。
+
 本目录保存八份实际接入模型及其源快照。螺壳魔理沙选用已有确认造型；多毛灵梦、六份先天形态与帽船适配仍待用户确认。技术验收不改变造型确认状态。
 
 - [当前交互预览](preview.html)：使用本轮运行三角面、骨架、贴图，可切换模型和动作。

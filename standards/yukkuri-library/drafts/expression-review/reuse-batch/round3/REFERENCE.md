@@ -4,7 +4,7 @@
 
 ## 原图核读
 
-核读版本为本机《ゆっくり八景 U》v8.3。图片来自项目已有的 `reference/hakkei-u-expression-audit/sprites/`，索引记录源文件为 `E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。以下均是字段下标 0、外部文件 ID 2 对应的图层，不是完整游戏截图。
+核读版本为本机《ゆっくり八景 U》v8.3。图片来自项目已有的 `reference/hakkei-u-expression-audit/sprites/`，索引记录源文件为 `E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。以下均是字段下标 0、外部文件 ID 2 对应的图层，不是完整游戏截图。
 
 | 字段 | Sprite ID | 本轮用途 |
 | --- | --- | --- |

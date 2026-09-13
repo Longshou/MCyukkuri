@@ -1,0 +1,208 @@
+{
+  "status": "user_approved_standard",
+  "body_source": "profile.json",
+  "characters": [
+    "reimu",
+    "marisa",
+    "chen",
+    "alice",
+    "patchouli",
+    "marisa_tsumuri",
+    "reimu_wasa",
+    "reimu_deibu"
+  ],
+  "attachment_scale": [
+    1.0666666667,
+    1.1,
+    0.76
+  ],
+  "front_scale": 1.05,
+  "face_scale": [
+    1.02,
+    1.08
+  ],
+  "face_clearance": 0.035,
+  "anatomy": {
+    "anus_uv": [
+      96,
+      96,
+      128,
+      128
+    ],
+    "anus_atlas": [
+      144,
+      144
+    ],
+    "anus_clearance": 0.018,
+    "site_rule": "mamu and delivery share the extended peni axis intersection with the front skin",
+    "mamu_retracted_inset": 0.55,
+    "mamu_travel": [
+      0,
+      0,
+      -0.6
+    ],
+    "peni_offset": [
+      0,
+      -0.3,
+      0.26
+    ],
+    "peni_travel": [
+      0,
+      0,
+      -3.35
+    ],
+    "peni_rotation": [
+      25,
+      0,
+      0
+    ]
+  },
+  "birth": {
+    "source": "../../yukkuri-v1/behaviors/viviparous-birth.json",
+    "count": 3,
+    "outlet_clearance": 0.05,
+    "body_height": 9.6
+  },
+  "preview_actions": [
+    "idle",
+    "waddle",
+    "hop",
+    "stretch",
+    "side_bend",
+    "startle"
+  ],
+  "expressions": [
+    "neutral",
+    "happy",
+    "angry",
+    "surprise",
+    "sleep",
+    "chewing_closed"
+  ],
+  "notes": "已确认圆润标准体型。八种角色保留专属部件并适配挂接；两种捕食种沿用相同截面。家油、DOS、不足油保留旧体型。",
+  "id": "rounded-standard-body-2026-09-13",
+  "approved_on": "2026-09-13",
+  "approval_scope": "用户确认当前圆润身体，推广至除家油、DOS、不足油之外的全部油库里，包括多毛种。",
+  "labels": {
+    "reimu": "灵梦",
+    "marisa": "魔理沙",
+    "chen": "橙",
+    "alice": "爱丽丝",
+    "patchouli": "帕秋莉",
+    "marisa_tsumuri": "螺壳魔理沙",
+    "reimu_wasa": "多毛灵梦",
+    "reimu_deibu": "灵胖"
+  },
+  "sources": {
+    "reimu": {
+      "folder": "inputs/reimu",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/reimu",
+      "atlas_size": 256,
+      "base": "reimu"
+    },
+    "marisa": {
+      "folder": "inputs/marisa",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/marisa",
+      "atlas_size": 256,
+      "base": "marisa"
+    },
+    "chen": {
+      "folder": "inputs/chen",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/chen",
+      "atlas_size": 256,
+      "base": "reimu"
+    },
+    "alice": {
+      "folder": "inputs/alice",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/alice",
+      "atlas_size": 256,
+      "base": "reimu"
+    },
+    "patchouli": {
+      "folder": "inputs/patchouli",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/patchouli",
+      "atlas_size": 256,
+      "base": "reimu"
+    },
+    "marisa_tsumuri": {
+      "folder": "inputs/marisa_tsumuri",
+      "normalization": [
+        1,
+        1,
+        1
+      ],
+      "export": "assembled/marisa_tsumuri",
+      "atlas_size": 512,
+      "base": "marisa"
+    },
+    "reimu_wasa": {
+      "folder": "inputs/reimu_wasa",
+      "normalization": [
+        0.28872180451127816,
+        0.28872180451127816,
+        0.28872180451127816
+      ],
+      "export": "subspecies/reimu-dos/assembled/reimu_wasa",
+      "atlas_size": 256,
+      "base": "reimu"
+    },
+    "reimu_deibu": {
+      "folder": "inputs/reimu_deibu",
+      "normalization": [
+        0.34646616541353376,
+        0.4273082706766917,
+        0.3609022556390977
+      ],
+      "export": "subspecies/reimu-dos/assembled/reimu_deibu",
+      "atlas_size": 256,
+      "base": "reimu",
+      "overall_scale": 1.5,
+      "face_style": "features/deibu-mature/recipe.json",
+      "bow_scale": [
+        0.6153846153846154,
+        0.6666666666666666,
+        0.6666666666666666
+      ]
+    }
+  },
+  "already_matching": [
+    "remilia",
+    "flandre"
+  ],
+  "excluded": [
+    "house_reimu",
+    "house_marisa",
+    "marisa_dos",
+    "reimu_sparse",
+    "reimu_face",
+    "reimu_bean",
+    "marisa_sparse",
+    "marisa_face",
+    "marisa_bean"
+  ]
+}

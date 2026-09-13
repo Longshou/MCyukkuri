@@ -1,0 +1,1394 @@
+[
+  {
+    "name": "REIMU two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "REIMU entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "REIMU idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REIMU NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REIMU first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "REIMU second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "REIMU released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "REIMU server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "REIMU emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "REIMU bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "REIMU bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "REIMU capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "REIMU finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "REIMU juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "REIMU old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "REIMU mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "REIMU mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "MARISA two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "MARISA entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "MARISA idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "MARISA NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "MARISA first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "MARISA second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "MARISA released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "MARISA server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "MARISA emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "MARISA bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "MARISA bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "MARISA capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "MARISA finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "MARISA juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "MARISA old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "MARISA mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "MARISA mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "CHEN two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "CHEN entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "CHEN idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "CHEN NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "CHEN first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "CHEN second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "CHEN released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "CHEN server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "CHEN emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "CHEN bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "CHEN bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "CHEN capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "CHEN finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "CHEN juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "CHEN old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "CHEN mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "CHEN mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "ALICE two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "ALICE entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "ALICE idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "ALICE NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "ALICE first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "ALICE second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "ALICE released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "ALICE server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "ALICE emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "ALICE bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "ALICE bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "ALICE capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "ALICE finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "ALICE juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "ALICE old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "ALICE mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "ALICE mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "REMILIA two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "REMILIA entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "REMILIA idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "REMILIA NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "REMILIA first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "REMILIA second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "REMILIA released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "REMILIA server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "REMILIA emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "REMILIA bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "REMILIA bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "REMILIA capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "REMILIA finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "REMILIA juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "REMILIA old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "REMILIA mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "REMILIA mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE two independent wounds sync immediately",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE entity NBT preserves identity and coordinates",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE idle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE idle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE idle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE side_bend 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE side_bend 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE side_bend 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE stretch_shape 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE stretch_shape 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE stretch_shape 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE waddle 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE waddle 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE waddle 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE press 0.0 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE press 0.45 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE press 0.9 inverse posed skin",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE NONE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE SUPINE release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE FIXED release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE GRIP release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE ROLL release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE HOOK release follows scale and contact transform",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE first actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE second actual outlet emits",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE released items carry distinct outlet identities",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE server drop starts at actual surface",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE emitted quantities survive reload",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE bandage accepted",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE bandage heals both wounds without more drops",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE capacity preserves original anchor identity",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE finite filling blocks additional releases",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE juice clears all locations and synchronizes",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE old scalar saves migrate",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE mixed legacy 1/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE mixed legacy 8/8 preserves both totals through reload",
+    "pass": true
+  },
+  {
+    "name": "Accepted real damage creates a tear",
+    "pass": true
+  },
+  {
+    "name": "Rejected duplicate hit creates no extra wound",
+    "pass": true
+  },
+  {
+    "name": "Drowning creates no external wound",
+    "pass": true
+  },
+  {
+    "name": "Four-point fire hit records two scorch grades",
+    "pass": true
+  },
+  {
+    "name": "Scorch heals fully after its scalar would previously reach zero",
+    "pass": true
+  },
+  {
+    "name": "Full-capacity heated hit never rewrites an unrelated last wound",
+    "pass": true
+  },
+  {
+    "name": "REIMU bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "REIMU bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "MARISA bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "MARISA bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_REIMU bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "HOUSE_MARISA bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "CHEN bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "CHEN bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "ALICE bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "ALICE bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "PATCHOULI bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "REMILIA bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "REMILIA bottom outlet clears slab",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE bottom outlet clears full block",
+    "pass": true
+  },
+  {
+    "name": "FLANDRE bottom outlet clears slab",
+    "pass": true
+  }
+]

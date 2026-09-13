@@ -1,6 +1,6 @@
 # 八景 U 表情参考
 
-来源：本机 v8.3 的 `E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。通过已核实的 `graphic-map.json` 字段映射选取下标 0，并用个人技能 `hakkei-u-art-reference/scripts/extract_sprites.py` 提取；原始元数据见 `sprite-index.json`。
+来源：本机 v8.3 的 `E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。通过已核实的 `graphic-map.json` 字段映射选取下标 0，并用个人技能 `hakkei-u-art-reference/scripts/extract_sprites.py` 提取；原始元数据见 `sprite-index.json`。
 
 | 本次预设 | 原作字段 | ID | 实际观察 |
 |---|---|---:|---|

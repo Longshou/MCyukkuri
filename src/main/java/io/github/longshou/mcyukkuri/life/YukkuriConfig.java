@@ -16,6 +16,7 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
+    public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
@@ -26,6 +27,11 @@ public final class YukkuriConfig {
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
         WET_DAMAGE_THRESHOLD = builder.comment("Brief washing stays below this prolonged exposure threshold.")
                 .defineInRange("wetDamageThreshold", 60, 20, 100);
+        builder.pop().push("development");
+        DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
+        DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);
+        DEIBU_EXPOSURE=builder.comment("Joint qualifying loaded adult ticks; progress decays twice as fast when conditions lapse.").defineInRange("deibuExposureTicks",24000,20,1728000);
+        DEIBU_SUSCEPTIBILITY=builder.comment("Percent of fixed individual susceptibility ranks eligible in a lifetime, never a repeated chance roll.").defineInRange("deibuLifetimePercent",30,0,100);
         builder.pop().push("discovery");
         NATURAL_SPAWNS = builder.define("naturalSpawns", true);
         LOCAL_SPAWN_CAP = builder.defineInRange("localSpawnCap", 8, 1, 64);

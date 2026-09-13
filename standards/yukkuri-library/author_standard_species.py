@@ -24,6 +24,8 @@ COLORS={
 parser=argparse.ArgumentParser();parser.add_argument('--species',nargs='+',choices=list(COLORS),default=list(COLORS))
 parser.add_argument('--parts',nargs='+',choices=['hair','hand-left','hand-right'],help='Author only selected hair components; keep textures, character registration and rig unchanged.')
 args=parser.parse_args()
+if any(read('characters/'+species+'.json').get('body_standard') for species in args.species):
+    parser.error('Current characters use body-standard/recipe.json. Revise its feature input and rebuild; this legacy cuboid author cannot replace the rounded standard registration.')
 if not args.parts:
     from PIL import Image, ImageDraw
 for species,label in [('chen','橙'),('alice','爱丽丝'),('patchouli','帕秋莉')]:

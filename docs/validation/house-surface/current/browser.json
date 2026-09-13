@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "errors": [],
+  "images": [
+    {
+      "src": "comparison.gif",
+      "width": 640,
+      "height": 700
+    },
+    {
+      "src": "house_reimu.png",
+      "width": 1152,
+      "height": 2212
+    },
+    {
+      "src": "house_marisa.png",
+      "width": 1152,
+      "height": 2212
+    }
+  ]
+}

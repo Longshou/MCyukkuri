@@ -100,7 +100,7 @@ public final class WildCards {
             case "little-gap" -> first.getBbWidth()>=second.getBbWidth()*1.5 && close(first,second,2) && caring(first,second);
             case "rivalry" -> affinity<=-10 && relations.affinity(second.getUUID(),first.getUUID())<0 && WildEvents.recognizes(first,second);
             case "crowd" -> all.size()==3 && all.stream().allMatch(p -> close(first,p,1.6));
-            case "territory" -> first.life().personality().trait(Trait.BOLDNESS)>=75 && first.life().personality().trait(Trait.CARE)<25
+            case "territory" -> first.life().personality().escalationScore()>=65 && first.life().personality().selfishness()>=65
                     && affinity<=0 && !family.related(first.getUUID(),second.getUUID()) && close(first,second,2);
             case "plea" -> first.life().nutrition()<40 && second.life().nutrition()>60 && WildEvents.recognizes(first,second);
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null

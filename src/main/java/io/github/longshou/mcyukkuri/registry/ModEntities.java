@@ -27,6 +27,9 @@ public final class ModEntities {
                     .sized(.25f,.25f).clientTrackingRange(6).updateInterval(20).build(MCYukkuri.id("material_drop").toString()));
 
     // Body bounds at 16 model units per block; hats and ribbons are visual accessories.
+    public static final DeferredHolder<EntityType<?>,EntityType<io.github.longshou.mcyukkuri.entity.RemainsEntity>> REMAINS=TYPES.register("yukkuri_remains",
+            ()->EntityType.Builder.<io.github.longshou.mcyukkuri.entity.RemainsEntity>of(io.github.longshou.mcyukkuri.entity.RemainsEntity::new,MobCategory.MISC)
+                    .sized(.75f,.35f).clientTrackingRange(8).updateInterval(3).build(MCYukkuri.id("yukkuri_remains").toString()));
     public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> REIMU =
             register(YukkuriVariant.REIMU, 0.75F, 0.53F, 0.28F);
     public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> MARISA =

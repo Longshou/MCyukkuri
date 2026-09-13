@@ -31,7 +31,7 @@
 - `13038` 行 `優しい言葉動作`：听取温柔话语，依据原生反应模式回应。本预览使用友好反应示例。
 - `8564` 行 `持ち上げ動作`：跟随持有位置，过快移动会切换反应。本预览实现平稳抱起与放下。
 
-图像来源：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。图层实际提取并核读，记录在本地 `reference/sprite-index.json` 和 `reference/layers.png`，原图不进入预览及交付包。
+图像来源：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。图层实际提取并核读，记录在本地 `reference/sprite-index.json` 和 `reference/layers.png`，原图不进入预览及交付包。
 
 | 资源字段 | 本轮核读 Sprite ID | 用途 |
 | --- | --- | --- |

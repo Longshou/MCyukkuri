@@ -10,11 +10,12 @@
         "bow_"
       ],
       "mouth": [
-        0,
-        1.855,
-        -4.7
+        0.0,
+        2.0034,
+        -5.215
       ],
-      "food_scale": 0.14
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/reimu.json"
     },
     "marisa": {
       "accessory_prefixes": [
@@ -23,11 +24,12 @@
         "bow_"
       ],
       "mouth": [
-        0,
-        1.855,
-        -4.7
+        0.0,
+        2.0034,
+        -5.215
       ],
-      "food_scale": 0.14
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/marisa.json"
     },
     "house_reimu": {
       "accessory_prefixes": [
@@ -58,11 +60,12 @@
         "chen_hat_"
       ],
       "mouth": [
-        0,
-        1.855,
-        -4.7
+        0.0,
+        2.0034,
+        -5.215
       ],
-      "food_scale": 0.14
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/chen.json"
     },
     "alice": {
       "accessory_prefixes": [
@@ -70,11 +73,12 @@
         "alice_lace_"
       ],
       "mouth": [
-        0,
-        1.855,
-        -4.7
+        0.0,
+        2.0034,
+        -5.215
       ],
-      "food_scale": 0.14
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/alice.json"
     },
     "patchouli": {
       "accessory_prefixes": [
@@ -85,11 +89,12 @@
         "patchouli_side_frill_"
       ],
       "mouth": [
-        0,
-        1.855,
-        -4.7
+        0.0,
+        2.0034,
+        -5.215
       ],
-      "food_scale": 0.14
+      "food_scale": 0.14,
+      "selected_runtime": "yukkuri/patchouli.json"
     },
     "remilia": {
       "accessory_prefixes": [

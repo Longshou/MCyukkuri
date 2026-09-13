@@ -7,6 +7,7 @@ const manifest=JSON.parse(fs.readFileSync(path.join(selected,'manifest.json'))),
 const hash=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 for(const id of Object.keys(manifest.models)){
  const file=path.join(assets,'yukkuri',id+'.json'),m=JSON.parse(fs.readFileSync(file));
+ if(m.body_profile==='rounded_standard_v1'){console.log(id,'managed by rounded_wound_surface.cjs');continue;}
  const points=[],weights=[],replaced=[],faceParts=[];let skinCount=0;
  const round=x=>Math.round(x*1e6)/1e6;
  const emit=vs=>{for(const v of vs){points.push(...v.p.map(round),...v.uv.map(round));const map=new Map();for(const [b,w]of v.w)map.set(b,(map.get(b)||0)+w);const kept=[...map].filter(([b,w])=>w>1e-5),sum=kept.reduce((s,[b,w])=>s+w,0);weights.push(kept.map(([b,w])=>[b,round(w/sum)]));}};

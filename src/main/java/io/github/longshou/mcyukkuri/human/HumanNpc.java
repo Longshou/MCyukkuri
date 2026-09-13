@@ -160,7 +160,7 @@ public final class HumanNpc extends PathfinderMob {
             boolean intervened = !level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(8), n -> n != this
                     && n.attitude() == Attitude.CARING && n.isAlive() && n.hasLineOfSight(y) && n.hasLineOfSight(this)).isEmpty();
             if (intervened) { y.showReaction("angry", "", 60); routineDelay = 600; return false; }
-            y.life().personality().hurt(getUUID()); y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return true;
+            boolean hit=y.hurt(damageSources().mobAttack(this), 1); swing(InteractionHand.MAIN_HAND); return hit;
         }
         if (attitude() == Attitude.CRUEL || HumanCommerce.data(y).getString("Use").equals("input") && !FactoryPipeline.stage(y).equals("observe")) return false;
         if (y.life().canEat() && careFood > 0 && y.life().beginMeal(new ItemStack(ModItems.GRAIN_REGULAR.get()), getUUID(), true)) {

@@ -1,0 +1,19 @@
+# 家油行走表情挂接修订
+
+2026-09-13，用户指出家油走路时表情被掩盖。修订前的运行预览复现两种家油在部分行走相位出现断眼和缺嘴，静止时正常。五官面片已按家油设计放大、上移，但行走挂点仍按旧支点高度计算摆幅，未跟随面片实际所在的身体截面。
+
+用户随后指出面部有浮动褶皱。上一轮的眼口遮挡检查未覆盖身体三角面之间的动态明暗；本轮已单独修正连续皮肤的法线与光照，见[面部光照修订](SURFACE_LIGHTING.md)。下方原有遮挡记录保留其对应范围，不作为整张面部观感的通过结论。
+
+制作配方为 [recipe.json](recipe.json)，适配源为 [runtime_house_face.py](../../../../scripts/runtime_house_face.py)。根据每个五官面片实际高度，对相邻身体分段的行走曲线插值；摆动峰值沿法线增加 0.02 模型单位余量，回到静止及周期边界时归零。修订只改变 `waddle` 中十个 `face_*_skin_anchor` 的曲线；静态顶点、UV、法线、顶点权重、支点、五官子骨控制与其他动作不由该适配器改动。
+
+定向导出命令为 `python scripts/export_house_face_motion.py --publish`。不带 `--publish` 时只写项目内的 `.local/house-face/staged/`。该命令以当前选定模型为输入，从未改动的身体曲线重新计算五官曲线；重复执行结果一致，不累加偏移。它同步两只家油的运行模型、适配骨架、来源登记和独立预览条目。既有 BBModel 是 v9.1 静态源的原样快照，不改写为运行骨架；制作源与接入适配的关系沿用[运行包说明](../README.md)。旧七模型全量导出仍有圆润选用保护，不能用它覆盖当前其他角色。
+
+五官适配的指纹与受影响骨骼见 [manifest.json](manifest.json)，后续携物改动见[携物动作来源](../carry-motion/manifest.json)。接入任务将搬运目标抬到额前上方，保留短辫长度与固定夹点，只修改夹取、搬运、放下时两根手部骨骼的旋转，避开眼睛。最终模型的普通行走与携物叠加均已复查：11 张现用表情、25 个相位、正面和斜侧，共 6,600 个眼睛／嘴部样本无意外遮挡，见[当前验证报告](reports/current/verification.json)。慢走使用相同 `waddle` 曲线与游戏时钟，没有另一套 slow 动画。
+
+[正面行走动图](previews/current/waddle.gif) · [身体遮挡修前修后](previews/current/before-after.png) · [携物辫子修前修后](previews/current/carry-before-after.png) · [全部形态交互预览](../../../../standards/yukkuri-library/body-standard/previews/current/all-models/index.html?character=house_reimu)
+
+可重跑 `python art/source/standard-runtime/face-motion/verify.py`，也可加 `--waddle-only` 限定普通行走。检查按游戏的 NoCull 材质绘制身体与饰物，五官仅保留原始法线 Z 小于 -0.15 的正面；将完整模型与同姿态脸部组合的正面像素比较，保留正常泪花叠加。上述 6,600 个样本均使用此规则。
+
+实机检查还发现五官面片的不透明背面会挡住眼睛下半部，普通浏览器背面剔除会漏掉这个问题。加 `--legacy-face-backs --quick` 可复现旧绘制：72 个样本中有 16 个失败、3,360 个像素被遮挡，见[旧绘制复现记录](reports/current/legacy-face-backs.json)。早期浏览器检查只能说明其剔除规则下的结果，不能作为游戏通过证据。
+
+实际 Minecraft 已完成本项定向验收：两种家油、普通行走／慢走／携物、默认／开心／哭泣表情、正面／35° 斜侧，共 36 组，采集 768 帧。已目视审查六张接触表中的 144 张样本，五官保持完整、携物辫子避开眼睛；逐张核对样本指纹，并核对固定 JAR 内模型、当前运行资源及来源快照一致。见[实机复核记录](reports/current/minecraft.json)及[固定构建记录](../../../../docs/validation/house-face-carry/current/release.json)。本结论限于记录中的固定产物和定向范围，技术检查不代替用户对造型和动作的确认。

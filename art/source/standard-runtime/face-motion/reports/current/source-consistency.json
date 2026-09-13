@@ -1,0 +1,16 @@
+{
+  "house_reimu": {
+    "runtime_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+    "rig_sha256": "75df1e33aeca95dea2f834a655e5fde593e2c51c8ea5a3d373850c1215dc25ef",
+    "rest_geometry_weights_pivots_preserved": true,
+    "changes": "waddle facial anchors plus pickup/carry/deposit hand rotations",
+    "selected_source_hashes": "passed"
+  },
+  "house_marisa": {
+    "runtime_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+    "rig_sha256": "bba900ef1d4f64620b0b90b7b3cc27d5f5eb8be2314bf25ccee4086158968df2",
+    "rest_geometry_weights_pivots_preserved": true,
+    "changes": "waddle facial anchors plus pickup/carry/deposit hand rotations",
+    "selected_source_hashes": "passed"
+  }
+}

@@ -1,0 +1,210 @@
+[
+  {
+    "name": "PAPER north full placement",
+    "pass": true
+  },
+  {
+    "name": "PAPER north dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "PAPER east full placement",
+    "pass": true
+  },
+  {
+    "name": "PAPER east dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "PAPER south full placement",
+    "pass": true
+  },
+  {
+    "name": "PAPER south dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "PAPER west full placement",
+    "pass": true
+  },
+  {
+    "name": "PAPER west dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC north full placement",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC north dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC east full placement",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC east dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC south full placement",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC south dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC west full placement",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC west dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "SLIDE north full placement",
+    "pass": true
+  },
+  {
+    "name": "SLIDE north dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "SLIDE east full placement",
+    "pass": true
+  },
+  {
+    "name": "SLIDE east dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "SLIDE south full placement",
+    "pass": true
+  },
+  {
+    "name": "SLIDE south dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "SLIDE west full placement",
+    "pass": true
+  },
+  {
+    "name": "SLIDE west dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE north full placement",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE north dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE east full placement",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE east dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE south full placement",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE south dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE west full placement",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE west dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "POOL north full placement",
+    "pass": true
+  },
+  {
+    "name": "POOL north dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "POOL east full placement",
+    "pass": true
+  },
+  {
+    "name": "POOL east dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "POOL south full placement",
+    "pass": true
+  },
+  {
+    "name": "POOL south dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "POOL west full placement",
+    "pass": true
+  },
+  {
+    "name": "POOL west dismantles every part once",
+    "pass": true
+  },
+  {
+    "name": "occupied placement leaves obstacle",
+    "pass": true
+  },
+  {
+    "name": "first route reserves facility",
+    "pass": true
+  },
+  {
+    "name": "second route denied during lease",
+    "pass": true
+  },
+  {
+    "name": "reload cancels route and retains cooldown",
+    "pass": true
+  },
+  {
+    "name": "reload releases facility for next participant",
+    "pass": true
+  },
+  {
+    "name": "custody cancels facility route",
+    "pass": true
+  },
+  {
+    "name": "custody releases reservation",
+    "pass": true
+  },
+  {
+    "name": "disabling AI cancels route",
+    "pass": true
+  },
+  {
+    "name": "cancelled route releases facility",
+    "pass": true
+  },
+  {
+    "name": "removed facility interrupts route",
+    "pass": true
+  },
+  {
+    "name": "pool water persists without expansion",
+    "pass": true
+  },
+  {
+    "name": "filled pool removal drains contained water",
+    "pass": true
+  }
+]

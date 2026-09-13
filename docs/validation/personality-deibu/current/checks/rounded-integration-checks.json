@@ -1,0 +1,74 @@
+[
+  {
+    "name": "v2 legacy triangle migrates to current front skin preserving injury",
+    "pass": true
+  },
+  {
+    "name": "legacy wound migration becomes idempotent v3 anchors",
+    "pass": true
+  },
+  {
+    "name": "morph preserves injury identity severity and released material",
+    "pass": true
+  },
+  {
+    "name": "morph keeps wound on the same front body region",
+    "pass": true
+  },
+  {
+    "name": "current anchors and surface identity survive save-load exactly",
+    "pass": true
+  },
+  {
+    "name": "changed topology remaps from the saved anchor",
+    "pass": true
+  },
+  {
+    "name": "deibu waste carries actual 1.5 body scale",
+    "pass": true
+  },
+  {
+    "name": "adult deibu collision matches selected 19.2 by 14.4 body",
+    "pass": true
+  },
+  {
+    "name": "normalized deibu birth outlet is not scaled twice",
+    "pass": true
+  },
+  {
+    "name": "reimu wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "marisa wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "chen wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "alice wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "patchouli wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "marisa_tsumuri wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "reimu_wasa wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "reimu_deibu wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  },
+  {
+    "name": "reimu_wasa_deibu wound skin has valid numeric pose and 9.6 normalized height",
+    "pass": true
+  }
+]

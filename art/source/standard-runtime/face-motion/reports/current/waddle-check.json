@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "scope": "Waddle subset of the combined check; carry failures are excluded and remain a separate open defect.",
+  "samples": 3300,
+  "hidden_pixels": 0,
+  "failures": [],
+  "checked_candidate_sha256": {
+    "house_reimu": "3c58baa9724763e066dd4d459724ce90e40542c9c6c4b30a1926381e64ce8223",
+    "house_marisa": "37096acdd138e00e0dc780d28fa2d0b63b86fb54531c4920d7805420433a4396"
+  },
+  "commands": [
+    "node .local/house-face/verify-current.cjs .local/house-face standards/yukkuri-library"
+  ],
+  "verifier_sha256": "9cafca480f707b043b1b0202157325d557c14f6a2a38cf0676e26b807b39cf1d",
+  "runtime_at_publication": {
+    "house_reimu": "3c58baa9724763e066dd4d459724ce90e40542c9c6c4b30a1926381e64ce8223",
+    "house_marisa": "37096acdd138e00e0dc780d28fa2d0b63b86fb54531c4920d7805420433a4396"
+  },
+  "minecraft": "pending",
+  "user_confirmation": "pending"
+}

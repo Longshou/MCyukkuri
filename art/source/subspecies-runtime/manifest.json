@@ -1,1 +1,1569 @@
-{"version":1,"exporter":"scripts/export_subspecies.py","exporter_sha256":"585e8c5cac567570eb8bb87accaeb1de9c68fbfe55913b51de32396da120eaea","models":{"marisa_tsumuri":{"geometry_identifier":"marisa_tsumuri","base_species":"marisa","selected_model":"standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel","selected_model_sha256":"ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8","selected_rig":"standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json","selected_rig_sha256":"7773e66ec1e002b40fcd5612e80ba8a9904670e125666833e315217e94c20787","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/marisa_tsumuri.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json","runtime_sha256":"51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a","bone_count":203,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract","still","shell_sway","shell_retract"],"textures":{"neutral":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/neutral.png","sha256":"16b12c7f044cfc10bb78e7ef37498fe2984ce4dae0d5a16e6b7b7d8ac8214b81","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/neutral.png","width":256,"height":256},"happy":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/happy.png","sha256":"e44756a6b393a3586bcab5762182ddec21681f308b9e54d32dffb0adf06547f5","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/happy.png","width":256,"height":256},"cry":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/cry.png","sha256":"069e1c47ea31bae882652b912544535c0bdcaedad85697e68c61a56e303ba334","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/cry.png","width":256,"height":256},"teary":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/teary.png","sha256":"0dd39d895abe5b1aeea4a66d460685b04d413f11e8e17e530c9d0697255a9d99","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/teary.png","width":256,"height":256},"drool":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/drool.png","sha256":"c0609f2349910c13d4145124ee5a72994a3a90655d1c93098569fed9c7d6e637","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/drool.png","width":256,"height":256},"confused":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/confused.png","sha256":"72c013bb7630e2bda8eb386e3a9c4598dfb397da286f876e06d1e9788323fb42","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/confused.png","width":256,"height":256},"yawn":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/yawn.png","sha256":"85d462ad53e36a49ca55590f77592bed926fcff2259b50c8973c4a827e9ff34d","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/yawn.png","width":256,"height":256},"sleep":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleep.png","sha256":"4b862671638146f7b4fa019f4aec94fead391f7d0f7bfa988aeb90725d8c0118","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/sleep.png","width":256,"height":256},"angry":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/angry.png","sha256":"652880358b49f783af266d1ca414069a543617befa6169e4ea44bf7bc9d0744d","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/angry.png","width":256,"height":256},"surprise":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/surprise.png","sha256":"f3db3a3d1dd647ea437cdc89c46cfe78e77ca14ae902a0a5b826f5d0b77ea6dc","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/surprise.png","width":256,"height":256},"sleepy":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleepy.png","sha256":"198ea59ba74bf8764baad05a08c604f1085b8b32dae13f337272744eb838a644","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/sleepy.png","width":256,"height":256},"closed_smile":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/closed_smile.png","sha256":"b85b009bcc04687fff00d71a366d888e6d9b7a7400274a5c6d366084ac9c81dd","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/closed_smile.png","width":256,"height":256},"chewing":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/chewing.png","sha256":"2fb7b08f8fa80d5c0d4d2a63c4fdbb49854db9a42d21687b9c65b3ccf0682ff1","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/chewing.png","width":256,"height":256},"chewing_closed":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/chewing_closed.png","sha256":"310fc9208fc671ca97ae975a89742b0884820f15730f4039166021f8f4e463e4","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/chewing_closed.png","width":256,"height":256},"satisfied":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/satisfied.png","sha256":"6e2e11137a65d0b4d84b1c1c0f08c19f16a93f429795407f6ca63bf1bb79415e","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/satisfied.png","width":256,"height":256},"open_smile":{"source":"standards/yukkuri-library/assembled/marisa_tsumuri/textures/open_smile.png","sha256":"c83589b3a0bc5a50b07c0388dea8de81d1a7354c020a0c7767ed36d566a463e0","snapshot":"art/source/subspecies-runtime/marisa_tsumuri/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/open_smile.png","width":256,"height":256}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/marisa.json","motion_source_sha256":"fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe","shape_status":"existing_user_approved_geometry","approval_note":"Existing shell approval has no file hash; baseline fingerprint is recorded here without inventing a historic approved hash.","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a"},"texture_acceptance":"offline_checked; current client acceptance pending"},"reimu_wasa":{"geometry_identifier":"reimu_wasa","base_species":"reimu","selected_model":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/reimu_wasa.bbmodel","selected_model_sha256":"4f1e6ed1923f32f9953a3f39571ed1ec5bf83a17c29b2c0cfd0547ed63cca0b4","selected_rig":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/animation-rig.json","selected_rig_sha256":"36dc9a6481224b790f4d260c617fd33b5e2a20013624dd66b3044f8518eb16f8","snapshot":"art/source/subspecies-runtime/reimu_wasa/reimu_wasa.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json","runtime_sha256":"237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5","bone_count":197,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract","fur_sway"],"textures":{"neutral":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/neutral.png","sha256":"3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/neutral.png","width":128,"height":128},"happy":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/happy.png","sha256":"0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/happy.png","width":128,"height":128},"cry":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/cry.png","sha256":"b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/cry.png","width":128,"height":128},"teary":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/teary.png","sha256":"bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/teary.png","width":128,"height":128},"drool":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/drool.png","sha256":"49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/drool.png","width":128,"height":128},"confused":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/confused.png","sha256":"1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/confused.png","width":128,"height":128},"yawn":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/yawn.png","sha256":"3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/yawn.png","width":128,"height":128},"sleep":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleep.png","sha256":"8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/sleep.png","width":128,"height":128},"angry":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/angry.png","sha256":"23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/angry.png","width":128,"height":128},"surprise":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/surprise.png","sha256":"acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/surprise.png","width":128,"height":128},"sleepy":{"source":"standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleepy.png","sha256":"d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/closed_smile.png","sha256":"9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing.png","sha256":"891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png","sha256":"38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/reimu/textures/satisfied.png","sha256":"6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/open_smile.png","sha256":"30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc","snapshot":"art/source/subspecies-runtime/reimu_wasa/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/reimu.json","motion_source_sha256":"25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5"},"texture_acceptance":"offline_checked; current client acceptance pending"},"reimu_sparse":{"geometry_identifier":"reimu_sparse","base_species":"reimu","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_sparse/reimu_sparse.bbmodel","selected_model_sha256":"8f380229676b9d93bc09323363fd69ae40906c73e08a9866aa35ddb990a29cf4","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_sparse/animation-rig.json","selected_rig_sha256":"8221707a02ac4f686a9f9a4c81a5dbea9edd4402a6f391cb119c7036a7e240eb","snapshot":"art/source/subspecies-runtime/reimu_sparse/reimu_sparse.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json","runtime_sha256":"d36f99a280a21d6fbd8710c6deae81839e3f9efac99de1646a818c2927e58001","bone_count":197,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/reimu/textures/neutral.png","sha256":"3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/reimu/textures/happy.png","sha256":"0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/reimu/textures/cry.png","sha256":"b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/reimu/textures/teary.png","sha256":"bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/reimu/textures/drool.png","sha256":"49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/reimu/textures/confused.png","sha256":"1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/reimu/textures/yawn.png","sha256":"3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/reimu/textures/sleep.png","sha256":"8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/reimu/textures/angry.png","sha256":"23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/reimu/textures/surprise.png","sha256":"acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/reimu/textures/sleepy.png","sha256":"d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/closed_smile.png","sha256":"9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing.png","sha256":"891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png","sha256":"38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/reimu/textures/satisfied.png","sha256":"6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/open_smile.png","sha256":"30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc","snapshot":"art/source/subspecies-runtime/reimu_sparse/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/reimu.json","motion_source_sha256":"25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"d36f99a280a21d6fbd8710c6deae81839e3f9efac99de1646a818c2927e58001"},"texture_acceptance":"offline_checked; current client acceptance pending"},"reimu_face":{"geometry_identifier":"reimu_face","base_species":"reimu","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_face/reimu_face.bbmodel","selected_model_sha256":"aefcfaed63b27ed293d23f7297a77b8524ea3d1287480e4e8b6b92c5f1aae6f2","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_face/animation-rig.json","selected_rig_sha256":"cbceed351973f20760607dacdc4a494855e312772eb392e4eeb1357d185c3776","snapshot":"art/source/subspecies-runtime/reimu_face/reimu_face.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json","runtime_sha256":"69b349a0cede6561e2ebf99769f822aefc74c9f1054daefb2a24cf9f627ae4d4","bone_count":197,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/reimu/textures/neutral.png","sha256":"3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4","snapshot":"art/source/subspecies-runtime/reimu_face/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/reimu/textures/happy.png","sha256":"0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d","snapshot":"art/source/subspecies-runtime/reimu_face/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/reimu/textures/cry.png","sha256":"b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e","snapshot":"art/source/subspecies-runtime/reimu_face/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/reimu/textures/teary.png","sha256":"bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8","snapshot":"art/source/subspecies-runtime/reimu_face/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/reimu/textures/drool.png","sha256":"49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0","snapshot":"art/source/subspecies-runtime/reimu_face/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/reimu/textures/confused.png","sha256":"1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b","snapshot":"art/source/subspecies-runtime/reimu_face/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/reimu/textures/yawn.png","sha256":"3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1","snapshot":"art/source/subspecies-runtime/reimu_face/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/reimu/textures/sleep.png","sha256":"8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f","snapshot":"art/source/subspecies-runtime/reimu_face/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/reimu/textures/angry.png","sha256":"23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045","snapshot":"art/source/subspecies-runtime/reimu_face/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/reimu/textures/surprise.png","sha256":"acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e","snapshot":"art/source/subspecies-runtime/reimu_face/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/reimu/textures/sleepy.png","sha256":"d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b","snapshot":"art/source/subspecies-runtime/reimu_face/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/closed_smile.png","sha256":"9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96","snapshot":"art/source/subspecies-runtime/reimu_face/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing.png","sha256":"891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd","snapshot":"art/source/subspecies-runtime/reimu_face/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png","sha256":"38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962","snapshot":"art/source/subspecies-runtime/reimu_face/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/reimu/textures/satisfied.png","sha256":"6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359","snapshot":"art/source/subspecies-runtime/reimu_face/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/open_smile.png","sha256":"30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc","snapshot":"art/source/subspecies-runtime/reimu_face/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/reimu.json","motion_source_sha256":"25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"69b349a0cede6561e2ebf99769f822aefc74c9f1054daefb2a24cf9f627ae4d4"},"texture_acceptance":"offline_checked; current client acceptance pending"},"reimu_bean":{"geometry_identifier":"reimu_bean","base_species":"reimu","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/reimu_bean.bbmodel","selected_model_sha256":"b2d1b7f631919beaa39587b340949501f147e7d8a5516c719cc063c003dbfcd3","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/animation-rig.json","selected_rig_sha256":"e89831dbf968222f709594e9b48eb096c8797821e4504d2ca365df1df0446705","snapshot":"art/source/subspecies-runtime/reimu_bean/reimu_bean.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json","runtime_sha256":"44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d","bone_count":197,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/reimu/textures/neutral.png","sha256":"3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/reimu/textures/happy.png","sha256":"0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/reimu/textures/cry.png","sha256":"b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/reimu/textures/teary.png","sha256":"bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/reimu/textures/drool.png","sha256":"49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/reimu/textures/confused.png","sha256":"1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/reimu/textures/yawn.png","sha256":"3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/reimu/textures/sleep.png","sha256":"8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/reimu/textures/angry.png","sha256":"23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/reimu/textures/surprise.png","sha256":"acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/reimu/textures/sleepy.png","sha256":"d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/closed_smile.png","sha256":"9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing.png","sha256":"891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png","sha256":"38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/reimu/textures/satisfied.png","sha256":"6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/reimu/textures/open_smile.png","sha256":"30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc","snapshot":"art/source/subspecies-runtime/reimu_bean/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/reimu.json","motion_source_sha256":"25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d"},"texture_acceptance":"offline_checked; current client acceptance pending"},"marisa_sparse":{"geometry_identifier":"marisa_sparse","base_species":"marisa","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel","selected_model_sha256":"42429db1e3c7d7693dabf35ed137de8f32423aab96392352706ffb161c112180","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/animation-rig.json","selected_rig_sha256":"367ed2825d1269b955853b8bec6a057bde612fd94b4ea375fbc0a4c7ac930769","snapshot":"art/source/subspecies-runtime/marisa_sparse/marisa_sparse.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json","runtime_sha256":"23b6c2934da5665c07a59ac849f1eaa2209e74bb39b01400b78cc2c628999570","bone_count":202,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/marisa/textures/neutral.png","sha256":"af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/marisa/textures/happy.png","sha256":"f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/marisa/textures/cry.png","sha256":"10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/marisa/textures/teary.png","sha256":"c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/marisa/textures/drool.png","sha256":"eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/marisa/textures/confused.png","sha256":"cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/marisa/textures/yawn.png","sha256":"61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/marisa/textures/sleep.png","sha256":"3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/marisa/textures/angry.png","sha256":"b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/marisa/textures/surprise.png","sha256":"5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/marisa/textures/sleepy.png","sha256":"7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/closed_smile.png","sha256":"acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing.png","sha256":"a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png","sha256":"d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/marisa/textures/satisfied.png","sha256":"4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/open_smile.png","sha256":"23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875","snapshot":"art/source/subspecies-runtime/marisa_sparse/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/marisa.json","motion_source_sha256":"fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"23b6c2934da5665c07a59ac849f1eaa2209e74bb39b01400b78cc2c628999570"},"texture_acceptance":"offline_checked; current client acceptance pending"},"marisa_face":{"geometry_identifier":"marisa_face","base_species":"marisa","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel","selected_model_sha256":"d9e6f2e1979d19b0bc81f58782daae8ea95fa67d0aa32bfcadea1d18deef7d21","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/animation-rig.json","selected_rig_sha256":"6bee15973121979e2f58955829379290c5ff96446c06b7651f1e83b3380d2ee8","snapshot":"art/source/subspecies-runtime/marisa_face/marisa_face.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json","runtime_sha256":"2c7cd4d83a65fe9f217c03d91fefb6ceba730ebb7eb94bfb46e31d8970a91d8e","bone_count":202,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/marisa/textures/neutral.png","sha256":"af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0","snapshot":"art/source/subspecies-runtime/marisa_face/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/marisa/textures/happy.png","sha256":"f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a","snapshot":"art/source/subspecies-runtime/marisa_face/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/marisa/textures/cry.png","sha256":"10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690","snapshot":"art/source/subspecies-runtime/marisa_face/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/marisa/textures/teary.png","sha256":"c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025","snapshot":"art/source/subspecies-runtime/marisa_face/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/marisa/textures/drool.png","sha256":"eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0","snapshot":"art/source/subspecies-runtime/marisa_face/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/marisa/textures/confused.png","sha256":"cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f","snapshot":"art/source/subspecies-runtime/marisa_face/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/marisa/textures/yawn.png","sha256":"61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9","snapshot":"art/source/subspecies-runtime/marisa_face/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/marisa/textures/sleep.png","sha256":"3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2","snapshot":"art/source/subspecies-runtime/marisa_face/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/marisa/textures/angry.png","sha256":"b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68","snapshot":"art/source/subspecies-runtime/marisa_face/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/marisa/textures/surprise.png","sha256":"5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639","snapshot":"art/source/subspecies-runtime/marisa_face/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/marisa/textures/sleepy.png","sha256":"7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d","snapshot":"art/source/subspecies-runtime/marisa_face/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/closed_smile.png","sha256":"acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7","snapshot":"art/source/subspecies-runtime/marisa_face/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing.png","sha256":"a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030","snapshot":"art/source/subspecies-runtime/marisa_face/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png","sha256":"d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad","snapshot":"art/source/subspecies-runtime/marisa_face/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/marisa/textures/satisfied.png","sha256":"4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b","snapshot":"art/source/subspecies-runtime/marisa_face/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/open_smile.png","sha256":"23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875","snapshot":"art/source/subspecies-runtime/marisa_face/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/marisa.json","motion_source_sha256":"fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"2c7cd4d83a65fe9f217c03d91fefb6ceba730ebb7eb94bfb46e31d8970a91d8e"},"texture_acceptance":"offline_checked; current client acceptance pending"},"marisa_bean":{"geometry_identifier":"marisa_bean","base_species":"marisa","selected_model":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel","selected_model_sha256":"965f6986cab1abb7093967ab2f9ccd611dcea15c9f331863947d750cb48bd61c","selected_rig":"standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/animation-rig.json","selected_rig_sha256":"5a2d43cdbb9988d603e0bbe523925b0923d12545493c14ca13495d3e1c54dc82","snapshot":"art/source/subspecies-runtime/marisa_bean/marisa_bean.bbmodel","runtime":"src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json","runtime_sha256":"dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48","bone_count":202,"clips":["idle","stretch_shape","side_bend","waddle","puff","brace","startle","turn","hop","stretch","exercise_vertical","exercise_sides","press","taiso","flee","anatomy_mamu_extend","anatomy_mamu_retract","anatomy_peni_extend","anatomy_peni_retract"],"textures":{"neutral":{"source":"art/source/standard-runtime/marisa/textures/neutral.png","sha256":"af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/neutral.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/neutral.png","width":128,"height":128},"happy":{"source":"art/source/standard-runtime/marisa/textures/happy.png","sha256":"f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/happy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/happy.png","width":128,"height":128},"cry":{"source":"art/source/standard-runtime/marisa/textures/cry.png","sha256":"10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/cry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/cry.png","width":128,"height":128},"teary":{"source":"art/source/standard-runtime/marisa/textures/teary.png","sha256":"c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/teary.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/teary.png","width":128,"height":128},"drool":{"source":"art/source/standard-runtime/marisa/textures/drool.png","sha256":"eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/drool.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/drool.png","width":128,"height":128},"confused":{"source":"art/source/standard-runtime/marisa/textures/confused.png","sha256":"cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/confused.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/confused.png","width":128,"height":128},"yawn":{"source":"art/source/standard-runtime/marisa/textures/yawn.png","sha256":"61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/yawn.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/yawn.png","width":128,"height":128},"sleep":{"source":"art/source/standard-runtime/marisa/textures/sleep.png","sha256":"3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/sleep.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleep.png","width":128,"height":128},"angry":{"source":"art/source/standard-runtime/marisa/textures/angry.png","sha256":"b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/angry.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/angry.png","width":128,"height":128},"surprise":{"source":"art/source/standard-runtime/marisa/textures/surprise.png","sha256":"5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/surprise.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/surprise.png","width":128,"height":128},"sleepy":{"source":"art/source/standard-runtime/marisa/textures/sleepy.png","sha256":"7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/sleepy.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleepy.png","width":128,"height":128},"closed_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/closed_smile.png","sha256":"acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/closed_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/closed_smile.png","width":128,"height":128},"chewing":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing.png","sha256":"a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/chewing.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing.png","width":128,"height":128},"chewing_closed":{"source":"standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png","sha256":"d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/chewing_closed.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing_closed.png","width":128,"height":128},"satisfied":{"source":"standards/yukkuri-library/assembled/marisa/textures/satisfied.png","sha256":"4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/satisfied.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/satisfied.png","width":128,"height":128},"open_smile":{"source":"standards/yukkuri-library/assembled/marisa/textures/open_smile.png","sha256":"23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875","snapshot":"art/source/subspecies-runtime/marisa_bean/textures/open_smile.png","runtime":"src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/open_smile.png","width":128,"height":128}},"motion_source":"src/main/resources/assets/mcyukkuri/yukkuri/marisa.json","motion_source_sha256":"fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe","shape_status":"pending_user_confirmation","approval_note":"","runtime_acceptance":{"status":"rendered_in_actual_client","evidence":"docs/validation/subspecies/manifest.json","runtime_sha256":"dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48"},"texture_acceptance":"offline_checked; current client acceptance pending"}},"hat_boat":{"source":"standards/yukkuri-v1/subspecies/aquatic/accessory-components.json","source_sha256":"f5ce5bae2e4d0ef388af9c8091deef61a16bc9a481c253de1f18c232216098bd","runtime":"src/main/resources/assets/mcyukkuri/yukkuri_props/hat_boat.json","runtime_sha256":"7b17bd9a43e1a1d7ac462f0a9c65a93b2f548fac5ab98cb7903b96dc8239f62c","shape_status":"selected_existing_prototype_pending_confirmation","bounds":[[-10.978495,10.978495],[-4.05,1.5085200000000003],[-8.649999999999999,12.95]],"part_count":195},"marisa_shell":{"source_model":"standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel","source_model_sha256":"ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8","selected_parts":"shell*","snapshot":"art/source/subspecies-runtime/marisa_shell/runtime.model.json","runtime":"src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_shell.json","runtime_sha256":"75b99b9f12accdd1ebf0579d241e72895f41b451caeffa14266b33b15dc23940","texture":"src/main/resources/assets/mcyukkuri/textures/props/marisa_shell.png","texture_sha256":"16b12c7f044cfc10bb78e7ef37498fe2984ce4dae0d5a16e6b7b7d8ac8214b81","shape_status":"derived_from_selected_shell"},"texture_exporter_sha256":"52b67e4c03ca2e6b96e048e6f48808e5829b5fb675f0a1e277aacf743122954a"}
+{
+  "version": 1,
+  "exporter": "scripts/export_subspecies.py",
+  "exporter_sha256": "585e8c5cac567570eb8bb87accaeb1de9c68fbfe55913b51de32396da120eaea",
+  "models": {
+    "marisa_tsumuri": {
+      "geometry_identifier": "marisa_tsumuri",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
+      "selected_model_sha256": "ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8",
+      "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
+      "selected_rig_sha256": "7773e66ec1e002b40fcd5612e80ba8a9904670e125666833e315217e94c20787",
+      "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/marisa_tsumuri.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
+      "runtime_sha256": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a",
+      "bone_count": 203,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract",
+        "still",
+        "shell_sway",
+        "shell_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/neutral.png",
+          "sha256": "16b12c7f044cfc10bb78e7ef37498fe2984ce4dae0d5a16e6b7b7d8ac8214b81",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/happy.png",
+          "sha256": "e44756a6b393a3586bcab5762182ddec21681f308b9e54d32dffb0adf06547f5",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/cry.png",
+          "sha256": "069e1c47ea31bae882652b912544535c0bdcaedad85697e68c61a56e303ba334",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/teary.png",
+          "sha256": "0dd39d895abe5b1aeea4a66d460685b04d413f11e8e17e530c9d0697255a9d99",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/drool.png",
+          "sha256": "c0609f2349910c13d4145124ee5a72994a3a90655d1c93098569fed9c7d6e637",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/confused.png",
+          "sha256": "72c013bb7630e2bda8eb386e3a9c4598dfb397da286f876e06d1e9788323fb42",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/yawn.png",
+          "sha256": "85d462ad53e36a49ca55590f77592bed926fcff2259b50c8973c4a827e9ff34d",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleep.png",
+          "sha256": "4b862671638146f7b4fa019f4aec94fead391f7d0f7bfa988aeb90725d8c0118",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/angry.png",
+          "sha256": "652880358b49f783af266d1ca414069a543617befa6169e4ea44bf7bc9d0744d",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/surprise.png",
+          "sha256": "f3db3a3d1dd647ea437cdc89c46cfe78e77ca14ae902a0a5b826f5d0b77ea6dc",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/sleepy.png",
+          "sha256": "198ea59ba74bf8764baad05a08c604f1085b8b32dae13f337272744eb838a644",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/closed_smile.png",
+          "sha256": "b85b009bcc04687fff00d71a366d888e6d9b7a7400274a5c6d366084ac9c81dd",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/chewing.png",
+          "sha256": "2fb7b08f8fa80d5c0d4d2a63c4fdbb49854db9a42d21687b9c65b3ccf0682ff1",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/chewing_closed.png",
+          "sha256": "310fc9208fc671ca97ae975a89742b0884820f15730f4039166021f8f4e463e4",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/satisfied.png",
+          "sha256": "6e2e11137a65d0b4d84b1c1c0f08c19f16a93f429795407f6ca63bf1bb79415e",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/open_smile.png",
+          "sha256": "c83589b3a0bc5a50b07c0388dea8de81d1a7354c020a0c7767ed36d566a463e0",
+          "snapshot": "art/source/subspecies-runtime/marisa_tsumuri/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/open_smile.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+      "motion_source_sha256": "fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe",
+      "shape_status": "existing_user_approved_geometry",
+      "approval_note": "Existing shell approval has no file hash; baseline fingerprint is recorded here without inventing a historic approved hash.",
+      "runtime_acceptance": {
+        "status": "rendered_in_actual_client",
+        "evidence": "docs/validation/subspecies/manifest.json",
+        "runtime_sha256": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a"
+      },
+      "texture_acceptance": "offline_checked; current client acceptance pending"
+    },
+    "reimu_wasa": {
+      "geometry_identifier": "reimu_wasa",
+      "base_species": "reimu",
+      "selected_model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/reimu_wasa.bbmodel",
+      "selected_model_sha256": "4f1e6ed1923f32f9953a3f39571ed1ec5bf83a17c29b2c0cfd0547ed63cca0b4",
+      "selected_rig": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/animation-rig.json",
+      "selected_rig_sha256": "36dc9a6481224b790f4d260c617fd33b5e2a20013624dd66b3044f8518eb16f8",
+      "snapshot": "art/source/subspecies-runtime/reimu_wasa/reimu_wasa.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json",
+      "runtime_sha256": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5",
+      "bone_count": 197,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract",
+        "fur_sway"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/neutral.png",
+          "sha256": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/neutral.png",
+          "width": 128,
+          "height": 128
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/happy.png",
+          "sha256": "0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/happy.png",
+          "width": 128,
+          "height": 128
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/cry.png",
+          "sha256": "b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/cry.png",
+          "width": 128,
+          "height": 128
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/teary.png",
+          "sha256": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/teary.png",
+          "width": 128,
+          "height": 128
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/drool.png",
+          "sha256": "49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/drool.png",
+          "width": 128,
+          "height": 128
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/confused.png",
+          "sha256": "1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/confused.png",
+          "width": 128,
+          "height": 128
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/yawn.png",
+          "sha256": "3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/yawn.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleep.png",
+          "sha256": "8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/sleep.png",
+          "width": 128,
+          "height": 128
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/angry.png",
+          "sha256": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/angry.png",
+          "width": 128,
+          "height": 128
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/surprise.png",
+          "sha256": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/surprise.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/textures/sleepy.png",
+          "sha256": "d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/sleepy.png",
+          "width": 128,
+          "height": 128
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "sha256": "9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/closed_smile.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "sha256": "891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/chewing.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "sha256": "38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/chewing_closed.png",
+          "width": 128,
+          "height": 128
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "sha256": "6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/satisfied.png",
+          "width": 128,
+          "height": 128
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "sha256": "30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc",
+          "snapshot": "art/source/subspecies-runtime/reimu_wasa/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/open_smile.png",
+          "width": 128,
+          "height": 128
+        }
+      },
+      "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
+      "motion_source_sha256": "25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": {
+        "status": "rendered_in_actual_client",
+        "evidence": "docs/validation/subspecies/manifest.json",
+        "runtime_sha256": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5"
+      },
+      "texture_acceptance": "offline_checked; current client acceptance pending"
+    },
+    "reimu_sparse": {
+      "geometry_identifier": "reimu_sparse",
+      "base_species": "reimu",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_sparse/reimu_sparse.bbmodel",
+      "selected_model_sha256": "e55b349831015ae75d028a7445887b36cb42848f180a67940164c44d7b23324c",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_sparse/animation-rig.json",
+      "selected_rig_sha256": "5f18007c81719bc989f453b1fd1fa9066889c2665099fd7f8f20c4d49958213c",
+      "snapshot": "art/source/subspecies-runtime/reimu_sparse/reimu_sparse.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json",
+      "runtime_sha256": "5838de370072eefb3005c3f76f821fe302deb469ac03995d57fe7e5b10d612de",
+      "bone_count": 261,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/neutral.png",
+          "sha256": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+          "source_sha256": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/happy.png",
+          "sha256": "c8b0e05c546b406e8fad94a44121ff794285aea0307758bde6ba7fd56a33b2da",
+          "source_sha256": "c8b0e05c546b406e8fad94a44121ff794285aea0307758bde6ba7fd56a33b2da",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/cry.png",
+          "sha256": "5f98ab12280ce4c3d014d68e5e253550681142f425d0645fcf1e2d030bb2ac83",
+          "source_sha256": "5f98ab12280ce4c3d014d68e5e253550681142f425d0645fcf1e2d030bb2ac83",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/teary.png",
+          "sha256": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+          "source_sha256": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/drool.png",
+          "sha256": "2bd6fa38affcfccc6e9af82fd6467eea66db30f18d2361160003ba855cdc9d83",
+          "source_sha256": "2bd6fa38affcfccc6e9af82fd6467eea66db30f18d2361160003ba855cdc9d83",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/confused.png",
+          "sha256": "905a074854e56d9b838806e267e0b9e18458ebb5b48015e16fb7baad56d793af",
+          "source_sha256": "905a074854e56d9b838806e267e0b9e18458ebb5b48015e16fb7baad56d793af",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/yawn.png",
+          "sha256": "3cbc7810cd1e481546224a214cd488e857a8107e224e3a475c5b23653b7e9d0a",
+          "source_sha256": "3cbc7810cd1e481546224a214cd488e857a8107e224e3a475c5b23653b7e9d0a",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+          "sha256": "76c6bcfb2f8105743bb7cb6b4d1b9dcffea4c8bad29c8568d49f16965d3f2e04",
+          "source_sha256": "76c6bcfb2f8105743bb7cb6b4d1b9dcffea4c8bad29c8568d49f16965d3f2e04",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/angry.png",
+          "sha256": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+          "source_sha256": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/surprise.png",
+          "sha256": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af",
+          "source_sha256": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/sleepy.png",
+          "sha256": "3893d759a5d194759b16ecff665f386d6c8b0941f9e50911b56c4b94f5255436",
+          "source_sha256": "3893d759a5d194759b16ecff665f386d6c8b0941f9e50911b56c4b94f5255436",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "sha256": "4f3eaa5914b77ce819c82adf118c004bd60d91b9fe82ab52dc33ff41b7ed3fa1",
+          "source_sha256": "4f3eaa5914b77ce819c82adf118c004bd60d91b9fe82ab52dc33ff41b7ed3fa1",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "sha256": "6e6bf7f73f9b0ecdb402211bc29e3ff50167c56fb9ac18e576bf965652f05f6f",
+          "source_sha256": "6e6bf7f73f9b0ecdb402211bc29e3ff50167c56fb9ac18e576bf965652f05f6f",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "sha256": "e1949c5b67dd65f2205017359d915d4f5cb3271ec0974217a7c9e922da6861a5",
+          "source_sha256": "e1949c5b67dd65f2205017359d915d4f5cb3271ec0974217a7c9e922da6861a5",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "sha256": "b89f146f286e6dfc0feb03d602205b0decf416b8d025359e16032d8bbe8eb54d",
+          "source_sha256": "b89f146f286e6dfc0feb03d602205b0decf416b8d025359e16032d8bbe8eb54d",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "sha256": "dbafb83df8190272b5b6d5099abb86de2aac60c6a92578efce113c8f5ff2632a",
+          "source_sha256": "dbafb83df8190272b5b6d5099abb86de2aac60c6a92578efce113c8f5ff2632a",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/smug.png",
+          "sha256": "cee3926a1337b28d46004f4e2c7f5dd4720c364231e526419609c97d2c3b37a2",
+          "source_sha256": "cee3926a1337b28d46004f4e2c7f5dd4720c364231e526419609c97d2c3b37a2",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/puff.png",
+          "sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
+          "source_sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
+          "snapshot": "art/source/subspecies-runtime/reimu_sparse/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/animation-rig.json",
+      "motion_source_sha256": "75398213bc445a9033a12dfb2085bac5f9d9129544d3aa6c725792924d1f16b8",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "reports/current/README.md in rounded-reimu: current frozen client four views and wounds; 715 rules passed",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/reimu_sparse/animation-rig.json",
+      "revision": "rounded-reimu-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/recipe.json",
+      "exporter": "scripts/export_reimu_deficient_rounded.py"
+    },
+    "reimu_face": {
+      "geometry_identifier": "reimu_face",
+      "base_species": "reimu",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_face/reimu_face.bbmodel",
+      "selected_model_sha256": "384c10231c12c657218baf5719ba6cf8ddc7a030ec2fd6d4cb6377310ad1bd26",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_face/animation-rig.json",
+      "selected_rig_sha256": "67d39d0e6f1458596f6897ad6098d9809945f0edb2fbe838dd111afb942bdd43",
+      "snapshot": "art/source/subspecies-runtime/reimu_face/reimu_face.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
+      "runtime_sha256": "40aefcfec6f6f483e01192bf076c6ed5407644e0c028bb5e54c4dfe79c946e88",
+      "bone_count": 261,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/neutral.png",
+          "sha256": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+          "source_sha256": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/happy.png",
+          "sha256": "c8b0e05c546b406e8fad94a44121ff794285aea0307758bde6ba7fd56a33b2da",
+          "source_sha256": "c8b0e05c546b406e8fad94a44121ff794285aea0307758bde6ba7fd56a33b2da",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/cry.png",
+          "sha256": "5f98ab12280ce4c3d014d68e5e253550681142f425d0645fcf1e2d030bb2ac83",
+          "source_sha256": "5f98ab12280ce4c3d014d68e5e253550681142f425d0645fcf1e2d030bb2ac83",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/teary.png",
+          "sha256": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+          "source_sha256": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/drool.png",
+          "sha256": "2bd6fa38affcfccc6e9af82fd6467eea66db30f18d2361160003ba855cdc9d83",
+          "source_sha256": "2bd6fa38affcfccc6e9af82fd6467eea66db30f18d2361160003ba855cdc9d83",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/confused.png",
+          "sha256": "905a074854e56d9b838806e267e0b9e18458ebb5b48015e16fb7baad56d793af",
+          "source_sha256": "905a074854e56d9b838806e267e0b9e18458ebb5b48015e16fb7baad56d793af",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/yawn.png",
+          "sha256": "3cbc7810cd1e481546224a214cd488e857a8107e224e3a475c5b23653b7e9d0a",
+          "source_sha256": "3cbc7810cd1e481546224a214cd488e857a8107e224e3a475c5b23653b7e9d0a",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/sleep.png",
+          "sha256": "76c6bcfb2f8105743bb7cb6b4d1b9dcffea4c8bad29c8568d49f16965d3f2e04",
+          "source_sha256": "76c6bcfb2f8105743bb7cb6b4d1b9dcffea4c8bad29c8568d49f16965d3f2e04",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/angry.png",
+          "sha256": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+          "source_sha256": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/surprise.png",
+          "sha256": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af",
+          "source_sha256": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/sleepy.png",
+          "sha256": "3893d759a5d194759b16ecff665f386d6c8b0941f9e50911b56c4b94f5255436",
+          "source_sha256": "3893d759a5d194759b16ecff665f386d6c8b0941f9e50911b56c4b94f5255436",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "sha256": "4f3eaa5914b77ce819c82adf118c004bd60d91b9fe82ab52dc33ff41b7ed3fa1",
+          "source_sha256": "4f3eaa5914b77ce819c82adf118c004bd60d91b9fe82ab52dc33ff41b7ed3fa1",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "sha256": "6e6bf7f73f9b0ecdb402211bc29e3ff50167c56fb9ac18e576bf965652f05f6f",
+          "source_sha256": "6e6bf7f73f9b0ecdb402211bc29e3ff50167c56fb9ac18e576bf965652f05f6f",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "sha256": "e1949c5b67dd65f2205017359d915d4f5cb3271ec0974217a7c9e922da6861a5",
+          "source_sha256": "e1949c5b67dd65f2205017359d915d4f5cb3271ec0974217a7c9e922da6861a5",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "sha256": "b89f146f286e6dfc0feb03d602205b0decf416b8d025359e16032d8bbe8eb54d",
+          "source_sha256": "b89f146f286e6dfc0feb03d602205b0decf416b8d025359e16032d8bbe8eb54d",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "sha256": "dbafb83df8190272b5b6d5099abb86de2aac60c6a92578efce113c8f5ff2632a",
+          "source_sha256": "dbafb83df8190272b5b6d5099abb86de2aac60c6a92578efce113c8f5ff2632a",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/smug.png",
+          "sha256": "cee3926a1337b28d46004f4e2c7f5dd4720c364231e526419609c97d2c3b37a2",
+          "source_sha256": "cee3926a1337b28d46004f4e2c7f5dd4720c364231e526419609c97d2c3b37a2",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/textures/puff.png",
+          "sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
+          "source_sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
+          "snapshot": "art/source/subspecies-runtime/reimu_face/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/inputs/standards/yukkuri-library/assembled/reimu/animation-rig.json",
+      "motion_source_sha256": "75398213bc445a9033a12dfb2085bac5f9d9129544d3aa6c725792924d1f16b8",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "reports/current/README.md in rounded-reimu: current frozen client four views and wounds; 715 rules passed",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/reimu_face/animation-rig.json",
+      "revision": "rounded-reimu-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-reimu/recipe.json",
+      "exporter": "scripts/export_reimu_deficient_rounded.py"
+    },
+    "reimu_bean": {
+      "geometry_identifier": "reimu_bean",
+      "base_species": "reimu",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/reimu_bean.bbmodel",
+      "selected_model_sha256": "f67bf78d2db58f385d090cf0133836bb11c445c01e8ca1fa4ac686bcf524a59c",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/animation-rig.json",
+      "selected_rig_sha256": "4f16dbfb99c60e2b6d48d614677f4450f7bcf5ef4bd9b009ac599ff440ac4e52",
+      "snapshot": "art/source/subspecies-runtime/reimu_bean/reimu_bean.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json",
+      "runtime_sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+      "bone_count": 197,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "art/source/standard-runtime/reimu/textures/neutral.png",
+          "sha256": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/neutral.png",
+          "width": 128,
+          "height": 128
+        },
+        "happy": {
+          "source": "art/source/standard-runtime/reimu/textures/happy.png",
+          "sha256": "0ad761cb67df50ddea4abbb9e44927a58e0e73bda4b93825f7851cd224278f4d",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/happy.png",
+          "width": 128,
+          "height": 128
+        },
+        "cry": {
+          "source": "art/source/standard-runtime/reimu/textures/cry.png",
+          "sha256": "b7d7551c53229272bb9380654a4883d9e15f1e9780db45cb980736b59e72e36e",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/cry.png",
+          "width": 128,
+          "height": 128
+        },
+        "teary": {
+          "source": "art/source/standard-runtime/reimu/textures/teary.png",
+          "sha256": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/teary.png",
+          "width": 128,
+          "height": 128
+        },
+        "drool": {
+          "source": "art/source/standard-runtime/reimu/textures/drool.png",
+          "sha256": "49006ee83f2357c048ce2e61923b18c1975bc9b8ac408dd43a30d7463efc42b0",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/drool.png",
+          "width": 128,
+          "height": 128
+        },
+        "confused": {
+          "source": "art/source/standard-runtime/reimu/textures/confused.png",
+          "sha256": "1282deefff7ce3b1aabf9c7f6a196d1b233501fad356eb486de8c8f43b14a72b",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/confused.png",
+          "width": 128,
+          "height": 128
+        },
+        "yawn": {
+          "source": "art/source/standard-runtime/reimu/textures/yawn.png",
+          "sha256": "3d09e92603f0f4cc2b850fe97dd0afb3180f46b26159d9f19a6b97ee9d78bef1",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/yawn.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleep": {
+          "source": "art/source/standard-runtime/reimu/textures/sleep.png",
+          "sha256": "8cdd3a2433143bd9f96ccb361ed79a8a5befe532837d2d2047e17760f762da7f",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleep.png",
+          "width": 128,
+          "height": 128
+        },
+        "angry": {
+          "source": "art/source/standard-runtime/reimu/textures/angry.png",
+          "sha256": "23f76a6ac011b5ce87db415d651651f5b1ce9cbe8285ccd5844bf774961e7045",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/angry.png",
+          "width": 128,
+          "height": 128
+        },
+        "surprise": {
+          "source": "art/source/standard-runtime/reimu/textures/surprise.png",
+          "sha256": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/surprise.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleepy": {
+          "source": "art/source/standard-runtime/reimu/textures/sleepy.png",
+          "sha256": "d00813efd0df9649b142d24a3a00ea0b3f90382f3afd1c6fd5af4c698aad668b",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sleepy.png",
+          "width": 128,
+          "height": 128
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "sha256": "9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/closed_smile.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "sha256": "891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "sha256": "38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/chewing_closed.png",
+          "width": 128,
+          "height": 128
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "sha256": "6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/satisfied.png",
+          "width": 128,
+          "height": 128
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "sha256": "30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc",
+          "snapshot": "art/source/subspecies-runtime/reimu_bean/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/open_smile.png",
+          "width": 128,
+          "height": 128
+        }
+      },
+      "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
+      "motion_source_sha256": "82c740702a5a2e3dc2918d1d1e56a0ac1a53c2f82bd3fb7a2254b7409cf4041a",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "not_executed",
+      "rig": "art/source/subspecies-runtime/reimu_bean/animation-rig.json",
+      "hair_revision": "bean-profile-fit",
+      "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
+      "author_sha256": "d245e7ade6ed7d5ec6cde21d374926b45ec07e5d21d11fd66e29e4e0692c6c3b",
+      "face_revision": "bean-skin-anchor-motion",
+      "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
+      "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
+    },
+    "marisa_sparse": {
+      "geometry_identifier": "marisa_sparse",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
+      "selected_model_sha256": "23b662e6f9a196ded879d5a844f0c98a5581f6f5ed2b5507b9faee8c760545ba",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/animation-rig.json",
+      "selected_rig_sha256": "9674797e89607fbdb5b9e342436ebb316f4022adcfc79e3633f9ebfd72e09b0d",
+      "snapshot": "art/source/subspecies-runtime/marisa_sparse/marisa_sparse.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
+      "runtime_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+      "bone_count": 266,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/neutral.png",
+          "sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "source_sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/happy.png",
+          "sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "source_sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/cry.png",
+          "sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "source_sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/teary.png",
+          "sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "source_sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/drool.png",
+          "sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "source_sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/confused.png",
+          "sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "source_sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/yawn.png",
+          "sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "source_sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleep.png",
+          "sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "source_sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/angry.png",
+          "sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "source_sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/surprise.png",
+          "sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "source_sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleepy.png",
+          "sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "source_sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "source_sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "source_sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "source_sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "source_sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "source_sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/smug.png",
+          "sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "source_sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/puff.png",
+          "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "source_sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
+      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/marisa_sparse/animation-rig.json",
+      "revision": "rounded-marisa-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json",
+      "exporter": "scripts/export_marisa_deficient_rounded.py"
+    },
+    "marisa_face": {
+      "geometry_identifier": "marisa_face",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
+      "selected_model_sha256": "cc6504660f3d89d38d8db1aa34eb8fd62277f95cb70387b7361fdea6d00f8305",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/animation-rig.json",
+      "selected_rig_sha256": "8433beece65418360ea82b25ff7d726a2736d62cc4230fbbec6444966d6aa6f3",
+      "snapshot": "art/source/subspecies-runtime/marisa_face/marisa_face.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
+      "runtime_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+      "bone_count": 266,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/neutral.png",
+          "sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "source_sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/happy.png",
+          "sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "source_sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/cry.png",
+          "sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "source_sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/teary.png",
+          "sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "source_sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/drool.png",
+          "sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "source_sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/confused.png",
+          "sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "source_sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/yawn.png",
+          "sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "source_sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleep.png",
+          "sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "source_sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/angry.png",
+          "sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "source_sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/surprise.png",
+          "sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "source_sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleepy.png",
+          "sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "source_sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "source_sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "source_sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "source_sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "source_sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "source_sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/smug.png",
+          "sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "source_sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/puff.png",
+          "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "source_sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
+      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/marisa_face/animation-rig.json",
+      "revision": "rounded-marisa-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json",
+      "exporter": "scripts/export_marisa_deficient_rounded.py"
+    },
+    "marisa_bean": {
+      "geometry_identifier": "marisa_bean",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
+      "selected_model_sha256": "5d2a9ba4818bc594c355e92c61ac83c645d6e76dd14ab9dc77072304f46d037a",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/animation-rig.json",
+      "selected_rig_sha256": "659b74142c070eeae788ac8a3f8687dafa17249c196b80f3ecaa743d860cc64e",
+      "snapshot": "art/source/subspecies-runtime/marisa_bean/marisa_bean.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
+      "runtime_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+      "bone_count": 202,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "art/source/standard-runtime/marisa/textures/neutral.png",
+          "sha256": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/neutral.png",
+          "width": 128,
+          "height": 128
+        },
+        "happy": {
+          "source": "art/source/standard-runtime/marisa/textures/happy.png",
+          "sha256": "f008765037048ed56e475b5c035cbc682b1f45395be5b69d969f10e0134ff41a",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/happy.png",
+          "width": 128,
+          "height": 128
+        },
+        "cry": {
+          "source": "art/source/standard-runtime/marisa/textures/cry.png",
+          "sha256": "10b8e2b5bedf7a97d03679bd416f362093c28936d6786c92d6d51cd208925690",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/cry.png",
+          "width": 128,
+          "height": 128
+        },
+        "teary": {
+          "source": "art/source/standard-runtime/marisa/textures/teary.png",
+          "sha256": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/teary.png",
+          "width": 128,
+          "height": 128
+        },
+        "drool": {
+          "source": "art/source/standard-runtime/marisa/textures/drool.png",
+          "sha256": "eb4f450f0f58a9145cdc6f2dd14227d74ac5166671cf90f1c13c83b68f6e83e0",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/drool.png",
+          "width": 128,
+          "height": 128
+        },
+        "confused": {
+          "source": "art/source/standard-runtime/marisa/textures/confused.png",
+          "sha256": "cdb3c489f0ba67e018f91e2fe972087dfbabc4079491fa071b22fd469f97f56f",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/confused.png",
+          "width": 128,
+          "height": 128
+        },
+        "yawn": {
+          "source": "art/source/standard-runtime/marisa/textures/yawn.png",
+          "sha256": "61f9ca6e83ac83c7445d5c210d7e57476a845b5d08c9a7b3ba5a7f093e7eb5f9",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/yawn.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleep": {
+          "source": "art/source/standard-runtime/marisa/textures/sleep.png",
+          "sha256": "3c66a2c076886a54bbde3287a8c17ff2f559883880d4b81f0a1aecb0e0b120c2",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleep.png",
+          "width": 128,
+          "height": 128
+        },
+        "angry": {
+          "source": "art/source/standard-runtime/marisa/textures/angry.png",
+          "sha256": "b435c36536583a5dae76384544b071f92dd39dfffa1f848d46f71fb04b193b68",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/angry.png",
+          "width": 128,
+          "height": 128
+        },
+        "surprise": {
+          "source": "art/source/standard-runtime/marisa/textures/surprise.png",
+          "sha256": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/surprise.png",
+          "width": 128,
+          "height": 128
+        },
+        "sleepy": {
+          "source": "art/source/standard-runtime/marisa/textures/sleepy.png",
+          "sha256": "7c395495130924ce57196ed8ce073d64e23e49578f2bf432a93f7d35fe7a916d",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sleepy.png",
+          "width": 128,
+          "height": 128
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "sha256": "acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/closed_smile.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "sha256": "a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing.png",
+          "width": 128,
+          "height": 128
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "sha256": "d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/chewing_closed.png",
+          "width": 128,
+          "height": 128
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "sha256": "4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/satisfied.png",
+          "width": 128,
+          "height": 128
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "sha256": "23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875",
+          "snapshot": "art/source/subspecies-runtime/marisa_bean/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/open_smile.png",
+          "width": 128,
+          "height": 128
+        }
+      },
+      "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+      "motion_source_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "not_executed",
+      "rig": "art/source/subspecies-runtime/marisa_bean/animation-rig.json",
+      "hair_revision": "bean-profile-fit",
+      "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
+      "author_sha256": "d245e7ade6ed7d5ec6cde21d374926b45ec07e5d21d11fd66e29e4e0692c6c3b",
+      "face_revision": "bean-skin-anchor-motion",
+      "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
+      "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
+    }
+  },
+  "hat_boat": {
+    "source": "standards/yukkuri-v1/subspecies/aquatic/accessory-components.json",
+    "source_sha256": "f5ce5bae2e4d0ef388af9c8091deef61a16bc9a481c253de1f18c232216098bd",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_boat.json",
+    "runtime_sha256": "7b17bd9a43e1a1d7ac462f0a9c65a93b2f548fac5ab98cb7903b96dc8239f62c",
+    "shape_status": "selected_existing_prototype_pending_confirmation",
+    "bounds": [
+      [
+        -10.978495,
+        10.978495
+      ],
+      [
+        -4.05,
+        1.5085200000000003
+      ],
+      [
+        -8.649999999999999,
+        12.95
+      ]
+    ],
+    "part_count": 195
+  },
+  "marisa_shell": {
+    "source_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
+    "source_model_sha256": "ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8",
+    "selected_parts": "shell*",
+    "snapshot": "art/source/subspecies-runtime/marisa_shell/runtime.model.json",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_shell.json",
+    "runtime_sha256": "75b99b9f12accdd1ebf0579d241e72895f41b451caeffa14266b33b15dc23940",
+    "texture": "src/main/resources/assets/mcyukkuri/textures/props/marisa_shell.png",
+    "texture_sha256": "16b12c7f044cfc10bb78e7ef37498fe2984ce4dae0d5a16e6b7b7d8ac8214b81",
+    "shape_status": "derived_from_selected_shell"
+  },
+  "texture_exporter_sha256": "52b67e4c03ca2e6b96e048e6f48808e5829b5fb675f0a1e277aacf743122954a"
+}

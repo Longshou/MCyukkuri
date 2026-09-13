@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Slow gold examination starts and charges eight emeralds",
+    "pass": true
+  },
+  {
+    "name": "At 500 ticks valid navigation is still active without a premature gold award",
+    "pass": true
+  },
+  {
+    "name": "Slow navigation earns gold after 500 and within the existing 640 ticks",
+    "pass": true
+  },
+  {
+    "name": "Slow completion keeps one payment and one genuine certificate",
+    "pass": true
+  }
+]

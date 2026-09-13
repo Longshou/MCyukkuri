@@ -1,0 +1,37 @@
+{
+  "status": "pending_user_confirmation",
+  "models": [
+    "reimu_sparse",
+    "reimu_face"
+  ],
+  "runtime_expressions": [
+    "neutral",
+    "happy",
+    "cry",
+    "teary",
+    "drool",
+    "confused",
+    "yawn",
+    "sleep",
+    "angry",
+    "surprise",
+    "sleepy",
+    "closed_smile",
+    "chewing",
+    "chewing_closed",
+    "satisfied",
+    "open_smile",
+    "smug",
+    "puff"
+  ],
+  "body_source": "inputs/standards/yukkuri-library/assembled/reimu",
+  "feature_recipe": "../recipes.json",
+  "author": "../../../../../scripts/export_reimu_deficient_rounded.py",
+  "body_policy": "Preserve rounded donor skin, rump and their continuous weights exactly; retain each congenital feature recipe.",
+  "scope": "2026-09-14 user requests rounded sparse and uneven-face Reimu; reuse current body and motion with Reimu ornaments.",
+  "sparse_bow_offset": [
+    0,
+    -1,
+    -1.4
+  ]
+}

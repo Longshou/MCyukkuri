@@ -2,27 +2,15 @@
   "id": "marisa_tsumuri",
   "label": "螺壳魔理沙",
   "components": [
-    "components/common/body.json",
-    "components/common/rump.json",
-    "components/common/face.json",
-    "components/common/puff.json",
-    "components/common/hair.json",
-    "components/marisa/hair.json",
-    "components/marisa/hand-left.json",
-    "components/marisa/hand-right.json",
-    "components/common/anatomy.json",
-    "components/marisa-tsumuri/shell.json"
+    "body-standard/components/marisa_tsumuri.json"
   ],
-  "rig": "rigs/marisa.json",
-  "base_texture": "textures/marisa-tsumuri/base.png",
+  "rig": "body-standard/rigs/marisa_tsumuri.json",
+  "base_texture": "assembled/marisa_tsumuri/marisa_tsumuri.png",
   "expression_binding": "bindings/marisa_tsumuri.json",
   "motion_catalog": "motions/index.json",
   "expression_catalog": "expressions/index.json",
-  "rig_components": [
-    "components/common/anatomy-rig.json",
-    "components/marisa-tsumuri/shell-rig.json"
-  ],
-  "anatomy": "behaviors/anatomy.json",
+  "rig_components": [],
+  "anatomy": "body-standard/anatomy.json",
   "status": "user_approved",
   "base_character": "marisa",
   "motion_ids": [
@@ -37,5 +25,10 @@
     "span": 18.5,
     "centerY": 10.5,
     "default_motion": "still"
-  }
+  },
+  "construction_recipe": "body-standard/recipe.json",
+  "body_standard": "body-standard/profile.json",
+  "body_status": "user_approved_standard",
+  "export": "assembled/marisa_tsumuri",
+  "feature_source": "body-standard/inputs/marisa_tsumuri"
 }

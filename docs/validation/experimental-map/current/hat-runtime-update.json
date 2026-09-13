@@ -1,0 +1,37 @@
+{
+  "source_runtime": ".local/hat-interactions/runtime-20260913-215007",
+  "map_runtime": ".local/experimental-map/runtime-hats-20260913-215007",
+  "jar_sha256": "09e33cf12d078b3aff761936c9b4366f8c611990f6e7083e5b3776367990fdad",
+  "counts": {
+    "classes/java/main": 256,
+    "resources/main": 1483
+  },
+  "jar_matches_runtime": true,
+  "dependency_paths_checked": 114,
+  "copied_engine_artifacts": 2,
+  "launch_parameters_from": ".local/injury-remains/runtime-20260913-131423",
+  "launch_parameters_changes": "runtime directory references only",
+  "remains_classes_unchanged": [
+    "io/github/longshou/mcyukkuri/client/RemainsRenderer.class",
+    "io/github/longshou/mcyukkuri/entity/RemainsEntity.class",
+    "io/github/longshou/mcyukkuri/item/RemainsItem.class"
+  ],
+  "remains_text_and_item_model_unchanged": true,
+  "source_p0_world_and_run_parameters_copied": false,
+  "hat_gametest_checks": 33,
+  "status": "switched",
+  "updated_at": "2026-09-13T21:57:22.038321+08:00",
+  "previous_runtime": ".local/injury-remains/runtime-20260913-131423",
+  "world_files_unchanged": 146,
+  "map_archive_sha256": "b5ab890295da0dcb2c43323ef8c118365f293a977b2f0ef04f8f8e90f4698d8b",
+  "producer_fingerprints_checked": 1740,
+  "client_capture_groups": 14,
+  "selected_models": {
+    "marisa_sparse": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+    "marisa_face": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4"
+  },
+  "producer_verification": "art/source/hat-interactions/reports/current/verification.md",
+  "client_started_by_map_task": false,
+  "standard_confirmation": "pending-user-confirmation",
+  "manifest_backup": ".local/experimental-map/runtime-update/runtime-before-hats.json"
+}

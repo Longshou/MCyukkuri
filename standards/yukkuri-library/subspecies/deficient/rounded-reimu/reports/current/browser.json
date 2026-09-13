@@ -1,0 +1,3895 @@
+{
+  "passed": true,
+  "errors": [],
+  "gallery": true,
+  "checks": [
+    {
+      "id": "reimu_sparse",
+      "expression": "neutral",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "happy",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "cry",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "teary",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "drool",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "confused",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "yawn",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "sleep",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "angry",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "surprise",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "sleepy",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "closed_smile",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "chewing",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "chewing_closed",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44294
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44294
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44294
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44294
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44294
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44294
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44255
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44294
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43385
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44294
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54364
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50301
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54252
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56346
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54364
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44294
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46817
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49342
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51866
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54364
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "satisfied",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "open_smile",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 44276
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 44239
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 44276
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 43372
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 44276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 54336
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 50287
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 54225
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 56317
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 54336
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 44276
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 46797
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 49320
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 51841
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 54336
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "smug",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 42894
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 42138
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 42965
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 52355
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 48276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 52243
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 54372
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 52355
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 45315
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 47669
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 50023
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 52355
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_sparse",
+      "expression": "puff",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 42965
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 42894
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 42965
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 42138
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 42965
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 52355
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 48276
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 52243
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 54372
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 52355
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 42965
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 45315
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 47669
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 50023
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 52355
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "neutral",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "happy",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "cry",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "teary",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "drool",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "confused",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "yawn",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "sleep",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "angry",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "surprise",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "sleepy",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "closed_smile",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "chewing",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "chewing_closed",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57476
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69259
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69096
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71744
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69259
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63208
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66235
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69259
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "satisfied",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "open_smile",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 57460
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 57474
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 57460
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 56130
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 57460
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 69231
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 64498
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 69068
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 71714
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 69231
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 57460
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 60217
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 63201
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 66212
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 69231
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "smug",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 56245
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 54970
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 56249
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 67251
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 62488
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 67088
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 69802
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 67251
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 58802
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 61552
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 64398
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 67251
+        }
+      ],
+      "visible": true
+    },
+    {
+      "id": "reimu_face",
+      "expression": "puff",
+      "atlas": true,
+      "states": [
+        {
+          "action": "idle",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.25,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.5,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 0.75,
+          "visible": 56249
+        },
+        {
+          "action": "idle",
+          "phase": 1,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0.25,
+          "visible": 56245
+        },
+        {
+          "action": "waddle",
+          "phase": 0.5,
+          "visible": 56249
+        },
+        {
+          "action": "waddle",
+          "phase": 0.75,
+          "visible": 54970
+        },
+        {
+          "action": "waddle",
+          "phase": 1,
+          "visible": 56249
+        },
+        {
+          "action": "side_bend",
+          "phase": 0,
+          "visible": 67251
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.25,
+          "visible": 62488
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.5,
+          "visible": 67088
+        },
+        {
+          "action": "side_bend",
+          "phase": 0.75,
+          "visible": 69802
+        },
+        {
+          "action": "side_bend",
+          "phase": 1,
+          "visible": 67251
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0,
+          "visible": 56249
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.25,
+          "visible": 58802
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.5,
+          "visible": 61552
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 0.75,
+          "visible": 64398
+        },
+        {
+          "action": "stretch_shape",
+          "phase": 1,
+          "visible": 67251
+        }
+      ],
+      "visible": true
+    }
+  ]
+}

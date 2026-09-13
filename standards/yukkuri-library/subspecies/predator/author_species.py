@@ -36,6 +36,32 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def cute_fangs(atlas, mouth, config, expression):
+    """Author clear ivory triangles in a dedicated high-resolution mouth tile."""
+    u,v,U,V=map(int,mouth['faces']['north']['uv'])
+    a,b,A,B=config['uv']
+    patch=atlas.crop((u,v,U,V)).resize((A-a,B-b),Image.Resampling.NEAREST)
+    draw=ImageDraw.Draw(patch)
+    if expression in ('neutral','neutral__new'):
+        # A small open smile gives the canines a readable dark mouth behind them.
+        draw.rectangle((0,0,patch.width,patch.height),fill=(0,0,0,0))
+        draw.polygon([(28,16),(36,20),(76,20),(84,16),(80,36),(70,45),(42,45),(32,36)],fill=(83,43,45,255))
+        draw.ellipse((43,37,69,44),fill=(213,117,121,255))
+    box=patch.getbbox()
+    if not box or box[2]-box[0]<8:
+        atlas.paste(patch,(a,b));return
+    left,top,right,bottom=box
+    for q in config['positions']:
+        x=round(left+(right-left-1)*q)
+        occupied=[y for y in range(top,bottom) if patch.getpixel((x,y))[3]>128]
+        if not occupied:continue
+        y=occupied[0]+1;w=config['width'];h=config['length'];tip=(x,y+h)
+        draw.polygon([(x-w//2,y),(x+w//2,y),tip],fill=tuple(config['color']),outline=tuple(config['outline']),width=1)
+        draw.polygon([(x-w//2+1,y+1),(x-w//2+3,y+1),(x,y+h-2)],fill=tuple(config['shadow']))
+        draw.point(tip,fill=tuple(config['color']))
+    atlas.paste(patch,(a,b))
+
+
 def palette(spec):
     colors = {'skin': [244,219,174], 'hair': spec['hair'], 'hair_light': spec['hair_light'],
               'hair_shadow': spec['hair_shadow'], 'cap': spec['cap'], 'cap_light': spec['cap_light'],
@@ -172,7 +198,7 @@ def rig_for(original, config, added_bones):
 
 
 def export(ident, config):
-    spec=config['variants'][ident];base=LIB/'assembled/marisa'
+    spec=config['variants'][ident];base=LIB/'body-standard/inputs/marisa'
     bb=read(base/'marisa.bbmodel');original=read(base/'animation-rig.json')
     colors,uv=palette(spec)
     elements=[body(config['body_profile'],uv['skin'])]
@@ -209,6 +235,8 @@ def export(ident, config):
                     r,g,bl,alpha=atlas.getpixel((x,y))
                     if alpha and r>65 and r<210 and r>g*1.1 and g>bl*1.1:
                         ratio=r/150;atlas.putpixel((x,y),tuple(min(255,round(v*ratio)) for v in spec['eye'])+(alpha,))
+        mouth=next(e for e in elements if e['name']=='face_mouth')
+        cute_fangs(atlas,mouth,config['fangs'],source.stem)
         target=out/'textures'/source.name;target.parent.mkdir(exist_ok=True);atlas.save(target)
         texture_records[source.stem]=sha(target)
     # Bite is an authored expression over the existing angry eye/brow components.
@@ -217,8 +245,9 @@ def export(ident, config):
     draw.rectangle((u,v,U-1,V-1),fill=(0,0,0,0))
     draw.ellipse((u+2,v+1,U-3,V-2),fill=(77,35,43,255))
     draw.ellipse((u+5,V-6,U-6,V-3),fill=(226,113,126,255))
-    for x in [u+5,U-8]:draw.polygon([(x,v+3),(x+3,v+3),(x+1,v+8)],fill=(255,247,226,255))
+    cute_fangs(atlas,mouth,config['fangs'],'biting')
     atlas.save(out/'textures/biting.png');texture_records['biting']=sha(out/'textures/biting.png')
+    mouth['faces']['north']['uv']=config['fangs']['uv']
     png=(out/'textures/neutral.png').read_bytes();(out/(ident+'.png')).write_bytes(png)
     uid=lambda key:str(uuid.uuid5(uuid.NAMESPACE_URL,'mcyukkuri/predators/'+ident+'/'+key))
     nodes={b['name']:dict(name=b['name'],uuid=uid('bone/'+b['name']),origin=b['pivot'],children=[]) for b in rig['bones']}
@@ -268,6 +297,7 @@ def export(ident, config):
 
 def main():
     config=read(HERE/'species.json')
+    config['body_profile']=read(LIB/'body-standard/profile.json')['body_profile']
     records={ident:export(ident,config) for ident in config['variants']}
     save(HERE/'species-manifest.json',dict(status='pending_confirmation',models=records,
         inputs={p.name:sha(p) for p in [HERE/'species.json',HERE/'species_geometry.py',Path(__file__)]}),True)

@@ -1,0 +1,26 @@
+{
+  "responses": [
+    {
+      "id": "bb570cfc-7801-4fbb-a3ad-e27e428c8d7d",
+      "op": "waddle-assets",
+      "pass": false,
+      "time": "2026-09-13T11:17:29.971100600Z",
+      "result": "java.lang.IllegalStateException: Walking leaks into idle: HOUSE_REIMU"
+    },
+    {
+      "id": "acc09efd-7ad0-466f-acd9-408d3a483d1a",
+      "op": "waddle-assets",
+      "pass": false,
+      "time": "2026-09-13T11:17:59.398365100Z",
+      "result": "java.lang.IllegalStateException: Walking has no visible motion: REMILIA"
+    },
+    {
+      "id": "2e03bdc2-c4ae-4f9e-9c8f-56897a40c1fb",
+      "op": "preview",
+      "pass": false,
+      "time": "2026-09-13T11:19:12.194330700Z",
+      "result": "com.google.gson.JsonParseException: Failed parsing JSON source: JsonReader at line 1 column 36502436 path $.expressionPoints.blank_frown[3].points[12377] to Json"
+    }
+  ],
+  "status": "house_render_issue_fixed; house_only_harness_checks_passed; all_species_2GB_wound_stress_not_passed"
+}

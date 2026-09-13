@@ -1,5 +1,9 @@
 # 当前预览
 
+[全部油库里模型与头发修复](../body-standard/previews/current/all-models/index.html)：普通种、螺壳、多毛、灵胖、家油、捕食种、DOS 与不足形态的当前几何展示，含四视图、旋转和移动预览。本轮圆润模型头发修订待确认。
+
+当前体型：[八种角色交互预览](../body-standard/previews/current/index.html) · [总览图](../body-standard/previews/current/overview.png)。圆润体型已保存；家油、DOS、不足油除外。
+
 - [帕秋莉简化预览](current/patchouli.html)：当前已确认刘海和侧发的对话预览内容，可在支持该片段的对话中展示。
 - [帕秋莉完整独立预览](../assembled/patchouli/index.html)：包含当前模型及素材库原有动作、表情查看功能，由用户打开观察。
 - [角色对照](../species.html)：查看标准种族的当前导出。

@@ -1,0 +1,8 @@
+[
+  "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+  "@E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\moddev\\p0GameTestRunClasspath.txt",
+  "@E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\moddev\\p0GameTestRunVmArgs.txt",
+  "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\resources\\p0Test",
+  "net.neoforged.devlaunch.Main",
+  "@E:\\yukkuri\\MCyukkuri\\.local\\fertility-rules\\runtime-20260913-105628\\moddev\\p0GameTestRunProgramArgs.txt"
+]

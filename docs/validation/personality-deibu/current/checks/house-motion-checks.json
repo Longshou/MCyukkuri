@@ -1,0 +1,122 @@
+[
+  {
+    "name": "small house body fits crevice above its floor while ordinary adult does not",
+    "pass": true,
+    "detail": "BlockPos{x\u003d278, y\u003d65, z\u003d20}"
+  },
+  {
+    "name": "food without six materials cannot make a brood",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "real goal carries and deposits six source items",
+    "pass": true,
+    "detail": "6 / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1} / (278.44098859094953, 65.0, 19.918869507776957) / house_hide / {Accessory:1b,AgeTicks:4000L,Bladder:0.0f,BowlMeal:0b,DrugSleep:0,Dryness:0.0f,Energy:65.0f,EnergyProgress:0,ExerciseReliefTicks:0,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:76141180301377L,HungerProgress:160,Hygiene:87.0f,HygieneProgress:100,MealTicks:0,NaturalHome:1b,Nutrition:79.0f,Personality:{DispositionExperience:[I;0,0,0,0],DispositionInnate:[I;28,35,23,73],DispositionProgress:[I;0,0,0,0],Environment:{Clock:4000L,Events:[],Friendliness:50.0f,HostileUntil:0L,NextCare:0L,NextHostility:0L},Experience:[I;0,0,0,0,0,0],Innate:[I;78,49,43,32,75,77],LastDecision:\"none\",Lessons:0,NextExperience:[L;0L,0L,0L,0L],Players:[],Version:2},RestWait:0,ReturnDoseBottle:0b,SharedMeal:0b,SilverMedal:0b,SocialWait:125,SpicyTicks:0,SprayDelay:0,Version:1,Wetness:0.0f} / []"
+  },
+  {
+    "name": "only three food prevents laying",
+    "pass": true,
+    "detail": "3"
+  },
+  {
+    "name": "actual nest ticker lays a uniquely identified house brood",
+    "pass": true,
+    "detail": "1719a45b-b8e9-4e63-9cdf-ff49620f779a"
+  },
+  {
+    "name": "egg identities and parents are fixed",
+    "pass": true,
+    "detail": "4"
+  },
+  {
+    "name": "egg parents retain their committed partnership",
+    "pass": true,
+    "detail": "{AdultScale:1.0f,Age:50501L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:1,Gestation:[I;387556443,-1192669597,-1663041719,1645180826],Initialized:1b,JuvenileVoice:0b,Lifespan:2139021L,LiveRecovery:0,Maturity:46500L,Nourishment:50500L,Partner:[I;808277009,-1905573719,-1670833602,-1320491284],Recovery:12000,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "native block save restores same nest and brood",
+    "pass": true,
+    "detail": "def17223-fa3c-4e07-8f09-6584ee1cab58"
+  },
+  {
+    "name": "normal clean preserves eggs and lining",
+    "pass": true,
+    "detail": "4"
+  },
+  {
+    "name": "no stock pauses incubation",
+    "pass": true,
+    "detail": "40"
+  },
+  {
+    "name": "cleaning one nest leaves neighboring stock",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "real nest ticker hatches all eggs once",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "hatchlings are babies with real ancestry",
+    "pass": true,
+    "detail": "{AdultScale:1.0276604f,Age:40L,AwaitingLanding:0b,BabyTalk:0b,BirthId:[I;387556443,-1192669597,-1663041719,1645180826],Conceptions:0,Father:[I;808277009,-1905573719,-1670833602,-1320491284],Initialized:1b,JuvenileVoice:0b,Lifespan:2215150L,LiveRecovery:0,Maturity:48155L,Mother:[I;-1407167170,1184188527,-1239470657,616694912],Nourishment:40L,Recovery:0,Scale:0.32f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"BABY\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "destroying a hatched nest keeps living children and genealogy",
+    "pass": true,
+    "detail": "2cc291d8-581b-44ba-91af-ca07f2d7389f"
+  },
+  {
+    "name": "destroying one nest preserves the other",
+    "pass": true,
+    "detail": "0f093d52-594e-4fa7-9847-e24c367d2cf9"
+  },
+  {
+    "name": "house actually enters the physical crevice",
+    "pass": true,
+    "detail": "(278.5644011239002, 65.0, 19.901551025981707)"
+  },
+  {
+    "name": "same resident visibly peeks from its opening",
+    "pass": true,
+    "detail": "idle"
+  },
+  {
+    "name": "resident leaves low roof and returns to floor",
+    "pass": true,
+    "detail": "recovered\u003dtrue, recoveryTick\u003d6225, unique\u003dtrue, end\u003d(278.5042725703851, 65.10785000264644, 20.14044513773845), endGround\u003dfalse, endMustExit\u003dfalse"
+  },
+  {
+    "name": "urgent hunger can consume real nest stock",
+    "pass": true,
+    "detail": "28.0 / 0 / idle / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1}"
+  },
+  {
+    "name": "hunger exits the crevice without a duplicate hidden entity",
+    "pass": true,
+    "detail": "everExited\u003dtrue, returned\u003dfalse, unique\u003dtrue, end\u003d(278.56321454607695, 65.0, 19.78450328901647), mustExit\u003dfalse, mealTicks\u003d0"
+  },
+  {
+    "name": "crawl travel advances the authored root stroke",
+    "pass": true,
+    "detail": "(270.5, 65.0, 18.520208)"
+  },
+  {
+    "name": "crawl travel respects a solid wall",
+    "pass": true,
+    "detail": "(270.5, 65.0, 18.864999994635582)"
+  },
+  {
+    "name": "NoAI clears crawl before any old stroke",
+    "pass": true,
+    "detail": "(270.5, 65.0, 18.5)"
+  },
+  {
+    "name": "death clears crawl before any old stroke",
+    "pass": true,
+    "detail": "(270.5, 65.0, 18.5)"
+  }
+]

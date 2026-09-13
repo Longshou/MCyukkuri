@@ -122,6 +122,7 @@ public final class DailyLife {
         }
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE) entity.speak("want_nuzzle");
+        if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         return true;
     }
     private boolean room() {
@@ -138,7 +139,7 @@ public final class DailyLife {
                 peer -> peer != entity && available(peer) && !peer.dailyLife().active() && peer.dailyLife().cooldown == 0
                         && entity.hasLineOfSight(peer) && closePeer(peer)).stream()
                 .sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList();
-        if (affection >= 40) {
+        if (affection >= entity.life().personality().affectionThreshold()) {
             // Known owners are a preference, not automatic trust or a replacement for friends.
             var players = level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(5), this::trusted).stream()
                     .sorted(Comparator.comparingDouble(p -> entity.distanceToSqr(p) - (HumanCommerce.ownedBy(entity, p.getUUID()) ? 25 : 0))).toList();
@@ -196,6 +197,10 @@ public final class DailyLife {
         int duration = current.kind == Kind.NUZZLE ? 60 : current.kind == Kind.SING ? 160 : 280;
         if (current.contact < duration) return;
         complete(current.leader, current.kind);
+        if(current.companion!=null&&current.kind==Kind.NUZZLE) {
+            current.leader.life().personality().environment().record(current.companion.getUUID(),"nuzzle",3);
+            if(current.companion instanceof YukkuriEntity peer)peer.life().personality().environment().record(current.leader.getUUID(),"nuzzle",3);
+        }
         if (current.companion instanceof YukkuriEntity peer) {
             complete(peer, current.kind);
             if (current.kind == Kind.NUZZLE) {

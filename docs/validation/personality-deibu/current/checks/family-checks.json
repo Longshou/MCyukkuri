@@ -1,0 +1,707 @@
+[
+  {
+    "name": "CHEN unborn sync slot 0",
+    "pass": true,
+    "detail": "CHEN"
+  },
+  {
+    "name": "CHEN unborn sync slot 1",
+    "pass": true,
+    "detail": "CHEN"
+  },
+  {
+    "name": "CHEN unborn sync slot 2",
+    "pass": true,
+    "detail": "CHEN"
+  },
+  {
+    "name": "CHEN unborn sync slot 3",
+    "pass": true,
+    "detail": "CHEN"
+  },
+  {
+    "name": "CHEN unborn sync slot 4",
+    "pass": true,
+    "detail": "CHEN"
+  },
+  {
+    "name": "CHEN unborn ledger roundtrip",
+    "pass": true,
+    "detail": "47a6d1c0-9161-4666-a2f3-36f1bacd47e1"
+  },
+  {
+    "name": "CHEN family geometry REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.0151999928474424, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 0.8324812355868516, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry HOUSE_REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry HOUSE_MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry CHEN",
+    "pass": true,
+    "detail": "(-0.095625, 0.9842624916180966, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry ALICE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9934499919831751, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry PATCHOULI",
+    "pass": true,
+    "detail": "(-0.095625, 0.9637107658014444, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry REMILIA",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "CHEN family geometry FLANDRE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "CHEN birth creates matching entity",
+    "pass": true,
+    "detail": "YukkuriEntity[\u0027Chen\u0027/1080, l\u003d\u0027ServerLevel[Test Level]\u0027, x\u003d176.50, y\u003d65.00, z\u003d27.50]"
+  },
+  {
+    "name": "CHEN own accessory item",
+    "pass": true,
+    "detail": "mcyukkuri:chen_hat"
+  },
+  {
+    "name": "CHEN accessory return",
+    "pass": true,
+    "detail": "52a0b4a0-2d7c-481a-965f-d52d9b534dfc"
+  },
+  {
+    "name": "ALICE unborn sync slot 0",
+    "pass": true,
+    "detail": "ALICE"
+  },
+  {
+    "name": "ALICE unborn sync slot 1",
+    "pass": true,
+    "detail": "ALICE"
+  },
+  {
+    "name": "ALICE unborn sync slot 2",
+    "pass": true,
+    "detail": "ALICE"
+  },
+  {
+    "name": "ALICE unborn sync slot 3",
+    "pass": true,
+    "detail": "ALICE"
+  },
+  {
+    "name": "ALICE unborn sync slot 4",
+    "pass": true,
+    "detail": "ALICE"
+  },
+  {
+    "name": "ALICE unborn ledger roundtrip",
+    "pass": true,
+    "detail": "fef99330-6e05-47b9-a6d3-c16e64cb54f7"
+  },
+  {
+    "name": "ALICE family geometry REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.0151999928474424, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 0.8324812355868516, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry HOUSE_REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry HOUSE_MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry CHEN",
+    "pass": true,
+    "detail": "(-0.095625, 0.9842624916180966, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry ALICE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9934499919831751, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry PATCHOULI",
+    "pass": true,
+    "detail": "(-0.095625, 0.9637107658014444, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry REMILIA",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "ALICE family geometry FLANDRE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "ALICE birth creates matching entity",
+    "pass": true,
+    "detail": "YukkuriEntity[\u0027Alice\u0027/1083, l\u003d\u0027ServerLevel[Test Level]\u0027, x\u003d176.50, y\u003d65.00, z\u003d27.50]"
+  },
+  {
+    "name": "ALICE own accessory item",
+    "pass": true,
+    "detail": "mcyukkuri:alice_headband"
+  },
+  {
+    "name": "ALICE accessory return",
+    "pass": true,
+    "detail": "8e907de9-9dc4-4c56-b107-7d85a1035eb8"
+  },
+  {
+    "name": "PATCHOULI unborn sync slot 0",
+    "pass": true,
+    "detail": "PATCHOULI"
+  },
+  {
+    "name": "PATCHOULI unborn sync slot 1",
+    "pass": true,
+    "detail": "PATCHOULI"
+  },
+  {
+    "name": "PATCHOULI unborn sync slot 2",
+    "pass": true,
+    "detail": "PATCHOULI"
+  },
+  {
+    "name": "PATCHOULI unborn sync slot 3",
+    "pass": true,
+    "detail": "PATCHOULI"
+  },
+  {
+    "name": "PATCHOULI unborn sync slot 4",
+    "pass": true,
+    "detail": "PATCHOULI"
+  },
+  {
+    "name": "PATCHOULI unborn ledger roundtrip",
+    "pass": true,
+    "detail": "1a40152e-4121-4d7d-9dac-4e6308622b7a"
+  },
+  {
+    "name": "PATCHOULI family geometry REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.0151999928474424, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 0.8324812355868516, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry HOUSE_REIMU",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry HOUSE_MARISA",
+    "pass": true,
+    "detail": "(-0.095625, 1.123574997153878, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry CHEN",
+    "pass": true,
+    "detail": "(-0.095625, 0.9842624916180966, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry ALICE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9934499919831751, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry PATCHOULI",
+    "pass": true,
+    "detail": "(-0.095625, 0.9637107658014444, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry REMILIA",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "PATCHOULI family geometry FLANDRE",
+    "pass": true,
+    "detail": "(-0.095625, 0.9814499915063379, -0.82)"
+  },
+  {
+    "name": "PATCHOULI birth creates matching entity",
+    "pass": true,
+    "detail": "YukkuriEntity[\u0027Patchouli\u0027/1086, l\u003d\u0027ServerLevel[Test Level]\u0027, x\u003d176.50, y\u003d65.00, z\u003d27.50]"
+  },
+  {
+    "name": "PATCHOULI own accessory item",
+    "pass": true,
+    "detail": "mcyukkuri:patchouli_bonnet"
+  },
+  {
+    "name": "PATCHOULI accessory return",
+    "pass": true,
+    "detail": "004f0ef0-3d62-401b-978a-52d54b0c6a5a"
+  },
+  {
+    "name": "larger mothers shift the count distribution",
+    "pass": true,
+    "detail": "1449 / 4550"
+  },
+  {
+    "name": "1 fetus identities fixed at conception",
+    "pass": true,
+    "detail": "ff452569-9cde-4249-9184-ef2b834d84e4"
+  },
+  {
+    "name": "1 unborn reserve real capacity",
+    "pass": true,
+    "detail": "3"
+  },
+  {
+    "name": "1 parents cannot create a second brood",
+    "pass": true,
+    "detail": "second attempt"
+  },
+  {
+    "name": "1 fetus cannot be born early",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "1 native ledger save preserves brood and genes",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "1 child 0 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0303589f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-12245655,-1663155639,-1853558997,-2092071708],Conceptions:0,Father:[I;-522339386,-1497870499,-1805566311,-1137614547],Initialized:1b,JuvenileVoice:0b,Lifespan:73845L,LiveRecovery:0,Maturity:24615L,Mother:[I;653222293,-580497432,-1506841782,990396523],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "1 child 0 birth idempotent",
+    "pass": true,
+    "detail": "82cd9200-afac-43f7-b64f-257667fadabb"
+  },
+  {
+    "name": "1 complete brood leaves the same population",
+    "pass": true,
+    "detail": "3"
+  },
+  {
+    "name": "1 genealogy survives appearance loss",
+    "pass": true,
+    "detail": "82cd9200-afac-43f7-b64f-257667fadabb"
+  },
+  {
+    "name": "2 fetus identities fixed at conception",
+    "pass": true,
+    "detail": "ea6bf47d-47a6-4e50-9465-410e719e9ec1"
+  },
+  {
+    "name": "2 unborn reserve real capacity",
+    "pass": true,
+    "detail": "4"
+  },
+  {
+    "name": "2 parents cannot create a second brood",
+    "pass": true,
+    "detail": "second attempt"
+  },
+  {
+    "name": "2 fetus cannot be born early",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "2 native ledger save preserves brood and genes",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "2 child 0 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0211016f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-362023811,1202081360,-1805303538,1906220737],Conceptions:0,Father:[I;-321305695,-1821752845,-1185542598,125775262],Initialized:1b,JuvenileVoice:0b,Lifespan:72425L,LiveRecovery:0,Maturity:24142L,Mother:[I;-1164866120,292113982,-1168271388,1640011526],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "2 child 0 birth idempotent",
+    "pass": true,
+    "detail": "af8f8d27-0633-4559-81bb-9e5a98b0a056"
+  },
+  {
+    "name": "2 child 1 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.94317985f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-362023811,1202081360,-1805303538,1906220737],Conceptions:0,Father:[I;-321305695,-1821752845,-1185542598,125775262],Initialized:1b,JuvenileVoice:0b,Lifespan:70485L,LiveRecovery:0,Maturity:23495L,Mother:[I;-1164866120,292113982,-1168271388,1640011526],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "2 child 1 birth idempotent",
+    "pass": true,
+    "detail": "1137d643-5f49-4cdd-8719-2cf4f7502c74"
+  },
+  {
+    "name": "2 complete brood leaves the same population",
+    "pass": true,
+    "detail": "4"
+  },
+  {
+    "name": "2 genealogy survives appearance loss",
+    "pass": true,
+    "detail": "1137d643-5f49-4cdd-8719-2cf4f7502c74"
+  },
+  {
+    "name": "3 fetus identities fixed at conception",
+    "pass": true,
+    "detail": "bf448e52-1a62-4456-9b3c-a2e2ae6305f8"
+  },
+  {
+    "name": "3 unborn reserve real capacity",
+    "pass": true,
+    "detail": "5"
+  },
+  {
+    "name": "3 parents cannot create a second brood",
+    "pass": true,
+    "detail": "second attempt"
+  },
+  {
+    "name": "3 fetus cannot be born early",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "3 native ledger save preserves brood and genes",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "3 child 0 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0194608f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1086026158,442647638,-1690524958,-1369242120],Conceptions:0,Father:[I;283360099,-1302507726,-1103428223,-1448832905],Initialized:1b,JuvenileVoice:0b,Lifespan:73977L,LiveRecovery:0,Maturity:24659L,Mother:[I;1332763830,1798326973,-1794414897,286020747],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "3 child 0 birth idempotent",
+    "pass": true,
+    "detail": "2a3bb548-5002-4d17-9eae-fa46073c7532"
+  },
+  {
+    "name": "3 child 1 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.9516443f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1086026158,442647638,-1690524958,-1369242120],Conceptions:0,Father:[I;283360099,-1302507726,-1103428223,-1448832905],Initialized:1b,JuvenileVoice:0b,Lifespan:69567L,LiveRecovery:0,Maturity:23189L,Mother:[I;1332763830,1798326973,-1794414897,286020747],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "3 child 1 birth idempotent",
+    "pass": true,
+    "detail": "d906fa82-43fd-445a-a070-2f14395b2853"
+  },
+  {
+    "name": "3 child 2 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0086796f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1086026158,442647638,-1690524958,-1369242120],Conceptions:0,Father:[I;283360099,-1302507726,-1103428223,-1448832905],Initialized:1b,JuvenileVoice:0b,Lifespan:69894L,LiveRecovery:0,Maturity:23298L,Mother:[I;1332763830,1798326973,-1794414897,286020747],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "3 child 2 birth idempotent",
+    "pass": true,
+    "detail": "5e41ca02-bf78-437f-98ea-8e3143d489d4"
+  },
+  {
+    "name": "3 complete brood leaves the same population",
+    "pass": true,
+    "detail": "5"
+  },
+  {
+    "name": "3 genealogy survives appearance loss",
+    "pass": true,
+    "detail": "5e41ca02-bf78-437f-98ea-8e3143d489d4"
+  },
+  {
+    "name": "4 fetus identities fixed at conception",
+    "pass": true,
+    "detail": "a09a7104-ddf2-46af-9322-d090d3bdfbd2"
+  },
+  {
+    "name": "4 unborn reserve real capacity",
+    "pass": true,
+    "detail": "6"
+  },
+  {
+    "name": "4 parents cannot create a second brood",
+    "pass": true,
+    "detail": "second attempt"
+  },
+  {
+    "name": "4 fetus cannot be born early",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "4 native ledger save preserves brood and genes",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "4 child 0 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.948954f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1600491260,-571324753,-1826434928,-742523950],Conceptions:0,Father:[I;-164393326,-30585492,-1787533340,-214337159],Initialized:1b,JuvenileVoice:1b,Lifespan:72681L,LiveRecovery:0,Maturity:24227L,Mother:[I;-278369617,1415725453,-1808453743,-490509590],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "4 child 0 birth idempotent",
+    "pass": true,
+    "detail": "1084d162-1f96-4ff7-b220-a20828717baf"
+  },
+  {
+    "name": "4 child 1 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0007268f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1600491260,-571324753,-1826434928,-742523950],Conceptions:0,Father:[I;-164393326,-30585492,-1787533340,-214337159],Initialized:1b,JuvenileVoice:0b,Lifespan:69360L,LiveRecovery:0,Maturity:23120L,Mother:[I;-278369617,1415725453,-1808453743,-490509590],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "4 child 1 birth idempotent",
+    "pass": true,
+    "detail": "c9fd831d-b8a8-44ed-8a80-d25621038f00"
+  },
+  {
+    "name": "4 child 2 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:1.0522481f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1600491260,-571324753,-1826434928,-742523950],Conceptions:0,Father:[I;-164393326,-30585492,-1787533340,-214337159],Initialized:1b,JuvenileVoice:0b,Lifespan:70728L,LiveRecovery:0,Maturity:23576L,Mother:[I;-278369617,1415725453,-1808453743,-490509590],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "4 child 2 birth idempotent",
+    "pass": true,
+    "detail": "e2da2030-4057-488f-af91-b04fb4f567a7"
+  },
+  {
+    "name": "4 child 3 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.9412873f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;-1600491260,-571324753,-1826434928,-742523950],Conceptions:0,Father:[I;-164393326,-30585492,-1787533340,-214337159],Initialized:1b,JuvenileVoice:0b,Lifespan:69732L,LiveRecovery:0,Maturity:23244L,Mother:[I;-278369617,1415725453,-1808453743,-490509590],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "4 child 3 birth idempotent",
+    "pass": true,
+    "detail": "424b234b-ad65-4492-b536-f47e24f3fde9"
+  },
+  {
+    "name": "4 complete brood leaves the same population",
+    "pass": true,
+    "detail": "6"
+  },
+  {
+    "name": "4 genealogy survives appearance loss",
+    "pass": true,
+    "detail": "424b234b-ad65-4492-b536-f47e24f3fde9"
+  },
+  {
+    "name": "5 fetus identities fixed at conception",
+    "pass": true,
+    "detail": "6506399f-965f-4bbd-bfbb-11a68761a4a0"
+  },
+  {
+    "name": "5 unborn reserve real capacity",
+    "pass": true,
+    "detail": "7"
+  },
+  {
+    "name": "5 parents cannot create a second brood",
+    "pass": true,
+    "detail": "second attempt"
+  },
+  {
+    "name": "5 fetus cannot be born early",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "5 native ledger save preserves brood and genes",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "5 child 0 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.95853555f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;1694906783,-1772139587,-1078259290,-2023644000],Conceptions:0,Father:[I;1927685487,1664894899,-1478315478,-1083029580],Initialized:1b,JuvenileVoice:0b,Lifespan:69912L,LiveRecovery:0,Maturity:23304L,Mother:[I;1797995546,1679902791,-1380801651,688613196],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "5 child 0 birth idempotent",
+    "pass": true,
+    "detail": "34325390-50bb-4205-8b93-c3a9f22f7d56"
+  },
+  {
+    "name": "5 child 1 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.9801942f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;1694906783,-1772139587,-1078259290,-2023644000],Conceptions:0,Father:[I;1927685487,1664894899,-1478315478,-1083029580],Initialized:1b,JuvenileVoice:1b,Lifespan:73698L,LiveRecovery:0,Maturity:24566L,Mother:[I;1797995546,1679902791,-1380801651,688613196],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "5 child 1 birth idempotent",
+    "pass": true,
+    "detail": "9d4212d4-f367-4787-9cdd-3d2e39fe114e"
+  },
+  {
+    "name": "5 child 2 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.94297755f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;1694906783,-1772139587,-1078259290,-2023644000],Conceptions:0,Father:[I;1927685487,1664894899,-1478315478,-1083029580],Initialized:1b,JuvenileVoice:0b,Lifespan:73585L,LiveRecovery:0,Maturity:24528L,Mother:[I;1797995546,1679902791,-1380801651,688613196],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "5 child 2 birth idempotent",
+    "pass": true,
+    "detail": "7aad3e40-ddaa-4890-a3d6-6e1a8f16b93f"
+  },
+  {
+    "name": "5 child 3 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.95215714f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;1694906783,-1772139587,-1078259290,-2023644000],Conceptions:0,Father:[I;1927685487,1664894899,-1478315478,-1083029580],Initialized:1b,JuvenileVoice:0b,Lifespan:73395L,LiveRecovery:0,Maturity:24465L,Mother:[I;1797995546,1679902791,-1380801651,688613196],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "5 child 3 birth idempotent",
+    "pass": true,
+    "detail": "882644c9-f7e1-44a6-88bb-3da844c79146"
+  },
+  {
+    "name": "5 child 4 has actual parents and juvenile bounds",
+    "pass": true,
+    "detail": "{AdultScale:0.990564f,Age:0L,AwaitingLanding:1b,BabyTalk:0b,BirthId:[I;1694906783,-1772139587,-1078259290,-2023644000],Conceptions:0,Father:[I;1927685487,1664894899,-1478315478,-1083029580],Initialized:1b,JuvenileVoice:0b,Lifespan:69141L,LiveRecovery:0,Maturity:23047L,Mother:[I;1797995546,1679902791,-1380801651,688613196],Nourishment:0L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "5 child 4 birth idempotent",
+    "pass": true,
+    "detail": "2989cb89-3d15-4b5a-9b35-dbaca52dde84"
+  },
+  {
+    "name": "5 complete brood leaves the same population",
+    "pass": true,
+    "detail": "7"
+  },
+  {
+    "name": "5 genealogy survives appearance loss",
+    "pass": true,
+    "detail": "2989cb89-3d15-4b5a-9b35-dbaca52dde84"
+  },
+  {
+    "name": "full area rejects conception without consuming resources",
+    "pass": true,
+    "detail": "{AdultScale:1.0f,Age:24001L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:0,Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Nourishment:24000L,Recovery:0,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "juveniles cannot mate or be introduced",
+    "pass": true,
+    "detail": "JUVENILE"
+  },
+  {
+    "name": "hunger rejects reproduction",
+    "pass": true,
+    "detail": "20.0"
+  },
+  {
+    "name": "ordinary pair cannot create house eggs",
+    "pass": true,
+    "detail": "ecology"
+  },
+  {
+    "name": "elapsed age alone does not mature a child",
+    "pass": true,
+    "detail": "{AdultScale:1.0285292f,Age:24001L,AwaitingLanding:0b,BabyTalk:0b,BirthId:[I;-1068409256,-1144175759,-1829735728,-235842417],Conceptions:0,Father:[I;1204041812,312953167,-2112471756,-1969683932],Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Mother:[I;-511134118,-1374597502,-2090150606,1201510520],Nourishment:24000L,Recovery:0,Scale:0.3f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"JUVENILE\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "juvenile enters actual rest",
+    "pass": true,
+    "detail": "sleep"
+  },
+  {
+    "name": "fed actual wake matures and resizes child",
+    "pass": true,
+    "detail": "{AdultScale:1.0285292f,Age:24341L,AwaitingLanding:0b,BabyTalk:0b,BirthId:[I;-1068409256,-1144175759,-1829735728,-235842417],Conceptions:0,Father:[I;1204041812,312953167,-2112471756,-1969683932],Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Mother:[I;-511134118,-1374597502,-2090150606,1201510520],Nourishment:24340L,Recovery:0,Scale:0.80455154f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2} / variant\u003dMARISA, birthFlags\u003d0, flags\u003d0, before\u003d0.24000002x0.18, expected\u003d0.64364123x0.48273095, actual\u003d0.6436413x0.48273095"
+  },
+  {
+    "name": "growth waits when enlarged body would hit a ceiling",
+    "pass": true,
+    "detail": "AABB[176.37999998778105, 65.0, 25.379999987781048] -\u003e [176.62000001221895, 65.18000000715256, 25.620000012218952]"
+  },
+  {
+    "name": "growth resumes in clear space",
+    "pass": true,
+    "detail": "AABB[176.0199999511242, 65.0, 25.01999995112419] -\u003e [176.9800000488758, 65.72000002861023, 25.98000004887581]"
+  },
+  {
+    "name": "known parent cannot pair with grown offspring",
+    "pass": true,
+    "detail": "e188b65a-ae11-4e82-836a-d532479d9878"
+  },
+  {
+    "name": "actual family goal conceives after courtship",
+    "pass": true,
+    "detail": "idle / {AdultScale:1.0f,Age:24221L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:1,Gestation:[I;-1010659900,753680909,-1496856052,-1290010878],Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Nourishment:24220L,Partner:[I;-638958520,543441927,-1782161240,-1786422076],Recovery:11941,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "actual gestation gives birth without a spawn command",
+    "pass": true,
+    "detail": "0 elapsed\u003d428 behavior\u003didle pos\u003d(180.46178268173887, 65.0, 20.485883713658524) home\u003dBlockPos{x\u003d180, y\u003d65, z\u003d20} life\u003d{Accessory:1b,AgeTicks:1020L,Bladder:0.0f,BowlMeal:0b,DrugSleep:0,Dryness:0.0f,Energy:84.0f,EnergyProgress:60,ExerciseReliefTicks:0,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:49478023336001L,HungerProgress:60,Hygiene:97.0f,HygieneProgress:120,MealTicks:0,NaturalHome:0b,Nutrition:84.0f,Personality:{DispositionExperience:[I;0,0,0,0],DispositionInnate:[I;73,16,19,44],DispositionProgress:[I;0,0,0,0],Environment:{Clock:1020L,Events:[],Friendliness:50.0f,HostileUntil:0L,NextCare:0L,NextHostility:0L},Experience:[I;0,0,0,0,0,0],Innate:[I;69,74,55,59,70,28],LastDecision:\"none\",Lessons:0,NextExperience:[L;0L,0L,0L,0L],Players:[],Version:2},RestWait:0,ReturnDoseBottle:0b,SharedMeal:0b,SilverMedal:0b,SocialWait:83,SpicyTicks:0,SprayDelay:0,Version:1,Wetness:0.0f}"
+  },
+  {
+    "name": "newborn has landed and woken before following",
+    "pass": true,
+    "detail": "(180.48705339039338, 65.0, 21.00880874548053)"
+  },
+  {
+    "name": "child approaches a real parent",
+    "pass": true,
+    "detail": "(183.2189346681356, 65.0, 20.656677452428205)"
+  },
+  {
+    "name": "pregnant mother enters single custody",
+    "pass": true,
+    "detail": "caf31044-4967-44d8-85ce-56713fa4db18"
+  },
+  {
+    "name": "carried pregnancy does not advance",
+    "pass": true,
+    "detail": "123"
+  },
+  {
+    "name": "pregnant release preserves mother and fetal identities",
+    "pass": true,
+    "detail": "{AdultScale:1.0f,Age:24001L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:1,Gestation:[I;-1997522686,-1623308237,-1331755399,289511603],Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Nourishment:24000L,Partner:[I;-344083660,1831027684,-2091549529,55121925],Recovery:12000,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "entity NBT and world ledger reconnect after load",
+    "pass": true,
+    "detail": "{AdultScale:1.0f,Age:24001L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:1,Gestation:[I;-1997522686,-1623308237,-1331755399,289511603],Initialized:1b,JuvenileVoice:0b,Lifespan:72000L,LiveRecovery:0,Maturity:24000L,Nourishment:24000L,Partner:[I;-344083660,1831027684,-2091549529,55121925],Recovery:12000,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:2}"
+  },
+  {
+    "name": "maternal death cancels only unborn siblings",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "stale dead mother copy cannot rejoin",
+    "pass": true,
+    "detail": "ffb2a74d-174c-4366-a81a-1c8f09fa70c0"
+  },
+  {
+    "name": "unknown parent stays unknown",
+    "pass": true,
+    "detail": "0"
+  }
+]

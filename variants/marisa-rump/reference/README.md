@@ -4,8 +4,8 @@
 
 ## 已见图与出处
 
-1. 本机《油库里八景 ver1.12》：`E:/yukkuri/油库里八景ver1.12/pict/base/sei/3.png`、`hip.bmp` 与魔理沙 `sei_new/4.png`、`10.png`。抽取小量单元格制作接触表，实际看图；这些接触表没有经过原版程序的动作索引映射，不能单凭表中编号说它就是常规移动帧。
-2. 本机《ゆっくり八景U》v8.3：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/level0` 中的 `y_graphic` 对象，以及 `sharedassets0.assets` 中的对应 Sprite。只读解析，没有修改或运行游戏。
+1. 本机《油库里八景 ver1.12》：`E:/yukkuri/资料/原作参考/油库里八景ver1.12/pict/base/sei/3.png`、`hip.bmp` 与魔理沙 `sei_new/4.png`、`10.png`。抽取小量单元格制作接触表，实际看图；这些接触表没有经过原版程序的动作索引映射，不能单凭表中编号说它就是常规移动帧。
+2. 本机《ゆっくり八景U》v8.3：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/level0` 中的 `y_graphic` 对象，以及 `sharedassets0.assets` 中的对应 Sprite。只读解析，没有修改或运行游戏。
 3. 既有反编译代码：`E:/yukkuri/Eight景U-ModLab/analysis/decompiled/y_graphic.cs`、`yu_base.cs`。该分析树与 v8.3 可能存在尾部字段版本差异；只采用成功交叉核对了 Sprite 名称与图像的字段，不把整个映射视为已确认。
 
 已核读的确切 Sprite：

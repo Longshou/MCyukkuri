@@ -1,5 +1,7 @@
 # 油库里美术素材库
 
+2026-09-13：[圆润标准体型](body-standard/README.md)已保存，覆盖普通五种、螺壳种、多毛种、灵胖及本已符合的两种捕食种；家油、DOS、不足油保留原型。[打开本轮预览](body-standard/previews/current/index.html)。
+
 人类 NPC 首批制作登记见 [humans.json](characters/humans.json)，包含鬼威惨、爱派大哥哥、大姐姐及两套职业服装；[配套导出](assembled/humans/README.md)已接入，造型待确认。
 
 本目录是标准美术制作与复用入口，当前实体接入使用的选定快照另见 [art](../../art/README.md)。目录职责与修改规则见 [AGENTS.md](AGENTS.md)。
@@ -23,7 +25,7 @@
 
 - 9 个基础动作、6 个骨架复合动作配方、2 个已确认的多角色复合动作包。
 - 105 个表情配方：89 项已确认并保存为[标准表情](STANDARD-EXPRESSIONS.md)，13 项仅作历史对照，3 项暂缓；另有 2 个独立叠加效果。本次标准确认以[集合与指纹](provenance/standard-expressions.json)为准。
-- 魔理沙与灵梦引用同一份身体、油臀、脸部和鼓脸几何；3 个完全相同的头发几何也已提取共用。
+- 八种角色通过 `body-standard/recipe.json` 生成同一身体截面与贴合五官，保留各自专属部件；旧共用方块组件保留供历史输入及排除种类使用。
 - 辫子、后发与饰物分别建模；左右辫子可独立活动。
 - 两角色共用麻姆麻姆、佩尼佩尼及伸缩控制；默认缩回，通过按钮伸出或缩回，切换时保持互斥。见 [标准伸缩部件](ANATOMY.md)。
 
@@ -77,14 +79,14 @@ A/B 泪帧共用眼睛与嘴，只换眼泪部件。方向图、动作姿态图�
 本项目内保持本目录为制作入口。需要复现完整导出时，使用已有 Python 与 Pillow 环境运行以下命令：
 
 ```sh
-python -m pip install Pillow
 python build.py
-python validate.py
+python body-standard/render_preview.py
+python body-standard/verify_sources.py
 ```
 
-构建只读取本文件夹，不依赖旧 variants 或游戏目录。`assembled/` 按角色保存 bbmodel、Bedrock 几何／动画 JSON、各表情贴图和独立 HTML 预览。它是配套导出，不另建重复的制作源；通过 bbmodel 人工编辑时，须把改动同步回组件和制作参数。
+当前构建读取本库的冻结专属输入、配方，以及项目内既有动作预览支持代码；完整来源和验证命令见 [圆润标准体型](body-standard/README.md)。`assembled/` 按角色保存 bbmodel、几何／动画 JSON、各表情贴图和独立 HTML 预览。它是配套导出，不另建重复的制作源；通过 bbmodel 人工编辑时，须把改动同步回组件和制作参数。
 
-坐标：每格 16 单位，+Y 向上，-Z 为正面。标准身体高 8.48，纵深沿用确认的 B 加长版；奔跑不额外拉长油臀。骨架适配、表情几何偏移与 UV 均独立登记。
+坐标：每格 16 单位，+Y 向上，-Z 为正面。当前圆润标准身体宽 12.8、高 9.6、最大纵深 10.73；家油、DOS、不足油保留各自旧比例。骨架适配、表情几何偏移与 UV 均独立登记。
 
 基础 bbmodel 默认普通表情。导入其他引擎时，表情切换使用该角色导出的图集；鼓脸与挤脸类同时应用配方中的 geometry_offsets / cheek_scale 及所需组件。独立叠加效果按绑定 UV 做透明叠加。
 

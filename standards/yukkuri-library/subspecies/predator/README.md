@@ -6,6 +6,8 @@
 
 本轮使用连续身体网格、蓝发／金发、软帽、后置／侧置蝴蝶结；蕾米莉亚使用完整蝙蝠翼膜，弗兰每翼挂四枚彩色晶体。每侧整翼围绕一个翅根摆动，晶体另有悬挂关节。图集为 256×256，含 11 个基础表情与咬取表情；保留 19 个通用动作并增加飞行、俯冲、降落、咬取四段动作。运行导出为 `scripts/export_predator_assets.py`，不重导现有七种角色。
 
+2026-09-13 尖牙返工：此前低分辨率嘴区中的牙齿形状不清楚，现为嘴部使用 112×96 像素独立绘图区，在暗色口腔内绘制成对白色三角尖牙、细轮廓与浅阴影。普通表情改为小开口笑，咬取表情也使用同一套牙齿绘制。参数见 `species.json` 的 `fangs`；嘴部正面 UV 移至 `[128,0,240,96]`，三维位置、法线、骨架、权重与动作保持不变。已同步标准模型内嵌贴图、配套图集、游戏选用快照及 12 张运行表情。[最新四模型展示](../../body-standard/previews/current/all-models/bean-fangs.png) · [牙齿三表情对照](previews/current/fang-expressions.png) · [检查记录](reports/current/fangs.json)。当前两种共 1,150 个动作采样及 24 次浏览器表情切换通过；该指纹版本的普通、开心、咬取表情已通过正面与斜前方实机复验，见[实机记录](../../../../docs/validation/bean-braid-fangs/current/README.md)。此修订仍待用户确认。
+
 ## 旧稿保留说明
 
 下面的 `predator_remilia`、`recipes.json`、旧转台及验证报告属于此前原型，不是本轮游戏选用的模型；原型的“尚未接入”描述仅适用于该旧稿。当前选用与指纹以 [species-manifest.json](species-manifest.json) 和项目运行来源登记为准。
@@ -114,3 +116,5 @@ node standards/yukkuri-library/subspecies/predator/verify.cjs
 ## 确认状态
 
 造型、配色与翼形均为待确认设计稿，`provenance/` 未登记本稿。**本轮没有查到任何原作或社区配图**，参考缺口见 [REFERENCES.md](REFERENCES.md) 第二节。用户确认前不改动批准指纹。
+
+后续接入复验已完成：接入任务检查了两豆油与两捕食种的实际 Minecraft 四方向及尖牙表情，本任务也已核看实机拼图。相关报告与图片指纹补录在本页链接的检查 JSON 中；用户造型确认仍为待确认。

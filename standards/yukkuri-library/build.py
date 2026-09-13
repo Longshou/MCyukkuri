@@ -1,5 +1,10 @@
 """Portable library compiler. Python + Pillow; reads only this folder."""
 from pathlib import Path
+# Rounded standard dispatch: specialized legacy packages retain their own builders.
+import runpy, sys
+if __name__ == '__main__' and (Path(__file__).parent/'body-standard/recipe.json').exists():
+    runpy.run_path(str(Path(__file__).parent/'body-standard/build.py'), run_name='__main__')
+    sys.exit(0)
 from PIL import Image
 import json,copy,base64,uuid,io,math,hashlib
 from motion_library import MotionLibrary,D

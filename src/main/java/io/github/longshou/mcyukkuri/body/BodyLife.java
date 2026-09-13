@@ -35,7 +35,7 @@ public final class BodyLife {
         var stack=new ItemStack(ModItems.TRIMMED_HAIR.get());
         final int removed=cut;
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
-            tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.family().scale()*(entity.getVariant().isHouse()?.32f:1));});
+            tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
         var drop=new net.minecraft.world.entity.item.ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);
         if(!entity.level().addFreshEntity(drop))return false;
         hairLoss|=cut;entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
@@ -100,7 +100,13 @@ public final class BodyLife {
         return !entity.level().getBlockCollisions(drop,drop.getBoundingBox()).iterator().hasNext();
     }
     public void injured(DamageSource source,float lost){
-        if(internalDamage||entity.level().isClientSide||!entity.isAlive()||lost<1||source.is(DamageTypeTags.IS_DROWNING)||source.is(net.minecraft.world.damagesource.DamageTypes.STARVE))return;
+        if(!entity.isAlive())return;
+        recordInjury(source,lost);
+    }
+    /** Called during vanilla's death callback, before the body is transferred. */
+    public void fatalInjury(DamageSource source,float lost){recordInjury(source,lost);}
+    private void recordInjury(DamageSource source,float lost){
+        if(internalDamage||settled||entity.level().isClientSide||lost<=0||source.is(DamageTypeTags.IS_DROWNING)||source.is(net.minecraft.world.damagesource.DamageTypes.STARVE))return;
         var hit=WoundPlacement.hit(entity,source);if(hit==null)return;
         String kind=source.is(DamageTypeTags.IS_FIRE)?"scorch":source.is(DamageTypeTags.IS_PROJECTILE)?"tear":"dent";
         int severity=Math.clamp((int)Math.ceil(lost/2),1,3);
@@ -111,11 +117,12 @@ public final class BodyLife {
         if(entity.contactPose().equals("ROLL")||entity.contactPose().equals("SLIDE"))kind="scratch";
         if(entity.contactPose().equals("GRIP"))kind="tear";
         if(source.is(io.github.longshou.mcyukkuri.life.Facilities.ABRASION))kind="scratch";
-        addWound(new BodyWound(java.util.UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),severity,entity.getVariant().isHouse()?.35f:1,0,0));
+        insertWound(new BodyWound(java.util.UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),severity,entity.getVariant().isHouse()?.35f:1,0,0));
         entity.syncBody();entity.showReaction("surprise","wounded",80);
     }
     /** At capacity strengthen the nearest existing injury; never move an old scar. */
-    public void addWound(BodyWound wound){if(entity.level().isClientSide||!entity.isAlive()||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
+    public void addWound(BodyWound wound){if(!entity.isAlive())return;insertWound(wound);}
+    private void insertWound(BodyWound wound){if(entity.level().isClientSide||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
         if(wounds.size()<8)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
             for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind().equals(wound.kind())?0:10000);if(d<distance){distance=d;best=i;}}
             var old=wounds.get(best);wounds.set(best,new BodyWound(old.id(),old.kind(),old.triangle(),old.u(),old.v(),Math.min(3,old.severity()+1),old.size(),old.emitted(),old.lastRelease()));}
@@ -152,22 +159,29 @@ public final class BodyLife {
         else {if(wound==0||bandage>200)return false;bandage=1200;}
         entity.syncBody();entity.showReaction("happy","treated",80);return true;
     }
-    public void died(){
-        if(settled||entity.level().isClientSide)return;settled=true;
-        var remains=new ItemStack(ModItems.REMAINS.get());
-        CustomData.update(DataComponents.CUSTOM_DATA,remains,tag->{tag.putUUID("Identity",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());tag.putInt("Filling",filling);tag.putFloat("SourceScale",entity.family().scale()*(entity.getVariant().isHouse()?.32f:1));});
-        remains.set(DataComponents.CUSTOM_NAME,entity.getName());entity.spawnAtLocation(remains);filling=0;wounds.clear();wound=infection=bandage=0;entity.syncBody();
+    public void died(){died(null);}
+    public void died(DamageSource source){
+        if(settled||entity.level().isClientSide)return;
+        var remains=io.github.longshou.mcyukkuri.entity.RemainsEntity.snapshot(entity,source);
+        if(!io.github.longshou.mcyukkuri.entity.RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
+        settled=true;filling=0;entity.syncBody();
     }
-    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",2);tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Wound",wound);tag.putInt("Infection",infection);
+    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("Filling",filling);tag.putInt("Wound",wound);tag.putInt("Infection",infection);
         tag.putInt("Bandage",bandage);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         var knowledge=new net.minecraft.nbt.ListTag();knownPortions.forEach((portion,source)->{var entry=new CompoundTag();entry.putUUID("Portion",portion);entry.putUUID("Source",source);knowledge.add(entry);});
         tag.put("KnownPortions",knowledge);tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putInt("Burns",burns);tag.putInt("HairLoss",hairLoss);return tag;}
+    public void remapSurface(String previous){
+        if(wounds.isEmpty()||previous.equals(entity.subspecies().assetId()))return;
+        var old=WoundSurface.get(previous);var current=WoundSurface.get(entity.subspecies().assetId());
+        for(int i=0;i<wounds.size();i++){var wound=wounds.get(i);if(old.valid(wound))wounds.set(i,current.remap(wound,old.anchor(wound),old.normal(wound.triangle()),old.bounds()));}
+        refreshWounds();
+    }
     public void load(CompoundTag tag){filling=tag.contains("Filling")?Math.clamp(tag.getInt("Filling"),0,12):12;wound=Math.clamp(tag.getInt("Wound"),0,8);
         infection=Math.clamp(tag.getInt("Infection"),0,8);bandage=Math.clamp(tag.getInt("Bandage"),0,1200);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
-        if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());wounds.addAll(savedWounds.stream().filter(mesh::valid).toList());}
+        if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
         if(!tag.contains("Wounds")&&(wound>0||burns>0)){
             var mesh=WoundSurface.get(entity.subspecies().assetId());
             // Preserve both old totals; the former scalar data contains no individual hit positions.

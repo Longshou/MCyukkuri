@@ -115,16 +115,40 @@ public final class P0Client {
                     P0Control.reply(request,true,"Interactive preview window shown");
                 }
                 case "assets" -> P0Control.reply(request, true, assets());
-                case "waddle-assets" -> P0Control.reply(request,true,waddleAssets());
+                case "waddle-assets" -> P0Control.reply(request,true,waddleAssets(request.has("housesOnly")&&request.get("housesOnly").getAsBoolean()));
+                case "remains-inventory" -> {mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));P0Control.reply(request,true,"Opened actual player inventory");}
+                case "remains-render-check" -> {
+                    var held=mc.player.getMainHandItem();
+                    var data=held.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                    String model=data.getString("Model");
+                    if(!held.is(io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get())||model.isEmpty())throw new IllegalStateException("Pick up an identified body first");
+                    var rows=new ArrayList<Object>();
+                    for(var context:List.of(net.minecraft.world.item.ItemDisplayContext.GUI,net.minecraft.world.item.ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,net.minecraft.world.item.ItemDisplayContext.GROUND)){
+                        Probe probe=new Probe();var textures=new java.util.HashSet<String>();
+                        mc.getItemRenderer().renderStatic(held,context,15728880,0,new PoseStack(),type->{textures.add(type.toString());return probe;},mc.level,0);
+                        if(probe.vertices==0||textures.stream().noneMatch(t->t.contains("textures/entity/"+model+"/sleep.png")))throw new IllegalStateException("Transported model lost in "+context+": "+textures);
+                        rows.add(Map.of("context",context.toString(),"model",model,"vertices",probe.vertices,"textures",textures,"pass",true));
+                    }
+                    P0Control.write("remains-render-checks",rows);P0Control.reply(request,true,rows);
+                }
+                case "remains-client" -> {
+                    var rows=new ArrayList<Object>();
+                    for(var entity:mc.level.entitiesForRendering()){
+                        if(entity instanceof io.github.longshou.mcyukkuri.entity.RemainsEntity e)rows.add(Map.of("id",e.getId(),"data",e.data().toString(),"texture",mc.getEntityRenderDispatcher().getRenderer(e).getTextureLocation(e).toString()));
+                        else if(entity instanceof YukkuriEntity e)rows.add(Map.of("id",e.getId(),"model",e.subspecies().assetId(),"wounds",e.visibleWounds().toString(),"yaw",e.yBodyRot));
+                    }
+                    var held=mc.player.getMainHandItem();rows.add(Map.of("held",held.toString(),"data",held.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().toString(),"customRenderer",mc.getItemRenderer().getModel(held,mc.level,mc.player,0).isCustomRenderer()));
+                    P0Control.reply(request,true,rows);
+                }
                 case "wound-assets" -> {
                     List<Object> checks=new ArrayList<>();
                     for(var entity:mc.level.entitiesForRendering())if(entity instanceof YukkuriEntity e&&!e.visibleWounds().isEmpty()){
-                        var model=YukkuriModel.get(e.getVariant().assetId());Probe a=new Probe(),b=new Probe();
+                        var model=YukkuriModel.get(e.subspecies().assetId());Probe a=new Probe(),b=new Probe();
                         if(!model.woundGeometryCompatible())throw new IllegalStateException("Wound geometry fingerprint mismatch: "+e.getVariant());
                         model.renderLiving("idle",0,new PoseStack(),a,15728880,0,true,"chew",2,0,e,type->a);
                         model.renderLiving("idle",0,new PoseStack(),b,15728880,0,true,"chew",6,0,e,type->b);
                         if(a.hash==b.hash)throw new IllegalStateException("Wounded mouth no longer chews: "+e.getVariant());
-                        checks.add(Map.of("variant",e.getVariant().assetId(),"geometryCompatible",true,"chewing",true,"vertices",a.vertices));
+                        checks.add(Map.of("variant",e.getVariant().assetId(),"model",e.subspecies().assetId(),"geometryCompatible",true,"chewing",true,"vertices",a.vertices));
                     }P0Control.write("wound-client-assets",checks);P0Control.reply(request,true,checks);
                 }
                 case "preview" -> {
@@ -192,7 +216,7 @@ public final class P0Client {
                 }
                 case "block-interact" -> {
                     var pos=new net.minecraft.core.BlockPos(request.get("x").getAsInt(),request.get("y").getAsInt(),request.get("z").getAsInt());
-                    var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),net.minecraft.core.Direction.UP,pos,false);
+                    var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atBottomCenterOf(pos.above()),net.minecraft.core.Direction.UP,pos,false);
                     P0Control.reply(request,true,mc.gameMode.useItemOn(mc.player,InteractionHand.MAIN_HAND,hit).toString());
                 }
                 case "sneak" -> {
@@ -355,10 +379,12 @@ public final class P0Client {
         return Map.of("clips",result.size(),"samples",result.size()*6,"idleRestoration",true,"mandatoryAtlases",YukkuriVariant.values().length*5,"accessoryVisibility",true,"chewingMotion",true,"subspeciesAtlases",subspeciesAtlases.size());
     }
 
-    private static Object waddleAssets() {
+    private static Object waddleAssets(boolean housesOnly) {
         var results=new ArrayList<Object>();
         for(var variant:YukkuriVariant.values()) {
+            if(housesOnly&&!variant.isHouse())continue;
             var model=YukkuriModel.get(variant.assetId());
+            model.setCarrying(false); // A previously drawn entity may have left its per-draw flag set.
             var idle=new Probe();model.render("idle",0,new PoseStack(),idle,15728880,0);
             var a=new Probe();var b=new Probe();
             model.render("waddle",.3f,new PoseStack(),a,15728880,0);

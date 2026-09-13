@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Short, exclusive physical operations. Every exit keeps or returns each inserted object exactly once. */
 public final class OperationLife {
-    public enum Pose { NONE, LIFT, GRIP, SLIDE, RUB, ROLL, SUPINE, PIN, FIXED, WRAPPED, HOOK, RUMP, VIBRATE, BOX, ASSIST }
+    public enum Pose { NONE, LIFT, GRIP, SLIDE, RUB, ROLL, SUPINE, PIN, FIXED, WRAPPED, HOOK, RUMP, VIBRATE, BOX, ASSIST, HAT_REMOVE, HAT_RETURN }
     private final YukkuriEntity entity;
     private Pose pose=Pose.NONE;
     private UUID operator;
@@ -125,6 +125,8 @@ public final class OperationLife {
             case CUT_STEM,BOTTLE_STEM -> io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
             case TAKE_ACCESSORY,CONFISCATE -> takeAccessory(player,action==CareAction.CONFISCATE);
             case HANG_ACCESSORY -> AccessoryItem.suspend(player,entity,player.getMainHandItem());
+            case HAT_CARRY_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.pickUp(entity,player);
+            case HAT_PUT_DOWN_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
             case RELEASE -> false;
         };
@@ -185,7 +187,7 @@ public final class OperationLife {
             var forward=player.getLookAngle().multiply(1,0,1).normalize();
             moveTo(player.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
             if(pose==Pose.GRIP&&elapsed%40==0&&strike(player,1)&&entity.isAlive())entity.body().releaseFilling("squeeze");
-        }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE){
+        }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if(pose==Pose.BOX&&elapsed%80==0)entity.showReaction("surprise","afraid",80);
@@ -204,7 +206,7 @@ public final class OperationLife {
             abrasion+=moved*roughness;
             if(abrasion>=1.5f){abrasion-=1.5f;strike(player,1);}
         }
-        last=entity.position();entity.syncOperation(pose.name(),turn);
+        last=entity.position();entity.syncOperation(pose.name(),pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN?elapsed/20f:turn);
     }
     private void moveTo(Vec3 desired){
         var delta=desired.subtract(entity.position());
@@ -223,20 +225,27 @@ public final class OperationLife {
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
+        if(entity.isVehicle()&&!io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity))return false;
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);
-            tag.putString("Variant",entity.getVariant().assetId());tag.putFloat("SourceScale",entity.family().scale()*(entity.getVariant().isHouse()?.32f:1));});
+            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
         entity.badges().markAccessory(stack);
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
-        if(!player.getInventory().add(stack))player.drop(stack,false);return true;
+        if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
+    }
+    public void animateHat(Player player,boolean returning){
+        if(!io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity))return;
+        if(pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN)end();
+        if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
+        if(entity.isVehicle()&&!io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity))return false;
         if(!entity.life().hasAccessory())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putBoolean("Cut",true);
-            tag.putString("Variant",entity.getVariant().assetId());tag.putFloat("SourceScale",entity.family().scale()*(entity.getVariant().isHouse()?.32f:1));});
+            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
         entity.badges().markAccessory(stack);
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;

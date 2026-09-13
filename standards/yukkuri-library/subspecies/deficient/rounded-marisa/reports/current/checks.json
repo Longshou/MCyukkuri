@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "models": [
+    {
+      "id": "marisa_sparse",
+      "runtime_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+      "source_and_export_match": true,
+      "rounded_skin_and_weights_match": true,
+      "wound_surface_matches": true
+    },
+    {
+      "id": "marisa_face",
+      "runtime_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+      "source_and_export_match": true,
+      "rounded_skin_and_weights_match": true,
+      "wound_surface_matches": true
+    }
+  ],
+  "pose_samples": 950,
+  "clips_per_model": 19,
+  "visual_review": "recorded separately in independent-review.md",
+  "minecraft": "not checked by this offline script; see art/source/hat-interactions/reports/current/verification.md",
+  "source_manifest_sha256": "8e37928c15bc6e0869eb8a3509527a3bd6fc965f239e36aa188852cd58eb657b"
+}

@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "scope": "fixed_snapshot_targeted_house_face_and_carry",
+  "release": "docs/validation/house-face-carry/current/release.json",
+  "jar_sha256": "d49be96b237d1dddbcc6ac3b7d0eb0b4e71595cb3a1be2fa9f9b3249006cbf48",
+  "runtime_sha256": {
+    "house_reimu": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+    "house_marisa": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e"
+  },
+  "cases": 36,
+  "captured_frames": 768,
+  "selected_frame_fingerprints_verified": 144,
+  "visually_reviewed_sheets": [
+    "house_reimu-walk.png",
+    "house_reimu-slow.png",
+    "house_reimu-carry.png",
+    "house_marisa-walk.png",
+    "house_marisa-slow.png",
+    "house_marisa-carry.png"
+  ],
+  "expressions": [
+    "cry",
+    "happy",
+    "neutral"
+  ],
+  "modes": [
+    "carry",
+    "slow",
+    "walk"
+  ],
+  "angles_degrees": [
+    0,
+    35
+  ],
+  "visual_finding": "Eyes and mouth remain complete across the reviewed walk, slow and carry phases; braids stay above the eyes. Intended tears are retained.",
+  "user_shape_confirmation": "pending"
+}

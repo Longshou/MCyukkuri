@@ -1,0 +1,10 @@
+{
+  "status": "runtime_motion_adaptation",
+  "method": "rigid_short_locks_hold_above_forehead",
+  "half_grip_width": 0.28,
+  "contact_height": 0.45,
+  "lift_height": 4.6,
+  "vertical_reach_share": 0.92,
+  "units": "model_units_16_per_block",
+  "preserves": ["rest_shape", "lock_length", "floor_contact", "pickup_and_deposit_timing", "waddle_face_anchors"]
+}

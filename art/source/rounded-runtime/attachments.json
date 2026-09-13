@@ -1,0 +1,528 @@
+{
+  "sources": {
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu.json": "82c740702a5a2e3dc2918d1d1e56a0ac1a53c2f82bd3fb7a2254b7409cf4041a",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa.json": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\chen.json": "afceae931e1d7776bfd2bb0e5d323907caa12f6e7f65a7bf78865edb4adc0a40",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\alice.json": "b2b5bf3c2ff6e0bd6d25b82323d354e10281ed4deb9092440f90c899d0c0655c",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\patchouli.json": "7abf237b0a1639dd619eb01372f354b9631c6e819dce85ecce6dfcd6aa2b2d8d",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_tsumuri.json": "7200059184289a47d9ad436ca3466708da48f4fa92ca87fa6b86e7da41a67dc2",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_wasa.json": "19cc57c64ead4dcf31abe08e0d08bde9fd118f9118d12bed415d368f3d664b3e",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_deibu.json": "587f98c866ff74abc9d0e967c5d872939405b9f8c750ffa92f9608d40135ddae",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_wasa_deibu.json": "acbb0ee21e76d501992206a18e69c5b1e23cb1375201356ad38ce7cb8f61e652",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\reimu_bean.json": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_bean.json": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\remilia.json": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+    "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\flandre.json": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json": "5838de370072eefb3005c3f76f821fe302deb469ac03995d57fe7e5b10d612de",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json": "40aefcfec6f6f483e01192bf076c6ed5407644e0c028bb5e54c4dfe79c946e88"
+  },
+  "badge_mounts": {
+    "variants": {
+      "reimu": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "marisa": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          12.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "chen": {
+        "part": "chen_hat_lower",
+        "point": [
+          5.013333303773585,
+          11.275,
+          -3.0812173913043472
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.1
+      },
+      "alice": {
+        "part": "alice_band_red_2",
+        "point": [
+          3.2000000270270266,
+          11.11,
+          -4.137
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.05
+      },
+      "patchouli": {
+        "part": "patchouli_bonnet_corner_body1",
+        "point": [
+          6.826666682706768,
+          11.440000000000001,
+          -3.14137738095238
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "reimu_wasa": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "reimu_deibu": {
+        "part": "bow_outer_1",
+        "point": [
+          4.302222182978723,
+          11.1569333,
+          6.0888666334999995
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 0.9
+      },
+      "reimu_wasa_deibu": {
+        "part": "bow_outer_1",
+        "point": [
+          4.302222182978723,
+          11.1569333,
+          6.0888666334999995
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 0.9
+      },
+      "reimu_bean": {
+        "part": "bow_outer_1",
+        "point": [
+          3.146,
+          13.736,
+          2.5115999999999996
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "marisa_bean": {
+        "part": "hat_band",
+        "point": [
+          2.7559999999999993,
+          13.376,
+          -2.227700005800231
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "remilia": {
+        "part": "predator_cap_crown",
+        "point": [
+          5.099999999999999,
+          10.25,
+          -2.7
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 0.9
+      },
+      "flandre": {
+        "part": "predator_cap_crown",
+        "point": [
+          5.099999999999999,
+          10.25,
+          -2.7
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 0.9
+      },
+      "marisa_sparse": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          11.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "marisa_face": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          12.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "reimu_sparse": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          10.605,
+          4.588800000000001
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "reimu_face": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      }
+    },
+    "detached": {
+      "accessory_reimu": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "accessory_marisa": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          12.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "accessory_chen": {
+        "part": "chen_hat_lower",
+        "point": [
+          5.013333303773585,
+          11.275,
+          -3.0812173913043472
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.1
+      },
+      "accessory_alice": {
+        "part": "alice_band_red_2",
+        "point": [
+          3.2000000270270266,
+          11.11,
+          -4.137
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.05
+      },
+      "accessory_patchouli": {
+        "part": "patchouli_bonnet_corner_body1",
+        "point": [
+          6.826666682706768,
+          11.440000000000001,
+          -3.14137738095238
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "accessory_reimu_wasa": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "accessory_reimu_deibu": {
+        "part": "bow_outer_1",
+        "point": [
+          4.302222182978723,
+          11.1569333,
+          6.0888666334999995
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 0.9
+      },
+      "accessory_reimu_wasa_deibu": {
+        "part": "bow_outer_1",
+        "point": [
+          4.302222182978723,
+          11.1569333,
+          6.0888666334999995
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 0.9
+      },
+      "accessory_reimu_bean": {
+        "part": "bow_outer_1",
+        "point": [
+          3.146,
+          13.736,
+          2.5115999999999996
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "accessory_marisa_bean": {
+        "part": "hat_band",
+        "point": [
+          2.7559999999999993,
+          13.376,
+          -2.227700005800231
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "accessory_remilia": {
+        "part": "predator_cap_crown",
+        "point": [
+          5.099999999999999,
+          10.25,
+          -2.7
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 0.9
+      },
+      "accessory_flandre": {
+        "part": "predator_cap_crown",
+        "point": [
+          5.099999999999999,
+          10.25,
+          -2.7
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 0.9
+      },
+      "accessory_marisa_sparse": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          11.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "accessory_marisa_face": {
+        "part": "hat_band",
+        "point": [
+          5.653333361736335,
+          12.155000000000001,
+          -2.766580705420824
+        ],
+        "normal": [
+          0.8,
+          0,
+          -0.6
+        ],
+        "diameter": 1.35
+      },
+      "accessory_reimu_sparse": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          10.605,
+          4.588800000000001
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      },
+      "accessory_reimu_face": {
+        "part": "bow_outer_1",
+        "point": [
+          6.453333351063829,
+          11.605,
+          5.9888
+        ],
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "diameter": 1.35
+      }
+    }
+  },
+  "detached": {
+    "accessory_reimu": {
+      "source_model": "reimu"
+    },
+    "accessory_marisa": {
+      "source_model": "marisa"
+    },
+    "accessory_chen": {
+      "source_model": "chen"
+    },
+    "accessory_alice": {
+      "source_model": "alice"
+    },
+    "accessory_patchouli": {
+      "source_model": "patchouli"
+    },
+    "accessory_marisa_tsumuri": {
+      "source_model": "marisa_tsumuri"
+    },
+    "accessory_reimu_wasa": {
+      "source_model": "reimu_wasa"
+    },
+    "accessory_reimu_deibu": {
+      "source_model": "reimu_deibu"
+    },
+    "accessory_reimu_wasa_deibu": {
+      "source_model": "reimu_wasa_deibu"
+    },
+    "accessory_reimu_bean": {
+      "source_model": "reimu_bean"
+    },
+    "accessory_marisa_bean": {
+      "source_model": "marisa_bean"
+    },
+    "accessory_remilia": {
+      "source_model": "remilia"
+    },
+    "accessory_flandre": {
+      "source_model": "flandre"
+    },
+    "accessory_marisa_sparse": {
+      "source_model": "marisa_sparse"
+    },
+    "accessory_marisa_face": {
+      "source_model": "marisa_face"
+    },
+    "accessory_reimu_sparse": {
+      "source_model": "reimu_sparse"
+    },
+    "accessory_reimu_face": {
+      "source_model": "reimu_face"
+    }
+  }
+}

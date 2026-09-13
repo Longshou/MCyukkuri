@@ -1,0 +1,18 @@
+{
+  "approved_on": "2026-09-13",
+  "source": "drafts/rounded-standard-body",
+  "files": {
+    "recipe.json": "e27c534218164be65cb86f7319b1f000b7bddff1d1e8fa61e061cc7f310b8d94",
+    "build.py": "d9f69656d4b72467da72d2986d3f71cc9e7fe9335b17bbcea99c5239b4cdce28",
+    "manifest.json": "3f0ee6c3042fd2684c2893bcd8b2858c8d2a6d6d902a0fa000dd3c5ba8c3f06d",
+    "previews/current/birth.js": "97b84879fe3593162300c840525986122eee3afb03ce3bff3b2504651cb4e750",
+    "assembled/reimu/reimu.bbmodel": "7596e78c49966b591d737353c3df2564ff77be422cb0ff443aab1ab6b7e545b0",
+    "assembled/reimu/runtime.model.json": "1e6a15e36a4a81dbb75a0f58c58b4c674bc3e74bd1969e280068d51fc0d60622",
+    "assembled/reimu/animation-rig.json": "1c0b81e6ed850ebca9c1e0bd1fc2f3065d01fecf9ec6f6fa8d3f7e1f25b1007c",
+    "assembled/reimu/birth.json": "1136dfef5100efe9f8ad22ad55a4ea572454f19a706153e7f8af537abca416b2",
+    "assembled/marisa/marisa.bbmodel": "9edcb7d4dab092fb0158693a69e4394465873426cdcdebd827ee8e1650e1a46d",
+    "assembled/marisa/runtime.model.json": "2e0fe349dfd3febe55b88993c9cf0ed20495c41bfbaddc8c27bdd42e7a1456e8",
+    "assembled/marisa/animation-rig.json": "d8b8c17c2a6a82def5ef221cafb6880607c6514a458506068a40fc8dad36c9e4",
+    "assembled/marisa/birth.json": "9ce7a5261f3e0c0d70cc32e210db0f14826721f3077e4f71152c1035ae248152"
+  }
+}

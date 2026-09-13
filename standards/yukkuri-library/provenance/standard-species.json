@@ -207,7 +207,14 @@
         "textures/patchouli/base.png": "25e9ab39584970ca73ea982ab5383a34f08d2bc8da9de4afbf10b3f35be4b4d2",
         "assembled/patchouli/patchouli.bbmodel": "9222e2934318685c18438f0e0f43413886a30df1603808ea011eeac7c9d21f90",
         "assembled/patchouli/patchouli.geo.json": "3e0441aa07f0fee2f5e2d9741206867f01158bdb6e5fc7c90ca9356ea380a9e7"
-      }
+      },
+      "current_body_revision": "provenance/standard-body.json"
     }
+  },
+  "current_body_standard": {
+    "record": "provenance/standard-body.json",
+    "profile": "body-standard/profile.json",
+    "approved_on": "2026-09-13",
+    "note": "本文件既有指纹和尺寸保留为推广前基线；当前身体及挂接以 standard-body.json 为准。"
   }
 }

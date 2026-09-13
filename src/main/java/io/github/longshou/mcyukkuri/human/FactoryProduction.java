@@ -53,8 +53,8 @@ public final class FactoryProduction {
     public ItemStack product(){return output.stream().filter(pipeline::matches).findFirst().map(ItemStack::copy).orElse(ItemStack.EMPTY);}
     public static boolean nurseryReady(YukkuriEntity y){
         // Stem births already use JUVENILE. Actual loaded age and nourishment enforce a nursery interval.
-        return !y.family().awaitingLanding()&&y.family().age()>=Math.max(200,y.family().lifespan()/24)
-                &&y.family().save().getLong("Nourishment")>=Math.max(150,y.family().lifespan()/32)
+        return !y.family().awaitingLanding()&&y.family().age()>=Math.max(200,y.family().maturityAge()/8)
+                &&y.family().save().getLong("Nourishment")>=Math.max(150,y.family().maturityAge()*3/32)
                 &&y.life().nutrition()>=45&&y.getHealth()>=y.getMaxHealth()*.8;
     }
     public void dropContents(){for(var s:output)worker.spawnAtLocation(s);output.clear();}

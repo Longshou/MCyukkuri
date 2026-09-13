@@ -4,6 +4,10 @@
 
 为 Minecraft Java 开发有种族、习性、家庭和巢穴的油库里世界。
 
+2026-09-13 当前可运行性检查：当前源码构建与客户端进入测试世界成功。金章验收时序已修正，新增慢速寻路边界后完整回归 42 项通过；原始偶发失败的证据边界见[金章排查](docs/validation/gold-exam/current/README.md)。两项旧资源检查及客户端旧图集断言仍待适配。最新本地 Jar 与启动命令见[可运行性检查](docs/validation/play-readiness/current/README.md)，人工试玩可使用[实验地图](docs/EXPERIMENTAL_MAP.md)。
+
+2026-09-13 后续更新：圆润体型、1.5倍灵胖、四项性格倾向与独立环境经历已接入。营养良好且长期处于低友善度环境的成年灵梦可能转变为灵胖；成长与寿命仍采用40分钟成熟、成年后约30小时的默认值。[实装与本轮验收](docs/validation/personality-deibu/current/README.md)记录当前产物及验证范围。
+
 **当前阶段：本轮八景 U 移植功能与联合验收已交付。** 实体已扩至九种，并完成生活、家庭、身体资源、工具、普通胎生、冷冻交易、日常社会行为、认知教学及野外事件等内容；亚种、帽船、图鉴与配音分别登记来源。本轮共同版本通过 36 项 GameTest、2058 条报告检查，以及双客户端和磁盘恢复等 2631 条检查。完整范围、当前开发 Jar 和实机证据见[移植实施记录](docs/PORT_REMAINDER.md)与[联合验收](docs/validation/port-integration/README.md)；默认速度多代生存、长期平衡、可选兼容与新增造型确认仍待后续。
 
 ## 环境
@@ -14,7 +18,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 
 先读 [项目地图](PROJECT_MAP.md) 和 [开发约定](AGENTS.md)，再进入目标目录。按任务需要使用本机制作、渲染、预览和验证工具，执行边界统一维护在开发约定中。
 
-构建命令和人工验收项目见 [开发指南](docs/DEVELOPMENT.md)。[打开七种模型的动作预览](art/source/standard-runtime/preview.html)；该页面使用本次运行资源数据，不能代替 Minecraft 实机验收。橙、爱丽丝、帕秋莉的接入及长发适配见 [种族实装记录](docs/SPECIES_IMPLEMENTATION.md)。
+构建命令和人工验收项目见 [开发指南](docs/DEVELOPMENT.md)。[打开当前圆润模型的动作预览](art/source/rounded-runtime/previews/current/index.html)；该页面读取当前选用数据，不能代替 Minecraft 实机验收。橙、爱丽丝、帕秋莉的历史接入记录见 [种族实装记录](docs/SPECIES_IMPLEMENTATION.md)。
 
 ## 开发入口
 

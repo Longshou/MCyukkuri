@@ -1,0 +1,23 @@
+{
+  "purpose": "Pre-rounded runtime and wound topology; immutable migration input",
+  "files": {
+    "art/runtime-sources.json": "7d5515dbc7da08578d4d44f84648fe7b28f0dbb505c62cad1eb2cfd9cfbb74c6",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json": "61ebb103a3233d7931c4e2b8003b510d1c7b0c26b55b650b4fb683f786a0b99f",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/subspecies.json": "26f4880effc6c4213f9e88e60d9511e876adbc306f5a1151b6813f055d44e5e3",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "56aef2d698abfe9e36e191586550d407328eb44fb8e0bf37038311c6878b9804",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json": "25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/reimu.json.gz": "991a9a94c97c8d4c272bdcab93778ac4c1916c0e7c297bd89d4b970ef8b12bda",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/marisa.json.gz": "cce3a346ff25eaef0bb2fc7da7cd0f5ebb9cad6f65e3d37253950ff729adbd24",
+    "src/main/resources/assets/mcyukkuri/yukkuri/chen.json": "da6f19137c09d695ff2b61a4c716c5508a09612e49707f251c0111a58d8e3d87",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/chen.json.gz": "3ae204f9d465447df1a83f84b340dec2c0564e19aeeb301946fdc8868dd04e61",
+    "src/main/resources/assets/mcyukkuri/yukkuri/alice.json": "ebfbe7b738c02203e5a798e989144f1ae36f83152a0306d47911c38b634dcacb",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/alice.json.gz": "3573cf8230086f82b5aaa90829c5af09540e3366e7cdaa6aba574a75db1f394c",
+    "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json": "1b5b6245647107eb8d134bc2ee54a971f88cf4d0f0d2076cb3d041bac7ccd290",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/patchouli.json.gz": "fddeb9094b45a30b367aab203a8d2870dfaf7d08c4001f85d86a5ae71ea20b76",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/marisa_tsumuri.json.gz": "e29bf35bb83a58f65f5e301628b7ec67daaba9ee93baa59e0e5efccb4c1f7ca1",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/reimu_wasa.json.gz": "a288a89d261be991abb075139a3cc9c0e15d60d7670428ad2020a2c8f6f4548f"
+  }
+}

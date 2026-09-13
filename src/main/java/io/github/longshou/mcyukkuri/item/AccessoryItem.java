@@ -23,6 +23,7 @@ public final class AccessoryItem extends Item {
             if (!entity.life().returnAccessory(data.getUUID("Owner"),data.getUUID("Token"),player.getUUID())) return InteractionResult.FAIL;
             // Returning even in creative transfers this unique object out of the hand.
             stack.shrink(1);
+            entity.operations().animateHat(player,true);
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }

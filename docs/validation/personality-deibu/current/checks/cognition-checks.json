@@ -1,0 +1,206 @@
+[
+  {
+    "name": "old save receives stable default without personality inference",
+    "pass": true
+  },
+  {
+    "name": "changing ORDER curiosity and other traits does not change ability",
+    "pass": true
+  },
+  {
+    "name": "congenital shape does not change ability",
+    "pass": true
+  },
+  {
+    "name": "lost ornament does not change capability",
+    "pass": true
+  },
+  {
+    "name": "natural initialization cannot reroll an existing identity",
+    "pass": true
+  },
+  {
+    "name": "exact gap 50 with real juvenile is eligible",
+    "pass": true
+  },
+  {
+    "name": "adult learner and self teaching reject",
+    "pass": true
+  },
+  {
+    "name": "teaching probability strict boundary",
+    "pass": true
+  },
+  {
+    "name": "forest probability strict boundary",
+    "pass": true
+  },
+  {
+    "name": "invalid probability samples reject",
+    "pass": true
+  },
+  {
+    "name": "direct callback without actual classroom rejects",
+    "pass": true
+  },
+  {
+    "name": "real event authority allocates classroom",
+    "pass": true
+  },
+  {
+    "name": "dialogue-only scene cannot pay",
+    "pass": true
+  },
+  {
+    "name": "teacher jump without learner imitation cannot pay",
+    "pass": true
+  },
+  {
+    "name": "danger recheck prevents completed-evidence payout",
+    "pass": true
+  },
+  {
+    "name": "failed learning roll cannot pay",
+    "pass": true
+  },
+  {
+    "name": "successful completed classroom adds exactly one learned point",
+    "pass": true
+  },
+  {
+    "name": "gap 49 becomes ineligible",
+    "pass": true
+  },
+  {
+    "name": "successful classroom is idempotent despite changed eligibility",
+    "pass": true
+  },
+  {
+    "name": "peer teaching never creates waiting skill",
+    "pass": true
+  },
+  {
+    "name": "entity unload and reload preserves exact cognition",
+    "pass": true
+  },
+  {
+    "name": "stale entity mirror cannot erase world authority",
+    "pass": true
+  },
+  {
+    "name": "inflated stale mirror cannot replace committed world value",
+    "pass": true
+  },
+  {
+    "name": "all dimensions share the same capability authority",
+    "pass": true
+  },
+  {
+    "name": "real disk roundtrip preserves value and successful classroom receipt",
+    "pass": true
+  },
+  {
+    "name": "real carrier and freezer accept learned individual",
+    "pass": true
+  },
+  {
+    "name": "thaw preserves identity and innate learned split",
+    "pass": true
+  },
+  {
+    "name": "thaw cannot replay classroom or duplicate captive",
+    "pass": true
+  },
+  {
+    "name": "real dimension transfer preserves UUID capability and receipt",
+    "pass": true
+  },
+  {
+    "name": "return dimension transfer cannot reroll or add learning",
+    "pass": true
+  },
+  {
+    "name": "malformed oversized learned data clamps within native scale",
+    "pass": true
+  },
+  {
+    "name": "MC natural distribution is bounded and initializes only once",
+    "pass": true
+  },
+  {
+    "name": "actual natural spawn event initializes independent distribution",
+    "pass": true
+  },
+  {
+    "name": "migration preserves old waiting skill without retrospective gain",
+    "pass": true
+  },
+  {
+    "name": "parents claim actual covered nest entrances",
+    "pass": true
+  },
+  {
+    "name": "real family conception succeeds",
+    "pass": true
+  },
+  {
+    "name": "real family birth calls cognition inheritance",
+    "pass": true
+  },
+  {
+    "name": "inheritance uses actual parents and only their innate values",
+    "pass": true
+  },
+  {
+    "name": "repeated birth callback cannot reroll",
+    "pass": true
+  },
+  {
+    "name": "fabricated father callback is refused",
+    "pass": true
+  },
+  {
+    "name": "real assisted pregnancy keeps father unknown",
+    "pass": true
+  },
+  {
+    "name": "unknown-father live birth initializes capability",
+    "pass": true
+  },
+  {
+    "name": "unknown father stays unknown with maternal innate snapshot",
+    "pass": true
+  },
+  {
+    "name": "untrusted actual player cannot start teaching",
+    "pass": true
+  },
+  {
+    "name": "trusted actual player starts Social lesson",
+    "pass": true
+  },
+  {
+    "name": "starting and displaying lesson dialogue grants nothing",
+    "pass": true
+  },
+  {
+    "name": "real AI ticks complete Social lesson and cognition together",
+    "pass": true
+  },
+  {
+    "name": "duplicate player completion callback grants nothing",
+    "pass": true
+  },
+  {
+    "name": "notebook contains independent observation page",
+    "pass": true
+  },
+  {
+    "name": "next actual lesson can begin after cooldown",
+    "pass": true
+  },
+  {
+    "name": "distance-interrupted real social lesson grants nothing",
+    "pass": true
+  }
+]

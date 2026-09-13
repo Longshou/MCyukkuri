@@ -22,7 +22,7 @@ public final class OperationAttachments {
             pose.pushPose();pose.translate(tip.x,tip.y,tip.z);pose.mulPose(rotation);pose.scale(scale,scale,scale);pose.translate(-localTip.x,-localTip.y,-localTip.z);
             PropModels.render("hanging_hook",1,pose,buffers,light,net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);pose.popPose();
             from=new org.joml.Vector3f(localEye).sub(localTip).mul(scale).rotate(rotation).add(tip);
-        }else{var socket=PropModels.socket("wrap_sling_"+entity.getVariant().assetId()+(entity.hasVisibleAccessory()?"":"_bare"));from=new org.joml.Vector3f((float)socket.x,(float)socket.y,(float)socket.z);}
+        }else{var socket=PropModels.socket("wrap_sling_"+entity.subspecies().assetId()+(entity.hasVisibleAccessory()?"":"_bare"));from=new org.joml.Vector3f((float)socket.x,(float)socket.y,(float)socket.z);}
         float width=.012f;
         var out=buffers.getBuffer(RenderType.leash());var matrix=pose.last().pose();
         for(int axis=0;axis<2;axis++){

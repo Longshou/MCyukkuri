@@ -19,7 +19,7 @@ for r in rows:
  summary.append({'clip':t['m_Name'],'bindings':mapped})
  print(t['m_Name'],list(dict.fromkeys(b['path'] for b in mapped)))
 (out/'animation-bindings.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
-with zipfile.ZipFile('E:/yukkuri/Yukkuri+Diary_2023.v2_APKPure.apk') as z:
+with zipfile.ZipFile('E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk') as z:
  prefix='assets/bin/Data/sharedassets0.assets';names=[n for n in z.namelist() if n==prefix or n.startswith(prefix+'.split')];names.sort(key=lambda n:int(n.split('.split')[-1]) if '.split' in n else -1)
  data=b''.join(z.read(n) for n in names);same=data==(src/'sharedassets0.assets').read_bytes();print('APK vs analysis assets identical',same)
- (out/'source-evidence.json').write_text(json.dumps({'apk':'E:/yukkuri/Yukkuri+Diary_2023.v2_APKPure.apk','apk_sha256':hashlib.sha256(Path('E:/yukkuri/Yukkuri+Diary_2023.v2_APKPure.apk').read_bytes()).hexdigest(),'entries':names,'asset_sha256':hashlib.sha256(data).hexdigest(),'matches_existing_original_analysis':same,'unity_version':'2021.3.26f1','package':'jp.gr.java_conf.sakatasnow.YukkuriDiary'},indent=2),encoding='utf-8')
+ (out/'source-evidence.json').write_text(json.dumps({'apk':'E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk','apk_sha256':hashlib.sha256(Path('E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk').read_bytes()).hexdigest(),'entries':names,'asset_sha256':hashlib.sha256(data).hexdigest(),'matches_existing_original_analysis':same,'unity_version':'2021.3.26f1','package':'jp.gr.java_conf.sakatasnow.YukkuriDiary'},indent=2),encoding='utf-8')

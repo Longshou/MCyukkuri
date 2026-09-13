@@ -1,0 +1,42 @@
+[
+  {
+    "pass": true,
+    "vertices": 156924,
+    "textures": [
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]",
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]"
+    ],
+    "model": "marisa_sparse",
+    "context": "GUI"
+  },
+  {
+    "pass": true,
+    "vertices": 156924,
+    "textures": [
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]",
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]"
+    ],
+    "model": "marisa_sparse",
+    "context": "FIRST_PERSON_RIGHT_HAND"
+  },
+  {
+    "pass": true,
+    "vertices": 156924,
+    "textures": [
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]",
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]"
+    ],
+    "model": "marisa_sparse",
+    "context": "THIRD_PERSON_RIGHT_HAND"
+  },
+  {
+    "pass": true,
+    "vertices": 156924,
+    "textures": [
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]",
+      "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur\u003dfalse, mipmap\u003dfalse)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[\u003c\u003d], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor\u003dtrue, writeDepth\u003dtrue], no_color_logic, line_width[1.0]], outlineProperty\u003daffects_outline]]"
+    ],
+    "model": "marisa_sparse",
+    "context": "GROUND"
+  }
+]

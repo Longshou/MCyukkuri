@@ -17,6 +17,12 @@ BUILD = WORK / 'build'
 NAMES = {'gametest':'p0GameTest','server':'p0Server','client-a':'p0ClientA','client-b':'p0ClientB'}
 REQUIRED_REPORTS = set('badge-checks cognition-checks consumable-birth-checks consumable-live-birth-checks consumable-live-checks consumable-morph-checks consumable-rule-checks core-checks ecology-live ecology-rules family-checks filling-checks freezer-checks group-live-checks group-rule-checks house-motion-checks human-expansion-checks human-world-checks instrument-checks integration-event-checks living-checks operation-checks playground-live-checks playground-rule-checks predator-checks server-checks settlement-checks settlement-movement-checks shelter-checks shelter-resource-checks subspecies-checks waddle-checks wild-event-checks wound-checks'.split())
 
+REQUIRED_REPORTS.update(('fertility-checks', 'growth-checks', 'personality-development-checks',
+                         'deibu-development-checks', 'rounded-integration-checks'))
+REQUIRED_REPORTS.add('badge-timing-checks')
+REQUIRED_REPORTS.add('remains-checks')
+EXPECTED_GAME_TESTS = 43  # Includes physical remains and shovel burial.
+
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
@@ -96,7 +102,7 @@ def launch(target, run=None):
         result['gameTests']=int(completed.group(1)) if completed else 0
         write(run/'gametest-summary.json',result)
         print(json.dumps(result,indent=2))
-        sys.exit(0 if exit_code==0 and result['failed']==0 and result['gameTests']==36 and not result['missingReports'] else 1)
+        sys.exit(0 if exit_code==0 and result['failed']==0 and result['gameTests']==EXPECTED_GAME_TESTS and not result['missingReports'] else 1)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)

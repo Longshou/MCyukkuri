@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "reimu_mature_low_friendliness_to_deibu",
+  "status": "user_defined_design",
+  "defined_on": "2026-09-13",
+  "source": "用户指定的本项目设定",
+  "statement": "营养良好且处于低友善度环境的灵梦种，成熟后可能变为灵胖。",
+  "transition": {
+    "kind": "post_maturity_form_change",
+    "source_species": "reimu",
+    "target_form": "reimu_deibu",
+    "species_after": "reimu",
+    "required_life_stage": "adult",
+    "environment_friendliness": "low",
+    "outcome": "probabilistic",
+    "guaranteed": false,
+    "nutrition": "good"
+  },
+  "runtime_defaults": {
+    "environment_friendliness_metric": "独立的环境经历值，0至100，中性50",
+    "low_friendliness_threshold_exclusive": 30,
+    "good_nutrition_threshold_inclusive": 75,
+    "joint_exposure_loaded_ticks": 24000,
+    "exposure_update_interval_ticks": 1,
+    "transition_attempt_interval_ticks": 20,
+    "unqualified_exposure_decay_per_tick": 2,
+    "susceptible_fraction": 0.3,
+    "probability_policy": "按个体UUID固定易变性并保存，不在每次检查时重抽",
+    "compatibility_with_existing_forms": ["普通灵梦", "WASA灵梦，保留毛团"],
+    "excluded": ["幼体", "未成年", "先天缺陷体", "房子", "DOS"],
+    "reversibility": false,
+    "inheritance": "后天灵胖形态不进入出生抽取",
+    "blocked_transition": "操作、繁殖或空间不足时等待；NoAI暂停"
+  },
+  "constraints": [
+    "成熟是前置条件，幼体和未成熟个体不走这条转变路径。",
+    "低环境友善度只提供转变条件，不保证一定成为灵胖。",
+    "环境友善度不能直接等同于个体性格或某一对个体的好感。",
+    "此规则不加入出生时的先天亚种随机抽取。",
+    "营养良好与低环境友善度必须同时满足；饥饿或营养不良时不触发。"
+  ],
+  "appearance": {
+    "character": "../../characters/reimu_deibu.json",
+    "size_reference": "reimu",
+    "overall_scale": 1.5,
+    "accessory_size_rule": "蝴蝶结保持普通灵梦的实际尺寸，挂接位置适配1.5倍身体。"
+  },
+  "documentation": "../../../../wiki/reimu-deibu-development.md",
+  "runtime_integration": "implemented",
+  "runtime_source": "../../../../src/main/java/io/github/longshou/mcyukkuri/subspecies/SubspeciesLife.java",
+  "parameter_status": "本轮实装采用的可调默认值，非原作通用定律"
+}

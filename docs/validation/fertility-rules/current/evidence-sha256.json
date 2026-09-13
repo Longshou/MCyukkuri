@@ -1,0 +1,18 @@
+{
+  "build.log": "b49fdb20a702187c1fbb37e97c1363a083ccddf5acbb76870ffca92343739d1b",
+  "checks.init.gradle": "94f2497d1cb1cc74fe04bce30b75edb52cad11694169386228ee951663359a5f",
+  "command.json": "84e403f2cf5c80947a541bd7bdd0dae5b3c8696cd1a9fa40b1314e65480622ab",
+  "consumable-birth-checks.json": "8a8f2ae39e6a2d56981273ee1f37b358d67ca0119749ea29dc08f4f5ee6472ae",
+  "consumable-live-birth-checks.json": "ab452efb1334e2bb5b5f83afec62c7251ec1301e14b9cf5e9c8f5ca650033681",
+  "consumable-live-checks.json": "29453eb1d3c2b62f56127decfe84e16e9f36b4ba1d8a3ccbe158c396bd2f67a0",
+  "consumable-morph-checks.json": "c0d5015cce63b7ace040d5d5401a768e5d5590ed2aebd48379409e5cc27e398c",
+  "consumable-rule-checks.json": "cdd9ffffaab6199707c0b464149ecb2c77cbd965d6fb9d5a1077036b52653aad",
+  "fertility-checks.json": "ea3fd7d0f04d9d453ffc3a40fd76237da68a5ec79cb2d2dd18e895d2695814a3",
+  "fixture-correction.json": "0c2fd9aee3b8d60b753737619327de8de3fdb89a304291fb15269ea9901ce947",
+  "gametest.log": "500752264f8b0a26648af9ebd35c6dc0b55d8c56a41098cb2ee8089b48ffde37",
+  "isolation.json": "8636319df6f0bfbf0fb5ac17740e385e0e5df0bc5a3c07502381745c1a46c6f6",
+  "runtime-manifest.json": "a3063f53447fc5593c15fab1d31f532de4161fdd7e325af5ac6b2d7e119d1304",
+  "scope.json": "4fa956713786f9efba72d3e59ace20022f64aae85a51a74e5fd06974368c3195",
+  "source-manifest.json": "f776b2c36de1ac5bf0a35ab7fb1da4d1cef62de04f3fcd297d8e6d3150147854",
+  "summary.json": "b25d5c278ae0672e19a173762cf580b3d9ae9c9d6a4b56c010dfe5a2c8a943d1"
+}

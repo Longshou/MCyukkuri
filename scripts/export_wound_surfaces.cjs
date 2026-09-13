@@ -10,6 +10,7 @@ const selected=process.argv.find(a=>a.startsWith('--ids='))?.slice(6).split(',')
 if(selected&&fs.existsSync(path.join(base,'provenance.json')))Object.assign(manifest.models,JSON.parse(fs.readFileSync(path.join(base,'provenance.json'))).models);
 for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_reimu','house_marisa','remilia','flandre']){
  const file=path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri',id+'.json'),m=JSON.parse(fs.readFileSync(file));
+ if(m.body_profile==='rounded_standard_v1'){delete manifest.models[id];console.log(id,'managed by rounded_wound_surface.cjs');continue;}
  const points=[],weights=[],parts=[],replaced=[];let skinCount=0;
  const round=x=>Math.round(x*1e6)/1e6;
  const emit=vs=>{for(const v of vs){points.push(...v.p.map(round),...v.uv.map(round));const kept=v.w.filter(([b,w])=>w>1e-5),sum=kept.reduce((s,[b,w])=>s+w,0);weights.push(kept.map(([b,w])=>[b,round(w/sum)]));}};
@@ -28,6 +29,8 @@ for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_re
  const subdivide=part=>{const start=weights.length;replaced.push(part.name);
   const emitFace=emit;
   for(let i=part.start;i<part.start+part.count;i+=3){const vs=[0,1,2].map(j=>{const n=i+j,v=m.vertices.slice(n*8,n*8+8),[a,b,t]=m.weights[n];return {p:v.slice(0,3),uv:v.slice(3,5),w:[[a,1-t],[b,t]]};});
+  // Match YukkuriModel's house glyph fronts; overlapping opaque backs hide ink.
+  if(id.startsWith('house_')&&part.name.startsWith('face_')&&m.vertices[i*8+7]>=-.15)continue;
   if(pre&&part.name.startsWith('face_')){
    // Clip the visible glyph wafer to the exact skin triangulation. No buried back or cross-cell interpolation.
    if(m.vertices[i*8+7]>-.5)continue;
@@ -71,4 +74,5 @@ if(fs.existsSync(path.join(root,approvalPath))){const approval=JSON.parse(fs.rea
  approved=approval.status==='user_approved'&&approval.exporter_geometry_sha256===geometryHash&&Object.entries(approval.current_asset_sha256).every(([file,hash])=>fs.existsSync(path.join(root,file))&&sha(path.join(root,file))===hash);
 }
 ledger.body_wounds={selected_source:manifest.source,provenance:'art/props/body-wounds/provenance.json',exporter:'scripts/export_wound_surfaces.cjs',runtime_directory:'src/main/resources/assets/mcyukkuri/yukkuri_wounds',preview:'art/props/body-wounds/previews/current/index.html',standard_status:approved?'user_approved':'pending_user_confirmation',approval:approvalPath};
-fs.writeFileSync(ledgerPath,JSON.stringify(ledger,null,2)+'\n');
+const ledgerTemporary=ledgerPath+'.wounds.tmp';
+fs.writeFileSync(ledgerTemporary,JSON.stringify(ledger,null,2)+'\n');fs.renameSync(ledgerTemporary,ledgerPath);

@@ -15,6 +15,6 @@ for o in env.objects:
   d=o.read();name=d.m_GameObject.read().m_Name
   if name in ['Body','Hair04Marisa','LeftEye','RightEye','LeftMabutaUp','Jaw','Spine']:
    print(name,'pos',d.m_LocalPosition,'rot',d.m_LocalRotation,'scale',d.m_LocalScale)
-with zipfile.ZipFile('E:/yukkuri/Yukkuri+Diary_2023.v2_APKPure.apk') as z:
+with zipfile.ZipFile('E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk') as z:
  entries=[i.filename for i in z.infolist() if any(x in i.filename for x in ['libunity.so','libil2cpp.so'])];print('engine',entries)
 print('unity',next(iter(env.files.values())).unity_version if hasattr(next(iter(env.files.values())),'unity_version') else '?')

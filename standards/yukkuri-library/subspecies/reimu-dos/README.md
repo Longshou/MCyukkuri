@@ -1,17 +1,19 @@
 # 多毛种、灵胖与 DOS 魔理沙
 
+灵胖成长设定：**营养良好且处于低友善度环境的灵梦种，成熟后可能变为灵胖。** 这是有概率发生的后天形态变化，具体概率、营养与环境判定参数待定。规则登记见 [deibu-development.json](deibu-development.json)，完整说明见[灵胖成长转变](../../../../wiki/reimu-deibu-development.md)。目前登记设定，尚未接入游戏成长逻辑。
+
+灵胖尺寸修订：身体宽、高、深设为普通灵梦的 **1.5 倍**，尺寸为19.2 × 14.4 × 16.095模型单位。蝴蝶结恢复普通灵梦的实际尺寸，仅挂接位置随身体调整。新的成熟面容和蝴蝶结待确认，见[候选及指纹](../../body-standard/features/deibu-bow/candidate.json)。
+
 [打开三维预览与同尺度对照](index.html) · [参考核读](REFERENCES.md)
 
-灵胖保留上窄下宽、头顶略尖的壮硕比例，脸颊和下腹采用柔和弧线，底角略收圆；多毛种采用直接连接头侧的外炸鬓角，并增加头顶、刘海、后脑层次。尺寸采用普通主体宽约 24 cm、DOS 主体高 1.80 m（帽子另算）。
+2026-09-13：多毛灵梦和灵胖已换用[圆润标准体型](../../body-standard/README.md)，包括多毛种。保留各自专属头发与表情；灵胖原有的高胖比例已被替代。DOS 保持高瘦椭圆形及原有尺寸。
 
-灵胖本次增高约 37%，保持宽厚体型并增加成熟沉稳的默认面容；DOS 五官移至上方、缩短刘海、收小压低帽子，使帽沿贴合头顶，并增加威严默认表情。
-
-三份独立设计稿，基于当前素材库的灵梦、魔理沙。DOS 按用户要求采用**较高、较瘦的椭圆形**：身体纵向拉高、上下收拢、侧面减薄，帽子保留独立比例。各方向采用不同参数，不是整体等比放大。
+当前多毛种、灵胖预览请进入[圆润标准预览](../../body-standard/previews/current/index.html)或下列独立模型。原总览的同尺度区保留推广前对照，不作为当前体型展示。
 
 | 模型 | 造型 | 可编辑文件 |
 | --- | --- | --- |
 | 多毛灵梦 `reimu_wasa` | 普通灵梦身体与蝴蝶结，浓密鬓角直连太阳穴，头顶／刘海／后脑新增毛束 | [bbmodel](assembled/reimu_wasa/reimu_wasa.bbmodel) |
-| 灵胖 `reimu_deibu` | 壮硕且圆润的体型，上窄下宽、头顶略尖，成熟面容 | [bbmodel](assembled/reimu_deibu/reimu_deibu.bbmodel) |
+| 灵胖 `reimu_deibu` | 圆润标准身体，保留专属头发与成熟面容 | [bbmodel](assembled/reimu_deibu/reimu_deibu.bbmodel) |
 | DOS 魔理沙 `marisa_dos` | 高椭圆身体，五官居上，短刘海与贴合头顶的低帽沿，沉稳威严面容 | [bbmodel](assembled/marisa_dos/marisa_dos.bbmodel) |
 
 每个 `assembled/<模型>/` 内提供 `.bbmodel`、`.geo.json`、`.animation.json`、基础 PNG、13 个已保留表情贴图（灵胖、DOS 各增加 1 个亚种专用表情）与独立离线 HTML。可在 Blockbench 中打开并编辑。预览支持拖动旋转、缩放、静止／走动／转身／鼓脸和表情切换；多毛种另有鬓毛轻摆，使用独立 sideburn 左右节点与太阳穴支点；交互按钮为轻摆鬓角。动作沿用标准骨架，经当前体型适配；未将其他体操和繁殖动作声明为本次验收内容。
@@ -20,13 +22,13 @@
 
 ## 编辑与重建
 
-`recipes.json` 保存造型参数，`build.py` 保存毛团建模和椭圆适配逻辑。源模型只读取本素材库的 `assembled/reimu`、`assembled/marisa`，不从历史 variants 取模型。基础库变更后，需在指定验证环境先构建基础库，再构建本目录。本机不执行以下命令，Agent 不执行浏览器验证：
+多毛灵梦和灵胖由 `../../body-standard/recipe.json` 与其构建器负责。此处 `recipes.json` 保留毛团和旧体型的制作参数；本目录 `build.py` 仅重新派生 DOS，另从已生成的新标准文件读取多毛种和灵胖。DOS 的基础来源已固定为 `../../body-standard/inputs/`，避免以后重建时跟随普通种换体型。
 
 ```powershell
 python standards/yukkuri-library/build.py
-python standards/yukkuri-library/subspecies/reimu-dos/build.py
-node standards/yukkuri-library/subspecies/reimu-dos/verify.cjs
 ```
+
+完整检查命令见[圆润标准体型](../../body-standard/README.md)。本机执行遵循根目录 `AGENTS.md`。
 
 模型构建需要基础库、Python 与 Pillow。`verify.cjs` 保留历史浏览器检查方式，供人工在允许的环境中使用；依赖 Playwright 与 Chrome，路径通过 `PLAYWRIGHT_MODULE` 和 `CHROME_PATH` 指定。
 
@@ -36,6 +38,6 @@ node standards/yukkuri-library/subspecies/reimu-dos/verify.cjs
 
 ## 实际尺寸
 
-`physical-scale.json` 和 `recipes.json` 保存标定。16 模型单位代表 1 米；普通参考主体宽 0.24 米，DOS 主体高 1.80 米，帽子另算。DOS 主体宽约 1.375 米。灵胖主体宽约 0.321 米、高约 0.226 米。普通种为扁圆形，篮球大小按主体宽度表达，不把各轴强制改成球形。
+DOS 的旧标定继续有效：16 模型单位代表 1 米，主体高 1.80 米、宽约 1.375 米，帽子另算。
 
-新模型的几何、骨骼支点、动画位移及导出全部按这个尺度生成。总览里的普通种同步校准；原有基础库文件未改写，后续场景复用原基础模型时应应用本目录的 `world_scale`。独立预览按各自体型适配镜头，实际尺寸对照以同尺度区域为准。
+多毛灵梦使用宽 12.8、高 9.6 的圆润标准身体；灵胖整体放大至 1.5 倍。旧 `physical-scale.json` 中的普通种与灵胖厘米数不适用于本轮导出；场景复用需按目的另外设置整体尺寸。当前造型预览按统一模型尺度展示。

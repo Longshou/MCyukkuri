@@ -94,7 +94,7 @@ final class IntegrationAcceptance {
             var cognition=new CompoundTag();cognition.putInt("Innate",40+index);cognition.putInt("Learned",3+index);cognition.putString("Origin","joint-fixture");
             e.getPersistentData().put(Cognition.KEY,cognition);
             e.badges().initializeStock(index%2+1,server.getPlayerList().getPlayers().getFirst().getUUID());
-            if(variant==YukkuriVariant.REIMU)e.subspecies().set(SubspeciesLife.Kind.NORMAL,SubspeciesLife.Congenital.BEAN_BODY);
+            if(variant==YukkuriVariant.REIMU)e.subspecies().set(SubspeciesLife.Kind.WASA_REIMU,SubspeciesLife.Congenital.NORMAL);
             if(variant==YukkuriVariant.MARISA)e.subspecies().set(SubspeciesLife.Kind.SHELL_MARISA,SubspeciesLife.Congenital.NORMAL);
             level.addFreshEntity(e);FamilyData.get(level).register(e);index++;
         }

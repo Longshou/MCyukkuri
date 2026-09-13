@@ -21,6 +21,7 @@ final class WoundPreview {
                 for(int x=896;x<944;x++)for(int z=0;z<20;z++){level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.SMOOTH_QUARTZ.defaultBlockState());for(int y=65;y<78;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());}
                 level.setDayTime(6000);level.setWeatherParameters(6000,0,false,false);int i=0;
                 for(var variant:YukkuriVariant.values()){
+                    if(request.has("housesOnly")&&request.get("housesOnly").getAsBoolean()&&!variant.isHouse())continue;
                     var e=ModEntities.forVariant(variant).create(level);e.moveTo(901+i*5,65,6,180,0);e.yBodyRot=e.yBodyRotO=180;e.setNoAi(true);e.setNoGravity(true);e.setPersistenceRequired();e.addTag("wound_preview");level.addFreshEntity(e);float s=variant.isHouse()?.32f:1;
                     e.body().addWound(WoundGameTests.at(e,"tear",new Vector3f(3.6f*s,2.2f*s,-30),new Vector3f(0,0,1),3));
                     e.body().addWound(WoundGameTests.at(e,"scratch",new Vector3f(-3.6f*s,2.2f*s,-30),new Vector3f(0,0,1),2));

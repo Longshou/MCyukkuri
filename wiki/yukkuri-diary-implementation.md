@@ -22,7 +22,7 @@
 
 ## APK 证据
 
-原文件：`E:/yukkuri/Yukkuri+Diary_2023.v2_APKPure.apk`。另有汉化测试版，但本轮使用原始 APK。复用既有 `E:/yukkuri/YukkuriDiary-zhCN/original/` 的已提取文件，并实际比较其 `sharedassets0.assets` 与原 APK 对应 split 条目合并结果：**字节完全相同**。APK 和程序集资源 SHA256 见 `reference/diary/source-evidence.json`。
+原文件：`E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk`。另有汉化测试版，但本轮使用原始 APK。复用既有 `E:/yukkuri/YukkuriDiary-zhCN/original/` 的已提取文件，并实际比较其 `sharedassets0.assets` 与原 APK 对应 split 条目合并结果：**字节完全相同**。APK 和程序集资源 SHA256 见 `reference/diary/source-evidence.json`。
 
 包名：`jp.gr.java_conf.sakatasnow.YukkuriDiary`。资源记录 Unity `2021.3.26f1`，APK 包含 ARM64／ARMv7 的 `libunity.so`、`libil2cpp.so` 与 `global-metadata.dat`。本轮没有反汇编原生执行逻辑。
 

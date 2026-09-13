@@ -1,0 +1,14 @@
+{
+  "jar": ".local/bean-braid-fangs/release/mcyukkuri-0.1.0-dev.jar",
+  "sha256": "fcbc0fb5fa7d8a9d52f3423304baa9fd3fb31894cfb311f39f3467ac90f93e61",
+  "bytes": 90618362,
+  "models": {
+    "reimu_bean": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+    "marisa_bean": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "remilia": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+    "flandre": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4"
+  },
+  "client_run": ".local/personality-deibu/preview-dhsi3py5",
+  "all_jar_classes_and_resources_match_client_snapshot": true,
+  "scope": "frozen_snapshot"
+}

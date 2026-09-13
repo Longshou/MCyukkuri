@@ -27,39 +27,109 @@ public final class BadgeGameTests {
     private YukkuriEntity routines;
     private HumanNpc shop;
     private FakePlayer player;
+    private final List<Map<String,Object>> examTrace = new ArrayList<>();
+    private String examPhase = "setup";
+    private long routineStarted, examStarted;
     private void check(String name, boolean pass) { checks.add(new Check(name,pass)); }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1600,batch="badges")
     public static void badgeSystem(GameTestHelper h) {
         var t=new BadgeGameTests();var l=h.getLevel();
-        for(int x=X>>4;x<=(X+24)>>4;x++) l.setChunkForced(x,0,true);
+        t.observe(h,"badge-exam-trace");t.force(l,true);
         h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+5,65,5)),"Waiting for badge arena"))
             .thenExecute(()->{
-                try { t.setup(l);t.checks(l);t.liveExam(l);t.routines(l); }
+                try { t.setup(l);t.checks(l);t.routines(l);t.routineStarted=l.getGameTime(); }
                 catch(Throwable e) {t.check("Setup exception: "+e,false);}
-            }).thenExecuteAfter(500,()->{
+            }).thenWaitUntil(()->h.assertTrue(t.animal!=null&&t.animal.tickCount>0&&t.animal.onGround(),"Waiting for silver candidate to tick and land"))
+            .thenExecute(()->t.liveExam(l))
+            .thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for silver examination to finish"))
+            .thenExecute(()->{
                 try {
+                    t.trace(l,"silver-check");
                     t.check("Actual goal navigation reaches the examiner's marker and grants silver",t.animal.life().medal()==1&&t.animal.badges().result()==1&&t.animal.badges().score(4)==100);
                     t.check("Exam certificate records examiner and completed attempt",t.animal.badges().source()==3&&t.animal.badges().attempts()==1&&t.animal.badges().save().getUUID("Issuer").equals(t.shop.getUUID()));
                     var token=YukkuriWorldData.get(l).capture(t.animal);var stored=YukkuriWorldData.get(l).captiveSnapshot(token);
                     t.check("Capture keeps the certificate and original individual",stored.getUUID("UUID").equals(t.animal.getUUID())&&stored.getCompound("YukkuriBadges").getInt("Source")==3);
                     var released=YukkuriWorldData.get(l).release(token,l,new net.minecraft.world.phys.Vec3(X+8,65,5),0);
                     t.check("Release keeps qualification and wearing state",released!=null&&released.life().medal()==1&&released.badges().worn());
-                    t.animal=released;t.trained(released,90);
-                    t.check("Live gold upgrade is admitted",released.badges().exam(t.player,t.shop,2));
+                    t.animal=released;
                 } catch(Throwable e) {t.check("Live exception: "+e,false);}
-            }).thenExecuteAfter(500,()->{
+            }).thenWaitUntil(()->h.assertTrue(t.animal!=null&&t.animal.tickCount>0&&t.animal.onGround(),"Waiting for released gold candidate to tick and land"))
+            .thenExecute(()->{
+                t.trained(t.animal,90);t.check("Live gold upgrade is admitted",t.animal.badges().exam(t.player,t.shop,2));
+                t.examPhase="gold";t.trace(l,"gold-admitted");
+            }).thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for gold examination to finish"))
+            .thenExecute(()->{
+                t.trace(l,"gold-check");
+                t.check("Live gold exam completes at the higher thresholds",t.animal.life().medal()==2&&t.animal.badges().result()==1&&t.animal.badges().score(4)==100);
+            // Daily routine checks keep their original minimum observation period.
+            }).thenWaitUntil(()->h.assertTrue(l.getGameTime()-t.routineStarted>=1000,"Observing actual daily routines"))
+            .thenExecute(()->{
                 try {
-                    t.check("Live gold exam completes at the higher thresholds",t.animal.life().medal()==2&&t.animal.badges().result()==1&&t.animal.badges().score(4)==100);
                     t.check("Actual bowl meal contributes once",t.routines.badges().routine(0)==1);
                     t.check("Actual toilet use contributes only after waste transfer",t.routines.badges().routine(1)>=1);
                     t.check("A completed natural rest contributes evidence",t.routines.badges().routine(2)>=1);
                 } catch(Throwable e) {t.check("Routine exception: "+e,false);}
-                P0Control.write("badge-checks",t.checks);
-                l.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof HumanNpc||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
-                if(t.player!=null)t.player.discard();
-                for(int x=X>>4;x<=(X+24)>>4;x++)l.setChunkForced(x,0,false);
-                var failed=t.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())h.succeed();else h.fail(failed.toString());
+                t.finish(h,"badge-checks","badge-exam-trace");
             });
+    }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="badge_slow_navigation")
+    public static void goldExamWithSlowNavigation(GameTestHelper h) {
+        var t=new BadgeGameTests();var l=h.getLevel();
+        t.observe(h,"badge-slow-exam-trace");t.force(l,true);
+        h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+5,65,5)),"Waiting for slow-exam arena"))
+            .thenExecute(()->{
+                t.setup(l);t.animal.life().setMedal(1);t.trained(t.animal,90);
+                t.shop.setNoAi(false);
+            }).thenWaitUntil(()->h.assertTrue(t.animal.tickCount>0&&t.animal.onGround(),"Waiting for slow candidate to tick and land"))
+            .thenExecute(()->{
+                t.examStarted=l.getGameTime();t.examPhase="slow-gold";
+                t.check("Slow gold examination starts and charges eight emeralds",t.animal.badges().exam(t.player,t.shop,2)&&t.money()==56);
+                // Temporary Slowness expires naturally during the existing navigation allowance.
+                t.animal.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,520,5));
+                t.trace(l,"gold-admitted");
+            }).thenExecuteAfter(500,()->{
+                t.trace(l,"former-deadline");var b=t.animal.badges();
+                t.check("At 500 ticks valid navigation is still active without a premature gold award",b.active()&&b.stage()==4&&b.result()==0&&b.score(4)==-1&&t.animal.life().medal()==1);
+            }).thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for slow gold examination to finish"))
+            .thenExecute(()->{
+                t.trace(l,"gold-check");var b=t.animal.badges();long elapsed=l.getGameTime()-t.examStarted;
+                t.check("Slow navigation earns gold after 500 and within the existing 640 ticks",elapsed>500&&elapsed<=640&&b.result()==1&&b.score(4)==100&&t.animal.life().medal()==2);
+                t.check("Slow completion keeps one payment and one genuine certificate",t.money()==56&&b.attempts()==1&&b.source()==3&&b.save().getUUID("Issuer").equals(t.shop.getUUID()));
+                t.finish(h,"badge-timing-checks","badge-slow-exam-trace");
+            });
+    }
+    private void force(ServerLevel level,boolean force) {
+        for(int x=X>>4;x<=(X+24)>>4;x++)level.setChunkForced(x,0,force);
+    }
+    private void observe(GameTestHelper helper,String report) {
+        var level=helper.getLevel();
+        helper.onEachTick(()->{
+            if(animal!=null&&!animal.isRemoved()&&level.getGameTime()%5==0) {
+                trace(level,"tick");
+                if(level.getGameTime()%100==0)P0Control.write(report,examTrace);
+            }
+        });
+    }
+    private void finish(GameTestHelper helper,String report,String traceReport) {
+        P0Control.write(report,checks);P0Control.write(traceReport,examTrace);
+        var level=helper.getLevel();
+        level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof HumanNpc||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
+        if(player!=null)player.discard();force(level,false);
+        var failed=checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
+    }
+    private void trace(ServerLevel level,String event) {
+        var b=animal.badges();var row=new LinkedHashMap<String,Object>();
+        row.put("event",event);row.put("phase",examPhase);row.put("gameTick",level.getGameTime());row.put("entityTick",animal.tickCount);
+        row.put("uuid",animal.getUUID().toString());row.put("session",b.session());row.put("stage",b.stage());row.put("elapsed",b.elapsed());
+        row.put("result",b.result());row.put("medal",animal.life().medal());row.put("scores",java.util.stream.IntStream.range(0,5).map(b::score).toArray());
+        row.put("position",List.of(animal.getX(),animal.getY(),animal.getZ()));row.put("velocity",List.of(animal.getDeltaMovement().x,animal.getDeltaMovement().y,animal.getDeltaMovement().z));
+        row.put("examiner",List.of(shop.getX(),shop.getY(),shop.getZ()));row.put("playerDistanceSquared",animal.distanceToSqr(player));row.put("examinerDistanceSquared",animal.distanceToSqr(shop));
+        row.put("playerVisible",player.hasLineOfSight(animal));row.put("examinerVisible",animal.hasLineOfSight(shop));row.put("day",level.isDay());
+        row.put("pathDone",animal.getNavigation().isDone());var path=animal.getNavigation().getPath();row.put("pathTarget",path==null?"none":path.getTarget().toShortString());
+        row.put("onGround",animal.onGround());row.put("panicking",animal.isPanicking());row.put("commandPlaying",animal.isCommandPlaying());row.put("hurtTime",animal.hurtTime);
+        row.put("urgentNeed",animal.life().hasUrgentNeed());row.put("sleeping",animal.life().isSleeping());row.put("mealTicks",animal.life().mealTicks());
+        row.put("bladder",animal.life().bladder());row.put("hygiene",animal.life().hygiene());row.put("behavior",animal.getBehaviorId());
+        examTrace.add(row);
     }
     private YukkuriEntity create(ServerLevel l,double x) {
         var y=ModEntities.REIMU.get().create(l);y.moveTo(x,65,5.5,0,0);y.setOnGround(true);y.setPersistenceRequired();
@@ -153,10 +223,11 @@ public final class BadgeGameTests {
     }
     private void liveExam(ServerLevel l) {
         trained(animal,90);shop.setNoAi(false);check("Live exam is admitted",animal.badges().exam(player,shop,1));
-        // The subsequent 500 real server ticks exercise the goal, collision, path and sync pipeline.
+        examPhase="silver";trace(l,"silver-admitted");
+        // Wait for the real session result so the entire navigation allowance remains available.
     }
     private void temperament(YukkuriEntity y,int care,int bold) {
-        var life=y.life().save();var p=life.getCompound("Personality");p.putIntArray("Innate",new int[]{50,50,bold,care,50,50});
+        var life=y.life().save();var p=life.getCompound("Personality");PersonalityFixtures.preferences(p,new int[]{50,50,bold,care,50,50});
         p.putIntArray("Experience",new int[6]);life.put("Personality",p);y.life().load(life);
     }
     private void routines(ServerLevel l) {

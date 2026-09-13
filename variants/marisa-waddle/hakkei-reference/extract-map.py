@@ -2,7 +2,7 @@ from pathlib import Path
 import UnityPy,json,sys
 sys.stdout.reconfigure(encoding='utf-8')
 r=Path('variants/marisa-waddle/hakkei-reference')
-env=UnityPy.load('E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/level0')
+env=UnityPy.load('E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/level0')
 found=[]
 for o in env.objects:
  if o.type.name=='MonoBehaviour':

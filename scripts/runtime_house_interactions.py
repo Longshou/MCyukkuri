@@ -4,6 +4,8 @@ Called by export_runtime_models; writes no files and leaves selected shape sourc
 untouched. Angles follow the client Rz Ry Rx convention. Model units are 1/16 block.
 """
 import math
+import json
+from pathlib import Path
 
 
 def transform(p, angle, origin, shift):
@@ -29,6 +31,8 @@ def aim(source, target):
 
 
 def add_house_interactions(rig, species):
+    carry_recipe = json.loads((Path(__file__).resolve().parents[1] /
+        'art/source/standard-runtime/carry-motion/recipe.json').read_text(encoding='utf-8'))
     bones = {b['name']: b for b in rig['bones']}
     # Endpoint centres taken from the fitted short locks, not the adult rig pivots.
     tips = [[sign*1.985, 1.515 if species == 'reimu' else 1.629,
@@ -66,9 +70,13 @@ def add_house_interactions(rig, species):
             sign = -1 if side == 'left' else 1
             source = [v-p for v, p in zip(tip, root)]
             length2 = sum(v*v for v in source)
-            destination = [sign*.28, .45+1.8*(1-bow), 0]
+            # Carry above the forehead: a centre grip at eye height occludes
+            # expressions when walking overrides the small upper-body bow.
+            destination = [sign*carry_recipe['half_grip_width'],
+                           carry_recipe['contact_height']+carry_recipe['lift_height']*(1-bow), 0]
             vertical_reach = math.sqrt(length2-(destination[0]-root_world[0])**2)
-            destination[1] = max(destination[1], root_world[1]-.92*vertical_reach)
+            reach = carry_recipe['vertical_reach_share']*vertical_reach
+            destination[1] = max(root_world[1]-reach, min(destination[1], root_world[1]+reach))
             remaining = length2-(destination[0]-root_world[0])**2-(destination[1]-root_world[1])**2
             if remaining < 0:
                 raise ValueError('Short lock cannot reach the authored grip height')
@@ -138,6 +146,7 @@ def add_house_interactions(rig, species):
         rig['behavior_clips'][name] = result
     return {'method': 'house_lower_body_bow_and_short_lock_grip',
             'behavior_clips': list(definitions), 'grip': grip,
+            'carry_pose': carry_recipe,
             'crawl': {'method': 'bowed_abdominal_drag',
                       'duration': .6, 'period_ticks': 12, 'reach_tick': 4,
                       'gather_tick': 5, 'settle_tick': 10, 'stroke_units': .20,

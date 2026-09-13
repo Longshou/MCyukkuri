@@ -11,7 +11,7 @@ public final class DetachedItems {
     public static ItemStack waste(YukkuriEntity source){
         var stack=new ItemStack(ModItems.WASTE.get());
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",source.getUUID());
-            tag.putString("Variant",source.getVariant().assetId());tag.putFloat("SourceScale",source.family().scale()*(source.getVariant().isHouse()?.32f:1));});
+            tag.putString("Variant",source.getVariant().assetId());tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));});
         return stack;
     }
 }

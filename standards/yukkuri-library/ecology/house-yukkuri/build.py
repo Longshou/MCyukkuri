@@ -100,12 +100,12 @@ def export(name, elements, rig, im):
 
 characters = {}; ordinary_characters = previous_data['ordinaryCharacters'] if previous_data else {}
 for species in CFG['species']:
-    source = LIB/'assembled'/species
+    source = LIB/'body-standard/inputs'/species
     bb = read(source/(species+'.bbmodel')); rig = read(source/'animation-rig.json')
     if not args.characters_only:
         ordinary_characters[species] = dict(vertices=[v for e in bb['elements'] for v in vertices(e,128)], rig=copy.deepcopy(rig), textureSize=128,texture=image_uri(Image.open(source/(species+'.png')).convert('RGBA')))
         ordinary_characters[species]['rig']['clips']={'idle':copy.deepcopy(rig['clips']['idle'])}
-    character=read(LIB/'characters'/(species+'.json'))
+    character=read(LIB/'body-standard/inputs'/species/'character.json')
     standard_names={}
     component_paths=[]
     for ref in character['components']:
@@ -122,7 +122,7 @@ for species in CFG['species']:
         texture_path=OUT/('house_'+species+'_'+expression+'.png');save_texture(texture_path,im)
         m['textures'][expression] = image_uri(im,texture_path)
     characters[species] = m
-    for p in [source/(species+'.bbmodel'), source/'animation-rig.json', source/(species+'.png'),LIB/'characters'/(species+'.json')] + component_paths + [source/'textures'/(e+'.png') for e in CFG['expressions']]:
+    for p in [source/(species+'.bbmodel'), source/'animation-rig.json', source/(species+'.png'),LIB/'body-standard/inputs'/species/'character.json'] + component_paths + [source/'textures'/(e+'.png') for e in CFG['expressions']]:
         provenance[str(p.relative_to(LIB)).replace('\\','/')] = hashlib.sha256(p.read_bytes()).hexdigest()
 
 if args.characters_only:

@@ -48,7 +48,9 @@ public final class FamilyData extends SavedData {
         public int subspeciesFlags;
         public float adultScale;
         public long lifespan;
+        public long maturity=GrowthTiming.DEFAULT_MATURITY;
         public int[] traits;
+        public int[] dispositions = new int[0];
         public boolean born;
     }
     public static final class Brood {
@@ -64,6 +66,12 @@ public final class FamilyData extends SavedData {
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
+    private static int[] inheritDispositions(YukkuriEntity a,YukkuriEntity b,Random random) {
+        int[] result=new int[4];
+        for(var axis:io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition.values())
+            result[axis.ordinal()]=Math.clamp((a.life().personality().innate(axis)+b.life().personality().innate(axis))/2+random.nextInt(17)-8,0,100);
+        return result;
+    }
     private final Map<UUID, Brood> broods = new HashMap<>();
     private final Set<UUID> spawning = new HashSet<>();
     public static FamilyData get(ServerLevel level) {
@@ -149,9 +157,13 @@ public final class FamilyData extends SavedData {
             Child child=new Child();child.id=UUID.randomUUID();child.variant=random.nextBoolean()?mother.getVariant():father.getVariant();
             child.subspeciesFlags=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),father.subspecies().kind());
             child.adultScale=Math.clamp((mother.family().adultScale()+father.family().adultScale())*.5f+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
-            child.lifespan=Math.max(600,Math.round((mother.family().lifespan()+father.family().lifespan())*.5*(.95+random.nextDouble()*.10)));
+            double growthVariation=.95+random.nextDouble()*.10;
+            child.maturity=Math.max(200,Math.round((mother.family().maturityAge()+father.family().maturityAge())*.5*growthVariation));
+            child.lifespan=child.maturity+Math.max(400,Math.round(((mother.family().lifespan()-mother.family().maturityAge())
+                    +(father.family().lifespan()-father.family().maturityAge()))*.5*growthVariation));
             child.traits=new int[6];for(Trait trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(
                     (mother.life().personality().innate(trait)+father.life().personality().innate(trait))/2+random.nextInt(17)-8,0,100);
+            child.dispositions=inheritDispositions(mother,father,random);
             brood.children.add(child);
             Person person=new Person(child.id,child.variant.assetId(),anchor);person.mother=brood.mother;person.father=brood.father;person.brood=brood.id;person.status=Status.UNBORN;
             people.put(child.id,person);
@@ -185,8 +197,11 @@ public final class FamilyData extends SavedData {
         for(int i=0;i<count;i++){
             var child=new Child();child.id=UUID.randomUUID();child.variant=mother.getVariant();child.adultScale=Math.clamp(mother.family().adultScale()+(random.nextFloat()-.5f)*.12f,.8f,1.2f);
             child.subspeciesFlags=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.birthFlags(child.id,child.variant,mother.subspecies().kind(),null);
-            child.lifespan=Math.max(600,Math.round(mother.family().lifespan()*(.95+random.nextDouble()*.1)));child.traits=new int[6];
+            double growthVariation=.95+random.nextDouble()*.1;
+            child.maturity=Math.max(200,Math.round(mother.family().maturityAge()*growthVariation));
+            child.lifespan=child.maturity+Math.max(400,Math.round((mother.family().lifespan()-mother.family().maturityAge())*growthVariation));child.traits=new int[6];
             for(var trait:Trait.values())child.traits[trait.ordinal()]=Math.clamp(mother.life().personality().innate(trait)+random.nextInt(17)-8,0,100);
+            child.dispositions=inheritDispositions(mother,mother,random);
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;person.status=Status.UNBORN;people.put(child.id,person);
         }
         broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();return brood;
@@ -203,6 +218,10 @@ public final class FamilyData extends SavedData {
     }
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
+        if(brood.detachedHolder==null&&brood.kind!=BirthKind.EGG
+                &&level.getEntity(brood.mother) instanceof YukkuriEntity mother&&!mother.subspecies().canReproduce()) {
+            cancel(brood);return null;
+        }
         Child child=brood.children.get(index);if(child.born)return null;
         if(brood.elapsed<brood.duration+(brood.kind==BirthKind.STEM?index*8:brood.kind==BirthKind.LIVE?LiveBirthGeometry.birthTick(index):0))return null;
         if(brood.kind==BirthKind.LIVE){
@@ -283,7 +302,7 @@ public final class FamilyData extends SavedData {
         return id==null?null:GlobalPos.of(ResourceKey.create(Registries.DIMENSION,id),BlockPos.of(value.getLong("Pos")));
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version",1);ListTag persons=new ListTag(),pregnancies=new ListTag();
+        tag.putInt("Version",2);ListTag persons=new ListTag(),pregnancies=new ListTag();
         for(Person person:people.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",person.id);value.putString("Variant",person.variant);value.putString("Status",person.status.name());
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
@@ -297,7 +316,7 @@ public final class FamilyData extends SavedData {
             for(Child child:brood.children) {
                 CompoundTag c=new CompoundTag();c.putUUID("Id",child.id);c.putString("Variant",child.variant.name());c.putFloat("AdultScale",child.adultScale);
                 c.putInt("SubspeciesFlags",child.subspeciesFlags);
-                c.putLong("Lifespan",child.lifespan);c.putIntArray("Traits",child.traits);c.putBoolean("Born",child.born);children.add(c);
+                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);c.putBoolean("Born",child.born);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
         }
@@ -326,7 +345,17 @@ public final class FamilyData extends SavedData {
                     CompoundTag c=(CompoundTag)childEntry;Child child=new Child();child.id=c.getUUID("Id");child.variant=YukkuriVariant.valueOf(c.getString("Variant"));
                     child.subspeciesFlags=Math.clamp(c.getInt("SubspeciesFlags"),0,255);
                     child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");
-                    if(child.traits.length!=6||!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");brood.children.add(child);
+                    child.dispositions=c.getIntArray("Dispositions");
+                    if(tag.getInt("Version")<2) {
+                        long oldLifespan=child.lifespan;
+                        child.maturity=GrowthTiming.migratedMaturity(oldLifespan,FamilyConfig.MATURITY.get());
+                        child.lifespan=GrowthTiming.migratedLifespan(oldLifespan,FamilyConfig.MATURITY.get(),FamilyConfig.ADULT_LIFESPAN.get());
+                        data.setDirty();
+                    } else child.maturity=Math.clamp(c.getLong("Maturity"),1,Math.max(1,child.lifespan-1));
+                    if(child.traits.length!=6||!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
+                    if(child.dispositions.length!=4) child.dispositions=new int[]{100-child.traits[3],50,child.traits[1],(child.traits[4]+child.traits[5])/2};
+                    for(int i=0;i<4;i++)child.dispositions[i]=Math.clamp(child.dispositions[i],0,100);
+                    brood.children.add(child);
                 }
                 if(!brood.children.isEmpty()&&brood.children.size()<=5)data.broods.put(brood.id,brood);
             } catch(IllegalArgumentException ignored) { /* Malformed records never invent a child. */ }

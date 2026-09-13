@@ -15,7 +15,7 @@ public final class EcologyPresentation {
     public static String expression(YukkuriEntity e, String fallback) {
         if (e.life().isSleeping() || e.family().awaitingLanding()) return "sleep";
         if (e.isPanicking() || e.hurtTime > 0) return "surprise";
-        if (e.body().wound() > 0 || e.body().infection() > 0 || e.life().spicyTicks() > 0) return "cry";
+        if (e.body().wound() > 0 || e.body().burns() > 0 || e.body().infection() > 0 || e.life().spicyTicks() > 0) return "cry";
         if (e.life().constipated() && e.life().bladder() >= 70) return "teary";
         String expression = switch (e.getBehaviorId()) {
             case "nuzzle", "listen_song", "exercise_watch" -> "closed_smile";

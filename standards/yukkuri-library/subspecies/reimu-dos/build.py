@@ -23,7 +23,7 @@ def save(p, data):
 
 
 def source(base):
-    folder = LIB / 'assembled' / base
+    folder = LIB / 'body-standard/inputs' / base
     html = (folder / 'index.html').read_text(encoding='utf-8')
     data = json.JSONDecoder().raw_decode(html.split('const DATA=', 1)[1])[0]
     return read(folder / f'{base}.bbmodel'), data
@@ -400,7 +400,7 @@ def export(name, recipe):
     comparison=copy.deepcopy(data)
     comparison['textures']={'neutral':default_texture}
     return comparison,dict(base=recipe['base'],cube_count=len(elements),bones=len(rig['bones']),
-        source_sha256=hashlib.sha256((LIB/'assembled'/recipe['base']/f'{recipe["base"]}.bbmodel').read_bytes()).hexdigest(),
+        source_sha256=hashlib.sha256((LIB/'body-standard/inputs'/recipe['base']/f'{recipe["base"]}.bbmodel').read_bytes()).hexdigest(),
         base_scale=recipe['scale'],world_scale=recipe.get('world_scale',1),units_per_meter=16,shape=recipe['shape'],status='design_draft')
 
 
@@ -426,7 +426,13 @@ if __name__=='__main__':
     config=read(HERE/'recipes.json');recipes=config['variants']
     manifest={};scenes={}
     for name,recipe in recipes.items():
-        scenes[name],manifest[name]=export(name,recipe)
+        if name in ('reimu_wasa','reimu_deibu'):
+            folder=HERE/'assembled'/name
+            html=(folder/'index.html').read_text(encoding='utf-8-sig')
+            scenes[name]=json.loads(html.split('const DATA=',1)[1].split(';\n',1)[0])
+            scenes[name]['textures']={'neutral':scenes[name]['textures']['neutral']}
+            manifest[name]=dict(status='body_standard_approved',body_standard='../../body-standard/profile.json',cube_count=len(scenes[name]['model']['rig']['groups']),source='../../body-standard/recipe.json')
+        else:scenes[name],manifest[name]=export(name,recipe)
         print(name,manifest[name]['cube_count'],'cubes',flush=True)
     for base in ['reimu','marisa']:
         _,data=source(base)

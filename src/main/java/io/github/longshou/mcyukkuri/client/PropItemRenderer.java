@@ -13,7 +13,19 @@ import net.minecraft.world.item.component.CustomData;
 public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
     public PropItemRenderer(){super(Minecraft.getInstance().getBlockEntityRenderDispatcher(),Minecraft.getInstance().getEntityModels());}
     @Override public void renderByItem(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-        String name=BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();if(!PropModels.has(name))return;
+        String name=BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get())){
+            var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            pose.pushPose();pose.translate(.5,.2,.5);
+            // Inventory icons fit the slot; the carried body retains the dead individual's size.
+            float scale=context==ItemDisplayContext.GUI?(RemainsRenderer.asset(data).startsWith("house_")?2.5f:.8f):RemainsRenderer.renderScale(data);
+            pose.scale(scale,scale*.65f,scale);RemainsRenderer.draw(stack,data,pose,buffers,light,overlay);pose.popPose();return;
+        }
+        if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem){
+            String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
+            if(PropModels.has(selected))name=selected;
+        }
+        if(!PropModels.has(name))return;
         pose.pushPose();pose.translate(.5,.5,.5);
         boolean gui=context==ItemDisplayContext.GUI;
         float scale=gui?12/Math.max(1,PropModels.extent(name)):1;
@@ -21,7 +33,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(!gui&&(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem||name.equals("yukkuri_waste"))){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;
-            if(Float.isFinite(size))scale*=Math.clamp(size,.05f,2f);
+            if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);
         if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem&&stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getBoolean("Cut"))

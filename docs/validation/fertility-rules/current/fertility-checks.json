@@ -1,0 +1,134 @@
+[
+  {
+    "name": "fertility fixture claims covered homes",
+    "pass": true
+  },
+  {
+    "name": "ordinary pair is eligible before changing congenital form",
+    "pass": true
+  },
+  {
+    "name": "REIMU SPARSE_HAIR rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "REIMU SPARSE_HAIR rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "REIMU SPARSE_HAIR rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "REIMU SPARSE_HAIR infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "REIMU FACE_ASYMMETRY rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "REIMU FACE_ASYMMETRY rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "REIMU FACE_ASYMMETRY rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "REIMU FACE_ASYMMETRY infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "REIMU BEAN_BODY rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "REIMU BEAN_BODY rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "REIMU BEAN_BODY rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "REIMU BEAN_BODY infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "MARISA SPARSE_HAIR rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "MARISA SPARSE_HAIR rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "MARISA SPARSE_HAIR rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "MARISA SPARSE_HAIR infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "MARISA FACE_ASYMMETRY rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "MARISA FACE_ASYMMETRY rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "MARISA FACE_ASYMMETRY rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "MARISA FACE_ASYMMETRY infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "MARISA BEAN_BODY rejects either parental role",
+    "pass": true
+  },
+  {
+    "name": "MARISA BEAN_BODY rejects assistance without consuming a dose",
+    "pass": true
+  },
+  {
+    "name": "MARISA BEAN_BODY rejects stimulation without charging nutrition or a conception",
+    "pass": true
+  },
+  {
+    "name": "MARISA BEAN_BODY infertility survives save without setting surgical sterile flag",
+    "pass": true
+  },
+  {
+    "name": "Wasa and shell retain natural reproduction eligibility",
+    "pass": true
+  },
+  {
+    "name": "Wasa can actually conceive with assistance",
+    "pass": true
+  },
+  {
+    "name": "eligible mother can deliver a real child",
+    "pass": true
+  },
+  {
+    "name": "legacy invalid maternal gestation stops even with NoAI",
+    "pass": true
+  },
+  {
+    "name": "legacy repair retains born identity and retires only unborn reservations",
+    "pass": true
+  },
+  {
+    "name": "direct birth guard fixture conceived before legacy form restore",
+    "pass": true
+  },
+  {
+    "name": "direct birth cannot bypass invalid maternal form",
+    "pass": true
+  }
+]

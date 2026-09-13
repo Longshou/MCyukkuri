@@ -3,12 +3,155 @@
   "status": "pending_confirmation",
   "label": "蕾米莉亚与弗兰 · 游戏接入造型",
   "units_per_block": 16,
-  "body_profile": [[0,3.8,4.1,3.7],[0.7,5.3,5.1,4.5],[2,6.1,5.75,4.83],[4,6.4,5.9,4.83],[6.4,6.2,5.7,4.83],[8,5.5,5.0,4.6],[9.2,3.9,3.7,3.4],[9.6,1.8,1.8,1.65]],
-  "cap": {"radius_x": 6.95, "radius_z": 5.75, "center_z": 0.35, "base_y": 9.05, "ruffles": 24},
-  "wing": {"root": [5.8,6.8,5.4], "reach": 7.0, "fold_yaw": 48, "fold_roll": 22},
-  "variants": {
-    "remilia": {"label": "蕾米莉亚", "hair": [158,184,224], "hair_light": [204,221,243], "hair_shadow": [114,137,185], "cap": [247,193,211], "cap_light": [255,223,232], "ribbon": [176,37,63], "wing_type": "bat", "eye": [174,48,63]},
-    "flandre": {"label": "弗兰", "hair": [240,197,83], "hair_light": [255,228,147], "hair_shadow": [197,139,48], "cap": [245,235,222], "cap_light": [255,250,242], "ribbon": [176,37,63], "wing_type": "crystal", "eye": [187,43,54]}
+  "fangs": {"positions": [0.24, 0.76], "uv": [128, 0, 240, 96], "width": 12, "length": 17, "color": [255, 254, 246, 255], "shadow": [217, 224, 234, 255], "outline": [83, 43, 45, 255]},
+  "body_profile": [
+    [
+      0,
+      3.8,
+      4.1,
+      3.7
+    ],
+    [
+      0.7,
+      5.3,
+      5.1,
+      4.5
+    ],
+    [
+      2,
+      6.1,
+      5.75,
+      4.83
+    ],
+    [
+      4,
+      6.4,
+      5.9,
+      4.83
+    ],
+    [
+      6.4,
+      6.2,
+      5.7,
+      4.83
+    ],
+    [
+      8,
+      5.5,
+      5.0,
+      4.6
+    ],
+    [
+      9.2,
+      3.9,
+      3.7,
+      3.4
+    ],
+    [
+      9.6,
+      1.8,
+      1.8,
+      1.65
+    ]
+  ],
+  "cap": {
+    "radius_x": 6.95,
+    "radius_z": 5.75,
+    "center_z": 0.35,
+    "base_y": 9.05,
+    "ruffles": 24
   },
-  "reference_note": "REFERENCES.md 保留旧版核读；本轮弗兰核读来源见 REFERENCES-RUNTIME.md。几何、贴图、动作、体型与 Minecraft 生态均为本项目制作，不嵌入参考图片。"
+  "wing": {
+    "root": [
+      5.8,
+      6.8,
+      5.4
+    ],
+    "reach": 7.0,
+    "fold_yaw": 48,
+    "fold_roll": 22
+  },
+  "variants": {
+    "remilia": {
+      "label": "蕾米莉亚",
+      "hair": [
+        158,
+        184,
+        224
+      ],
+      "hair_light": [
+        204,
+        221,
+        243
+      ],
+      "hair_shadow": [
+        114,
+        137,
+        185
+      ],
+      "cap": [
+        247,
+        193,
+        211
+      ],
+      "cap_light": [
+        255,
+        223,
+        232
+      ],
+      "ribbon": [
+        176,
+        37,
+        63
+      ],
+      "wing_type": "bat",
+      "eye": [
+        174,
+        48,
+        63
+      ]
+    },
+    "flandre": {
+      "label": "弗兰",
+      "hair": [
+        240,
+        197,
+        83
+      ],
+      "hair_light": [
+        255,
+        228,
+        147
+      ],
+      "hair_shadow": [
+        197,
+        139,
+        48
+      ],
+      "cap": [
+        245,
+        235,
+        222
+      ],
+      "cap_light": [
+        255,
+        250,
+        242
+      ],
+      "ribbon": [
+        176,
+        37,
+        63
+      ],
+      "wing_type": "crystal",
+      "eye": [
+        187,
+        43,
+        54
+      ]
+    }
+  },
+  "reference_note": "REFERENCES.md 保留旧版核读；本轮弗兰核读来源见 REFERENCES-RUNTIME.md。几何、贴图、动作、体型与 Minecraft 生态均为本项目制作，不嵌入参考图片。",
+  "body_standard": "../../body-standard/profile.json",
+  "body_status": "user_approved_standard"
 }

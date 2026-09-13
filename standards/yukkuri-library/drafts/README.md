@@ -6,6 +6,7 @@
 
 | 入口 | 用途 |
 | --- | --- |
+| [灵梦与魔理沙圆润身体](rounded-standard-body/README.md) · [动作与新旧对照](rounded-standard-body/previews/current/index.html) | 2026-09-13 已确认并推广为[圆润标准体型](../body-standard/README.md)；此处保留批准时的两角色对照证据，当前制作与预览进入正式包 |
 | [周边素材候选 R3.1](peripheral-props/README.md) · [统一预览](peripheral-props/previews/current/index.html) | 5 种方块设施、16 种物品及身体／巢穴附属物，新增八类身体效果及全身伤口编辑器，两角色共 64 份场景；统一预览共 44 个条目；油粮颗粒共用外观，草料复用原版。新造型待确认；原版草料食物标签已接入 |
 | [表情核对收尾](expression-review/next-batch.html) | N063–N074 展示的十一项已全部保存；最后一轮其余九项已保存；当前队列已清空，N072/N077/N078 暂缓；[来源与说明](expression-review/reuse-final-batch/README.md)；[总览](../previews/current/pending-batch.png) |
 | [待确认表情](expression-review/pending-expressions.html) | 比较当前版本与候选部件组合 |

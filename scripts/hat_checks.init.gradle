@@ -1,0 +1,31 @@
+// Hat interaction verification owns its classes, resources, caches and runtime.
+allprojects { layout.buildDirectory.set(file('.local/hat-interactions/build')) }
+gradle.projectsEvaluated {
+    def project = rootProject
+    project.sourceSets.each { source ->
+        def classes = project.layout.buildDirectory.dir("classes/java/${source.name}")
+        def resources = project.layout.buildDirectory.dir("resources/${source.name}")
+        project.tasks.named(source.compileJavaTaskName) { destinationDirectory.set(classes) }
+        project.tasks.named(source.processResourcesTaskName) { destinationDir = resources.get().asFile }
+        source.output.classesDirs.setFrom(classes)
+        source.output.resourcesDir = resources.get().asFile
+    }
+    [p0GameTest:'gametest',p0Preview:'preview'].each { name, directory ->
+        def run=project.neoForge.runs.getByName(name)
+        run.gameDirectory=project.file(".local/hat-interactions/${directory}")
+        run.systemProperty 'mcyukkuri.p0.suite','hats'
+    }
+    project.tasks.register('hatIsolation') {
+        doLast {
+            def result=[:]
+            project.sourceSets.each { source ->
+                def paths=[classes:source.output.classesDirs.files*.absolutePath,resources:[source.output.resourcesDir.absolutePath],runtime:source.runtimeClasspath.files*.absolutePath]
+                paths.values().flatten().each { path ->
+                    if(path.replace('\\','/').startsWith(project.file('build').absolutePath.replace('\\','/')+'/'))throw new GradleException("Root output leaked: ${path}")
+                }
+                result[source.name]=paths
+            }
+            project.file('.local/hat-interactions/isolation.json').text=groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(result))
+        }
+    }
+}

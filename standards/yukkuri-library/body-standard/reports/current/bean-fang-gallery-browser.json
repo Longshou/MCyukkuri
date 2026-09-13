@@ -1,0 +1,247 @@
+{
+  "createdAt": "2026-09-13T10:31:09.437Z",
+  "status": "passed",
+  "scope": "Four current model motion timelines, front/back/reset and both predator twelve-expression viewers",
+  "models_js_sha256": "de93d950696300ca4d94a206c288fd7a84d1ef683f380157ea8af4dad39cbd82",
+  "checks": [
+    {
+      "id": "reimu_bean",
+      "entry": "all-models",
+      "passed": true,
+      "frames": [
+        {
+          "phase": 0,
+          "visible": 105757,
+          "hash": 2330429275
+        },
+        {
+          "phase": 0.25,
+          "visible": 105153,
+          "hash": 786859620
+        },
+        {
+          "phase": 0.5,
+          "visible": 105757,
+          "hash": 2330429275
+        },
+        {
+          "phase": 0.75,
+          "visible": 105161,
+          "hash": 2215295725
+        },
+        {
+          "phase": 1,
+          "visible": 105757,
+          "hash": 2330429275
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "entry": "all-models",
+      "passed": true,
+      "frames": [
+        {
+          "phase": 0,
+          "visible": 83636,
+          "hash": 1786163540
+        },
+        {
+          "phase": 0.25,
+          "visible": 83332,
+          "hash": 2758281386
+        },
+        {
+          "phase": 0.5,
+          "visible": 83636,
+          "hash": 1786163540
+        },
+        {
+          "phase": 0.75,
+          "visible": 83339,
+          "hash": 54868229
+        },
+        {
+          "phase": 1,
+          "visible": 83636,
+          "hash": 1786163540
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "entry": "all-models",
+      "passed": true,
+      "frames": [
+        {
+          "phase": 0,
+          "visible": 78682,
+          "hash": 699040604
+        },
+        {
+          "phase": 0.25,
+          "visible": 77790,
+          "hash": 1501329746
+        },
+        {
+          "phase": 0.5,
+          "visible": 78682,
+          "hash": 699040604
+        },
+        {
+          "phase": 0.75,
+          "visible": 77790,
+          "hash": 1501329746
+        },
+        {
+          "phase": 1,
+          "visible": 78682,
+          "hash": 699040604
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "entry": "all-models",
+      "passed": true,
+      "frames": [
+        {
+          "phase": 0,
+          "visible": 75215,
+          "hash": 3795210117
+        },
+        {
+          "phase": 0.25,
+          "visible": 74374,
+          "hash": 1460829276
+        },
+        {
+          "phase": 0.5,
+          "visible": 75215,
+          "hash": 3795210117
+        },
+        {
+          "phase": 0.75,
+          "visible": 74374,
+          "hash": 1460829276
+        },
+        {
+          "phase": 1,
+          "visible": 75215,
+          "hash": 3795210117
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "entry": "predator-expression-switching",
+      "passed": true,
+      "expressions": [
+        {
+          "expression": "neutral",
+          "signature": 2703856226
+        },
+        {
+          "expression": "happy",
+          "signature": 2815375683
+        },
+        {
+          "expression": "cry",
+          "signature": 3270769167
+        },
+        {
+          "expression": "teary",
+          "signature": 1678941796
+        },
+        {
+          "expression": "drool",
+          "signature": 43482711
+        },
+        {
+          "expression": "confused",
+          "signature": 1753020038
+        },
+        {
+          "expression": "yawn",
+          "signature": 2080124234
+        },
+        {
+          "expression": "sleep",
+          "signature": 254464307
+        },
+        {
+          "expression": "angry",
+          "signature": 1735465909
+        },
+        {
+          "expression": "surprise",
+          "signature": 2196744291
+        },
+        {
+          "expression": "sleepy",
+          "signature": 2032646051
+        },
+        {
+          "expression": "biting",
+          "signature": 4265494694
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "entry": "predator-expression-switching",
+      "passed": true,
+      "expressions": [
+        {
+          "expression": "neutral",
+          "signature": 3398612415
+        },
+        {
+          "expression": "happy",
+          "signature": 3521302984
+        },
+        {
+          "expression": "cry",
+          "signature": 2552208500
+        },
+        {
+          "expression": "teary",
+          "signature": 2373697985
+        },
+        {
+          "expression": "drool",
+          "signature": 749410012
+        },
+        {
+          "expression": "confused",
+          "signature": 2447776227
+        },
+        {
+          "expression": "yawn",
+          "signature": 99328399
+        },
+        {
+          "expression": "sleep",
+          "signature": 1279590840
+        },
+        {
+          "expression": "angry",
+          "signature": 2430222098
+        },
+        {
+          "expression": "surprise",
+          "signature": 1901973064
+        },
+        {
+          "expression": "sleepy",
+          "signature": 3463261258
+        },
+        {
+          "expression": "biting",
+          "signature": 665283587
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

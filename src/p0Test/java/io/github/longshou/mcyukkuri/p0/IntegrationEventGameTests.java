@@ -129,7 +129,7 @@ public final class IntegrationEventGameTests {
         life.putFloat("Bladder", 0); life.putInt("RestWait", 1200); life.putInt("SocialWait", 1200);
         e.life().load(life);
         var personality = e.life().personality().save();
-        personality.putIntArray("Innate", new int[]{50, 60, 50, 70, 50, 70});
+        PersonalityFixtures.preferences(personality,new int[]{50, 60, 50, 70, 50, 70});
         e.life().personality().load(personality);
         var cognition = new CompoundTag(); cognition.putInt("Innate", 100); cognition.putString("Origin", "gametest_fixture");
         e.getPersistentData().put(io.github.longshou.mcyukkuri.cognition.Cognition.KEY, cognition);
@@ -183,6 +183,8 @@ public final class IntegrationEventGameTests {
 
     private void songSetup(boolean village) {
         next(); first = spawn(false, .5, .5); second = spawn(true, 1.5, .5); friends();
+        // Keep the five settling ticks away from autonomous event discovery; it can reserve a park race.
+        for(var singer:List.of(first,second))singer.tickCount=120-Math.floorMod(singer.getId(),100);
         if (village) {
             bedHead = center.offset(7, 0, 2);
             var bed = Blocks.RED_BED.defaultBlockState().setValue(BedBlock.FACING, Direction.EAST);

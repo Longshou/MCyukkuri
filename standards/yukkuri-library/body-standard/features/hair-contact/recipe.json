@@ -1,0 +1,13 @@
+{
+  "status": "pending_confirmation",
+  "revision": "hair-contact-2026-09-13",
+  "body_clearance": 0.22,
+  "rear_surface_reference": 5.66,
+  "rear_blend_start": 2.5,
+  "rear_blend_end": 4.5,
+  "max_strip_height": 0.28,
+  "deibu_root_start_y": 8.75,
+  "deibu_root_full_y": 9.12,
+  "deibu_root_back_z": -3.3,
+  "notes": "头发及刘海按身体高度使用相同分段权重；后发按身体截面增加遮盖余量。灵胖仅加深刘海上部发根，保留前缘、发梢、面容和蝴蝶结。冻结输入及原确认指纹保留。"
+}

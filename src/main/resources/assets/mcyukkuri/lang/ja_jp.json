@@ -427,5 +427,13 @@
   "activity.mcyukkuri.event_park_race": "草地で跳び比べる",
   "activity.mcyukkuri.event_rain_close": "雨の中で仲間に寄り添う",
   "activity.mcyukkuri.event_heat_rest": "暑い日に仲間と休む",
-  "notebook.mcyukkuri.cognition": "認知能力\n先天：%s\n学習による増加：%s\n現在：%s / 1000\n\n学習の完了で成長する。待機の指示は別の技能。"
+  "notebook.mcyukkuri.cognition": "認知能力\n先天：%s\n学習による増加：%s\n現在：%s / 1000\n\n学習の完了で成長する。待機の指示は別の技能。",
+  "entity.mcyukkuri.yukkuri_remains": "ゆっくりの遺体",
+  "item.mcyukkuri.yukkuri_remains": "ゆっくりの遺体",
+  "item.mcyukkuri.yukkuri_remains.help": "素手で遺体を右クリックして運ぶ。地面を右クリックして置く。土の上の遺体にシャベルを使うと埋葬。",
+  "item.mcyukkuri.yukkuri_remains.named": "%sの遺体",
+  "operation.mcyukkuri.hat_carry_child": "帽子に小さな子ゆを乗せる",
+  "operation.mcyukkuri.hat_put_down_child": "帽子の子ゆを降ろす",
+  "operation.mcyukkuri.help.hat_carry_child": "近くの小さな子ゆを帽子のつばに乗せ、一緒に移動する。",
+  "operation.mcyukkuri.help.hat_put_down_child": "帽子の子ゆを近くの安全な地面に降ろす。"
 }

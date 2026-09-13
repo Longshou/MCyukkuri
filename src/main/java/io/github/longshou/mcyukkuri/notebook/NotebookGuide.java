@@ -24,7 +24,7 @@ public final class NotebookGuide {
                     Component.translatable("notebook.mcyukkuri.chapter." + (variant.isPredator() ? "predator" : variant.isHouse() ? "house_species" : "standard_species"))));
         }
         CompoundTag forms = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedForms");
-        for (String form : List.of("kind.shell_marisa", "kind.wasa_reimu", "congenital.sparse_hair", "congenital.face_asymmetry", "congenital.bean_body"))
+        for (String form : List.of("kind.shell_marisa", "kind.wasa_reimu", "acquired.deibu", "congenital.sparse_hair", "congenital.face_asymmetry", "congenital.bean_body"))
             pages.add(Component.translatable("notebook.mcyukkuri.chapter.form_entry", Component.translatable("subspecies.mcyukkuri."+form),
                     Component.translatable(forms.getBoolean(form)?"notebook.mcyukkuri.chapter.seen":"notebook.mcyukkuri.chapter.unseen")));
         return List.copyOf(pages);
@@ -36,13 +36,14 @@ public final class NotebookGuide {
             CompoundTag forms=data.getCompound("ObservedForms");
             forms.putBoolean("kind."+entity.subspecies().kind().name().toLowerCase(java.util.Locale.ROOT),true);
             forms.putBoolean("congenital."+entity.subspecies().congenital().name().toLowerCase(java.util.Locale.ROOT),true);
+            if(entity.subspecies().deibu())forms.putBoolean("acquired.deibu",true);
             data.put("ObservedForms",forms);
         });
     }
     public static Component form(YukkuriEntity entity) {
         var shape=entity.subspecies();var boat=io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.find(entity);
         return Component.translatable("notebook.mcyukkuri.chapter.form",
-                Component.translatable("subspecies.mcyukkuri.kind."+shape.kind().name().toLowerCase(java.util.Locale.ROOT)),
+                shape.deibu()?Component.translatable("subspecies.mcyukkuri.acquired.deibu").append(" / ").append(Component.translatable("subspecies.mcyukkuri.kind."+shape.kind().name().toLowerCase(java.util.Locale.ROOT))):Component.translatable("subspecies.mcyukkuri.kind."+shape.kind().name().toLowerCase(java.util.Locale.ROOT)),
                 Component.translatable("subspecies.mcyukkuri.congenital."+shape.congenital().name().toLowerCase(java.util.Locale.ROOT)),
                 Component.translatable(boat==null?"notebook.mcyukkuri.chapter.no_boat":"subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(java.util.Locale.ROOT)),
                 shape.boatExperienced()?"✓":"—");

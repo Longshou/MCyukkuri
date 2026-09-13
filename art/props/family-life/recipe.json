@@ -21,21 +21,21 @@
   "variants": {
     "reimu": {
       "root": [
-        0,
-        8,
-        -4.7
+        -1.53,
+        9.6,
+        -1.65
       ],
-      "crown_height": 8.5,
+      "crown_height": 9.6,
       "depth_clearance": 2.0,
       "clearance_rise": 1.0
     },
     "marisa": {
       "root": [
-        0,
-        8,
-        -4.7
+        -1.53,
+        9.6,
+        -1.65
       ],
-      "crown_height": 8.5,
+      "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
       "hang_clearance_height": 19.345,
@@ -63,11 +63,11 @@
     },
     "chen": {
       "root": [
-        0,
-        8,
-        -4.7
+        -1.53,
+        9.6,
+        -1.65
       ],
-      "crown_height": 8.5,
+      "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
       "hang_clearance_height": 11.25,
@@ -79,11 +79,11 @@
     },
     "alice": {
       "root": [
-        0,
-        8,
-        -4.7
+        -1.53,
+        9.6,
+        -1.65
       ],
-      "crown_height": 8.5,
+      "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
       "hang_clearance_height": 10.76,
@@ -95,11 +95,11 @@
     },
     "patchouli": {
       "root": [
-        0,
-        8,
-        -4.7
+        -1.53,
+        9.6,
+        -1.65
       ],
-      "crown_height": 8.5,
+      "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
       "hang_clearance_height": 12.346092,
@@ -142,5 +142,6 @@
       ]
     }
   },
-  "note": "Use the approved single forward arched stalk topology. Count spacing fits the selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because child birth size stays 0.30. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. No source character or approval record is replaced."
+  "note": "Use the approved single forward arched stalk topology. Count spacing fits the selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because child birth size stays 0.30. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. No source character or approval record is replaced.",
+  "rounded_source": "art/source/rounded-runtime/attachments.json"
 }

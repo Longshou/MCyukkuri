@@ -1,0 +1,60 @@
+{
+  "exporter": "scripts/rounded_wound_surface.cjs",
+  "exporter_sha256": "7df09fe6d1c78ba896ed00d38def918be0cf61993c97d5b78bb0ed5c13e7fb4f",
+  "models": {
+    "reimu": {
+      "runtime_sha256": "82c740702a5a2e3dc2918d1d1e56a0ac1a53c2f82bd3fb7a2254b7409cf4041a",
+      "surface_sha256": "b5037c455fe111100d972f16c094701634b4996734dda5803c7a40610cb54e8d",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "marisa": {
+      "runtime_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "surface_sha256": "b792349a08e451dfa8a986d9671712d8427bd6f210cd58ef2eb96115e9882c16",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "chen": {
+      "runtime_sha256": "afceae931e1d7776bfd2bb0e5d323907caa12f6e7f65a7bf78865edb4adc0a40",
+      "surface_sha256": "aa53b225d1d101b6a16e5dbc8b04883ba631919f7d5c5186a399760a8e9928de",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "alice": {
+      "runtime_sha256": "b2b5bf3c2ff6e0bd6d25b82323d354e10281ed4deb9092440f90c899d0c0655c",
+      "surface_sha256": "f5647ec9d5aa604974061892bc8d899ed56b562cfd2e2aeaee1568d0d7b740ac",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "patchouli": {
+      "runtime_sha256": "7abf237b0a1639dd619eb01372f354b9631c6e819dce85ecce6dfcd6aa2b2d8d",
+      "surface_sha256": "48c097822b76b03ffc486804773f8a76604c1ae331c3ddfae56e8e713f4a4bb0",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "marisa_tsumuri": {
+      "runtime_sha256": "7200059184289a47d9ad436ca3466708da48f4fa92ca87fa6b86e7da41a67dc2",
+      "surface_sha256": "82e468a566be0bd33791c3bc3cde8936c96797a7351b7f9b562af850eabd7f21",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "reimu_wasa": {
+      "runtime_sha256": "19cc57c64ead4dcf31abe08e0d08bde9fd118f9118d12bed415d368f3d664b3e",
+      "surface_sha256": "c268ee82a4be08299375ec122685b671818c70e691155ae9c4516792cf9aea13",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    },
+    "reimu_deibu": {
+      "runtime_sha256": "587f98c866ff74abc9d0e967c5d872939405b9f8c750ffa92f9608d40135ddae",
+      "surface_sha256": "cc929c7e0959d59d7e9489a7b92717f85c86e430b408b604ea2cc97bb4b45d5d",
+      "skin_vertices": 50124,
+      "total_vertices": 75744
+    },
+    "reimu_wasa_deibu": {
+      "runtime_sha256": "acbb0ee21e76d501992206a18e69c5b1e23cb1375201356ad38ce7cb8f61e652",
+      "surface_sha256": "21ea47ba2149a210de6bb53a91b96c9b50e6b0db5defde539007dda2599e08fd",
+      "skin_vertices": 50124,
+      "total_vertices": 100716
+    }
+  }
+}

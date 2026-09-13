@@ -1,5 +1,15 @@
 # 项目脚本
 
+灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑；`preview_reimu_deficient.py` 生成当前四视图和动作检查，页面检查用 `node scripts/verify_marisa_deficient_browser.cjs reimu`。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
+
+人工试玩使用[实验地图](../docs/EXPERIMENTAL_MAP.md)：`build_experimental_map.py` 在 `.local/experimental-map/` 生成全新世界的数据包和元数据，再由游戏完成16区场地落地；`launch_experimental_map.ps1` 读取固定运行清单，直接进入 `run/saves/MCyukkuri-Lab/`。根目录 `启动实验地图.cmd` 是双击入口，不重新构建，不覆盖既有存档。
+
+生育资格修正复用消耗品测试中的 `fertilityRules`，消耗品、成长与联合运行器均收集 `fertility-checks`。该次独立输出、固定副本和实际命令见[生育资格验收](../docs/validation/fertility-rules/README.md)，仅覆盖消耗品与生育专项。联合运行器当前要求 43 项 GameTest 及完整报告，已加入遗体与铲子安葬检查；此前 42 项联合结果见[金章排查](../docs/validation/gold-exam/current/README.md)。徽章专项运行器同时核对原有报告与 `badge-timing-checks`，报告缺失即失败。
+
+圆润体型、四轴性格与灵胖发育使用 `personality_deibu_checks.init.gradle`、`run_personality_deibu_checks.py --suite integration` 隔离构建并冻结全机制GameTest；`run_rounded_preview.py` 隐藏启动本轮独立客户端。新素材依次使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only`、`export_family_assets.py` 和 `build_rounded_preview.py`；束具仍由标准库 `drafts/operation-tools/build.py` 生成。来源与后续检查见[圆润运行包](../art/source/rounded-runtime/README.md)。
+
+成长与寿命使用 `growth_checks.init.gradle` 隔离类、资源、运行参数和 Gradle 项目缓存；`run_growth_checks.py` 冻结成功构建后的产物，在 `.local/deibu-life-design/` 运行成长迁移、家庭和胎生七项 GameTest。命令与结果见[成长验收](../docs/validation/growth/current/README.md)。
+
 联合验收使用 `port_integration.init.gradle` 隔离每个 source set 的真实输出与运行 classpath；`run_port_integration.py` 冻结、校验并隐藏启动本任务产物，`accept_port_integration.py` 驱动真实专服双客户端流程。命令、指纹与执行边界见[联合验收记录](../docs/validation/port-integration/README.md)。
 
 消耗品与普通胎生使用 `consumable_checks.init.gradle` 显式隔离所有 source set 的编译输出，配合独立 Gradle project cache；`run_consumable_checks.py` 冻结产物、在 `.local/consumables-birth/` 新建世界并核对五份报告。构建与运行命令见 [专题实现](../docs/CONSUMABLES_AND_BIRTH.md)，不启动客户端或代为接受 EULA。

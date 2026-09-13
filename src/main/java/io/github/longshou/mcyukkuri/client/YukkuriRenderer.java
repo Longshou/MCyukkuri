@@ -39,23 +39,30 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     @Override
     public void render(YukkuriEntity entity, float yaw, float partialTick, PoseStack pose,
                        MultiBufferSource buffers, int packedLight) {
+        if(entity.isDeadOrDying())return;
         shadowRadius = (entity.getVariant().isHouse() ? .12f : .32f)*entity.growthScale();
         if (!entity.isInvisible()) {
             pose.pushPose();
-            pose.mulPose(Axis.YP.rotationDegrees(180 - Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot)));
+            var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;
+            boolean hatCarrier=entity.isVehicle()&&io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity);
+            if(hatParent!=null){
+                var offset=io.github.longshou.mcyukkuri.family.HatCarry.seatWorld(hatParent,partialTick).subtract(entity.getPosition(partialTick));
+                pose.translate(offset.x,offset.y,offset.z);
+                pose.mulPose(io.github.longshou.mcyukkuri.family.HatCarry.riderRotation(hatParent,partialTick));
+            }else pose.mulPose(Axis.YP.rotationDegrees(180 - Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot)));
             if (entity.deathTime > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTime + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
-            dailyMotion(entity,partialTick,pose);
+            if(!hatCarrier&&hatParent==null)dailyMotion(entity,partialTick,pose);
             pose.pushPose();pose.scale(entity.growthScale(),entity.growthScale(),entity.growthScale());
             var model=YukkuriModel.get(entity.subspecies().assetId());
             String contact=entity.contactPose();boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
-            if(contact.equals("BOX"))PropModels.render("iron_enclosure_"+entity.getVariant().assetId(),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
+            if(contact.equals("BOX"))PropModels.render("iron_enclosure_"+entity.subspecies().assetId(),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             if(contact.equals("FIXED")||contact.equals("WRAPPED")){
-                PropModels.render((contact.equals("FIXED")?"restraint_frame_":"wrap_sling_")+entity.getVariant().assetId()+(entity.hasVisibleAccessory()?"":"_bare"),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
+                PropModels.render((contact.equals("FIXED")?"restraint_frame_":"wrap_sling_")+entity.subspecies().assetId()+(entity.hasVisibleAccessory()?"":"_bare"),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             }
             float contactAngle=switch(contact){case "SUPINE","FIXED","HOOK"->90;case "ROLL"->entity.contactTurn();case "RUMP","ASSIST"->-12;default->0;};
-            float lift=contact.equals("FIXED")?PropModels.bodyLift("restraint_frame_"+entity.getVariant().assetId()+(entity.hasVisibleAccessory()?"":"_bare")):
+            float lift=contact.equals("FIXED")?PropModels.bodyLift("restraint_frame_"+entity.subspecies().assetId()+(entity.hasVisibleAccessory()?"":"_bare")):
                     contactAngle==0?0:model.contactLift(contactAngle,entity.hasVisibleAccessory(),entity.visibleHairLoss());
             pose.pushPose();
             if(contactAngle!=0){
@@ -67,7 +74,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTime > 0 || entity.deathTime > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(entity)));
-            String behavior = entity.getBehaviorId();
+            String behavior = hatCarrier||hatParent!=null?"idle":entity.getBehaviorId();
             if(behavior.equals("slide_down")){
                 var facility=io.github.longshou.mcyukkuri.play.PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==io.github.longshou.mcyukkuri.play.PlayBlock.Kind.SLIDE){
@@ -79,7 +86,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
-            if (entity.isCrawling()) {
+            if (entity.isCrawling()&&!hatCarrier&&hatParent==null) {
                 behavior = "house_crawl";
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
@@ -89,9 +96,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
-            model.renderLiving(operated||behavior.equals("slide_down")?"idle":entity.getAnimationId(), operated?0:elapsed, pose, buffer, packedLight, overlay,
+            String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();
+            model.renderLiving(operated||behavior.equals("slide_down")?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
-            if(entity.hasVisibleAccessory()) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
+            if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){
                 var held=heldIndex==0?entity.getMouthItem():entity.getCarriedItem();

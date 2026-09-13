@@ -1,0 +1,425 @@
+{
+  "status": "pending_user_confirmation",
+  "exporter": "scripts/export_marisa_deficient_rounded.py",
+  "exporter_sha256": "dd281348c83c512e9d260d87475a3e203ba4f0adc3c90ddfaf7eceb60eca065b",
+  "models": {
+    "marisa_sparse": {
+      "geometry_identifier": "marisa_sparse",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
+      "selected_model_sha256": "23b662e6f9a196ded879d5a844f0c98a5581f6f5ed2b5507b9faee8c760545ba",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/animation-rig.json",
+      "selected_rig_sha256": "9674797e89607fbdb5b9e342436ebb316f4022adcfc79e3633f9ebfd72e09b0d",
+      "snapshot": "art/source/subspecies-runtime/marisa_sparse/marisa_sparse.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
+      "runtime_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+      "bone_count": 266,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/neutral.png",
+          "sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "source_sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/happy.png",
+          "sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "source_sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/cry.png",
+          "sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "source_sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/teary.png",
+          "sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "source_sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/drool.png",
+          "sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "source_sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/confused.png",
+          "sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "source_sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/yawn.png",
+          "sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "source_sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleep.png",
+          "sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "source_sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/angry.png",
+          "sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "source_sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/surprise.png",
+          "sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "source_sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleepy.png",
+          "sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "source_sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "source_sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "source_sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "source_sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "source_sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "source_sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/smug.png",
+          "sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "source_sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/puff.png",
+          "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "source_sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "snapshot": "art/source/subspecies-runtime/marisa_sparse/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
+      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/marisa_sparse/animation-rig.json",
+      "revision": "rounded-marisa-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json",
+      "exporter": "scripts/export_marisa_deficient_rounded.py"
+    },
+    "marisa_face": {
+      "geometry_identifier": "marisa_face",
+      "base_species": "marisa",
+      "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
+      "selected_model_sha256": "cc6504660f3d89d38d8db1aa34eb8fd62277f95cb70387b7361fdea6d00f8305",
+      "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/animation-rig.json",
+      "selected_rig_sha256": "8433beece65418360ea82b25ff7d726a2736d62cc4230fbbec6444966d6aa6f3",
+      "snapshot": "art/source/subspecies-runtime/marisa_face/marisa_face.bbmodel",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
+      "runtime_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+      "bone_count": 266,
+      "clips": [
+        "idle",
+        "stretch_shape",
+        "side_bend",
+        "waddle",
+        "puff",
+        "brace",
+        "startle",
+        "turn",
+        "hop",
+        "stretch",
+        "exercise_vertical",
+        "exercise_sides",
+        "press",
+        "taiso",
+        "flee",
+        "anatomy_mamu_extend",
+        "anatomy_mamu_retract",
+        "anatomy_peni_extend",
+        "anatomy_peni_retract"
+      ],
+      "textures": {
+        "neutral": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/neutral.png",
+          "sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "source_sha256": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/neutral.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/neutral.png",
+          "width": 256,
+          "height": 256
+        },
+        "happy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/happy.png",
+          "sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "source_sha256": "8dffa37c6b9a6ace5ea7ebab947c5ffb9fae12707970027feed9283b31756825",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/happy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/happy.png",
+          "width": 256,
+          "height": 256
+        },
+        "cry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/cry.png",
+          "sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "source_sha256": "7e58b5654f07026248bca766d68246aa49292d10973480f9766083e0366c2b43",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/cry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/cry.png",
+          "width": 256,
+          "height": 256
+        },
+        "teary": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/teary.png",
+          "sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "source_sha256": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/teary.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/teary.png",
+          "width": 256,
+          "height": 256
+        },
+        "drool": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/drool.png",
+          "sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "source_sha256": "24b8ae2b6267bd3b2f701fdbe23a4b96a954eab6c05782dc5e10be2047ad2a40",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/drool.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/drool.png",
+          "width": 256,
+          "height": 256
+        },
+        "confused": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/confused.png",
+          "sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "source_sha256": "fb4cbde2b903077c078a71f1beb2a7dfb36c3b1ce493c65f7cc9f82847d2dd23",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/confused.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/confused.png",
+          "width": 256,
+          "height": 256
+        },
+        "yawn": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/yawn.png",
+          "sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "source_sha256": "747797a1b33366cb388c8d47753496e9383103fdd529072ff438325da6075928",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/yawn.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/yawn.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleep": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleep.png",
+          "sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "source_sha256": "f5754316c5b714ec2afd6d9ba93f6dd83fbb2a1fd199e00937170667fa52812b",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/sleep.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleep.png",
+          "width": 256,
+          "height": 256
+        },
+        "angry": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/angry.png",
+          "sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "source_sha256": "0b244c3b34162c6c0cfef3113fab52a0ef588928ce41eef077f2aeb676075d96",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/angry.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png",
+          "width": 256,
+          "height": 256
+        },
+        "surprise": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/surprise.png",
+          "sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "source_sha256": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/surprise.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/surprise.png",
+          "width": 256,
+          "height": 256
+        },
+        "sleepy": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/sleepy.png",
+          "sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "source_sha256": "ae8bcbdc513330270a2d6c68048776e1c9166061b1c37694c8dc0c23d0c2ea1e",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/sleepy.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sleepy.png",
+          "width": 256,
+          "height": 256
+        },
+        "closed_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "source_sha256": "0c1d519d64e3a0d26b9c98f7fca477cffa7fc105ca56836984d4dcc6c6631700",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/closed_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "source_sha256": "47101a7d78b14141db523f748cfeedcad584c4d27224cc5f023a9b51648c1d3a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing.png",
+          "width": 256,
+          "height": 256
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "source_sha256": "f415684685a382d37c3f864d1859dbf1776558ad8429e179d29422ef393db106",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/chewing_closed.png",
+          "width": 256,
+          "height": 256
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "source_sha256": "f923d138be8d989cfc4e5299b0aff536f9857544f8caab94c8a3856fa3bc3a7a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/satisfied.png",
+          "width": 256,
+          "height": 256
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "source_sha256": "c0fa311a2610b1bf01e8ac11aeb8ca980c2b0639470f012f3050ba6ac04e766a",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/open_smile.png",
+          "width": 256,
+          "height": 256
+        },
+        "smug": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/smug.png",
+          "sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "source_sha256": "ea94c9b118e85e0df055b5964c28135efc6b7bca7e56068380336662c9417d74",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/smug.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/smug.png",
+          "width": 256,
+          "height": 256
+        },
+        "puff": {
+          "source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/textures/puff.png",
+          "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "source_sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
+          "snapshot": "art/source/subspecies-runtime/marisa_face/textures/puff.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/puff.png",
+          "width": 256,
+          "height": 256
+        }
+      },
+      "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
+      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "shape_status": "pending_user_confirmation",
+      "approval_note": "",
+      "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
+      "texture_acceptance": "offline_checked; current client acceptance pending",
+      "rig": "art/source/subspecies-runtime/marisa_face/animation-rig.json",
+      "revision": "rounded-marisa-deficient-v1",
+      "recipe": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json",
+      "exporter": "scripts/export_marisa_deficient_rounded.py"
+    }
+  },
+  "wounds": {
+    "marisa_sparse": "d4981b6783ad34d2486b2a65fed6fd1e2b2a3d70d75b1ce7d64a5a26d12dcdb5",
+    "marisa_face": "93a2ea4b984ec1ddaf9a64909471f1c0778e5e68c4adc40cf95f806c0841b9db"
+  }
+}

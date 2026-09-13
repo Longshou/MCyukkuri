@@ -1,0 +1,98 @@
+[
+  {
+    "name": "legacy care becomes selfishness with its signed experience",
+    "pass": true
+  },
+  {
+    "name": "legacy sociability becomes attachment",
+    "pass": true
+  },
+  {
+    "name": "legacy order and patience combine into self-control",
+    "pass": true
+  },
+  {
+    "name": "boldness never becomes aggression",
+    "pass": true
+  },
+  {
+    "name": "migration preserves trust and fear",
+    "pass": true
+  },
+  {
+    "name": "v2 migration is idempotent",
+    "pass": true
+  },
+  {
+    "name": "selfishness changes sharing choice under identical hunger",
+    "pass": true
+  },
+  {
+    "name": "selfishness also changes contested-food waiting",
+    "pass": true
+  },
+  {
+    "name": "starvation overrides social waiting and giving",
+    "pass": true
+  },
+  {
+    "name": "aggression changes escalation independently of boldness",
+    "pass": true
+  },
+  {
+    "name": "aggression also changes protective intervention",
+    "pass": true
+  },
+  {
+    "name": "attachment changes companion-seeking threshold",
+    "pass": true
+  },
+  {
+    "name": "attachment also changes approach without inventing trust",
+    "pass": true
+  },
+  {
+    "name": "self-control changes queue persistence",
+    "pass": true
+  },
+  {
+    "name": "self-control also changes teaching duration",
+    "pass": true
+  },
+  {
+    "name": "repeated feeding cannot immediately alter temperament",
+    "pass": true
+  },
+  {
+    "name": "repeated feeding gives at most four environmental points",
+    "pass": true
+  },
+  {
+    "name": "one attack is deduplicated and feeding cannot erase hostility",
+    "pass": true
+  },
+  {
+    "name": "long spaced experience changes only slowly",
+    "pass": true
+  },
+  {
+    "name": "peaceful isolation stays neutral",
+    "pass": true
+  },
+  {
+    "name": "environmental damage is not invented social hostility",
+    "pass": true
+  },
+  {
+    "name": "non-player attacks never occupy or evict player memories",
+    "pass": true
+  },
+  {
+    "name": "spaced real hostile experiences slowly affect aggression",
+    "pass": true
+  },
+  {
+    "name": "environment event history and experience cooldown survive reload",
+    "pass": true
+  }
+]

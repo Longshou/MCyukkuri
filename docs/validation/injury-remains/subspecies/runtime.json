@@ -1,0 +1,17 @@
+{
+  "runtime": ".local/sparse-injury-remains/runtime-20260913-150058",
+  "previewRuntime": ".local/sparse-injury-remains/runtime-20260913-145846",
+  "productionIdentical": {
+    "classes/java/main": true,
+    "resources/main": true,
+    "libs": true
+  },
+  "jarSha256": "8bf26c0ad3b14e92f020d77456bc2f057b193114a20b0b65bb65ce62411be944",
+  "screenshots": {
+    "sparse-carried.png": "58f3a40960892c04ff0cafdff7d1974c1ff1c0207cbe9adf07f46f78828f766c",
+    "sparse-ground.png": "75d579961f0a0d3e69c1083b9db61e80669d262c1f6a35d49db24599156f80cc",
+    "sparse-injury.png": "fe5d6f50c3b24351bc08a7649622358bbb98d1247b784cb090b22c9c4288ab52",
+    "sparse-inventory.png": "0c6a82cd42026ab6664dc1dabaebec9e9e51a394da7810c8e80a0900c6e47e10",
+    "sparse-replaced-front.png": "809dc71e12ca0cb24f59c5b7c8c2f3f4bf88a29e25674362e3b01e9d6ef25202"
+  }
+}

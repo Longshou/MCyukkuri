@@ -1,5 +1,11 @@
 # 当前实体接入素材
 
+稀毛与歪脸灵梦也已完成[圆润体态接入](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)，源、游戏资源及本轮实机记录均已同步。
+
+稀毛与歪脸魔理沙已选用[本轮圆润体态修复](../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)。五种魔理沙帽子的独立脱戴与小幼油帽托见[帽子交互包](source/hat-interactions/README.md)，包含当前预览和有范围的验收记录。
+
+2026-09-13：[圆润运行包](source/rounded-runtime/README.md)已选用八只当前标准导出并组合多毛灵胖，包含配套伤口、可脱落饰物、徽章与身体尺寸。普通五种、壳种和多毛的旧接入目录保留历史快照；当前入口为[本轮运行预览](source/rounded-runtime/previews/current/index.html)，以 `runtime-sources.json` 的逐项登记为准。
+
 蕾米莉亚与弗兰的模型、飞行、帽饰和枝巢已从[捕食种制作包](../standards/yukkuri-library/subspecies/predator/README.md)选用接入，见[两种动作预览](source/predator-runtime/preview.html)与[实现和验收](../docs/PREDATOR_IMPLEMENTATION.md)。两种各含 19 个通用动作、四段行为动作和 12 套表情；造型待用户确认。下方七种记录保留其既有范围。
 
 [全身伤口适配](props/body-wounds/README.md)已为七种实体接入按命中位置保存的多处伤口、局部凹陷、动作挂接与出口漏馅；选用源、对应骨架和产物指纹单独登记，角色标准造型保持原确认状态。

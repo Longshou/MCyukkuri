@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-13T08:32:38.279471+00:00",
+  "status": "passed",
+  "source_sha256": {
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/ConsumableGameTests.java": "5550c823d10599bef7e0d14f811a85c86aeebdc9ea880527c18e615019f9deb9",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/FamilyGameTests.java": "853702f4365165d4a66242a5d58e1971aad1a4348fe0b22524ecf50fe787aafe",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/GrowthGameTests.java": "5ffafcfbd5a516e06a15581732503877a0191220e9ddbbf7fdd92c8607e16917",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/P0Mod.java": "f0d4a86ea769342529e028087315bcd2d9c8197cb318ef4635842ad2879c3a1e",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyConfig.java": "8f98bbb8b12805de33a07c86eb027a46f95a6a2367306ac98379a1cd5676ec71",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyData.java": "50977777dd8279e34ac4a8a2e6f71496db4bd1759ec467fbb8e26a607e3f768b",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyLife.java": "dbcc5e2a43ec45534702ccc84c87a8269f08ed34e8f58af5b8ded288b3a6acc1",
+    "src/main/java/io/github/longshou/mcyukkuri/family/GrowthTiming.java": "7967823b6d57a3ae2c0461d3819fda7f7c3eb066e08d5fc0630a6ffe61947388",
+    "src/main/java/io/github/longshou/mcyukkuri/human/FactoryProduction.java": "f135feab4c6b3427a236a8bc5f19d94e6919eacf623ab54a37823bacd434e19b"
+  },
+  "runtime_manifest_sha256": "8fcc435915eeae64c19adadbf8b098c5da98753e3fcb0edf5ff54c24f0d475a4",
+  "jar_sha256": "3e42e201612763addfda10b9341bdd534303a1bac983037cf626fc0c7bf5cef1",
+  "jar": "E:\\yukkuri\\MCyukkuri\\.local\\deibu-life-design\\release\\mcyukkuri-0.1.0-dev.jar",
+  "run": "E:\\yukkuri\\MCyukkuri\\.local\\deibu-life-design\\gametest-o9b5m_0u",
+  "command": "gradlew.bat -I scripts/growth_checks.init.gradle --project-cache-dir .local/deibu-life-design/gradle-cache --no-configuration-cache build createP0GameTestLaunchScript verifyGrowthOutputs; python scripts/run_growth_checks.py",
+  "test_count": 7,
+  "checks": 270,
+  "limitations": [
+    "No continuous 30-hour session",
+    "No current client or multiplayer run",
+    "No player-world upgrade test"
+  ]
+}

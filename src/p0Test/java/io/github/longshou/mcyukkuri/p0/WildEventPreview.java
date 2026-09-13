@@ -106,7 +106,7 @@ final class WildEventPreview {
     private static YukkuriEntity spawn(ServerLevel level,boolean marisa,double x,double z) {
         var e=(marisa?ModEntities.MARISA:ModEntities.REIMU).get().create(level);e.moveTo(center.getX()+x,65,center.getZ()+z,180,0);e.setOnGround(true);e.setPersistenceRequired();
         var family=e.family().save();family.putBoolean("Initialized",true);family.putString("Stage","ADULT");family.putLong("Age",20000);family.putLong("Nourishment",20000);family.putLong("Lifespan",72000);e.family().load(family);
-        food(e,80);var personality=e.life().personality().save();personality.putIntArray("Innate",new int[]{75,60,75,70,50,70});e.life().personality().load(personality);
+        food(e,80);var personality=e.life().personality().save();PersonalityFixtures.preferences(personality,new int[]{75,60,75,70,50,70});e.life().personality().load(personality);
         var cooldown=new CompoundTag();cooldown.putInt("Cooldown",1200);e.groupInteraction().load(cooldown);e.life().deferSocial(1200);
         var cognition=new CompoundTag();cognition.putInt("Innate",kind.equals("teach")?(x==0?500:400):kind.equals("forest-find")?1000:100);cognition.putString("Origin","preview_fixture");e.getPersistentData().put(io.github.longshou.mcyukkuri.cognition.Cognition.KEY,cognition);
         level.addFreshEntity(e);actors.add(e);return e;

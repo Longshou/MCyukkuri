@@ -39,12 +39,14 @@ public final class DialogueGameTests {
             var line=NativeDialogue.select(species,young,"nuzzle",net.minecraft.util.RandomSource.create(1));
             helper.assertTrue(line!=null&&line.id().endsWith("l3291"),"Native nuzzle source row");
         }
-        long end=speakers.stream().mapToLong(e->e.speechEnd()).max().orElse(0)-level.getGameTime()+2;
-        helper.runAtTickTime(end,()->{
+        long deadline=speakers.stream().mapToLong(e->e.speechEnd()).max().orElse(0);
+        // Forced chunks may still be preparing entity ticking after the test's own clock has started.
+        helper.startSequence().thenWaitUntil(()->helper.assertTrue(speakers.stream().allMatch(e->e.tickCount>0),"Speakers become ticking entities"))
+                .thenExecute(()->helper.runAfterDelay(Math.max(2,deadline-level.getGameTime()+2),()->{
             for(var e:speakers){helper.assertTrue(e.tickCount>0&&e.isAlive(),"Speaker ticks and survives empty fixture");helper.assertTrue(e.getDialogueKey().isEmpty(),"Dialogue clears on expiry: "+e.getDialogueKey()+" tick="+e.tickCount);e.discard();}
             forceChunks(helper,false);
             P0Control.write("dialogue-species-checks",java.util.Map.of("passed",true,"eventsPerGroup",NativeDialogue.events().size(),"groups",checks));helper.succeed();
-        });
+        }));
     }
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=200, batch="dialogue")
     public static void nativeSpeech(GameTestHelper helper) {
@@ -74,11 +76,13 @@ public final class DialogueGameTests {
         helper.assertTrue(!timing.admit(151,50,1), "Quiet gap retained");
         helper.assertTrue(timing.admit(152,50,2), "User reaction allowed through quiet gap");
         long deadline = reimu.speechEnd();
-        helper.runAtTickTime(deadline-level.getGameTime()+2, () -> {
-            helper.assertTrue(reimu.getDialogueKey().isEmpty(), "Speech expires without depending on expression timer");
+        helper.startSequence().thenWaitUntil(()->helper.assertTrue(reimu.tickCount>0,"Speaker becomes a ticking entity"))
+                .thenExecute(()->helper.runAfterDelay(Math.max(2,deadline-level.getGameTime()+2), () -> {
+            P0Control.write("dialogue-expiry-observation",java.util.Map.of("now",level.getGameTime(),"deadline",deadline,"entityTicks",reimu.tickCount,"alive",reimu.isAlive(),"key",reimu.getDialogueKey(),"start",reimu.speechStart(),"end",reimu.speechEnd()));
+            helper.assertTrue(reimu.getDialogueKey().isEmpty(), "Speech expires without depending on expression timer; now="+level.getGameTime()+",deadline="+deadline+",entityTicks="+reimu.tickCount+",key="+reimu.getDialogueKey());
             helper.assertTrue(reimu.tickCount>0&&reimu.isAlive(),"Speaker ticks and survives empty fixture");
             reimu.discard();forceChunks(helper,false); helper.succeed();
-        });
+        }));
     }
     private static void forceChunks(GameTestHelper helper,boolean force){
         var pos=helper.absolutePos(net.minecraft.core.BlockPos.ZERO);

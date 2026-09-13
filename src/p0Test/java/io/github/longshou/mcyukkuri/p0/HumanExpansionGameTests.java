@@ -91,7 +91,7 @@ public final class HumanExpansionGameTests {
         check("Successful birth immediately inherits factory custody",HumanCommerce.ownedBy(child,n.getUUID())&&HumanCommerce.data(child).getString("Use").equals("nursery"));
         child.setNoAi(true);HumanCommerce.assign(child,n.getUUID(),"nursery");
         check("Stem newborn is not immediately ready for processing",!FactoryProduction.nurseryReady(child));
-        var grown=child.family().save();grown.putLong("Age",4000);grown.putLong("Nourishment",4000);grown.putBoolean("AwaitingLanding",false);child.family().load(grown);
+        var grown=child.family().save();grown.putLong("Age",child.family().maturityAge()/6+1);grown.putLong("Nourishment",child.family().maturityAge()/6+1);grown.putBoolean("AwaitingLanding",false);child.family().load(grown);
         var healthy=child.life().save();healthy.putFloat("Nutrition",95);healthy.putFloat("Energy",95);child.life().load(healthy);
         check("Nursery maturity requires real age and nourishment",FactoryProduction.nurseryReady(child));
         child.setOnGround(true);

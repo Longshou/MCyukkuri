@@ -71,7 +71,7 @@ public final class GroupGameTests {
         check("distant toy cannot start interaction",!spawn(level,1320,false).social().beginPlay(toy));
         check("negative energy spending rejected",!a.life().spendEnergy(-1));
         var guardian=spawn(level,1305,true);var traits=guardian.life().personality().save();
-        traits.putIntArray("Innate",new int[]{90,90,90,90,90,90});traits.putIntArray("Experience",new int[6]);guardian.life().personality().load(traits);
+        PersonalityFixtures.preferences(traits,new int[]{90,90,90,90,90,90});traits.putIntArray("Experience",new int[6]);guardian.life().personality().load(traits);
         YukkuriWorldData.get(level).relate(guardian.getUUID(),restored.getUUID(),30);
         restored.invulnerableTime=0;restored.hurt(level.damageSources().mobAttack(a),1);
         check("present caring acquaintance reserves protection",guardian.groupInteraction().active());

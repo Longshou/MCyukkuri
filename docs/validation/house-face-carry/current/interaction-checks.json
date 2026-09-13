@@ -1,0 +1,32 @@
+{
+  "reimu": {
+    "checks": [
+      "goal selects real source",
+      "before contact source stays in world",
+      "interruption before contact preserves source",
+      "goal resumes after interruption",
+      "contact splits exactly one item",
+      "interruption and reload preserve held item",
+      "carrying resumes toward nest",
+      "deposit waits for contact",
+      "deposit transfers exactly once",
+      "completion conserves total stock"
+    ],
+    "variant": "house_reimu"
+  },
+  "marisa": {
+    "checks": [
+      "goal selects real source",
+      "before contact source stays in world",
+      "interruption before contact preserves source",
+      "goal resumes after interruption",
+      "contact splits exactly one item",
+      "interruption and reload preserve held item",
+      "carrying resumes toward nest",
+      "deposit waits for contact",
+      "deposit transfers exactly once",
+      "completion conserves total stock"
+    ],
+    "variant": "house_marisa"
+  }
+}

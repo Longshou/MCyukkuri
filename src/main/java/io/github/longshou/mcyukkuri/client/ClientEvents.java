@@ -17,6 +17,7 @@ public final class ClientEvents {
             event.registerEntityRenderer(ModEntities.forVariant(variant), YukkuriRenderer::new);
         event.registerEntityRenderer(net.minecraft.world.entity.EntityType.ITEM,HouseScrapRenderer::new);
         event.registerEntityRenderer(ModEntities.MATERIAL_DROP.get(),MaterialDropRenderer::new);
+        event.registerEntityRenderer(ModEntities.REMAINS.get(),RemainsRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.CARE.get(), CareRenderer::new);
         event.registerBlockEntityRenderer(io.github.longshou.mcyukkuri.play.Playgrounds.ENTITY.get(),PlaygroundRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.SHELTER_ENTITY.get(), ShelterRenderer::new);
@@ -41,6 +42,7 @@ public final class ClientEvents {
             event.registerItem(extension,net.minecraft.core.registries.BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));
         io.github.longshou.mcyukkuri.registry.ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.TRIMMED_HAIR.get());
+        event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get());
         io.github.longshou.mcyukkuri.life.Facilities.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         io.github.longshou.mcyukkuri.play.Playgrounds.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         io.github.longshou.mcyukkuri.life.Consumables.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));

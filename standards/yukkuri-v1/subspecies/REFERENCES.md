@@ -8,7 +8,7 @@
 
 ## 螺壳魔理沙 · つむり / まりさつむり
 
-本机原作版本：`E:/yukkuri/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。
+本机原作版本：`E:/yukkuri/资料/原作参考/eightSight.v8.3/ゆっくり八景U_Data/sharedassets0.assets`。
 
 | 对象 | 字段与下标（从零开始） | Sprite ID |
 | --- | --- | --- |

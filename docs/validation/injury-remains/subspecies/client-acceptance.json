@@ -1,0 +1,115 @@
+{
+  "injury": {
+    "manifest": "capture-sparse-injury.json",
+    "count": 1
+  },
+  "woundAssets": [
+    {
+      "geometryCompatible": true,
+      "vertices": 43068,
+      "model": "house_reimu",
+      "variant": "house_reimu",
+      "chewing": true
+    },
+    {
+      "geometryCompatible": true,
+      "vertices": 37740,
+      "model": "house_marisa",
+      "variant": "house_marisa",
+      "chewing": true
+    },
+    {
+      "geometryCompatible": true,
+      "vertices": 123880,
+      "model": "reimu_sparse",
+      "variant": "reimu",
+      "chewing": true
+    },
+    {
+      "geometryCompatible": true,
+      "vertices": 147232,
+      "model": "marisa_sparse",
+      "variant": "marisa",
+      "chewing": true
+    }
+  ],
+  "ground": {
+    "manifest": "capture-sparse-ground.json",
+    "count": 1
+  },
+  "pickup": {
+    "target": "644e77d1-8886-4bf3-bc15-38b32e7d2e83",
+    "predictedResult": "SUCCESS"
+  },
+  "snapshotPreservedAfterRightClick": true,
+  "source": {
+    "data": "{Accessory:1b,Body:{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,SurfaceBounds:[-6.4f,0.0f,-4.83f,6.4f,9.6f,5.9f],SurfaceHash:\"6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398\",Ticks:0,Version:3,Wound:4,Wounds:[{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;-407187622,1705984642,-1780971217,-1429123947],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:1,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f},{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;1424472713,1451638863,-2097541546,52852707],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:3,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f}]},Cause:\"minecraft:player_attack\",DiedAt:10488L,Filling:12,Height:0.39000002f,Identity:[I;961092689,-633518375,-2073010658,-2125129370],Medal:0,Model:\"marisa_sparse\",RenderScale:1.0f,SourceScale:1.0f,Variant:\"marisa\",Width:0.8000001f}",
+    "target": 41
+  },
+  "held": {
+    "customRenderer": true,
+    "held": "1 mcyukkuri:yukkuri_remains",
+    "data": "{Accessory:1b,Body:{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,SurfaceBounds:[-6.4f,0.0f,-4.83f,6.4f,9.6f,5.9f],SurfaceHash:\"6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398\",Ticks:0,Version:3,Wound:4,Wounds:[{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;-407187622,1705984642,-1780971217,-1429123947],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:1,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f},{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;1424472713,1451638863,-2097541546,52852707],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:3,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f}]},Cause:\"minecraft:player_attack\",DiedAt:10488L,Filling:12,Height:0.39000002f,Identity:[I;961092689,-633518375,-2073010658,-2125129370],Medal:0,Model:\"marisa_sparse\",RenderScale:1.0f,SourceScale:1.0f,Variant:\"marisa\",Width:0.8000001f}"
+  },
+  "renderContexts": [
+    {
+      "pass": true,
+      "vertices": 156924,
+      "textures": [
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]",
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]"
+      ],
+      "model": "marisa_sparse",
+      "context": "GUI"
+    },
+    {
+      "pass": true,
+      "vertices": 156924,
+      "textures": [
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]",
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]"
+      ],
+      "model": "marisa_sparse",
+      "context": "FIRST_PERSON_RIGHT_HAND"
+    },
+    {
+      "pass": true,
+      "vertices": 156924,
+      "textures": [
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]",
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]"
+      ],
+      "model": "marisa_sparse",
+      "context": "THIRD_PERSON_RIGHT_HAND"
+    },
+    {
+      "pass": true,
+      "vertices": 156924,
+      "textures": [
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/props/body_wounds.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]",
+        "RenderType[entity_cutout_no_cull:CompositeState[[texture[Optional[mcyukkuri:textures/entity/marisa_sparse/sleep.png](blur=false, mipmap=false)], shader[Optional[net.minecraft.client.renderer.RenderStateShard$$Lambda/0x000001f581f34a20@c2c1622]], no_transparency, depth_test[<=], cull[false], lightmap[true], overlay[true], no_layering, main_target, default_texturing, write_mask_state[writeColor=true, writeDepth=true], no_color_logic, line_width[1.0]], outlineProperty=affects_outline]]"
+      ],
+      "model": "marisa_sparse",
+      "context": "GROUND"
+    }
+  ],
+  "carried": {
+    "manifest": "capture-sparse-carried.json",
+    "count": 1
+  },
+  "inventory": {
+    "manifest": "capture-sparse-inventory.json",
+    "count": 1
+  },
+  "place": "SUCCESS",
+  "snapshotPreservedAfterPlacement": true,
+  "placed": {
+    "id": 44,
+    "texture": "mcyukkuri:textures/entity/marisa_sparse/sleep.png",
+    "data": "{Accessory:1b,Body:{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,SurfaceBounds:[-6.4f,0.0f,-4.83f,6.4f,9.6f,5.9f],SurfaceHash:\"6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398\",Ticks:0,Version:3,Wound:4,Wounds:[{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;-407187622,1705984642,-1780971217,-1429123947],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:1,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f},{Anchor:[-3.7252903E-9f,4.3199997f,-4.83f],Emitted:0,Id:[I;1424472713,1451638863,-2097541546,52852707],Kind:\"dent\",LastRelease:0L,Normal:[0.0f,0.0f,-1.0f],Severity:3,Size:1.0f,Triangle:24630,U:0.13333338f,V:0.85000104f}]},Cause:\"minecraft:player_attack\",DiedAt:10488L,Filling:12,Height:0.39000002f,Identity:[I;961092689,-633518375,-2073010658,-2125129370],Medal:0,Model:\"marisa_sparse\",RenderScale:1.0f,SourceScale:1.0f,Variant:\"marisa\",Width:0.8000001f}"
+  },
+  "placedCapture": {
+    "manifest": "capture-sparse-replaced.json",
+    "count": 1
+  }
+}

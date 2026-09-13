@@ -3,30 +3,24 @@
   "label": "帕秋莉",
   "status": "user_approved",
   "components": [
-    "components/common/body.json",
-    "components/common/rump.json",
-    "components/common/face.json",
-    "components/common/puff.json",
-    "components/common/anatomy.json",
-    "components/patchouli/hair.json",
-    "components/patchouli/hand-left.json",
-    "components/patchouli/hand-right.json",
-    "components/patchouli/accessories.json"
+    "body-standard/components/patchouli.json"
   ],
-  "rig": "rigs/reimu.json",
-  "base_texture": "textures/patchouli/base.png",
+  "rig": "body-standard/rigs/patchouli.json",
+  "base_texture": "assembled/patchouli/patchouli.png",
   "expression_binding": "bindings/patchouli.json",
   "motion_catalog": "motions/index.json",
   "expression_catalog": "expressions/index.json",
-  "rig_components": [
-    "components/common/anatomy-rig.json",
-    "components/patchouli/rig.json"
-  ],
-  "anatomy": "behaviors/anatomy.json",
+  "rig_components": [],
+  "anatomy": "body-standard/anatomy.json",
   "preview": {
     "span": 12.8,
     "centerY": 6.4,
     "hand_label": "侧发"
   },
-  "provenance": "provenance/standard-species.json"
+  "provenance": "provenance/standard-species.json",
+  "construction_recipe": "body-standard/recipe.json",
+  "body_standard": "body-standard/profile.json",
+  "body_status": "user_approved_standard",
+  "export": "assembled/patchouli",
+  "feature_source": "body-standard/inputs/patchouli"
 }

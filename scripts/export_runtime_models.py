@@ -24,6 +24,7 @@ from mesh_geometry import vertices
 from runtime_animation import fit_grounded_hair
 from runtime_house_interactions import add_house_interactions
 from runtime_waddle import fit_waddle
+from runtime_house_face import fit as fit_house_face
 
 
 def read(path):
@@ -150,6 +151,14 @@ def export(species, is_house):
     if is_house:
         model['behavior_clips'] = {key: clips.pop(key) for key in rig['behavior_clips']}
         model['grip'] = {**rig['grip'], 'bones': [names[n] for n in rig['grip']['bones']]}
+        # Retarget facial walking motion only after the actual face geometry is known.
+        recipe = read(OUT/'face-motion/recipe.json')
+        retargeting['face_motion'] = fit_house_face(model, recipe)
+        for record in retargeting['face_motion']:
+            name = record['anchor']
+            rig['clips']['waddle']['tracks'][name] = {
+                t['channel']:{str(key[0]):key[1:] for key in t['keys']}
+                for t in model['clips']['waddle']['tracks'] if t['bone']==names[name]}
     rig['groups'] = [rig['bones'][weights[p['start']][0]]['name'] for p in parts]
     rig['element_vertex_counts'] = [p['count'] for p in parts]
     rig['vertex_weights'] = weights
@@ -185,6 +194,8 @@ def export(species, is_house):
 
 
 def main():
+    if (ROOT/'art/source/rounded-runtime/manifest.json').exists():
+        raise SystemExit('Rounded selection is active. Use export_rounded_runtime.py; this legacy seven-model exporter would overwrite selected geometry and snapshots.')
     catalog, records = {}, {}
     for house in (False, True):
         for species in (('reimu', 'marisa') if house else ('reimu', 'marisa', 'chen', 'alice', 'patchouli')):
@@ -192,7 +203,7 @@ def main():
             catalog[ident] = {'model': model, 'textures': textures}
             records[ident] = record
             print(ident, len(model['weights']), 'vertices;', len(model['clips']), 'clips')
-    dependencies = [ROOT / 'scripts/runtime_animation.py', ROOT / 'scripts/runtime_house_interactions.py', ROOT / 'scripts/runtime_waddle.py', LIB / 'geometry.py', LIB / 'ecology/house-yukkuri/mesh_geometry.py', LIB / 'ecology/house-yukkuri/config.json']
+    dependencies = [ROOT / 'scripts/runtime_animation.py', ROOT / 'scripts/runtime_house_interactions.py', OUT / 'carry-motion/recipe.json', ROOT / 'scripts/runtime_waddle.py', LIB / 'geometry.py', LIB / 'ecology/house-yukkuri/mesh_geometry.py', LIB / 'ecology/house-yukkuri/config.json']
     save(OUT / 'provenance.json', {'exporter': relative(Path(__file__)), 'exporter_sha256': fingerprint(Path(__file__)),
                                   'export_dependencies': {relative(p): fingerprint(p) for p in dependencies},
                                   'entities': records}, pretty=True)

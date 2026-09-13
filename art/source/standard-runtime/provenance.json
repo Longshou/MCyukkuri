@@ -541,7 +541,7 @@
       "snapshot": "art/source/standard-runtime/house_reimu/house_reimu.bbmodel",
       "rig": "art/source/standard-runtime/house_reimu/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
-      "runtime_sha256": "e7f171042ee5348d225808d231caeff044e80502c963193acb1b36f6d06cc01a",
+      "runtime_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
       "geometry_identifier": "house_reimu",
       "bone_count": 197,
       "clips": [
@@ -623,7 +623,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "not_executed",
+      "game_acceptance": "current_house_surface_targeted_pass",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -677,8 +677,64 @@
           "duration_seconds": 1.2,
           "shape_changed": false,
           "status": "pending_visual_confirmation"
+        },
+        "face_motion": {
+          "recipe": "art/source/standard-runtime/face-motion/recipe.json",
+          "recipe_sha256": "330b3309d426db531cfc4548583eb9e485747fd8af7801b188b9633532ac90d1",
+          "author": "scripts/runtime_house_face.py",
+          "author_sha256": "db2d1e88ff1c3f1e8a67cac5dca06cabcb946618c0574686e608b6c965a1de3d",
+          "manifest": "art/source/standard-runtime/face-motion/manifest.json",
+          "shape_changed": false,
+          "affected_clip": "waddle",
+          "affected_bones": [
+            "face_blush_left_skin_anchor",
+            "face_blush_right_skin_anchor",
+            "face_brow_left_skin_anchor",
+            "face_brow_right_skin_anchor",
+            "face_effect_mouth_skin_anchor",
+            "face_eye_left_skin_anchor",
+            "face_eye_right_skin_anchor",
+            "face_mouth_skin_anchor",
+            "face_tear_left_skin_anchor",
+            "face_tear_right_skin_anchor"
+          ]
+        },
+        "carry_motion": {
+          "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
+          "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+          "author": "scripts/runtime_house_interactions.py",
+          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
+          "shape_changed": false,
+          "affected_bones": [
+            "hand_left",
+            "hand_right"
+          ],
+          "affected_clips": [
+            "house_pickup",
+            "house_carry",
+            "house_deposit"
+          ],
+          "carry_pose": {
+            "status": "runtime_motion_adaptation",
+            "method": "rigid_short_locks_hold_above_forehead",
+            "half_grip_width": 0.28,
+            "contact_height": 0.45,
+            "lift_height": 4.6,
+            "vertical_reach_share": 0.92,
+            "units": "model_units_16_per_block",
+            "preserves": [
+              "rest_shape",
+              "lock_length",
+              "floor_contact",
+              "pickup_and_deposit_timing",
+              "waddle_face_anchors"
+            ]
+          }
         }
-      }
+      },
+      "game_acceptance_report": "docs/validation/house-surface/current/README.md",
+      "previous_game_acceptance_report": "docs/validation/house-face-carry/current/README.md"
     },
     "house_marisa": {
       "selected_model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
@@ -690,7 +746,7 @@
       "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
       "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "993d71e26d4cfbe925d0d5a813af98955d26e8de02c2c3c579012195aab9d560",
+      "runtime_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
       "geometry_identifier": "house_marisa",
       "bone_count": 202,
       "clips": [
@@ -772,7 +828,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "not_executed",
+      "game_acceptance": "current_house_surface_targeted_pass",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -826,8 +882,64 @@
           "duration_seconds": 1.2,
           "shape_changed": false,
           "status": "pending_visual_confirmation"
+        },
+        "face_motion": {
+          "recipe": "art/source/standard-runtime/face-motion/recipe.json",
+          "recipe_sha256": "330b3309d426db531cfc4548583eb9e485747fd8af7801b188b9633532ac90d1",
+          "author": "scripts/runtime_house_face.py",
+          "author_sha256": "db2d1e88ff1c3f1e8a67cac5dca06cabcb946618c0574686e608b6c965a1de3d",
+          "manifest": "art/source/standard-runtime/face-motion/manifest.json",
+          "shape_changed": false,
+          "affected_clip": "waddle",
+          "affected_bones": [
+            "face_blush_left_skin_anchor",
+            "face_blush_right_skin_anchor",
+            "face_brow_left_skin_anchor",
+            "face_brow_right_skin_anchor",
+            "face_effect_mouth_skin_anchor",
+            "face_eye_left_skin_anchor",
+            "face_eye_right_skin_anchor",
+            "face_mouth_skin_anchor",
+            "face_tear_left_skin_anchor",
+            "face_tear_right_skin_anchor"
+          ]
+        },
+        "carry_motion": {
+          "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
+          "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+          "author": "scripts/runtime_house_interactions.py",
+          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
+          "shape_changed": false,
+          "affected_bones": [
+            "hand_left",
+            "hand_right"
+          ],
+          "affected_clips": [
+            "house_pickup",
+            "house_carry",
+            "house_deposit"
+          ],
+          "carry_pose": {
+            "status": "runtime_motion_adaptation",
+            "method": "rigid_short_locks_hold_above_forehead",
+            "half_grip_width": 0.28,
+            "contact_height": 0.45,
+            "lift_height": 4.6,
+            "vertical_reach_share": 0.92,
+            "units": "model_units_16_per_block",
+            "preserves": [
+              "rest_shape",
+              "lock_length",
+              "floor_contact",
+              "pickup_and_deposit_timing",
+              "waddle_face_anchors"
+            ]
+          }
         }
-      }
+      },
+      "game_acceptance_report": "docs/validation/house-surface/current/README.md",
+      "previous_game_acceptance_report": "docs/validation/house-face-carry/current/README.md"
     }
   }
 }

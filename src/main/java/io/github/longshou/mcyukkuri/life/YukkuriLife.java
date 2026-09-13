@@ -166,7 +166,7 @@ public final class YukkuriLife {
             if (!mouth.isEmpty() && !Consumables.oral(mouth) && !acceptsFood(mouth)) { interrupt(); return; }
             entity.getNavigation().stop();
             mealTicks++;
-            if (mealTicks == 6 && !sharedMeal && (personality.trait(Trait.CARE) >= 65 || entity.family().hasHungryChild()) && nutrition >= 35) tryShare();
+            if (mealTicks == 6 && !sharedMeal && nutrition >= 35) tryShare();
             if (mealTicks == 45 && !mouth.isEmpty()) {
                 if(Consumables.oral(mouth)){
                     var returned=Consumables.swallow(entity,mouth)?returnDoseBottle?new ItemStack(net.minecraft.world.item.Items.GLASS_BOTTLE):ItemStack.EMPTY:mouth.copy();
@@ -216,11 +216,14 @@ public final class YukkuriLife {
                         && canRecognize(other) && entity.hasLineOfSight(other)).stream()
                 .sorted(Comparator.comparingInt(other->entity.family().caresFor(other)?0:1)).findFirst().orElse(null);
         if (peer == null || mouth.isEmpty()) return;
+        int score=personality.shareScore(nutrition,peer.life().nutrition(),entity.family().caresFor(peer),YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID()));
+        if(score<50){personality.decided("keep_food");return;}
         ItemStack transferred = mouth.copy();
         if (peer.life().beginMeal(transferred, feeder, true)) {
             mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false;
             YukkuriWorldData.get(level()).relate(peer.getUUID(), entity.getUUID(), 8);
             personality.experienced(Trait.CARE, 1); entity.showReaction("happy", "share", 100);
+            personality.decided("share_food");peer.life().personality().environment().record(entity.getUUID(),"shared_food",4);
         }
     }
     public void interrupt() {
@@ -393,17 +396,20 @@ public final class YukkuriLife {
                 if (!io.github.longshou.mcyukkuri.event.WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
-                if (!rivals.isEmpty() && personality.trait(Trait.ORDER) >= 65 && nutrition > 15 && queueTicks++ < 60) {
-                    entity.getNavigation().stop(); if (queueTicks == 1) entity.showReaction("neutral", "wait_turn", 60); return;
+                int wait=personality.queueDuration(nutrition);
+                if (!rivals.isEmpty() && queueTicks++ < wait) {
+                    entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
                 }
                 ItemStack one = targetFood.getItem().copyWithCount(1);
                 if (beginMeal(one, null, false)) {
                     ItemStack remaining = targetFood.getItem().copy(); remaining.shrink(1);
                     if (remaining.isEmpty()) targetFood.discard(); else targetFood.setItem(remaining);
                     io.github.longshou.mcyukkuri.event.WildCards.foodTaken(entity,targetFood);
-                    if (!rivals.isEmpty() && personality.trait(Trait.ORDER) < 65) {
+                    if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) io.github.longshou.mcyukkuri.event.WildCards.competing(entity, rival);
                         entity.showReaction("angry", "mine", 80);
+                        personality.decided("claim_food");
+                        for(var rival:rivals)rival.life().personality().environment().record(entity.getUUID(),"food_competition",-3);
                         for (YukkuriEntity rival : rivals) if (rival.life().canRecognize(entity)) YukkuriWorldData.get(level()).relate(rival.getUUID(), entity.getUUID(), -3);
                     }
                 }

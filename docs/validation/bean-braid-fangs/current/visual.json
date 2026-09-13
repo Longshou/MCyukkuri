@@ -1,0 +1,801 @@
+{
+  "scope": "frozen actual Minecraft renderer; scripted static or looping motion specimens",
+  "cases": [
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "angle": 0,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 3,
+        "state": "idle",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-neutral-0-idle-waddle.json",
+        "count": 26
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-0-idle-waddle-0003.png",
+          "sha256": "29bbc79830c5dc5e26f69406e7678e1513dcc18e6db179fc4812637ff2698651",
+          "tick_phase": 1.15
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-0-idle-waddle-0007.png",
+          "sha256": "409372d3a67ce92147eac642165b2a3fb108596268dbe02ad80b35e8182fbd21",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-0-idle-waddle-0010.png",
+          "sha256": "00ecaa0ba3a5d001a245937a35dcde1f8f654a7a78426436f4d8817da902ce1a",
+          "tick_phase": 0.45
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-0-idle-waddle-0013.png",
+          "sha256": "b48e0f7d9062c31a20e9258799a57dc5e0f53d55e3831b65e2727814f2b78f7e",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-0-idle-waddle-0018.png",
+          "sha256": "247593e0d1def263d03b1c14c4fe11652f03db7267c44157725694d900baa352",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "angle": 90,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 5,
+        "state": "idle",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-neutral-90-idle-waddle.json",
+        "count": 29
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-90-idle-waddle-0001.png",
+          "sha256": "671cf5c6686a40d77b54995bee5d3ae4b03ec7a7c84230b97ca2f636be3135d3",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-90-idle-waddle-0023.png",
+          "sha256": "2e6eb5e3d9a608ffcd50e4682ed1da355903b06c4a93940819311a41f1f7dc36",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-90-idle-waddle-0008.png",
+          "sha256": "50a4a04c1e31e4b287f7b0c1ba92ac4a34722be88df4ca4ef18af418a2a68845",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-90-idle-waddle-0012.png",
+          "sha256": "414c5bdd909e4917cb510411de04ef1659bd45b2588a2b5929317c1964166b29",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-90-idle-waddle-0017.png",
+          "sha256": "93a2cf25016a344f951613b11304e1df49c86ca51b128889b4cdc46bb5bf5b60",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "angle": 135,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 7,
+        "state": "idle",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-neutral-135-idle-waddle.json",
+        "count": 28
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-135-idle-waddle-0022.png",
+          "sha256": "65dac2eee06ae9b02ced496b93bbe05abd42089be63830c931d8da77a2d46dfa",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-135-idle-waddle-0007.png",
+          "sha256": "86f59224bb7099bfb97604e07291192d8f267b660f95c03c2b747a840e4e77e0",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-135-idle-waddle-0011.png",
+          "sha256": "32935de952ed4fb8f8c1d975b40c99ad7c6f2150519a4bf592675d83421d3a76",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-135-idle-waddle-0015.png",
+          "sha256": "870a69c4f7a41af63c199d7062ff5d6d604eaebdbff330857455a0828eaf8cef",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-135-idle-waddle-0020.png",
+          "sha256": "0f81291d70078fb45216863aa6e563037c0917021d3984b91c5b965e1ff1ce5a",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "cry",
+      "angle": 0,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 9,
+        "state": "idle",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-cry-0-idle-waddle.json",
+        "count": 27
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-cry-0-idle-waddle-0004.png",
+          "sha256": "89ae93fc1056ced3c05f9c7045c9e43e8d46e50a541774049611c107f37fea70",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-cry-0-idle-waddle-0007.png",
+          "sha256": "157bfbfd38b43270f12787cce40c3dac992f192d209038389262ba7b80c77fba",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-cry-0-idle-waddle-0011.png",
+          "sha256": "5dc4d97e3c6ce86447524f5344ae92d5518c460814da083c01e3ec3aa20a230d",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-cry-0-idle-waddle-0014.png",
+          "sha256": "decae5e0da946e88ce4fe44fd252537e31bbe51ac80836f0f91ad35d703f3a50",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-cry-0-idle-waddle-0019.png",
+          "sha256": "316309dd0a317144f40d4ba1e104dacb782ed1c4848421ce3de6251c7ac4cf43",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "angle": 0,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 11,
+        "state": "idle",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-neutral-0-idle-waddle.json",
+        "count": 25
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-0-idle-waddle-0003.png",
+          "sha256": "d902b4124fb00ba190f1e1ac17255742692975bcea4ab0e8a230d1cae7204af0",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-0-idle-waddle-0006.png",
+          "sha256": "f65ca3326ca462755a861270bf84e77d1f84104ae01952e90a8616578f16cc39",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-0-idle-waddle-0010.png",
+          "sha256": "d51a8de2ddcb16439942f8c9b3b92bd8ce95f85f06c9baebb76c62b5fff829e9",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-0-idle-waddle-0013.png",
+          "sha256": "8cbdcc99b3df0c39dd9289438334a1764b33357c8ccf60b8bcaa64a699a0abab",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-0-idle-waddle-0017.png",
+          "sha256": "259949afda59c8bdc7796df1841f2e011cedc328de0d08de992b631040cfaee8",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "angle": 90,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 13,
+        "state": "idle",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-neutral-90-idle-waddle.json",
+        "count": 27
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-90-idle-waddle-0019.png",
+          "sha256": "4ab1d4f757e4867f42e3245450bf7025abe631fad6accc9a2e00943ea71e1a47",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-90-idle-waddle-0006.png",
+          "sha256": "bb38fbadc17cce48f7ef29ccc4716a5c8ff87227da184d5a48f004f06fbe6221",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-90-idle-waddle-0010.png",
+          "sha256": "a9509b74e3898ce333b8beb84f3fb6b7fc5ef73ada4ac469fbdebb9b0f5fab5a",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-90-idle-waddle-0013.png",
+          "sha256": "5197748a928b0fc5ed187e623dc21b7369ea08f6ae0e1cdc9c3c78e8909a15d6",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-90-idle-waddle-0018.png",
+          "sha256": "7c867a93e850c32fa9f1eabc47e0d5acd176944302d873ba8a11b1ba849ca17e",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "angle": 135,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 15,
+        "state": "idle",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-neutral-135-idle-waddle.json",
+        "count": 26
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-135-idle-waddle-0003.png",
+          "sha256": "da10ad51d8c38bfafb9e3fe57048199518e274b09e94f1170bcaf3d6b4b331fb",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-135-idle-waddle-0006.png",
+          "sha256": "1f0cee60e6907ea658a345ee085d52fa856c534cf04dedfc1e40d66bc14f2b62",
+          "tick_phase": 0.25
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-135-idle-waddle-0009.png",
+          "sha256": "65e362be618aff5a0f36fa9fa16a9d1fbdce5450d3a5db73e38ef7446ed268c8",
+          "tick_phase": 0.45
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-135-idle-waddle-0013.png",
+          "sha256": "636a764db68a62ff40462a6fb0a1233f21838ef2372391eb3bc5fb038adc8191",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-135-idle-waddle-0018.png",
+          "sha256": "f2dd165d9a93c842f6bd6f5eeddb30efa28f2153838a96389048f6f7bbd47d5b",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "cry",
+      "angle": 0,
+      "state": "idle",
+      "action": "waddle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 17,
+        "state": "idle",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-cry-0-idle-waddle.json",
+        "count": 26
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-cry-0-idle-waddle-0019.png",
+          "sha256": "d0363cd7e2d0632541826a45d3f6ef008b604f46ea2ca43c00e5e40c180f091a",
+          "tick_phase": 0.0
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-cry-0-idle-waddle-0022.png",
+          "sha256": "2bd428de78ecd22f8c5e710d391f28f832bfc42b8169366e127751489e465442",
+          "tick_phase": 0.2
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-cry-0-idle-waddle-0009.png",
+          "sha256": "42da922f9337acc2bcdd4df5445707c1d1c8acd989196f011da191ad6cc5fa0b",
+          "tick_phase": 0.5
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-cry-0-idle-waddle-0013.png",
+          "sha256": "10e7d006202a369925494ddc3908ac5eea4cd638074c1a5eb7940ab41e822b6d",
+          "tick_phase": 0.75
+        },
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-cry-0-idle-waddle-0002.png",
+          "sha256": "2b6414af560dd12eee61ad3cb4629818569b266204dd1f7e6abad772b5b74f3e",
+          "tick_phase": 1.1
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "neutral",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 19,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-neutral-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-neutral-0-idle-idle-0000.png",
+          "sha256": "6d442345cbd46c1e96cd76ec348f6b06f738305b640ef5be79dff941dd18d3a0",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 21,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-neutral-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-neutral-35-idle-idle-0000.png",
+          "sha256": "c5718a51293ab3a2b930fc8b99a237d549c5c35132a3f791675ecab333b3b984",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "happy",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 23,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-happy-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-happy-0-idle-idle-0000.png",
+          "sha256": "355d44d1401dc8545985667b71a634132616fa42df07af3fe272cd21b2182e16",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "happy",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 25,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-happy-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-happy-35-idle-idle-0000.png",
+          "sha256": "31f587870bb7147d3d76920f45c291fbbd5963d652062cff902c9182fa201c37",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "biting",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 27,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-biting-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-biting-0-idle-idle-0000.png",
+          "sha256": "df903e2d4832330cf246f963f8c682287b0bf41e1d5497697e606195711e7ca4",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "remilia",
+      "expression": "biting",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 29,
+        "state": "idle",
+        "asset": "remilia"
+      },
+      "capture": {
+        "manifest": "capture-remilia-biting-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/remilia-biting-35-idle-idle-0000.png",
+          "sha256": "231b05181520015035300740408847b4bc523520063a62173e2e854b71208167",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "neutral",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 31,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-neutral-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-neutral-0-idle-idle-0000.png",
+          "sha256": "3487ad88f0a5463e5201367586ab30678fd4c98a11995f21790ba55fc494e891",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 33,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-neutral-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-neutral-35-idle-idle-0000.png",
+          "sha256": "da9a74119cd34874164a289a2bebf3151d96a640d3a5b167587fabf025165490",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "happy",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 35,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-happy-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-happy-0-idle-idle-0000.png",
+          "sha256": "fff0cc7c4dacb3801aa39c76c212e2dff4047b5027345558fd6b620cf27730fd",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "happy",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 37,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-happy-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-happy-35-idle-idle-0000.png",
+          "sha256": "ce68c644f45f2c8ad2ab1d480ce7c24852b7b524bcb18fb9d69a23cb2fb25133",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "biting",
+      "angle": 0,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 39,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-biting-0-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-biting-0-idle-idle-0000.png",
+          "sha256": "2cf4a1298252a2d704d26f030fb79235f7a9ae30b574a17316c5fa2a6ade60d6",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "flandre",
+      "expression": "biting",
+      "angle": 35,
+      "state": "idle",
+      "action": "idle",
+      "setup": {
+        "height": 0.6,
+        "width": 0.8,
+        "scale": 1.0,
+        "id": 41,
+        "state": "idle",
+        "asset": "flandre"
+      },
+      "capture": {
+        "manifest": "capture-flandre-biting-35-idle-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/flandre-biting-35-idle-idle-0000.png",
+          "sha256": "b79fb70cfe7859218001e5cd1faa240744966e86f2cd077b5123808b14e83303",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "bare",
+      "action": "idle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 43,
+        "state": "bare",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-neutral-35-bare-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-35-bare-idle-0000.png",
+          "sha256": "a4ffed5064346af40e3c496e46ffa3630d825d9623b8d568065c76dbf1827368",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "reimu_bean",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "FIXED",
+      "action": "idle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 45,
+        "state": "FIXED",
+        "asset": "reimu_bean"
+      },
+      "capture": {
+        "manifest": "capture-reimu_bean-neutral-35-FIXED-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/reimu_bean-neutral-35-FIXED-idle-0000.png",
+          "sha256": "ad0fea5ba3e4c99bfc97b2f12a2c2edbb20036e9242e9780c92569811d1dd1b4",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "bare",
+      "action": "idle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 47,
+        "state": "bare",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-neutral-35-bare-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-35-bare-idle-0000.png",
+          "sha256": "7879251a2c6555e7beb3f987203d18e7ab31ee43eb8c0abd3d0f60df1e015384",
+          "tick_phase": 0
+        }
+      ]
+    },
+    {
+      "id": "marisa_bean",
+      "expression": "neutral",
+      "angle": 35,
+      "state": "FIXED",
+      "action": "idle",
+      "setup": {
+        "height": 0.82149994,
+        "width": 0.615,
+        "scale": 1.0,
+        "id": 49,
+        "state": "FIXED",
+        "asset": "marisa_bean"
+      },
+      "capture": {
+        "manifest": "capture-marisa_bean-neutral-35-FIXED-idle.json",
+        "count": 1
+      },
+      "reviewed": [
+        {
+          "file": "docs/validation/bean-braid-fangs/current/frames/marisa_bean-neutral-35-FIXED-idle-0000.png",
+          "sha256": "4ec66498fa6abfc3b4d592b87237fa390c5a4c7b6a8f8acb0e29771955392071",
+          "tick_phase": 0
+        }
+      ]
+    }
+  ],
+  "captured_frames": 230,
+  "selected_samples": 56,
+  "phase_precision": "20 Hz game tick with render interpolation; selected closest recorded phase",
+  "client_run": ".local/personality-deibu/preview-dhsi3py5",
+  "visual_review_passed": true,
+  "findings": [
+    "Closed braid volume remains visible at side and oblique phases",
+    "Hat brim remains seated against the hair cap",
+    "Front expression features remain visible with authored blinking",
+    "Neutral happy and biting teeth are visible in both predator variants",
+    "Bare and fixed-frame states load and render correctly"
+  ]
+}

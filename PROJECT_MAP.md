@@ -1,11 +1,18 @@
 # 项目目录与文件归类
 
+魔理沙帽子的脱戴与小幼油帽托参数、当前预览和验收位于 [art/source/hat-interactions/](art/source/hat-interactions/README.md)，由现行角色几何推导；稀毛与歪脸的造型源仍归不足形态制作包。
+
+当前圆润标准体型的制作配方、冻结输入与合并组件位于 `standards/yukkuri-library/body-standard/`，正式模型仍导出到各角色登记的路径。家油、DOS 与豆形保留各自原体型；稀毛、歪脸魔理沙及灵梦分别由 [rounded-marisa](standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md) 和 [rounded-reimu](standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md) 采用圆润身体并同步游戏资源。标准更新不自动替换其他游戏接入快照。
+
+2026-09-13 已按用户要求另外完成[圆润游戏选用](art/source/rounded-runtime/README.md)：八只当前标准导出和多毛灵胖组合保存在 `art/source/rounded-runtime/`。该目录现在负责普通五种、壳种、多毛及两种灵胖的运行快照；旧 `standard-runtime/` 的普通五种和 `subspecies-runtime/` 的壳种／多毛记录作为历史基线，家油与六种不足油继续由各自原包维护。
+
 | 内容 | 存放位置 | 职责 |
 | --- | --- | --- |
 | 模组代码 | `src/main/java/` | 入口、注册、实体及游戏逻辑；客户端实现在 `client/` |
 | 游戏资源 | `src/main/resources/` | 实际打包到模组的几何、贴图、动画、语言和物品模型 |
 | 模组声明 | `src/main/templates/` | 构建时替换版本号等信息的模板 |
 | 游戏验收夹具 | `src/p0Test/` | 独立开发模组，执行真实引擎行为检查与客户端采集；不进入发行 Jar |
+| 人工实验地图 | `scripts/build_experimental_map.py`、`docs/EXPERIMENTAL_MAP.md` | 制作16区试玩场；本机存档在 `run/saves/MCyukkuri-Lab/`，交付ZIP和检查在 `.local/experimental-map/release/`，不打入模组资源 |
 | 标准素材制作 | `standards/yukkuri-library/` | 共用组件、角色登记、造型、表情、动作、派生资产及配套导出 |
 | 当前实体接入素材 | `art/source/` | `standard-runtime/` 保存九种实体的选定快照与适配骨架；七种既有角色预览留在原包，两种捕食种预览见 `predator-runtime/`；旧 `reimu/`、`marisa/` 保留为历史基线 |
 | 历史动作与表情 | `art/library/` | 按内容哈希保存的源文件包、清单与冻结方案；恢复说明见 `docs/ASSET_WORKFLOW.md` |
@@ -52,5 +59,7 @@
 ## 文档维护
 
 根 README 只提供项目状态与导航；目录职责集中维护在本页，开发规则维护在 `AGENTS.md`。版本与运行命令见 `docs/DEVELOPMENT.md`，功能状态见 `docs/ROADMAP.md`，具体实现与未验收事项放对应的专题文档。
+
+本机上级 `E:/yukkuri/` 已按游戏、资料和工具分类，入口见上级 `从这里开始.md`。2026-09-13 清理范围、保留的源码和历史记录见[本机目录清理](docs/DIRECTORY_CLEANUP.md)。项目 `.local/` 中已结束测试的重复编译产物可以清理，但当前试玩固定运行目录、玩家存档、未提交源码、唯一素材与诊断记录须分别识别。
 
 每次移动文件时同步有效入口的链接。历史记录中的原始路径可保留在归档内，但须明确其属于历史上下文，不能作为当前操作入口。

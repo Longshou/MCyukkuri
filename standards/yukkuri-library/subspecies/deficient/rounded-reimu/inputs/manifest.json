@@ -1,0 +1,32 @@
+{
+  "purpose": "Immutable rounded donor and pre-fix wound migration inputs",
+  "files": {
+    "standards/yukkuri-library/assembled/reimu/reimu.bbmodel": "a172f448cf10f6c114c4a53cf4b7e5e7fb9156c8dd925f68a25a50046d1bfbbb",
+    "standards/yukkuri-library/assembled/reimu/animation-rig.json": "75398213bc445a9033a12dfb2085bac5f9d9129544d3aa6c725792924d1f16b8",
+    "standards/yukkuri-library/assembled/reimu/runtime.model.json": "b5dd76af66d5a03687cdf44ebdb46e66e86e658206bc594f89897a144d667ac0",
+    "standards/yukkuri-library/body-standard/recipe.json": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
+    "standards/yukkuri-library/body-standard/profile.json": "c5c39412f968008b13a46da81192cc1742c7277cc7f173fccef1196e92f8cf04",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json": "acca6142135eb4c7cfae63dc5b7c56a7d2a49ef4634dc463e2b3de41fe7b1bae",
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json": "e5af62034a95a799d813760556073e4e8178f604e439287c2ab438b3f35ff7ba",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/reimu_sparse.json.gz": "14c09a93a914938dea3dd35086b9e47345a9565118135b8d3104c041da57017b",
+    "src/main/resources/assets/mcyukkuri/yukkuri_wounds/reimu_face.json.gz": "3229ee675c02fadea91539f457e30e126a58acdbab4cab0e4825b6c75b216db9",
+    "standards/yukkuri-library/assembled/reimu/textures/neutral.png": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+    "standards/yukkuri-library/assembled/reimu/textures/happy.png": "c8b0e05c546b406e8fad94a44121ff794285aea0307758bde6ba7fd56a33b2da",
+    "standards/yukkuri-library/assembled/reimu/textures/cry.png": "5f98ab12280ce4c3d014d68e5e253550681142f425d0645fcf1e2d030bb2ac83",
+    "standards/yukkuri-library/assembled/reimu/textures/teary.png": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+    "standards/yukkuri-library/assembled/reimu/textures/drool.png": "2bd6fa38affcfccc6e9af82fd6467eea66db30f18d2361160003ba855cdc9d83",
+    "standards/yukkuri-library/assembled/reimu/textures/confused.png": "905a074854e56d9b838806e267e0b9e18458ebb5b48015e16fb7baad56d793af",
+    "standards/yukkuri-library/assembled/reimu/textures/yawn.png": "3cbc7810cd1e481546224a214cd488e857a8107e224e3a475c5b23653b7e9d0a",
+    "standards/yukkuri-library/assembled/reimu/textures/sleep.png": "76c6bcfb2f8105743bb7cb6b4d1b9dcffea4c8bad29c8568d49f16965d3f2e04",
+    "standards/yukkuri-library/assembled/reimu/textures/angry.png": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+    "standards/yukkuri-library/assembled/reimu/textures/surprise.png": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af",
+    "standards/yukkuri-library/assembled/reimu/textures/sleepy.png": "3893d759a5d194759b16ecff665f386d6c8b0941f9e50911b56c4b94f5255436",
+    "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png": "4f3eaa5914b77ce819c82adf118c004bd60d91b9fe82ab52dc33ff41b7ed3fa1",
+    "standards/yukkuri-library/assembled/reimu/textures/chewing.png": "6e6bf7f73f9b0ecdb402211bc29e3ff50167c56fb9ac18e576bf965652f05f6f",
+    "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png": "e1949c5b67dd65f2205017359d915d4f5cb3271ec0974217a7c9e922da6861a5",
+    "standards/yukkuri-library/assembled/reimu/textures/satisfied.png": "b89f146f286e6dfc0feb03d602205b0decf416b8d025359e16032d8bbe8eb54d",
+    "standards/yukkuri-library/assembled/reimu/textures/open_smile.png": "dbafb83df8190272b5b6d5099abb86de2aac60c6a92578efce113c8f5ff2632a",
+    "standards/yukkuri-library/assembled/reimu/textures/smug.png": "cee3926a1337b28d46004f4e2c7f5dd4720c364231e526419609c97d2c3b37a2",
+    "standards/yukkuri-library/assembled/reimu/textures/puff.png": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
+  }
+}

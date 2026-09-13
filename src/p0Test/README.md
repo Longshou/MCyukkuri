@@ -1,5 +1,11 @@
 # 实体与生活游戏验收夹具
 
+`mcyukkuri.p0.suite=remains` 注册 `RemainsGameTests`、`WoundGameTests` 与 `CoreGameTests`，检查真实扣血后的轻伤／致命伤、死亡点遗体、身份与伤口保存、主动搬运、放下及铲子安葬。`RemainsPreview` 通过 `remains-setup/view/state/item` 提供本轮客户端近景。实现、固定产物与验收见[受伤与遗体](../../docs/INJURIES_AND_REMAINS.md)。
+
+遗体专项已覆盖 19 种运行形态及偏离面部中心的实际命中；放下测试经过 `ServerPlayerGameMode.useItemOn`，分别检查生存模式、创造模式及空间受阻。客户端用 `remains-prepare-collect` 准备目标，再通过 `interact`、`block-interact` 发送实际交互包；`remains-client` 核对快照，`remains-render-check` 验证实际物品渲染器的四种显示场景，`remains-inventory` 打开物品栏。
+
+`mcyukkuri.p0.suite=growth` 注册 `GrowthGameTests`、`FamilyGameTests` 与 `ConsumableGameTests`，检查独立成长时钟、30小时成年寿命、旧档与未出生子代迁移，以及原有家庭／胎生流程。年龄边界由受控数值推进，实际睡眠和出生由原有引擎 tick 场景覆盖；不等同于连续30小时游玩。运行入口见[成长验收](../../docs/validation/growth/current/README.md)。
+
 `ConsumableGameTests` 由 `mcyukkuri.p0.suite=consumables` 选择，覆盖口服、自然饮水、辅助投药、固定胎次、保存收纳与普通 LIVE 出生；真实 tick 场景使用外层 `Player.interactOn`，核对一次扣除至幼体落地。`ConsumablePreview` 的 `consumable-*` 命令生成独立实机场景。隔离构建、报告与未验多人边界见 [消耗品与胎生](../../docs/CONSUMABLES_AND_BIRTH.md)。
 
 `WaddleGameTests` 通过 `-Dmcyukkuri.p0.suite=waddle` 检查普通移动、慢走、静止和离地时的动作选择。`waddle-setup` 使用真实物理移动录制七种角色与家油搬运，`waddle-assets` 核对客户端步态、持物叠加及待机恢复；见[本轮走动记录](../../docs/validation/walking/current/README.md)。

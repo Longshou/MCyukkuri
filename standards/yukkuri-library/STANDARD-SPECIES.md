@@ -1,5 +1,7 @@
 # 灵梦基底的标准橙、爱丽丝、帕秋莉
 
+2026-09-13：当前角色已采用[圆润标准体型](body-standard/README.md)，角色登记、组件、骨架和配套导出已同步；新的批准指纹见 [standard-body.json](provenance/standard-body.json)。下文较早的尺寸、源路径与批准指纹保留其历史适用范围，不能证明本轮文件未变。专属头发与饰物继承原有设计。
+
 [四角色同步预览](species.html) · [素材登记](index.html)
 
 帕秋莉当前造型已确认为标准形象，登记状态为 `user_approved`。标准包含五撮宽厚、略偏分的刘海，连续包脸并垂地的侧发，近地红蓝小束尾，以及浅粉褶边新月软帽。后续制作与派生造型以 `characters/patchouli.json` 引用的组件为基准。确认记录和文件指纹见 `provenance/standard-species.json` 的 `approved_standards.patchouli`；造型确认不代表已完成游戏运行验收。
@@ -67,12 +69,12 @@
 
 ## 重建与检查
 
-完整重建与验证仅在指定验证环境执行：`python build.py`、`python validate.py`。仅在需要按制作参数重新生成种族组件时使用 `python author_standard_species.py`；它只读取本库素材，不依赖本机游戏或漫画。本机仅允许静态素材制作和局部数据导出。
+当前完整重建入口为 `python build.py`，由圆润标准构建器生成模型；检查命令见 [body-standard/README.md](body-standard/README.md)。本机制作、渲染、浏览器及相关测试按根目录 `AGENTS.md` 执行。
 
-全量生成的帕秋莉角色登记默认标为 `pending-review`，不会自动继承已确认状态。现有批准记录保留为基线；新版须经用户确认后更新适用文件指纹与角色状态。
+现有批准记录保留为基线；后续改变造型的修订不会自动继承本次批准指纹，须按用户确认更新适用记录。
 
-仅制作帕秋莉完整侧发几何时，使用 `python author_standard_species.py --species patchouli --parts hair hand-left hand-right`。该入口写入帕秋莉头发及左右发束组件 JSON，保留贴图、角色登记和骨架；全库导出与验证仍需在允许构建和运行的环境中完成。
+仅制作帕秋莉侧发时，修订圆润标准包中的对应专属输入，保留其他部件，再通过当前构建器同步合并模型。旧 `author_standard_species.py` 是推广前方块脚本，已阻止其覆盖当前角色登记。
 
-帕秋莉头发组件的局部几何导出入口为 `python tools/sync_patchouli_geometry.py`，同步可编辑模型、几何 JSON、骨骼分组和单角色预览中的模型数据。此步骤只处理素材数据，不执行渲染或项目构建。
+旧 `tools/sync_patchouli_geometry.py` 不支持当前连续网格与分段权重，已禁止对当前圆润版本做局部覆盖。
 
-`tests/standard-species.cjs` 保留了历史浏览器核对方式，Agent 不执行。其输出位置为 `reports/current/standard-species-verification.json`，不覆盖历史记录。当前界面观察由用户完成，重点查看正面、侧背视角及侧发抬动后的接缝。
+`tests/standard-species.cjs` 保留为推广前结构的检查资料。当前检查与实际浏览器预览见 [本轮报告](body-standard/reports/current/README.md)，覆盖正面、侧背视角及当前动作；造型确认与游戏接入验收分别记录。

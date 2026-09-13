@@ -1,0 +1,24 @@
+{
+  "overview": {
+    "manifest": "capture-overview.json",
+    "count": 1
+  },
+  "gallery": {
+    "manifest": "capture-gallery.json",
+    "count": 1
+  },
+  "variants": {
+    "manifest": "capture-variants.json",
+    "count": 1
+  },
+  "hub": {
+    "manifest": "capture-hub.json",
+    "count": 1
+  },
+  "rain_button": "SUCCESS",
+  "after_rain": {
+    "manifest": "capture-rain-button.json",
+    "count": 1
+  },
+  "clear_button": "SUCCESS"
+}

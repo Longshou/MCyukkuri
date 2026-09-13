@@ -85,7 +85,7 @@ public final class FamilyGameTests {
     private void life(YukkuriEntity entity,Consumer<CompoundTag> edit) { var data=entity.life().save();edit.accept(data);entity.life().load(data); }
     private YukkuriEntity spawn(EntityType<YukkuriEntity> type,double x,double z) {
         var entity=type.create(level);entity.moveTo(x,65,z,0,0);entity.setNoAi(true);entity.setOnGround(true);entity.setPersistenceRequired();
-        family(entity,data->{data.putBoolean("Initialized",true);data.putLong("Age",24001);data.putLong("Nourishment",24000);data.putLong("Lifespan",72000);});
+        family(entity,data->{data.putBoolean("Initialized",true);data.putLong("Maturity",24000);data.putLong("Age",24001);data.putLong("Nourishment",24000);data.putLong("Lifespan",72000);});
         life(entity,data->{data.putFloat("Nutrition",90);data.putFloat("Energy",90);data.putFloat("Hygiene",100);data.putInt("RestWait",0);});
         if(!level.addFreshEntity(entity))throw new IllegalStateException("Family fixture spawn rejected");return entity;
     }
@@ -154,7 +154,7 @@ public final class FamilyGameTests {
                     var baby=data.birth(brood,i,level,new Vec3(176.5+i,65,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
                     baby.setNoAi(true);
                     check(count+" child "+i+" has actual parents and juvenile bounds",baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
-                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-.225)<.001&&Math.abs(baby.growthScale()-.3)<.001,baby.family().save());
+                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-.24)<.001&&Math.abs(baby.growthScale()-.3)<.001,baby.family().save());
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;
                 }
@@ -181,7 +181,7 @@ public final class FamilyGameTests {
             child=FamilyData.get(level).birth(pregnancy,0,level,new Vec3(177.5,65,26.5));
             growthBirthFlags=pregnancy.children.getFirst().subspeciesFlags;
             growthStartWidth=child.getBbWidth();growthStartHeight=child.getBbHeight();
-            family(child,t->{t.putLong("Lifespan",72000);t.putLong("Age",24001);t.putLong("Nourishment",24000);t.putBoolean("AwaitingLanding",false);});
+            family(child,t->{t.putLong("Maturity",24000);t.putLong("Lifespan",72000);t.putLong("Age",24001);t.putLong("Nourishment",24000);t.putBoolean("AwaitingLanding",false);});
             life(child,t->{t.putFloat("Energy",5);t.putInt("RestWait",0);t.putFloat("Nutrition",90);});child.setNoAi(false);
             check("elapsed age alone does not mature a child",child.family().stage()==FamilyLife.Stage.JUVENILE,child.family().save());
         });
@@ -191,7 +191,8 @@ public final class FamilyGameTests {
             // so compare actual resized bounds to that identity's dimensional contract.
             boolean bean=((growthBirthFlags>>4)&15)==3;
             var base=child.getType().getDimensions();float scale=child.growthScale()*child.getScale();
-            float expectedWidth=base.width()*scale*(bean?.82f:1),expectedHeight=base.height()*scale*(bean?1.55f:1);
+            boolean rounded=(growthBirthFlags>>4&15)==0&&!child.getVariant().isHouse();
+            float expectedWidth=(rounded?.8f:base.width())*scale*(bean?.82f:1),expectedHeight=(rounded?.6f:base.height())*scale*(bean?1.55f:1);
             check("fed actual wake matures and resizes child",child.family().stage()==FamilyLife.Stage.ADULT&&child.growthScale()>=.8f
                     &&child.subspeciesFlags()==growthBirthFlags&&child.getBbWidth()>growthStartWidth&&child.getBbHeight()>growthStartHeight
                     &&Math.abs(child.getBbWidth()-expectedWidth)<1e-5&&Math.abs(child.getBbHeight()-expectedHeight)<1e-5,

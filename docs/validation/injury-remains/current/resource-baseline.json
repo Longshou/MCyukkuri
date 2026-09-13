@@ -1,0 +1,10 @@
+{
+  "baseline": "E:\\yukkuri\\MCyukkuri\\.local\\play-readiness\\runtime-20260913-115036\\resources\\main",
+  "overrides": [
+    "assets/mcyukkuri/lang/en_us.json",
+    "assets/mcyukkuri/lang/ja_jp.json",
+    "assets/mcyukkuri/lang/zh_cn.json",
+    "assets/mcyukkuri/models/item/yukkuri_remains.json"
+  ],
+  "allOtherResourcesMatch": true
+}

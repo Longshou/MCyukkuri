@@ -1,0 +1,16 @@
+{
+  "id": "reimu_wasa",
+  "label": "多毛灵梦",
+  "components": [
+    "body-standard/components/reimu_wasa.json"
+  ],
+  "rig": "body-standard/rigs/reimu_wasa.json",
+  "rig_components": [],
+  "anatomy": "body-standard/anatomy.json",
+  "construction_recipe": "body-standard/recipe.json",
+  "body_standard": "body-standard/profile.json",
+  "body_status": "user_approved_standard",
+  "export": "subspecies/reimu-dos/assembled/reimu_wasa",
+  "feature_source": "body-standard/inputs/reimu_wasa",
+  "base_texture": "subspecies/reimu-dos/assembled/reimu_wasa/reimu_wasa.png"
+}

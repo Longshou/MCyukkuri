@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全部油库里模型 · 家油面部浮动条纹修复</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#ece8df;color:#303229;font:16px system-ui,sans-serif}main{max-width:1220px;margin:auto;padding:28px 24px}h1{font-size:27px;margin:0 0 12px}p{line-height:1.65;color:#66695b}nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:15px 0}button,select{font:inherit;border:1px solid #b8b9a8;background:#faf9f3;padding:8px 13px;border-radius:8px;color:inherit;cursor:pointer}button.active{background:#50674c;color:white}.stage{border:1px solid #d7d5c7;border-radius:14px;overflow:hidden;background:#f1ede3}canvas{display:block;width:100%;height:auto;touch-action:none}#time{flex:1;min-width:100px}#clock{width:100px;font-variant-numeric:tabular-nums}a{color:#42613e}#cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}.card{text-align:left;padding:0;overflow:hidden;background:#f1ede3}.card img{display:block;width:100%}.card strong,.card small{display:block;padding:8px 13px}.card small{padding-top:0;color:#686c5f;font-size:12px}.note{font-size:14px}#links{display:flex;gap:20px;flex-wrap:wrap}@media(max-width:720px){main{padding:16px}#cards{grid-template-columns:repeat(2,1fr)}h1{font-size:22px}}
+</style>
+<main>
+<h1>全部油库里模型</h1>
+<p>本轮修复家油走路时脸上的浮动条纹，保留原来的脸型和步态，以及此前五官遮挡、携物辫子的修正。这里展示 20 种当前形态，也包含豆油辫子与帽子、捕食种尖牙等修订。点击下方角色切换，拖动画面旋转，滚轮缩放；可暂停后拖动时间查看。</p>
+<nav><label>角色 <select id="character"></select></label><label>动作 <select id="action"></select></label><button id="play">暂停</button><button id="reset">恢复视角</button></nav>
+<div class="stage"><canvas id="view" width="960" height="640" aria-label="油库里模型三维动作预览"></canvas></div>
+<nav><button data-angle="0">正面</button><button data-angle="0.55">斜侧</button><button data-angle="1.570796">侧面</button><button data-angle="3.141593">背面</button><input id="time" type="range" min="0" max="1.2" step="0.001" value="0" aria-label="动作时间"><span id="clock"></span></nav>
+<p id="caption"></p>
+<p id="links"><a id="views" href="#">当前角色四视图</a><a id="motion" href="#">背面移动动图</a><a id="source" href="#">当前模型文件</a><a href="overview.png">全部模型总览图片</a></p>
+<p class="note">各角色独立取景，卡片大小不代表实际尺寸。本轮头发与尖牙修订待确认；页面读取实际导出几何。<a href="../../../../../../art/source/predator-runtime/preview.html">切换捕食种表情</a>。游戏同步与实机验收由接入任务记录。</p>
+<div id="cards"></div>
+</main>
+<script src="models.js"></script>
+<script src="../../../../runtime/render.js"></script>
+<script src="../pose.js"></script>
+<script src="viewer.js"></script>
+</html>
