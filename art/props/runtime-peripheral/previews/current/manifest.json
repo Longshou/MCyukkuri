@@ -1,0 +1,54 @@
+{
+  "date": "2026-09-13",
+  "method": "Minecraft 1.21.1 NeoForge 21.1.250 framebuffer, isolated P0 preview",
+  "images": {
+    "bowls-front.png": {
+      "caption": "食盆：空、一份、八份；后排麦穗与散草",
+      "sha256": "3090c5eadd8588ddb3e3a71dfc77ad2cc0625d6db9baddb9e5d17100d0ad3165"
+    },
+    "bowls-side.png": {
+      "caption": "食盆侧面",
+      "sha256": "a04453e750790a4ac42bf2e41e470bcfd5667c644cbee890e8fd9e5c43e3ecc1"
+    },
+    "bottles.png": {
+      "caption": "橙汁与去霉药",
+      "sha256": "9c27447c61bd48e9bcf09cb8bf2b432b86dd9fa17943b59ba877ccc1e96a34a1"
+    },
+    "tools.png": {
+      "caption": "绳结、毛线球与头饰",
+      "sha256": "1065020e498a6fa76587f4916068276c1bb4091b1b579fc448437d0bee805070"
+    },
+    "filling-counts.png": {
+      "caption": "地面馅料：一、三、十三份",
+      "sha256": "9d340eb54e6b59d95a212a51361969ff5dbbd919e97864eb1abe6a9d9436ea31"
+    },
+    "body-front.png": {
+      "caption": "伤口正面",
+      "sha256": "d475d95d800ea879175f9318822f9e4366312688df956f688ab61e7c2706834c"
+    },
+    "body-side.png": {
+      "caption": "伤口侧面",
+      "sha256": "10eee5206fc366a4f598b806f246df024627bffa9792248c6f389742a270cc96"
+    },
+    "body-back.png": {
+      "caption": "身体背面",
+      "sha256": "0f39615016d52af1814a9b91d595b58de9bef69b846a24b33bb0999bc80fe234"
+    },
+    "eggs-front.png": {
+      "caption": "巢垫与完整卵正面",
+      "sha256": "45f25eaa8084d413a1f3342203580c081d7326393c2a3ceccd2dd49aab5351bc"
+    },
+    "eggs-side.png": {
+      "caption": "缝隙侧面",
+      "sha256": "421bad835619049ce6235719912e4bdf093a89b81c0c3343102f4d200700439d"
+    },
+    "eggs-back.png": {
+      "caption": "缝隙背面",
+      "sha256": "2edbed2adb865ed202503fc542ba25dd21b606d4009d7b2adf4bfc3fb7ed5bd5"
+    },
+    "eggs-cracked.png": {
+      "caption": "裂壳卵",
+      "sha256": "a85f73d6ce9e4e735b2bbd177ea7c67167ee12c4a726c3158072c2e4a4fa8d8f"
+    }
+  }
+}

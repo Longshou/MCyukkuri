@@ -1,0 +1,51 @@
+{
+  "id": "flushed_tongue",
+  "label": "潮红闭眼伸舌",
+  "group": "特殊状态",
+  "recipe": {
+    "eyes": "happy",
+    "brows": "relaxed",
+    "mouth": "tongue",
+    "tears": "none",
+    "blush": "flushed",
+    "effect": "blush_bridge"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
+    "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+  },
+  "sources": [
+    {
+      "field": "基本発情顔２グラベース",
+      "index": 0,
+      "sprite_id": 5757,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右発情顔２グラベース",
+      "index": 0,
+      "sprite_id": 7964,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝発情顔２グラベース",
+      "index": 0,
+      "sprite_id": 5394,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

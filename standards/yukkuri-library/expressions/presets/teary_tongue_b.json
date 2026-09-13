@@ -6,7 +6,7 @@
     "eyes": "normal",
     "brows": "sad",
     "mouth": "tongue",
-    "tears": "accepted-lower-eyelid-sheen",
+    "tears": "original-before-component-trials",
     "blush": "flushed",
     "effect": "blush_bridge"
   },
@@ -14,11 +14,11 @@
     "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
-    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
     "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
-    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
     "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
     "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
   },
@@ -45,30 +45,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User selected this expression on 2026-09-12",
   "aliases": [],
   "review_code": "N037",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "恢复原版眼口，将泪珠换为已确认泪光。"
-  },
-  "geometry_offsets": {
-    "face_tear_left": {
-      "position": [
-        0,
-        -0.145,
-        0
-      ]
-    },
-    "face_tear_right": {
-      "position": [
-        0,
-        -0.145,
-        0
-      ]
-    }
+    "status": "accepted",
+    "note": "恢复部件试用前原版眼口和泪帧；撤销后加的泪光位移。",
+    "date": "2026-09-12",
+    "basis": "Explicit user selection in review round 3"
   }
 }

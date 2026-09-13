@@ -29,7 +29,7 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "retained",
+  "status": "accepted",
   "art": "User-selected component revisions; unchanged parts retain prior pixels.",
   "aliases": [],
   "retained_source": "standards/yukkuri-v1/textures/marisa/sleep.png",
@@ -37,9 +37,8 @@
   "origin": "original",
   "review_pair": "sleep__new",
   "review_decision": {
-    "status": "accepted-for-specified-parts",
-    "parts": [
-      "E2-B"
-    ]
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
   }
 }

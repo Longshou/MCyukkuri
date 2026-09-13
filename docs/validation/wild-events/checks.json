@@ -1,0 +1,707 @@
+[
+  {
+    "name": "first event claims distinct identities",
+    "pass": true,
+    "detail": "claims"
+  },
+  {
+    "name": "mirrored pair cannot duplicate",
+    "pass": true,
+    "detail": "same identities"
+  },
+  {
+    "name": "region boundary cannot bypass nearby budget",
+    "pass": true,
+    "detail": "real distance, not cell key"
+  },
+  {
+    "name": "distant players have independent event budgets",
+    "pass": true,
+    "detail": "distance \u003e32"
+  },
+  {
+    "name": "saved event restores stage, identity and only actual fed member",
+    "pass": true,
+    "detail": "{Cooldowns:[],Regions:[],Scenes:[{Card:\"sisters-wait\",Id:[I;232595689,1984973200,-1385260337,-940851646],Kind:\"SISTERS\",Members:[{Fed:1b,Id:[I;-1703814879,1047612849,-1134363378,326269472]},{Fed:0b,Id:[I;-185231902,257772991,-1718507497,2047033865]}],Origin:{Dimension:\"minecraft:overworld\",Pos:8521215242305L},Phase:\"RESPONDING\",PhaseTicks:20,Player:[I;1790523715,-328776041,-1157553782,1343508412],Responses:0,Result:\"\",SourceCount:0,Ticks:90}],Version:1}"
+  },
+  {
+    "name": "interruption releases both identities",
+    "pass": true,
+    "detail": "released"
+  },
+  {
+    "name": "reload retains participant and region cooldown",
+    "pass": true,
+    "detail": "cooldown"
+  },
+  {
+    "name": "cooldown eventually expires",
+    "pass": true,
+    "detail": "time advanced"
+  },
+  {
+    "name": "shared real mother qualifies juvenile siblings",
+    "pass": true,
+    "detail": "mother\u003d1f184a8a-823e-4042-a6e2-529d54a5727c"
+  },
+  {
+    "name": "nearby stranger is not a sister",
+    "pass": true,
+    "detail": "279d8e1c-18a9-4b3c-9c70-36372e2a67aa"
+  },
+  {
+    "name": "unknown father remains null and permits a true single parent",
+    "pass": true,
+    "detail": "no fabricated father"
+  },
+  {
+    "name": "living second parent rejects single-parent story",
+    "pass": true,
+    "detail": "alive"
+  },
+  {
+    "name": "captured second parent is not dead",
+    "pass": true,
+    "detail": "captured"
+  },
+  {
+    "name": "unknown record for named father is not inferred dead",
+    "pass": true,
+    "detail": "no record"
+  },
+  {
+    "name": "unrelated hungry pair cannot start N03",
+    "pass": true,
+    "detail": "rejected"
+  },
+  {
+    "name": "no scene was minted for an invalid identity",
+    "pass": true,
+    "detail": "no claim"
+  },
+  {
+    "name": "N03 starts from real sheltered hungry siblings",
+    "pass": true,
+    "detail": "available\u003dfalse"
+  },
+  {
+    "name": "begging does not generate food or fed credit",
+    "pass": true,
+    "detail": "[]"
+  },
+  {
+    "name": "real hand feed transfers exactly one item",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "before swallow the request is not settled",
+    "pass": true,
+    "detail": "[]"
+  },
+  {
+    "name": "interrupted meal grants no event food credit",
+    "pass": true,
+    "detail": "[]"
+  },
+  {
+    "name": "actual swallow credits only the eater",
+    "pass": true,
+    "detail": "[44d956c9-f6d5-467f-90c9-e564703718b2]"
+  },
+  {
+    "name": "duplicate notification does not add another result",
+    "pass": true,
+    "detail": "set membership"
+  },
+  {
+    "name": "both real swallows complete N03",
+    "pass": true,
+    "detail": "COMPLETE:all_members_actually_fed"
+  },
+  {
+    "name": "all hand food was actually consumed from survival inventory",
+    "pass": true,
+    "detail": "0 minecraft:air"
+  },
+  {
+    "name": "owner-specific decline rejects unrelated player",
+    "pass": true,
+    "detail": "identity"
+  },
+  {
+    "name": "actual menu decline grants no feeding outcome",
+    "pass": true,
+    "detail": "REFUSED"
+  },
+  {
+    "name": "N04 requires an actual parent and recorded child",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@6c44ad5"
+  },
+  {
+    "name": "N04 two actual swallows settle without generating food",
+    "pass": true,
+    "detail": "COMPLETE:[d162776f-5ab5-4f20-ba16-f73d10e665f6, 02d953fb-8c9c-4450-9145-fb094359624e]"
+  },
+  {
+    "name": "N04 actual menu refusal preserves empty feeding outcome",
+    "pass": true,
+    "detail": "REFUSED"
+  },
+  {
+    "name": "shop stock cannot be adopted around owner",
+    "pass": true,
+    "detail": "owned stock"
+  },
+  {
+    "name": "normal interaction menu adopts trusted unowned individual",
+    "pass": true,
+    "detail": "{Owner:[I;1790523715,-328776041,-1157553782,1343508412],Use:\"companion\"}"
+  },
+  {
+    "name": "other player cannot abandon it",
+    "pass": true,
+    "detail": "owner protected"
+  },
+  {
+    "name": "ordinary carrier release preserves owner and never abandons",
+    "pass": true,
+    "detail": "same UUID"
+  },
+  {
+    "name": "explicit abandonment menu removes only actual ownership",
+    "pass": true,
+    "detail": "{}"
+  },
+  {
+    "name": "remembered former owner produces completed lament",
+    "pass": true,
+    "detail": "former_owner_lament"
+  },
+  {
+    "name": "abandonment keeps badge record intact",
+    "pass": true,
+    "detail": "badge NBT"
+  },
+  {
+    "name": "repeat abandonment cannot replay without new ownership",
+    "pass": true,
+    "detail": "no owner"
+  },
+  {
+    "name": "unloaded participant pauses without ghost replacement",
+    "pass": true,
+    "detail": "APPROACH"
+  },
+  {
+    "name": "same restored identity resumes saved event",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "actual damage interrupts and releases all participant claims",
+    "pass": true,
+    "detail": "danger_or_unavailable"
+  },
+  {
+    "name": "real family can request adoption without gaining owner",
+    "pass": true,
+    "detail": "APPROACH"
+  },
+  {
+    "name": "actual capture produces family separation",
+    "pass": true,
+    "detail": "SEPARATED"
+  },
+  {
+    "name": "recent conflict required for reconciliation",
+    "pass": true,
+    "detail": "no fabricated history"
+  },
+  {
+    "name": "hostile real pair starts rivalry",
+    "pass": true,
+    "detail": "hostility"
+  },
+  {
+    "name": "successful speech follows actual conflict",
+    "pass": true,
+    "detail": "voice-peace"
+  },
+  {
+    "name": "speech response finishes before peaceful continuation settles",
+    "pass": true,
+    "detail": "actual_voice-peace"
+  },
+  {
+    "name": "event cannot hijack active instruction",
+    "pass": true,
+    "detail": "teach"
+  },
+  {
+    "name": "actual hat is transferred into one real boat",
+    "pass": true,
+    "detail": "HatBoatEntity[\u0027Hat boat\u0027/37, l\u003d\u0027ServerLevel[Test Level]\u0027, x\u003d6636.60, y\u003d65.91, z\u003d8.50]"
+  },
+  {
+    "name": "N05 binds existing boat owner and true group companion",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@2e3ce692"
+  },
+  {
+    "name": "event does not generate an extra boat or rider",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "real capsize interrupts instead of granting rescue",
+    "pass": true,
+    "detail": "real_boat_capsized"
+  },
+  {
+    "name": "N05 rescue fixture binds real boat",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@736196b3"
+  },
+  {
+    "name": "actual boat rescue returns original hat",
+    "pass": true,
+    "detail": "RESCUED"
+  },
+  {
+    "name": "only real rescued boat yields rescued continuation",
+    "pass": true,
+    "detail": "COMPLETE:actual_boat_rescue_observed"
+  },
+  {
+    "name": "same group queue binds one finite food stack",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@37e330f0"
+  },
+  {
+    "name": "later member waits without consuming the shared stack",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "first actual swallow releases the next turn",
+    "pass": true,
+    "detail": "[61d3629f-dc66-4e2b-815f-0d741f8f56ba]"
+  },
+  {
+    "name": "two actual turn swallows consume exactly two portions",
+    "pass": true,
+    "detail": "COMPLETE:real_food_taken_and_swallowed"
+  },
+  {
+    "name": "forest recognition reads independent cognition",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@31083fdc"
+  },
+  {
+    "name": "recognized forest food is really consumed once",
+    "pass": true,
+    "detail": "COMPLETE:real_food_taken_and_swallowed"
+  },
+  {
+    "name": "interrupting a claimed mouthful never credits another meal",
+    "pass": true,
+    "detail": "INTERRUPTED:claimed_food_meal_interrupted"
+  },
+  {
+    "name": "crowd requires three distinct actual members",
+    "pass": true,
+    "detail": "only two"
+  },
+  {
+    "name": "grave scene requires a real grave block entity",
+    "pass": true,
+    "detail": "no grave"
+  },
+  {
+    "name": "real nearby grave enables quiet observation",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@47848bad"
+  },
+  {
+    "name": "solid inaccessible wall rejects companionship scene",
+    "pass": true,
+    "detail": "actual collision wall"
+  },
+  {
+    "name": "ornament scene binds actual matching token",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@20ea6a48"
+  },
+  {
+    "name": "contact restores original ornament and consumes only its real item",
+    "pass": true,
+    "detail": "COMPLETE:original_accessory_returned"
+  },
+  {
+    "name": "normal companion does not trigger deficient form waiting",
+    "pass": true,
+    "detail": "normal form"
+  },
+  {
+    "name": "actual congenital form enables distant waiting",
+    "pass": true,
+    "detail": "BEAN_BODY"
+  },
+  {
+    "name": "narrow alley needs physical waste rather than only a place label",
+    "pass": true,
+    "detail": "no item"
+  },
+  {
+    "name": "real walls shelter and waste enable alley observation",
+    "pass": true,
+    "detail": "1 mcyukkuri:yukkuri_waste"
+  },
+  {
+    "name": "normal server ticks naturally discover N03 without command",
+    "pass": true,
+    "detail": "WAITING:"
+  },
+  {
+    "name": "natural request still grants no food for watching",
+    "pass": true,
+    "detail": "[]"
+  },
+  {
+    "name": "N01 existing DailyLife starts bound song",
+    "pass": true,
+    "detail": "sing"
+  },
+  {
+    "name": "N01 naturally attaches to existing song without duplicate scheduler",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@25817ba"
+  },
+  {
+    "name": "song and audience finish through real AI ticks",
+    "pass": true,
+    "detail": "COMPLETE:song_and_audience_finished"
+  },
+  {
+    "name": "audience responded without double song reward",
+    "pass": true,
+    "detail": "4"
+  },
+  {
+    "name": "different species begin actual dialect imitation",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@3b507488"
+  },
+  {
+    "name": "imitation finishes after actual synchronized speech",
+    "pass": true,
+    "detail": "COMPLETE:heard_and_repeated_actual_peer_line"
+  },
+  {
+    "name": "learned phrase records the actual teacher without changing species",
+    "pass": true,
+    "detail": "{HeardAt:703L,Key:\"dialogue.mcyukkuri.native.marisa.adult.l0013\",Species:\"marisa\",Teacher:[I;291590208,-299481232,-2066039685,-580366706],Uses:1}"
+  },
+  {
+    "name": "teacher and phrase survive entity save reload",
+    "pass": true,
+    "detail": "{HeardAt:703L,Key:\"dialogue.mcyukkuri.native.marisa.adult.l0013\",Species:\"marisa\",Teacher:[I;291590208,-299481232,-2066039685,-580366706],Uses:1}"
+  },
+  {
+    "name": "ordinary same group does not grant expedition roles",
+    "pass": true,
+    "detail": "845057c4-e593-4af9-b23d-3df1e51057e1"
+  },
+  {
+    "name": "scouting forms real captain roster and reachable destination",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@4c28818a"
+  },
+  {
+    "name": "expedition route and exact captain order survive save",
+    "pass": true,
+    "detail": "ResourceKey[minecraft:dimension / minecraft:overworld] BlockPos{x\u003d7263, y\u003d65, z\u003d8}"
+  },
+  {
+    "name": "actual squad reports travels and returns",
+    "pass": true,
+    "detail": "COMPLETE:real_squad_reported_and_returned:3:(7257.145284969685, 65.0, 9.795656321406767)"
+  },
+  {
+    "name": "real adult teacher and lower capability child begin lesson",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@1c964cba"
+  },
+  {
+    "name": "both physical jumps precede capability gain",
+    "pass": true,
+    "detail": "COMPLETE:actual_demonstration_learned:3:Snapshot[innate\u003d400, learned\u003d1, ability\u003d401, origin\u003dgametest_fixture, mother\u003dnull, father\u003dnull, motherInnate\u003d-1, fatherInnate\u003d-1]"
+  },
+  {
+    "name": "same successful classroom cannot pay twice",
+    "pass": true,
+    "detail": "Snapshot[innate\u003d400, learned\u003d1, ability\u003d401, origin\u003dgametest_fixture, mother\u003dnull, father\u003dnull, motherInnate\u003d-1, fatherInnate\u003d-1]"
+  },
+  {
+    "name": "real flowing water fixture starts N05",
+    "pass": true,
+    "detail": "io.github.longshou.mcyukkuri.event.WildEventData$Scene@73931f5f"
+  },
+  {
+    "name": "actual shoreline arrival is not mistaken for a failed path",
+    "pass": true,
+    "detail": "APPROACH::(7354.759947118463, 65.0, 8.5)"
+  },
+  {
+    "name": "real moving boat accepts actual dry-land rescue",
+    "pass": true,
+    "detail": "HatBoatEntity[\u0027Hat boat\u0027/80, l\u003d\u0027ServerLevel[Test Level]\u0027, x\u003d7356.60, y\u003d64.91, z\u003d8.50]"
+  },
+  {
+    "name": "actual server ticks finish N05 only after true rescue",
+    "pass": true,
+    "detail": "COMPLETE:actual_boat_rescue_observed"
+  },
+  {
+    "name": "weak-escort qualifies actual actors and place",
+    "pass": true,
+    "detail": "412cc0f6-5e1e-45d8-b77b-6eda787d30dc"
+  },
+  {
+    "name": "weak-escort completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_weak-escort:0:199.5051748843406"
+  },
+  {
+    "name": "little-gap qualifies actual actors and place",
+    "pass": true,
+    "detail": "1f9caacc-3033-4654-b14d-835e680e86da"
+  },
+  {
+    "name": "little-gap completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_little-gap:0:26.755371592216473"
+  },
+  {
+    "name": "crowd qualifies actual actors and place",
+    "pass": true,
+    "detail": "0a9150f2-65b8-421b-9ed7-fe3764301852"
+  },
+  {
+    "name": "crowd completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_crowd:0:244.14751116228766"
+  },
+  {
+    "name": "territory qualifies actual actors and place",
+    "pass": true,
+    "detail": "19d2af38-4a68-4eaf-805a-a482b75750a9"
+  },
+  {
+    "name": "territory completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_territory:0:23.01035621755534"
+  },
+  {
+    "name": "plea qualifies actual actors and place",
+    "pass": true,
+    "detail": "5b3dc3ec-a173-4036-87fb-f2e901f33335"
+  },
+  {
+    "name": "plea completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_plea:0:7.785496893602864"
+  },
+  {
+    "name": "lookout qualifies actual actors and place",
+    "pass": true,
+    "detail": "4090d524-aa39-402f-811c-22c64ba42d03"
+  },
+  {
+    "name": "lookout completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_lookout:0:54.70365591583092"
+  },
+  {
+    "name": "sibling-game qualifies actual actors and place",
+    "pass": true,
+    "detail": "be3b4b8f-8c3a-4039-aac6-8b33f6cd5f9d"
+  },
+  {
+    "name": "sibling-game completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:two_real_jumps_each:15:0.33987133449197093"
+  },
+  {
+    "name": "sibling-game records two actual jumps from each participant",
+    "pass": true,
+    "detail": "15"
+  },
+  {
+    "name": "mate-touch qualifies actual actors and place",
+    "pass": true,
+    "detail": "4fe2d79c-a4ba-476e-b7f3-86f261b5e77a"
+  },
+  {
+    "name": "mate-touch completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_mate-touch:0:214.90058485269628"
+  },
+  {
+    "name": "young-call qualifies actual actors and place",
+    "pass": true,
+    "detail": "defe3f42-9d08-4312-9b03-02cdc1912648"
+  },
+  {
+    "name": "young-call completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_young-call:0:1.2867722636940444"
+  },
+  {
+    "name": "tank-corner qualifies actual actors and place",
+    "pass": true,
+    "detail": "2cb5605b-3b4c-4478-9b86-3635571b038e"
+  },
+  {
+    "name": "tank-corner completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_tank-corner:0:13.628614816367925"
+  },
+  {
+    "name": "tank-doll qualifies actual actors and place",
+    "pass": true,
+    "detail": "bdc98b70-70e2-4c80-aac4-14f4fa238305"
+  },
+  {
+    "name": "tank-doll completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:each_touched_real_doll:2:116.78652607048762"
+  },
+  {
+    "name": "both actors touched one existing doll",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "forest-family qualifies actual actors and place",
+    "pass": true,
+    "detail": "5464b2d9-d760-4e82-b94f-a341876e0a3a"
+  },
+  {
+    "name": "forest-family completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:every_present_relative_responded:3:1.3062013617784962"
+  },
+  {
+    "name": "each of the three actual relatives answered",
+    "pass": true,
+    "detail": "3"
+  },
+  {
+    "name": "park-family qualifies actual actors and place",
+    "pass": true,
+    "detail": "b77e5808-c36d-4fe4-9e33-c3994d664204"
+  },
+  {
+    "name": "park-family completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_park-family:0:1.0540511332027127"
+  },
+  {
+    "name": "park-race qualifies actual actors and place",
+    "pass": true,
+    "detail": "f5412167-c699-4e92-8afb-100859e61df2"
+  },
+  {
+    "name": "park-race completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:two_real_jumps_each:15:0.8099999999993451"
+  },
+  {
+    "name": "park-race records two actual jumps from each participant",
+    "pass": true,
+    "detail": "15"
+  },
+  {
+    "name": "rain-close qualifies actual actors and place",
+    "pass": true,
+    "detail": "95a86d57-e8f8-4867-b6c9-71e3afa76f07"
+  },
+  {
+    "name": "rain-close completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_rain-close:0:6.861023581041612"
+  },
+  {
+    "name": "heat-rest qualifies actual actors and place",
+    "pass": true,
+    "detail": "d924f089-3431-4081-916b-f5b000b548a1"
+  },
+  {
+    "name": "heat-rest completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:observed_heat-rest:0:54.96134342350247"
+  },
+  {
+    "name": "recent dispute evidence outlives event member cooldown",
+    "pass": true,
+    "detail": "allows a later reconciliation"
+  },
+  {
+    "name": "reconcile qualifies actual actors and place",
+    "pass": true,
+    "detail": "7b7f76d1-ad44-4d09-8f9a-1def10b74ca7"
+  },
+  {
+    "name": "reconcile completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:actual_reconciliation_response:1:0.8099999999993451"
+  },
+  {
+    "name": "recent dispute evidence outlives event member cooldown",
+    "pass": true,
+    "detail": "allows a later reconciliation"
+  },
+  {
+    "name": "reconcile-refused qualifies actual actors and place",
+    "pass": true,
+    "detail": "4c836462-af74-44ad-af80-a7134e94990f"
+  },
+  {
+    "name": "reconcile-refused completes through actual server goals",
+    "pass": true,
+    "detail": "REFUSED:peer_kept_distance:1:0.8099999999993451"
+  },
+  {
+    "name": "refusing reconciliation preserves actual old conflict",
+    "pass": true,
+    "detail": "peer_kept_distance"
+  },
+  {
+    "name": "scold-after qualifies actual actors and place",
+    "pass": true,
+    "detail": "bd92658c-6b0f-4417-8ee2-e23f99455c4b"
+  },
+  {
+    "name": "real reprimand starts conflict continuation",
+    "pass": true,
+    "detail": "scold-after"
+  },
+  {
+    "name": "scold-after completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:actual_scold-after:0:6.660805424817546"
+  },
+  {
+    "name": "street-scraps qualifies actual actors and place",
+    "pass": true,
+    "detail": "8487c8fc-042c-420c-8a9f-026a6193b7f0"
+  },
+  {
+    "name": "street-scraps completes through actual server goals",
+    "pass": true,
+    "detail": "COMPLETE:real_food_taken_and_swallowed:1:0.8099999999993451"
+  }
+]

@@ -1,0 +1,19 @@
+Japanese voice assets: HTS Voice "Mei" by the MMDAgent Project Team,
+Nagoya Institute of Technology, Department of Computer Science.
+Copyright (c) 2009-2013 Nagoya Institute of Technology.
+Voice model license: Creative Commons Attribution 3.0 (CC BY 3.0).
+https://creativecommons.org/licenses/by/3.0/
+Project: https://www.mmdagent.jp/
+Model source and license:
+https://github.com/tsukumijima/pyopenjtalk-plus/tree/master/pyopenjtalk/htsvoice
+
+MCyukkuri generated these Japanese speech files using pyopenjtalk-plus
+0.4.1.post9 and mei_normal.htsvoice. Changes include authored dialogue,
+pitch and speaking-rate adjustments, trimming, fades, peak normalization,
+and conversion to mono PCM WAV / Ogg Vorbis. Reimu and Marisa are two
+parameter profiles of the same model. No endorsement is implied.
+Retain this attribution with redistribution of the voice assets.
+
+SFX are procedurally authored for MCyukkuri without external recordings.
+See art/audio/recipe.json, scripts/build_audio.py and art/audio/manifest.json
+in the source project for production parameters and file fingerprints.

@@ -3,24 +3,24 @@
   "label": "垂眼哭丧 · 泪帧 B",
   "group": "哭泣",
   "recipe": {
-    "eyes": "flat",
-    "brows": "sad",
-    "mouth": "frown_open",
-    "tears": "flow_b",
-    "blush": "normal",
-    "effect": "stress"
+    "source": "authored-cute-lament-with-approved-mouth-brows-and-tears",
+    "eyes": "round-large-pupil-simple-outline-small-highlight",
+    "emotion": "可爱的委屈欲哭；抬眉头、垂眼角，大瞳孔保持清醒感",
+    "mouth": "approved-N017-parted-frown",
+    "tears": "approved-N025-sliding",
+    "reference": "drafts/expression-review/reuse-batch/round3/REFERENCE.md"
   },
   "parts": {
-    "face_eye_left": "expressions/parts/3c4663002b4906560d6f.png",
+    "face_eye_left": "expressions/parts/485d013f2c55cd7c245a.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
-    "face_eye_right": "expressions/parts/3c4663002b4906560d6f.png",
+    "face_tear_left": "expressions/parts/8ff9316def1aeb45e228.png",
+    "face_eye_right": "expressions/parts/dfd8064961973aca66e6.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
-    "face_mouth": "expressions/parts/777d22f692be83042a45.png",
-    "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    "face_tear_right": "expressions/parts/a2d92d0aa068ba181a3d.png",
+    "face_mouth": "expressions/parts/c7733b57eafee3c403e5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
     {
@@ -45,10 +45,62 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted the round-4 cute lament presentation on 2026-09-12",
   "aliases": [],
   "review_code": "N042",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_tear_left": {
+      "scale": [
+        0.85,
+        0.85,
+        1
+      ],
+      "position": [
+        0.3,
+        -0.21125,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "scale": [
+        0.85,
+        0.85,
+        1
+      ],
+      "position": [
+        -0.3,
+        -0.21125,
+        0
+      ]
+    },
+    "face_mouth": {
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "face_brow_left": {
+      "position": [
+        0,
+        -0.8,
+        0
+      ]
+    },
+    "face_brow_right": {
+      "position": [
+        0,
+        -0.8,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户“接受”当前可爱版 N041/N042；保留圆润眼型、微张嘴及两种泪帧。"
+  }
 }

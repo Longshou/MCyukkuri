@@ -1,0 +1,592 @@
+{
+  "status": "game_integration",
+  "units_per_block": 16,
+  "food_bowl": {
+    "source_geometry": "art/props/food-bowl/food_bowl.geo.json",
+    "source_texture": "art/props/food-bowl/feeding.png",
+    "bones": [
+      "bowl"
+    ],
+    "offset": [
+      8,
+      0,
+      8
+    ],
+    "note": "Only the physical bowl is exported; visible food comes from its real inventory."
+  },
+  "models": {
+    "yukkuri_nest": {
+      "textures": {
+        "base": "minecraft:block/hay_block_top",
+        "rim": "minecraft:block/hay_block_side"
+      },
+      "elements": [
+        {
+          "from": [
+            1,
+            0,
+            1
+          ],
+          "to": [
+            15,
+            0.75,
+            15
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            1,
+            0.75,
+            1
+          ],
+          "to": [
+            3,
+            2,
+            15
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            13,
+            0.75,
+            1
+          ],
+          "to": [
+            15,
+            2,
+            15
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            3,
+            0.75,
+            13
+          ],
+          "to": [
+            13,
+            2,
+            15
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            3,
+            0.75,
+            1
+          ],
+          "to": [
+            5,
+            1.5,
+            3
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            11,
+            0.75,
+            1
+          ],
+          "to": [
+            13,
+            1.5,
+            3
+          ],
+          "texture": "rim"
+        }
+      ]
+    },
+    "yukkuri_toilet": {
+      "textures": {
+        "base": "minecraft:block/sand",
+        "rim": "minecraft:block/oak_planks"
+      },
+      "elements": [
+        {
+          "from": [
+            3,
+            0,
+            3
+          ],
+          "to": [
+            13,
+            0.75,
+            13
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            4,
+            0.75,
+            4
+          ],
+          "to": [
+            12,
+            1,
+            12
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            3,
+            0.75,
+            3
+          ],
+          "to": [
+            4,
+            3,
+            13
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            12,
+            0.75,
+            3
+          ],
+          "to": [
+            13,
+            3,
+            13
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            4,
+            0.75,
+            3
+          ],
+          "to": [
+            12,
+            3,
+            4
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            4,
+            0.75,
+            12
+          ],
+          "to": [
+            12,
+            3,
+            13
+          ],
+          "texture": "rim"
+        }
+      ]
+    },
+    "yukkuri_carrier": {
+      "textures": {
+        "base": "minecraft:block/bamboo_planks",
+        "rim": "minecraft:block/oak_planks"
+      },
+      "elements": [
+        {
+          "from": [
+            2,
+            1,
+            2
+          ],
+          "to": [
+            14,
+            3,
+            14
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            2,
+            3,
+            2
+          ],
+          "to": [
+            3,
+            10,
+            14
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            13,
+            3,
+            2
+          ],
+          "to": [
+            14,
+            10,
+            14
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            3,
+            3,
+            2
+          ],
+          "to": [
+            13,
+            10,
+            3
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            3,
+            3,
+            13
+          ],
+          "to": [
+            13,
+            10,
+            14
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            2,
+            10,
+            2
+          ],
+          "to": [
+            14,
+            11,
+            14
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            5,
+            11,
+            7
+          ],
+          "to": [
+            6,
+            15,
+            9
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            10,
+            11,
+            7
+          ],
+          "to": [
+            11,
+            15,
+            9
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            6,
+            14,
+            7
+          ],
+          "to": [
+            10,
+            15,
+            9
+          ],
+          "texture": "rim"
+        }
+      ]
+    },
+    "reimu_ribbon": {
+      "textures": {
+        "base": "minecraft:block/red_wool",
+        "rim": "minecraft:block/white_wool"
+      },
+      "elements": [
+        {
+          "from": [
+            2,
+            6,
+            6
+          ],
+          "to": [
+            7,
+            11,
+            9
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            9,
+            6,
+            6
+          ],
+          "to": [
+            14,
+            11,
+            9
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            7,
+            7,
+            5
+          ],
+          "to": [
+            9,
+            10,
+            10
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            2,
+            6,
+            5.8
+          ],
+          "to": [
+            3,
+            11,
+            6
+          ],
+          "texture": "rim"
+        },
+        {
+          "from": [
+            13,
+            6,
+            5.8
+          ],
+          "to": [
+            14,
+            11,
+            6
+          ],
+          "texture": "rim"
+        }
+      ]
+    },
+    "marisa_hat": {
+      "textures": {
+        "base": "minecraft:block/black_wool",
+        "rim": "minecraft:block/white_wool"
+      },
+      "elements": [
+        {
+          "from": [
+            1,
+            1,
+            1
+          ],
+          "to": [
+            15,
+            2,
+            15
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            4,
+            2,
+            4
+          ],
+          "to": [
+            12,
+            6,
+            12
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            5,
+            6,
+            5
+          ],
+          "to": [
+            11,
+            10,
+            11
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            6,
+            10,
+            6
+          ],
+          "to": [
+            10,
+            13,
+            10
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            8,
+            13,
+            7
+          ],
+          "to": [
+            12,
+            15,
+            9
+          ],
+          "texture": "base"
+        },
+        {
+          "from": [
+            4,
+            2.5,
+            3.8
+          ],
+          "to": [
+            12,
+            4,
+            4
+          ],
+          "texture": "rim"
+        }
+      ]
+    }
+  },
+  "presentation": {
+    "format": 1,
+    "chew_period_ticks": 8,
+    "mouth_scale_min": 0.82,
+    "mouth_scale_max": 1.1,
+    "mouth_bone": "face_mouth",
+    "variants": {
+      "reimu": {
+        "accessory_prefixes": [
+          "bow_"
+        ],
+        "mouth": [
+          0,
+          1.855,
+          -4.7
+        ],
+        "food_scale": 0.14
+      },
+      "marisa": {
+        "accessory_prefixes": [
+          "brim_",
+          "hat_",
+          "bow_"
+        ],
+        "mouth": [
+          0,
+          1.855,
+          -4.7
+        ],
+        "food_scale": 0.14
+      },
+      "house_reimu": {
+        "accessory_prefixes": [
+          "bow_"
+        ],
+        "mouth": [
+          0,
+          1.539,
+          -1.55
+        ],
+        "food_scale": 0.048
+      },
+      "house_marisa": {
+        "accessory_prefixes": [
+          "brim_",
+          "hat_",
+          "bow_"
+        ],
+        "mouth": [
+          0,
+          1.539,
+          -1.55
+        ],
+        "food_scale": 0.048
+      },
+      "chen": {
+        "accessory_prefixes": [
+          "chen_hat_"
+        ],
+        "mouth": [
+          0,
+          1.855,
+          -4.7
+        ],
+        "food_scale": 0.14
+      },
+      "alice": {
+        "accessory_prefixes": [
+          "alice_band_",
+          "alice_lace_"
+        ],
+        "mouth": [
+          0,
+          1.855,
+          -4.7
+        ],
+        "food_scale": 0.14
+      },
+      "patchouli": {
+        "accessory_prefixes": [
+          "patchouli_bonnet_",
+          "patchouli_hat_",
+          "patchouli_crescent_",
+          "patchouli_frill_",
+          "patchouli_side_frill_"
+        ],
+        "mouth": [
+          0,
+          1.855,
+          -4.7
+        ],
+        "food_scale": 0.14
+      },
+      "remilia": {
+        "accessory_prefixes": [
+          "predator_cap_"
+        ],
+        "mouth": [
+          0,
+          2.0,
+          -4.95
+        ],
+        "food_scale": 0.14
+      },
+      "flandre": {
+        "accessory_prefixes": [
+          "predator_cap_"
+        ],
+        "mouth": [
+          0,
+          2.0,
+          -4.95
+        ],
+        "food_scale": 0.14
+      }
+    }
+  }
+}

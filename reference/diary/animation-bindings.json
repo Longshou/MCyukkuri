@@ -1,0 +1,937 @@
+[
+  {
+    "clip": "LookDown",
+    "bindings": [
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 4
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "LookForWard",
+    "bindings": [
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 4
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "LookLeft",
+    "bindings": [
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 4
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "LookRight",
+    "bindings": [
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 4
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "LookUp",
+    "bindings": [
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 4
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "YukkuriYobikake",
+    "bindings": [
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 1
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 4
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 4
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "YukkuriBikkuri",
+    "bindings": [
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 1
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 1
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 1
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 3
+      }
+    ]
+  },
+  {
+    "clip": "Yukkuri_Talk",
+    "bindings": [
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 4
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 4
+      }
+    ]
+  },
+  {
+    "clip": "nemui01",
+    "bindings": [
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 1
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 1
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 2
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 2
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 3
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 3
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 3
+      }
+    ]
+  },
+  {
+    "clip": "YukkuriEat03",
+    "bindings": [
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 1
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 2
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 2
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 3
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 3
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 3
+      }
+    ]
+  },
+  {
+    "clip": "YukkuriIdle",
+    "bindings": [
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 1
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 1
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 1
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 2
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 2
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 2
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 2
+      },
+      {
+        "path_hash": 3066451557,
+        "path": "Root",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3461647527,
+        "path": "Root/Onaka",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2101706732,
+        "path": "Root/Onaka/Spine",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1981919543,
+        "path": "Root/Onaka/Spine/Jaw",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2249206698,
+        "path": "Root/Onaka/Spine/Jaw/Bero0",
+        "attribute": 3
+      },
+      {
+        "path_hash": 906677508,
+        "path": "Root/Onaka/Spine/Jaw/Bero0/Bero1",
+        "attribute": 3
+      },
+      {
+        "path_hash": 4201750493,
+        "path": "Root/Onaka/Spine/JawUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1955179677,
+        "path": "Root/Onaka/Spine/RightMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1878854203,
+        "path": "Root/Onaka/Spine/RightMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1460354485,
+        "path": "Root/Onaka/Spine/RightEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3919905383,
+        "path": "Root/Onaka/Spine/LeftMabutaUp",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2965377231,
+        "path": "Root/Onaka/Spine/LeftMabutaDown",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1228254303,
+        "path": "Root/Onaka/Spine/LeftEye",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3404453967,
+        "path": "Root/Onaka/Spine/MayuLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 292572224,
+        "path": "Root/Onaka/Spine/MayuRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1380031743,
+        "path": "Root/Onaka/Spine/HoppeRight",
+        "attribute": 3
+      },
+      {
+        "path_hash": 2463239463,
+        "path": "Root/Onaka/Spine/HoppeLeft",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1601823255,
+        "path": "Root/Onaka/Spine/MomiageBone01R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3649671003,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3789488226,
+        "path": "Root/Onaka/Spine/MomiageBone01R/MomiageBone02R/MomiageBone03R",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3623955249,
+        "path": "Root/Onaka/Spine/MomiageBone04L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 1590427718,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 3218201540,
+        "path": "Root/Onaka/Spine/MomiageBone04L/MomiageBone05L/MomiageBone06L",
+        "attribute": 3
+      },
+      {
+        "path_hash": 588806898,
+        "path": "Root/Onaka/Spine/Hip",
+        "attribute": 3
+      }
+    ]
+  }
+]

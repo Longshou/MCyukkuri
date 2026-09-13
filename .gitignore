@@ -6,6 +6,9 @@
 !/archives/README.md
 /art/library/**/*.partial*
 node_modules/
+/preview/chrome-profile/
+/tools/npm-cache/
+/tools/temp/node-compile-cache/
 __pycache__/
 *.pyc
 

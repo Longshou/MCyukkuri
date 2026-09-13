@@ -1,0 +1,177 @@
+{
+  "date": "2026-09-12",
+  "approved": {
+    "N018": {
+      "id": "waking",
+      "selection": "接受复用后的 N018 当前展示版。",
+      "files": {
+        "expressions/presets/waking.json": "0cf4a512e87f8fa99559c3fb3c5ec650f9d91dc402239859eaf8e3e044e2b270",
+        "expressions/parts/48de96a6e005fcba17dd.png": "2aa34c2c4a90cefca89e2a8676368196aa06a3e70c5692acadf9436df91211b7",
+        "expressions/parts/5977a2811d629eb958f7.png": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60",
+        "expressions/parts/8023c0288f73ee416f1d.png": "85f550edb7ec79a6e1fedc31a4ba338cf0e4315b4ed10b5a7d6b5f30dffc782e",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+      }
+    },
+    "N048": {
+      "id": "open_drool",
+      "selection": "采用本批次复用前原版。",
+      "files": {
+        "expressions/presets/open_drool.json": "6da8e1728324bf44521bacf1f64c90bdce132d9f07d5525244b6a21217a3888d",
+        "expressions/parts/3ebf6c7bfe6b460cd049.png": "4e668473aea4f204596a09b1b5e95a911fdcfacc8b088afd267e6015a987c898",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+        "expressions/parts/d13e58a1fac0d5caa71f.png": "3cc98857607b8a628e711b00371e4d74d33a3ca93e89ef775a65d314458a83e8",
+        "expressions/parts/fbfe0d80b0bcf2df3c4b.png": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+      }
+    },
+    "N049": {
+      "id": "open_drool_b",
+      "selection": "采用本批次复用前原版，保留滴落帧。",
+      "files": {
+        "expressions/presets/open_drool_b.json": "a5638f569ae8e6cbcc63ebed19700cb5f1291f2945fab907ed9620845f0edb30",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/ab30220834cd3d2d47ea.png": "831f73c2484d9f6f766fe9fe49da5def26378f614c137c7c5aaad01b21c0d553",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+        "expressions/parts/d13e58a1fac0d5caa71f.png": "3cc98857607b8a628e711b00371e4d74d33a3ca93e89ef775a65d314458a83e8",
+        "expressions/parts/fbfe0d80b0bcf2df3c4b.png": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66"
+      }
+    },
+    "N050": {
+      "id": "landing",
+      "selection": "按用户条件确认当前消极受力／不适／忍耐版本；不将其登记为通用开心或愉悦表情。",
+      "files": {
+        "expressions/presets/landing.json": "7950248f65213ee669830a5d3822bfb61e78ec72861e64d2508daafeab317946",
+        "expressions/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/3b9c6d89915676f44eaa.png": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c",
+        "expressions/parts/566eded4a7f31e2afb97.png": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N019": {
+      "id": "puff_open",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/puff_open.json": "9443c7170b3d4343aa9d9a4559bcf765e3adfe6928eb0b53c5381a79799b35c8",
+        "expressions/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/bac5f95d5525427392a7.png": "55954f1d142c15d3d34eb02de35b25dc8517749d5a9a1a7ddad3a1822c7e910b",
+        "expressions/parts/d10ccf2eb6de430d7a31.png": "0516a0a406610c8f7332d9a6f27099640ffbc72da233736faa8db23adb86e7e8",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N043": {
+      "id": "down_angry",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/down_angry.json": "e4976ac8592b9ae85e9b656854b8a18834b6aadce3e6c857d456939535d68591",
+        "expressions/parts/22aa133a1679fd7292be.png": "06c518bb75b39b40bfec1ffb238f71db0b7b36a897255fd3727d41f216f6edd9",
+        "expressions/parts/394256bd3d1fd6dedc15.png": "ce85ab0b99ebf2ac7163ab4df35416b462310fb86715a70da165005e882bcfff",
+        "expressions/parts/60f941ca2e49069b1649.png": "2d84abf337a3d740d7596f9027922cbcce476a5d3c6ab1092228863bd85fcae7",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/8ce5c296916c97bac7b2.png": "d889042288928df57f489255866abcb0cf9e744b92cbe0cf650f1edb592a4448",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N044": {
+      "id": "dry_dead",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/dry_dead.json": "bdb8e7fc7a952031c7c3d18baf32aaadd412daa662852ef74af48f4d5885dbff",
+        "expressions/parts/0fa6d9dedc86a49f382f.png": "e0c9f6a67320940216c3ea93738b960f9e0a1689a768cb40663b88dc3df56592",
+        "expressions/parts/1d047e66cab8e7c56400.png": "e74dc718d75304675838948298f5690255bbf77c11b9cd256a50ed9c7c5a7052",
+        "expressions/parts/59da7438c948a024001c.png": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838",
+        "expressions/parts/66ea3e051de1433bb95b.png": "573d562d773b489af4d63fa89679a36a0b92c4c04d862e68c9f30f26a38e8543",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N045": {
+      "id": "squashed",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/squashed.json": "a0f81896873362c30e37ea39e40520cfd72f4fc332aa289bfab7ab314c5cad5a",
+        "expressions/parts/0fa6d9dedc86a49f382f.png": "e0c9f6a67320940216c3ea93738b960f9e0a1689a768cb40663b88dc3df56592",
+        "expressions/parts/59da7438c948a024001c.png": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838",
+        "expressions/parts/b11bb4b57a0b70246f4f.png": "5539dc195b6c6559a165c32ae958940138c85b18ebd62ef763d6baf9714ea85d",
+        "expressions/parts/c7733b57eafee3c403e5.png": "9b1e5b4e31fff22de4206fb9e4658541dd3e410f0adb6c8c30f3b6df77024b90",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N046": {
+      "id": "teary_frown",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/teary_frown.json": "481de303ea091e4cc2cea9b597b5ee8ca1c6144f931bd482d7417605accf5449",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/c7733b57eafee3c403e5.png": "9b1e5b4e31fff22de4206fb9e4658541dd3e410f0adb6c8c30f3b6df77024b90",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N047": {
+      "id": "teary_frown_b",
+      "selection": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。",
+      "files": {
+        "expressions/presets/teary_frown_b.json": "423c15df3ca51ce23c4c60f750a3d579e68b76bf6d5fa45da5fbb14961fdec00",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/8ce5c296916c97bac7b2.png": "d889042288928df57f489255866abcb0cf9e744b92cbe0cf650f1edb592a4448",
+        "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N041": {
+      "id": "side_teary",
+      "selection": "用户“接受”当前可爱版 N041/N042；保留圆润眼型、微张嘴及两种泪帧。",
+      "files": {
+        "expressions/presets/side_teary.json": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/485d013f2c55cd7c245a.png": "e7a4d994befa4563ffb186c86ee54266f050cfb61eb7d6b8157c189cd6584b11",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/c7733b57eafee3c403e5.png": "9b1e5b4e31fff22de4206fb9e4658541dd3e410f0adb6c8c30f3b6df77024b90",
+        "expressions/parts/cf74fd4a8cea4e27f150.png": "43518e6499922134344b6f3b3f2e480e64df713c5d459a42ca1728d1220b5b0b",
+        "expressions/parts/dfd8064961973aca66e6.png": "031ac5a10d9fec7bec6863923afef9abb917abbdc888d90a9c09359b74a0193b",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N042": {
+      "id": "side_teary_b",
+      "selection": "用户“接受”当前可爱版 N041/N042；保留圆润眼型、微张嘴及两种泪帧。",
+      "files": {
+        "expressions/presets/side_teary_b.json": "0d51f21f4ed3a577c190ea04d6a4934c41f8edcc0d27dde4e6ed5c855db33920",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/485d013f2c55cd7c245a.png": "e7a4d994befa4563ffb186c86ee54266f050cfb61eb7d6b8157c189cd6584b11",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/8ff9316def1aeb45e228.png": "3679918b7f7735cd8be73424aff4d5ebd1aa92361153f0e8ebce17c6a031ed74",
+        "expressions/parts/a2d92d0aa068ba181a3d.png": "8bfc1b70703edd508dde2290d03f155af6aaea119b7ec3029642db3d48610896",
+        "expressions/parts/c7733b57eafee3c403e5.png": "9b1e5b4e31fff22de4206fb9e4658541dd3e410f0adb6c8c30f3b6df77024b90",
+        "expressions/parts/dfd8064961973aca66e6.png": "031ac5a10d9fec7bec6863923afef9abb917abbdc888d90a9c09359b74a0193b",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    }
+  },
+  "pending": [],
+  "n050_scope": "Original references mix landing compression and hit/strain reactions. The current approved combination is restricted to negative strain/discomfort/endurance."
+}

@@ -38,8 +38,8 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User selected this expression on 2026-09-12",
   "aliases": [],
   "review_code": "N040",
   "origin": "new",
@@ -54,7 +54,9 @@
     }
   },
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "与 N039 做口型差分：纵向大开口惊叫，露出下方舌面。"
+    "status": "accepted",
+    "note": "采用第二轮纵向惊叫嘴新版。",
+    "date": "2026-09-12",
+    "basis": "Explicit user selection in review round 3"
   }
 }

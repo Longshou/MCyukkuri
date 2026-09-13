@@ -1,0 +1,174 @@
+[
+  {
+    "name": "labor has authored footprint",
+    "pass": true
+  },
+  {
+    "name": "labor places with residents",
+    "pass": true
+  },
+  {
+    "name": "manju has authored footprint",
+    "pass": true
+  },
+  {
+    "name": "manju places with residents",
+    "pass": true
+  },
+  {
+    "name": "bag has authored footprint",
+    "pass": true
+  },
+  {
+    "name": "bag places with residents",
+    "pass": true
+  },
+  {
+    "name": "Distinct persistent factory roles",
+    "pass": true
+  },
+  {
+    "name": "Labor workforce has actual individuals",
+    "pass": true
+  },
+  {
+    "name": "Both processing works have dedicated parent pairs",
+    "pass": true
+  },
+  {
+    "name": "Parents receive actual nest homes",
+    "pass": true
+  },
+  {
+    "name": "Live packaging produces one finite sealed occupant",
+    "pass": true
+  },
+  {
+    "name": "Package preserves UUID, family and gold qualification",
+    "pass": true
+  },
+  {
+    "name": "Processing state is saved on the live occupant",
+    "pass": true
+  },
+  {
+    "name": "Factory reload keeps queued token and debited materials",
+    "pass": true
+  },
+  {
+    "name": "Factory sale debits stock and gives its actual package",
+    "pass": true
+  },
+  {
+    "name": "Empty product queue cannot sell again",
+    "pass": true
+  },
+  {
+    "name": "Blocked opening leaves the package and token intact",
+    "pass": true
+  },
+  {
+    "name": "Opening releases the same living UUID once",
+    "pass": true
+  },
+  {
+    "name": "Copied package cannot duplicate an occupant",
+    "pass": true
+  },
+  {
+    "name": "Released live product belongs to the opener",
+    "pass": true
+  },
+  {
+    "name": "Manju consumes real filling and wheat",
+    "pass": true
+  },
+  {
+    "name": "Manju retains source identity",
+    "pass": true
+  },
+  {
+    "name": "Production cooldown rejects a duplicate immediate operation",
+    "pass": true
+  },
+  {
+    "name": "Exhausted wheat stops processing without injury or debit",
+    "pass": true
+  },
+  {
+    "name": "Replenishment consumes only matching actual material",
+    "pass": true
+  },
+  {
+    "name": "Labor produces paper at a bench and spends worker nutrition",
+    "pass": true
+  },
+  {
+    "name": "One hungry laborer does not stop the healthy workforce",
+    "pass": true
+  },
+  {
+    "name": "Live package resale cannot profit from the three-emerald input payment",
+    "pass": true
+  },
+  {
+    "name": "Supply page 0 changes on the server",
+    "pass": true
+  },
+  {
+    "name": "Supply page 1 changes on the server",
+    "pass": true
+  },
+  {
+    "name": "Supply page 2 changes on the server",
+    "pass": true
+  },
+  {
+    "name": "Supply page 3 changes on the server",
+    "pass": true
+  },
+  {
+    "name": "Supply page 4 changes on the server",
+    "pass": true
+  },
+  {
+    "name": "Catalog contains 20 distinct real supplies",
+    "pass": true
+  },
+  {
+    "name": "Invalid page/action IDs cannot transact",
+    "pass": true
+  },
+  {
+    "name": "Authoritative family entry refuses a factory with no materials",
+    "pass": true
+  },
+  {
+    "name": "Nursery reservation cannot exceed its workshop capacity",
+    "pass": true
+  },
+  {
+    "name": "Workshop parent pair uses the authoritative conception path",
+    "pass": true
+  },
+  {
+    "name": "Actual brood creates a child with parent identities",
+    "pass": true
+  },
+  {
+    "name": "Stem newborn is not immediately ready for processing",
+    "pass": true
+  },
+  {
+    "name": "Nursery maturity requires real age and nourishment",
+    "pass": true
+  },
+  {
+    "name": "Nursery has a traversable route to the packing station",
+    "pass": true
+  },
+  {
+    "name": "AI carries a nursery child through the open outlet and packages that UUID",
+    "pass": true
+  }
+]

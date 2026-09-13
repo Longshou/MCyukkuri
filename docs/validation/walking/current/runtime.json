@@ -1,0 +1,30 @@
+{
+  "baseline": ".local\\settlements\\build\\libs\\mcyukkuri-0.1.0-dev.jar",
+  "baseline_sha256": "0cc7b9e6f109790740e4edeb397a7276f8ec31eb41b1609d476d3af4afa5c8a0",
+  "overlaid_resources": {
+    "assets/mcyukkuri/yukkuri/reimu.json": "25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e",
+    "assets/mcyukkuri/yukkuri_wounds/reimu.json.gz": "991a9a94c97c8d4c272bdcab93778ac4c1916c0e7c297bd89d4b970ef8b12bda",
+    "assets/mcyukkuri/yukkuri/marisa.json": "fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe",
+    "assets/mcyukkuri/yukkuri_wounds/marisa.json.gz": "cce3a346ff25eaef0bb2fc7da7cd0f5ebb9cad6f65e3d37253950ff729adbd24",
+    "assets/mcyukkuri/yukkuri/chen.json": "da6f19137c09d695ff2b61a4c716c5508a09612e49707f251c0111a58d8e3d87",
+    "assets/mcyukkuri/yukkuri_wounds/chen.json.gz": "3ae204f9d465447df1a83f84b340dec2c0564e19aeeb301946fdc8868dd04e61",
+    "assets/mcyukkuri/yukkuri/alice.json": "ebfbe7b738c02203e5a798e989144f1ae36f83152a0306d47911c38b634dcacb",
+    "assets/mcyukkuri/yukkuri_wounds/alice.json.gz": "3573cf8230086f82b5aaa90829c5af09540e3366e7cdaa6aba574a75db1f394c",
+    "assets/mcyukkuri/yukkuri/patchouli.json": "1b5b6245647107eb8d134bc2ee54a971f88cf4d0f0d2076cb3d041bac7ccd290",
+    "assets/mcyukkuri/yukkuri_wounds/patchouli.json.gz": "fddeb9094b45a30b367aab203a8d2870dfaf7d08c4001f85d86a5ae71ea20b76",
+    "assets/mcyukkuri/yukkuri/house_reimu.json": "e7f171042ee5348d225808d231caeff044e80502c963193acb1b36f6d06cc01a",
+    "assets/mcyukkuri/yukkuri_wounds/house_reimu.json.gz": "2f14e8cfb5f81aa2b42098dd5cca11c5da9af9b4245be766ed5638cb02d535e3",
+    "assets/mcyukkuri/yukkuri/house_marisa.json": "993d71e26d4cfbe925d0d5a813af98955d26e8de02c2c3c579012195aab9d560",
+    "assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz": "e7ab2443321e69b53eb19c744149be4ce3f96e8baf75f48aa71f74f6b2ea4863",
+    "assets/mcyukkuri/yukkuri/badge_mounts.json": "ab00cf4d27066680b2fab72cf365a9c5d972b3ba229f4558069dc848c6c89201"
+  },
+  "compiled_class_sha256": {
+    "p0/io/github/longshou/mcyukkuri/p0/P0Client.class": "293ce105fbd8dd0696f40fb9bed788a5602f454081329f1f31081f1e366c5da9",
+    "p0/io/github/longshou/mcyukkuri/p0/P0Mod.class": "459a04ecae8f8675fe65d6f3b8228e3a87dc65d12176abfd9d37a2dd322e8e1b",
+    "p0/io/github/longshou/mcyukkuri/p0/P0Server.class": "863e05ceef8972f7ddf059381a66df32b85c07144e229cf6d45da7a149994406",
+    "p0/io/github/longshou/mcyukkuri/p0/WaddleGameTests.class": "f38daf654a83f6ffe9c300535fce9d799b87fbdc0330a7baee7ebdc4f3b7d04a",
+    "p0/io/github/longshou/mcyukkuri/p0/WaddlePreview.class": "bd13a22d0fa3317a03467231921f107055d15fc340a4f1c663c30fad1265f86d",
+    "main/io/github/longshou/mcyukkuri/client/YukkuriModel.class": "a6de81f8a081f2b1edbb6c568de8a21d0da5e3cb9d5137cf859078f5f70ac72c",
+    "main/io/github/longshou/mcyukkuri/entity/YukkuriEntity.class": "ae4f8a5515a549a68c3c90f1039bf0aff8774dd34f09af3fe4c967660e82124a"
+  }
+}

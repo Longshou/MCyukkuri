@@ -19,11 +19,16 @@
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [],
-  "status": "retained",
+  "status": "accepted",
   "art": "Existing project pixels restored; no redraw",
   "aliases": [],
   "retained_source": "standards/yukkuri-v1/textures/marisa/neutral.png",
   "review_code": "O01",
   "origin": "original",
-  "review_pair": "neutral__new"
+  "review_pair": "neutral__new",
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
+  }
 }

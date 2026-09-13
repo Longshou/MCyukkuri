@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "samples": 141,
+  "cubes": 178,
+  "bones": 144,
+  "minY": 0,
+  "maxVerticalJoinError": 1.0000000028043132e-7,
+  "waistWidth": 5.775024,
+  "unchangedFeaturesWaddleError": 0
+}

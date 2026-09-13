@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-13",
+  "gameTestGroups": 10,
+  "passedGroups": 10,
+  "exitCode": 0,
+  "durationSeconds": 7.514,
+  "log": ".local/settlements/gametest-full/acceptance.log",
+  "logSha256": "33b28cd272caf0a1af6f3cf5e7204709024cff5b9f1b71cb66d16f3bf9c9104f"
+}

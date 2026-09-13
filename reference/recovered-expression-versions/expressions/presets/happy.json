@@ -1,0 +1,86 @@
+{
+  "id": "happy",
+  "label": "闭眼大笑",
+  "group": "笑脸",
+  "recipe": {
+    "eyes": "happy",
+    "brows": "relaxed",
+    "mouth": "smile",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/288366301c701066c60d.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/288366301c701066c60d.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本綴じ笑顔グラベース",
+      "index": 0,
+      "sprite_id": 6604,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔１グラベース",
+      "index": 0,
+      "sprite_id": 7808,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔２グラベース",
+      "index": 0,
+      "sprite_id": 6503,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔３グラベース",
+      "index": 0,
+      "sprite_id": 6533,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔４グラベース",
+      "index": 0,
+      "sprite_id": 7470,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "うんうんたいそう顔５グラベース",
+      "index": 0,
+      "sprite_id": 8633,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右閉じ笑顔グラベース",
+      "index": 0,
+      "sprite_id": 6403,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "寝顔面うんうんグラベース",
+      "index": 0,
+      "sprite_id": 8153,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

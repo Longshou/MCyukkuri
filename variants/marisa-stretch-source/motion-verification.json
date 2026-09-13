@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "samples": 141,
+  "cubes": 178,
+  "bones": 144,
+  "minY": 0,
+  "maxVerticalJoinError": 9.375000065148242e-8,
+  "minimumFrontBodyWidth": 10.081392,
+  "unchangedFeaturesWaddleError": 0
+}

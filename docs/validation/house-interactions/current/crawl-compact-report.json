@@ -1,0 +1,480 @@
+{
+  "models": {
+    "reimu": {
+      "path": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
+      "sha256": "a52e47e837316989b2beaeeb15724edd35f9d05e79858113d986ffa88cff2cd5",
+      "recorded_runtime_byte_equal": true
+    },
+    "marisa": {
+      "path": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+      "sha256": "c158a80a7867a7d87293d68e46c445d5cf78f3582d14eb2aba7c179e4e51d369",
+      "recorded_runtime_byte_equal": true
+    }
+  },
+  "traces": [
+    {
+      "species": "reimu",
+      "view": "side",
+      "sample_ticks": 349,
+      "continuous_crawl_ticks": 231,
+      "max_step_error_blocks": 3.655929725621121e-16,
+      "max_rest_drift_blocks": 0.0,
+      "crawl_distance_blocks": 0.2374999999999865,
+      "behaviors": [
+        "house_scavenge",
+        "house_pickup",
+        "house_carry",
+        "house_deposit",
+        "idle"
+      ],
+      "min_y": 65.0
+    },
+    {
+      "species": "reimu",
+      "view": "front",
+      "sample_ticks": 352,
+      "continuous_crawl_ticks": 233,
+      "max_step_error_blocks": 3.655929725621121e-16,
+      "max_rest_drift_blocks": 0.0,
+      "crawl_distance_blocks": 0.24429999999998664,
+      "behaviors": [
+        "house_scavenge",
+        "house_pickup",
+        "house_carry",
+        "house_deposit",
+        "idle"
+      ],
+      "min_y": 65.0
+    },
+    {
+      "species": "marisa",
+      "view": "side",
+      "sample_ticks": 348,
+      "continuous_crawl_ticks": 231,
+      "max_step_error_blocks": 3.655929725621121e-16,
+      "max_rest_drift_blocks": 0.0,
+      "crawl_distance_blocks": 0.2374999999999865,
+      "behaviors": [
+        "house_scavenge",
+        "house_pickup",
+        "house_carry",
+        "house_deposit",
+        "idle"
+      ],
+      "min_y": 65.0
+    },
+    {
+      "species": "marisa",
+      "view": "front",
+      "sample_ticks": 352,
+      "continuous_crawl_ticks": 233,
+      "max_step_error_blocks": 3.655929725621121e-16,
+      "max_rest_drift_blocks": 0.0,
+      "crawl_distance_blocks": 0.24429999999998664,
+      "behaviors": [
+        "house_scavenge",
+        "house_pickup",
+        "house_carry",
+        "house_deposit",
+        "idle"
+      ],
+      "min_y": 65.0
+    }
+  ],
+  "mouth_visibility": [
+    {
+      "id": "house_reimu",
+      "az": 0,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 176
+    },
+    {
+      "id": "house_reimu",
+      "az": 0.65,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 137
+    },
+    {
+      "id": "house_reimu",
+      "az": -0.65,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 136
+    },
+    {
+      "id": "house_marisa",
+      "az": 0,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 99
+    },
+    {
+      "id": "house_marisa",
+      "az": 0.65,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 81
+    },
+    {
+      "id": "house_marisa",
+      "az": -0.65,
+      "samples": 32,
+      "minimum_visible_fraction": 1,
+      "minimum_mouth_pixels": 81
+    }
+  ],
+  "foot_contacts": [
+    {
+      "species": "reimu",
+      "basis": "Actual server trajectory plus current exported skinning matrices on flat ground",
+      "rear_plant_samples": 80,
+      "max_rear_slip_blocks": 4.2931311838856345e-09,
+      "front_plant_samples": 95,
+      "max_front_slip_blocks": 5.89368731596096e-09
+    },
+    {
+      "species": "marisa",
+      "basis": "Actual server trajectory plus current exported skinning matrices on flat ground",
+      "rear_plant_samples": 80,
+      "max_rear_slip_blocks": 4.2931311838856345e-09,
+      "front_plant_samples": 95,
+      "max_front_slip_blocks": 5.89368731596096e-09
+    }
+  ],
+  "game_frames": 1145,
+  "geometry": {
+    "reimu": {
+      "house_pickup": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_carry": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "house_rump_core",
+            0.38274791159362
+          ],
+          [
+            "house_rump_round_end",
+            0.5112877762285898
+          ],
+          [
+            "face_effect_mouth",
+            0.7520107439760662
+          ]
+        ]
+      },
+      "house_deposit": {
+        "min_y": -0.00045533690801276457,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.00045533690801276457
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_crawl": {
+        "min_y": -5.000000000143778e-08,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -5.000000000143778e-08
+          ],
+          [
+            "house_rump_core",
+            0.30477109423068593
+          ],
+          [
+            "house_rump_round_end",
+            0.3534593945263226
+          ],
+          [
+            "face_effect_mouth",
+            0.7752025134730174
+          ]
+        ]
+      }
+    },
+    "marisa": {
+      "house_pickup": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_carry": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "house_rump_core",
+            0.38274791159362
+          ],
+          [
+            "house_rump_round_end",
+            0.5112877762285898
+          ],
+          [
+            "face_effect_mouth",
+            0.7520107439760662
+          ]
+        ]
+      },
+      "house_deposit": {
+        "min_y": -0.00045533690801276457,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.00045533690801276457
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_crawl": {
+        "min_y": -5.000000000143778e-08,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -5.000000000143778e-08
+          ],
+          [
+            "house_rump_core",
+            0.30477109423068593
+          ],
+          [
+            "house_rump_round_end",
+            0.3534593945263226
+          ],
+          [
+            "face_effect_mouth",
+            0.7752025134730174
+          ]
+        ]
+      }
+    }
+  },
+  "source": {
+    "scripts/runtime_house_interactions.py": "26f100047dc4afac5857e641602ee9517937c899a7bedadd461165ad23453cc0",
+    "src/main/java/io/github/longshou/mcyukkuri/house/HouseCrawlMotion.java": "b66dec1d1be0fa46dd7b02a1b3d77cb827c501ccc43159043a8cfd53f3cfa6cb",
+    "src/main/java/io/github/longshou/mcyukkuri/house/HouseCrawlControl.java": "930b44aa70800686c3397312083cf4f29451bf3ce7833c1620ca06b755d85fbf",
+    "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java": "b94eae252f2903a41ec05d9f1a49042a0053e2276bf94fc93915f9455d199bfd"
+  },
+  "previews": {
+    "art/source/standard-runtime/previews/current/house-crawl-compact-comparison.png": "3f3b751f4101795468920525487380d7608a4c0a11499043c36b79bb60750ce5",
+    "art/source/standard-runtime/previews/current/house-crawl-game.gif": "0720c38cb822e1354f2e9c3e0e2349f29350220fd12357c0387987693388d324",
+    "art/source/standard-runtime/previews/current/house-crawl-game.png": "68195234af8a7c6904e8af61a775a715ecf3c36e1404ad4c167b6a23393b15d5",
+    "art/source/standard-runtime/previews/current/house-crawl-phases.png": "068b4bd465e5e7acc4d48654cc91a91538f94f1488fdd37608fef67da64267a2",
+    "art/source/standard-runtime/previews/current/house-crawl.gif": "707bc619e048d06ce430250216121497c64e9bc2c60d4b65e1036313fdbae69e"
+  },
+  "visual_scope": {
+    "browser_frames": 144,
+    "mouth_pixel_comparisons": 192,
+    "views": [
+      "front",
+      "side",
+      "oblique"
+    ],
+    "actual_client_frames": 1145
+  },
+  "revision": {
+    "upper_reach_before": 0.64,
+    "upper_reach_after": 0.1,
+    "upper_drop_before": 0.58,
+    "max_upper_drop_after": 0.135,
+    "contact_stretch_before": 0.380952380952381,
+    "contact_stretch_after": 0.11904761904761905,
+    "stride_units": 0.2,
+    "period_ticks": 12
+  },
+  "review": "Current maximum-pose side and oblique views checked; previous skirt-like lower-body flare substantially retracted. User aesthetic confirmation pending.",
+  "house_motion_checks": [
+    {
+      "name": "small house body fits crevice above its floor while ordinary adult does not",
+      "pass": true,
+      "detail": "BlockPos{x=278, y=65, z=20}"
+    },
+    {
+      "name": "food without six materials cannot make a brood",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "real goal carries and deposits six source items",
+      "pass": true,
+      "detail": "6 / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1} / (278.5158038987899, 65.0, 19.684791750262566) / house_enter / {Accessory:1b,AgeTicks:4000L,Bladder:0.0f,Energy:65.0f,EnergyProgress:0,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:76141180301377L,HungerProgress:160,Hygiene:87.0f,HygieneProgress:100,MealTicks:0,NaturalHome:1b,Nutrition:79.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;44,21,70,53,69,80],Lessons:0,Players:[]},RestWait:0,SharedMeal:0b,SilverMedal:0b,SocialWait:125,Version:1,Wetness:0.0f} / []"
+    },
+    {
+      "name": "only three food prevents laying",
+      "pass": true,
+      "detail": "3"
+    },
+    {
+      "name": "actual nest ticker lays a uniquely identified house brood",
+      "pass": true,
+      "detail": "45811868-1f7c-4add-b0dd-f6da9d3fe60e"
+    },
+    {
+      "name": "egg identities and parents are fixed",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "egg parents retain their committed partnership",
+      "pass": true,
+      "detail": "{AdultScale:1.0f,Age:26959L,AwaitingLanding:0b,Conceptions:0,Initialized:1b,JuvenileVoice:0b,Lifespan:68874L,Nourishment:26958L,Partner:[I;-1944711130,-113622791,-2055796460,-501603097],Recovery:12000,Scale:1.0f,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:1}"
+    },
+    {
+      "name": "native block save restores same nest and brood",
+      "pass": true,
+      "detail": "4f3d27da-98bd-4de5-ba5a-7f80f9a25dad"
+    },
+    {
+      "name": "normal clean preserves eggs and lining",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "no stock pauses incubation",
+      "pass": true,
+      "detail": "40"
+    },
+    {
+      "name": "cleaning one nest leaves neighboring stock",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "real nest ticker hatches all eggs once",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "hatchlings are babies with real ancestry",
+      "pass": true,
+      "detail": "{AdultScale:0.9539434f,Age:40L,AwaitingLanding:0b,BirthId:[I;1166088296,528239325,-1327630630,-1656756722],Conceptions:0,Father:[I;1812160823,-1867037360,-1481047727,967670187],Initialized:1b,JuvenileVoice:0b,Lifespan:72143L,Mother:[I;-1944711130,-113622791,-2055796460,-501603097],Nourishment:40L,Recovery:0,Scale:0.32f,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"BABY\",Sterile:0b,Stimulation:0,Version:1}"
+    },
+    {
+      "name": "destroying a hatched nest keeps living children and genealogy",
+      "pass": true,
+      "detail": "8a1239ea-fff0-40ff-b7b8-d32a4be88ff2"
+    },
+    {
+      "name": "destroying one nest preserves the other",
+      "pass": true,
+      "detail": "5e1ae791-8f64-4ac7-ad55-96c578ec284b"
+    },
+    {
+      "name": "house actually enters the physical crevice",
+      "pass": true,
+      "detail": "(278.5488443044535, 65.0, 19.891949561398217)"
+    },
+    {
+      "name": "same resident visibly peeks from its opening",
+      "pass": true,
+      "detail": "house_hide"
+    },
+    {
+      "name": "resident leaves low roof and returns to floor",
+      "pass": true,
+      "detail": "(278.5573898920707, 65.0, 19.657298569895165)"
+    },
+    {
+      "name": "urgent hunger can consume real nest stock",
+      "pass": true,
+      "detail": "28.0 / 0 / idle / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1}"
+    },
+    {
+      "name": "hunger exits the crevice without a duplicate hidden entity",
+      "pass": true,
+      "detail": "(278.602672976378, 65.0, 19.883711299730255)"
+    },
+    {
+      "name": "crawl travel advances the authored root stroke",
+      "pass": true,
+      "detail": "(270.5, 65.0, 18.5037)"
+    },
+    {
+      "name": "crawl travel respects a solid wall",
+      "pass": true,
+      "detail": "(270.5, 65.0, 18.864999994635582)"
+    },
+    {
+      "name": "NoAI clears crawl before any old stroke",
+      "pass": true,
+      "detail": "(270.5, 65.0, 18.5)"
+    },
+    {
+      "name": "death clears crawl before any old stroke",
+      "pass": true,
+      "detail": "(270.5, 65.0, 18.5)"
+    }
+  ],
+  "build": "passed",
+  "asset_validation": "passed",
+  "temporary_processes": "stopped"
+}

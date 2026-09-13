@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "pending_user_confirmation",
+  "scope": ["reimu", "marisa"],
+  "baseline": "art/source/standard-runtime/{species}/{species}.bbmodel",
+  "shape_rules": {
+    "sparse": {"label": "稀疏毛发", "keep_bangs": [1, 3, 5], "hair_width": 0.32, "hair_length": 0.58, "hair_source_root_y": 9.01, "hair_root_y": 8.45, "bow_back_shift": -1.5},
+    "face": {"label": "面部不足", "left_eye_scale": [0.70, 0.73], "left_eye_offset": [0.12, 0.58], "mouth_shift": [0.48, -0.14]},
+    "bean": {"label": "豆形细长", "body_height": 1.55, "lower_width": 0.82, "upper_width": 0.48, "depth": 0.82, "head_scale": 0.52, "head_raise": 8.25}
+  },
+  "separation": "Congenital shape is saved separately from species and acquired wounds. The bean form and named subspecies are mutually exclusive.",
+  "reference_notes": "Geometric ratios are original Minecraft adaptation; no intelligence, vision or food incapacity is inferred from appearance."
+}

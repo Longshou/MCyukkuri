@@ -1,0 +1,656 @@
+{
+  "captures": [
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0000.png",
+      "clientTick": 1996,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7448,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0001.png",
+      "clientTick": 1999,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7451,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0002.png",
+      "clientTick": 2002,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7455,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0003.png",
+      "clientTick": 2005,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7458,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0004.png",
+      "clientTick": 2008,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7461,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0005.png",
+      "clientTick": 2011,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7464,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0006.png",
+      "clientTick": 2014,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7467,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0007.png",
+      "clientTick": 2017,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7470,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0008.png",
+      "clientTick": 2020,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7473,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0009.png",
+      "clientTick": 2023,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7476,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-alice-0010.png",
+      "clientTick": 2026,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7479,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "d96b301f-8cfa-4cb4-9147-665866208974",
+            "networkId": 43,
+            "variant": "alice",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7446,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    }
+  ],
+  "frames": 63,
+  "maxFrameMs": 69.9473,
+  "meanFrameMs": 23.832744444444444
+}

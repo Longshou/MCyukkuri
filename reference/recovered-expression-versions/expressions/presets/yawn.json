@@ -1,0 +1,37 @@
+{
+  "id": "yawn",
+  "label": "打哈欠",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "eyes": "closed",
+    "brows": "relaxed",
+    "mouth": "yawn",
+    "tears": "flow",
+    "blush": "normal",
+    "effect": "none"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+    "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+    "face_mouth": "expressions/parts/3ef9ff0a643f1700de23.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "基本あくび顔グラベース",
+      "index": 0,
+      "sprite_id": 8564,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

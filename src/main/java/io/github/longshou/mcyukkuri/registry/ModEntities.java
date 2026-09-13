@@ -2,9 +2,15 @@ package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -12,26 +18,67 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModEntities {
     public static final DeferredRegister<EntityType<?>> TYPES =
             DeferredRegister.create(Registries.ENTITY_TYPE, MCYukkuri.MOD_ID);
+    public static final DeferredHolder<EntityType<?>, EntityType<io.github.longshou.mcyukkuri.subspecies.HatBoatEntity>> HAT_BOAT =
+            TYPES.register("hat_boat", () -> EntityType.Builder.<io.github.longshou.mcyukkuri.subspecies.HatBoatEntity>of(
+                    io.github.longshou.mcyukkuri.subspecies.HatBoatEntity::new, MobCategory.MISC)
+                    .sized(1.05f, .20f).clientTrackingRange(8).updateInterval(2).build(MCYukkuri.id("hat_boat").toString()));
+    public static final DeferredHolder<EntityType<?>,EntityType<io.github.longshou.mcyukkuri.entity.MaterialDrop>> MATERIAL_DROP=TYPES.register("material_drop",
+            ()->EntityType.Builder.<io.github.longshou.mcyukkuri.entity.MaterialDrop>of(io.github.longshou.mcyukkuri.entity.MaterialDrop::new,MobCategory.MISC)
+                    .sized(.25f,.25f).clientTrackingRange(6).updateInterval(20).build(MCYukkuri.id("material_drop").toString()));
 
-    // Geometry uses 16 units per block. Bounds include the selected ribbons and hat.
+    // Body bounds at 16 model units per block; hats and ribbons are visual accessories.
     public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> REIMU =
-            register("reimu", 1.05F, 0.75F, 0.35F);
+            register(YukkuriVariant.REIMU, 0.75F, 0.53F, 0.28F);
     public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> MARISA =
-            register("marisa", 1.20F, 1.15F, 0.35F);
+            register(YukkuriVariant.MARISA, 0.75F, 0.53F, 0.28F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> HOUSE_REIMU =
+            register(YukkuriVariant.HOUSE_REIMU, 0.27F, 0.23875F, 0.14F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> HOUSE_MARISA =
+            register(YukkuriVariant.HOUSE_MARISA, 0.27F, 0.23875F, 0.14F);
+
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> CHEN =
+            register(YukkuriVariant.CHEN, 0.75F, 0.53F, 0.28F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> ALICE =
+            register(YukkuriVariant.ALICE, 0.75F, 0.53F, 0.28F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> PATCHOULI =
+            register(YukkuriVariant.PATCHOULI, 0.75F, 0.53F, 0.28F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> REMILIA =
+            register(YukkuriVariant.REMILIA, 0.80F, 0.60F, 0.34F);
+    public static final DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> FLANDRE =
+            register(YukkuriVariant.FLANDRE, 0.80F, 0.60F, 0.34F);
 
     private static DeferredHolder<EntityType<?>, EntityType<YukkuriEntity>> register(
-            String species, float width, float height, float eyeHeight) {
-        return TYPES.register(species, () -> EntityType.Builder
-                .<YukkuriEntity>of((type, level) -> new YukkuriEntity(type, level, species), MobCategory.CREATURE)
+            YukkuriVariant variant, float width, float height, float eyeHeight) {
+        return TYPES.register(variant.assetId(), () -> EntityType.Builder
+                .<YukkuriEntity>of((type, level) -> new YukkuriEntity(type, level, variant), MobCategory.CREATURE)
                 .sized(width, height)
                 .eyeHeight(eyeHeight)
                 .clientTrackingRange(8)
-                .build(MCYukkuri.id(species).toString()));
+                .build(MCYukkuri.id(variant.assetId()).toString()));
     }
 
     public static void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(REIMU.get(), YukkuriEntity.createAttributes().build());
-        event.put(MARISA.get(), YukkuriEntity.createAttributes().build());
+        for (var variant : YukkuriVariant.values()) event.put(forVariant(variant), YukkuriEntity.createAttributes().build());
+    }
+
+    public static EntityType<YukkuriEntity> forVariant(YukkuriVariant variant) {
+        return switch(variant) { case REIMU -> REIMU.get(); case MARISA -> MARISA.get();
+            case HOUSE_REIMU -> HOUSE_REIMU.get(); case HOUSE_MARISA -> HOUSE_MARISA.get();
+            case CHEN -> CHEN.get(); case ALICE -> ALICE.get(); case PATCHOULI -> PATCHOULI.get();
+            case REMILIA -> REMILIA.get(); case FLANDRE -> FLANDRE.get(); };
+    }
+
+    public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        for (var type : java.util.List.of(REIMU, MARISA, CHEN, ALICE, PATCHOULI, REMILIA, FLANDRE)) {
+            event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    (entityType, level, reason, pos, random) -> YukkuriConfig.NATURAL_SPAWNS.get()
+                            && level.getRawBrightness(pos, 0) > 8
+                            && level.getBlockState(pos.below()).is(net.minecraft.tags.BlockTags.ANIMALS_SPAWNABLE_ON)
+                            && level.getFluidState(pos).isEmpty()
+                            && level.getLevel().getEntitiesOfClass(YukkuriEntity.class,
+                                    new net.minecraft.world.phys.AABB(pos).inflate(32)).size() < YukkuriConfig.LOCAL_SPAWN_CAP.get(),
+                    RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        }
     }
 
     private ModEntities() {}

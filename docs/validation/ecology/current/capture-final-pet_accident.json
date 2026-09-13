@@ -1,0 +1,656 @@
+{
+  "captures": [
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0000.png",
+      "clientTick": 1284,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6736,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "brace",
+            "start": 6733,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "toilet_accident",
+            "behaviorStart": 6733,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "dialogue.mcyukkuri.native.reimu.adult.l0420",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0001.png",
+      "clientTick": 1294,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6746,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "brace",
+            "start": 6733,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "toilet_accident",
+            "behaviorStart": 6733,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "dialogue.mcyukkuri.native.reimu.adult.l0420",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0002.png",
+      "clientTick": 1304,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 1,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6756,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "brace",
+            "start": 6733,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "toilet_accident",
+            "behaviorStart": 6733,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "dialogue.mcyukkuri.native.reimu.adult.l0420",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0003.png",
+      "clientTick": 1314,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 1,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6766,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "brace",
+            "start": 6733,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "toilet_accident",
+            "behaviorStart": 6733,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "dialogue.mcyukkuri.native.reimu.adult.l0420",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0004.png",
+      "clientTick": 1324,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 1,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6776,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "dialogue.mcyukkuri.native.reimu.adult.l0420",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0005.png",
+      "clientTick": 1334,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6786,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0006.png",
+      "clientTick": 1344,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6797,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0007.png",
+      "clientTick": 1354,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6807,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0008.png",
+      "clientTick": 1364,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6817,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0009.png",
+      "clientTick": 1374,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6827,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "teary",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-pet_accident-0010.png",
+      "clientTick": 1384,
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 6836,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "cede8e7c-4fce-431d-92b0-6cbc2c5d42b9",
+            "networkId": 23,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 6772,
+            "expression": "neutral",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "idle",
+            "behaviorStart": 6772,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 6733,
+            "speechEnd": 6778,
+            "speechSequence": 1,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    }
+  ],
+  "frames": 274,
+  "maxFrameMs": 64.0155,
+  "meanFrameMs": 18.2404
+}

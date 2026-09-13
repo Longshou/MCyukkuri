@@ -1,9 +1,60 @@
 # 项目脚本
 
+联合验收使用 `port_integration.init.gradle` 隔离每个 source set 的真实输出与运行 classpath；`run_port_integration.py` 冻结、校验并隐藏启动本任务产物，`accept_port_integration.py` 驱动真实专服双客户端流程。命令、指纹与执行边界见[联合验收记录](../docs/validation/port-integration/README.md)。
+
+消耗品与普通胎生使用 `consumable_checks.init.gradle` 显式隔离所有 source set 的编译输出，配合独立 Gradle project cache；`run_consumable_checks.py` 冻结产物、在 `.local/consumables-birth/` 新建世界并核对五份报告。构建与运行命令见 [专题实现](../docs/CONSUMABLES_AND_BIRTH.md)，不启动客户端或代为接受 EULA。
+
+接触器具的制作与导出入口为 `standards/yukkuri-library/drafts/operation-tools/build.py`。它从参数配方及所选角色表面制作器具、固定带、铁箱和培养瓶，同步可编辑模型、接入快照、运行资源、配方与指纹；`--check` 只核对导出。当前版本为待确认的游戏适配版。
+
 | 脚本 | 输入与用途 | 执行边界 |
 | --- | --- | --- |
-| `validate_entity_assets.py` | 对照 `art/source/` 与运行资源，检查两种实体的几何、贴图、动画标识和骨骼引用 | 在指定验证环境使用；本机不执行 |
+| `export_predator_assets.py` | 从捕食种配方导出的模型同步两种实体快照、256 图集、19+4 动作与来源登记 | 只导蕾米莉亚、弗兰，不替换现有七种 |
+| `preview_predators.py` | 生成两种运行数据交互预览和八视图拼图 | 使用实际导出网格离线渲染，不启动游戏 |
+| `export_predator_language.py` | 增量合并捕食种专属语言、生成蛋模型和低权重森林生成规则 | 保留其他任务语言键 |
+| `run_predator_checks.py` | 从独立构建冻结运行资源，执行捕食或商店引擎检查 | 输出位于 `.local/predators/`，要求最近完整构建成功 |
+| `predator_preview.py` | 准备独立客户端、发出预览／采集／停止请求 | 使用本任务冻结快照和一次性世界，不控制其他任务进程 |
+| `export_wound_surfaces.cjs` | 读取七种当前运行角色与选定 R3.1 源，导出外皮细分、五官挂接、骨架、动作及材质；记录来源指纹 | 写 `yukkuri_wounds/` 与伤口适配包，不修改标准角色源，不启动游戏 |
+| `verify_wound_runtime.py` | 核对伤口源与输出指纹、有限数值及共点权重一致性 | 只读，不启动游戏 |
+| `run_wound_checks.py` | 使用既有 JDK 21、Gradle 参数和编译夹具启动伤口 GameTest 或隔离客户端 | 冻结每轮运行产物；隐藏启动，世界与日志写 `.local/wound-integration/`，完成后停止本轮进程 |
+| `capture_wound_preview.py` | 在已就绪的伤口客户端录制七种角色、多方向和动作，核对服务端与客户端伤情 | 仅向该客户端顺序发送预览请求，不并发控制；PNG 与状态写本轮临时目录 |
+| `export_human_world.py` | 从制作源同步商店、三类工厂及旧模板、生成规则、五套服装、原创机台与商品、生成蛋及中英语言；`--check` 核对指纹 | 默认写本模块资源与登记；检查只读，不启动游戏 |
+| `run_human_checks.py` | 使用 Gradle 已编译产物，运行人类交易与工厂生产两组 GameTest | 每次冻结运行文件并新建隔离世界，避免旧亲缘和人口记录影响繁育；隐藏启动，报告默认写 `.local/human-world/gametest-clean/`，可用 `--work-directory .local/<任务>/gametest` 隔离，不接受 EULA |
+| `catalogue_hakkei_dialogue.py` | 只读原版八景 U 角色 CSV 与 ModLab 翻译／新增 TSV，生成分离的对白检索与来源指纹 | 写 `art/dialogue/native-u/`，不写来源游戏和运行资源 |
+| `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，输出 288 条 WAV／OGG、发音符号及试听页；204 原版与 84 原创分别标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；不打包程序、字典或 DLL |
+| `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
+| `build_audio.py` | 首轮音频制作工具，Mei 方案已被否决；`--check` 只核对归档指纹及运行文件已撤回 | 默认生成入口已停用，不再写游戏资源；新方向见 `art/audio/DIARY_AUDIO_RESEARCH.md` |
+| `export_runtime_models.py` | 读取五个标准种族及两种家油导出；制作快照、适配骨架、运行 JSON、贴图和静态预览数据，并更新来源登记 | 只写静态美术数据；不启动游戏、页面或测试 |
+| `runtime_house_interactions.py` | 供模型导出器调用；制作家油俯身夹取、短辫持物、放下与蠕动曲线，登记辫梢挂点 | 无独立启动入口，不改标准造型 |
+| `runtime_waddle.py` | 供模型导出器调用；将家油走动适配至实际连续身体截面，增强五种普通角色的油菊摆动 | 不写文件，不改标准造型，保留 1.2 秒周期 |
+| `runtime_animation.py` | 供模型导出器调用；按游戏矩阵采样并生成帕秋莉长发接地骨骼与混合绑定 | 无独立启动入口，不改标准造型 |
+| `export_badges.py` | 从徽章挂点配方及当前饰物几何导出挂接数据、手册配方和语言；`--check` 核对一致性 | 默认写游戏资源；检查模式只读 |
+| `run_badge_checks.py` | 在冻结构建和独立临时世界中验证金银章训练、考试、佩戴、保存与社会反应 | JDK 21；报告写 `.local/badges/gametest-clean/`；缺少实际报告时判失败 |
+| `badge_checks.init.gradle` | 固定徽章任务所有 source set 的实际编译输出到 `.local/badges/build` | 配合独立 `--project-cache-dir` 与 `--no-configuration-cache`；详见 `docs/BADGES.md` |
+| `validate_entity_assets.py` | 读取九种运行模型，检查来源指纹、骨架、共享顶点绑定、19 个动作时长、贴图及生成蛋资源 | 只读检查，可按任务需要在本机或 CI 运行 |
+| `export_living_assets.py` | 从生活设施配方导出 19 份模型、方块状态、材质与嘴部表现数据，更新来源指纹；`--check` 检查现有导出 | 默认写游戏资源与来源登记；检查模式只读，不启动游戏 |
+| `export_family_assets.py` | 从生命周期和家庭配方导出共用茎形、挂接与成长参数；`--check` 核对指纹 | 只写游戏适配资源，不覆盖角色标准 |
+| `export_house_assets.py` | 从家油照料配方导出缝隙、土冢、物品、合成和来源；`--check` 核对导出 | 默认写资源，检查模式只读 |
+| `export_peripheral_assets.py` | 从周边固定快照导出静态网格、贴图、物品／方块调度和合成，记录输入输出指纹；`--check` 核对导出 | 只读取所选快照，不改变标准确认；草麦引用原版贴图资源位置 |
+| `run_p0.py` | 准备隔离配置、启动已有 JDK 21 与 Gradle 生成的运行入口、发送 JSON 控制请求 | 世界、日志与结果只写 `.local/p0/`；隐藏启动窗口；不代为接受 EULA；进程停止使用对应目标的 `stop` 请求 |
+| `run_settlement_checks.py` | 复用 Gradle 生成的 GameTest 启动参数，只运行群落、住所、返家与物资维护检查 | 需 JDK 21 与已编译夹具；世界和报告写 `.local/settlements/gametest/`，隐藏无窗口运行，不接受 EULA |
+| `capture_p0.py` | 在已加载的 P0 单人预览中逐一录制 19 个动作和家油重点动作 | 写实际 Minecraft 帧缓冲 PNG 与状态时间线；约两分钟，期间不要向同一客户端发送其他请求 |
 
 标准素材包的制作和局部导出脚本保留在 `standards/yukkuri-library/` 内，见其 [目录约定](../standards/yukkuri-library/AGENTS.md)。不要把有相对路径依赖的包内脚本移到这里。
 
+P0 的准备命令、控制协议及验收边界见 [P0 验收记录](../docs/P0_VALIDATION.md)。同一目标一次只能有一个实例，所有控制请求按顺序发送。
+
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
+
+亚种与先天形态入口，详见[实现与验收](../docs/SUBSPECIES_IMPLEMENTATION.md)：
+
+| 脚本 | 用途与写入边界 |
+| --- | --- |
+| `export_subspecies.py` | 读取已选螺壳／多毛源与不足形态配方，生成八套模型、快照、口部数据、帽船和螺壳道具；`--stage` 只写源与快照，默认同步自身运行资源；`--textures-only` 只补表情导出，`--check-textures` 只读核对128图覆盖、解码、尺寸和来源指纹；需 Python/Pillow |
+| `export_subspecies_wounds.cjs` | 读取八套实际运行几何与既有受伤表面算法，仅重建对应受伤表面和指纹；需 Node.js |
+| `preview_subspecies.py` | 从本轮运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
+| `subspecies_checks.init.gradle` | 隔离各 source set 的编译／资源输出并选中亚种 GameTest；须搭配独立项目缓存与禁用配置缓存 |
+
+日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`；构建先使用 `-I scripts/ecology-build.init.gradle --project-cache-dir .local/ecology/gradle-cache --no-configuration-cache` 隔离实际类、资源和 classpath，随后 `run_ecology_checks.py gametest/preview` 冻结本任务成功产物到 `.local/ecology/` 并运行隔离测试或隐藏客户端。`--suite living` 单独运行旧生活回归；`preview --world-from <目录>` 可选择已经通过生态报告的隔离世界。说明与验收见[日常生态记录](../docs/ECOLOGY_DAILY_LIFE.md)。
+
+认知检查使用 `cognition_checks.init.gradle` 隔离实际类、资源与 classpath，搭配 `--project-cache-dir .local/cognition/gradle-cache --no-configuration-cache` 完成构建。
+`run_cognition_checks.py gametest` 将本轮产物、启动参数与逐文件指纹冻结到 `.local/cognition/` 并运行认知专项；`preview` 可运行隔离图鉴客户端，须先协调采集时段。输入为成功构建输出及 JDK 21，写入只在本任务临时目录，不使用玩家存档。见[认知能力实现](../docs/COGNITION_IMPLEMENTATION.md)。

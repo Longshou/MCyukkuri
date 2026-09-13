@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-13",
+  "gameTest": ".local\\cognition\\gametest\\20260912-214016-298219",
+  "checks": 51,
+  "passed": 51,
+  "exitCode": 0,
+  "buildCommand": "gradlew.bat --offline build createP0GameTestLaunchScript createP0PreviewLaunchScript --project-cache-dir .local/cognition/gradle-cache --no-configuration-cache -I scripts/cognition_checks.init.gradle",
+  "runCommand": "python scripts/run_cognition_checks.py gametest",
+  "sourceHashesAtPackaging": {
+    "src/main/java/io/github/longshou/mcyukkuri/cognition/Cognition.java": "bf47e9681730a56485b5f1e063c6fe8177d6eca2581a98dd5ca09f0c33ba2c77",
+    "src/main/java/io/github/longshou/mcyukkuri/cognition/CognitionData.java": "3fa517331c671ef5d1e359c4c848c88c6b609c4b75fb00832948be3e67f1bc93",
+    "src/main/java/io/github/longshou/mcyukkuri/cognition/CognitionObservation.java": "7c5d334eb7ab956a2c49be206a33913e01950441c5e9407708f252f0a26aa682",
+    "src/main/java/io/github/longshou/mcyukkuri/social/YukkuriSocial.java": "b1f853dd2b895de16d2d96dd1946754a53a50426477cab24522f776c319d9370",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyData.java": "790701cf53b5bb2c7aea92ef445a6182a5c30848aa715c6b94c29fb5774614e0",
+    "src/main/java/io/github/longshou/mcyukkuri/item/NotebookItem.java": "0a61b9f170486a6dda3e1fd03cb1a832faf152100b7b65cd70651f361d9f39ad",
+    "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java": "9306a5e283e333859127e9200eb73b1f8ab997f2a3ec6d2fea73299fb7ba1e2a",
+    "src/main/java/io/github/longshou/mcyukkuri/event/WildEventData.java": "204ac1dbb4dbd10c9026f405044b37ede0e07f772800cf4688a7662e2f515108",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/CognitionGameTests.java": "5e4738250cb928b3f34a391c18cee049dfe336cb4edd3c42afd2e4cb376773c8",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/P0Mod.java": "5109e269c76d5500ecf0b77656da5c3a44efe85c7e449798698043485f7b425d",
+    "scripts/cognition_checks.init.gradle": "42974eed9aafea5722b855d956aefb952eae733fb22110fabce8cdf928a4c8c6",
+    "scripts/run_cognition_checks.py": "76aef49d0b023ac9be862aba883d82bf4f8a188ffb40259b3a3b755f1d28face"
+  },
+  "compiledHashes": {
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/Cognition$Snapshot.class": "7cc707bfbf9b97b3b669060547895e12d5392de01389b25ff496326511863171",
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/Cognition$TeachingResult.class": "5272185a626cd4aad9cbb572d1f896f3a02f2d743eb0c54efe6ccdf80d71f0e5",
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/Cognition.class": "97c0917d2d75a87fbdf421e226e1077d4593ad430888f65aeaeec2075e6eee8a",
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/CognitionData$Entry.class": "b0fd62dd1c6c63bb3707cd2ecef15920fa07944cf57e3006585a5bc8cdfc71f2",
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/CognitionData.class": "2c55b75c16a8837b46f505f0ffdb2108a0e456973b413d7942afc013b40b6ca3",
+    "classes/java/main/io/github/longshou/mcyukkuri/cognition/CognitionObservation.class": "63fb0ac408d68e9fbd87f1ebf80d212732dcad0f777b4b4ca916ffa5a9fe66c5",
+    "classes/java/main/io/github/longshou/mcyukkuri/event/WildCards.class": "0e1b9a3fa067f4720716eb6a1a2f54031ec44bc26a65e465060611a278ddf9f8",
+    "classes/java/main/io/github/longshou/mcyukkuri/event/WildEventData.class": "4abc74e14089e382949ab033c40cfdcc971d5451e0cafa31bb4474e366013ec6",
+    "classes/java/main/io/github/longshou/mcyukkuri/family/FamilyData.class": "ddfb0b0447f3bd7b2f51e9d363b353d36243ba891a77c94ff70a9fb03a37a09a",
+    "classes/java/main/io/github/longshou/mcyukkuri/item/NotebookItem.class": "92e570e322791196b8247a9352827d2b064ae0f54af7033d413060b75b9fb7b0",
+    "classes/java/main/io/github/longshou/mcyukkuri/social/YukkuriSocial.class": "93b5083925e9de159df04dc8869ce6f8951a21301e59079490503a52444122ba",
+    "classes/java/p0Test/io/github/longshou/mcyukkuri/p0/CognitionGameTests.class": "87534b2d0136317ef1b33bdbc61d66207dbf15d8ae9c4de5073a636d33b4e8ab",
+    "classes/java/p0Test/io/github/longshou/mcyukkuri/p0/P0Mod.class": "5d21850afc519627460e60de2cf5cbc3cb740e50ba78298590993f7497f5ccc7"
+  },
+  "languageResourceHashes": {
+    "resources/main/assets/mcyukkuri/lang/en_us.json": "033f0fd992324e8367941ef29a79ec7c352bac7ddf45ea8f0f94189dc19ee7b2",
+    "resources/main/assets/mcyukkuri/lang/ja_jp.json": "7621b02d5e022386817d7c36b64f8bdd8af8643be088c6f3ce54bf88bb298a37",
+    "resources/main/assets/mcyukkuri/lang/zh_cn.json": "ce17349bf61b2452a0868b84fce538fd0c0ee74a9cc8c676ba8e9be3fc91094e"
+  },
+  "buildOutputs": [
+    "COGNITION_OUTPUT main: classes=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\classes\\java\\main; resources=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\resources\\main",
+    "COGNITION_OUTPUT p0Test: classes=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\classes\\java\\p0Test; resources=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\resources\\p0Test",
+    "COGNITION_OUTPUT test: classes=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\classes\\java\\test; resources=E:\\yukkuri\\MCyukkuri\\.local\\cognition\\build\\resources\\test"
+  ],
+  "runtimeClasspathSharedRootBuildReferenced": false,
+  "releaseJar": {
+    "path": ".local\\cognition\\build\\libs\\mcyukkuri-0.1.0-dev.jar",
+    "sha256": "c9c1e90befe02898775ff58f3eea5fb690e17a9aa8ab6b0773bd237c58c7e16b",
+    "containsCognition": true,
+    "containsP0Fixture": false
+  },
+  "client": {
+    "runtime": ".local/wild-events/runtime-14",
+    "fontReport": "client-font-check.json",
+    "coreHashes": "client-core-checks.json",
+    "screenshotSha256": "28daa30fbfb88329db2b2581cb510e86569f507eaca59bcdcc1f62ad59bc5b5d",
+    "pageHeight": 63,
+    "maxHeight": 99,
+    "visualInspection": true
+  }
+}

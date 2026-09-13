@@ -1,0 +1,111 @@
+{
+  "id": "landing",
+  "label": "挤眼抿嘴",
+  "group": "动作表情",
+  "recipe": {
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N014",
+      "face_eye_right": "N014",
+      "face_mouth": "N020",
+      "face_brow_left": "N012",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N012",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": []
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/351094a83deebb6be6dc.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "着地１顔面グラベース",
+      "index": 0,
+      "sprite_id": 6863,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地２顔面グラベース",
+      "index": 0,
+      "sprite_id": 6377,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地３顔面グラベース",
+      "index": 0,
+      "sprite_id": 5970,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "着地４顔面グラベース",
+      "index": 0,
+      "sprite_id": 8666,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右バツ顔面グラベース",
+      "index": 0,
+      "sprite_id": 8087,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "デコピン１顔面グラベース",
+      "index": 0,
+      "sprite_id": 4643,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "accepted",
+  "art": "User selected reused-batch review version on 2026-09-12",
+  "aliases": [],
+  "review_code": "N050",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_mouth": {
+      "position": [
+        0,
+        0.12,
+        0
+      ],
+      "scale": [
+        0.95,
+        0.9,
+        1
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "按用户条件确认当前消极受力／不适／忍耐版本；不将其登记为通用开心或愉悦表情。"
+  },
+  "semantic_usage": {
+    "valence": "negative",
+    "uses": [
+      "受力不适",
+      "忍耐",
+      "消极挤眼抿嘴"
+    ],
+    "reference": "drafts/expression-review/reuse-batch/round2/n050-reference.md"
+  }
+}

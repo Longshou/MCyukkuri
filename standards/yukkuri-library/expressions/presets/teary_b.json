@@ -3,23 +3,31 @@
   "label": "含泪 · 泪帧 B",
   "group": "哭泣",
   "recipe": {
-    "eyes": "normal",
-    "brows": "sad",
-    "mouth": "caret",
-    "tears": "flow_b",
-    "blush": "normal",
-    "effect": "none"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "O05",
+      "face_brow_left": "O05",
+      "face_blush_left": "O05",
+      "face_tear_left": "N052",
+      "face_eye_right": "O05",
+      "face_brow_right": "O05",
+      "face_blush_right": "O05",
+      "face_tear_right": "N052",
+      "face_mouth": "O05",
+      "face_effect_mouth": "O05"
+    },
+    "retained_special": []
   },
   "parts": {
     "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
-    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/257e131aa3a5584d429b.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
     "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
-    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
-    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/adfe6d4fa3984a539160.png",
-    "face_mouth": "expressions/parts/7a0b2bfc6b887d5e3eaa.png",
+    "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+    "face_mouth": "expressions/parts/57a99722f11714cc0584.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
@@ -52,10 +60,41 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted final-batch selection on 2026-09-12",
   "aliases": [],
   "review_code": "N004",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_tear_left": {
+      "scale": [
+        1.15,
+        1.7,
+        1
+      ],
+      "position": [
+        0,
+        -0.7015,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "scale": [
+        1.15,
+        1.7,
+        1
+      ],
+      "position": [
+        0,
+        -0.7015,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户询问 N077/N078 用途，其余九项通过；保存当前展示版本。"
+  }
 }

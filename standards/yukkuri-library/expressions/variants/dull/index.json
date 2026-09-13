@@ -1,0 +1,47 @@
+{
+  "status": "accepted",
+  "date": "2026-09-12",
+  "default": "A",
+  "variants": {
+    "A": {
+      "label": "棕灰无反光",
+      "preset": "expressions/variants/dull/a.json",
+      "files": {
+        "expressions/variants/dull/a.json": "f4cbb2488bb0091e8690eb6bbfd13259323d88e163dfc5a171175f59c7d3c1da",
+        "expressions/parts/6b26a19b89ebe71df2d3.png": "9cd99594e12eddab2e8cd0501f49e972fcc86e79542045d6b56288c9f034a132",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "B": {
+      "label": "棕灰暗瞳孔",
+      "preset": "expressions/variants/dull/b.json",
+      "files": {
+        "expressions/variants/dull/b.json": "ae7673607b23a8c61b19ca2194f8ebd615ddbe695b971d90e9e1b3a156e4e9fa",
+        "expressions/parts/33ae3d72d3c16f16a42a.png": "bd97af460e7ce506c8139154678f89072452f5a2bebf7fed4c412425cd6c96e3",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "C": {
+      "label": "棕灰半垂眼",
+      "preset": "expressions/variants/dull/c.json",
+      "files": {
+        "expressions/variants/dull/c.json": "ef9fff9283f61331eb618d4e23e68962152f4f2525c3a017778c43e1ab6ce35e",
+        "expressions/parts/6918a7803ee2fb81144f.png": "950da3127cbc2cc20060ba227adf3ec8743dc2e198979c75afac15a1d78dee0c",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    }
+  },
+  "note": "第六轮当前展示通过；A 是比较页默认款并作为 N033 默认，B/C 保存为同编号备选，不另起核对编号。"
+}

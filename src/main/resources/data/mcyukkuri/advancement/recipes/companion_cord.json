@@ -1,0 +1,6 @@
+{
+  "parent":"minecraft:recipes/root",
+  "criteria":{"has_string":{"trigger":"minecraft:inventory_changed","conditions":{"items":[{"items":"minecraft:string"}]}},"has_recipe":{"trigger":"minecraft:recipe_unlocked","conditions":{"recipe":"mcyukkuri:companion_cord"}}},
+  "requirements":[["has_string","has_recipe"]],
+  "rewards":{"recipes":["mcyukkuri:companion_cord"]}
+}

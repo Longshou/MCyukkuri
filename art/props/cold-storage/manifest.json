@@ -1,0 +1,22 @@
+{
+  "status": "pending_user_confirmation",
+  "source": "standards/yukkuri-library/drafts/cold-storage/recipe.json",
+  "source_sha256": "ca434ebb5cb2364a75f8094497e721fb20cec1232d5bbee4b0d148bc03917be0",
+  "geometry": "26 static opaque cuboids; no bone or animation; vanilla Java block model",
+  "outputs": {
+    "standards/yukkuri-library/drafts/cold-storage/assembled/cold_storage.json": "bc7f0512f690c32781fd4e5f03ca8fe15d8b28f6aa46784f34dd0c47b1764e7a",
+    "art/props/cold-storage/selected/cold_storage.json": "bc7f0512f690c32781fd4e5f03ca8fe15d8b28f6aa46784f34dd0c47b1764e7a",
+    "src/main/resources/assets/mcyukkuri/models/block/cold_storage.json": "bc7f0512f690c32781fd4e5f03ca8fe15d8b28f6aa46784f34dd0c47b1764e7a",
+    "standards/yukkuri-library/drafts/cold-storage/assembled/cold_storage.bbmodel": "6e8cd90560d255f2d5e8b726d0723c76037e9bdbdea803487897a986438cd1e7",
+    "art/props/cold-storage/selected/cold_storage.bbmodel": "6e8cd90560d255f2d5e8b726d0723c76037e9bdbdea803487897a986438cd1e7",
+    "standards/yukkuri-library/drafts/cold-storage/assembled/cold_storage.png": "50ebfe48acd13d8802cf375d972c6870cbef25277d32c445a404b865ee5fe187",
+    "art/props/cold-storage/selected/cold_storage.png": "50ebfe48acd13d8802cf375d972c6870cbef25277d32c445a404b865ee5fe187",
+    "src/main/resources/assets/mcyukkuri/textures/block/cold_storage.png": "50ebfe48acd13d8802cf375d972c6870cbef25277d32c445a404b865ee5fe187",
+    "src/main/resources/assets/mcyukkuri/models/item/cold_storage.json": "8e3214d53051b6cb915bce7a90c524903e603b8f75717958f2f00b21b10eb15b",
+    "src/main/resources/assets/mcyukkuri/blockstates/cold_storage.json": "2cb2c70ea62c760ee89ac1f2e04c8ebfdead53cc22630e0b203ebaa93bf5a02c",
+    "src/main/resources/data/mcyukkuri/recipe/cold_storage.json": "f7030c1c4efa97371f193e7c47f02d5ce0107e8c7b5905f9172b169b9e4e9861",
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/cold_storage.json": "c752c7438070f41d0a990c6c9391a6875b09bbc3c97d924f0c56870e7cc8d63b",
+    "art/props/cold-storage/previews/current/model-sheet.png": "486191b8e6ee6fef97bee5f67403259f2e3801c631fd9da6d5c4e36eb32a26ee",
+    "standards/yukkuri-library/drafts/cold-storage/previews/current/model-sheet.png": "486191b8e6ee6fef97bee5f67403259f2e3801c631fd9da6d5c4e36eb32a26ee"
+  }
+}

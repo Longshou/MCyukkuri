@@ -1,0 +1,98 @@
+[
+  {
+    "name": "marisa_tsumuri selected_model",
+    "pass": true
+  },
+  {
+    "name": "marisa_tsumuri selected_rig",
+    "pass": true
+  },
+  {
+    "name": "marisa_tsumuri runtime",
+    "pass": true
+  },
+  {
+    "name": "reimu_wasa selected_model",
+    "pass": true
+  },
+  {
+    "name": "reimu_wasa selected_rig",
+    "pass": true
+  },
+  {
+    "name": "reimu_wasa runtime",
+    "pass": true
+  },
+  {
+    "name": "reimu_sparse selected_model",
+    "pass": true
+  },
+  {
+    "name": "reimu_sparse selected_rig",
+    "pass": true
+  },
+  {
+    "name": "reimu_sparse runtime",
+    "pass": true
+  },
+  {
+    "name": "reimu_face selected_model",
+    "pass": true
+  },
+  {
+    "name": "reimu_face selected_rig",
+    "pass": true
+  },
+  {
+    "name": "reimu_face runtime",
+    "pass": true
+  },
+  {
+    "name": "reimu_bean selected_model",
+    "pass": true
+  },
+  {
+    "name": "reimu_bean selected_rig",
+    "pass": true
+  },
+  {
+    "name": "reimu_bean runtime",
+    "pass": true
+  },
+  {
+    "name": "marisa_sparse selected_model",
+    "pass": true
+  },
+  {
+    "name": "marisa_sparse selected_rig",
+    "pass": true
+  },
+  {
+    "name": "marisa_sparse runtime",
+    "pass": true
+  },
+  {
+    "name": "marisa_face selected_model",
+    "pass": true
+  },
+  {
+    "name": "marisa_face selected_rig",
+    "pass": true
+  },
+  {
+    "name": "marisa_face runtime",
+    "pass": true
+  },
+  {
+    "name": "marisa_bean selected_model",
+    "pass": true
+  },
+  {
+    "name": "marisa_bean selected_rig",
+    "pass": true
+  },
+  {
+    "name": "marisa_bean runtime",
+    "pass": true
+  }
+]

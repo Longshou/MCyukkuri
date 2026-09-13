@@ -1,0 +1,5 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');const {poseVertices}=require('./motion.js');
+const d=JSON.parse(fs.readFileSync(path.join(__dirname,'preview.html'),'utf8').match(/const DATA=(.*);/)[1]),bb=JSON.parse(fs.readFileSync(path.join(__dirname,'blockbench-verification.json'),'utf8'));
+const v=poseVertices(d.vertices,d.rig,.3);let error=0;
+for(let c=0;c<53;c++){const mn=[Infinity,Infinity,Infinity],mx=[-Infinity,-Infinity,-Infinity];for(let i=c*288;i<(c+1)*288;i+=8)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],v[i+k]);mx[k]=Math.max(mx[k],v[i+k]);}for(let k=0;k<3;k++){error=Math.max(error,Math.abs(mn[k]-bb.posed[c].min[k]),Math.abs(mx[k]-bb.posed[c].max[k]));}}
+assert(error<.00001,`Blockbench versus preview pose discrepancy ${error}`);console.log('PASS Blockbench imported animation vs preview all 53 cube world bounds',error);bb.poseComparison={status:'passed',time:.3,maxBoundsError:error};fs.writeFileSync(path.join(__dirname,'blockbench-verification.json'),JSON.stringify(bb,null,2));

@@ -1,0 +1,1 @@
+{"type": "neoforge:add_spawns", "biomes": "#mcyukkuri:predator_habitat", "spawners": [{"type": "mcyukkuri:remilia", "weight": 1, "minCount": 1, "maxCount": 1}, {"type": "mcyukkuri:flandre", "weight": 1, "minCount": 1, "maxCount": 1}]}

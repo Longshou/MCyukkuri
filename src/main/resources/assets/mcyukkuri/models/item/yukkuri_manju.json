@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mcyukkuri:item/yukkuri_manju"
+  }
+}

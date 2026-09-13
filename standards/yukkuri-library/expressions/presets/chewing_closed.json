@@ -3,19 +3,28 @@
   "label": "咀嚼闭嘴",
   "group": "动作表情",
   "recipe": {
-    "eyes": "closed",
-    "brows": "normal",
-    "mouth": "chew",
-    "tears": "none",
-    "blush": "puffed",
-    "effect": "none"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "O09",
+      "face_eye_right": "O09",
+      "face_brow_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": [
+      "face_blush_left",
+      "face_blush_right",
+      "face_mouth"
+    ]
   },
   "parts": {
-    "face_eye_left": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
     "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
     "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
     "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_eye_right": "expressions/parts/a3d83fe339c0999925d5.png",
+    "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
     "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
     "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
@@ -38,10 +47,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted batch N051–N062 selection on 2026-09-12",
   "aliases": [],
   "review_code": "N055",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户确认本轮改后版本；未点名项按“其他没问题”保存当前展示版。"
+  }
 }

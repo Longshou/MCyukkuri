@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-13",
+  "environment": "Windows / Java 21.0.12.1 / NeoForge 21.1.250 / Minecraft 1.21.1",
+  "build": "passed",
+  "engine_suite": "6 required GameTests passed, 435 stored assertions across 5 check files; sixth test covers native speech",
+  "preview": "actual client screenshots; egg floor corrected after independent review; empty wound side capture replaced",
+  "not_run": [
+    "new two-client synchronization acceptance",
+    "new dedicated-server disk restart",
+    "default-speed multi-generation playthrough",
+    "bulk facility performance profiling"
+  ],
+  "files": {
+    "src/main/java/io/github/longshou/mcyukkuri/client/HouseNestRenderer.java": "150ebcb254ecf16f7e60200038dafd2f23ace62ac24bb89c1f3128811dc6ad13",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriModel.java": "22109b9c27a66d53e267efbc6e8cb2902ccf6e41a2a65adadd537c37ba2bc298",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriRenderer.java": "077d7eea0e1c553a98704f4f5b30636c67c015b0cee6969ac854c4b8a73c3b26",
+    "src/main/java/io/github/longshou/mcyukkuri/client/MaterialDropRenderer.java": "d42079ac66facc8368f6bca29e10279a2cd88e497d60991dd2051ace6d3167e0",
+    "src/main/java/io/github/longshou/mcyukkuri/client/PropModels.java": "7187812b4a6b544951d065f7c23165a6d1b6cdb0577b91f82bf827c1a24139b6",
+    "src/main/java/io/github/longshou/mcyukkuri/item/FillingItem.java": "ae8600125205f6fc854072cdf0b8feb55920e8b6d2174ecd65607d237d7d6295",
+    "src/main/java/io/github/longshou/mcyukkuri/house/HouseLife.java": "0467c45b52360f17274d5f35d1edff7a5b95a4cb2ea4b9df2aaa71302ec5102e",
+    "src/main/java/io/github/longshou/mcyukkuri/body/BodyLife.java": "42dac2160badc8208cfaeef08cacc75ec104d08d82031bb2ff78f27da96b2a1b",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/FillingGameTests.java": "8cfbdfc32fc5f7142da339654df25f92b1f6c42b8e4bfcc6667ebbf14d197d05",
+    "art/props/runtime-peripheral/recipe.json": "0267e67927c800935290cf7fe6cc094796bd0c934cb9149dc5eea50cb8aab4d4",
+    "art/props/runtime-peripheral/selection.json": "bef928547a7fdd79cf90b95a76f5ec047861d2629e717983b1582111eb63faa7",
+    "art/props/runtime-peripheral/provenance.json": "550f1a862f20d00a7a219d857400206c68ae3f1d2edc0c98c51b751fb89ca2f5",
+    "build/libs/mcyukkuri-0.1.0-dev.jar": "8ba74b24eed7d75a0aff6e801b445ac43cebc46f90d4a1045dd09251b66d9e67"
+  }
+}

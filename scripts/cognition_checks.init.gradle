@@ -1,0 +1,16 @@
+// Isolate actual compiler/resource outputs as well as the build directory.
+gradle.beforeProject { p -> p.layout.buildDirectory.set(p.file('.local/cognition/build')) }
+gradle.projectsEvaluated {
+    rootProject.allprojects { p ->
+        p.sourceSets.each { s ->
+            def classes = p.layout.buildDirectory.dir("classes/java/${s.name}")
+            def resources = p.layout.buildDirectory.dir("resources/${s.name}")
+            p.tasks.named(s.compileJavaTaskName).configure { destinationDirectory.set(classes) }
+            s.output.classesDirs.setFrom(classes)
+            s.output.resourcesDir = resources.get().asFile
+            p.tasks.named(s.processResourcesTaskName).configure { destinationDir = resources.get().asFile }
+            println "COGNITION_OUTPUT ${s.name}: classes=${s.output.classesDirs.asPath}; resources=${s.output.resourcesDir}"
+            println "COGNITION_CLASSPATH ${s.name}: ${s.runtimeClasspath.asPath}"
+        }
+    }
+}

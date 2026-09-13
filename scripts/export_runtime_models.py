@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+"""Export static model/rig data and a file-openable preview; never launch a runtime.
+
+Reads the selected standard exports, preserves the old art/source/{species}
+baseline, writes art/source/standard-runtime and packaged yukkuri/*.json assets.
+House retargeting is defined here, separately from the standard shape recipe.
+"""
+from pathlib import Path
+import base64
+import copy
+import hashlib
+import json
+import re
+import shutil
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+LIB = ROOT / 'standards/yukkuri-library'
+HOUSE = LIB / 'ecology/house-yukkuri/assembled'
+OUT = ROOT / 'art/source/standard-runtime'
+ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
+sys.path[:0] = [str(LIB / 'ecology/house-yukkuri'), str(LIB)]
+from mesh_geometry import vertices
+from runtime_animation import fit_grounded_hair
+from runtime_house_interactions import add_house_interactions
+from runtime_waddle import fit_waddle
+
+
+def read(path):
+    return json.loads(path.read_text(encoding='utf-8-sig'))
+
+
+def save(path, value, *, pretty=False):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2 if pretty else None,
+                               separators=None if pretty else (',', ':'), allow_nan=False), encoding='utf-8')
+
+
+def fingerprint(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def relative(path):
+    return path.relative_to(ROOT).as_posix()
+
+
+def house_rig(standard, original):
+    rig = copy.deepcopy(standard)
+    # Rest-space proportions: 4.32 x 3.82 x 2.93 versus the standard body.
+    factors = [4.32 / 12, 3.82 / 8.48, 2.93 / 13.2]
+    for bone in rig['bones']:
+        bone['pivot'] = [v * s for v, s in zip(bone['pivot'], factors)]
+        bone['pivot'][2] -= 1.6351562 * factors[2]
+        if bone['name'] == 'world_motion':
+            bone['pivot'] = [0, 0, 0]
+    for clip in rig['clips'].values():
+        for channels in clip['tracks'].values():
+            for t, value in channels.get('position', {}).items():
+                channels['position'][t] = [v * s for v, s in zip(value, factors)]
+    # Dedicated house attachments keep their fitted rest pivots and exact travel.
+    original_bones = {b['name']: b for b in original['bones']}
+    for bone in rig['bones']:
+        if bone['name'] in ('anatomy_mamu', 'anatomy_peni', 'hand_left', 'hand_right'):
+            bone['pivot'] = original_bones[bone['name']]['pivot'][:]
+    rig['clips'].update({k: copy.deepcopy(v) for k, v in original['clips'].items() if k.startswith('anatomy_')})
+    # No separate cheek balloons exist on the house shape. Retarget their swell
+    # to body width/depth, keeping the source puff timing instead of a no-op.
+    swell = rig['clips']['puff']['tracks']['puff_left']['scale']
+    rig['clips']['puff']['tracks']['root']['scale'] = {
+        t: [1 + max(0, v[0] - 1) * .6, 1, 1 + max(0, v[0] - 1) * .3] for t, v in swell.items()
+    }
+    return rig
+
+
+def binding(y, names):
+    # Shared body vertices receive identical two-bone weights across triangles.
+    # Continuous blending avoids seams at the original 32 slice boundaries.
+    q = min(31, max(0, y / 3.82 * 32 - .5))
+    lo = int(q)
+    hi = min(31, lo + 1)
+    return [names[f'soft_head_slice_{lo}_bend'], names[f'soft_head_slice_{hi}_bend'], round(q - lo, 7)]
+
+
+def export(species, is_house):
+    ident = ('house_' if is_house else '') + species
+    directory = HOUSE if is_house else LIB / 'assembled' / species
+    bbpath = directory / (ident + '.bbmodel')
+    rigpath = directory / (ident + '.rig.json' if is_house else 'animation-rig.json')
+    bb, original = read(bbpath), read(rigpath)
+    standard_bb = read(LIB / 'assembled' / species / (species + '.bbmodel'))
+    standard = read(LIB / 'assembled' / species / 'animation-rig.json')
+    rig = house_rig(standard, original) if is_house else copy.deepcopy(original)
+    names = {b['name']: i for i, b in enumerate(rig['bones'])}
+    source_groups = {e['name']: g for e, g in zip(standard_bb['elements'], standard['groups'])}
+    # Server navigation owns planar travel and heading during flight.
+    for action, clip in rig['clips'].items():
+        world = clip['tracks'].get('world_motion', {})
+        for value in world.get('position', {}).values():
+            value[0] = value[2] = 0
+        if action == 'flee':
+            world.pop('rotation', None)
+    flat, weights, parts = [], [], []
+    for element, group in zip(bb['elements'], original['groups']):
+        vv = vertices(element, bb['resolution']['width'])
+        # Legacy cube authoring triangles use the opposite winding from meshes.
+        # Normalize winding to the authored outward normal for Minecraft lighting.
+        for i in range(0, len(vv), 24):
+            a = [vv[i + 8 + k] - vv[i + k] for k in range(3)]
+            b = [vv[i + 16 + k] - vv[i + k] for k in range(3)]
+            n = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+            if sum(n[k] * vv[i + 5 + k] for k in range(3)) < 0:
+                vv[i+8:i+24] = vv[i+16:i+24] + vv[i+8:i+16]
+        start = len(weights)
+        if is_house:
+            name = re.sub(r'_house_fit_\d+$', '', element['name'])
+            target = source_groups.get(name)
+            # Every fitted scalp piece follows the same continuous body field.
+            # Mixing a skinned wrap with rigid bangs/crown tears their overlap
+            # apart during side bends. Hats and side locks keep their own rigs.
+            flexible = element['name'].startswith((
+                'house_body_surface', 'house_hair_', 'house_temple_',
+                'house_bang_', 'house_rump_'))
+            if flexible:
+                bind = [binding(vv[i + 1], names) for i in range(0, len(vv), 8)]
+            else:
+                fallback = {'head': 'hair', 'face': 'face', 'body': 'body_stretch', 'rump': 'rump'}
+                target = target or fallback.get(group, group)
+                bind = [[names[target], names[target], 0] for _ in range(len(vv) // 8)]
+        else:
+            bind = [[names[group], names[group], 0] for _ in range(len(vv) // 8)]
+        flat.extend(round(v, 7) for v in vv)
+        weights.extend(bind)
+        parts.append({'name': element['name'], 'start': start, 'count': len(bind),
+                      'anatomy': group.removeprefix('anatomy_') if group.startswith('anatomy_') else ''})
+    walking = fit_waddle(rig, is_house)
+    retargeting = fit_grounded_hair(rig, flat, weights) if species == 'patchouli' and not is_house else {}
+    if is_house:
+        retargeting = add_house_interactions(rig, species)
+    retargeting['walking'] = walking
+    names = {b['name']: i for i, b in enumerate(rig['bones'])}
+    bones = [{'name': b['name'], 'parent': -1 if b['parent'] is None else names[b['parent']], 'pivot': b['pivot']} for b in rig['bones']]
+    clips = {}
+    for key, clip in {**rig['clips'], **rig.get('behavior_clips', {})}.items():
+        clips[key] = {'duration': clip['duration'], 'loop': clip['loop'], 'tracks': [
+            {'bone': names[name], 'channel': channel,
+             'keys': [[float(t), *value] for t, value in sorted(keys.items(), key=lambda item: float(item[0]))]}
+            for name, channels in clip['tracks'].items() for channel, keys in channels.items()]}
+    model = {'format': 1, 'id': ident, 'units_per_block': 16, 'house': is_house,
+             'vertices': flat, 'weights': weights, 'parts': parts, 'bones': bones, 'clips': clips}
+    if is_house:
+        model['behavior_clips'] = {key: clips.pop(key) for key in rig['behavior_clips']}
+        model['grip'] = {**rig['grip'], 'bones': [names[n] for n in rig['grip']['bones']]}
+    rig['groups'] = [rig['bones'][weights[p['start']][0]]['name'] for p in parts]
+    rig['element_vertex_counts'] = [p['count'] for p in parts]
+    rig['vertex_weights'] = weights
+    rig['binding_mode'] = 'two_bone_linear_skinning'
+    target = OUT / ident
+    target.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(bbpath, target / (ident + '.bbmodel'))
+    save(target / 'animation-rig.json', rig)
+    save(target / 'runtime.model.json', model)
+    runtime_path = ASSETS / 'yukkuri' / (ident + '.json')
+    save(runtime_path, model)
+    textures, texture_records = {}, {}
+    for expr in read(LIB / 'ecology/house-yukkuri/config.json')['expressions']:
+        exprpath = LIB / 'assembled' / species / 'textures' / (expr + '.png')
+        source = HOUSE / (ident + '_' + expr + '.png') if is_house else exprpath
+        output = ASSETS / 'textures/entity' / ident / (expr + '.png')
+        output.parent.mkdir(parents=True, exist_ok=True)
+        (target / 'textures').mkdir(exist_ok=True)
+        shutil.copyfile(source, output)
+        shutil.copyfile(source, target / 'textures' / (expr + '.png'))
+        textures[expr] = 'data:image/png;base64,' + base64.b64encode(source.read_bytes()).decode()
+        texture_records[expr] = {'source': relative(source), 'runtime': relative(output), 'sha256': fingerprint(output)}
+    provenance = {'selected_model': relative(bbpath), 'selected_model_sha256': fingerprint(bbpath),
+                  'selected_rig': relative(rigpath), 'selected_rig_sha256': fingerprint(rigpath),
+                  'standard_motion_source': relative(LIB / 'assembled' / species / 'animation-rig.json'),
+                  'standard_motion_sha256': fingerprint(LIB / 'assembled' / species / 'animation-rig.json'),
+                  'snapshot': relative(target / (ident + '.bbmodel')), 'rig': relative(target / 'animation-rig.json'),
+                  'runtime': relative(runtime_path), 'runtime_sha256': fingerprint(runtime_path),
+                  'geometry_identifier': ident, 'bone_count': len(bones), 'clips': list(clips), 'textures': texture_records,
+                  'shape_status': 'pending_confirmation' if is_house else 'selected_standard_export',
+                  'game_acceptance': 'not_executed', 'retargeting': retargeting}
+    return ident, model, textures, provenance
+
+
+def main():
+    catalog, records = {}, {}
+    for house in (False, True):
+        for species in (('reimu', 'marisa') if house else ('reimu', 'marisa', 'chen', 'alice', 'patchouli')):
+            ident, model, textures, record = export(species, house)
+            catalog[ident] = {'model': model, 'textures': textures}
+            records[ident] = record
+            print(ident, len(model['weights']), 'vertices;', len(model['clips']), 'clips')
+    dependencies = [ROOT / 'scripts/runtime_animation.py', ROOT / 'scripts/runtime_house_interactions.py', ROOT / 'scripts/runtime_waddle.py', LIB / 'geometry.py', LIB / 'ecology/house-yukkuri/mesh_geometry.py', LIB / 'ecology/house-yukkuri/config.json']
+    save(OUT / 'provenance.json', {'exporter': relative(Path(__file__)), 'exporter_sha256': fingerprint(Path(__file__)),
+                                  'export_dependencies': {relative(p): fingerprint(p) for p in dependencies},
+                                  'entities': records}, pretty=True)
+    old = read(ROOT / 'art/runtime-sources.json')
+    save(ROOT / 'art/runtime-sources.json', {
+        **old,
+        'schema_version': 2, 'path_base': 'repository_root', 'automatic_promotion': False,
+        'standard_authoring_library': 'standards/yukkuri-library',
+        'purpose': 'Seven selected entity models and retargeted numeric animation rigs',
+        'models': {**old.get('models', {}), **records}, 'legacy_models': old.get('legacy_models', old.get('models', {})),
+        'legacy_status': 'Preserved earlier M1 files; no longer referenced by the entity renderer',
+        'preview': relative(OUT / 'preview.html'), 'exporter': relative(Path(__file__))}, pretty=True)
+    (OUT / 'preview-data.js').write_text('const MODELS=' + json.dumps(catalog, separators=(',', ':')) + ';', encoding='utf-8')
+
+
+if __name__ == '__main__':
+    main()

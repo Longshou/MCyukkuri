@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "original": "E:\\yukkuri\\テスト版ゆっくり八景U.v9.8",
+  "source_version": "Hakkei U v9.8",
+  "assembly_sha256": "2f63d13ef3a4acb035ad58308f1a926ff9df9240d3b7f2e12018ca2e97bb2480",
+  "files": [
+    {
+      "path": "yukkuri/arisu/sei_serifu.csv",
+      "sha256": "27a34d641b584c6bb0d699333782240fc1f58c68333fa11f1d83792ecab4cda3",
+      "lines": 6171,
+      "species": "arisu",
+      "age": "adult"
+    },
+    {
+      "path": "yukkuri/arisu/serifu.csv",
+      "sha256": "a76376300f388b78d5ee6ab7d6910b6b480583ce41854cb30d7474152fdc56bc",
+      "lines": 6171,
+      "species": "arisu",
+      "age": "young"
+    },
+    {
+      "path": "yukkuri/marisa/sei_serifu.csv",
+      "sha256": "094e9f85249b0569e44c86da32e99e37f9d3bfb563ff7824b145558d3b62f0a6",
+      "lines": 6171,
+      "species": "marisa",
+      "age": "adult"
+    },
+    {
+      "path": "yukkuri/marisa/serifu.csv",
+      "sha256": "93ec71b90f2ba9812cad8afbd813cad9425984eae487550b550c306ab55130a9",
+      "lines": 6171,
+      "species": "marisa",
+      "age": "young"
+    },
+    {
+      "path": "yukkuri/patyu/sei_serifu.csv",
+      "sha256": "a8db172a92a9460f45ce4c2c260538e3227bc4ec9ede41e5c87a4641ccc551a7",
+      "lines": 121,
+      "species": "patyu",
+      "age": "adult"
+    },
+    {
+      "path": "yukkuri/patyu/serifu.csv",
+      "sha256": "6c095f818b033886a0b606a8bdc426aff3766db745b0f4e6455af591f6bcb1a0",
+      "lines": 121,
+      "species": "patyu",
+      "age": "young"
+    },
+    {
+      "path": "yukkuri/reimu/sei_serifu.csv",
+      "sha256": "2bc515b22ebe1c9b95c7be62d7ecc4f2957b750f23d2728cabeb844f9cf52037",
+      "lines": 6171,
+      "species": "reimu",
+      "age": "adult"
+    },
+    {
+      "path": "yukkuri/reimu/serifu.csv",
+      "sha256": "c9874ccf32acb44f23f5ebe4d9150cec95607d65522dbef767df602b775b0b1a",
+      "lines": 6171,
+      "species": "reimu",
+      "age": "young"
+    },
+    {
+      "path": "yukkuri/tilen/sei_serifu.csv",
+      "sha256": "2a6ac64f112bec513d1f49798e198563e8f98d1841564041aa8498b20a5369d0",
+      "lines": 121,
+      "species": "tilen",
+      "age": "adult"
+    },
+    {
+      "path": "yukkuri/tilen/serifu.csv",
+      "sha256": "0e2237a07d5bd27221ec487fe17bc466562f6795a494cec74b2e6099f1a58d89",
+      "lines": 121,
+      "species": "tilen",
+      "age": "young"
+    }
+  ],
+  "mod_files": [
+    {
+      "path": "localization/behavior-dialogue.tsv",
+      "sha256": "cdcd9e5a2d886213f08f9f52e9b35ca43e1a4270426db43188eb7ddc3e07f3ef",
+      "rows": 489
+    },
+    {
+      "path": "localization/bereavement-dialogue.tsv",
+      "sha256": "5a130a1dbe7023d20b9f79540dba5e3a0bab14e084d716557873c0bd160035e0",
+      "rows": 54
+    },
+    {
+      "path": "localization/bullying-dialogue.tsv",
+      "sha256": "bd40b0dfa760852a295db42caff8ad7a86ced5f139560d6c8330df934866835c",
+      "rows": 234
+    },
+    {
+      "path": "localization/chen-dialogue.tsv",
+      "sha256": "99f675807d15e25cb72f92ca8e1d0ef72cb1d4cb78a6a39fabda8f9752daaf45",
+      "rows": 284
+    },
+    {
+      "path": "localization/sanction-dialogue.tsv",
+      "sha256": "b0d5dcaa0c85ad2a173503dec55b8c7f33ef866b03b448b9c82137896291108f",
+      "rows": 36
+    },
+    {
+      "path": "localization/wild-dialogue.tsv",
+      "sha256": "d78def7ac8f35e2681cda269bc22deaf07eeb619d8c364bbb7186b63e81d7fea",
+      "rows": 918
+    }
+  ],
+  "boundary": "Mod TSVs are comparison references, excluded from native corpus and runtime selection. Inline Mod code dialogue is not exhaustively indexed.",
+  "native_entries": 34109,
+  "native_groups": 3399,
+  "mod_entries": 2015,
+  "catalogue_sha256": "f63bf87590c5e4ed020588f1998d25ebd59080d5f769870e460d57ccaeca5304"
+}

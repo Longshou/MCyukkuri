@@ -1,0 +1,7 @@
+{
+  "src/main/java/io/github/longshou/mcyukkuri/family/DetachedStemGeometry.java": "bd6518c33d3e8a4025697defc1e8b7edfb3237611414a7f3eff02d738c9879b9",
+  "src/main/java/io/github/longshou/mcyukkuri/client/DetachedStemRenderer.java": "df4cf04df0529f953cbc0d12b0ee64c59e2f60c83d2439848b28d49c6524d86e",
+  "src/p0Test/java/io/github/longshou/mcyukkuri/p0/DetachedStemIntegrationPreview.java": "0caf28ebab5dddf6bd1ebe5782fafd00850b0f6465f404db4709daddc413b608",
+  "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "56aef2d698abfe9e36e191586550d407328eb44fb8e0bf37038311c6878b9804",
+  "src/main/resources/assets/mcyukkuri/yukkuri_props/brood_bottle.json": "e279bbc46f75a72cbcdd1b87136f85866197887683db91f5c9d14bb48a1bfa45"
+}

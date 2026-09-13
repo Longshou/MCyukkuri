@@ -1,0 +1,174 @@
+[
+  {
+    "name": "Body emits a real finite portion",
+    "pass": true
+  },
+  {
+    "name": "Fresh leak separates identity, composition and method",
+    "pass": true
+  },
+  {
+    "name": "Only local witnesses know the source",
+    "pass": true
+  },
+  {
+    "name": "Known source changes willingness without changing the food",
+    "pass": true
+  },
+  {
+    "name": "Source knowledge survives body NBT",
+    "pass": true
+  },
+  {
+    "name": "Remote notification is refused",
+    "pass": true
+  },
+  {
+    "name": "Bowl preserves a refused portion",
+    "pass": true
+  },
+  {
+    "name": "Competing consumers cannot take a second copy",
+    "pass": true
+  },
+  {
+    "name": "An unwitnessed portion can be eaten",
+    "pass": true
+  },
+  {
+    "name": "Swallow retires exactly one portion with fixed nutrition",
+    "pass": true
+  },
+  {
+    "name": "Filling does not fabricate scraps or heal the wound",
+    "pass": true
+  },
+  {
+    "name": "Finished chewing grants no second nutrition",
+    "pass": true
+  },
+  {
+    "name": "Each emission gets a separate portion identity",
+    "pass": true
+  },
+  {
+    "name": "A later arrival does not inherit old witness knowledge",
+    "pass": true
+  },
+  {
+    "name": "Second physical portion enters the mouth",
+    "pass": true
+  },
+  {
+    "name": "A nearby actual witness can warn the eater",
+    "pass": true
+  },
+  {
+    "name": "Warning before swallowing returns the same physical portion",
+    "pass": true
+  },
+  {
+    "name": "Severe hunger permits a known portion",
+    "pass": true
+  },
+  {
+    "name": "Odor is separate from source knowledge",
+    "pass": true
+  },
+  {
+    "name": "Severe hunger permits foul food",
+    "pass": true
+  },
+  {
+    "name": "Contaminated serving can begin",
+    "pass": true
+  },
+  {
+    "name": "Contamination settles only at swallow",
+    "pass": true
+  },
+  {
+    "name": "An exhausted body cannot emit another portion",
+    "pass": true
+  },
+  {
+    "name": "Cleaning consumes one water charge and keeps ordinary food",
+    "pass": true
+  },
+  {
+    "name": "Cleaned portions cannot be consumed again",
+    "pass": true
+  },
+  {
+    "name": "Empty cleanup does not spend water",
+    "pass": true
+  },
+  {
+    "name": "Juice spends one serving and repairs all existing physical fields",
+    "pass": true
+  },
+  {
+    "name": "Juice does not equate mold with physical injury",
+    "pass": true
+  },
+  {
+    "name": "Successful bottled treatment returns one empty bottle",
+    "pass": true
+  },
+  {
+    "name": "Redundant treatment consumes neither juice nor another bottle",
+    "pass": true
+  },
+  {
+    "name": "Mold remover clears mold and preserves separate infection",
+    "pass": true
+  },
+  {
+    "name": "Mold-free bodies reject a second dose",
+    "pass": true
+  },
+  {
+    "name": "Distinct disease fields survive save",
+    "pass": true
+  },
+  {
+    "name": "Grain serving accepted: mcyukkuri:oil_grain_budget",
+    "pass": true
+  },
+  {
+    "name": "Grain tier uses its actual nutritional value: mcyukkuri:oil_grain_budget",
+    "pass": true
+  },
+  {
+    "name": "Grain serving accepted: mcyukkuri:oil_grain_regular",
+    "pass": true
+  },
+  {
+    "name": "Grain tier uses its actual nutritional value: mcyukkuri:oil_grain_regular",
+    "pass": true
+  },
+  {
+    "name": "Grain serving accepted: mcyukkuri:oil_grain_premium",
+    "pass": true
+  },
+  {
+    "name": "Grain tier uses its actual nutritional value: mcyukkuri:oil_grain_premium",
+    "pass": true
+  },
+  {
+    "name": "Toilet retains each source size through save and cleaning",
+    "pass": true
+  },
+  {
+    "name": "Second toilet cleanup cannot duplicate waste",
+    "pass": true
+  },
+  {
+    "name": "Player-dropped filling converts once with the full count and provenance",
+    "pass": true
+  },
+  {
+    "name": "Saved material entity restores its actual class, count and provenance",
+    "pass": true
+  }
+]

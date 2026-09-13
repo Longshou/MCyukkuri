@@ -1,0 +1,656 @@
+{
+  "captures": [
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0000.png",
+      "clientTick": 2164,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7616,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0001.png",
+      "clientTick": 2167,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7619,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0002.png",
+      "clientTick": 2170,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7622,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0003.png",
+      "clientTick": 2173,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7625,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0004.png",
+      "clientTick": 2176,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7628,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0005.png",
+      "clientTick": 2179,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7631,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0006.png",
+      "clientTick": 2182,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7635,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0007.png",
+      "clientTick": 2185,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7638,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0008.png",
+      "clientTick": 2188,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7641,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "closed_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0009.png",
+      "clientTick": 2191,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7644,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-house_marisa-0010.png",
+      "clientTick": 2194,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7647,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "071bfc0a-acd7-49ee-b94e-ec8c9795b23e",
+            "networkId": 51,
+            "variant": "house_marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7610,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    }
+  ],
+  "frames": 60,
+  "maxFrameMs": 74.1248,
+  "meanFrameMs": 25.055876666666666
+}

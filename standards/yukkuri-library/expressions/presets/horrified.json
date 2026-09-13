@@ -38,8 +38,8 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User selected this expression on 2026-09-12",
   "aliases": [],
   "review_code": "N039",
   "origin": "new",
@@ -54,7 +54,9 @@
     }
   },
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "沿用修订版眼睛和泪光，横向惊惧嘴稍微张大。"
+    "status": "accepted",
+    "note": "采用第二轮横向惊惧嘴新版。",
+    "date": "2026-09-12",
+    "basis": "Explicit user selection in review round 3"
   }
 }

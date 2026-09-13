@@ -1,0 +1,125 @@
+[
+  {
+    "name": "same original bean mother restored in copied test world",
+    "pass": true,
+    "detail": {
+      "uuid": "974c228c-7781-4050-b154-3b4accbb90b0",
+      "variant": "reimu",
+      "asset": "reimu_bean",
+      "flags": 48,
+      "medal": 1,
+      "accessory": true,
+      "scale": 1.0,
+      "stage": 2,
+      "pregnancy": 0.19171429,
+      "delivery": -1,
+      "children": 0,
+      "born": 0,
+      "childAssets": [],
+      "wound": 0,
+      "filling": 12,
+      "bandage": false
+    }
+  },
+  {
+    "name": "real client reproductive interaction consumes exactly one dose",
+    "pass": true,
+    "detail": [
+      {
+        "name": "P0ObserverA",
+        "uuid": "c8ec6a6f-1c19-3cbc-b0ea-4c1ccc72d2a0",
+        "held": "1 mcyukkuri:reproductive_filling",
+        "count": 1,
+        "vault": 0,
+        "emeralds": 31,
+        "inventory": [
+          "1 mcyukkuri:reproductive_filling",
+          "31 minecraft:emerald",
+          "8 mcyukkuri:oil_grain_regular"
+        ],
+        "position": "(6147.8, 65.0, 11.5)",
+        "occupants": []
+      }
+    ]
+  },
+  {
+    "name": "real assistance allocates a live brood on original mother",
+    "pass": true,
+    "detail": {
+      "id": "4bc303e1-89cb-4dd7-9826-380752de8cfe",
+      "mother": "974c228c-7781-4050-b154-3b4accbb90b0",
+      "kind": "LIVE",
+      "anchor": {
+        "dimension": {
+          "registryName": {
+            "namespace": "minecraft",
+            "path": "dimension"
+          },
+          "location": {
+            "namespace": "minecraft",
+            "path": "overworld"
+          }
+        },
+        "pos": {
+          "x": 6148,
+          "y": 65,
+          "z": 10
+        }
+      },
+      "elapsed": 17,
+      "duration": 6000,
+      "variation": 1.0,
+      "cancelled": false,
+      "children": [
+        {
+          "id": "34613700-c709-4c63-b5fc-e9bc18f8bf68",
+          "variant": "REIMU",
+          "subspeciesFlags": 0,
+          "adultScale": 1.0493339,
+          "lifespan": 74048,
+          "traits": [
+            30,
+            72,
+            51,
+            77,
+            72,
+            32
+          ],
+          "born": false
+        },
+        {
+          "id": "2236f90b-c929-4889-994a-d92d89225d78",
+          "variant": "REIMU",
+          "subspeciesFlags": 0,
+          "adultScale": 0.94686234,
+          "lifespan": 71446,
+          "traits": [
+            29,
+            74,
+            50,
+            72,
+            79,
+            35
+          ],
+          "born": false
+        },
+        {
+          "id": "ef2b5558-23bb-4178-ae26-105052b6fdf7",
+          "variant": "REIMU",
+          "subspeciesFlags": 0,
+          "adultScale": 1.0214518,
+          "lifespan": 69270,
+          "traits": [
+            29,
+            80,
+            54,
+            77,
+            82,
+            24
+          ],
+          "born": false
+        }
+      ]
+    }
+  }
+]

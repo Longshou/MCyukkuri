@@ -3,10 +3,10 @@
   "label": "含泪噗咕",
   "group": "生气 / 鼓脸",
   "recipe": {
-    "eyes": "half",
-    "brows": "sad",
-    "mouth": "closed-pinched-puff",
-    "tears": "wet",
+    "eyes": "accepted-E3-PUFF",
+    "brows": "hurt-and-tense",
+    "mouth": "trembling-pursed-lips",
+    "tears": "fitted-to-approved-closed-eye-edge",
     "blush": "normal",
     "effect": "none"
   },
@@ -31,40 +31,40 @@
     "face_mouth": {
       "position": [
         0,
-        -0.053,
+        0.12,
         0
       ],
       "scale": [
-        0.75,
-        0.85,
+        0.95,
+        0.9,
         1
       ]
     },
     "face_tear_left": {
       "position": [
         0,
-        1.074,
+        2.809,
         0
       ]
     },
     "face_tear_right": {
       "position": [
         0,
-        1.074,
+        2.809,
         0
       ]
     }
   },
   "parts": {
-    "face_eye_left": "expressions/parts/221dac271b1be6952056.png",
-    "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_brow_left": "expressions/parts/d10ccf2eb6de430d7a31.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
-    "face_eye_right": "expressions/parts/221dac271b1be6952056.png",
-    "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+    "face_tear_left": "expressions/parts/d1c2604f732d235e0436.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_right": "expressions/parts/bac5f95d5525427392a7.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
-    "face_mouth": "expressions/parts/af4d1b1687a0ec25cc36.png",
+    "face_tear_right": "expressions/parts/2b2bee38c2a69027e93d.png",
+    "face_mouth": "expressions/parts/351094a83deebb6be6dc.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
@@ -83,14 +83,17 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted round-5 B expression with E3-PUFF eyes and fitted tears on 2026-09-12",
   "aliases": [],
   "review_code": "N020",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "重绘闭合抿紧的噗咕嘴，保留鼓脸与贴下眼睑的泪光。"
+    "status": "accepted",
+    "date": "2026-09-12",
+    "selected_base": "round4/N020-B",
+    "accepted_eye_components": "E3-PUFF",
+    "note": "用户确认“20通过”：保存第五轮闭眼线与泪花适配的完整展示版本。"
   }
 }

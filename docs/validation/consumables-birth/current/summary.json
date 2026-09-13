@@ -1,0 +1,14 @@
+{
+  "time": "2026-09-12T21:48:37.780045+00:00",
+  "run": "E:\\yukkuri\\MCyukkuri\\.local\\consumables-birth\\gametest-7i41y064",
+  "exit": 0,
+  "passed": true,
+  "count": 101,
+  "reports": {
+    "consumable-rule-checks": 36,
+    "consumable-live-checks": 4,
+    "consumable-birth-checks": 42,
+    "consumable-live-birth-checks": 5,
+    "consumable-morph-checks": 14
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "shattered",
+  "label": "表情破碎",
+  "group": "特殊状态",
+  "recipe": {
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_tear_left": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": [
+      "face_eye_left",
+      "face_brow_left",
+      "face_blush_left",
+      "face_eye_right",
+      "face_brow_right",
+      "face_blush_right",
+      "face_mouth"
+    ]
+  },
+  "mask": "fracture",
+  "parts": {
+    "face_eye_left": "expressions/parts/705a7563a4aebed0bcca.png",
+    "face_brow_left": "expressions/parts/d819ee97a515dc61d942.png",
+    "face_blush_left": "expressions/parts/b0a0d54ab0c63ce0eace.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/34d4ac5b9a79829633ad.png",
+    "face_brow_right": "expressions/parts/38563466f501e8c01bfa.png",
+    "face_blush_right": "expressions/parts/b0a0d54ab0c63ce0eace.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/d72c7f5d13a82bac2960.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "ハンマー３顔面グラベース",
+      "index": 0,
+      "sprite_id": 7266,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "pending-review",
+  "art": "Approved component reuse and retained special fracture stages; awaiting review",
+  "aliases": [],
+  "review_code": "N077",
+  "origin": "new",
+  "review_pair": null,
+  "review_decision": {
+    "status": "pending-review",
+    "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+  }
+}

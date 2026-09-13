@@ -1,0 +1,73 @@
+{
+  "reloaded": {
+    "id": "25cb09bf-2236-4022-b591-0f5b3fceb37c",
+    "op": "preview",
+    "pass": true,
+    "time": "2026-09-12T21:44:00.033125200Z",
+    "result": {
+      "passenger": true,
+      "boat": 36,
+      "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+      "accessory": false,
+      "boatUuid": "7c2f4e62-ff9b-4d5c-b716-e77fe4093706",
+      "target": 37,
+      "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+      "wetness": 0.0,
+      "boatState": "AFLOAT"
+    }
+  },
+  "capsizeInput": {
+    "id": "6955a574-2d8c-4775-8882-2a6fc7402097",
+    "op": "interact",
+    "pass": true,
+    "time": "2026-09-12T21:44:00.633091200Z",
+    "result": {
+      "predictedResult": "SUCCESS",
+      "target": "a1f3deba-848c-47e5-b7ab-18aed58f7e36"
+    }
+  },
+  "capsized": {
+    "id": "19d91a42-1d5f-400f-86db-e671bcff7dfb",
+    "op": "preview",
+    "pass": true,
+    "time": "2026-09-12T21:44:02.428933400Z",
+    "result": {
+      "passenger": false,
+      "boat": 36,
+      "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+      "accessory": false,
+      "boatUuid": "7c2f4e62-ff9b-4d5c-b716-e77fe4093706",
+      "target": 37,
+      "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+      "wetness": 8.0,
+      "boatState": "CAPSIZED"
+    }
+  },
+  "rescueInput": {
+    "id": "50003750-76e8-4cbb-ad55-ca4e05eef83f",
+    "op": "interact",
+    "pass": true,
+    "time": "2026-09-12T21:44:03.627316900Z",
+    "result": {
+      "predictedResult": "SUCCESS",
+      "target": "7c2f4e62-ff9b-4d5c-b716-e77fe4093706"
+    }
+  },
+  "rescued": {
+    "id": "9a4db59c-3c6f-4d4e-b847-44d6e4902d06",
+    "op": "preview",
+    "pass": true,
+    "time": "2026-09-12T21:44:04.416027200Z",
+    "result": {
+      "passenger": false,
+      "boat": -1,
+      "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+      "accessory": true,
+      "boatUuid": "absent",
+      "target": 37,
+      "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+      "wetness": 2.0,
+      "boatState": "absent"
+    }
+  }
+}

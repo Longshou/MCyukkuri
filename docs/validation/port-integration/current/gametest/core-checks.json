@@ -1,0 +1,197 @@
+[
+  {
+    "name": "small house body fits crevice above its floor while ordinary adult does not",
+    "pass": true,
+    "detail": "BlockPos{x\u003d278, y\u003d65, z\u003d20}"
+  },
+  {
+    "name": "food without six materials cannot make a brood",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "real goal carries and deposits six source items",
+    "pass": true,
+    "detail": "6 / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1} / (278.94680845884824, 65.0, 19.630833771128525) / idle / {Accessory:1b,AgeTicks:4000L,Bladder:0.0f,BowlMeal:0b,DrugSleep:0,Dryness:0.0f,Energy:65.0f,EnergyProgress:0,ExerciseReliefTicks:0,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:76141180301377L,HungerProgress:160,Hygiene:87.0f,HygieneProgress:100,MealTicks:0,NaturalHome:1b,Nutrition:79.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;59,51,69,22,42,49],Lessons:0,Players:[]},RestWait:0,ReturnDoseBottle:0b,SharedMeal:0b,SilverMedal:0b,SocialWait:153,SpicyTicks:0,SprayDelay:0,Version:1,Wetness:0.0f} / []"
+  },
+  {
+    "name": "only three food prevents laying",
+    "pass": true,
+    "detail": "3"
+  },
+  {
+    "name": "actual nest ticker lays a uniquely identified house brood",
+    "pass": true,
+    "detail": "ef4f3a24-33f8-4ab4-b013-a05ff9cdb7b1"
+  },
+  {
+    "name": "egg identities and parents are fixed",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "egg parents retain their committed partnership",
+    "pass": true,
+    "detail": "{AdultScale:1.0f,Age:28479L,AwaitingLanding:0b,BabyTalk:0b,Conceptions:1,Gestation:[I;-280020444,871910068,-1340891041,-103958607],Initialized:1b,JuvenileVoice:0b,Lifespan:73435L,LiveRecovery:0,Nourishment:28478L,Partner:[I;695068277,-1513996267,-1617338164,-1154995909],Recovery:12000,Scale:1.0f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"ADULT\",Sterile:0b,Stimulation:0,Version:1}"
+  },
+  {
+    "name": "native block save restores same nest and brood",
+    "pass": true,
+    "detail": "74207d54-7502-4610-a2ed-ad53616be3fa"
+  },
+  {
+    "name": "normal clean preserves eggs and lining",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "no stock pauses incubation",
+    "pass": true,
+    "detail": "40"
+  },
+  {
+    "name": "cleaning one nest leaves neighboring stock",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "real nest ticker hatches all eggs once",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "hatchlings are babies with real ancestry",
+    "pass": true,
+    "detail": "{AdultScale:0.9419786f,Age:40L,AwaitingLanding:0b,BabyTalk:0b,BirthId:[I;-280020444,871910068,-1340891041,-103958607],Conceptions:0,Father:[I;695068277,-1513996267,-1617338164,-1154995909],Initialized:1b,JuvenileVoice:0b,Lifespan:72001L,LiveRecovery:0,Mother:[I;-1465375339,-889631889,-1291616098,-863045524],Nourishment:40L,Recovery:0,Scale:0.32f,SexDrive:0,SpentStemCount:0,SpentStemVariation:1.0f,Stage:\"BABY\",Sterile:0b,Stimulation:0,Version:1}"
+  },
+  {
+    "name": "destroying a hatched nest keeps living children and genealogy",
+    "pass": true,
+    "detail": "c8b8c326-6525-4583-b4dd-19e8b0da1355"
+  },
+  {
+    "name": "destroying one nest preserves the other",
+    "pass": true,
+    "detail": "8f8fe17f-81e1-4d79-89a2-b06525a79252"
+  },
+  {
+    "name": "house actually enters the physical crevice",
+    "pass": true,
+    "detail": "(278.4907322882372, 65.0, 18.98640093891356)"
+  },
+  {
+    "name": "same resident visibly peeks from its opening",
+    "pass": true,
+    "detail": "idle"
+  },
+  {
+    "name": "resident leaves low roof and returns to floor",
+    "pass": true,
+    "detail": "recovered\u003dtrue, recoveryTick\u003d6225, unique\u003dtrue, end\u003d(278.5042725703851, 65.10785000264644, 20.14044513773845), endGround\u003dfalse, endMustExit\u003dfalse"
+  },
+  {
+    "name": "urgent hunger can consume real nest stock",
+    "pass": true,
+    "detail": "28.0 / 0 / idle / {Nest:{Dimension:\"minecraft:overworld\",Pos:76416058212417L},Version:1}"
+  },
+  {
+    "name": "hunger exits the crevice without a duplicate hidden entity",
+    "pass": true,
+    "detail": "everExited\u003dtrue, returned\u003dfalse, unique\u003dtrue, end\u003d(278.5409847159814, 65.0, 18.810749443699052), mustExit\u003dfalse, mealTicks\u003d0"
+  },
+  {
+    "name": "actual blunt damage creates a dent",
+    "pass": true,
+    "detail": "{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:0,Version:2,Wound:1,Wounds:[{Emitted:0,Id:[I;-1111185700,-456244644,-1911421294,2031494080],Kind:\"dent\",LastRelease:0L,Severity:1,Size:1.0f,Triangle:69582,U:1.0f,V:0.0f}]}"
+  },
+  {
+    "name": "closed dent retains filling through the leak interval",
+    "pass": true,
+    "detail": "{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:205,Version:2,Wound:1,Wounds:[{Emitted:0,Id:[I;-1111185700,-456244644,-1911421294,2031494080],Kind:\"dent\",LastRelease:0L,Severity:1,Size:1.0f,Triangle:69582,U:1.0f,V:0.0f}]}"
+  },
+  {
+    "name": "one actual blade hit creates a tear after vanilla health loss",
+    "pass": true,
+    "detail": "{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:0,Version:2,Wound:1,Wounds:[{Emitted:0,Id:[I;-407476594,-1261615960,-1745887811,-1778959743],Kind:\"tear\",LastRelease:0L,Severity:1,Size:1.0f,Triangle:12516,U:0.30188754f,V:0.6981124f}]}"
+  },
+  {
+    "name": "wound loses one finite filling unit",
+    "pass": true,
+    "detail": "{Bandage:0,Burns:0,Filling:11,HairLoss:0,Infection:0,KnownPortions:[{Portion:[I;2100750829,332550125,-1245971197,-1427268486],Source:[I;-396001950,-840478887,-2086615807,-1591330869]}],Mold:0,MoldExposure:0,ReleaseCursor:1,Settled:0b,Ticks:205,Version:2,Wound:1,Wounds:[{Emitted:1,Id:[I;-407476594,-1261615960,-1745887811,-1778959743],Kind:\"tear\",LastRelease:40562L,Severity:1,Size:1.0f,Triangle:12516,U:0.30188754f,V:0.6981124f}]}"
+  },
+  {
+    "name": "leak creates one physical source-tagged item",
+    "pass": true,
+    "detail": "items"
+  },
+  {
+    "name": "bandage accepted after danger settles",
+    "pass": true,
+    "detail": "{Bandage:1200,Burns:0,Filling:11,HairLoss:0,Infection:0,KnownPortions:[{Portion:[I;2100750829,332550125,-1245971197,-1427268486],Source:[I;-396001950,-840478887,-2086615807,-1591330869]}],Mold:0,MoldExposure:0,ReleaseCursor:1,Settled:0b,Ticks:325,Version:2,Wound:1,Wounds:[{Emitted:1,Id:[I;-407476594,-1261615960,-1745887811,-1778959743],Kind:\"tear\",LastRelease:40562L,Severity:1,Size:1.0f,Triangle:12516,U:0.30188754f,V:0.6981124f}]}"
+  },
+  {
+    "name": "duplicate bandage has no second effect",
+    "pass": true,
+    "detail": "1200"
+  },
+  {
+    "name": "wounded individual is carried once",
+    "pass": true,
+    "detail": "16486055-984e-4d0f-b229-aa021a9ebcd6"
+  },
+  {
+    "name": "capture preserves remaining filling and treatment",
+    "pass": true,
+    "detail": "{Bandage:1200,Burns:0,Filling:11,HairLoss:0,Infection:0,KnownPortions:[{Portion:[I;2100750829,332550125,-1245971197,-1427268486],Source:[I;-396001950,-840478887,-2086615807,-1591330869]}],Mold:0,MoldExposure:0,ReleaseCursor:1,Settled:0b,Ticks:325,Version:2,Wound:1,Wounds:[{Emitted:1,Id:[I;-407476594,-1261615960,-1745887811,-1778959743],Kind:\"tear\",LastRelease:40562L,Severity:1,Size:1.0f,Triangle:12516,U:0.30188754f,V:0.6981124f}]}"
+  },
+  {
+    "name": "fed clean bandage closes wound over actual ticks",
+    "pass": true,
+    "detail": "{Bandage:990,Burns:0,Filling:11,HairLoss:0,Infection:0,KnownPortions:[{Portion:[I;2100750829,332550125,-1245971197,-1427268486],Source:[I;-396001950,-840478887,-2086615807,-1591330869]}],Mold:0,MoldExposure:0,ReleaseCursor:1,Settled:0b,Ticks:535,Version:2,Wound:0,Wounds:[]}"
+  },
+  {
+    "name": "medicine consumes an infection treatment",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "medicine finishes infection but cannot heal a healthy body",
+    "pass": true,
+    "detail": "0"
+  },
+  {
+    "name": "death settles one remains despite duplicate callback",
+    "pass": true,
+    "detail": "remains"
+  },
+  {
+    "name": "dead body no longer retains extractable filling",
+    "pass": true,
+    "detail": "{Bandage:0,Burns:0,Filling:0,HairLoss:0,Infection:0,KnownPortions:[{Portion:[I;2100750829,332550125,-1245971197,-1427268486],Source:[I;-396001950,-840478887,-2086615807,-1591330869]}],Mold:0,MoldExposure:0,ReleaseCursor:1,Settled:1b,Ticks:535,Version:2,Wound:0,Wounds:[]}"
+  },
+  {
+    "name": "supplied crevice does not create founders instantly",
+    "pass": true,
+    "detail": "8e264775-ade3-4ce2-95b0-b66711a39cf9"
+  },
+  {
+    "name": "loaded attraction creates one real founder and consumes four scraps",
+    "pass": true,
+    "detail": "1 / 8"
+  },
+  {
+    "name": "second founder has independent identity and costs four scraps",
+    "pass": true,
+    "detail": "2 / 4"
+  },
+  {
+    "name": "saved arrival limit prevents unlimited founders",
+    "pass": true,
+    "detail": "{ArrivalTicks:1200,Arrivals:2,Dirt:0,EggCount:0,Food:2,Identity:[I;-1910093963,-1377612574,-1783581081,295935225],Materials:0,Progress:0.0f,Ticks:29,Version:1,id:\"mcyukkuri:house_nest\",x:278,y:65,z:20}"
+  },
+  {
+    "name": "survival burial consumes remains and creates an actual mound",
+    "pass": true,
+    "detail": "Block{mcyukkuri:burial_mound}"
+  }
+]

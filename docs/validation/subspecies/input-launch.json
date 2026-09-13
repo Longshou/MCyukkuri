@@ -1,0 +1,46 @@
+{
+  "before": {
+    "id": "6319465c-30fd-4d8d-9e39-aa92135a876e",
+    "op": "preview",
+    "pass": true,
+    "time": "2026-09-12T21:42:42.280053600Z",
+    "result": {
+      "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+      "wetness": 0.0,
+      "boatState": "absent",
+      "passenger": false,
+      "boat": -1,
+      "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+      "accessory": true,
+      "boatUuid": "absent",
+      "target": 102
+    }
+  },
+  "interact": {
+    "id": "d210ca89-09f2-46e8-8bb8-209441951857",
+    "op": "interact",
+    "pass": true,
+    "time": "2026-09-12T21:42:43.085231200Z",
+    "result": {
+      "predictedResult": "SUCCESS",
+      "target": "a1f3deba-848c-47e5-b7ab-18aed58f7e36"
+    }
+  },
+  "after": {
+    "id": "534dfb09-1e7c-4d13-b3a3-df22b1f83861",
+    "op": "preview",
+    "pass": true,
+    "time": "2026-09-12T21:42:43.873089300Z",
+    "result": {
+      "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+      "wetness": 0.0,
+      "boatState": "AFLOAT",
+      "passenger": true,
+      "boat": 106,
+      "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+      "accessory": false,
+      "boatUuid": "7c2f4e62-ff9b-4d5c-b716-e77fe4093706",
+      "target": 102
+    }
+  }
+}

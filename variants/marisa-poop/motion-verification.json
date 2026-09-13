@@ -1,0 +1,9 @@
+{
+  "samples": 641,
+  "minCharacterY": 0,
+  "minReleasedDepositY": 0.02639999999999998,
+  "maxDepositStepAt100Hz": 0.0685056696100358,
+  "maxFillingExitError": 0.054971012066035684,
+  "restRecovered": true,
+  "finiteVerticesAndUnitNormals": true
+}

@@ -1,0 +1,5722 @@
+[
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4383,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-4383.png",
+    "size": [
+      143,
+      110
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.0267639160156,
+      187.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4389,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-4389.png",
+    "size": [
+      150,
+      104
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      307.0129089355469,
+      231.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4421,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-4421.png",
+    "size": [
+      181,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.04290771484375,
+      194.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4424,
+    "name": "小",
+    "file": "sprite-4424.png",
+    "size": [
+      215,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.07611083984375,
+      194.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4449,
+    "name": "子顔面 のコピー 11",
+    "file": "sprite-4449.png",
+    "size": [
+      173,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      206.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4462,
+    "name": "むしゃ小２",
+    "file": "sprite-4462.png",
+    "size": [
+      169,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4474,
+    "name": "むしゃ小3",
+    "file": "sprite-4474.png",
+    "size": [
+      170,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      170.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4478,
+    "name": "子正面ベース",
+    "file": "sprite-4478.png",
+    "size": [
+      200,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4484,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-4484.png",
+    "size": [
+      229,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      280.07611083984375,
+      169.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4494,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-4494.png",
+    "size": [
+      200,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4503,
+    "name": "子綴じ目 のコピー 2",
+    "file": "sprite-4503.png",
+    "size": [
+      165,
+      116
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      296.0717468261719,
+      201.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4610,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-4610.png",
+    "size": [
+      200,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4643,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-4643.png",
+    "size": [
+      175,
+      111
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0476989746094,
+      164.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4661,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-4661.png",
+    "size": [
+      164,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      304.07611083984375,
+      207.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4675,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-4675.png",
+    "size": [
+      178,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.0226745605469,
+      173.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4682,
+    "name": "子顔面 のコピー",
+    "file": "sprite-4682.png",
+    "size": [
+      158,
+      166
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.0267639160156,
+      153.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4683,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-4683.png",
+    "size": [
+      197,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.031982421875,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4718,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-4718.png",
+    "size": [
+      141,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.0597229003906,
+      188.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4738,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-4738.png",
+    "size": [
+      212,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      185.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4745,
+    "name": "子顔面 のコピー 14",
+    "file": "sprite-4745.png",
+    "size": [
+      199,
+      159
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      172.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4748,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-4748.png",
+    "size": [
+      227,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.05413818359375,
+      180.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4755,
+    "name": "子3",
+    "file": "sprite-4755.png",
+    "size": [
+      208,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      154.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4830,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-4830.png",
+    "size": [
+      159,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.07611083984375,
+      143.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4878,
+    "name": "子顔面 のコピー 17",
+    "file": "sprite-4878.png",
+    "size": [
+      172,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      278.0267639160156,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4893,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-4893.png",
+    "size": [
+      171,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      193.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4907,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-4907.png",
+    "size": [
+      180,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      182.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4910,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-4910.png",
+    "size": [
+      213,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      209.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5006,
+    "name": "子顔面 のコピー 21",
+    "file": "sprite-5006.png",
+    "size": [
+      182,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      189.03628540039062
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5011,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-5011.png",
+    "size": [
+      208,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      176.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5018,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5018.png",
+    "size": [
+      196,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      299.0267639160156,
+      191.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5019,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-5019.png",
+    "size": [
+      220,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      177.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5021,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5021.png",
+    "size": [
+      156,
+      149
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      319.0267639160156,
+      175.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5026,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-5026.png",
+    "size": [
+      177,
+      161
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.0267639160156,
+      158.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5030,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-5030.png",
+    "size": [
+      218,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5040,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5040.png",
+    "size": [
+      212,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      181.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5100,
+    "name": "子顔面 のコピー 11",
+    "file": "sprite-5100.png",
+    "size": [
+      173,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.0267639160156,
+      194.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5146,
+    "name": "子顔面 のコピー 13",
+    "file": "sprite-5146.png",
+    "size": [
+      212,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      192.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5151,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5151.png",
+    "size": [
+      196,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      299.0267639160156,
+      197.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5253,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-5253.png",
+    "size": [
+      283,
+      92
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      249.0761260986328,
+      138.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5276,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5276.png",
+    "size": [
+      205,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      276.0267639160156,
+      187.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5279,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5279.png",
+    "size": [
+      164,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.0267639160156,
+      194.01206970214844
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5286,
+    "name": "子顔面 のコピー 16",
+    "file": "sprite-5286.png",
+    "size": [
+      189,
+      120
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      294.0267639160156,
+      202.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5294,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5294.png",
+    "size": [
+      169,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.07611083984375,
+      189.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5295,
+    "name": "小2",
+    "file": "sprite-5295.png",
+    "size": [
+      239,
+      116
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      278.04290771484375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5297,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-5297.png",
+    "size": [
+      183,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.0267639160156,
+      178.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5306,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5306.png",
+    "size": [
+      172,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.0267639160156,
+      144.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5334,
+    "name": "子顔面 のコピー 20",
+    "file": "sprite-5334.png",
+    "size": [
+      182,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      179.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5335,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5335.png",
+    "size": [
+      197,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.031982421875,
+      176.0025177001953
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5339,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5339.png",
+    "size": [
+      190,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.0129089355469,
+      176.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5353,
+    "name": "むしゃ小4",
+    "file": "sprite-5353.png",
+    "size": [
+      170,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      170.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5373,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5373.png",
+    "size": [
+      212,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      181.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5394,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5394.png",
+    "size": [
+      156,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5400,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5400.png",
+    "size": [
+      154,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      190.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5404,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5404.png",
+    "size": [
+      203,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      294.07611083984375,
+      196.01918029785156
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5412,
+    "name": "小 のコピー",
+    "file": "sprite-5412.png",
+    "size": [
+      216,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.0267639160156,
+      194.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5453,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-5453.png",
+    "size": [
+      172,
+      141
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.0267639160156,
+      144.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5460,
+    "name": "子顔面 のコピー 19",
+    "file": "sprite-5460.png",
+    "size": [
+      159,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.05413818359375,
+      190.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5469,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5469.png",
+    "size": [
+      201,
+      118
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      200.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5485,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5485.png",
+    "size": [
+      165,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.0267639160156,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5503,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-5503.png",
+    "size": [
+      183,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.0267639160156,
+      177.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5508,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-5508.png",
+    "size": [
+      177,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.0267639160156,
+      173.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5514,
+    "name": "子顔面潤み のコピー",
+    "file": "sprite-5514.png",
+    "size": [
+      146,
+      12
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      327.07611083984375,
+      255.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5542,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-5542.png",
+    "size": [
+      163,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.05413818359375,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5545,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5545.png",
+    "size": [
+      202,
+      163
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      156.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5546,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5546.png",
+    "size": [
+      177,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      276.07611083984375,
+      183.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5562,
+    "name": "子顔面 のコピー 27",
+    "file": "sprite-5562.png",
+    "size": [
+      212,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.0267639160156,
+      160.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5577,
+    "name": "子顔面1",
+    "file": "sprite-5577.png",
+    "size": [
+      208,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5578,
+    "name": "子 のコピー 3",
+    "file": "sprite-5578.png",
+    "size": [
+      131,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      332.0267639160156,
+      187.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5600,
+    "name": "子顔面１",
+    "file": "sprite-5600.png",
+    "size": [
+      199,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.0476989746094,
+      200.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5619,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5619.png",
+    "size": [
+      171,
+      148
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      180.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5620,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5620.png",
+    "size": [
+      170,
+      140
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0129089355469,
+      192.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5625,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-5625.png",
+    "size": [
+      208,
+      137
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      145.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5640,
+    "name": "子顔面 のコピー 9",
+    "file": "sprite-5640.png",
+    "size": [
+      200,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5649,
+    "name": "小",
+    "file": "sprite-5649.png",
+    "size": [
+      215,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.07611083984375,
+      182.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5661,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5661.png",
+    "size": [
+      146,
+      149
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      323.0267639160156,
+      175.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5710,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5710.png",
+    "size": [
+      169,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      279.0129089355469,
+      194.01206970214844
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5717,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-5717.png",
+    "size": [
+      208,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5724,
+    "name": "泣き叫び顔面２B のコピー 6",
+    "file": "sprite-5724.png",
+    "size": [
+      149,
+      169
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      320.0129089355469,
+      147.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5731,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5731.png",
+    "size": [
+      175,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.0267639160156,
+      194.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5736,
+    "name": "子顔面 のコピー 19",
+    "file": "sprite-5736.png",
+    "size": [
+      156,
+      100
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      305.0267639160156,
+      235.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5757,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5757.png",
+    "size": [
+      201,
+      125
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      193.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5765,
+    "name": "子顔面 のコピー 12",
+    "file": "sprite-5765.png",
+    "size": [
+      190,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.04290771484375,
+      181.05636596679688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5778,
+    "name": "子顔面",
+    "file": "sprite-5778.png",
+    "size": [
+      197,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.031982421875,
+      176.0025177001953
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5805,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5805.png",
+    "size": [
+      153,
+      41
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      306.0267639160156,
+      149.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5890,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5890.png",
+    "size": [
+      182,
+      134
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.0040283203125,
+      175.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5904,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5904.png",
+    "size": [
+      158,
+      162
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.0267639160156,
+      157.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5905,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-5905.png",
+    "size": [
+      226,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.05133056640625,
+      185.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5936,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-5936.png",
+    "size": [
+      161,
+      121
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      196.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5937,
+    "name": "子顔面 のコピー 13",
+    "file": "sprite-5937.png",
+    "size": [
+      199,
+      142
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      189.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5959,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-5959.png",
+    "size": [
+      269,
+      98
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      262.07611083984375,
+      160.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5970,
+    "name": "子顔面 のコピー",
+    "file": "sprite-5970.png",
+    "size": [
+      214,
+      112
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      191.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6014,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6014.png",
+    "size": [
+      170,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      193.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6038,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6038.png",
+    "size": [
+      227,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.05413818359375,
+      184.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6048,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6048.png",
+    "size": [
+      142,
+      140
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      325.0267639160156,
+      178.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6069,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-6069.png",
+    "size": [
+      183,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.0267639160156,
+      170.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6149,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-6149.png",
+    "size": [
+      196,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.0267639160156,
+      180.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6156,
+    "name": "よだれ小２",
+    "file": "sprite-6156.png",
+    "size": [
+      206,
+      169
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.07611083984375,
+      150.00596618652344
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6158,
+    "name": "小 のコピー",
+    "file": "sprite-6158.png",
+    "size": [
+      216,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.0267639160156,
+      182.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6204,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-6204.png",
+    "size": [
+      187,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.0247802734375,
+      178.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6235,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6235.png",
+    "size": [
+      197,
+      161
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.031982421875,
+      158.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6247,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6247.png",
+    "size": [
+      190,
+      149
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.07611083984375,
+      158.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6264,
+    "name": "子顔面 のコピー 8",
+    "file": "sprite-6264.png",
+    "size": [
+      165,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.07611083984375,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6280,
+    "name": "子顔面",
+    "file": "sprite-6280.png",
+    "size": [
+      200,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      192.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6290,
+    "name": "子顔面 のコピー 11",
+    "file": "sprite-6290.png",
+    "size": [
+      173,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      209.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6292,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6292.png",
+    "size": [
+      191,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.0267639160156,
+      187.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6298,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-6298.png",
+    "size": [
+      255,
+      107
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      269.0267639160156,
+      163.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6320,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6320.png",
+    "size": [
+      174,
+      121
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.04290771484375,
+      195.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6328,
+    "name": "子顔面 のコピー 18",
+    "file": "sprite-6328.png",
+    "size": [
+      208,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      176.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6335,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-6335.png",
+    "size": [
+      231,
+      120
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      277.0362854003906,
+      190.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6339,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-6339.png",
+    "size": [
+      147,
+      131
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.04290771484375,
+      191.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6358,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6358.png",
+    "size": [
+      193,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.0267639160156,
+      182.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6360,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6360.png",
+    "size": [
+      200,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6377,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6377.png",
+    "size": [
+      202,
+      115
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      297.07611083984375,
+      197.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6392,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-6392.png",
+    "size": [
+      159,
+      109
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      305.0267639160156,
+      225.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6397,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6397.png",
+    "size": [
+      200,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6399,
+    "name": "子顔面 のコピー 12",
+    "file": "sprite-6399.png",
+    "size": [
+      181,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      276.07611083984375,
+      149.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6401,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-6401.png",
+    "size": [
+      200,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      192.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6403,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6403.png",
+    "size": [
+      173,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      197.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6407,
+    "name": "子",
+    "file": "sprite-6407.png",
+    "size": [
+      177,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      310.07611083984375,
+      205.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6416,
+    "name": "子顔面 のコピー 16",
+    "file": "sprite-6416.png",
+    "size": [
+      150,
+      103
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      309.0267639160156,
+      235.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6424,
+    "name": "子顔面 のコピー 16",
+    "file": "sprite-6424.png",
+    "size": [
+      185,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      272.04290771484375,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6449,
+    "name": "よだれ小１",
+    "file": "sprite-6449.png",
+    "size": [
+      206,
+      154
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.07611083984375,
+      165.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6463,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-6463.png",
+    "size": [
+      183,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      305.0129089355469,
+      189.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6477,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-6477.png",
+    "size": [
+      158,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.07611083984375,
+      195.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6503,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6503.png",
+    "size": [
+      187,
+      114
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.05133056640625,
+      206.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6533,
+    "name": "子顔面 のコピー 15",
+    "file": "sprite-6533.png",
+    "size": [
+      194,
+      131
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.07611083984375,
+      203.04769897460938
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6547,
+    "name": "子綴じ目",
+    "file": "sprite-6547.png",
+    "size": [
+      191,
+      116
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      301.0476989746094,
+      207.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6549,
+    "name": "涙小 左 のコピー",
+    "file": "sprite-6549.png",
+    "size": [
+      197,
+      20
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      306.07611083984375,
+      216.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6567,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6567.png",
+    "size": [
+      233,
+      152
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      174.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6594,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-6594.png",
+    "size": [
+      144,
+      131
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.07611083984375,
+      191.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6602,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-6602.png",
+    "size": [
+      231,
+      152
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      174.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6604,
+    "name": "子顔面",
+    "file": "sprite-6604.png",
+    "size": [
+      201,
+      118
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      200.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6616,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-6616.png",
+    "size": [
+      218,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6626,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6626.png",
+    "size": [
+      170,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      193.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6637,
+    "name": "子顔面",
+    "file": "sprite-6637.png",
+    "size": [
+      179,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      188.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6706,
+    "name": "泣き叫び顔面２B のコピー 4",
+    "file": "sprite-6706.png",
+    "size": [
+      172,
+      157
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      308.0581970214844,
+      159.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6779,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-6779.png",
+    "size": [
+      156,
+      121
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      195.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6786,
+    "name": "子泣き２png",
+    "file": "sprite-6786.png",
+    "size": [
+      212,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.0267639160156,
+      181.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6801,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6801.png",
+    "size": [
+      167,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      279.0267639160156,
+      179.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6822,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-6822.png",
+    "size": [
+      171,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      193.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6830,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-6830.png",
+    "size": [
+      208,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6831,
+    "name": "小",
+    "file": "sprite-6831.png",
+    "size": [
+      215,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.07611083984375,
+      172.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6860,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6860.png",
+    "size": [
+      202,
+      170
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      149.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6863,
+    "name": "子顔面 のコピー",
+    "file": "sprite-6863.png",
+    "size": [
+      197,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      300.031982421875,
+      193.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6868,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6868.png",
+    "size": [
+      177,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      279.07611083984375,
+      149.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6882,
+    "name": "子2",
+    "file": "sprite-6882.png",
+    "size": [
+      208,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      171.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6927,
+    "name": "子泣き１",
+    "file": "sprite-6927.png",
+    "size": [
+      208,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6939,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-6939.png",
+    "size": [
+      170,
+      140
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0129089355469,
+      192.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7004,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7004.png",
+    "size": [
+      212,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7035,
+    "name": "子顔面2",
+    "file": "sprite-7035.png",
+    "size": [
+      212,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7055,
+    "name": "子 のコピー",
+    "file": "sprite-7055.png",
+    "size": [
+      171,
+      158
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      311.0267639160156,
+      171.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7078,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7078.png",
+    "size": [
+      183,
+      137
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.05413818359375,
+      179.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7100,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7100.png",
+    "size": [
+      154,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.05133056640625,
+      179.0025177001953
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7114,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-7114.png",
+    "size": [
+      163,
+      134
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      315.0267639160156,
+      184.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7117,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-7117.png",
+    "size": [
+      163,
+      134
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0362854003906,
+      131.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7173,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7173.png",
+    "size": [
+      187,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.0247802734375,
+      170.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7175,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-7175.png",
+    "size": [
+      246,
+      121
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      272.0267639160156,
+      163.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7184,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7184.png",
+    "size": [
+      185,
+      134
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.0,
+      175.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7189,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-7189.png",
+    "size": [
+      208,
+      129
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      209.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7193,
+    "name": "むしゃ小１",
+    "file": "sprite-7193.png",
+    "size": [
+      169,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      177.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7219,
+    "name": "子顔面 のコピー 19",
+    "file": "sprite-7219.png",
+    "size": [
+      212,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      176.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7222,
+    "name": "子顔面 のコピー 48",
+    "file": "sprite-7222.png",
+    "size": [
+      208,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.0267639160156,
+      170.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7234,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7234.png",
+    "size": [
+      158,
+      162
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.0267639160156,
+      157.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7240,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7240.png",
+    "size": [
+      212,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      176.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7246,
+    "name": "子顔面 のコピー 12",
+    "file": "sprite-7246.png",
+    "size": [
+      182,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      179.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7266,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-7266.png",
+    "size": [
+      291,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      246.04290771484375,
+      151.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7294,
+    "name": "子顔面 のコピー 14",
+    "file": "sprite-7294.png",
+    "size": [
+      178,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      178.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7333,
+    "name": "子顔面 のコピー 20",
+    "file": "sprite-7333.png",
+    "size": [
+      141,
+      115
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.05133056640625,
+      179.00193786621094
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7345,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7345.png",
+    "size": [
+      189,
+      149
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      158.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7359,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-7359.png",
+    "size": [
+      157,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      190.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7360,
+    "name": "子顔面 のコピー 5",
+    "file": "sprite-7360.png",
+    "size": [
+      172,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      192.00596618652344
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7378,
+    "name": "子顔面 のコピー 28",
+    "file": "sprite-7378.png",
+    "size": [
+      208,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      160.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7445,
+    "name": "子顔面 のコピー 11",
+    "file": "sprite-7445.png",
+    "size": [
+      163,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.07611083984375,
+      155.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7469,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-7469.png",
+    "size": [
+      162,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.07611083984375,
+      181.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7470,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-7470.png",
+    "size": [
+      193,
+      161
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      273.0040283203125,
+      201.0
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7480,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7480.png",
+    "size": [
+      227,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.05413818359375,
+      179.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7555,
+    "name": "１ のコピー",
+    "file": "sprite-7555.png",
+    "size": [
+      136,
+      61
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      330.0267639160156,
+      228.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7626,
+    "name": "子顔面 のコピー 17",
+    "file": "sprite-7626.png",
+    "size": [
+      169,
+      106
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      301.0129089355469,
+      223.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7697,
+    "name": "子顔面 のコピー 12",
+    "file": "sprite-7697.png",
+    "size": [
+      226,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.05133056640625,
+      192.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7708,
+    "name": "子顔面 のコピー 7",
+    "file": "sprite-7708.png",
+    "size": [
+      169,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      189.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7712,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-7712.png",
+    "size": [
+      162,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.03350830078125,
+      195.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7716,
+    "name": "子顔面 のコピー 17",
+    "file": "sprite-7716.png",
+    "size": [
+      173,
+      119
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      198.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7782,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7782.png",
+    "size": [
+      212,
+      132
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      160.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7788,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7788.png",
+    "size": [
+      200,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      192.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7789,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-7789.png",
+    "size": [
+      208,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7791,
+    "name": "子顔面 のコピー 9",
+    "file": "sprite-7791.png",
+    "size": [
+      163,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.07611083984375,
+      195.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7794,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-7794.png",
+    "size": [
+      152,
+      103
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      306.0267639160156,
+      232.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7798,
+    "name": "子顔面 のコピー 16",
+    "file": "sprite-7798.png",
+    "size": [
+      178,
+      131
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.07611083984375,
+      193.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7808,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-7808.png",
+    "size": [
+      198,
+      114
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.031982421875,
+      208.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7819,
+    "name": "子顔面２",
+    "file": "sprite-7819.png",
+    "size": [
+      199,
+      126
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.0476989746094,
+      200.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7846,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-7846.png",
+    "size": [
+      172,
+      141
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.05133056640625,
+      144.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7890,
+    "name": "子顔面 のコピー 10",
+    "file": "sprite-7890.png",
+    "size": [
+      213,
+      146
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      291.04290771484375,
+      179.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7933,
+    "name": "子顔面 のコピー",
+    "file": "sprite-7933.png",
+    "size": [
+      189,
+      128
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      306.07611083984375,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7964,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-7964.png",
+    "size": [
+      170,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.0129089355469,
+      187.0025177001953
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7978,
+    "name": "泣き叫び顔面２B のコピー 3",
+    "file": "sprite-7978.png",
+    "size": [
+      192,
+      145
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      298.0267639160156,
+      170.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8002,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-8002.png",
+    "size": [
+      208,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8059,
+    "name": "子顔面 のコピー 15",
+    "file": "sprite-8059.png",
+    "size": [
+      182,
+      131
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.07611083984375,
+      193.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8087,
+    "name": "顔面 のコピー",
+    "file": "sprite-8087.png",
+    "size": [
+      154,
+      112
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      299.0267639160156,
+      198.00404357910156
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8091,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8091.png",
+    "size": [
+      187,
+      96
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      285.0267639160156,
+      186.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8131,
+    "name": "子顔面 のコピー",
+    "file": "sprite-8131.png",
+    "size": [
+      212,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8153,
+    "name": "1",
+    "file": "sprite-8153.png",
+    "size": [
+      159,
+      122
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      286.05413818359375,
+      195.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8154,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8154.png",
+    "size": [
+      170,
+      137
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      293.0267639160156,
+      179.0513153076172
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8168,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-8168.png",
+    "size": [
+      161,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.07611083984375,
+      194.01206970214844
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8180,
+    "name": "子顔面 のコピー 9",
+    "file": "sprite-8180.png",
+    "size": [
+      219,
+      112
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.0129089355469,
+      193.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8207,
+    "name": "子顔面 のコピー",
+    "file": "sprite-8207.png",
+    "size": [
+      200,
+      143
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      181.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8255,
+    "name": "子顔面 のコピー 47",
+    "file": "sprite-8255.png",
+    "size": [
+      212,
+      136
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      170.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8260,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8260.png",
+    "size": [
+      187,
+      138
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      284.0267639160156,
+      176.04290771484375
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8284,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8284.png",
+    "size": [
+      165,
+      133
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.04290771484375,
+      183.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8332,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8332.png",
+    "size": [
+      212,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      287.0267639160156,
+      181.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8343,
+    "name": "子顔面 のコピー",
+    "file": "sprite-8343.png",
+    "size": [
+      196,
+      96
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      279.0267639160156,
+      186.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8373,
+    "name": "子顔面 のコピー 4",
+    "file": "sprite-8373.png",
+    "size": [
+      208,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8410,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8410.png",
+    "size": [
+      208,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.0267639160156,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8414,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-8414.png",
+    "size": [
+      170,
+      135
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      292.07611083984375,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8420,
+    "name": "子顔面 のコピー 2",
+    "file": "sprite-8420.png",
+    "size": [
+      160,
+      130
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      283.07611083984375,
+      194.01206970214844
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8480,
+    "name": "小",
+    "file": "sprite-8480.png",
+    "size": [
+      216,
+      101
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      264.0267639160156,
+      172.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8564,
+    "name": "小１",
+    "file": "sprite-8564.png",
+    "size": [
+      237,
+      116
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      279.07611083984375,
+      197.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8580,
+    "name": "子顔面 のコピー 6",
+    "file": "sprite-8580.png",
+    "size": [
+      187,
+      125
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      282.0247802734375,
+      188.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8633,
+    "name": "子顔面 のコピー",
+    "file": "sprite-8633.png",
+    "size": [
+      160,
+      107
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      278.04290771484375,
+      240.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8643,
+    "name": "子顔面 のコピー 3",
+    "file": "sprite-8643.png",
+    "size": [
+      202,
+      169
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      150.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8666,
+    "name": "子顔面 のコピー",
+    "file": "sprite-8666.png",
+    "size": [
+      227,
+      103
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      281.07611083984375,
+      182.0761260986328
+    ],
+    "packing_settings": 64
+  }
+]

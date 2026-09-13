@@ -1,0 +1,144 @@
+{
+  "date": "2026-09-13T01:39:35.459946+08:00",
+  "scope": [
+    "chen",
+    "alice",
+    "patchouli"
+  ],
+  "existing_variants_preserved": [
+    "reimu",
+    "marisa",
+    "house_reimu",
+    "house_marisa"
+  ],
+  "runtime_models_sha256": {
+    "alice": "8311bc97cd12dfcd5ef1daa72f49a6b8c5f6d02fea1752e75642e9560dabe257",
+    "chen": "a9a70161bbefac3b3687b9ca581e47edaf7475752cedadc16f466080b8b8e324",
+    "house_marisa": "347663346b68b639d2880a7a9ba2a8c1e39f4a8581f782df5c7cb155dc8a80de",
+    "house_reimu": "9436d77418f991a6ec1d24dbe9e70062b33226101acdf37e6e77a330e0c4357e",
+    "marisa": "7fc64d847f508b2e4cd55a9be9d2e2dee2eb6d1ec6a1d31e4d1cd03c6aaaef29",
+    "patchouli": "56d390a72edc39f617d4643674eaf830b0ec8709b162009482f22088d457d514",
+    "reimu": "36bdbf2b706cdd13a7f89bebf58eaedefe5d4310d3d5da30e7cdc382238f733c"
+  },
+  "tested_resources_sha256": {
+    "assets/mcyukkuri/yukkuri_presentation/living.json": "134258cfbeda6fc998510951a703eb91db5074fd642fc859df282d3b2ddaf7c2",
+    "assets/mcyukkuri/yukkuri_presentation/family.json": "9ae242b460ad62daff00c77c1105c31dc9d9e35d352f70c3615a99a88993df13",
+    "assets/mcyukkuri/yukkuri/alice.json": "8311bc97cd12dfcd5ef1daa72f49a6b8c5f6d02fea1752e75642e9560dabe257",
+    "assets/mcyukkuri/yukkuri/chen.json": "a9a70161bbefac3b3687b9ca581e47edaf7475752cedadc16f466080b8b8e324",
+    "assets/mcyukkuri/yukkuri/house_marisa.json": "347663346b68b639d2880a7a9ba2a8c1e39f4a8581f782df5c7cb155dc8a80de",
+    "assets/mcyukkuri/yukkuri/house_reimu.json": "9436d77418f991a6ec1d24dbe9e70062b33226101acdf37e6e77a330e0c4357e",
+    "assets/mcyukkuri/yukkuri/marisa.json": "7fc64d847f508b2e4cd55a9be9d2e2dee2eb6d1ec6a1d31e4d1cd03c6aaaef29",
+    "assets/mcyukkuri/yukkuri/patchouli.json": "56d390a72edc39f617d4643674eaf830b0ec8709b162009482f22088d457d514",
+    "assets/mcyukkuri/yukkuri/reimu.json": "36bdbf2b706cdd13a7f89bebf58eaedefe5d4310d3d5da30e7cdc382238f733c",
+    "assets/mcyukkuri/yukkuri_props/chen_hat.json": "11b1a9a6677a9d59c5bb5cc4d0b5b4e9fa893459b6c3b31e9d7a252600c37d0a",
+    "assets/mcyukkuri/yukkuri_props/alice_headband.json": "9627f6f42d66de30873be48891849ca2726795f57ae78772a43cf9659289e919",
+    "assets/mcyukkuri/yukkuri_props/patchouli_bonnet.json": "e2b848d9b8255763d1d2b5b1a888f72a9a273128d01cfd13a1de82974781ac86"
+  },
+  "selected_models_sha256": {
+    "chen": "186a6c0dda4bd469e22fda6ee4b1d85f0376572ce437f77f406fc15b0e54370b",
+    "alice": "759f01e37f8d92f1bc63ac29d7e6f70ce0fc6aa1adee52dbc1885edf563de241",
+    "patchouli": "9222e2934318685c18438f0e0f43413886a30df1603808ea011eeac7c9d21f90"
+  },
+  "java_engine": {
+    "minecraft": "1.21.1",
+    "neoforge": "21.1.250",
+    "java": "21.0.12.1+1",
+    "tests": 6,
+    "passed": 6,
+    "checks": {
+      "core-checks": {
+        "count": 37,
+        "passed": 37,
+        "file": "docs/validation/species/current/core-checks.json"
+      },
+      "family-checks": {
+        "count": 135,
+        "passed": 135,
+        "file": "docs/validation/species/current/family-checks.json"
+      },
+      "filling-checks": {
+        "count": 43,
+        "passed": 43,
+        "file": "docs/validation/species/current/filling-checks.json"
+      },
+      "living-checks": {
+        "count": 82,
+        "passed": 82,
+        "file": "docs/validation/species/current/living-checks.json"
+      },
+      "server-checks": {
+        "count": 330,
+        "passed": 330,
+        "file": "docs/validation/species/current/server-checks.json"
+      }
+    },
+    "world": "fresh isolated GameTest world",
+    "fixture_sha256": {
+      "CoreGameTests$Check.class": "7bc20369de5ae6128ae76d20ccff10e665ccb9f57958643848874417baf4d5c3",
+      "CoreGameTests.class": "e7f8217adb545a58ac90bbd79ed3fd3fa89c378ed2ab67c8701576824d1e3cd0",
+      "CorePreview.class": "36006f5d5be672a7607837c5910ee4c16a3f95580370b98d1c1f2c8e9b5dd02a",
+      "DialogueGameTests.class": "6c33958289853446451a16fe45c6fa0228d6a8252781b94887e0cc088304ffa3",
+      "FamilyGameTests$Check.class": "ab8ee34cf24a8c13cc001f69095f7525ddb1d6569f6f20e7cc1593583bf6aecd",
+      "FamilyGameTests.class": "6ec0ea6173a219f0437e5115fe465fe56ef0ec07a20fe5d47928d5fd3a7eb23f",
+      "FillingGameTests$Check.class": "9780fcc06794cedf1a02310c3c4e890e455512a87c1228b1e0dc4787e8028c4f",
+      "FillingGameTests.class": "71390c78399858b4d4183ad8f7874db3f97007244e57e844288314af2a81b8a5",
+      "LivingGameTests$Check.class": "5abda8a8867378ee619fb6088c4f97b7c1c481c568f6fc477cd67ccbfc3454d6",
+      "LivingGameTests.class": "683788dc350a407a1e5ffd6c271078e0153657c8d67e80bc333b94b0ce4c605c",
+      "LivingPreview.class": "ff61cc71c0efd1345620e3116acab142c22bf04779b7fe7ee87b30eca96d0035",
+      "P0Client$Probe.class": "fcce856a3a185ec3c59f97e3f718ce3d05cd2a9db977ec12be26e814c3a3ae7a",
+      "P0Client.class": "2576a4d1fbd9213652411d9c7caadddfa31e97c673e99d4340b7c7cf57fd5788",
+      "P0Control.class": "203484cb1876c4a5929a33a775d7968a1db444c61cd9d12ff73d0289936871f3",
+      "P0GameTests.class": "e85af3858aff4989397e16bebc9b326cac9411e8c9c7456d45d3c5a2a7744990",
+      "P0Mod.class": "b6e6da19848f9da842a18696bc4bb3db5cacb83db59b36f9bad11b6c3fb48684",
+      "P0Server$Check.class": "888659cd168ca141f9e91db3d42649fabf8166c7625af98e9fbdc1cf56e069de",
+      "P0Server$Step.class": "e06e08dc5e7fe8bd608451ec6d01a5f62253474281f309227ffb9ba499a79bf5",
+      "P0Server.class": "b25bc6f0972e8c2fb3a50b02a17f00cc49a420f427363e74c7f735e0e62c7387",
+      "PeripheralPreview.class": "b37f29aa7e8ee22188cbb27745eeda10d748a710a1da394d8eb6550969fb8af9",
+      "Showcase.class": "4f8e49c4dfbd0a5ef11f32e003d43318b510427411ea52dfa3cb0d6291ada1cb"
+    }
+  },
+  "client": {
+    "action_variants": 133,
+    "samples_per_action": 6,
+    "samples": 798,
+    "captured_action_frames": 623,
+    "all_actions_recorded": 19,
+    "visual_review": "front, oblique, side, rear; representative beginning/middle/end of 19 actions; additional rear anatomy and close Patchouli press",
+    "state_checks": [
+      "idle reset after puff and extension",
+      "accessory visibility",
+      "chewing geometry",
+      "expression texture decoding"
+    ],
+    "source": "actual Minecraft framebuffer"
+  },
+  "independent_numeric_review": {
+    "model_sha256": "56d390a72edc39f617d4643674eaf830b0ec8709b162009482f22088d457d514",
+    "step_seconds": 0.005,
+    "additional_samples": [
+      "all original keyframes",
+      "keyframe interval midpoints"
+    ],
+    "clips": 19,
+    "minimum_hair_y_at_least": 0,
+    "fixed_upper_unique_vertices": 200,
+    "original_bones_preserved": 198,
+    "static_geometry_unchanged": true,
+    "source_snapshot_byte_identical": true
+  },
+  "build": {
+    "path": "build/libs/mcyukkuri-0.1.0-dev.jar",
+    "sha256": "218bb319bee44f22df27af013f9394bf71230c58c858038fe6df183dda683cf7",
+    "packaged_runtime_models_match_tested_models": true,
+    "game_fixture_excluded": true
+  },
+  "concurrent_work_boundary": "Game checks used fixed compiled/resources copies to avoid shared build-directory replacements. The current development Jar also contains concurrent project changes; these checks are not full acceptance of those features.",
+  "source_status": "Standard geometry and approval fingerprints unchanged; selected source, rig and atlas mapping remains in art/runtime-sources.json.",
+  "pending": [
+    "User assessment of long-hair compression",
+    "New-species dedicated-server late join and disk restart",
+    "Long survival balance",
+    "Species-specific dialogue and voice"
+  ],
+  "manual_document_review": "Chinese prose and local references checked manually; tech-doc-style-chinese and tech-doc-lint skills were not available."
+}

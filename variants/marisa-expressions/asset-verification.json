@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "presets": 13,
+  "independentFaceParts": 10,
+  "neutralFacePixelIdentical": true,
+  "originalGeometryPreserved": true,
+  "fourAnimationExportsUnchanged": true,
+  "sideDuration": 2.36
+}

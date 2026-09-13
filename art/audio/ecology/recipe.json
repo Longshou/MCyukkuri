@@ -1,0 +1,40 @@
+{
+  "status": "candidate-awaiting-listening-review",
+  "engine": "AquesTalk1",
+  "syllable": "ゆー",
+  "notes_semitones": [
+    0,
+    2,
+    4,
+    2,
+    0,
+    -3,
+    0,
+    4,
+    7,
+    4,
+    2,
+    0
+  ],
+  "beats_seconds": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.75,
+    1.25
+  ],
+  "duration_seconds": 8,
+  "rate": 32000,
+  "profiles": {
+    "reimu": "f1",
+    "marisa": "f2"
+  },
+  "attribution": "Original MCyukkuri melody; behavior inspired by documented おうた. Not an original-game recording."
+}

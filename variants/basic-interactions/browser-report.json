@@ -1,0 +1,95 @@
+{
+  "passed": true,
+  "errors": [],
+  "captured": 9,
+  "metrics": [
+    {
+      "id": "rub",
+      "species": "marisa",
+      "checks": []
+    },
+    {
+      "id": "nuzzle",
+      "species": "marisa",
+      "checks": []
+    },
+    {
+      "id": "lick",
+      "species": "marisa",
+      "checks": [
+        {
+          "tongueGap": 0.00042379131705415834
+        },
+        {
+          "tongueGap": 0.00042379131705481667
+        }
+      ]
+    },
+    {
+      "id": "accessory",
+      "species": "marisa",
+      "checks": [
+        {
+          "hatBottom": 0.08000000000000007
+        }
+      ]
+    },
+    {
+      "id": "talk",
+      "species": "marisa",
+      "checks": []
+    },
+    {
+      "id": "hold",
+      "species": "marisa",
+      "checks": []
+    },
+    {
+      "id": "rub",
+      "species": "reimu",
+      "checks": []
+    },
+    {
+      "id": "nuzzle",
+      "species": "reimu",
+      "checks": []
+    },
+    {
+      "id": "lick",
+      "species": "reimu",
+      "checks": [
+        {
+          "tongueGap": 0.00042379131705415834
+        },
+        {
+          "tongueGap": 0.00042379131705481667
+        }
+      ]
+    },
+    {
+      "id": "accessory",
+      "species": "reimu",
+      "checks": [
+        {
+          "hatBottom": 0.08000000000000185
+        }
+      ]
+    },
+    {
+      "id": "talk",
+      "species": "reimu",
+      "checks": []
+    },
+    {
+      "id": "hold",
+      "species": "reimu",
+      "checks": []
+    }
+  ],
+  "controls": [
+    "camera retained on switch",
+    "pause",
+    "restore idle",
+    "mobile without horizontal overflow"
+  ]
+}

@@ -1,0 +1,17 @@
+# 接触工具游戏适配
+
+2026-09-13。选用[器具候选制作源](../../../standards/yukkuri-library/drafts/operation-tools/README.md)，造型待确认。`selected/` 保存十四种工具、剪下的头发、培养瓶及按身体适配的模型，包含 `.bbmodel`、三角网格与原创色板；[manifest.json](manifest.json)记录对应文件指纹。
+
+运行网格写入 `assets/mcyukkuri/yukkuri_props/<物品>.json`，材质写入 `textures/props/`，物品模型写入 `models/item/`，独立目录表为 `operations-index.json`。另导出九种角色各自的固定具与吊带，并区分有饰物与失饰状态；这 36 份挂接模型引用选定角色源网格，不改变角色形状。它们没有独立动画，跟随身体姿态与体型。固定具导出支撑高度，吊带导出吊环坐标，针和钩使用当前蒙皮挂点；身体姿态、滚动角、发束缺失和支撑位置由服务端同步。
+
+八种冷态工具有生存合成路线；加热锥子由普通锥子对燃烧营火或火源使用取得，30 秒后变回普通锥子。剪下的头发只从真实剪发产生。固定用器具在解除、中断或重载时归还；创造模式不产出免费归还物。
+
+新增五种专用器具有各自配方。铁箱另有九种身体适配版，正面观察栏和箱体厚度为 MC 设计；培养瓶采用半透明材质。剪下的茎与实子复用家庭茎形及原孩子的模型，由服务器胎次记录驱动；出生后不再显示相应实子。不把剪茎容器登记为已确认的普通断茎素材。
+
+培养瓶的根部与瓶口连接坐标随网格导出，瓶内直根接到原弯茎；服务端和客户端共用 `DetachedStemGeometry`。这一批的当前图像见[专用器具预览](previews/current/instruments.html)，包含普通种、家油和帕秋莉铁箱，以及培养瓶正侧背面和实际菜单触发的振动序列。
+
+非瓶装离身茎的地面根高已按成熟实子的完整包围范围修正，并补出接地直茎，详见[净空修正及验收范围](../../../docs/DETACHED_STEM_GROUND_CLEARANCE.md)与[双客户端当前正侧视图](previews/current/detached-ground/index.html)。旧 `instrument-bare-stem.png` 属于修正前画面，不作为本轮几何的视觉证据。
+
+最新截图见[实机预览](previews/current/index.html)。静态姿态样本用于检查几何，连续滚动由实际菜单触发；序列中滚动结束后的惊跳单独区分。实际操作与资源结算由开发 GameTest 另行验证。裁剪刀按原生 `yu_base.cs` 的 `お飾り切り動作` 产生破损饰物，显示的两片几何仍属于同一真实物品。完整移植状态见[实施记录](../../../docs/PORT_REMAINDER.md)。
+
+捕食种补验：补齐蕾米莉亚、弗兰共 10 份器具适配，制作源识别 `predator_body_surface`，遇到未知身体会报错而不再跳过。[本轮离线三视图与检查](../../../docs/validation/predators/operations-current/README.md)记录当前指纹；不把此前七种的实机截图当作捕食种证据。

@@ -1,0 +1,37 @@
+{
+  "status": "pending-review",
+  "source": "standards/yukkuri-library/drafts/operation-tools/build.py",
+  "reference": {
+    "work": "ゆっくり八景U v9.8",
+    "asset": "sharedassets0.assets",
+    "sha256": "81584ccc8c834f5229c180b8d6d3cf37ed0f3d00fb339fc3fde960b1b5b48844",
+    "sprite_ids": {
+      "pin": 4627,
+      "mallet": 5671,
+      "pruning_shears": 4817,
+      "awl": [
+        5962,
+        6334
+      ],
+      "heated_awl": 8248,
+      "hooks": [
+        8618,
+        6640
+      ],
+      "vibrator": 5896,
+      "bottles": [
+        5020,
+        5223,
+        7430
+      ],
+      "enclosure": [
+        6862,
+        8721
+      ]
+    },
+    "inspection": "Extracted reference contact sheet reviewed locally; original pixels are not distributed.",
+    "operation_source": "E:/yukkuri/Eight景U-ModLab/analysis/decompiled/yu_base.cs:11523,11616,19256,19633"
+  },
+  "authorship": "Original triangle geometry and palette; depth, rear faces, restraint fitting, enclosure viewing bars and detached-brood vessel dimensions are MC adaptations. Native sprite pixels are not distributed.",
+  "approval": "No standard silhouette approval is claimed."
+}

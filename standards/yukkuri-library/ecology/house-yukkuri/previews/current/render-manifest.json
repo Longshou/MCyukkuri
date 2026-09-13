@@ -1,0 +1,158 @@
+{
+  "design": "standard_fitted_anatomy_house_v9",
+  "label": "v9.1-ui-review",
+  "renderer": "../../../../runtime/render.js",
+  "renderer_sha256": "c7dfd470925bcd961656ccbe474148f83ea76b070e0d5471aa50963f37d8e7d6",
+  "index_sha256": "c511aefedf5f6ffaa52aa9f59a7e0d8e32ed1e5022d87a01a60e4580d5d8fa1f",
+  "source_sha256": "9429b26a4ce65fd83b0b6cc1dd959f024fe046940c33cbfc79fb7b8e6605d1ae",
+  "models": {
+    "marisa": "8910bae7af38dce4e4763da9f89176ea60ae6a7917bc3a8f9ddd383621115afd",
+    "reimu": "e3296cc246a9412f6e5bb3216c2ede94b0a3b096d0d3a96d2223f39e15a8ec7d"
+  },
+  "views": [
+    {
+      "id": "front",
+      "az": 0,
+      "el": 0
+    },
+    {
+      "id": "three-quarter",
+      "az": 0.65,
+      "el": 0.14
+    },
+    {
+      "id": "side",
+      "az": 1.5707963268,
+      "el": 0
+    },
+    {
+      "id": "back",
+      "az": 3.1415926536,
+      "el": 0.1
+    },
+    {
+      "id": "lower-front",
+      "az": 0.6,
+      "el": -0.12,
+      "span": 2.3,
+      "centerY": 0.9
+    },
+    {
+      "id": "rear-quarter",
+      "az": 2.5,
+      "el": 0.12
+    },
+    {
+      "id": "rump-close",
+      "az": 3.1415926536,
+      "el": 0,
+      "span": 1.35,
+      "centerY": 0.85
+    },
+    {
+      "id": "bow-close",
+      "az": 2.75,
+      "el": 0.12,
+      "span": 1.65,
+      "centerY": 3.55
+    },
+    {
+      "id": "waddle",
+      "az": 0.65,
+      "el": 0.14,
+      "clip": "waddle",
+      "time": 0.24
+    },
+    {
+      "id": "peni-retracted",
+      "az": 0.65,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_peni_extend",
+      "time": 0
+    },
+    {
+      "id": "peni-half",
+      "az": 0.65,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_peni_extend",
+      "time": 0.12
+    },
+    {
+      "id": "peni-extended",
+      "az": 0.65,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_peni_extend",
+      "time": 0.24
+    },
+    {
+      "id": "mamu-retracted",
+      "az": 2.5,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_mamu_extend",
+      "time": 0
+    },
+    {
+      "id": "mamu-half",
+      "az": 2.5,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_mamu_extend",
+      "time": 0.12
+    },
+    {
+      "id": "mamu-extended",
+      "az": 2.5,
+      "el": 0.05,
+      "span": 1.65,
+      "centerY": 0.9,
+      "clip": "anatomy_mamu_extend",
+      "time": 0.24
+    }
+  ],
+  "width": 640,
+  "height": 640,
+  "images": {
+    "reimu-front.png": "56fe9ef250ce721252ae2ed75de2b9b35dbc6ebcd8e67673092a4727a96c50df",
+    "reimu-three-quarter.png": "b25ccf742c70ef6245139bba3b1da443a557f6da3f5c9623d740a57a7e230908",
+    "reimu-side.png": "252238f0bdd30e5208e2e45f32e7c0f5e8f5ddf895258ee10520222318192c38",
+    "reimu-back.png": "1a0109f92bd4ddd42c971d335f64e8434d2510cba2b52cefe0a2ca8644edd170",
+    "reimu-lower-front.png": "523351eeda7207c4db75bae91c7f7263bee99ae98b9dccc692b0f83de6024c72",
+    "reimu-rear-quarter.png": "f84d0aa5c62ccce4465aa02d2a23ae635667039340b5f16ce97a42dc94ef8361",
+    "reimu-rump-close.png": "f3ef8d42a54a8d36de4bc074e9e3cbb92256e6ec3a533895ce2dccb7d060f283",
+    "reimu-bow-close.png": "8a401d5ab87326e2c52d598ec03feb83c9c329ebe4603c7f5022b5b3d4e21b4f",
+    "reimu-waddle.png": "55ed71c2190e1fcbcca0e112db84ffb8185edcd7cd678ffcfd0524416aeeb598",
+    "reimu-peni-retracted.png": "e8bf8188a5235699f06a3fddeff57fd28b71010edc27c527d0c170c521f79ee6",
+    "reimu-peni-half.png": "a33b2b3883ff0fe75bfcc3cccff9f0cdfb906c8f79d4d4bd7b5404ee16ed1639",
+    "reimu-peni-extended.png": "4673f626d701914bee674958931eb721c97ab85aa962070b979a48c05e0b0014",
+    "reimu-mamu-retracted.png": "85cfbe243247e8e1924c60424d62c903f67d7aba77a77a46a3d08376e073962a",
+    "reimu-mamu-half.png": "48514cfe43f45339dea46f080ae83a1ee3e4d558617597cbd951d68da6ee6ff0",
+    "reimu-mamu-extended.png": "c933fa3705fd4ecb1b254cd188253e809c8e4b0f6ba02a7572753e238dd77e4b",
+    "marisa-front.png": "053a7384c8cad80c863f43d1ca406013d5253c4020f243ae54a83fb074810ac0",
+    "marisa-three-quarter.png": "a7ad924b491d87f2704099c66d2bbfabad7911b1d370e863d42cc8d167d46305",
+    "marisa-side.png": "e76e731992f82de45f8ea6c1c5af917d5635d7de07bf397e198c187588cf9cc7",
+    "marisa-back.png": "d4bba25a701aaa477242550ba6eea99493cbb456238ee8c3ed34bff973d04e34",
+    "marisa-lower-front.png": "23aa30bd8005bbacc260f8e533098335ef078de1c544c57b26fe9bac896f55ce",
+    "marisa-rear-quarter.png": "d68255abd0307aa742bb36baa27c60f603b915d0d5e581095f46c928dd43542b",
+    "marisa-rump-close.png": "cdf1b78bc14b4a037c0b2520079d928b9b22daf0be77aef0d04b85c2f0906333",
+    "marisa-bow-close.png": "55f39282c8335fc3aa93af0ab6d5a960b8d485568a92db34bef3705c2a9279b2",
+    "marisa-waddle.png": "b5c5120ae1383299674405a1ec24bb10acf301e5934b9133cc975458c7d0f033",
+    "marisa-peni-retracted.png": "66f92976eaed7846516f2693dc4f68964de07afc314b13e4f8d6e6d583af4f02",
+    "marisa-peni-half.png": "e12a30f95f99c6a249f91ed1ababd148f41276ac19c5f4c5af9fb68dde345ce5",
+    "marisa-peni-extended.png": "fd8fdd910617776b57d8b20e380272b9dc7f5446a003ab618f3b6c72224f2cea",
+    "marisa-mamu-retracted.png": "b8d3f98bd051b00539ac8ff921cbe0587e113c2283c0d09921a08ce0267d15a6",
+    "marisa-mamu-half.png": "f7def70e084520fb021eff43bd4245ca213ef4bfa2c19f017ccd8739b21c40a7",
+    "marisa-mamu-extended.png": "26bf33562caf54335a1191b53206d153d3908aadf095ba43f72a89a511175239",
+    "turnaround.png": "6bc01a1188252b2561042a0154b2a74c16c9ae32ddf7e601e3deb3a0c3a40bb6",
+    "anatomy-review.png": "b9313b3ea5b16a623a59b5ebf141ff82a5a29ae16fe5915ce4115f4defcb076c"
+  },
+  "scope": "Neutral expression; four general views, four defect closeups, one waddle sample, adult anatomy at rest/midpoint/extension; no browser or game runtime validation."
+}

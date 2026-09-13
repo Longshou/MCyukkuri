@@ -1,0 +1,12 @@
+{
+  "groups": [
+    "alice/adult: all events, native greeting, duplicate, urgent interrupt, authorship",
+    "alice/young: all events, native greeting, duplicate, urgent interrupt, authorship",
+    "chen/adult: all events, native greeting, duplicate, urgent interrupt, authorship",
+    "chen/young: all events, native greeting, duplicate, urgent interrupt, authorship",
+    "patchouli/adult: all events, native greeting, duplicate, urgent interrupt, authorship",
+    "patchouli/young: all events, native greeting, duplicate, urgent interrupt, authorship"
+  ],
+  "eventsPerGroup": 56,
+  "passed": true
+}

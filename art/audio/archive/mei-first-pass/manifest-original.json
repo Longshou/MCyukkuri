@@ -1,0 +1,2048 @@
+{
+  "status": "pending-listening-review",
+  "gameplay_triggers": "not-connected",
+  "recipe_sha256": "4dfd445d4438c28b149c95a4c8cc8f0fcdc8e6a6d1f26910642a5879fd4782e5",
+  "builder_sha256": "9c0c3e2e34a00cf23b64c969d754e12e25198b4356bbd7ad8c34f9af5ec863b4",
+  "environment": {
+    "python": "3.13.1",
+    "libsndfile": "1.2.0",
+    "numpy": "2.2.3",
+    "soundfile": "0.12.1",
+    "pyopenjtalk-plus": "0.4.1.post9"
+  },
+  "voice_model_sha256": "f3be49a6838904a6c218790b64e07c3e83c1886e995dca284b413caab19184de",
+  "sound_events": {
+    "sfx.waddle": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/waddle_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/waddle_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.hop": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/hop_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/hop_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.land": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/land_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/land_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.chew": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/chew_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/chew_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.gulp": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/gulp_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/gulp_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.sleep_breath": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/sleep_breath_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/sleep_breath_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.puff": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/puff_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/puff_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.rub": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/rub_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/rub_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.wash": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/wash_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/wash_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.nest": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/nest_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/nest_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.toilet": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/toilet_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/toilet_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "sfx.item_pickup": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:sfx/item_pickup_01",
+          "attenuation_distance": 16
+        },
+        {
+          "name": "mcyukkuri:sfx/item_pickup_02",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.greeting": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/greeting",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.idle": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/idle",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.happy": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/happy",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.hungry": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/hungry",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.eat": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/eat",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.full": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/full",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.sleep": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/sleep",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.wake": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/wake",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.startle": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/startle",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.hurt": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/hurt",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.help": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/help",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.thanks": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/thanks",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.home": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/home",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.reimu.call": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/reimu/call",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.greeting": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/greeting",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.idle": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/idle",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.happy": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/happy",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.hungry": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/hungry",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.eat": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/eat",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.full": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/full",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.sleep": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/sleep",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.wake": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/wake",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.startle": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/startle",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.hurt": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/hurt",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.help": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/help",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.thanks": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/thanks",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.home": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/home",
+          "attenuation_distance": 16
+        }
+      ]
+    },
+    "voice.marisa.call": {
+      "sounds": [
+        {
+          "name": "mcyukkuri:voice/marisa/call",
+          "attenuation_distance": 16
+        }
+      ]
+    }
+  },
+  "montage_order": [
+    "voice/reimu/greeting",
+    "voice/marisa/greeting",
+    "sfx/chew_01",
+    "voice/reimu/eat",
+    "sfx/waddle_01",
+    "sfx/hop_01",
+    "sfx/land_01",
+    "sfx/wash_01",
+    "voice/marisa/thanks",
+    "sfx/nest_01",
+    "voice/reimu/sleep",
+    "sfx/sleep_breath_01"
+  ],
+  "files": [
+    {
+      "id": "sfx/waddle_01",
+      "event": "sfx.waddle",
+      "label": "软身体挪动 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/waddle_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/waddle_01.ogg",
+      "wav": {
+        "seconds": 0.365,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -25.06,
+        "sha256": "1dbc5338749b074472d4abd7a89198155d5f2c090237011dcb72d2ac57586bf6"
+      },
+      "ogg": {
+        "seconds": 0.365,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -10.85,
+        "rms_dbfs": -25.04,
+        "sha256": "c16242ca67ade7318d4edd095db98eaafbd0b68979b86c790441a6801f5827ce"
+      },
+      "seed": 20260913
+    },
+    {
+      "id": "sfx/waddle_02",
+      "event": "sfx.waddle",
+      "label": "软身体挪动 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/waddle_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/waddle_02.ogg",
+      "wav": {
+        "seconds": 0.365,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -25.21,
+        "sha256": "be892e4c5003c6bfde9f50040ef866290d1b7cc6db71b37e0df4f59fb1706236"
+      },
+      "ogg": {
+        "seconds": 0.365,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.12,
+        "rms_dbfs": -25.22,
+        "sha256": "5d4def48b19d4af91c62b636b6f9cfe3a9f5e89ce6376ea0aabaa5fa1671d5d2"
+      },
+      "seed": 20260914
+    },
+    {
+      "id": "sfx/hop_01",
+      "event": "sfx.hop",
+      "label": "起跳 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/hop_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/hop_01.ogg",
+      "wav": {
+        "seconds": 0.335,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -9.0,
+        "rms_dbfs": -21.76,
+        "sha256": "74e758f37d3f20d5e7352b571d49ab9e64fa7b9e367cec0f762eb65f01488c30"
+      },
+      "ogg": {
+        "seconds": 0.335,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -9.33,
+        "rms_dbfs": -21.73,
+        "sha256": "e557cc2659c6a1d28c6202b624b16b069871bc715aafe304ca7046ac6b7865e5"
+      },
+      "seed": 20261013
+    },
+    {
+      "id": "sfx/hop_02",
+      "event": "sfx.hop",
+      "label": "起跳 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/hop_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/hop_02.ogg",
+      "wav": {
+        "seconds": 0.335,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -9.0,
+        "rms_dbfs": -21.23,
+        "sha256": "15339265612af21c6d280e910a23619ecaa01cd44240ea4da403358037dc1e70"
+      },
+      "ogg": {
+        "seconds": 0.335,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -8.75,
+        "rms_dbfs": -21.18,
+        "sha256": "6b6ac748813deeb763eafcf1942615f42f4628a460fe42ee20a56a708841b4af"
+      },
+      "seed": 20261014
+    },
+    {
+      "id": "sfx/land_01",
+      "event": "sfx.land",
+      "label": "软着地 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/land_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/land_01.ogg",
+      "wav": {
+        "seconds": 0.445,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -8.0,
+        "rms_dbfs": -23.34,
+        "sha256": "7b274b61b1a1606452ba812168d20b331a0d8a178e3c7644365de4e520486f34"
+      },
+      "ogg": {
+        "seconds": 0.445,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -8.04,
+        "rms_dbfs": -23.31,
+        "sha256": "d56a21863474d72d54c089c85eb87601bf9137fd0f98ee1cc35240351773d063"
+      },
+      "seed": 20261113
+    },
+    {
+      "id": "sfx/land_02",
+      "event": "sfx.land",
+      "label": "软着地 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/land_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/land_02.ogg",
+      "wav": {
+        "seconds": 0.445,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -8.0,
+        "rms_dbfs": -23.12,
+        "sha256": "8ad0213956a0539a5f173e9435066202f208dfe0237fda9ce9ec02e700af34c5"
+      },
+      "ogg": {
+        "seconds": 0.445,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -7.87,
+        "rms_dbfs": -23.12,
+        "sha256": "f7627acb303608def3fa0449732222b30f2fed710968604c0b02968ba1a7bb2b"
+      },
+      "seed": 20261114
+    },
+    {
+      "id": "sfx/chew_01",
+      "event": "sfx.chew",
+      "label": "咀嚼 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/chew_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/chew_01.ogg",
+      "wav": {
+        "seconds": 0.675,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -27.53,
+        "sha256": "b2992000a4fcc5347096273d3a1445abbdf445c7bf46c96dfa3de45f40df04fd"
+      },
+      "ogg": {
+        "seconds": 0.675,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.04,
+        "rms_dbfs": -27.77,
+        "sha256": "6506093dbbdcb5290f9475f83be0c16c10a8fa6b7ed8ee6e23fa9b14df565393"
+      },
+      "seed": 20261213
+    },
+    {
+      "id": "sfx/chew_02",
+      "event": "sfx.chew",
+      "label": "咀嚼 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/chew_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/chew_02.ogg",
+      "wav": {
+        "seconds": 0.675,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -26.28,
+        "sha256": "f582e533a948c492b8f3fc3192d565e566b61f046e85765eb70828f6c37595a7"
+      },
+      "ogg": {
+        "seconds": 0.675,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.71,
+        "rms_dbfs": -26.58,
+        "sha256": "88e55f70de202a77379b90c562e3e115d6c316c623ab9a09687d2367cba75e0e"
+      },
+      "seed": 20261214
+    },
+    {
+      "id": "sfx/gulp_01",
+      "event": "sfx.gulp",
+      "label": "吞咽 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/gulp_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/gulp_01.ogg",
+      "wav": {
+        "seconds": 0.485,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -10.0,
+        "rms_dbfs": -22.88,
+        "sha256": "d92fc3a1a1b5b52d3f4eb301ad871806d417e4885d89cfc81758244d1bb2cebf"
+      },
+      "ogg": {
+        "seconds": 0.485,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -10.0,
+        "rms_dbfs": -22.83,
+        "sha256": "bd21709583611eae4a1e601e69e11d40514f289466e51f2f3ef998989da0cda1"
+      },
+      "seed": 20261313
+    },
+    {
+      "id": "sfx/gulp_02",
+      "event": "sfx.gulp",
+      "label": "吞咽 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/gulp_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/gulp_02.ogg",
+      "wav": {
+        "seconds": 0.485,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -10.0,
+        "rms_dbfs": -22.95,
+        "sha256": "b85676650e068e0d90d65dbf511d0300dcfbc48a5b522ee984c48bef5797576d"
+      },
+      "ogg": {
+        "seconds": 0.485,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -9.82,
+        "rms_dbfs": -22.89,
+        "sha256": "82f8ff3780906cd3e8a8d26a8118cba4ce0db30c4bf4b32debf29d3970e1f554"
+      },
+      "seed": 20261314
+    },
+    {
+      "id": "sfx/sleep_breath_01",
+      "event": "sfx.sleep_breath",
+      "label": "睡眠呼吸 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/sleep_breath_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/sleep_breath_01.ogg",
+      "wav": {
+        "seconds": 2.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -16.0,
+        "rms_dbfs": -33.04,
+        "sha256": "06a7fdff980dc6eccddd17000208659334078b334707f1c1ece71363671e39b1"
+      },
+      "ogg": {
+        "seconds": 2.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -16.64,
+        "rms_dbfs": -33.29,
+        "sha256": "0a546b9c435f19a1c5a7359c8e8fca09423bf104443cd81f0f01bb4a11e09538"
+      },
+      "seed": 20261413
+    },
+    {
+      "id": "sfx/sleep_breath_02",
+      "event": "sfx.sleep_breath",
+      "label": "睡眠呼吸 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/sleep_breath_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/sleep_breath_02.ogg",
+      "wav": {
+        "seconds": 2.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -16.0,
+        "rms_dbfs": -33.18,
+        "sha256": "d7341fcd5994f13dc037070a498f2bb8c3c1be47a7ddd0683961aa563b22f6cd"
+      },
+      "ogg": {
+        "seconds": 2.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -16.4,
+        "rms_dbfs": -33.46,
+        "sha256": "51a71c728df61c8e30d122b53613113173819fdeb475e5217ddef2ffb2c94514"
+      },
+      "seed": 20261414
+    },
+    {
+      "id": "sfx/puff_01",
+      "event": "sfx.puff",
+      "label": "鼓腮吹气 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/puff_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/puff_01.ogg",
+      "wav": {
+        "seconds": 0.835,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -25.8,
+        "sha256": "d097e8dfd24114804be0e9abb0b20a9f25a4460180d5e9ef6118cb350c31c410"
+      },
+      "ogg": {
+        "seconds": 0.835,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.86,
+        "rms_dbfs": -26.2,
+        "sha256": "57db8e267b66085ff70834dd11fa94843a8495712805951ba2b0eb821d95e2c3"
+      },
+      "seed": 20261513
+    },
+    {
+      "id": "sfx/puff_02",
+      "event": "sfx.puff",
+      "label": "鼓腮吹气 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/puff_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/puff_02.ogg",
+      "wav": {
+        "seconds": 0.835,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -11.0,
+        "rms_dbfs": -25.13,
+        "sha256": "aea184216fa0b9330d536e28d311662b545d983dc8857b96b4e7711c6e33e961"
+      },
+      "ogg": {
+        "seconds": 0.835,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -10.82,
+        "rms_dbfs": -25.47,
+        "sha256": "a615e7b46b27585b96759c98c2953ef54c8852b107ccce882b1166f7aee62489"
+      },
+      "seed": 20261514
+    },
+    {
+      "id": "sfx/rub_01",
+      "event": "sfx.rub",
+      "label": "抚摸摩擦 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/rub_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/rub_01.ogg",
+      "wav": {
+        "seconds": 0.985,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -14.0,
+        "rms_dbfs": -28.11,
+        "sha256": "f8bd14a0e8cf70914951d12fcb80230b614d9032561677a53e11334db85447d9"
+      },
+      "ogg": {
+        "seconds": 0.985,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -13.85,
+        "rms_dbfs": -28.47,
+        "sha256": "bdabfbc48b2653b7dc0dbcad1cf90887f7833317964a088133a3e93d13175a83"
+      },
+      "seed": 20261613
+    },
+    {
+      "id": "sfx/rub_02",
+      "event": "sfx.rub",
+      "label": "抚摸摩擦 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/rub_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/rub_02.ogg",
+      "wav": {
+        "seconds": 0.985,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -14.0,
+        "rms_dbfs": -28.76,
+        "sha256": "8122d03cf7cf311244b944f59e03df7a95c6859106863935ae3bb67e6f3b536e"
+      },
+      "ogg": {
+        "seconds": 0.985,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -14.41,
+        "rms_dbfs": -29.07,
+        "sha256": "adc3167c86f1b67e6b44744b347db14601036d6fd1b2fd2ad1878120556a8a44"
+      },
+      "seed": 20261614
+    },
+    {
+      "id": "sfx/wash_01",
+      "event": "sfx.wash",
+      "label": "清洗水声 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/wash_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/wash_01.ogg",
+      "wav": {
+        "seconds": 1.285,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -25.74,
+        "sha256": "66738b6271560b781897ac75072618fd3c9547640974a448b7ac8589e5dffe3e"
+      },
+      "ogg": {
+        "seconds": 1.285,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -13.0,
+        "rms_dbfs": -26.15,
+        "sha256": "11d635737b41dc12ca4d73da71302c19fba8160d571293754adb3551c0be61cd"
+      },
+      "seed": 20261713
+    },
+    {
+      "id": "sfx/wash_02",
+      "event": "sfx.wash",
+      "label": "清洗水声 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/wash_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/wash_02.ogg",
+      "wav": {
+        "seconds": 1.285,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -25.9,
+        "sha256": "6a1a2bbdbf8cd236446ddaa78ca73b886510dfdfb88a769c7f2db5dec950bbb6"
+      },
+      "ogg": {
+        "seconds": 1.285,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -12.95,
+        "rms_dbfs": -26.27,
+        "sha256": "6cd36e1403082e51bb9bfa757ed2b1f21f9988448e8f86a9d36e1e0eb9fc633e"
+      },
+      "seed": 20261714
+    },
+    {
+      "id": "sfx/nest_01",
+      "event": "sfx.nest",
+      "label": "钻入草窝 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/nest_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/nest_01.ogg",
+      "wav": {
+        "seconds": 0.935,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -13.0,
+        "rms_dbfs": -29.8,
+        "sha256": "32a39c77ed87b9f2eea56d3707c4ba2d459a47eee8eb2b664b3f7468ffe3dc60"
+      },
+      "ogg": {
+        "seconds": 0.935,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -13.46,
+        "rms_dbfs": -30.26,
+        "sha256": "51f620f1b8a97202d3ee95ec20c10596e593d63b286565e7ae395cc77130747a"
+      },
+      "seed": 20261813
+    },
+    {
+      "id": "sfx/nest_02",
+      "event": "sfx.nest",
+      "label": "钻入草窝 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/nest_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/nest_02.ogg",
+      "wav": {
+        "seconds": 0.935,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -13.0,
+        "rms_dbfs": -30.48,
+        "sha256": "14368527cfd8b6b6b78f29ffcea812e7d71a0fe9441fdaee02293403a1f32ee0"
+      },
+      "ogg": {
+        "seconds": 0.935,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -13.15,
+        "rms_dbfs": -30.84,
+        "sha256": "794ed1c28e627ce304260961fc960070d5b6ab6fcb635ab23d2092ae6d654286"
+      },
+      "seed": 20261814
+    },
+    {
+      "id": "sfx/toilet_01",
+      "event": "sfx.toilet",
+      "label": "嗯嗯落下 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/toilet_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/toilet_01.ogg",
+      "wav": {
+        "seconds": 0.385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -26.53,
+        "sha256": "84fd7bb9e549832318ce353ee87cb31ec96e436af8fdf879d3d78c40073afd38"
+      },
+      "ogg": {
+        "seconds": 0.385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.99,
+        "rms_dbfs": -26.53,
+        "sha256": "547e6cf0b998e83e54fa1ced183cc95654dcd946a2ebf2c0a9d41c7c710eb3c3"
+      },
+      "seed": 20261913
+    },
+    {
+      "id": "sfx/toilet_02",
+      "event": "sfx.toilet",
+      "label": "嗯嗯落下 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/toilet_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/toilet_02.ogg",
+      "wav": {
+        "seconds": 0.385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -26.77,
+        "sha256": "caf9ac406bb09af108ec1c2e3b4a8b8d649a441bd0705cc1cd3aaf49e24ed5c7"
+      },
+      "ogg": {
+        "seconds": 0.385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -11.85,
+        "rms_dbfs": -26.73,
+        "sha256": "eaf66bc90f6b6867ed979a1b8042ee4eb731fdc8ac05d4f8747d4ffebef54173"
+      },
+      "seed": 20261914
+    },
+    {
+      "id": "sfx/item_pickup_01",
+      "event": "sfx.item_pickup",
+      "label": "拾起小物 · 1",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/item_pickup_01.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/item_pickup_01.ogg",
+      "wav": {
+        "seconds": 0.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -27.09,
+        "sha256": "9847c630409e1e59f689e991fc38daafec43dff7058cd19a8f11e96a922c175c"
+      },
+      "ogg": {
+        "seconds": 0.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -12.08,
+        "rms_dbfs": -27.08,
+        "sha256": "67a99e4fa739883f519665e671eb1285cf7aee68199d836826e0fb57d4bfed86"
+      },
+      "seed": 20262013
+    },
+    {
+      "id": "sfx/item_pickup_02",
+      "event": "sfx.item_pickup",
+      "label": "拾起小物 · 2",
+      "kind": "sfx",
+      "source": "art/audio/masters/sfx/item_pickup_02.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/sfx/item_pickup_02.ogg",
+      "wav": {
+        "seconds": 0.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -12.0,
+        "rms_dbfs": -27.1,
+        "sha256": "468d142b1bdee2f7635caf1cf5bf4af753c5ce5bbbc82bdaf27489aa2aafe998"
+      },
+      "ogg": {
+        "seconds": 0.435,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -12.07,
+        "rms_dbfs": -27.08,
+        "sha256": "28322273ddc9b4c307656c3dc2037363602d539debfc024fdca7b6616dc21dcb"
+      },
+      "seed": 20262014
+    },
+    {
+      "id": "voice/reimu/greeting",
+      "event": "voice.reimu.greeting",
+      "label": "灵梦 · 欢迎",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/greeting.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/greeting.ogg",
+      "wav": {
+        "seconds": 1.8225,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.82,
+        "sha256": "8e5ef6fd1ef47f1a66019f0965ba77270c4ae2f1733a5270ee48c3f0e46c8141"
+      },
+      "ogg": {
+        "seconds": 1.8225,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.71,
+        "rms_dbfs": -21.82,
+        "sha256": "95184a36668c225d6283197f5116b7f892036ffe9db18459661f54d8bdbafb89"
+      },
+      "text": "ゆっくりしていってね。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/idle",
+      "event": "voice.reimu.idle",
+      "label": "灵梦 · 悠闲",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/idle.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/idle.ogg",
+      "wav": {
+        "seconds": 1.5457,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -19.3,
+        "sha256": "dbd98171bbe9a5d0b087d9c895848ac7047ef19e8dd46750a690a79d2622de84"
+      },
+      "ogg": {
+        "seconds": 1.5457,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.9,
+        "rms_dbfs": -19.25,
+        "sha256": "9391debf3adc3de60c05fd2319544978908394a33a967082aaa9ddf02423b0d9"
+      },
+      "text": "ゆっくりできるね。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/happy",
+      "event": "voice.reimu.happy",
+      "label": "灵梦 · 开心",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/happy.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/happy.ogg",
+      "wav": {
+        "seconds": 1.8761,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.97,
+        "sha256": "4f37d66f9e96c3b2b1e78bcc583b65e0ce6ecea2905fc0085e9b3aa2e0df3c77"
+      },
+      "ogg": {
+        "seconds": 1.8761,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.93,
+        "rms_dbfs": -23.99,
+        "sha256": "fc78d9238ce7f6d3a1f28a348ba9c418045182b9ad906ec0328cd659a64c489e"
+      },
+      "text": "ゆゆっ、うれしいよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/hungry",
+      "event": "voice.reimu.hungry",
+      "label": "灵梦 · 肚子饿",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/hungry.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/hungry.ogg",
+      "wav": {
+        "seconds": 1.3778,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -22.68,
+        "sha256": "c3540c9acc109ef90e091ed8788db15136bd73a54e8821cc2a484b5ebea6afc3"
+      },
+      "ogg": {
+        "seconds": 1.3778,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.84,
+        "rms_dbfs": -22.66,
+        "sha256": "7f511c54c4c1ab29cf2d2a30798ec23d392af71d06f1421d8816736cbb41428b"
+      },
+      "text": "おなかがすいたよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/eat",
+      "event": "voice.reimu.eat",
+      "label": "灵梦 · 吃东西",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/eat.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/eat.ogg",
+      "wav": {
+        "seconds": 3.0625,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.36,
+        "sha256": "200da325f5d2c0e229cb89038b7fa56b47b26c3867ce8604a9a1e86a22ae119a"
+      },
+      "ogg": {
+        "seconds": 3.0625,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.92,
+        "rms_dbfs": -23.34,
+        "sha256": "049ba233fce9197434a018d9064221312af43940ed02d9e10a810d5710cf8e99"
+      },
+      "text": "むーしゃ、むーしゃ。しあわせ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/full",
+      "event": "voice.reimu.full",
+      "label": "灵梦 · 吃饱",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/full.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/full.ogg",
+      "wav": {
+        "seconds": 1.441,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -20.46,
+        "sha256": "13ca6d22ecc75118ac3407984e0b0983660783cb0474fe78a3f68637e3c4dd1f"
+      },
+      "ogg": {
+        "seconds": 1.441,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.98,
+        "rms_dbfs": -20.41,
+        "sha256": "a13f02e1ee8419dcfddb886b33a6410c39ba427aa30c1abc6fc938b056f69ebd"
+      },
+      "text": "おなかいっぱいだよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/sleep",
+      "event": "voice.reimu.sleep",
+      "label": "灵梦 · 入睡",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/sleep.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/sleep.ogg",
+      "wav": {
+        "seconds": 1.1385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.8,
+        "sha256": "5b59ebda5ccc5adb00b871b6231a8d319cae104cc21e557d9096f22dd930a8a5"
+      },
+      "ogg": {
+        "seconds": 1.1385,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.06,
+        "rms_dbfs": -21.76,
+        "sha256": "fe05baa9465f047e6bc39897f9ddd2013a5a0811813227a0f9d89900bf2c1100"
+      },
+      "text": "おやすみなさい。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/wake",
+      "event": "voice.reimu.wake",
+      "label": "灵梦 · 醒来",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/wake.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/wake.ogg",
+      "wav": {
+        "seconds": 1.6074,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -24.69,
+        "sha256": "ee9141fe459ee54fb02768e9aa64c96f707e72d587a19efbe762dd0c1a04c228"
+      },
+      "ogg": {
+        "seconds": 1.6074,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.74,
+        "rms_dbfs": -24.64,
+        "sha256": "3a5b9b3a083b0a2953ea59231ae3294b3ee40dba0833367b1711394ff17fd760"
+      },
+      "text": "ゆぅ、おはよう。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/startle",
+      "event": "voice.reimu.startle",
+      "label": "灵梦 · 受惊",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/startle.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/startle.ogg",
+      "wav": {
+        "seconds": 2.189,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -24.3,
+        "sha256": "4e5f71cd407478a76ad593428e0370041469d1aeeddb1ee85d4a7209a208d819"
+      },
+      "ogg": {
+        "seconds": 2.189,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.13,
+        "rms_dbfs": -24.33,
+        "sha256": "b5a0d2e3cac20b6c55d5849c7026b3a5b71a781b374c08ee01990d293aad278d"
+      },
+      "text": "ゆゆっ、びっくりしたよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/hurt",
+      "event": "voice.reimu.hurt",
+      "label": "灵梦 · 疼痛",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/hurt.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/hurt.ogg",
+      "wav": {
+        "seconds": 1.6112,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -24.87,
+        "sha256": "c3fe2f33249d6991a02d1668ee9b36831dc3bd82d1dacd7ff720fe7c433935a3"
+      },
+      "ogg": {
+        "seconds": 1.6112,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.02,
+        "rms_dbfs": -24.82,
+        "sha256": "7f809731893af65d33c041e87a8efa9d12d55250e597e86c34dce2caf60a9ae5"
+      },
+      "text": "ゆぅ、いたいよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/help",
+      "event": "voice.reimu.help",
+      "label": "灵梦 · 求助",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/help.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/help.ogg",
+      "wav": {
+        "seconds": 2.189,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.95,
+        "sha256": "89f16cabdbf1cd5f4a33373db1e6be36e9222b40e8203dc976af024e01b30c20"
+      },
+      "ogg": {
+        "seconds": 2.189,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.89,
+        "rms_dbfs": -21.92,
+        "sha256": "f258cb618b9ed71fbaf8761fcd1e75551a1ead1dc2cb58f890668d04c7955dee"
+      },
+      "text": "だれか、たすけてね。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/thanks",
+      "event": "voice.reimu.thanks",
+      "label": "灵梦 · 感谢照料",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/thanks.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/thanks.ogg",
+      "wav": {
+        "seconds": 2.3026,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.84,
+        "sha256": "da49e9e2599de5b139911c68f5e1d770f71718d1f3a903aeda9a7dfd896d6e23"
+      },
+      "ogg": {
+        "seconds": 2.3026,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.05,
+        "rms_dbfs": -23.81,
+        "sha256": "be3fe04ec97d2eda9dd0897e9884609a795733b7fed60706e3ebeb593a95cfc4"
+      },
+      "text": "ありがとう。きもちいいよ。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/home",
+      "event": "voice.reimu.home",
+      "label": "灵梦 · 回家",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/home.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/home.ogg",
+      "wav": {
+        "seconds": 1.4042,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.21,
+        "sha256": "16c49d127cc8b8610f42d353fe85f341aeb66f37ff41d4f649ea07ec254f7dad"
+      },
+      "ogg": {
+        "seconds": 1.4042,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -7.67,
+        "rms_dbfs": -23.25,
+        "sha256": "57a5cf83827c5e6486869dd9a401199c891767620cba05e14c24a5124f70b17c"
+      },
+      "text": "おうちにかえろうね。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/reimu/call",
+      "event": "voice.reimu.call",
+      "label": "灵梦 · 呼唤同伴",
+      "kind": "reimu",
+      "source": "art/audio/masters/voice/reimu/call.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/reimu/call.ogg",
+      "wav": {
+        "seconds": 2.3764,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -25.07,
+        "sha256": "ffd9b1bb98b7edfb72443f90b6389dca58b7ce9b89c7bc189720aa4bbd0e9e00"
+      },
+      "ogg": {
+        "seconds": 2.3764,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.96,
+        "rms_dbfs": -25.03,
+        "sha256": "920078722cf1283012059b4312de363829f1de35e8f89b96402e38d1801d3a86"
+      },
+      "text": "こっちだよ。いっしょにいこうね。",
+      "profile": {
+        "label": "灵梦",
+        "speed": 0.93,
+        "half_tone": 3.0
+      }
+    },
+    {
+      "id": "voice/marisa/greeting",
+      "event": "voice.marisa.greeting",
+      "label": "魔理沙 · 欢迎",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/greeting.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/greeting.ogg",
+      "wav": {
+        "seconds": 1.6481,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -19.78,
+        "sha256": "c3187d96c8b6422255f425128d267710bcdcc62011e57702433d16d81a3181db"
+      },
+      "ogg": {
+        "seconds": 1.6481,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.15,
+        "rms_dbfs": -19.79,
+        "sha256": "17d8700d5722ebfc4336877f4fdd1c3b0fba2de4e2033ccc8f64c988103d63a6"
+      },
+      "text": "ゆっくりしていくのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/idle",
+      "event": "voice.marisa.idle",
+      "label": "魔理沙 · 悠闲",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/idle.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/idle.ogg",
+      "wav": {
+        "seconds": 1.7701,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -22.07,
+        "sha256": "f3d8567556dcd8147343c195c7fc8ac7f3463c59eebee2a8cc8b5f0e7167810a"
+      },
+      "ogg": {
+        "seconds": 1.7701,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.93,
+        "rms_dbfs": -22.02,
+        "sha256": "32156935691cc4be8b2d42be126b9af2056d68ec2e4fcc8c91fa2c734bec14c2"
+      },
+      "text": "ここはゆっくりできるのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/happy",
+      "event": "voice.marisa.happy",
+      "label": "魔理沙 · 开心",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/happy.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/happy.ogg",
+      "wav": {
+        "seconds": 0.9531,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -22.3,
+        "sha256": "08676bdb37fe853df577b71708415d0b9f695d4766db9f953c56291a2270ef14"
+      },
+      "ogg": {
+        "seconds": 0.9531,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.79,
+        "rms_dbfs": -22.29,
+        "sha256": "f7bfb8954c64a7d212d7903dc9dfdc2cbc1edb1f075c938a105943d31ada32ad"
+      },
+      "text": "うれしいのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/hungry",
+      "event": "voice.marisa.hungry",
+      "label": "魔理沙 · 肚子饿",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/hungry.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/hungry.ogg",
+      "wav": {
+        "seconds": 1.3055,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -24.48,
+        "sha256": "e483b599a543fcbe8a18885b1eed9ef6401d9754bc3a8948410968b9da65e777"
+      },
+      "ogg": {
+        "seconds": 1.3055,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.88,
+        "rms_dbfs": -24.45,
+        "sha256": "1d648fb370f50b4f290153b8e400460b95da2f016fe5e809abe31a24f878b4ba"
+      },
+      "text": "ごはんがほしいのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/eat",
+      "event": "voice.marisa.eat",
+      "label": "魔理沙 · 吃东西",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/eat.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/eat.ogg",
+      "wav": {
+        "seconds": 2.6253,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.74,
+        "sha256": "8cfe710f09646027a8532fbc1f925a2118d29476185c7a1f679466e2a8abab7a"
+      },
+      "ogg": {
+        "seconds": 2.6253,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.87,
+        "rms_dbfs": -23.72,
+        "sha256": "a534b7e8638a71ab5dce269e0bcdb6ede0be03927b9e948680da84fbbc56cd71"
+      },
+      "text": "むーしゃ、むーしゃ。おいしいのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/full",
+      "event": "voice.marisa.full",
+      "label": "魔理沙 · 吃饱",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/full.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/full.ogg",
+      "wav": {
+        "seconds": 1.5938,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.84,
+        "sha256": "ba3e464c1126b175edee6090232f521c58226b6f66be7fea5ad2c369cb3ad48d"
+      },
+      "ogg": {
+        "seconds": 1.5938,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.03,
+        "rms_dbfs": -21.81,
+        "sha256": "f07521f4b334d2cd843daffdab69305864d6a2b2f483e526d045d6bdbeae9ce7"
+      },
+      "text": "もうおなかいっぱいなのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/sleep",
+      "event": "voice.marisa.sleep",
+      "label": "魔理沙 · 入睡",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/sleep.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/sleep.ogg",
+      "wav": {
+        "seconds": 1.1181,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -22.82,
+        "sha256": "439bc1a1dd41025e27130c69203ea95049dcd17f9acd3406500b7f6e1722ddb8"
+      },
+      "ogg": {
+        "seconds": 1.1181,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.85,
+        "rms_dbfs": -22.8,
+        "sha256": "56d8f1c0c35928dbfdcb6a1288ab3a6691ecb7e7de786938fda9cdfc7edfc1d6"
+      },
+      "text": "おやすみなのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/wake",
+      "event": "voice.marisa.wake",
+      "label": "魔理沙 · 醒来",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/wake.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/wake.ogg",
+      "wav": {
+        "seconds": 1.0324,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.59,
+        "sha256": "f5f87c33e59e8b37be318acfe6cb7f031e4465f421a30eceb5f899907b1de3ce"
+      },
+      "ogg": {
+        "seconds": 1.0324,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.06,
+        "rms_dbfs": -21.57,
+        "sha256": "4144c99a4534d6c62bcb61f52015edc71d9a8495a937cb4c6d6da63c7760c4c8"
+      },
+      "text": "おはようなのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/startle",
+      "event": "voice.marisa.startle",
+      "label": "魔理沙 · 受惊",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/startle.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/startle.ogg",
+      "wav": {
+        "seconds": 2.151,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -21.91,
+        "sha256": "c108a10bcf404701644ab3f3ce3459cfaa577cb326032281276e00a23f988903"
+      },
+      "ogg": {
+        "seconds": 2.151,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.83,
+        "rms_dbfs": -21.89,
+        "sha256": "36b98c139b3847f4d54b7059e7217b9844f33159df75ddd58480daa8b375d503"
+      },
+      "text": "ゆわっ、びっくりしたのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/hurt",
+      "event": "voice.marisa.hurt",
+      "label": "魔理沙 · 疼痛",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/hurt.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/hurt.ogg",
+      "wav": {
+        "seconds": 0.845,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -22.68,
+        "sha256": "40716ad7cf49c67850ef974da4bdeecda0c07463ae9b80d7214890487982563c"
+      },
+      "ogg": {
+        "seconds": 0.845,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.03,
+        "rms_dbfs": -22.64,
+        "sha256": "5f990f0812cdca791d92edd7643157722e4c67dd50ce86d73e7bed6de4b5e4af"
+      },
+      "text": "いたいのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/help",
+      "event": "voice.marisa.help",
+      "label": "魔理沙 · 求助",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/help.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/help.ogg",
+      "wav": {
+        "seconds": 1.4672,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.31,
+        "sha256": "ae2c6ef5ee6b20277debcc8aaea7a8797fe04f9f0a03b4f4b1de547d54c2b7d5"
+      },
+      "ogg": {
+        "seconds": 1.4672,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -5.99,
+        "rms_dbfs": -23.34,
+        "sha256": "f09d50f2b276f4128e57936bfa3e167d17a8f55a83501dea5a4ef4f71986d17e"
+      },
+      "text": "たすけてほしいのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/thanks",
+      "event": "voice.marisa.thanks",
+      "label": "魔理沙 · 感谢照料",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/thanks.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/thanks.ogg",
+      "wav": {
+        "seconds": 1.1577,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -23.62,
+        "sha256": "60c8974efa03d9ea3798eee895de98bcc806b77a97ba9486254da4288e1cfcfa"
+      },
+      "ogg": {
+        "seconds": 1.1577,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.27,
+        "rms_dbfs": -23.61,
+        "sha256": "e89adad2cae44ade1603fe2a4dffd4f089c8a33881e26f5e5e78cf73b602f481"
+      },
+      "text": "ありがとうなのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/home",
+      "event": "voice.marisa.home",
+      "label": "魔理沙 · 回家",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/home.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/home.ogg",
+      "wav": {
+        "seconds": 1.32,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -24.02,
+        "sha256": "97e667589c86f6cfed5db6710781088288771f0c6b7647b220dbfcf648d9d888"
+      },
+      "ogg": {
+        "seconds": 1.32,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.22,
+        "rms_dbfs": -24.05,
+        "sha256": "42c2403d126c8110f4c731c679c7915aa6cda006f54787e717053e848b04fe66"
+      },
+      "text": "おうちにかえるのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    },
+    {
+      "id": "voice/marisa/call",
+      "event": "voice.marisa.call",
+      "label": "魔理沙 · 呼唤同伴",
+      "kind": "marisa",
+      "source": "art/audio/masters/voice/marisa/call.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/voice/marisa/call.ogg",
+      "wav": {
+        "seconds": 1.5521,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "WAV",
+        "subtype": "PCM_16",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -20.57,
+        "sha256": "29554ad822d2dd2ff0c30e14559d11731c355dd1e8f14f04e367f8da7fb18465"
+      },
+      "ogg": {
+        "seconds": 1.5521,
+        "sample_rate": 48000,
+        "channels": 1,
+        "format": "OGG",
+        "subtype": "VORBIS",
+        "peak_dbfs": -6.0,
+        "rms_dbfs": -20.54,
+        "sha256": "a9fdd1ef2cd93ac5c3597ba5b76918d943755514f333aca54b83dc1e72e4bf97"
+      },
+      "text": "こっちにくるのぜ。",
+      "profile": {
+        "label": "魔理沙",
+        "speed": 1.06,
+        "half_tone": 0.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# 全身伤口的游戏接入
+
+2026-09-13，将 [R3.1 全身伤口](../../../standards/yukkuri-library/drafts/peripheral-props/WOUND-PLACEMENT.md)适配到七种实体，并按用户“保存”的指示确认所展示版本为标准。四类伤情、多处挂接、局部变形和漏馅表现已[登记并冻结](../../../standards/yukkuri-library/ecology/body-wounds/README.md)；角色本体和其他周边素材不新增批准。
+
+`selected/wound-surface.js` 固定保存所选制作源，`selected/palette.png` 保存该批伤口材质色板。`scripts/export_wound_surfaces.cjs` 从当前[实体接入清单](../../runtime-sources.json)选定的运行模型提取外皮、五官、骨架和动作，并生成 `src/main/resources/assets/mcyukkuri/yukkuri_wounds/*.json.gz`。皮面使用原骨骼权重，统一共边切分；家油保留其连续身体网格。角色表情仍使用 `textures/entity/<角色>/<表情>.png`，伤痕使用 `textures/props/body_wounds.png`。
+
+[来源清单](provenance.json)逐项记录几何标识、模型来源指纹、骨架数量、动作、贴图和配套输出。标准源与 `art/source/standard-runtime/` 快照没有被伤口变形覆盖。Java 适配器负责运行时命中定位、局部凹陷、逐三角形裁切和动画后的法线；选定 JavaScript 保留美术配方与材质参数的来源。
+
+每个实体最多保存八处伤口。每处记录身份、皮面三角形、面内坐标、类型、程度、范围、累计出馅数和最近释放时间。伤口满额时加强最近的已有同类伤处，找不到同类则加强最近伤处；已有挂点和类型不会被挪走或改写。旧单值伤情与烧伤分别迁移，按每处最多三级拆分，总程度保留；旧数据没有命中坐标，普通伤处默认分布在正面，烧伤分布在背面，避免凹陷重叠。
+
+锐器、投射物与持续捏压可产生裂口；钝击产生凹陷，滚擦产生擦伤，火伤和有效热锥产生焦痕。近战从攻击者视线定位，投射物按飞行方向定位；原版宽碰撞箱已接受、但视线未命中皮面的情况向身体中心补查。缺少攻击方向的伤害使用对应环境方向。伤口位置由服务端确定，客户端不提交任意伤口坐标。
+
+未包扎的裂口轮流释放真实馅料，整个身体共用十二份存量，世界成功接收掉落后才扣除。掉落记录 `WoundId`、来源个体与尺寸，出生位置跟随当前皮面、动作、朝向、成长比例及仰躺／受控姿势。地板造成的小幅重叠会修正到碰撞面上；被墙或低顶堵住的出口暂缓释放。脱离后的移动、落地、拾取和保存沿用游戏物品实体。湿润出口的少量视觉馅料不额外产生库存。
+
+包扎停止漏馅，并在营养、卫生允许时逐处愈合；焦痕按现有清洁与营养条件逐级恢复。橙汁会清除全部物理伤处并补回馅料，感染、油霉仍使用各自的治疗逻辑。
+
+普通资源重载清理客户端伤口缓存。资源包若更改了角色几何或骨架，使其与本次适配指纹不符，该角色回退到资源包本体渲染，避免用旧权重索引新骨架；服务端伤情仍保留。只替换表情贴图不触发该限制。
+
+本次不把编辑器的任意伤口配方导入游戏，也没有将其全局干瘪滑块转成新的生理系统。游戏中的伤处、治疗和漏馅由实际游戏状态驱动。[验证记录](reports/current/validation.json)与[当前实机预览](previews/current/index.html)分别保存。
+
+复现顺序为：`node scripts/export_wound_surfaces.cjs`、`python scripts/verify_wound_runtime.py`，随后使用 JDK 21 执行 `gradlew.bat build compileP0TestJava`。已有 P0 运行参数可用时，执行 `python scripts/run_wound_checks.py gametest`；客户端入口为同一脚本的 `preview` 参数。客户端就绪后先发送 `wound-setup`，再执行 `capture_wound_preview.py`。更换原运行角色后应重新导出伤口适配数据并核对来源指纹。

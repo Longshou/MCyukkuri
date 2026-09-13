@@ -1,0 +1,41 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {chromium}=require('../../tools/browser-check/node_modules/playwright-core');
+(async()=>{const b=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+try{
+ const p=await b.newPage({viewport:{width:1200,height:980}}),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ await p.goto('file:///'+path.join(__dirname,'preview.html').replaceAll('\\','/'));
+ await p.waitForFunction(()=>document.querySelector('#error').style.display==='none');
+ assert.equal(await p.evaluate(()=>waddleDebug.state().activeClip),'taiso');
+ const snapshot=async(t)=>{await p.evaluate(t=>waddleDebug.setTime(t),t);await p.waitForTimeout(120);return p.locator('canvas').evaluate(c=>c.toDataURL())};
+ const checks=[];
+ for(const [clip,duration,times] of [['taiso',14,[0,1.2,3.6,6,8.6,9.8,13.9]],['press',4.8,[0,1.2,3.6]],['exercise_vertical',2.62,[0,.6,1.2,2.4]],['exercise_sides',2.36,[0,.6,1.8]],['stretch',2.8,[0,1.3,2.8]]]){
+  await p.locator(`[data-clip="${clip}"]`).click();assert.equal(await p.locator('#phase').getAttribute('max'),String(duration));
+  const samples=[];for(const t of times)samples.push(await snapshot(t));
+  assert(new Set(samples).size>=times.length-1,clip);
+  checks.push({clip,duration,samples:times.length});
+ }
+ await p.locator('[data-clip="taiso"]').click();await snapshot(13.98);await p.locator('#walk').click();
+ await p.waitForFunction(()=>waddleDebug.state().motionTime>14.1);assert(await p.evaluate(()=>waddleDebug.state().walking));
+ const start=await p.evaluate(()=>({wall:performance.now(),time:waddleDebug.state().motionTime}));await p.waitForTimeout(700);
+ const stop=await p.evaluate(()=>({wall:performance.now(),time:waddleDebug.state().motionTime}));
+ const elapsed=(stop.wall-start.wall)/1000,motion=stop.time-start.time;assert(Math.abs(elapsed-motion)<.15);
+ await snapshot(1.2);await p.screenshot({path:path.join(__dirname,'browser-press.png')});
+ await p.locator('[data-angle="90"]').click();await snapshot(1.2);await p.screenshot({path:path.join(__dirname,'browser-press-side.png')});
+ await p.locator('[data-angle="180"]').click();await snapshot(8.6);await p.screenshot({path:path.join(__dirname,'browser-bow-back.png')});
+ await p.locator('[data-angle="0"]').click();await snapshot(8.6);await p.screenshot({path:path.join(__dirname,'browser-bend-front.png')});
+ await p.locator('[data-angle="-32"]').click();await snapshot(8.6);await p.screenshot({path:path.join(__dirname,'browser-bend.png')});
+ await p.locator('#rest').click();await p.waitForTimeout(100);assert.equal(await p.evaluate(()=>waddleDebug.state().enabled),false);
+ await p.screenshot({path:path.join(__dirname,'browser-rest.png')});
+ const before=await p.locator('canvas').evaluate(c=>c.toDataURL());
+ await p.mouse.move(600,350);await p.mouse.down();await p.mouse.move(680,390,{steps:4});await p.mouse.up();await p.waitForTimeout(120);
+ assert.notEqual(await p.locator('canvas').evaluate(c=>c.toDataURL()),before);
+ await p.locator('#reset').click();await p.mouse.wheel(0,240);await p.waitForTimeout(120);assert.notEqual(await p.locator('canvas').evaluate(c=>c.toDataURL()),before);
+ await p.setViewportSize({width:390,height:920});await p.locator('[data-clip="exercise_sides"]').click();await snapshot(.6);
+ await p.screenshot({path:path.join(__dirname,'browser-mobile.png'),fullPage:true});
+ assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.equal(await p.locator('#error').isVisible(),false);
+ await p.locator('[data-clip="stretch"]').click();await snapshot(2.78);await p.locator('#walk').click();
+ await p.waitForFunction(()=>!waddleDebug.state().walking);assert.equal(await p.evaluate(()=>waddleDebug.state().motionTime),2.8);
+ assert.deepEqual(errors,[]);
+ fs.writeFileSync(path.join(__dirname,'browser-verification.json'),JSON.stringify({status:'passed',checks,elapsedSeconds:elapsed,motionSeconds:motion,errors,interaction:['loop continues','real-time playback','rest','drag','zoom','timeline','mobile without horizontal overflow','single stretch stops']},null,2));
+ console.log('PASS five clips, phase slider, wall-clock timing, loop, rest, drag, zoom, mobile, no script errors');
+}finally{await b.close();}})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,15 @@
+{
+  "marisa": {
+    "cubes": 238,
+    "bones": 161,
+    "uniqueIds": true,
+    "embeddedTextureMatches": true
+  },
+  "filling": {
+    "cubes": 45,
+    "bones": 1,
+    "uniqueIds": true,
+    "embeddedTextureMatches": true
+  },
+  "originalAtlasRegionPreserved": true
+}

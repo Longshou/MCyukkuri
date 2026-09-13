@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "mcyukkuri:cold_storage"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.cold_storage.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.cold_storage.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ],
+  "parent": "mcyukkuri:survival/supplies"
+}

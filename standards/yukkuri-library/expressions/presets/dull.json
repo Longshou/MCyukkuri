@@ -3,7 +3,7 @@
   "label": "失去高光",
   "group": "特殊状态",
   "recipe": {
-    "eyes": "highlightless-muted-charcoal-shading",
+    "eyes": "warm-brown-gray-a",
     "brows": "relaxed",
     "mouth": "smile",
     "tears": "none",
@@ -11,11 +11,11 @@
     "effect": "none"
   },
   "parts": {
-    "face_eye_left": "expressions/parts/2e5a571e9439af3c8131.png",
+    "face_eye_left": "expressions/parts/6b26a19b89ebe71df2d3.png",
     "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_eye_right": "expressions/parts/2e5a571e9439af3c8131.png",
+    "face_eye_right": "expressions/parts/6b26a19b89ebe71df2d3.png",
     "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
@@ -66,14 +66,32 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User approved round-6 brown-gray presentation on 2026-09-12",
   "aliases": [],
   "review_code": "N033",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "参考八景 U 暗灰眼与漫画失神眼睑；去掉环状瞳孔和高光，用低对比灰阶保留体积。"
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户确认第六轮棕灰展示版本通过。",
+    "variant": "A"
+  },
+  "geometry_offsets": {
+    "face_eye_left": {
+      "scale": [
+        0.82,
+        1.04,
+        1
+      ]
+    },
+    "face_eye_right": {
+      "scale": [
+        0.82,
+        1.04,
+        1
+      ]
+    }
   }
 }

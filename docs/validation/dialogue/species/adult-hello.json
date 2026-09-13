@@ -1,0 +1,38 @@
+{
+  "frames": [
+    {
+      "state": {
+        "instances": 3,
+        "playing": 3,
+        "tick": 6993,
+        "entities": [
+          {
+            "end": 7028,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0013",
+            "sequence": 1,
+            "start": 6983,
+            "young": false
+          },
+          {
+            "end": 7028,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0013",
+            "sequence": 1,
+            "start": 6983,
+            "young": false
+          },
+          {
+            "end": 7035,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0013",
+            "sequence": 1,
+            "start": 6983,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-hello-000.png"
+    }
+  ]
+}

@@ -1,0 +1,594 @@
+[
+  {
+    "name": "family sampling includes variable sizes, single parents, childless couples and multiple children",
+    "pass": true
+  },
+  {
+    "name": "WANDERER variable population",
+    "pass": true
+  },
+  {
+    "name": "wanderer has no artificial group or ancestry",
+    "pass": true
+  },
+  {
+    "name": "FAMILY variable population",
+    "pass": true
+  },
+  {
+    "name": "FAMILY shared durable group",
+    "pass": true
+  },
+  {
+    "name": "FAMILY real covered reachable homes",
+    "pass": true
+  },
+  {
+    "name": "FAMILY distinct household count",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "FAMILY optional leader",
+    "pass": true
+  },
+  {
+    "name": "entity NBT keeps group and home",
+    "pass": true
+  },
+  {
+    "name": "world NBT keeps group kind center and leader",
+    "pass": true
+  },
+  {
+    "name": "FOREST variable population",
+    "pass": true
+  },
+  {
+    "name": "FOREST shared durable group",
+    "pass": true
+  },
+  {
+    "name": "FOREST real covered reachable homes",
+    "pass": true
+  },
+  {
+    "name": "FOREST distinct household count",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "FOREST optional leader",
+    "pass": true
+  },
+  {
+    "name": "entity NBT keeps group and home",
+    "pass": true
+  },
+  {
+    "name": "world NBT keeps group kind center and leader",
+    "pass": true
+  },
+  {
+    "name": "forest birth budget refuses unreserved children at cap",
+    "pass": true
+  },
+  {
+    "name": "large forest retains reproduction headroom above ordinary family cap",
+    "pass": true
+  },
+  {
+    "name": "unborn forest children consume shared population budget",
+    "pass": true
+  },
+  {
+    "name": "mother outings retain unborn sleeping-place reservations",
+    "pass": true
+  },
+  {
+    "name": "unborn sleeping-place reservations survive NBT",
+    "pass": true
+  },
+  {
+    "name": "FOREST_LED variable population",
+    "pass": true
+  },
+  {
+    "name": "FOREST_LED shared durable group",
+    "pass": true
+  },
+  {
+    "name": "FOREST_LED real covered reachable homes",
+    "pass": true
+  },
+  {
+    "name": "FOREST_LED distinct household count",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "generated child keeps actual single or dual parents and species inheritance",
+    "pass": true
+  },
+  {
+    "name": "child ancestry survives NBT including absent second parent",
+    "pass": true
+  },
+  {
+    "name": "FOREST_LED optional leader",
+    "pass": true
+  },
+  {
+    "name": "entity NBT keeps group and home",
+    "pass": true
+  },
+  {
+    "name": "world NBT keeps group kind center and leader",
+    "pass": true
+  },
+  {
+    "name": "recognized visible leader can gather members at dusk",
+    "pass": true
+  },
+  {
+    "name": "transport beyond local area interrupts a pending return",
+    "pass": true
+  },
+  {
+    "name": "missing accessory prevents automatic leader recognition",
+    "pass": true
+  },
+  {
+    "name": "urgent hunger takes precedence over leader gathering",
+    "pass": true
+  },
+  {
+    "name": "unloaded leader is not declared dead",
+    "pass": true
+  },
+  {
+    "name": "known leader death leaves forest community leaderless",
+    "pass": true
+  },
+  {
+    "name": "population cap refuses entire forest",
+    "pass": true
+  },
+  {
+    "name": "negative coordinates use stable region cells",
+    "pass": true
+  },
+  {
+    "name": "reload never replenishes discovered area",
+    "pass": true
+  },
+  {
+    "name": "occupied site refuses entire shelter-dependent community",
+    "pass": true
+  },
+  {
+    "name": "mobGriefing false preserves wild food",
+    "pass": true
+  },
+  {
+    "name": "wild grass is reachable food",
+    "pass": true
+  },
+  {
+    "name": "grazing transfers one real plant to mouth before nutrition",
+    "pass": true
+  },
+  {
+    "name": "same plant cannot feed twice",
+    "pass": true
+  },
+  {
+    "name": "spawn egg does not trigger a natural community",
+    "pass": true
+  },
+  {
+    "name": "natural spawn queues safe server-tick discovery",
+    "pass": true
+  },
+  {
+    "name": "disabled discovery clears pending seed without generating companions",
+    "pass": true
+  }
+]

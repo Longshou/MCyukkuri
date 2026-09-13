@@ -1,0 +1,440 @@
+{
+  "members": [
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "marisa",
+      "id": "217f6171-c888-42d9-9fd7-d5a997f6d5fc",
+      "partner": "64237da9-abca-4373-ab6d-4c82466ff970",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "64237da9-abca-4373-ab6d-4c82466ff970",
+      "partner": "217f6171-c888-42d9-9fd7-d5a997f6d5fc",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "64237da9-abca-4373-ab6d-4c82466ff970",
+      "stage": "JUVENILE",
+      "species": "reimu",
+      "id": "9c4ed2b0-036f-4815-a844-80164f5f268e",
+      "partner": "none",
+      "mother": "217f6171-c888-42d9-9fd7-d5a997f6d5fc",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "partner": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "marisa",
+      "id": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "partner": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "c8ab16e1-6e63-44ee-87c0-27a0cc69f4ba",
+      "partner": "none",
+      "mother": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "f1eda5ac-c242-42a1-81d1-a215e0a6a4d7",
+      "partner": "none",
+      "mother": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "c313ef08-d1d0-4403-acd9-2fe682e2f7d8",
+      "partner": "none",
+      "mother": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "c045739e-daaf-4ca5-802d-f778425a73c4",
+      "partner": "none",
+      "mother": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "dae00281-927b-4733-8f61-81feb3ce24e4",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "ffa5b11f-5811-4959-a822-a314ecf284f5",
+      "partner": "none",
+      "mother": "7a09c67d-b05a-4534-b3b6-8073aaf0b126",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "partner": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "partner": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "stage": "JUVENILE",
+      "species": "reimu",
+      "id": "438408b8-d1a2-44ba-924d-901c5fb73669",
+      "partner": "none",
+      "mother": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "stage": "JUVENILE",
+      "species": "reimu",
+      "id": "527fb53b-2c82-49b5-9d54-d8c849771f48",
+      "partner": "none",
+      "mother": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "8e950609-60ee-4c4b-8a93-59b2649944e9",
+      "partner": "none",
+      "mother": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "529aafe8-e10c-40b0-b67c-18bc95017d60",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "b5462b5a-00ea-4b43-9e03-8873206512ab",
+      "partner": "none",
+      "mother": "cbbda68f-ffdf-47d1-b5f4-490417b30d0d",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "ade4645a-72b5-4999-bf4d-5e1dee48f6ae",
+      "partner": "f3ce5d98-b3b9-4284-a425-712c8bdf5370",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "f3ce5d98-b3b9-4284-a425-712c8bdf5370",
+      "partner": "ade4645a-72b5-4999-bf4d-5e1dee48f6ae",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "bc964a57-850b-42e2-a0ab-48356d1668b5",
+      "partner": "63576dc2-9fa7-4ee2-9da7-1063d2bb505a",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "63576dc2-9fa7-4ee2-9da7-1063d2bb505a",
+      "partner": "bc964a57-850b-42e2-a0ab-48356d1668b5",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "63576dc2-9fa7-4ee2-9da7-1063d2bb505a",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "4996f125-ddda-4b62-8638-ff4d4bdce9c7",
+      "partner": "none",
+      "mother": "bc964a57-850b-42e2-a0ab-48356d1668b5",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "63576dc2-9fa7-4ee2-9da7-1063d2bb505a",
+      "stage": "JUVENILE",
+      "species": "reimu",
+      "id": "a7305d68-8d7f-4164-9dad-e16ed5c58608",
+      "partner": "none",
+      "mother": "bc964a57-850b-42e2-a0ab-48356d1668b5",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "63576dc2-9fa7-4ee2-9da7-1063d2bb505a",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "9e1965a6-c356-47a9-a46a-4436be046d7e",
+      "partner": "none",
+      "mother": "bc964a57-850b-42e2-a0ab-48356d1668b5",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "1291c9e1-4614-43de-8ffa-a9857e789589",
+      "partner": "24879fa0-f1ff-4e39-8d2e-dfef89629538",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "24879fa0-f1ff-4e39-8d2e-dfef89629538",
+      "partner": "1291c9e1-4614-43de-8ffa-a9857e789589",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "24879fa0-f1ff-4e39-8d2e-dfef89629538",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "94f585ec-3385-4308-b599-5df974282b01",
+      "partner": "none",
+      "mother": "1291c9e1-4614-43de-8ffa-a9857e789589",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "24879fa0-f1ff-4e39-8d2e-dfef89629538",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "4f7b4ad7-3f4b-4042-884f-53cd78a98cee",
+      "partner": "none",
+      "mother": "1291c9e1-4614-43de-8ffa-a9857e789589",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "3cc295de-2f3b-4274-97fb-d0745f65ef53",
+      "partner": "0d4df773-4018-49af-ab81-3ce50e29eaff",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "0d4df773-4018-49af-ab81-3ce50e29eaff",
+      "partner": "3cc295de-2f3b-4274-97fb-d0745f65ef53",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "3b8180a9-7f90-49c9-bfb2-2fa48ef60856",
+      "partner": "e511a72c-840b-4b15-8d12-676d15982030",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "e511a72c-840b-4b15-8d12-676d15982030",
+      "partner": "3b8180a9-7f90-49c9-bfb2-2fa48ef60856",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "e511a72c-840b-4b15-8d12-676d15982030",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "002e2774-4dca-4ca1-ad66-ebf0a95b649e",
+      "partner": "none",
+      "mother": "3b8180a9-7f90-49c9-bfb2-2fa48ef60856",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "e511a72c-840b-4b15-8d12-676d15982030",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "ec6519e8-20b6-4a3e-b20a-3d1f092a77a5",
+      "partner": "none",
+      "mother": "3b8180a9-7f90-49c9-bfb2-2fa48ef60856",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "e511a72c-840b-4b15-8d12-676d15982030",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "7eb9bde5-792c-48f0-9ac1-ba5cbf2fc1ca",
+      "partner": "none",
+      "mother": "3b8180a9-7f90-49c9-bfb2-2fa48ef60856",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "partner": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "partner": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "89eb0a2f-cffb-42ad-9202-80c9eb3bb18f",
+      "partner": "none",
+      "mother": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "426d12c1-6a09-4721-babb-f848292c8a4c",
+      "partner": "none",
+      "mother": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "b4bb60fb-832c-4e04-8b3c-e390c36fa1e4",
+      "partner": "none",
+      "mother": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "c4d02ef8-cc2a-48c0-a9de-cd5e261b98ad",
+      "stage": "JUVENILE",
+      "species": "alice",
+      "id": "9ea35cdd-3e71-496c-a65e-4602847dab89",
+      "partner": "none",
+      "mother": "cee7ba3a-5c6b-4896-998a-de69954ed6ae",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "alice",
+      "id": "e00c8e8e-93cf-4fce-a24a-02f04a01e21a",
+      "partner": "165c6531-b3a3-4ca9-8559-1e1c110e0122",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "165c6531-b3a3-4ca9-8559-1e1c110e0122",
+      "partner": "e00c8e8e-93cf-4fce-a24a-02f04a01e21a",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "165c6531-b3a3-4ca9-8559-1e1c110e0122",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "993125b7-c7c3-42c8-a53d-475a1633b797",
+      "partner": "none",
+      "mother": "e00c8e8e-93cf-4fce-a24a-02f04a01e21a",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "reimu",
+      "id": "b4c9d026-0490-4e1b-8bd3-d69aabc5705e",
+      "partner": "none",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "JUVENILE",
+      "species": "reimu",
+      "id": "be62f99b-3e6e-4a2e-bcd1-d8a7b6c34015",
+      "partner": "none",
+      "mother": "b4c9d026-0490-4e1b-8bd3-d69aabc5705e",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "marisa",
+      "id": "09b58e57-1b3c-4c67-ac36-d2bf52b20089",
+      "partner": "a19ba910-c9a4-4df7-af33-db20ce4cffb2",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "a19ba910-c9a4-4df7-af33-db20ce4cffb2",
+      "partner": "09b58e57-1b3c-4c67-ac36-d2bf52b20089",
+      "mother": "none",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    },
+    {
+      "father": "a19ba910-c9a4-4df7-af33-db20ce4cffb2",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "4109d815-2d0b-44c2-a33a-ed0fe577de02",
+      "partner": "none",
+      "mother": "09b58e57-1b3c-4c67-ac36-d2bf52b20089",
+      "group": "10aedaae-374b-49ee-b050-6d8aec458441"
+    }
+  ],
+  "count": 48,
+  "preset": "FOREST",
+  "householdCount": 12,
+  "juvenileCount": 25
+}

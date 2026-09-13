@@ -1,0 +1,27 @@
+{
+  "cubes": 178,
+  "bones": 144,
+  "results": [
+    {
+      "name": "stretch",
+      "samples": 41,
+      "error": 0.00009169999999966705,
+      "maxKeyError": 0.0000917,
+      "maxKeyExample": {
+        "bone": "soft_head_slice_2_bend",
+        "ch": "position",
+        "t": "2.38",
+        "expected": 0.0000917,
+        "exported": 0
+      },
+      "exportMatchesWithinTolerance": true
+    },
+    {
+      "name": "waddle",
+      "samples": 41,
+      "error": 7.631935261542822e-7,
+      "exportMatchesWithinTolerance": true
+    }
+  ],
+  "status": "passed"
+}

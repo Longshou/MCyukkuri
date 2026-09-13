@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-13",
+  "game_tests": {
+    "operation_assertions": 36,
+    "operation_failures": []
+  },
+  "workspace_suite": {
+    "all_passed": false,
+    "summary": [
+      "[01:53:49] [Server thread/ERROR] [minecraft/LogTestReporter]: naturalbuildings failed at 10653582, -60, -553319! Noise test dimension exists",
+      "[01:53:52] [Server thread/INFO] [minecraft/GameTestServer]: ========= 11 GAME TESTS COMPLETE IN 6.921 s ======================",
+      "[01:53:52] [Server thread/INFO] [minecraft/GameTestServer]: 1 required tests failed :("
+    ]
+  },
+  "visual_gallery": "art/props/operation-tools/previews/current/index.html",
+  "unverified": [
+    "separate dedicated server and late joining client for new operations",
+    "user standard silhouette approval"
+  ],
+  "source_sha256": {
+    "src/main/java/io/github/longshou/mcyukkuri/interaction/CareAction.java": "b4999e556dec1b921f6a6cfc432cc13282018ebe5b1811912900ce78c5a183bc",
+    "src/main/java/io/github/longshou/mcyukkuri/interaction/CareMenu.java": "e97c0312fe9a2418c5fdf8a0332131afa5bbb8c8532315bd0456a5d8e74e4cfa",
+    "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java": "9089d1c73d7a88720eb2d1450047a7e6aa64f18a9cb35a4434d036786416d696",
+    "src/main/java/io/github/longshou/mcyukkuri/client/OperationAttachments.java": "249f41a17ad10c6dd544193442c71586049d2c66cb38003e3fe2c51c1c09448a",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriRenderer.java": "a0b29a2f3940132ec3de8c261119d4b8765d09fbbe5635298e42dbe3b9a911eb",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriModel.java": "1353298372df030e2ac9df880886fbba03a05b9e6e13e17b28a989f386ef4fa0",
+    "src/main/java/io/github/longshou/mcyukkuri/item/OperationToolItem.java": "3dbe9b8fbcb80c973e18d9406fdbc6185315447b658d754c772c34211db6fc92",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/OperationGameTests.java": "af5e346b8642d28675a068fa4bb7d4691b4255e8a52f10d6be235c9e75fbcd70"
+  }
+}

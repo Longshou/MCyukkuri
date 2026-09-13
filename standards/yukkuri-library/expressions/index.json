@@ -130,5 +130,6 @@
   ],
   "effect_aliases": {
     "closed_wet_highlight": "wet_highlight"
-  }
+  },
+  "standard_set": "provenance/standard-expressions.json"
 }

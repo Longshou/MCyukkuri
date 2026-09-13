@@ -1,0 +1,18 @@
+[
+  {
+    "name": "server AI climbs a real pit rim to collect a stick and return it to its boundary",
+    "pass": true
+  },
+  {
+    "name": "server AI harvests a real plant and returns it as bedding",
+    "pass": true
+  },
+  {
+    "name": "server AI replaces dirty bedding using another real plant",
+    "pass": true
+  },
+  {
+    "name": "server AI carries waste through entrance without duplication",
+    "pass": true
+  }
+]

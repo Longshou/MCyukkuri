@@ -1,0 +1,44 @@
+{
+  "id": "angry_stare",
+  "label": "不满凝视",
+  "group": "生气 / 鼓脸",
+  "recipe": {
+    "eyes": "normal",
+    "brows": "angry",
+    "mouth": "beak",
+    "tears": "none",
+    "blush": "flushed",
+    "effect": "blush_bridge"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+    "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+    "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/5b21c185ca407e76507a.png",
+    "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+  },
+  "sources": [
+    {
+      "field": "左右不穏顔グラベース",
+      "index": 0,
+      "sprite_id": 6939,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右怒り顔グラベース",
+      "index": 0,
+      "sprite_id": 5620,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

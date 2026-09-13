@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "playPause": true,
+  "replay": true,
+  "scrub": true,
+  "rest": true,
+  "singlePlaybackStops": true,
+  "loopRestarts": true,
+  "drag": true,
+  "mobileNoOverflow": true,
+  "errors": []
+}

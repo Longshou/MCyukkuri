@@ -1,0 +1,66 @@
+{
+  "date": "2026-09-13T02:05:17.263462+08:00",
+  "scope": "house scalp motion binding",
+  "data": {
+    "house_reimu": {
+      "sha256": "41620351b29d09cdb471b9f9e1f29c414ae6e5ac739d326cc78afe02fb886ebc",
+      "changed_fields": [
+        "weights"
+      ],
+      "rebound_triangle_vertices": 2880,
+      "source_snapshot_identical": true
+    },
+    "house_marisa": {
+      "sha256": "6a06899400317b261b390e6e2010c5effde36b85cf2c7b4b4a9c0480fb0f37c8",
+      "changed_fields": [
+        "weights"
+      ],
+      "rebound_triangle_vertices": 2268,
+      "source_snapshot_identical": true
+    },
+    "other_five_models_unchanged": true
+  },
+  "exporter_sha256": "6f49f913411faf8dfc70907a590196a64814e24aeec281d2499efc695c58c884",
+  "client_checks": {
+    "clips": 133,
+    "accessoryVisibility": true,
+    "chewingMotion": true,
+    "idleRestoration": true,
+    "samples": 798,
+    "mandatoryAtlases": 35
+  },
+  "game_captured_frames": 360,
+  "tested_java_classes_sha256": {
+    "YukkuriModel$Binding.class": "cb3b0661f22927fe9a5640cf1457fccab3195e9166310aa3419c9dd591ebe3e6",
+    "YukkuriModel$Bone.class": "656c08c1d68d2798ad23eb6ba7d8239a156bf30a73c1b0597648fdf504dc76c2",
+    "YukkuriModel$Clip.class": "8d22ea80ad299e9420b25da467570a9356ac1709f9923087a8ae48685141e3cd",
+    "YukkuriModel$Part.class": "38d16bb163cb22d1ec9096a03b571a3c470308989c84b9d4245167d05ff053e1",
+    "YukkuriModel$Track.class": "ec2015d7d90d160a387da19a26265a3bc2ef303397aa68eed6db4aa5ba6e1aa7",
+    "YukkuriModel.class": "c9dbeb4a18e4b104be2e80b88bee28d39b57602f40208a6a927034e5403f17d0",
+    "YukkuriRenderer.class": "8e1fc11fd2c98a2ff5c86ac2499566b58d04151cd0529e2c7fe5008faad6036c"
+  },
+  "selected_frames_sha256": {
+    "marisa-12.png": "47def4e02412ef604532d0f436bc7cd0e79d9eb46cd07964be9c5940f38f6978",
+    "marisa-18.png": "623b1e5dc24e288b2c89f94d3263bb666d0d878c3ddf01d31cb444e8ece554b6",
+    "marisa-6.png": "283c3a4a731f1c284b851f9535286fff6e498ed85e594e0726a24cd796e2b9ae",
+    "marisa-back-12.png": "066135588f5991a96fc2eb45f22d56b73b2fd397307f9cd22a9545cbc9225830",
+    "marisa-back-18.png": "acc95b7e5710e765a5228c8b08c684e3069c6868d42f7a1d9c7ffccfbef3c17c",
+    "marisa-back-6.png": "8aadcc999ac2e986aab792bfcfa609603bde63339efe60ac9148f9fe67f5d292",
+    "marisa-side-12.png": "4c7a01fb3ba6741850560fb448d4edfdb1880e43ffa65bce9a5d5f173bfd32fc",
+    "marisa-side-18.png": "d8c01b7ed29ddc6a783e50bdf657b287559537a56f84d252bb8bd8412a4db4c3",
+    "marisa-side-6.png": "24289beb95efc51cbf04c7ba74784781d12e4ca992acc8a3dbc76240e0357df8",
+    "reimu-12.png": "74b21a385dba13cfc6949221c7c60faad0c02fa2b43e05801b03612ce9129ad7",
+    "reimu-18.png": "1a85a5e66f4dd5bdaa5319b76d20db93194c446d243af5e97aa203ffc33bca73",
+    "reimu-6.png": "a154a1989d9aa60d5f03e07230de3d6ce00c253a15e160de4bacf5d6cfa66743",
+    "reimu-back-12.png": "13876ea86ba920162f69e747ed3d45d90ce4a0d2ec5e29714e3d66677a47ce4f",
+    "reimu-back-18.png": "e2c8364c05494b217e0522802ed9f45cc57ca3748126af51ae5d3453b7ce9bb9",
+    "reimu-back-6.png": "b54f4ef9405267e558ef9c4057de7a73de9519c78ce7bd6b5285729f9de4fd5b",
+    "reimu-side-12.png": "e7e1f6c17f9995a63bbf00639dfbfa418e4eb2f6ad4b61c94ce5a0911058e674",
+    "reimu-side-18.png": "d6623830bffce7ca2765bbd89929401bb2f1aae4b33e4f07e904a465f549f32a",
+    "reimu-side-6.png": "8d52dab9a8f08ebe7a1b1f7a558317d879e6f400aade6dca56233275f6c3087b"
+  },
+  "gif_sha256": "6731f21649f1dee25cb4a5f0688cb8e90642293b655aa51937bc0e8d0298379a",
+  "jar_sha256": "d808b1bb3c2f0667fa3e250d59320f7c683fa1dfe28018e546d692b15e54be2c",
+  "server_gameplay_tests": "not rerun: binding-only change",
+  "user_appearance_confirmation": "pending"
+}

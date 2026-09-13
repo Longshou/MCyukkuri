@@ -1,0 +1,392 @@
+[
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4950,
+    "name": "わさ：もみあげ",
+    "file": "sprite-4950.png",
+    "size": [
+      343,
+      103
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      225.01290893554688,
+      158.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5051,
+    "name": "れいむ：もみあげ",
+    "file": "sprite-5051.png",
+    "size": [
+      258,
+      114
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.05133056640625,
+      155.03628540039062
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5068,
+    "name": "わさ：もみあげ",
+    "file": "sprite-5068.png",
+    "size": [
+      343,
+      103
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      225.01290893554688,
+      158.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5411,
+    "name": "れいむ：髪",
+    "file": "sprite-5411.png",
+    "size": [
+      262,
+      234
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.07611083984375,
+      159.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5418,
+    "name": "れいむ：もみあげ",
+    "file": "sprite-5418.png",
+    "size": [
+      258,
+      114
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.05133056640625,
+      155.03628540039062
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5869,
+    "name": "れいむ：もみあげ",
+    "file": "sprite-5869.png",
+    "size": [
+      224,
+      113
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      276.05133056640625,
+      156.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6152,
+    "name": "わさ：もみあげ",
+    "file": "sprite-6152.png",
+    "size": [
+      307,
+      109
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      246.04290771484375,
+      156.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6316,
+    "name": "れいむ：髪 のコピー 2",
+    "file": "sprite-6316.png",
+    "size": [
+      270,
+      208
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      263.07611083984375,
+      170.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6447,
+    "name": "れいむ：髪",
+    "file": "sprite-6447.png",
+    "size": [
+      275,
+      219
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      275.07611083984375,
+      170.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6489,
+    "name": "わさ：もみあげ のコピー 2",
+    "file": "sprite-6489.png",
+    "size": [
+      352,
+      97
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      220.0761260986328,
+      157.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7629,
+    "name": "れいむ：髪",
+    "file": "sprite-7629.png",
+    "size": [
+      262,
+      222
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.07611083984375,
+      171.0
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7806,
+    "name": "れいむ：もみあげ のコピー",
+    "file": "sprite-7806.png",
+    "size": [
+      266,
+      111
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      262.0267639160156,
+      155.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7885,
+    "name": "わさ：もみあげ のコピー",
+    "file": "sprite-7885.png",
+    "size": [
+      343,
+      100
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      225.0513153076172,
+      158.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8116,
+    "name": "れいむ：もみあげ のコピー 2",
+    "file": "sprite-8116.png",
+    "size": [
+      278,
+      109
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      256.0362854003906,
+      153.02674865722656
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8278,
+    "name": "れいむ：髪 のコピー",
+    "file": "sprite-8278.png",
+    "size": [
+      263,
+      217
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.07611083984375,
+      170.0761260986328
+    ],
+    "packing_settings": 64
+  }
+]

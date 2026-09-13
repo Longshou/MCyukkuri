@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-09",
+  "platform": "Windows",
+  "status": "static-checks-passed",
+  "checks": [
+    "53 cuboids and matching geometry counts",
+    "unique Blockbench element UUIDs",
+    "128x128 external and embedded texture byte match",
+    "all Java model bounds and face UV ranges",
+    "Java and Blockbench geometry/UV equality",
+    "pack format 34",
+    "ZIP CRC and all payload byte matches",
+    "offline HTML has embedded model and texture",
+    "viewer JavaScript node --check"
+  ],
+  "visual_review": "See motion-verification.json, blockbench-verification.json and browser-verification.json for actual animation checks.",
+  "not_tested": [
+    "Minecraft client loading / commands / in-game appearance",
+    "live entity behavior"
+  ],
+  "sha256": {
+    "marisa.bbmodel": "44c694f6474fb36189a992ab533f6d294f2fbaa75e6e9c1f39b94a2d7a2a64a2",
+    "marisa.geo.json": "4b501c9b866a5b4a59439fbe41b480812d9f407e8aadf4257eeea5e96123909b",
+    "marisa.png": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c",
+    "marisa-java-1.21.1-resourcepack.zip": "ec20188117b70932f35384850c331d45ce1995f65c735717879a8f63073c9132"
+  }
+}

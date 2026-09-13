@@ -1,0 +1,9 @@
+{
+  "format": "free",
+  "cubes": 56,
+  "groups": 12,
+  "samples": 65,
+  "maxError": 7.631935261542822e-7,
+  "status": "passed",
+  "animationExport": "all keys match official Blockbench Bedrock exporter"
+}

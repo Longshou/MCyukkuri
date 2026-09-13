@@ -1,0 +1,62 @@
+{
+  "members": [
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "chen",
+      "id": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "partner": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "mother": "none",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    },
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "marisa",
+      "id": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "partner": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "mother": "none",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    },
+    {
+      "father": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "stage": "JUVENILE",
+      "species": "chen",
+      "id": "a60005fa-8527-4712-a459-5743acbbe849",
+      "partner": "none",
+      "mother": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    },
+    {
+      "father": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "16dcea5b-ad55-4efe-a2d8-141ff10af691",
+      "partner": "none",
+      "mother": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    },
+    {
+      "father": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "be911497-bcea-4554-b12a-b4324d98a54e",
+      "partner": "none",
+      "mother": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    },
+    {
+      "father": "e8e52b1a-82ba-4f62-9215-e08fed326e2c",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "c1318bcf-3e8c-4bb3-80ae-d515b8d5aa2f",
+      "partner": "none",
+      "mother": "1c8ed3e6-f274-41cd-a9fb-0e1d4f8d16f0",
+      "group": "48d8b6cd-6910-45a1-badc-1c10be5f8e2b"
+    }
+  ],
+  "count": 6,
+  "preset": "FAMILY",
+  "householdCount": 1,
+  "juvenileCount": 4
+}

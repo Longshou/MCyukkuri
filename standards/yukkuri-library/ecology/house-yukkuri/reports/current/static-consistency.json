@@ -1,0 +1,39 @@
+{
+  "marisa": {
+    "cubes": 234,
+    "meshes": 2,
+    "body_vertices": 96,
+    "body_triangles": 188,
+    "closed_body": true,
+    "source_export_preview_equal": true,
+    "expressions": 11,
+    "model_sha256": "8910bae7af38dce4e4763da9f89176ea60ae6a7917bc3a8f9ddd383621115afd"
+  },
+  "reimu": {
+    "cubes": 345,
+    "meshes": 2,
+    "body_vertices": 96,
+    "body_triangles": 188,
+    "closed_body": true,
+    "source_export_preview_equal": true,
+    "expressions": 11,
+    "model_sha256": "e3296cc246a9412f6e5bb3216c2ede94b0a3b096d0d3a96d2223f39e15a8ec7d"
+  },
+  "executed_utc": "2026-09-11T12:49:44.571336+00:00",
+  "environment": {
+    "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "design": "standard_fitted_anatomy_house_v9",
+  "design_sources": {
+    "reference_design.py": "9429b26a4ce65fd83b0b6cc1dd959f024fe046940c33cbfc79fb7b8e6605d1ae",
+    "config.json": "8e87345a2ede6c84371acfa56617b9bfc11b5fb65841ac24f1407165845e19dc",
+    "build.py": "260a9dd20bfe6a95d17e895cd63fd9ff726fdb3da80bb914bbe7be9b924a25e1",
+    "viewer.html": "9dc8ddae0d9d2cfb9957addd1fa50177c6a0ec2cdc5ad34c4f692b485a9d0298",
+    "viewer.js": "d3c1f137c87069869987198ec67af3422ee6bde23af58938cfaeca82650d07fa",
+    "render_review.py": "7823242ae7d80b994674ddc9ddeab38303112f91edd812f9cb096378c869340f",
+    "mesh_geometry.py": "44ea2c18dc805d19986fc4a747703ebcdce75ac8a93bba698f26ba21ac87788c"
+  },
+  "scope": "Static source/export/preview data, closed-body topology and UV checks; no application import or game validation.",
+  "geometry_runtime_status": "Legacy poly_mesh interchange only; Minecraft/GeckoLib adaptation required"
+}

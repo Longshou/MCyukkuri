@@ -1,0 +1,168 @@
+{
+  "timestamp": "2026-09-11T18:22:33.074971+00:00",
+  "scope": "Round 4 expression review; N026 accepted, N024/N025 tear phases, 2 N020 and 3 N033 draft recipes",
+  "environment": "Windows; Python 3.13 + Pillow; headless Chrome + Playwright",
+  "source_files": {
+    "drafts/expression-review/batch-16-40.html": "bc09a8b31e1712afbc75478b789dcfb26d6a2b7bd274ca5d692616fa157e542e",
+    "drafts/expression-review/round4/candidates.json": "97a38bfdb0b884fcff74200d62c8569932dce01c4dfbe60069d927b478f6dfea",
+    "drafts/expression-review/round4/parts/2d28c4e819839c58757f.png": "25ba520cf994276be963d2c32e780df466182a7810c6020cbc497b1e324a8b19",
+    "drafts/expression-review/round4/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
+    "drafts/expression-review/round4/parts/482e6631f722e20ea18c.png": "4329d06b65cb10933e93c9288cde0aae7e63970ab31a8a48736bd8395eb5f01f",
+    "drafts/expression-review/round4/parts/7a73209c277a95369e69.png": "fdc88eb7e3232e526d40b3fc9c1a22f8a8bd9f9d224f47853adcf7bc33a831c7",
+    "drafts/expression-review/round4/parts/86bc66842730bc1dacae.png": "58eb0d5f245ca9a58b419933e58c85c203201d21c0f37b99eaae8b31d697c206",
+    "drafts/expression-review/round4/parts/8efa617f67a817082697.png": "179d9ec77f5d1c47426626a3e53e493a170743ac0dc3a96c2defe76c2f3712a1",
+    "drafts/expression-review/round4/parts/a31604f5720a6f7fbeb7.png": "24330cd9335d9448acd8d2593c2cee96a4c94971a12a420779cc6f7cd782ff04",
+    "drafts/expression-review/round4/parts/b0348f20712fa37f84fc.png": "41e6b55e408651cdb4a9f5881f803a0c2842743b2d70e30b7fad9637d0467f02",
+    "drafts/expression-review/round4/parts/bac5f95d5525427392a7.png": "55954f1d142c15d3d34eb02de35b25dc8517749d5a9a1a7ddad3a1822c7e910b",
+    "drafts/expression-review/round4/parts/cce4b208df7960c4cc5b.png": "a3f8da31d16bc6565b9c57b91360c944f466d14206fd745f94a34af579e7ba6b",
+    "drafts/expression-review/round4/parts/d10ccf2eb6de430d7a31.png": "0516a0a406610c8f7332d9a6f27099640ffbc72da233736faa8db23adb86e7e8",
+    "drafts/expression-review/round4/parts/ef2ecea936e1daa05ea4.png": "d7256bea7a9fa2ca779314bb9b335034ab825ddb40e6972fd2eeec2b8ddf3b97",
+    "drafts/expression-review/round4/parts/f7354d1b41a7a14c9768.png": "7020f339683c7051f7b7587dc0b3055ff8d1826249d6a59f0068f8f09b335912",
+    "drafts/expression-review/round4/review-template.html": "4d5444400a8cbd6a6e56b7a30e5cf7301d298302be031dc064f3f11794e2c4f5",
+    "expressions/component-review/before-n016-n040-round4.json": "5d3001a1efe47355c6c571e5dc3d9b1b031298430032191fafc454ce82c708ca",
+    "expressions/parts/0bfc975f2db5b4717f2a.png": "ed01ba12a4a33ab394b829b98bd8e6f45041768b5a698687563ede504b4a92d4",
+    "expressions/parts/1219e3a3aec64b7705b0.png": "f8155bb31644896583e259a8d764514052bb96c1497fbe6c743970ecf63dee71",
+    "expressions/parts/1cadef959b1def31db66.png": "47a76d795924045461ff7c33a0a7b0a539da57ee89429a69b4e3b35c545fb6e4",
+    "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+    "expressions/parts/5fa59088f4db7f73dc8f.png": "36515dc8d9766ea6f28af34bcfc97ac42e90aa9b23b1478b5f75b78efc5a4ddd",
+    "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+    "expressions/parts/7425436c510ac9dab5b4.png": "9b3cef0a5cf65de8a7c5ade0e01e412aec7697f830db744dedc614d4315caa53",
+    "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+    "expressions/parts/8ff9316def1aeb45e228.png": "3679918b7f7735cd8be73424aff4d5ebd1aa92361153f0e8ebce17c6a031ed74",
+    "expressions/parts/a2d92d0aa068ba181a3d.png": "8bfc1b70703edd508dde2290d03f155af6aaea119b7ec3029642db3d48610896",
+    "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+    "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+    "expressions/parts/cf74fd4a8cea4e27f150.png": "43518e6499922134344b6f3b3f2e480e64df713c5d459a42ca1728d1220b5b0b",
+    "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+    "expressions/parts/dc295ad40627497350a9.png": "4b303d41d9f84a863186efd0a457b222119b20a14cbc21df03a2612808e5dd9f",
+    "expressions/parts/fabd8afd90d27da88c49.png": "c8683f13426b5490de810ef526f2686f4e9fd3e4f0bdce7d3eed5030bfe14dfb",
+    "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+    "expressions/presets/dead_tongue.json": "0bc7f19b72dc074fc72ccbc47dd3de64e125b4f926cd2e02beb6b51da567953f",
+    "expressions/presets/tongue_cry.json": "98df357f36d6a7c0c72b08e20250600d248dc3e5077d48982c0b013c68dc20bb",
+    "expressions/presets/tongue_cry_b.json": "5089a990a27b40694b96deeaf3350da3a79052ac6a83f1e43d56baf79ea05ee5",
+    "tools/build_expression_round4_review.py": "41efb35201db38afad442c8450e1576d310194965f0787ae405e43628b294ee4",
+    "tools/review_expression_round4.py": "b381c296af60623fc5489ce0418a0b4e80d7286e04af9f74a0df44a908766ea8",
+    "tools/sync_expression_exports.py": "903444073befeda8455ca4a12609763a0f01395290acb1d49e52f4f17d187438",
+    "validate.py": "ab738570a388f28a04ae3c5d4ad1162567f753f4a7a3820e7d5d1390e720f9f0"
+  },
+  "outputs": {
+    "assembled/alice/textures/tongue_cry.png": "d6c957053b3181a71d44f66626450cdc64e9462e0d8cda2d7630253e88428bc3",
+    "assembled/alice/textures/tongue_cry_b.png": "11dc3cfbc061499ca81063acdc5b050f956051f278d470b9e17f17b99d5ba559",
+    "assembled/alice/textures/dead_tongue.png": "0e4dc07b33227a923e7e34f520b21f6aaf470ffba9aefcfce8cc3a4b9d7f16bd",
+    "assembled/alice/index.html": "73136aab693fbdd618ee2144de3d1b250fd60ece7b9a3ee7cc641cb06246bf65",
+    "assembled/chen/textures/tongue_cry.png": "eb9163a7d84cef09a667ab1f94f4e155a25fc3a1bc004c96e12111d9213f4135",
+    "assembled/chen/textures/tongue_cry_b.png": "1c1cafc17524e64c3d7fd9dd5998076e9dc190f9748c070d4b6474ee9201be08",
+    "assembled/chen/textures/dead_tongue.png": "90dd14844788465288cc40008f37a19fd83049c32d615f314eca1c02bda5c50d",
+    "assembled/chen/index.html": "e2285ece3f251d6698d9055117f7b9645832bcefac4158f9a5fcb048f569a7f4",
+    "assembled/marisa/textures/tongue_cry.png": "b630e27bd371bdbf7f154f7083e71bfbb1a08e1f402a16a855daae76c06edf61",
+    "assembled/marisa/textures/tongue_cry_b.png": "4346213bac1731ea15451811a1443fc20e794757e97a3fd69ee631a9fa02706d",
+    "assembled/marisa/textures/dead_tongue.png": "4bdbd613b9e6a21614c476ba88eda16488c30a104b5731b53f31e9379de3d9a0",
+    "assembled/marisa/index.html": "8c6877a6c475eaa74f18470196113001a7f3b1c4efcd7ccb8edc5f0c09b0a20c",
+    "assembled/marisa_tsumuri/textures/tongue_cry.png": "f14e2f3fb1f2c842d35fd3f485dd071a9280c35cc2d57b0d829ad3368cd49924",
+    "assembled/marisa_tsumuri/textures/tongue_cry_b.png": "ed67c92d6e090b4c2946ae779107fed6d85ab2b2f5ce37469b03bec51130258b",
+    "assembled/marisa_tsumuri/textures/dead_tongue.png": "367315f55bc5e31f62348622e40c8396f308a6b2e0792e925f2994818081b45e",
+    "assembled/marisa_tsumuri/index.html": "7354784240c1d35e1a1c2c0d49d68d88f85dab91479f6ae2bef357cf20402911",
+    "assembled/patchouli/textures/tongue_cry.png": "2856513d990d4f57e0c63b608de703e069f2a52f48e2a92e1edff127ee19a693",
+    "assembled/patchouli/textures/tongue_cry_b.png": "70c0ac16c152e1a3e0cacfbdb570f8bb75e337a318308c362dc492fca51f6d74",
+    "assembled/patchouli/textures/dead_tongue.png": "7cf00d79c4294a6bbd51dde627de2b1503f6b9a55f7c859b76425af086e6cb04",
+    "assembled/patchouli/index.html": "b557afa4ebc357a95e495bb2f693140e9f69753227fb66f55ff9941829bd992c",
+    "assembled/reimu/textures/tongue_cry.png": "6e60d1fba18b30f768543ee3d34317624e3b84ee6436c306ddd508320a607c9d",
+    "assembled/reimu/textures/tongue_cry_b.png": "a42d4dfc0580a55af1283c5825f8b31257a5726a2e65ae08c7ca91a9f326dec4",
+    "assembled/reimu/textures/dead_tongue.png": "aabb0e971d2442ce318a883785a19f778ed4f7dd904e61a0bc105761917ceb90",
+    "assembled/reimu/index.html": "e60b7d888b23787c51caa2b85fbc4cbe068e1e287316606b219394197f58106f",
+    "previews/current/expression-review.png": "1b45d3f5465a0cb500229064a4e31060c9c6677f30482faf675c56760a8fd00f",
+    "previews/current/n020-variants.png": "02a98fd7a85bb12de0f578dbfc1fcbaebd9eeec97bfd289ee965bb6bb18ce648",
+    "previews/current/n024-n025-tears.png": "a192d0670097b4a738de60d2d95ac8465e60725b58a3df8c34ad1816577a12dc",
+    "previews/current/n033-variants.png": "5ddd0ea2a9fb42efc48e04604c48a3d7d52bcabcfc6e1454e5f10b14065e82fd"
+  },
+  "user_reference_sha256": {
+    "user-reference-eyes.png": "f3df5b0115f380baa133f2058b4577d7112a81df136aa0a539cfd3da7c2c37c9",
+    "user-reference-half-lid.png": "976737a3abddc6fc427cb7be7a69fa9d4e62a5f4c2047fc74a2f1929379ebf1d"
+  },
+  "checks": {
+    "confirmed_recipe_fingerprints": "pass",
+    "distinct_tear_frames_with_shared_eyes_and_mouth": "pass",
+    "source_and_atlas_validation": {
+      "alice": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "chen": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "marisa": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "marisa_tsumuri": {
+        "compiled_motions": 8,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "patchouli": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "reimu": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "base_motions": 9,
+      "composite_recipes": 6,
+      "unique_pixel_parts": 139,
+      "source_nonempty_fields": 221,
+      "source_empty_fields": 16,
+      "source_unique_sprites": 220,
+      "raw_game_pixels_in_library": false
+    },
+    "browser": {
+      "checked": 6,
+      "groups": 3,
+      "expressions": 4,
+      "viewsPerCandidate": 4,
+      "angles": [
+        "front",
+        "oblique"
+      ],
+      "tearPair": "N024 versus N025",
+      "errors": []
+    }
+  },
+  "visual_review": {
+    "reviewer": "assistant",
+    "scope": "All candidates front view; representative candidate from each group oblique view",
+    "observations": [
+      "N020 eyes and lips now coordinate hurt/held-breath expressions with puff cheeks.",
+      "N024 visibly pools at lower lid, N025 has long descending trails and a separated droplet.",
+      "N033 preserves light sclera around a vertically shaded iris; A/B use narrower taller eye planes, C a broader half lid."
+    ],
+    "files": [
+      "previews/current/n020-variants.png",
+      "previews/current/n024-n025-tears.png",
+      "previews/current/n033-variants.png"
+    ]
+  },
+  "not_executed": [
+    "Minecraft runtime acceptance",
+    "new animation review"
+  ],
+  "pending_user_selection": [
+    "N020 A/B",
+    "N024 pooled tear frame",
+    "N025 falling tear frame",
+    "N033 A/B/C"
+  ],
+  "number_assumption": "User wrote 27; reference images and prior candidates point to N033; explained in conversation; N027 not reselected."
+}

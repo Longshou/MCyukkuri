@@ -1,0 +1,171 @@
+{
+  "date": "2026-09-12",
+  "approved": {
+    "N063": {
+      "id": "pressed_teary",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/pressed_teary.json": "4d1ac3995af66ea8e5082345cda0c44c3f05ffa29a421938b4c9510a609ead66",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/8b678087ea009dbded48.png": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b",
+        "expressions/parts/8ce5c296916c97bac7b2.png": "d889042288928df57f489255866abcb0cf9e744b92cbe0cf650f1edb592a4448",
+        "expressions/parts/a428b0dd455203bcce3d.png": "5c407358212c798c1c49d9c4f645e81121d0a0720a01decb3859a08acfeff5a8",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N064": {
+      "id": "pressed_cry",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/pressed_cry.json": "9834941b9bf0cded74c0ccdf8b990a9c5f9cd37bbcd30b0f7d601f2ce3281f18",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/89d9d82b758ecf3447d8.png": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9",
+        "expressions/parts/8b678087ea009dbded48.png": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b",
+        "expressions/parts/a428b0dd455203bcce3d.png": "5c407358212c798c1c49d9c4f645e81121d0a0720a01decb3859a08acfeff5a8",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N065": {
+      "id": "licking",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/licking.json": "27a2e443ef728ae2a42969afe982d04b3fa0cc3f75fb4836d03cfd368b40e8a4",
+        "expressions/parts/22aa133a1679fd7292be.png": "06c518bb75b39b40bfec1ffb238f71db0b7b36a897255fd3727d41f216f6edd9",
+        "expressions/parts/2a7e89ac7d125a63ccf0.png": "63a00c6f76b336fb6f7708b7f4a10d391d54570e1034fed9cd18d14aab9edd2f",
+        "expressions/parts/60f941ca2e49069b1649.png": "2d84abf337a3d740d7596f9027922cbcce476a5d3c6ab1092228863bd85fcae7",
+        "expressions/parts/78921e8cffe8de942fcf.png": "f4a373e92887c97e09d722f2cf1adba0c226df9ce2246fd5516672c6600fcc8e",
+        "expressions/parts/cef8e0a1ebaf2b15b078.png": "13612804fe40d1aa3ceb1e422ec7cf5749ac065e513467e170892867930ebc14",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/e90a66b2028eead57c32.png": "a1b53798f5b00a0b53c5210c0553c66569f4c09e686401c2273b499c457004c5"
+      }
+    },
+    "N066": {
+      "id": "dying",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/dying.json": "081a5c11c40c1ac56756a67c597894751f9b9a0529391c23016fae0486584672",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/394256bd3d1fd6dedc15.png": "ce85ab0b99ebf2ac7163ab4df35416b462310fb86715a70da165005e882bcfff",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/b1e51d77a2309766a35f.png": "58ac738435ada9d0e287ec2f001aff770672fc581be389e62c724d5aab86c0bd",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N067": {
+      "id": "dying_b",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/dying_b.json": "af7654c5dde7f1455365f8a057ac19e79ecc56f05f1ad2c36c9767a3ca265033",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/394256bd3d1fd6dedc15.png": "ce85ab0b99ebf2ac7163ab4df35416b462310fb86715a70da165005e882bcfff",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/b1e51d77a2309766a35f.png": "58ac738435ada9d0e287ec2f001aff770672fc581be389e62c724d5aab86c0bd",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N068": {
+      "id": "old_dead",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/old_dead.json": "8e8a239c48c93a4ccc8ef0124257b39d7bc9873500929f5e80fccc982fa52b93",
+        "expressions/parts/5977a2811d629eb958f7.png": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/ef9406d62e2711bc47b6.png": "82839e28caafa6beebb37f2af946fe735b5908bc4b9fe4883813e378de10fb27",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N069": {
+      "id": "dying_blank",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/dying_blank.json": "5f15374d8dea5b19e2b382f3717b958a367a5d8c0967c6d62392cc37979bdfbd",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/8b678087ea009dbded48.png": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b",
+        "expressions/parts/b1e51d77a2309766a35f.png": "58ac738435ada9d0e287ec2f001aff770672fc581be389e62c724d5aab86c0bd",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N070": {
+      "id": "dying_closed",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/dying_closed.json": "f6a0fe57993271032e4176eb57f476d1a2ba4db19adfb2523a608c0ae600d8c9",
+        "expressions/parts/0fa6d9dedc86a49f382f.png": "e0c9f6a67320940216c3ea93738b960f9e0a1689a768cb40663b88dc3df56592",
+        "expressions/parts/29b9299af733bf214512.png": "032b202a6473a95b2abbc74b07666dbeb37885e7d1ef5683f4f956b4e8d4a76d",
+        "expressions/parts/6961dca378507cd9a586.png": "574e4e5e0b3eb01a37a191036493380bb25c725b0767ac6a5e954c9ebdddbd1e",
+        "expressions/parts/9d97e3064a50b9ba1550.png": "a45791a9091cab5c4cbb3d6e72b698c4d2799919d9baa9ad111f6f1da959bb68",
+        "expressions/parts/b1e51d77a2309766a35f.png": "58ac738435ada9d0e287ec2f001aff770672fc581be389e62c724d5aab86c0bd",
+        "expressions/parts/b96ac6f052a9998f915a.png": "6d8e393426d5510ed03db54fe9da81c96e28c60d32b1b97cb99198b0714708af",
+        "expressions/parts/d8eadf3d7987b660aeb5.png": "e277aa8dceab3da619239181622f50e799b8e26f2feeccd26592fbce18a77135",
+        "expressions/parts/ea48519afc490db1dc57.png": "d767e8e86634e374f397182e4675aee3c47f322de674e27650543806feb3075b",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N071": {
+      "id": "dying_closed_b",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/dying_closed_b.json": "888507e0be97f09cc5abd719c1355ae0c0b5b56fe04fe8e363c68239c772fcc4",
+        "expressions/parts/0fa6d9dedc86a49f382f.png": "e0c9f6a67320940216c3ea93738b960f9e0a1689a768cb40663b88dc3df56592",
+        "expressions/parts/257e131aa3a5584d429b.png": "a6678aa2860387bf6f5c89323029ddb2df968210939c7db1efd611b90b829ede",
+        "expressions/parts/29b9299af733bf214512.png": "032b202a6473a95b2abbc74b07666dbeb37885e7d1ef5683f4f956b4e8d4a76d",
+        "expressions/parts/adfe6d4fa3984a539160.png": "b14bcd8307261979954da5407e9873c3d80bfcd6d09bb5b562249e8f17429103",
+        "expressions/parts/b1e51d77a2309766a35f.png": "58ac738435ada9d0e287ec2f001aff770672fc581be389e62c724d5aab86c0bd",
+        "expressions/parts/b96ac6f052a9998f915a.png": "6d8e393426d5510ed03db54fe9da81c96e28c60d32b1b97cb99198b0714708af",
+        "expressions/parts/d8eadf3d7987b660aeb5.png": "e277aa8dceab3da619239181622f50e799b8e26f2feeccd26592fbce18a77135",
+        "expressions/parts/ea48519afc490db1dc57.png": "d767e8e86634e374f397182e4675aee3c47f322de674e27650543806feb3075b",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N073": {
+      "id": "satisfied",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/satisfied.json": "fcb716ecf4c70cbbbbbc298261b1f2d3d20bd9aa6578d38af56620c2656faac9",
+        "expressions/parts/8023c0288f73ee416f1d.png": "85f550edb7ec79a6e1fedc31a4ba338cf0e4315b4ed10b5a7d6b5f30dffc782e",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+        "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+        "expressions/parts/f8ec9038ad0fd5ba7822.png": "051ee891e6edc5473bcdfc09c2043fd159f0d407cb2ace3f451b15128b5b0b7b",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    },
+    "N074": {
+      "id": "blank_frown",
+      "selection": "round2-current-presentation",
+      "files": {
+        "expressions/presets/blank_frown.json": "ac027e7a75b5e90e0f1606bd4c49d905c8bc15cc46c538bdbd330a7d41821863",
+        "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+        "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+        "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+        "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+        "expressions/parts/8b678087ea009dbded48.png": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b",
+        "expressions/parts/c65e88644f22808b9f2a.png": "bbeead7d1ef44afc4a231e8799f17a2e05024170b192fb0db9febb6ece544586",
+        "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+        "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+      }
+    }
+  },
+  "deferred": [
+    "N072"
+  ],
+  "note": "用户全部通过当前展示的十一项；N072 延续暂停筛选。"
+}

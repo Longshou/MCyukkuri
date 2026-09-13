@@ -1,13 +1,20 @@
 package io.github.longshou.mcyukkuri;
 
 import com.mojang.logging.LogUtils;
+import io.github.longshou.mcyukkuri.command.YukkuriCommands;
 import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 /** Shared entry point: keep client rendering classes out of this package. */
@@ -16,12 +23,28 @@ public final class MCYukkuri {
     public static final String MOD_ID = "mcyukkuri";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public MCYukkuri(IEventBus modBus) {
+    public MCYukkuri(IEventBus modBus, ModContainer container) {
+        io.github.longshou.mcyukkuri.human.HumanWorld.register(modBus, container);
+        io.github.longshou.mcyukkuri.life.Facilities.init();
+        io.github.longshou.mcyukkuri.play.Playgrounds.init();
+        io.github.longshou.mcyukkuri.life.Consumables.init();
+        io.github.longshou.mcyukkuri.freezer.FreezerModule.init();
+        ModBlocks.BLOCKS.register(modBus);
+        ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModEntities.TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
+        io.github.longshou.mcyukkuri.registry.ModMenus.MENUS.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
         modBus.addListener(ModEntities::registerAttributes);
+        modBus.addListener(ModEntities::registerSpawnPlacements);
+        modBus.addListener(ModCreativeTabs::addVanillaSpawnEggs);
         modBus.addListener(this::commonSetup);
+        NeoForge.EVENT_BUS.addListener(YukkuriCommands::register);
+        NeoForge.EVENT_BUS.addListener(YukkuriWorldData::joining);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::leaving);
+        container.registerConfig(ModConfig.Type.SERVER, YukkuriConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, io.github.longshou.mcyukkuri.family.FamilyConfig.SPEC, "mcyukkuri-family.toml");
     }
 
     public static ResourceLocation id(String path) {
@@ -29,6 +52,6 @@ public final class MCYukkuri {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Yukkuri World initialized with Reimu and Marisa entities.");
+        LOGGER.info("Yukkuri World initialized with five standard species and two house variants.");
     }
 }

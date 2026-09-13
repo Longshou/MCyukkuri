@@ -1,0 +1,95 @@
+{
+  "status": "R2.3 peripheral integration authorized on 2026-09-13; selected R2.4 eggs match the subsequently approved egg standard; other standard confirmations pending",
+  "source": "art/props/runtime-peripheral/selected",
+  "items": [
+    "food_bowl",
+    "yukkuri_nest",
+    "yukkuri_toilet",
+    "house_crevice",
+    "yukkuri_carrier",
+    "wash_cloth",
+    "teaching_whistle",
+    "yarn_ball",
+    "companion_cord",
+    "food_scrap",
+    "yukkuri_waste",
+    "leaked_filling",
+    "reimu_ribbon",
+    "marisa_hat",
+    "oil_grain_budget",
+    "oil_grain_regular",
+    "oil_grain_premium",
+    "orange_juice",
+    "mold_remover"
+  ],
+  "blocks": [
+    "food_bowl",
+    "yukkuri_nest",
+    "yukkuri_toilet",
+    "house_crevice",
+    "burial_mound"
+  ],
+  "attachments": [
+    "food_bowl_regular",
+    "food_bowl_garbage",
+    "food_bowl_forage",
+    "food_bowl_wheat",
+    "yukkuri_toilet_dirty",
+    "house_egg",
+    "house_egg_cracked",
+    "nest_lining",
+    "wound_patch"
+  ],
+  "retired_recipes": [
+    "bandage",
+    "herbal_medicine"
+  ],
+  "recipes": {
+    "oil_grain_budget": {
+      "ingredients": [
+        "minecraft:wheat",
+        "minecraft:beetroot_seeds"
+      ],
+      "count": 4
+    },
+    "oil_grain_regular": {
+      "ingredients": [
+        "minecraft:wheat",
+        "minecraft:carrot"
+      ],
+      "count": 4
+    },
+    "oil_grain_premium": {
+      "ingredients": [
+        "minecraft:wheat",
+        "minecraft:apple",
+        "minecraft:sugar"
+      ],
+      "count": 4
+    },
+    "orange_juice": {
+      "ingredients": [
+        "minecraft:carrot",
+        "minecraft:melon_slice",
+        "minecraft:sugar",
+        "minecraft:glass_bottle"
+      ],
+      "count": 1
+    },
+    "mold_remover": {
+      "ingredients": [
+        "minecraft:red_mushroom",
+        "minecraft:sugar",
+        "minecraft:glass_bottle"
+      ],
+      "count": 1
+    }
+  },
+  "recipe_note": "Minecraft survival adaptations, not native U formulas. Orange juice uses available orange-colored produce; this does not add vanilla oranges. One consumed bottle may restore at most the body's 12-unit capacity.",
+  "upstream_source": "standards/yukkuri-library/drafts/peripheral-props/assembled",
+  "species_accessories": {
+    "chen": "chen_hat",
+    "alice": "alice_headband",
+    "patchouli": "patchouli_bonnet"
+  }
+}

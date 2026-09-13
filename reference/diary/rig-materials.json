@@ -1,0 +1,1151 @@
+[
+  {
+    "material": 35,
+    "tree": {
+      "m_Name": "Hoppe",
+      "m_Shader": {
+        "m_FileID": 0,
+        "m_PathID": 302
+      },
+      "m_ValidKeywords": [],
+      "m_InvalidKeywords": [],
+      "m_LightmapFlags": 5,
+      "m_EnableInstancingVariants": false,
+      "m_DoubleSidedGI": false,
+      "m_CustomRenderQueue": -1,
+      "stringTagMap": [],
+      "disabledShaderPasses": [],
+      "m_SavedProperties": {
+        "m_TexEnvs": [
+          [
+            "_MainTex",
+            {
+              "m_Texture": {
+                "m_FileID": 0,
+                "m_PathID": 0
+              },
+              "m_Scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "m_Offset": {
+                "x": 0.0,
+                "y": 0.0
+              }
+            }
+          ],
+          [
+            "_ToonShade",
+            {
+              "m_Texture": {
+                "m_FileID": 0,
+                "m_PathID": 0
+              },
+              "m_Scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "m_Offset": {
+                "x": 0.0,
+                "y": 0.0
+              }
+            }
+          ]
+        ],
+        "m_Ints": [],
+        "m_Floats": [
+          [
+            "_BumpScale",
+            1.0
+          ],
+          [
+            "_Cutoff",
+            0.5
+          ],
+          [
+            "_DetailNormalMapScale",
+            1.0
+          ],
+          [
+            "_DstBlend",
+            0.0
+          ],
+          [
+            "_EmissionScaleUI",
+            0.0
+          ],
+          [
+            "_Glossiness",
+            0.5
+          ],
+          [
+            "_Metallic",
+            0.0
+          ],
+          [
+            "_Mode",
+            0.0
+          ],
+          [
+            "_OcclusionStrength",
+            1.0
+          ],
+          [
+            "_Parallax",
+            0.019999999552965164
+          ],
+          [
+            "_SrcBlend",
+            1.0
+          ],
+          [
+            "_UVSec",
+            0.0
+          ],
+          [
+            "_ZWrite",
+            1.0
+          ]
+        ],
+        "m_Colors": [
+          [
+            "_Color",
+            {
+              "r": 1.0,
+              "g": 0.4485294222831726,
+              "b": 0.4485294222831726,
+              "a": 1.0
+            }
+          ],
+          [
+            "_EmissionColor",
+            {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 1.0
+            }
+          ],
+          [
+            "_EmissionColorUI",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          ]
+        ]
+      },
+      "m_BuildTextureStacks": []
+    }
+  },
+  {
+    "material": 59,
+    "tree": {
+      "m_Name": "yukkuri01",
+      "m_Shader": {
+        "m_FileID": 0,
+        "m_PathID": 292
+      },
+      "m_ValidKeywords": [],
+      "m_InvalidKeywords": [
+        "_EMISSION",
+        "_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A"
+      ],
+      "m_LightmapFlags": 1,
+      "m_EnableInstancingVariants": false,
+      "m_DoubleSidedGI": false,
+      "m_CustomRenderQueue": -1,
+      "stringTagMap": [],
+      "disabledShaderPasses": [],
+      "m_SavedProperties": {
+        "m_TexEnvs": [
+          [
+            "_MainTex",
+            {
+              "m_Texture": {
+                "m_FileID": 0,
+                "m_PathID": 152
+              },
+              "m_Scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "m_Offset": {
+                "x": 1.0,
+                "y": 1.0
+              }
+            }
+          ],
+          [
+            "_Ramp",
+            {
+              "m_Texture": {
+                "m_FileID": 0,
+                "m_PathID": 0
+              },
+              "m_Scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "m_Offset": {
+                "x": 0.0,
+                "y": 0.0
+              }
+            }
+          ]
+        ],
+        "m_Ints": [],
+        "m_Floats": [
+          [
+            "_AO",
+            2.4000000953674316
+          ],
+          [
+            "_BaseLight",
+            0.3499999940395355
+          ],
+          [
+            "_BumpScale",
+            1.0
+          ],
+          [
+            "_ContrastBoost",
+            1.0
+          ],
+          [
+            "_Cutoff",
+            0.0
+          ],
+          [
+            "_DetailNormalMapScale",
+            1.0
+          ],
+          [
+            "_DstBlend",
+            0.0
+          ],
+          [
+            "_EmissionScaleUI",
+            0.0
+          ],
+          [
+            "_GlossMapScale",
+            0.0
+          ],
+          [
+            "_Glossiness",
+            0.0
+          ],
+          [
+            "_GlossyReflections",
+            1.0
+          ],
+          [
+            "_Intensity",
+            1.0
+          ],
+          [
+            "_IntensityModifier",
+            0.0
+          ],
+          [
+            "_Metallic",
+            0.0
+          ],
+          [
+            "_Mode",
+            0.0
+          ],
+          [
+            "_OcclusionStrength",
+            1.0
+          ],
+          [
+            "_OutlineWidth",
+            0.009999999776482582
+          ],
+          [
+            "_Parallax",
+            0.019999999552965164
+          ],
+          [
+            "_QuantizationLevels",
+            10.0
+          ],
+          [
+            "_RedrawRate",
+            5.0
+          ],
+          [
+            "_RimFalloff",
+            1.0
+          ],
+          [
+            "_Scribbliness",
+            0.009999999776482582
+          ],
+          [
+            "_SensorId",
+            0.0
+          ],
+          [
+            "_Shininess",
+            1.0
+          ],
+          [
+            "_SmoothnessTextureChannel",
+            1.0
+          ],
+          [
+            "_SpecularHighlights",
+            1.0
+          ],
+          [
+            "_Speed",
+            1.0
+          ],
+          [
+            "_SquashAmount",
+            1.0
+          ],
+          [
+            "_SrcBlend",
+            1.0
+          ],
+          [
+            "_Tile",
+            5.0
+          ],
+          [
+            "_UVSec",
+            0.0
+          ],
+          [
+            "_ZWrite",
+            1.0
+          ]
+        ],
+        "m_Colors": [
+          [
+            "_Color",
+            {
+              "r": 0.7058823108673096,
+              "g": 0.7058823108673096,
+              "b": 0.7058823108673096,
+              "a": 1.0
+            }
+          ],
+          [
+            "_Emission",
+            {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 0.0
+            }
+          ],
+          [
+            "_EmissionColor",
+            {
+              "r": 0.0,
+              "g": 0.0,
+              "b": 0.0,
+              "a": 1.0
+            }
+          ],
+          [
+            "_EmissionColorUI",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          ],
+          [
+            "_FillColour",
+            {
+              "r": 1.0,
+              "g": 0.7442190647125244,
+              "b": 0.2867646813392639,
+              "a": 1.0
+            }
+          ],
+          [
+            "_OutlineColour",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 0.5
+            }
+          ],
+          [
+            "_RimColor",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          ],
+          [
+            "_SpecColor",
+            {
+              "r": 0.4632353186607361,
+              "g": 0.4632353186607361,
+              "b": 0.4632353186607361,
+              "a": 1.0
+            }
+          ],
+          [
+            "_TreeInstanceColor",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          ],
+          [
+            "_TreeInstanceScale",
+            {
+              "r": 1.0,
+              "g": 1.0,
+              "b": 1.0,
+              "a": 1.0
+            }
+          ]
+        ]
+      },
+      "m_BuildTextureStacks": []
+    }
+  },
+  {
+    "clip": 305,
+    "name": "LookDown",
+    "paths": []
+  },
+  {
+    "clip": 306,
+    "name": "LookForWard",
+    "paths": []
+  },
+  {
+    "clip": 307,
+    "name": "LookLeft",
+    "paths": []
+  },
+  {
+    "clip": 308,
+    "name": "LookRight",
+    "paths": []
+  },
+  {
+    "clip": 309,
+    "name": "LookUp",
+    "paths": []
+  },
+  {
+    "clip": 310,
+    "name": "Mimi_Chen",
+    "paths": []
+  },
+  {
+    "clip": 311,
+    "name": "Binta",
+    "paths": [
+      "",
+      "RightForeArm/RightHand"
+    ]
+  },
+  {
+    "clip": 312,
+    "name": "PeniPeni",
+    "paths": []
+  },
+  {
+    "clip": 313,
+    "name": "YukkuriDamaged",
+    "paths": []
+  },
+  {
+    "clip": 314,
+    "name": "YukkuriYobikake",
+    "paths": []
+  },
+  {
+    "clip": 315,
+    "name": "YukkuriBaked",
+    "paths": []
+  },
+  {
+    "clip": 316,
+    "name": "YukkuriBikkuri",
+    "paths": []
+  },
+  {
+    "clip": 317,
+    "name": "YukkuriFuan1",
+    "paths": []
+  },
+  {
+    "clip": 318,
+    "name": "YukkuriFuan4",
+    "paths": []
+  },
+  {
+    "clip": 319,
+    "name": "YukkuriFuan5",
+    "paths": []
+  },
+  {
+    "clip": 320,
+    "name": "YukkuriFuan6",
+    "paths": []
+  },
+  {
+    "clip": 321,
+    "name": "YukkuriRain",
+    "paths": []
+  },
+  {
+    "clip": 322,
+    "name": "Yukkuri_Talk",
+    "paths": []
+  },
+  {
+    "clip": 323,
+    "name": "YukkuriFallWall",
+    "paths": []
+  },
+  {
+    "clip": 324,
+    "name": "YukkuriTestMove",
+    "paths": []
+  },
+  {
+    "clip": 325,
+    "name": "nemui01",
+    "paths": []
+  },
+  {
+    "clip": 326,
+    "name": "YukkuriEat03",
+    "paths": []
+  },
+  {
+    "clip": 327,
+    "name": "Yukkuri_chachacha",
+    "paths": []
+  },
+  {
+    "clip": 328,
+    "name": "YukkuriIdle",
+    "paths": []
+  },
+  {
+    "clip": 329,
+    "name": "nobinobi02",
+    "paths": []
+  },
+  {
+    "clip": 330,
+    "name": "nemui03",
+    "paths": []
+  },
+  {
+    "clip": 331,
+    "name": "YukkuriMesu",
+    "paths": []
+  },
+  {
+    "clip": 332,
+    "name": "YukkuriDanceL02",
+    "paths": []
+  },
+  {
+    "clip": 333,
+    "name": "nemui02",
+    "paths": []
+  },
+  {
+    "clip": 334,
+    "name": "YukkuriOsu",
+    "paths": []
+  },
+  {
+    "clip": 335,
+    "name": "YukkuriSurisuri",
+    "paths": []
+  },
+  {
+    "clip": 336,
+    "name": "YukkuriDanceR01",
+    "paths": []
+  },
+  {
+    "renderer": 1263,
+    "object": "Hair01",
+    "mesh_id": 200,
+    "mesh": "Hair01",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "MomiageBone06L",
+      "MomiageBone04L",
+      "MomiageBone05L"
+    ]
+  },
+  {
+    "renderer": 1264,
+    "object": "Hair01",
+    "mesh_id": 203,
+    "mesh": "Hair01",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "MomiageBone04L",
+      "MomiageBone05L",
+      "MomiageBone06L"
+    ]
+  },
+  {
+    "renderer": 1265,
+    "object": "Momi",
+    "mesh_id": 274,
+    "mesh": "Momi",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "MomiageBone01R",
+      "MomiageBone02R",
+      "MomiageBone03R",
+      "MomiageBone04L",
+      "MomiageBone05L",
+      "MomiageBone06L"
+    ]
+  },
+  {
+    "renderer": 1266,
+    "object": "Hair08Remi",
+    "mesh_id": 265,
+    "mesh": "Hair08Remi",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1267,
+    "object": "Hair01",
+    "mesh_id": 254,
+    "mesh": "Hair01",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1268,
+    "object": "Hair11Sakuya",
+    "mesh_id": 271,
+    "mesh": "Hair11Sakuya",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1269,
+    "object": "Hair04Marisa",
+    "mesh_id": 257,
+    "mesh": "Hair04Marisa",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1270,
+    "object": "Hair10Myon",
+    "mesh_id": 269,
+    "mesh": "Hair10Myon",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1271,
+    "object": "Hair08Remi",
+    "mesh_id": 266,
+    "mesh": "Hair08Remi",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1272,
+    "object": "Body",
+    "mesh_id": 224,
+    "mesh": "Body",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "JawUp",
+      "Jaw",
+      "LeftMabutaUp",
+      "MayuLeft",
+      "RightMabutaUp",
+      "MayuRight",
+      "Bero1",
+      "Bero0",
+      "Hip",
+      "LeftMabutaDown",
+      "HoppeLeft",
+      "RightMabutaDown",
+      "HoppeRight",
+      "LeftEye",
+      "RightEye"
+    ]
+  },
+  {
+    "renderer": 1273,
+    "object": "Hair06Pachu",
+    "mesh_id": 261,
+    "mesh": "Hair06Pachu",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1274,
+    "object": "Okurumi",
+    "mesh_id": 237,
+    "mesh": "Okurumi",
+    "materials": [
+      "OkurumiPink"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip",
+      "HoppeRight",
+      "HoppeLeft",
+      "RightMabutaDown",
+      "Jaw",
+      "JawUp",
+      "LeftMabutaDown"
+    ]
+  },
+  {
+    "renderer": 1275,
+    "object": "Momi",
+    "mesh_id": 273,
+    "mesh": "Momi",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "MomiageBone04L",
+      "Spine",
+      "MomiageBone05L",
+      "MomiageBone06L",
+      "MomiageBone03R",
+      "MomiageBone02R",
+      "MomiageBone01R"
+    ]
+  },
+  {
+    "renderer": 1276,
+    "object": "Okurumi02",
+    "mesh_id": 276,
+    "mesh": "Okurumi02",
+    "materials": [
+      "tex2"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip",
+      "HoppeRight",
+      "HoppeLeft",
+      "Jaw",
+      "LeftEye",
+      "RightEye"
+    ]
+  },
+  {
+    "renderer": 1277,
+    "object": "Mimi_Chen",
+    "mesh_id": 218,
+    "mesh": "Mimi_Chen",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "MomiageBone04L",
+      "MomiageBone05L",
+      "MomiageBone01R",
+      "MomiageBone02R"
+    ]
+  },
+  {
+    "renderer": 1278,
+    "object": "Hair06Pachu",
+    "mesh_id": 262,
+    "mesh": "Hair06Pachu",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1279,
+    "object": "Body",
+    "mesh_id": 202,
+    "mesh": "Body",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "JawUp",
+      "Jaw",
+      "LeftMabutaUp",
+      "MayuLeft",
+      "RightMabutaUp",
+      "MayuRight",
+      "Bero1",
+      "Bero0",
+      "Hip",
+      "LeftMabutaDown",
+      "HoppeLeft",
+      "RightMabutaDown",
+      "HoppeRight",
+      "LeftEye",
+      "RightEye"
+    ]
+  },
+  {
+    "renderer": 1280,
+    "object": "Hair05Alice",
+    "mesh_id": 260,
+    "mesh": "Hair05Alice",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1281,
+    "object": "Hair07Chirno",
+    "mesh_id": 264,
+    "mesh": "Hair07Chirno",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1282,
+    "object": "Mimi_Chen",
+    "mesh_id": 218,
+    "mesh": "Mimi_Chen",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "MomiageBone04L",
+      "MomiageBone05L",
+      "MomiageBone01R",
+      "MomiageBone02R"
+    ]
+  },
+  {
+    "renderer": 1283,
+    "object": "Hair99",
+    "mesh_id": 245,
+    "mesh": "Hair99",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip",
+      "Onaka"
+    ]
+  },
+  {
+    "renderer": 1284,
+    "object": "Hair09Fran",
+    "mesh_id": 268,
+    "mesh": "Hair09Fran",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1285,
+    "object": "Hair05Alice",
+    "mesh_id": 259,
+    "mesh": "Hair05Alice",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1286,
+    "object": "Okurumi02",
+    "mesh_id": 275,
+    "mesh": "Okurumi02",
+    "materials": [
+      "tex8"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip",
+      "HoppeRight",
+      "HoppeLeft",
+      "Jaw",
+      "LeftEye",
+      "RightEye"
+    ]
+  },
+  {
+    "renderer": 1287,
+    "object": "Okurumi",
+    "mesh_id": 240,
+    "mesh": "Okurumi",
+    "materials": [
+      "OkurumiPink"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "Hip",
+      "HoppeRight",
+      "HoppeLeft",
+      "RightMabutaDown",
+      "Jaw",
+      "JawUp",
+      "LeftMabutaDown"
+    ]
+  },
+  {
+    "renderer": 1288,
+    "object": "Body",
+    "mesh_id": 224,
+    "mesh": "Body",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Onaka",
+      "Spine",
+      "JawUp",
+      "Jaw",
+      "LeftMabutaUp",
+      "MayuLeft",
+      "RightMabutaUp",
+      "MayuRight",
+      "Bero1",
+      "Bero0",
+      "Hip",
+      "LeftMabutaDown",
+      "HoppeLeft",
+      "RightMabutaDown",
+      "HoppeRight",
+      "LeftEye",
+      "RightEye"
+    ]
+  },
+  {
+    "renderer": 1289,
+    "object": "Hair07Chirno",
+    "mesh_id": 263,
+    "mesh": "Hair07Chirno",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1290,
+    "object": "Hair99",
+    "mesh_id": 248,
+    "mesh": "Hair99",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip",
+      "Onaka"
+    ]
+  },
+  {
+    "renderer": 1291,
+    "object": "Hair09Fran",
+    "mesh_id": 267,
+    "mesh": "Hair09Fran",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1292,
+    "object": "Hair10Myon",
+    "mesh_id": 270,
+    "mesh": "Hair10Myon",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1293,
+    "object": "Hair01",
+    "mesh_id": 252,
+    "mesh": "Hair01",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1294,
+    "object": "Hair03Reimu",
+    "mesh_id": 255,
+    "mesh": "Hair03Reimu",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1295,
+    "object": "Hair11Sakuya",
+    "mesh_id": 272,
+    "mesh": "Hair11Sakuya",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Onaka",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1296,
+    "object": "Hair04Marisa",
+    "mesh_id": 258,
+    "mesh": "Hair04Marisa",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip"
+    ]
+  },
+  {
+    "renderer": 1297,
+    "object": "Hair03Reimu",
+    "mesh_id": 256,
+    "mesh": "Hair03Reimu",
+    "materials": [
+      "yukkuri01"
+    ],
+    "bones": [
+      "Spine",
+      "Hip"
+    ]
+  }
+]

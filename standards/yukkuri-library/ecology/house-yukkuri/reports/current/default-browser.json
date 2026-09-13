@@ -1,0 +1,55 @@
+{
+  "executed_utc": "2026-09-11T12:49:28.883Z",
+  "environment": {
+    "node": "v22.13.1",
+    "browser": "153.0.8010.36",
+    "platform": "win32"
+  },
+  "initial": {
+    "version": "standard_fitted_anatomy_house_v9",
+    "badge": "常态收回修正 v9.1 · 待确认",
+    "anatomy": {
+      "part": "peni",
+      "selectedPart": "peni",
+      "amount": 0,
+      "targetExtended": false,
+      "phase": "retracted"
+    }
+  },
+  "checks": [
+    {
+      "subject": "reimu",
+      "default_equals_removed_anatomy": true
+    },
+    {
+      "subject": "marisa",
+      "default_equals_removed_anatomy": true
+    },
+    {
+      "subject": "pair",
+      "default_equals_removed_anatomy": true
+    },
+    {
+      "subject": "family",
+      "default_equals_removed_anatomy": true
+    },
+    {
+      "subject": "compare",
+      "default_equals_removed_anatomy": true
+    },
+    {
+      "subject": "nest",
+      "default_equals_removed_anatomy": true
+    }
+  ],
+  "immediate_retraction_after": [
+    "subject",
+    "action",
+    "restart",
+    "restore"
+  ],
+  "errors": [],
+  "index_sha256": "c511aefedf5f6ffaa52aa9f59a7e0d8e32ed1e5022d87a01a60e4580d5d8fa1f",
+  "screenshot_sha256": "e849fd113cb97efbf5ac114d01f51adc4af3368ff404f23d82b85ad4f85ef444",
+  "scope": "Fresh browser UI; six subjects at rest compared pixel-for-pixel with anatomy removed, then extend and switch/reset interactions."
+}

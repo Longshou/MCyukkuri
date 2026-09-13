@@ -1,0 +1,25 @@
+{
+  "base_sha256": "ae83a2df6d910264cf29dccef507458ad94b64dc5a75108fe9bcf8c864ed07ec",
+  "base_cubes": 53,
+  "marisa_cubes": 59,
+  "bowl_cubes": 56,
+  "animations": {
+    "idle": {
+      "duration": 1,
+      "loop": true
+    },
+    "walk": {
+      "duration": 0.8,
+      "loop": true
+    },
+    "bite": {
+      "duration": 2.7,
+      "loop": false
+    },
+    "satisfied": {
+      "duration": 1.5,
+      "loop": false
+    }
+  },
+  "source": "eightSight.v8.3; source art excluded from package"
+}

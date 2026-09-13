@@ -3,22 +3,32 @@
   "label": "受损哭喊",
   "group": "特殊状态",
   "recipe": {
-    "eyes": "hollow",
-    "brows": "sad",
-    "mouth": "cut_wail",
-    "tears": "flow",
-    "blush": "normal",
-    "effect": "none"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N027",
+      "face_eye_right": "N027",
+      "face_brow_left": "N012",
+      "face_brow_right": "N012",
+      "face_tear_left": "N012",
+      "face_tear_right": "N012",
+      "face_blush_left": "N001",
+      "face_blush_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": [
+      "face_mouth"
+    ],
+    "tears": "approved-N012-lower-eyelid-sheen"
   },
   "parts": {
     "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
     "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
-    "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
     "face_mouth": "expressions/parts/919ab03cf9e23721f204.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
@@ -31,10 +41,31 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted batch N051–N062 selection on 2026-09-12",
   "aliases": [],
   "review_code": "N062",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_tear_left": {
+      "position": [
+        0,
+        -0.145,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "position": [
+        0,
+        -0.145,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户确认本轮改后版本；未点名项按“其他没问题”保存当前展示版。"
+  }
 }

@@ -1,0 +1,143 @@
+package io.github.longshou.mcyukkuri.social;
+
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import java.util.EnumSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.Vec3;
+
+/** A shared, transient bout reserves both live participants. Reload cancels it, preserving cooldown. */
+public final class GroupInteractionGoal extends Goal {
+    private enum Kind { SUMO, BULLY, PROTECT }
+    private static final class Bout {
+        final YukkuriEntity first, second;
+        final Kind kind;
+        YukkuriEntity protectedPeer;
+        int ticks, contactTicks;
+        boolean ended;
+        Bout(YukkuriEntity first, YukkuriEntity second, Kind kind) { this.first=first;this.second=second;this.kind=kind; }
+    }
+    private final YukkuriEntity entity;
+    private Bout bout;
+    private int cooldown, scanWait;
+    private boolean defending;
+    public GroupInteractionGoal(YukkuriEntity entity) { this.entity=entity;setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+    public boolean active() { return bout!=null&&!bout.ended; }
+    public String activity() { return !active()?"idle":defending?"protect_peer":bout.kind==Kind.BULLY?"bully_peer":bout.contactTicks<20?"sumo_prepare":"sumo_push"; }
+    public int cooldown() { return cooldown; }
+    public void clock() { if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop(); }
+    public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }
+    public void load(CompoundTag tag) { stop();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
+    private ServerLevel level() { return (ServerLevel)entity.level(); }
+    private static boolean available(YukkuriEntity e) {
+        return !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e) && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
+                &&!e.life().hasUrgentNeed()&&!e.life().isSleeping()&&e.life().mealTicks()==0
+                &&e.life().nutrition()>=45&&e.life().energy()>=40&&e.body().wound()==0&&e.body().infection()==0
+                &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active();
+    }
+    private static boolean space(YukkuriEntity e) {
+        BlockPos pos=e.blockPosition();
+        for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)if(!e.life().dryStand(pos.offset(x,0,z)))return false;
+        return true;
+    }
+    public boolean challenge(YukkuriEntity peer) {
+        if(peer==entity||peer.level()!=entity.level()||cooldown>0||peer.groupInteraction().cooldown>0||active()||peer.groupInteraction().active()
+                ||!available(entity)||!available(peer)||!entity.family().adult()||!peer.family().adult()
+                ||entity.distanceToSqr(peer)>16||!entity.hasLineOfSight(peer)||!space(entity)||!space(peer))return false;
+        var relations=YukkuriWorldData.get(level());
+        if(relations.affinity(entity.getUUID(),peer.getUUID())<4||relations.affinity(peer.getUUID(),entity.getUUID())<4)return false;
+        return reserve(peer,Kind.SUMO);
+    }
+    private boolean reserve(YukkuriEntity peer, Kind kind) {
+        entity.social().stop();peer.social().stop();
+        bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
+        cooldown=peer.groupInteraction().cooldown=2400;
+        entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
+        peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
+        return true;
+    }
+    @Override public boolean canUse() {
+        if(active())return valid();
+        if(scanWait>0||cooldown>0||!available(entity)||entity.isNoAi())return false;
+        scanWait=160;
+        for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.isNoAi())) {
+            if(entity.getRandom().nextInt(4)==0&&challenge(peer))return true;
+            var personality=entity.life().personality();
+            if(personality.trait(Trait.BOLDNESS)>=75&&personality.trait(Trait.CARE)<25&&available(peer)&&!peer.groupInteraction().active()
+                    &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
+                    &&YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=-20&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                return reserve(peer,Kind.BULLY);
+        }
+        return false;
+    }
+    private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&available(e); }
+    private boolean valid() {
+        if(!active()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;
+        if(bout.protectedPeer!=null&&(!bout.protectedPeer.isAlive()||bout.protectedPeer.isRemoved()||bout.protectedPeer.level()!=entity.level()
+                ||level().getEntity(bout.protectedPeer.getUUID())!=bout.protectedPeer||bout.first.distanceToSqr(bout.protectedPeer)>64))return false;
+        return bout.first.hasLineOfSight(bout.second)&&bout.first.groupInteraction().bout==bout&&bout.second.groupInteraction().bout==bout;
+    }
+    @Override public boolean canContinueToUse() { return valid(); }
+    @Override public boolean requiresUpdateEveryTick() { return true; }
+    @Override public void tick() {
+        if(!valid()){stop();return;}
+        var current=bout;var peer=entity==current.first?current.second:current.first;
+        entity.getLookControl().setLookAt(peer,30,30);
+        double contact=(entity.getBbWidth()+peer.getBbWidth())*.5+.15;
+        if(entity.distanceToSqr(peer)>contact*contact) {
+            if(current.ticks%10==0&&!entity.life().navigate(peer.blockPosition(),.8,false)){stop();return;}
+        } else entity.getNavigation().stop();
+        if(entity!=current.first)return;
+        current.ticks++;
+        if(entity.distanceToSqr(peer)>contact*contact)return;
+        current.contactTicks++;
+        if(current.contactTicks<20)return;
+        if(current.kind==Kind.BULLY) {
+            stop();peer.hurt(level().damageSources().mobAttack(entity),1);
+            YukkuriWorldData.get(level()).relate(peer.getUUID(),entity.getUUID(),-8);return;
+        }
+        if(current.kind==Kind.PROTECT) {
+            stop();peer.frightenFrom(entity);entity.showReaction("neutral","known_peer",100);return;
+        }
+        if(current.contactTicks%20!=0)return;
+        if(!entity.life().spendEnergy(2)||!peer.life().spendEnergy(2)){stop();return;}
+        Vec3 direction=peer.position().subtract(entity.position()).multiply(1,0,1).normalize();
+        if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
+        boolean firstStronger=entity.getBbWidth()*entity.life().energy()>=peer.getBbWidth()*peer.life().energy();
+        var pushed=firstStronger?peer:entity;
+        pushed.setDeltaMovement(direction.scale(firstStronger?.13:-.13));pushed.hurtMarked=true;
+        if(current.contactTicks>=80) {
+            var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
+            stop();winner.showReaction("happy","puff",120);loser.showReaction("surprise","shy",120);
+            var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
+            if(YukkuriConfig.SUMO_DAMAGE.get())loser.hurt(level().damageSources().mobAttack(winner),1);
+        }
+    }
+    /** Only present, awake witnesses with actual sight react to an attack. No later knowledge is fabricated. */
+    public static void witnessedAttack(YukkuriEntity victim,YukkuriEntity attacker) {
+        if(!(victim.level() instanceof ServerLevel level))return;
+        var relations=YukkuriWorldData.get(level);
+        for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
+            if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
+            witness.showReaction("surprise","afraid",100);
+            boolean close=FamilyData.get(level).related(witness.getUUID(),victim.getUUID())||relations.affinity(witness.getUUID(),victim.getUUID())>=15;
+            var goal=witness.groupInteraction();
+            if(!close||!witness.family().adult()||witness.life().personality().trait(Trait.CARE)<55||goal.cooldown>0||goal.active())continue;
+            if(!available(attacker))continue;
+            attacker.groupInteraction().stop();goal.reserve(attacker,Kind.PROTECT);goal.defending=true;goal.bout.protectedPeer=victim;
+            witness.showReaction("surprise","mine",100);relations.relate(witness.getUUID(),attacker.getUUID(),-5);break;
+        }
+    }
+    @Override public void stop() {
+        var current=bout;bout=null;defending=false;
+        if(current!=null&&!current.ended){current.ended=true;for(var e:java.util.List.of(current.first,current.second)) {
+            e.groupInteraction().bout=null;e.groupInteraction().defending=false;e.getNavigation().stop();
+        }}
+    }
+}

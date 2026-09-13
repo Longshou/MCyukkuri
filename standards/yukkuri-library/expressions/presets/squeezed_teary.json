@@ -30,15 +30,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
+  "status": "accepted",
   "art": "User-selected component revisions; unchanged parts retain prior pixels.",
   "aliases": [],
   "review_code": "N014",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "applied",
-    "note": "Mouth width and height exactly 1.5x; smug uses downward V."
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
   },
   "geometry_offsets": {
     "face_mouth": {

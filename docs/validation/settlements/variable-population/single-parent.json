@@ -1,0 +1,26 @@
+{
+  "members": [
+    {
+      "father": "none",
+      "stage": "ADULT",
+      "species": "marisa",
+      "id": "cd4c13c5-6859-439f-96ba-74d4d7d1d1a8",
+      "partner": "none",
+      "mother": "none",
+      "group": "dcd35258-9e99-4734-af98-d5627f663a95"
+    },
+    {
+      "father": "none",
+      "stage": "JUVENILE",
+      "species": "marisa",
+      "id": "7196a4ac-31f7-4363-bc50-f7ee75aec9d8",
+      "partner": "none",
+      "mother": "cd4c13c5-6859-439f-96ba-74d4d7d1d1a8",
+      "group": "dcd35258-9e99-4734-af98-d5627f663a95"
+    }
+  ],
+  "count": 2,
+  "preset": "FAMILY",
+  "householdCount": 1,
+  "juvenileCount": 1
+}

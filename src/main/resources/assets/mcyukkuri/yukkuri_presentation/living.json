@@ -1,0 +1,117 @@
+{
+  "format": 1,
+  "chew_period_ticks": 8,
+  "mouth_scale_min": 0.82,
+  "mouth_scale_max": 1.1,
+  "mouth_bone": "face_mouth",
+  "variants": {
+    "reimu": {
+      "accessory_prefixes": [
+        "bow_"
+      ],
+      "mouth": [
+        0,
+        1.855,
+        -4.7
+      ],
+      "food_scale": 0.14
+    },
+    "marisa": {
+      "accessory_prefixes": [
+        "brim_",
+        "hat_",
+        "bow_"
+      ],
+      "mouth": [
+        0,
+        1.855,
+        -4.7
+      ],
+      "food_scale": 0.14
+    },
+    "house_reimu": {
+      "accessory_prefixes": [
+        "bow_"
+      ],
+      "mouth": [
+        0,
+        1.539,
+        -1.55
+      ],
+      "food_scale": 0.048
+    },
+    "house_marisa": {
+      "accessory_prefixes": [
+        "brim_",
+        "hat_",
+        "bow_"
+      ],
+      "mouth": [
+        0,
+        1.539,
+        -1.55
+      ],
+      "food_scale": 0.048
+    },
+    "chen": {
+      "accessory_prefixes": [
+        "chen_hat_"
+      ],
+      "mouth": [
+        0,
+        1.855,
+        -4.7
+      ],
+      "food_scale": 0.14
+    },
+    "alice": {
+      "accessory_prefixes": [
+        "alice_band_",
+        "alice_lace_"
+      ],
+      "mouth": [
+        0,
+        1.855,
+        -4.7
+      ],
+      "food_scale": 0.14
+    },
+    "patchouli": {
+      "accessory_prefixes": [
+        "patchouli_bonnet_",
+        "patchouli_hat_",
+        "patchouli_crescent_",
+        "patchouli_frill_",
+        "patchouli_side_frill_"
+      ],
+      "mouth": [
+        0,
+        1.855,
+        -4.7
+      ],
+      "food_scale": 0.14
+    },
+    "remilia": {
+      "accessory_prefixes": [
+        "predator_cap_"
+      ],
+      "mouth": [
+        0,
+        2.0,
+        -4.95
+      ],
+      "food_scale": 0.14
+    },
+    "flandre": {
+      "accessory_prefixes": [
+        "predator_cap_"
+      ],
+      "mouth": [
+        0,
+        2.0,
+        -4.95
+      ],
+      "food_scale": 0.14
+    }
+  }
+}

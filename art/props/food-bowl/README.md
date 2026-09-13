@@ -4,4 +4,4 @@
 
 [可编辑模型](food_bowl.bbmodel) · [几何](food_bowl.geo.json) · [贴图](feeding.png)
 
-原始动作和制作脚本见 [资料库](../../library/README.md)；此处保存独立道具副本，尚未注册为游戏实体/方块。
+原始动作和制作脚本见 [资料库](../../library/README.md)；此处保存独立道具副本。[生活设施配方](../care-facilities/recipe.json)已选取 `bowl` 盆体接入食盆方块；盆内显示真实库存物品。源模型中的油粮组尚未接入，也尚未注册独立油粮物品。

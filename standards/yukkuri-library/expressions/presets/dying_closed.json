@@ -3,12 +3,21 @@
   "label": "虚弱闭眼",
   "group": "特殊状态",
   "recipe": {
-    "eyes": "weak",
-    "brows": "worried",
-    "mouth": "pant",
-    "tears": "side",
-    "blush": "none",
-    "effect": "none"
+    "source": "user-directed-component-revision",
+    "donors": {
+      "face_blush_left": "N044",
+      "face_blush_right": "N044",
+      "face_mouth": "N031",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": [
+      "face_eye_left",
+      "face_brow_left",
+      "face_tear_left",
+      "face_eye_right",
+      "face_brow_right",
+      "face_tear_right"
+    ]
   },
   "parts": {
     "face_eye_left": "expressions/parts/b96ac6f052a9998f915a.png",
@@ -45,10 +54,15 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted N063–N074 round 2 on 2026-09-12",
   "aliases": [],
   "review_code": "N070",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户全部通过第二轮展示版本，包括 N065 原舌头、N070/N071 原版与 N074 加强悲伤版本。"
+  }
 }

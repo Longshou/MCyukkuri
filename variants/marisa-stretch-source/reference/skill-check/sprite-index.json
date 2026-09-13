@@ -1,0 +1,106 @@
+[
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7243,
+    "name": "レイヤー 4",
+    "file": "sprite-7243.png",
+    "size": [
+      216,
+      200
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      146.0761260986328
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5444,
+    "name": "レイヤー 4 のコピー",
+    "file": "sprite-5444.png",
+    "size": [
+      216,
+      220
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      290.07611083984375,
+      147.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 8111,
+    "name": "レイヤー 4 のコピー 2",
+    "file": "sprite-8111.png",
+    "size": [
+      220,
+      245
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      288.07611083984375,
+      147.01290893554688
+    ],
+    "packing_settings": 64
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7138,
+    "name": "レイヤー 4 のコピー",
+    "file": "sprite-7138.png",
+    "size": [
+      219,
+      270
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      147.0761260986328
+    ],
+    "packing_settings": 64
+  }
+]

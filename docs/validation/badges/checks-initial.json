@@ -1,0 +1,190 @@
+[
+  {
+    "name": "Fixture has a real shopkeeper",
+    "pass": true
+  },
+  {
+    "name": "Blank gold token cannot grant qualification",
+    "pass": true
+  },
+  {
+    "name": "Training starts without instantly granting skill",
+    "pass": true
+  },
+  {
+    "name": "Repeated training packet cannot restart or stack a session",
+    "pass": true
+  },
+  {
+    "name": "Training only awards after its full duration",
+    "pass": true
+  },
+  {
+    "name": "Completed training grants one bounded increment and no grade",
+    "pass": true
+  },
+  {
+    "name": "Training cooldown survives save/load",
+    "pass": true
+  },
+  {
+    "name": "Skill progression survives reload",
+    "pass": true
+  },
+  {
+    "name": "Reload interrupts unfinished session without free skill",
+    "pass": true
+  },
+  {
+    "name": "Night exam refused without charge",
+    "pass": true
+  },
+  {
+    "name": "Wrong owner cannot train, examine or detach",
+    "pass": true
+  },
+  {
+    "name": "Forged menu action and absent funds rejected",
+    "pass": true
+  },
+  {
+    "name": "Insufficient money cannot create a session",
+    "pass": true
+  },
+  {
+    "name": "Exam starts once and charges once",
+    "pass": true
+  },
+  {
+    "name": "Repeated exam packet cannot duplicate a payment",
+    "pass": true
+  },
+  {
+    "name": "Examiner cannot assess two animals concurrently",
+    "pass": true
+  },
+  {
+    "name": "Leaving aborts examination without certificate or refund",
+    "pass": true
+  },
+  {
+    "name": "Living knowledge deficiency is reported and cannot be rerolled",
+    "pass": true
+  },
+  {
+    "name": "Failed gold upgrade preserves existing silver",
+    "pass": true
+  },
+  {
+    "name": "Certified silver can be detached",
+    "pass": true
+  },
+  {
+    "name": "Physical badge cannot transfer qualification to another identity",
+    "pass": true
+  },
+  {
+    "name": "Only examiner can reissue",
+    "pass": true
+  },
+  {
+    "name": "Reissue debits exactly one emerald",
+    "pass": true
+  },
+  {
+    "name": "Reissue invalidates old serial",
+    "pass": true
+  },
+  {
+    "name": "Current identity-bound token can be reattached",
+    "pass": true
+  },
+  {
+    "name": "Copied token cannot attach twice",
+    "pass": true
+  },
+  {
+    "name": "Removing accessory hides badge, keeps certification",
+    "pass": true
+  },
+  {
+    "name": "Returning exact accessory restores wearing state",
+    "pass": true
+  },
+  {
+    "name": "Accessory item retains its attached badge appearance",
+    "pass": true
+  },
+  {
+    "name": "A badge lost with the whole accessory can be reissued",
+    "pass": true
+  },
+  {
+    "name": "Returning an obsolete accessory cannot re-equip its invalid badge",
+    "pass": true
+  },
+  {
+    "name": "Legacy gold loads as unreviewed rather than fabricated examination",
+    "pass": true
+  },
+  {
+    "name": "Gold recognition survives detached badge",
+    "pass": true
+  },
+  {
+    "name": "Higher badges provoke envy or admiration according to personality",
+    "pass": true
+  },
+  {
+    "name": "Repeated meetings have a badge reaction cooldown",
+    "pass": true
+  },
+  {
+    "name": "A hidden badge does not advertise social rank",
+    "pass": true
+  },
+  {
+    "name": "Live exam is admitted",
+    "pass": true
+  },
+  {
+    "name": "Routine fixture owns a real nest",
+    "pass": true
+  },
+  {
+    "name": "Actual goal navigation reaches the examiner\u0027s marker and grants silver",
+    "pass": true
+  },
+  {
+    "name": "Exam certificate records examiner and completed attempt",
+    "pass": true
+  },
+  {
+    "name": "Capture keeps the certificate and original individual",
+    "pass": true
+  },
+  {
+    "name": "Release keeps qualification and wearing state",
+    "pass": true
+  },
+  {
+    "name": "Live gold upgrade is admitted",
+    "pass": true
+  },
+  {
+    "name": "Live gold exam completes at the higher thresholds",
+    "pass": true
+  },
+  {
+    "name": "Actual bowl meal contributes once",
+    "pass": true
+  },
+  {
+    "name": "Actual toilet use contributes only after waste transfer",
+    "pass": true
+  },
+  {
+    "name": "A completed natural rest contributes evidence",
+    "pass": true
+  }
+]

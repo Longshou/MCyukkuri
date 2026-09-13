@@ -1,0 +1,390 @@
+{
+  "timestamp": "2026-09-12T06:36:04.676666+00:00",
+  "scope": "Save approved 11 from N063–N074 and prepare remaining 11; N072 deferred",
+  "status": "awaiting-user-review",
+  "source_files": {
+    "AGENTS.md": "6821cb3335673fb8d8c6e86ea09dfea9060218766a4e3e59503fe123709245bc",
+    "README.md": "e69c2300dc9dff2d7fd7ad7709b894eb73fa264444e66cb174b59631b281541a",
+    "assembled/alice/index.html": "e3240a1ca05be630901b4be46ab5c886ceb800f98f11cce4cfe7e2d254480e34",
+    "assembled/chen/index.html": "2db73ed4398ba8e67dd6272505e416ea8b80fb58ac46c3becd03b8aa74f585e2",
+    "assembled/marisa/index.html": "13e2ca18619c9f2d3e2b08327a4ebe87bda775de13aff7bc96500b8bd2d42a6d",
+    "assembled/marisa_tsumuri/index.html": "a4d45859917c4f7a35676aab54eb14a13976866a7993fb9a380ad35fd154f7c2",
+    "assembled/patchouli/index.html": "9cd141cfaf8a1d376429c01b0430f4f4e9f9bdc610625e51db707df9631eab39",
+    "assembled/reimu/index.html": "e394c79f8aa0e3cfc04f984a194ebf186ed2c44ce60603d05a5f3e54006e36ac",
+    "bindings/alice.json": "66b3573c156b67e2e74c655af900d60643796147394c309f0cd01f65c43f0260",
+    "bindings/chen.json": "93d6916ecd40be88d8d9326ef7ff9d8c70fb66a8809785f258ef990abf56046f",
+    "bindings/marisa.json": "2e20ebe6c83b3f2d1971347a3b2bbf587bb1fafbeeef81489d4bf82778a3ead4",
+    "bindings/marisa_tsumuri.json": "47707bcc6468f91fbd0c71c0673980ae1d5602a9b261712366426fdd834e8571",
+    "bindings/patchouli.json": "7a024fbaa21b77c10ee8e3d571eee8bcccaf8cdfc666bc83a2a02118dac768cc",
+    "bindings/reimu.json": "2ccf09f179e02d8d97d8479bc4a2b7445d61bfea7142995c3e37f5b9c21313b5",
+    "drafts/README.md": "b812668c7be00257f32fc98e1cc9f7e2a6d4cc9c300d9c368e4c0a4d0571bea5",
+    "drafts/expression-review/next-batch.json": "879183a844395b255e506b3f5373c1d8936dd041b6eb7e762dec8f4c83496653",
+    "drafts/expression-review/reuse-batch-63-74/README.md": "f8090d5ec5b96d688b758b4ccdc6925d88f5f2bd398af1daa10b0b4d396ba463",
+    "drafts/expression-review/reuse-batch-63-74/round2/README.md": "93a5961e27bc6e39ea2da50546ecfedf357c40321c2236d157df66b38f4c3d34",
+    "drafts/expression-review/reuse-batch-63-74/round2/accepted-exports.json": "a1168d217667fa5867456509b58d816ad6ea442693cf916d726c2eda77321e63",
+    "drafts/expression-review/reuse-final-batch/README.md": "9dcefb6443b642855fd763b932b352ec0a712e89ec1f41357c5a0abc1ec52afc",
+    "drafts/expression-review/reuse-final-batch/REFERENCE.md": "d4abc63174d44f1e186266e29d32cb8a94715e03dde0deece3a056c5c083324e",
+    "drafts/expression-review/reuse-final-batch/before.json": "48626f27f37ba2ee4c116c131039b2666f96d33534afe90edb2f64dde77a2f16",
+    "drafts/expression-review/reuse-final-batch/presets/blank_confused.json": "1121dd6b49d6af3e595d03a4a0076dceaced060f40555a29909c1bb84e685fca",
+    "drafts/expression-review/reuse-final-batch/presets/confused_small.json": "f5672dca9bafe31aad6da87e6c28800dbddabcafce033511604d7b07fecce7e6",
+    "drafts/expression-review/reuse-final-batch/presets/cry_b.json": "96e6da5d29735937390a94fb75c861ca1fcbf14575020549f3092fe962785edf",
+    "drafts/expression-review/reuse-final-batch/presets/flick_dull.json": "67b6f89352e05decc59cf50f653e1aa567d42d4dd7ffdd03615ce08baeaf97c3",
+    "drafts/expression-review/reuse-final-batch/presets/impact.json": "dc20c5808cbf82dd656c6e4b013d592d173db5e32cd2271dc39e8ca7807cb65b",
+    "drafts/expression-review/reuse-final-batch/presets/impact_teary.json": "4e7ba1cc95c25c3a878421675f0b8c8e4443a1297598d0a08027cbcff3f769d6",
+    "drafts/expression-review/reuse-final-batch/presets/shattered.json": "796dcb83e40e01bb868458f210938771d3071c92086bbe0d6f4fd84cfe14c892",
+    "drafts/expression-review/reuse-final-batch/presets/shattered_fade.json": "cd4d918980b7cb5bbdbcfe680b4aafdfa9b3b55d6e75b2ba41ca1ddf6b790964",
+    "drafts/expression-review/reuse-final-batch/presets/teary_b.json": "db08493ec3335f2cedf9b138c22d836f8e5634cd26056756b4620ae5682db54e",
+    "drafts/expression-review/reuse-final-batch/presets/teary_smile.json": "6ee6d0ab27fcbdce94b773ffd6fc54cda512c836718ba990ef9200dc705c67d9",
+    "drafts/expression-review/reuse-final-batch/presets/teary_smile_b.json": "14e2a2bf1f744e33cac4b18f138767abf5ff9cfaab14b2d0aacdf97c7d26cc87",
+    "drafts/expression-review/reuse-final-batch/reuse-manifest.json": "a6d1467780bbcbed55a7344b9b6071866132139dd0d526746be28f0390d48179",
+    "drafts/expression-review/reuse-final-batch/review-template.html": "c58f5e6d08e5944594b0f9b92e2f0cb931bf45f10351aa9b42b6ee09ac5f0987",
+    "expressions/component-review/batch-51-62-decisions.json": "7d2a16e3287ea1461fe3c48c5448fd686df4aa3544ff2883775f0e0b45e4b549",
+    "expressions/component-review/batch-63-74-decisions.json": "21491a296a69d2a6770d05a594e1105b2abca95f71bb6a98783ab6b40213df45",
+    "expressions/component-review/n016-n040-decisions.json": "293fa25042bbc05bee05d19dcf5d5829366a0921b7d2094abf3d56cf82f2f2e7",
+    "expressions/component-review/next-batch-decisions.json": "eecaabdb2c635a044aad1a19d32a7f5ce0e52ce72fd3617b736de9f103031542",
+    "expressions/parts/1341c2d55f244560b218.png": "80ed376acc072073da5fec73bae0aab05b74ed4488def239dbe9febdc2e13bcf",
+    "expressions/parts/22aa133a1679fd7292be.png": "06c518bb75b39b40bfec1ffb238f71db0b7b36a897255fd3727d41f216f6edd9",
+    "expressions/parts/34d4ac5b9a79829633ad.png": "88b700758ce40bf550453f22b27082641a8c62cb3423cb8a2f9b056d95402b6f",
+    "expressions/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
+    "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+    "expressions/parts/38563466f501e8c01bfa.png": "d61234c1eb3361bd981713e30cf349fd332e611a3307e700593a48b1ab6f1541",
+    "expressions/parts/38cbe6444a87b1b263e8.png": "443f6ec3d90dd723819ee9c81bb41dc5df7d5271e261a545adf53c307f2b4e7d",
+    "expressions/parts/3b9c6d89915676f44eaa.png": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c",
+    "expressions/parts/566eded4a7f31e2afb97.png": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2",
+    "expressions/parts/57a99722f11714cc0584.png": "58f27c9d123940a7a156522c3acb3c9dcc41949f0ac4731409fd7aa45372d85f",
+    "expressions/parts/60f941ca2e49069b1649.png": "2d84abf337a3d740d7596f9027922cbcce476a5d3c6ab1092228863bd85fcae7",
+    "expressions/parts/6b26a19b89ebe71df2d3.png": "9cd99594e12eddab2e8cd0501f49e972fcc86e79542045d6b56288c9f034a132",
+    "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+    "expressions/parts/705a7563a4aebed0bcca.png": "619ed9b74a7fb67b7d7b1b56c796055f52901f599b4383e6b82340d9356c7703",
+    "expressions/parts/70d38ef30d920ef604f2.png": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4",
+    "expressions/parts/72256f4d77b93cdc9da0.png": "d1dcd0205d6a66e3383e37d601860d768a3efe1684674fa790f97ba7535f828b",
+    "expressions/parts/814e895f243461ff6655.png": "ee4b5b690bceb6011401a48ace14c5f68e7f1800333352a841d23f0a3ac9e665",
+    "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+    "expressions/parts/89d9d82b758ecf3447d8.png": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9",
+    "expressions/parts/8b678087ea009dbded48.png": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b",
+    "expressions/parts/982e05fa00e9fc2d5e95.png": "96bdc7b0b9d52173badf5851b0e092089ef083b84d68765d2d88e255232fba0c",
+    "expressions/parts/a428b0dd455203bcce3d.png": "5c407358212c798c1c49d9c4f645e81121d0a0720a01decb3859a08acfeff5a8",
+    "expressions/parts/a710e608da828db386c8.png": "011f297231f9a3c25fac4c6bb9878c5136c3be65b15470712ac56209a749f6b9",
+    "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+    "expressions/parts/b0a0d54ab0c63ce0eace.png": "280b53ab5b0f23d2580008095c1f65d6064c71b6630048cfc2dd9e5b2fdf9034",
+    "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+    "expressions/parts/bd95916065ebe3bd678c.png": "fc2b4a5a246f3b778329733419c609211404adb397c52dc1e08b395eafe53619",
+    "expressions/parts/c691c4d2a1f728a0adf2.png": "70d426e90fff24234e49c6f354815478f2dd415281ba097894801133f8ed0913",
+    "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+    "expressions/parts/d126c585f0291a16309c.png": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326",
+    "expressions/parts/d72c7f5d13a82bac2960.png": "6a14af73748a522f5e04d2b255cf889579002e999ed0a9224203f5a306f810c8",
+    "expressions/parts/d819ee97a515dc61d942.png": "5f3c1d05051222a7571bf5551c785255a6ec270c7406fe66ae76e28260a4440c",
+    "expressions/parts/dc96140aab738d6ad443.png": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364",
+    "expressions/parts/ece43201d28a820a10c2.png": "84131832273edf637548f532c9273c953e6501fc9572000b8858ad5b57c3f58b",
+    "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+    "expressions/presets/bad_taste_small.json": "fee2665a416b9b8fbce9bc0595f4ccfc891e14e7f5cbe9202b76b7ccd9df06d1",
+    "expressions/presets/blank_confused.json": "ff571ea17e26e6a7c3aa4dc494b770fb419dac73a649dba52b543790e447418e",
+    "expressions/presets/blank_cry.json": "5cd1f4ccd37fb75e9a260424aa0d1bf15a61cf555c214a81d6e6740a51792664",
+    "expressions/presets/chewing_closed.json": "e084a8d347b5a213c3df1135f8aea7bfc9073e61604ba326fab8e9d8d4f094f7",
+    "expressions/presets/closed_smile.json": "904120c2ee47d9cb9eda6fbf40ee78ed5216dc72c45c415183a0db46d3061c51",
+    "expressions/presets/confused_small.json": "1c278276ee3ad76ae1188611597160d086e63412fd3f06d48f33d47e1da0ac9d",
+    "expressions/presets/cry.json": "966f62d52ba1acf9e54c955a81ffec10bc7eb3d8600f11c85b5ee8fe66bc83dd",
+    "expressions/presets/cry_b.json": "1dd6ad848b7af2debfb6873364b52d10483ec2e52f1c81d154e12ff413c71d47",
+    "expressions/presets/dull.json": "f4cbb2488bb0091e8690eb6bbfd13259323d88e163dfc5a171175f59c7d3c1da",
+    "expressions/presets/flick_dull.json": "b6a892263a8bf23cf04741f4fa04f1946a78b45c16cb3eb8ac09e7cc04fc74c6",
+    "expressions/presets/impact.json": "3a9728cf4f7a43d98056a90e7205f95541ec1ecc929da46a53b078c6c342d247",
+    "expressions/presets/impact_teary.json": "1fdabfb8e44763718cd2fb1645c44d6aa34b04388e66519768f80eb90b0880b8",
+    "expressions/presets/open_cry.json": "7c464e104eba601ea08a0b32bab1b42cbcf56226a340707c8502c43594fad46e",
+    "expressions/presets/open_cry_b.json": "198496942c062929eb5d15ddbbcf4dca7ce544c2b658008160b7522848fedb79",
+    "expressions/presets/open_smile.json": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+    "expressions/presets/pin_cry.json": "6d392e2ec597b27bd9b70ce111bf0a0e1e99f7686ee285df425b10ba65c01f6f",
+    "expressions/presets/pursed.json": "49b75fbbf954ef2a5190c108f084ed5e544a0f36768a2cb37c2ecb46af39d33e",
+    "expressions/presets/shattered.json": "d346258a1cba58ad08dd6f8754baa745c1df406177a56871167151174acb2f7d",
+    "expressions/presets/shattered_fade.json": "115b7720803f3626602272af6a6f6bc5bc4ed25aeeeef21610466024745eb9c2",
+    "expressions/presets/squeezed_cry.json": "0ac3215f1ef48eb51707ac8c0eb018c481adbbaf3cb95acd16c205ecf1700ca0",
+    "expressions/presets/teary.json": "24c15c91f06b1071ea97ade0f1a3462c7c7644cf96f3218a71efe29bda8063cc",
+    "expressions/presets/teary_b.json": "dff1ac6d53c516b96b50c5e8ed4cd7f940fa18536b43eba0223558580a5a0a07",
+    "expressions/presets/teary_frown.json": "481de303ea091e4cc2cea9b597b5ee8ca1c6144f931bd482d7417605accf5449",
+    "expressions/presets/teary_smile.json": "abd432d76faf32110fbde55e4724ab56cf7fd7fa274e6d9fd18e3d5c50c6746e",
+    "expressions/presets/teary_smile_b.json": "7f8f16d96df6b33774e4aafa69267d0772831309b91ac5f4b78b9e2905a5f5b3",
+    "previews/README.md": "48ba6eeed53b34a61d5dca2dbe38abbf42ffe88ee5aba52f3691625c6736ad22",
+    "tools/accept_expression_batch_63_74.py": "d9ed8c84a8b1452e47d72687d2851e00ccaa85897bfb2bd376585acb37e28c2d",
+    "tools/build_reused_expression_review.py": "e171d4e4b5558dbec4e2a374803b8a69cd7999d8dfaa935e4a874d466e18ab0d",
+    "tools/prepare_expression_final_batch.py": "375c74cd7a854f37e8e9f76043c9367c9d89b9b24afb53a77628ed225cde7e62",
+    "tools/sync_expression_exports.py": "2448c7da5a23117ecc4adaaae0bf4576bfd15202800cb6357aa689c9e5f8fb9a"
+  },
+  "reference_files": {
+    "reference/hakkei-u-expression-audit/sprites/sprite-8180.png": "708264cc5d1f10f47e2582fbc95fa2879c2d1d3a77ef736666bcf69b0ffc0037",
+    "reference/hakkei-u-expression-audit/sprites/sprite-6335.png": "ef36101ce3c69deb403035cc5177e3415401373325f944e79b57ba2fbe7e0e41",
+    "reference/hakkei-u-expression-audit/sprites/sprite-7266.png": "e8bb42bd95668f5813f679c49ddafb484ccfe1999327b50fabecf1df3e0775a1",
+    "reference/hakkei-u-expression-audit/sprites/sprite-5253.png": "f5a4d3b3f5af7d08c9cc13d973adc6ee78fc6d835d5055fe92e957d2d89e6dc8",
+    "reference/hakkei-u-expression-audit/sprites/sprite-4675.png": "0ffe5f2438237aa4d1e3671ccce02cef4c96a7bdc03971b18dec983f96d7717e",
+    "reference/hakkei-u-expression-audit/sprites/sprite-6786.png": "eb5d606703223da2b4637e4620ec02491b57074a676844ab76812b4b510c1c64",
+    "reference/hakkei-u-expression-audit/sprites/sprite-7035.png": "f30c7497600b2b7e214ddf10906afcb4c4762f9d8463a99bbd66e92bc3443527",
+    "reference/hakkei-u-expression-audit/sprites/sprite-4494.png": "b1d1f4a57ee2f56fb2e9ff36e1519c9c1f78a7f38f3380113c33c901dc26e8ed",
+    "reference/hakkei-u-expression-audit/sprites/sprite-5640.png": "efb44524f387b4c0dd30667601c64e28c824b9abf8275d8fd6d433304862c68f",
+    "reference/hakkei-u-expression-audit/sprites/sprite-7697.png": "dcd5bad3eb036542b4f6caf6df0e87ff9cb78a551aa4aa0e912fb966e4e05d49",
+    "reference/hakkei-u-expression-audit/sprites/sprite-5146.png": "23394d7c863a4f9fe9f9b3044d7f8f3432269c3d704e620437add0577b2135d2"
+  },
+  "outputs": {
+    "drafts/expression-review/next-batch.html": "b0cd3d18a55995d675e591087d13e5f0059cbd2bace52a0002de587eca639b11",
+    "drafts/expression-review/reuse-final-batch/textures/alice/blank_confused.png": "a074ee183494919e22027207db81865ef7d00061744ea171206548bee175fcb4",
+    "drafts/expression-review/reuse-final-batch/textures/alice/confused_small.png": "457eea7a4f57322b29784030e45b33b48fb976615eb54e5a21ccb35286b01717",
+    "drafts/expression-review/reuse-final-batch/textures/alice/cry_b.png": "86caa8bc674ac86f03147d00655706cc0f2e0819ad9d7db0807ac722d89d596d",
+    "drafts/expression-review/reuse-final-batch/textures/alice/flick_dull.png": "56b9a34b61b198393a99aac8f8d8ea89836d26a3ab47945161fe0805955c999d",
+    "drafts/expression-review/reuse-final-batch/textures/alice/impact.png": "11d34fbc3281d84012fea0de26d110aa6963110197dac5ecdeb0ea8701b363c1",
+    "drafts/expression-review/reuse-final-batch/textures/alice/impact_teary.png": "4877a8c830e67a0544382c896da1d7f2207ea6757a6b428195e90dd35a136000",
+    "drafts/expression-review/reuse-final-batch/textures/alice/shattered.png": "c426f4cd072cef7051b5fbe5cfdcbb29ddedcf7497cbcb0295579cdc4005ed7d",
+    "drafts/expression-review/reuse-final-batch/textures/alice/shattered_fade.png": "a89e9e524bd58b16b9f3d609b5ebf5a1edb0fc30eb8e13e99cb456e9b1416e64",
+    "drafts/expression-review/reuse-final-batch/textures/alice/teary_b.png": "1bab3348e4322e260c99c5eed330cc79f830c19e3baca65cdf0288916eba074c",
+    "drafts/expression-review/reuse-final-batch/textures/alice/teary_smile.png": "2c0c13350a9634fab0b8f5d241999036f538e3243bea828a0c8bc880ee2df949",
+    "drafts/expression-review/reuse-final-batch/textures/alice/teary_smile_b.png": "2c0c13350a9634fab0b8f5d241999036f538e3243bea828a0c8bc880ee2df949",
+    "drafts/expression-review/reuse-final-batch/textures/chen/blank_confused.png": "04888a720be129720568d439b2491915fbea649e224f7eff34759c5a2543b2cf",
+    "drafts/expression-review/reuse-final-batch/textures/chen/confused_small.png": "4a04684066d00ba680565571d5b6e2675af93b3f6ccd0924e86fd1fe76d62a15",
+    "drafts/expression-review/reuse-final-batch/textures/chen/cry_b.png": "1fb1e52dd2b86134b709755cdaed50c4a82eea43a0335a70746923b94082e27f",
+    "drafts/expression-review/reuse-final-batch/textures/chen/flick_dull.png": "f203ef9f6c8a653c1ecb48c0afe02357dfe8429783b018078f726efbea55d819",
+    "drafts/expression-review/reuse-final-batch/textures/chen/impact.png": "052f7ea7dc46d4ebd49c9c438c50f0704d08d38f9b3048117f9316a15a3c232e",
+    "drafts/expression-review/reuse-final-batch/textures/chen/impact_teary.png": "6c480c3e00b72570d4b06beb873a7081e637d3d65aedd3ee986543115c619a46",
+    "drafts/expression-review/reuse-final-batch/textures/chen/shattered.png": "82bb1520f8cd9146dac10b77f5a65e9d7e51d4b8c927abfd33790507642a24b8",
+    "drafts/expression-review/reuse-final-batch/textures/chen/shattered_fade.png": "67f1e918131b6d4caf7b57c0e4c353dc2a5b66798848fd2c932d8a1a2c7c3320",
+    "drafts/expression-review/reuse-final-batch/textures/chen/teary_b.png": "e84188bb63d261ab5d44c904d514ec31c46a5d9409da80b502e4cbbb195f75c7",
+    "drafts/expression-review/reuse-final-batch/textures/chen/teary_smile.png": "9a6351be43f501ac0c8712b81860761f9ecfe2973768d1b507d50cf1ca21eb9a",
+    "drafts/expression-review/reuse-final-batch/textures/chen/teary_smile_b.png": "9a6351be43f501ac0c8712b81860761f9ecfe2973768d1b507d50cf1ca21eb9a",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/blank_confused.png": "969577f9f4fae5fffaede2825639ccbee88e4935c8265d12b8e82d820dff440e",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/confused_small.png": "f33341e2dc120d854a24860a364e268d6cd3451ad31030677ed76915efe8f573",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/cry_b.png": "b3827684a8fa0f78a63635047c313f4d3eb8dcaae263cf5f152859ab3999a18c",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/flick_dull.png": "744036cc990bc4a3a5fa53f79b5905cf2100a964c9905b0ebd8f7429abdc0c16",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/impact.png": "e8df6de22f402ae2b4b7320e450784c16bdadeb686b2caa4aa057b031e38104c",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/impact_teary.png": "b286d5e3fe38c2243e0796de9efa7550181c33f84291a4f19be425d4227ad380",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/shattered.png": "05f0bc16331716dad09a106ba1e685e602f3e7b90cf68032b209b85ad74004fe",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/shattered_fade.png": "9b0624007f1c20279892312cdf565eff6d186f3d9e9c3d0f3cdd61e33ca90366",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/teary_b.png": "09fd257d2f382f2a22b88f37c5bad8196824c7c2d2218318d35a4b75435ba936",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/teary_smile.png": "dc7245ac022e87c819cd3c12777f275529649a07fb317b4a2871dc9b28d43f3b",
+    "drafts/expression-review/reuse-final-batch/textures/marisa/teary_smile_b.png": "dc7245ac022e87c819cd3c12777f275529649a07fb317b4a2871dc9b28d43f3b",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/blank_confused.png": "f0fa076281a384c66eb0067e3059fa0808d6ee6f575702a021c775cfe3cd940a",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/confused_small.png": "77e17502fae30e3c72f4ee5be193dc25a5e015be066a4a911fdc7fce9c65a575",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/cry_b.png": "bf1faba6f583a7c17c33b6900d66ab699bf6a42009a7a715f43fdf16665522b1",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/flick_dull.png": "f010d3bf00ebc9e39dcb8c1c85bff9fee41307faa48e73433e0d99050014616f",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/impact.png": "d87992b663f218a43f7d0d08c07cc3461443a37feb8d2268494e6dd18e8cd7cc",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/impact_teary.png": "bd207df2363d333b58afaadf675d1f669ce4c0854741ab30a1aa2d38f9710095",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/shattered.png": "1d6e0b8e1b4d9dc7e784b86678886d9b2e4897e1d6360c2595ec49a64a6f7561",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/shattered_fade.png": "439d8dfafbdfc46a35ff9212510e873ed8f3030a731b1f5d98b72696348fec6b",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/teary_b.png": "cbc8e3da5ea8333d6cedd7de1c0ec03a4c0e3024d9664c2bcc404d65e9d11a52",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/teary_smile.png": "07d060be0753d7bc70cfed647c93e9baaf8542d461954f29b0e622d48c230cb0",
+    "drafts/expression-review/reuse-final-batch/textures/marisa_tsumuri/teary_smile_b.png": "07d060be0753d7bc70cfed647c93e9baaf8542d461954f29b0e622d48c230cb0",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/blank_confused.png": "03581deb76909b66b05455027191c1307abc304923ac049db4d51d2bdc88d30d",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/confused_small.png": "bee1cc051288e2b065eaf6c6d1f15f66bb782f0c880131178a423a061ecc9475",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/cry_b.png": "3d25409dcc75367a21646a58895683cc391ca63b6f091bd4ddd5cc7d8c0e0a00",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/flick_dull.png": "facc9fa2040b2d3f85f106d400610b9405db441ccccd64561cfab718125cf3df",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/impact.png": "24522e6e6d3e346333485a8256b32003a3635225c14b6d7c78bd779485bde074",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/impact_teary.png": "a66476629e1a00b3e025e9780fc36b2c44a591f4f8331846e6dbd3dfbbd0ba40",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/shattered.png": "f3c9937b06588b15e158e21c8b253ac63bf621092b99ebbcf2d6508e4e14704d",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/shattered_fade.png": "7f20249dda164fa93f10efe1b26ab61845e451466d3a2acddf51683e5c916710",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/teary_b.png": "12c8f8250190fbde3a769cbf1cd02b759558dc082d8b96bd61fc6d5f5a9381f7",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/teary_smile.png": "bbb4180d2f679aba1c29fafe43528100e9d600ac6e29312638a95ecc3e062e38",
+    "drafts/expression-review/reuse-final-batch/textures/patchouli/teary_smile_b.png": "bbb4180d2f679aba1c29fafe43528100e9d600ac6e29312638a95ecc3e062e38",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/blank_confused.png": "4a25558d0e3b21639fd3ec55209f6edb79fadce922c9ba29f10837dc69ea32fa",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/confused_small.png": "e079c2c107cb275a612a1c8243d2d56fda507cf01692c18d0705fd976d588f4c",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/cry_b.png": "957e48b3da4e2d6ff93fedba047ffe94b383bf4c687278ced206813e72322bb4",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/flick_dull.png": "da819f58a3befc57ba5b920c7b1f3fbc1f58bb2c0a37e707c310ca8eef9c2aa6",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/impact.png": "4ff7a379aab6b68e98d44edc495c5bd00c3bb629080d1a7a5a22f4d41207cae0",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/impact_teary.png": "adb0cb47526def09a78e68e5b01178eae3a28cc0144ea61670dc51e87633ba2d",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/shattered.png": "726bb85dfdee079147300e4afd1936cad1f87b33d70b61bee8c6ccde74a6bd0b",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/shattered_fade.png": "43f4d86aeac0687a38887410cd24e411e87a6805949b72db7f98d36c87d3de0f",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/teary_b.png": "7e47e7837e2951c045afc7167aa702b7e7463795a8db1ffc11c26bcca3ed7c8a",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/teary_smile.png": "b42b6b1e488d44a848af1ed1557d27dd49b907b6395d341c4ff0bb074e4688d8",
+    "drafts/expression-review/reuse-final-batch/textures/reimu/teary_smile_b.png": "b42b6b1e488d44a848af1ed1557d27dd49b907b6395d341c4ff0bb074e4688d8",
+    "previews/current/pending-batch-oblique.png": "2a9f96f7142334ce4dc1d4f1f3b28243e0df364e88cafb2eb6b2644a2a9cfeca",
+    "previews/current/pending-batch-page.png": "a780d05a7e0e6891fe89c5e5fcf01e281701af2cb61544d6087baf724ee72abd",
+    "previews/current/pending-batch.png": "3b8e9c9969450b9333027637597da6009a953ca7e9833e04a9ae523d9d5069e7"
+  },
+  "checks": {
+    "accepted_11_shape_texture_status_geometry_exports": "pass",
+    "atlas_slots": 660,
+    "donor_slots": 96,
+    "special_fracture_slots": 14,
+    "formal_candidate_presets_unchanged": true,
+    "all_approval_fingerprints": "pass",
+    "AB_image_differences": [
+      {
+        "pair": [
+          "N008",
+          "N009"
+        ],
+        "A_is_existing_baseline": false,
+        "angle": "front",
+        "character": 0,
+        "different_pixels": 526
+      },
+      {
+        "pair": [
+          "N008",
+          "N009"
+        ],
+        "A_is_existing_baseline": false,
+        "angle": "front",
+        "character": 1,
+        "different_pixels": 526
+      },
+      {
+        "pair": [
+          "N008",
+          "N009"
+        ],
+        "A_is_existing_baseline": false,
+        "angle": "angle-",
+        "character": 0,
+        "different_pixels": 417
+      },
+      {
+        "pair": [
+          "N008",
+          "N009"
+        ],
+        "A_is_existing_baseline": false,
+        "angle": "angle-",
+        "character": 1,
+        "different_pixels": 417
+      },
+      {
+        "pair": [
+          "N003",
+          "N003"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "front",
+        "character": 0,
+        "different_pixels": 1142
+      },
+      {
+        "pair": [
+          "N003",
+          "N003"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "front",
+        "character": 1,
+        "different_pixels": 1142
+      },
+      {
+        "pair": [
+          "N003",
+          "N003"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "angle-",
+        "character": 0,
+        "different_pixels": 1025
+      },
+      {
+        "pair": [
+          "N003",
+          "N003"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "angle-",
+        "character": 1,
+        "different_pixels": 1027
+      },
+      {
+        "pair": [
+          "N004",
+          "N004"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "front",
+        "character": 0,
+        "different_pixels": 829
+      },
+      {
+        "pair": [
+          "N004",
+          "N004"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "front",
+        "character": 1,
+        "different_pixels": 829
+      },
+      {
+        "pair": [
+          "N004",
+          "N004"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "angle-",
+        "character": 0,
+        "different_pixels": 731
+      },
+      {
+        "pair": [
+          "N004",
+          "N004"
+        ],
+        "A_is_existing_baseline": true,
+        "angle": "angle-",
+        "character": 1,
+        "different_pixels": 731
+      }
+    ],
+    "browser": {
+      "expressions": 11,
+      "characters": 2,
+      "views": 4,
+      "angles": [
+        "front",
+        "oblique"
+      ],
+      "comparisons": [
+        {
+          "code": "N075",
+          "changed": true
+        },
+        {
+          "code": "N076",
+          "changed": true
+        },
+        {
+          "code": "N077",
+          "changed": false
+        },
+        {
+          "code": "N078",
+          "changed": false
+        },
+        {
+          "code": "N079",
+          "changed": true
+        },
+        {
+          "code": "N003",
+          "changed": true
+        },
+        {
+          "code": "N004",
+          "changed": true
+        },
+        {
+          "code": "N006",
+          "changed": true
+        },
+        {
+          "code": "N007",
+          "changed": true
+        },
+        {
+          "code": "N008",
+          "changed": true
+        },
+        {
+          "code": "N009",
+          "changed": true
+        }
+      ],
+      "errors": []
+    },
+    "full_library_validation": "pass: six characters, 105 expressions each, 150 unique parts",
+    "visual": "Current front and oblique Marisa/Reimu renders inspected; fitted sheen, distinct N008/N009; retained fracture patterns are not a 3D destruction preview",
+    "not_run": "Minecraft runtime, expression-specific actions and 3D fracture stages"
+  },
+  "active_batch_count": 11,
+  "deferred": [
+    "N072"
+  ],
+  "pending_count": 12
+}

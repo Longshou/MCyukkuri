@@ -1,0 +1,400 @@
+[
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7243,
+    "name": "レイヤー 4",
+    "file": "sprite-7243.png",
+    "size": [
+      216,
+      200
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      289.07611083984375,
+      146.0761260986328
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本ボディグラベース",
+        "index": 0,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6280,
+    "name": "子顔面",
+    "file": "sprite-6280.png",
+    "size": [
+      200,
+      127
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      295.07611083984375,
+      192.0761260986328
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本顔面グラベース",
+        "index": 0,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7629,
+    "name": "れいむ：髪",
+    "file": "sprite-7629.png",
+    "size": [
+      262,
+      222
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.07611083984375,
+      171.0
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本髪グラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本髪グラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6953,
+    "name": "れいむ：髪表 のコピー",
+    "file": "sprite-6953.png",
+    "size": [
+      253,
+      222
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      271.07611083984375,
+      171.0761260986328
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本表髪グラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本表髪グラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4523,
+    "name": "れいむ：髪裏 のコピー",
+    "file": "sprite-4523.png",
+    "size": [
+      262,
+      229
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.07611083984375,
+      164.0761260986328
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本裏髪グラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本裏髪グラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5051,
+    "name": "れいむ：もみあげ",
+    "file": "sprite-5051.png",
+    "size": [
+      258,
+      114
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      267.05133056640625,
+      155.03628540039062
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本もみあげグラベース",
+        "index": 1,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 4598,
+    "name": "れいむ：おかざり",
+    "file": "sprite-4598.png",
+    "size": [
+      295,
+      154
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      251.0761260986328,
+      252.02674865722656
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本おかざりグラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本おかざりグラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7017,
+    "name": "れいむ：おかざり裏",
+    "file": "sprite-7017.png",
+    "size": [
+      295,
+      226
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      251.0761260986328,
+      180.0761260986328
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本おかざり裏グラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本おかざり裏グラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 7806,
+    "name": "れいむ：もみあげ のコピー",
+    "file": "sprite-7806.png",
+    "size": [
+      266,
+      111
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      262.0267639160156,
+      155.02674865722656
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本１もみあげグラベース",
+        "index": 1,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 6538,
+    "name": "れいむ：おかざり のコピー",
+    "file": "sprite-6538.png",
+    "size": [
+      292,
+      150
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      253.0761260986328,
+      250.05972290039062
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本１おかざりグラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本１おかざりグラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  },
+  {
+    "source": "E:\\yukkuri\\eightSight.v8.3\\ゆっくり八景U_Data\\sharedassets0.assets",
+    "id": 5930,
+    "name": "れいむ：おかざり裏 のコピー",
+    "file": "sprite-5930.png",
+    "size": [
+      292,
+      221
+    ],
+    "rect": [
+      0.0,
+      0.0,
+      800.0,
+      800.0
+    ],
+    "pivot": [
+      0.5,
+      0.30000001192092896
+    ],
+    "pixels_per_unit": 100.0,
+    "texture_rect_offset": [
+      253.0761260986328,
+      179.05819702148438
+    ],
+    "packing_settings": 64,
+    "bindings": [
+      {
+        "field": "基本１おかざり裏グラベース",
+        "index": 1,
+        "file_id": 2
+      },
+      {
+        "field": "基本１おかざり裏グラベース",
+        "index": 6,
+        "file_id": 2
+      }
+    ]
+  }
+]

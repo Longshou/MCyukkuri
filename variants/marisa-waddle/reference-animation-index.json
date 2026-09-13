@@ -1,0 +1,262 @@
+[
+  {
+    "file": "sharedassets0.assets",
+    "id": 305,
+    "name": "LookDown"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 306,
+    "name": "LookForWard"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 307,
+    "name": "LookLeft"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 308,
+    "name": "LookRight"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 309,
+    "name": "LookUp"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 310,
+    "name": "Mimi_Chen"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 311,
+    "name": "Binta"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 312,
+    "name": "PeniPeni"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 313,
+    "name": "YukkuriDamaged"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 314,
+    "name": "YukkuriYobikake"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 315,
+    "name": "YukkuriBaked"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 316,
+    "name": "YukkuriBikkuri"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 317,
+    "name": "YukkuriFuan1"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 318,
+    "name": "YukkuriFuan4"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 319,
+    "name": "YukkuriFuan5"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 320,
+    "name": "YukkuriFuan6"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 321,
+    "name": "YukkuriRain"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 322,
+    "name": "Yukkuri_Talk"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 323,
+    "name": "YukkuriFallWall"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 324,
+    "name": "YukkuriTestMove"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 325,
+    "name": "nemui01"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 326,
+    "name": "YukkuriEat03"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 327,
+    "name": "Yukkuri_chachacha"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 328,
+    "name": "YukkuriIdle"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 329,
+    "name": "nobinobi02"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 330,
+    "name": "nemui03"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 331,
+    "name": "YukkuriMesu"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 332,
+    "name": "YukkuriDanceL02"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 333,
+    "name": "nemui02"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 334,
+    "name": "YukkuriOsu"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 335,
+    "name": "YukkuriSurisuri"
+  },
+  {
+    "file": "sharedassets0.assets",
+    "id": 336,
+    "name": "YukkuriDanceR01"
+  },
+  {
+    "file": "sharedassets1.assets",
+    "id": 49,
+    "name": "idle_03"
+  },
+  {
+    "file": "sharedassets1.assets",
+    "id": 50,
+    "name": "idle_eat"
+  },
+  {
+    "file": "sharedassets1.assets",
+    "id": 51,
+    "name": "walk"
+  },
+  {
+    "file": "sharedassets1.assets",
+    "id": 52,
+    "name": "run_fast"
+  },
+  {
+    "file": "sharedassets10.assets",
+    "id": 19,
+    "name": "DoorAnimation"
+  },
+  {
+    "file": "sharedassets2.assets",
+    "id": 506,
+    "name": "tail_chen"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 136,
+    "name": "open_door"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 137,
+    "name": "handle"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 138,
+    "name": "opening"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 139,
+    "name": "close_door"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 140,
+    "name": "open"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 141,
+    "name": "close"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 142,
+    "name": "ouverture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 143,
+    "name": "ouverture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 144,
+    "name": "ouverture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 145,
+    "name": "fermeture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 146,
+    "name": "fermeture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 147,
+    "name": "fermeture"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 148,
+    "name": "add_handle"
+  },
+  {
+    "file": "sharedassets4.assets",
+    "id": 149,
+    "name": "ouverture_small"
+  }
+]

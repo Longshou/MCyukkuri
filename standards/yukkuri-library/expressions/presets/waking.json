@@ -3,16 +3,24 @@
   "label": "刚睡醒",
   "group": "睡眠 / 生理",
   "recipe": {
-    "eyes": "normal",
-    "brows": "relaxed",
-    "mouth": "round",
-    "tears": "none",
-    "blush": "normal",
-    "effect": "drool"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "O09",
+      "face_eye_right": "N001",
+      "face_mouth": "O06",
+      "face_effect_mouth": "O06",
+      "face_brow_left": "N002",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N002",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001"
+    },
+    "retained_special": []
   },
   "eye_left": "wink",
   "parts": {
-    "face_eye_left": "expressions/parts/c653606d56066e4f2904.png",
+    "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
     "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
@@ -20,8 +28,8 @@
     "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
-    "face_effect_mouth": "expressions/parts/3ebf6c7bfe6b460cd049.png"
+    "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+    "face_effect_mouth": "expressions/parts/48de96a6e005fcba17dd.png"
   },
   "sources": [
     {
@@ -32,10 +40,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User selected reused-batch review version on 2026-09-12",
   "aliases": [],
   "review_code": "N018",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "接受复用后的 N018 当前展示版。"
+  }
 }

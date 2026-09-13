@@ -1,0 +1,209 @@
+{
+  "version": "U9.8",
+  "asset": "E:\\yukkuri\\テスト版ゆっくり八景U.v9.8\\ゆっくり八景U_Data\\sharedassets0.assets",
+  "asset_sha256": "81584ccc8c834f5229c180b8d6d3cf37ed0f3d00fb339fc3fde960b1b5b48844",
+  "mapping": "E:/yukkuri/Eight景U-ModLab/wiki/art/native-sprite-index.json",
+  "viewed_layers": [
+    {
+      "id": 6699,
+      "field": "基本カビ１グラベース[0]",
+      "sprite_name": "レイヤー 30",
+      "image_sha256": "a13569ac6a9cfd055bde2302c01dcbea14d5899d977801f4318643caec65e5aa",
+      "size": [
+        213,
+        149
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        290.07611083984375,
+        148.02674865722656
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 5461,
+      "field": "基本カビ２グラベース[0]",
+      "sprite_name": "レイヤー 23",
+      "image_sha256": "60bc219b8309588cdb1ee8807f0333189577a33bbfa36cfecdcbef46cbb2d14f",
+      "size": [
+        213,
+        160
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        290.07611083984375,
+        185.0761260986328
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 6315,
+      "field": "傷グラベース[0]（索引图名：まりさ）",
+      "sprite_name": "傷：まりさ",
+      "image_sha256": "6a7aea3dc5913870ef0c11457cf36513b5bc847ae9815032980a8bed416d2e94",
+      "size": [
+        33,
+        74
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        327.0129089355469,
+        154.02674865722656
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 6010,
+      "field": "干物１ボディグラベース[0]",
+      "sprite_name": "レイヤー 4 のコピー 2",
+      "image_sha256": "d845d5abc5df268f2e781015d363e10b6e5cbffbd9847bf97b977ee2c30b9a10",
+      "size": [
+        205,
+        233
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        295.07611083984375,
+        113.07611846923828
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 5970,
+      "field": "潰れ１ボディグラベース[0]",
+      "sprite_name": "レイヤー 4 のコピー 5",
+      "image_sha256": "ba2635cc227955226f5f6d8de7e1f86fa95b4650bcfcb13950b6f5503438fd89",
+      "size": [
+        216,
+        209
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        289.07611083984375,
+        137.01290893554688
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 4686,
+      "field": "潰れ１中身グラベース[0]",
+      "sprite_name": "共通",
+      "image_sha256": "86c052548d734b82d86683bd35b0e2f1ff0749de6754cee6f3bb5ebb5fa77284",
+      "size": [
+        95,
+        66
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        374.07611083984375,
+        134.0761260986328
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 7348,
+      "field": "基本ボディグラベース[0]",
+      "sprite_name": "レイヤー 4",
+      "image_sha256": "eb225d31cbc440f36c1360ef55a8c0e49b7150bd3099a6187050d9d9a2b24941",
+      "size": [
+        216,
+        200
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        289.07611083984375,
+        146.0761260986328
+      ],
+      "packing_settings": 64
+    },
+    {
+      "id": 6346,
+      "field": "基本足焼きグラベース[0]",
+      "sprite_name": "レイヤー 31",
+      "image_sha256": "d4a913f030b77bac059c4e012aa72b187a2dc1445ba290b31b98da0182e3d2d7",
+      "size": [
+        198,
+        66
+      ],
+      "rect": [
+        0.0,
+        0.0,
+        800.0,
+        800.0
+      ],
+      "pivot": [
+        0.5,
+        0.30000001192092896
+      ],
+      "texture_rect_offset": [
+        295.0267639160156,
+        148.02674865722656
+      ],
+      "packing_settings": 64
+    }
+  ],
+  "scope": "cropped source layers, not full in-game character compositions; pixels not used in exported textures"
+}

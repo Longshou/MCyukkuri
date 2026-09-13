@@ -1,0 +1,266 @@
+{
+  "status": "selected-approved-expressions-runtime-adaptation",
+  "expressions": [
+    "closed_smile",
+    "chewing",
+    "chewing_closed",
+    "satisfied",
+    "open_smile"
+  ],
+  "standard_confirmation": "standards/yukkuri-library/provenance/standard-expressions.json",
+  "standard_confirmation_sha256": "c6c806d46853e511740203d8c887a26cd92ad539fd5de7a42188f8dd2de95284",
+  "entities": {
+    "reimu": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
+      "model_sha256": "25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/reimu/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/closed_smile.png",
+          "sha256": "9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/reimu/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/chewing.png",
+          "sha256": "891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/reimu/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/chewing_closed.png",
+          "sha256": "38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/reimu/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/satisfied.png",
+          "sha256": "6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/reimu/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/open_smile.png",
+          "sha256": "30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc"
+        }
+      }
+    },
+    "marisa": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+      "model_sha256": "fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/marisa/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/closed_smile.png",
+          "sha256": "acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/marisa/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/chewing.png",
+          "sha256": "a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/marisa/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/chewing_closed.png",
+          "sha256": "d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/marisa/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/satisfied.png",
+          "sha256": "4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/marisa/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/open_smile.png",
+          "sha256": "23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875"
+        }
+      }
+    },
+    "alice": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
+      "model_sha256": "ebfbe7b738c02203e5a798e989144f1ae36f83152a0306d47911c38b634dcacb",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/alice/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/alice/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/closed_smile.png",
+          "sha256": "261ba52482ce40e6e1ece7f84f67ea99bef8960e2fbbb56ff42e71723473368f"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/alice/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/alice/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/chewing.png",
+          "sha256": "4865fd3e5df41f00a7de8f0e2bc862fbab72689d078efa1bc9897cc36422af8f"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/alice/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/alice/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/chewing_closed.png",
+          "sha256": "f929519d1b11a05186db4bc70b0807b503cab88e886cbb2ab882eb2327e3158d"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/alice/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/alice/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/satisfied.png",
+          "sha256": "365f012fb9f96a325705849e29fd2de7f8cd1bd0163d1abeb684762f49c21c3f"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/alice/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/alice/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/open_smile.png",
+          "sha256": "427440a40ce193255cc00811258edf97f7adc5d1f5b78f18d756d0bf2abf43b0"
+        }
+      }
+    },
+    "chen": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
+      "model_sha256": "da6f19137c09d695ff2b61a4c716c5508a09612e49707f251c0111a58d8e3d87",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/chen/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/chen/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/closed_smile.png",
+          "sha256": "1a34520ba4e59bc72143850b3f15cdb752145d4ff5892f53c4bac3ccb2465cac"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/chen/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/chen/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/chewing.png",
+          "sha256": "6ce76d13e7e1228bab4d8a739843c23ae9636b88227177cfeaf54aad8e59a504"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/chen/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/chen/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/chewing_closed.png",
+          "sha256": "53afd0d0809d8dc51c214ddd36246b7d266b2bf81f81ea9c3e2fcd76ae94b0cf"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/chen/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/chen/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/satisfied.png",
+          "sha256": "c8e8b9d3d7a459733352a92dc1d5ca46d430ade950311228fde9c9c7a5cfb216"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/chen/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/chen/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/open_smile.png",
+          "sha256": "f00d6eabfc7a4c71ea32a992ee1871f8b8bbb5183e1d30d6ed13b5407cc2d6dc"
+        }
+      }
+    },
+    "patchouli": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
+      "model_sha256": "1b5b6245647107eb8d134bc2ee54a971f88cf4d0f0d2076cb3d041bac7ccd290",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/patchouli/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/patchouli/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/closed_smile.png",
+          "sha256": "c5d4e1954d04f9ab8cc3fd69169face02eb05f62db5b02c5e1d5e6b2800a2a20"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/patchouli/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/patchouli/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/chewing.png",
+          "sha256": "4c766ae9c3ead2072e5d682d97bde09333086205520921c8661ecf67102e996d"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/patchouli/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/patchouli/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/chewing_closed.png",
+          "sha256": "e7a6b481478d60bb8055c5600ec942b2349be2d62ec664af3de886b5951ef519"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/patchouli/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/patchouli/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/satisfied.png",
+          "sha256": "0bb1c5d04530aaf85d35548161fa3ac6fe371a844f66e5c50ea207ef7d87dbac"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/patchouli/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/patchouli/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/open_smile.png",
+          "sha256": "86d50463e83a8a9e5560d987cdef1d822a805c354247c9d42753b89b132758eb"
+        }
+      }
+    },
+    "house_reimu": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
+      "model_sha256": "e7f171042ee5348d225808d231caeff044e80502c963193acb1b36f6d06cc01a",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/house_reimu/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/closed_smile.png",
+          "sha256": "9ad775ee7913a3e5ff0d3d8f55ebe1b00d1094f62d03864a3a741e25cf417e96"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/house_reimu/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/chewing.png",
+          "sha256": "891e338183663a384624e3eee343993596ec534a67b142cc6b3d4f8617c6a8bd"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/house_reimu/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/chewing_closed.png",
+          "sha256": "38b2fed4bbf34f6b08152d727467ba5ce37b8572c85a1c0fa0b631fe6b608962"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/house_reimu/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/satisfied.png",
+          "sha256": "6080bd0c201475a8bf6f48ee1dd2018a33b1a0a3998f58adc82dbcec02306359"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/reimu/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/house_reimu/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/open_smile.png",
+          "sha256": "30bbb90fc520294c27a5341a536f9a78438e6dd01f49355e38aece16573d5efc"
+        }
+      }
+    },
+    "house_marisa": {
+      "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+      "model_sha256": "993d71e26d4cfbe925d0d5a813af98955d26e8de02c2c3c579012195aab9d560",
+      "textures": {
+        "closed_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/closed_smile.png",
+          "snapshot": "art/source/ecology/textures/house_marisa/closed_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/closed_smile.png",
+          "sha256": "acc3d8f46dd43a5af8efc0a3ee8b3daa6405a5b9dbeef228f8d847380cdf3fe7"
+        },
+        "chewing": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing.png",
+          "snapshot": "art/source/ecology/textures/house_marisa/chewing.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/chewing.png",
+          "sha256": "a39445b24cecfd133b1ef01eed254fc342084dc98156206e0f79ae27a11c4030"
+        },
+        "chewing_closed": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/chewing_closed.png",
+          "snapshot": "art/source/ecology/textures/house_marisa/chewing_closed.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/chewing_closed.png",
+          "sha256": "d99e040a4b1715c74e77b9e2fb97eef098bac4c9ce1fdb2b8e2b23847fb852ad"
+        },
+        "satisfied": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/satisfied.png",
+          "snapshot": "art/source/ecology/textures/house_marisa/satisfied.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/satisfied.png",
+          "sha256": "4fc20b4c26c3cf79ef9d57b192df367baa1f4af463e8b41aeb64e74a4d452e4b"
+        },
+        "open_smile": {
+          "source": "standards/yukkuri-library/assembled/marisa/textures/open_smile.png",
+          "snapshot": "art/source/ecology/textures/house_marisa/open_smile.png",
+          "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/open_smile.png",
+          "sha256": "23130c29b838732e18f016ca6489f71e5ed00be32d3edcfa23645a95e54e7875"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "display": {
+    "icon": {
+      "id": "mcyukkuri:food_bowl"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.supplies.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.supplies.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "mcyukkuri:food_bowl"
+            ]
+          },
+          {
+            "items": [
+              "mcyukkuri:yukkuri_nest"
+            ]
+          },
+          {
+            "items": [
+              "mcyukkuri:yukkuri_toilet"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ],
+  "parent": "mcyukkuri:survival/root"
+}

@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/paper"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 98001
+      },
+      "model": "yukkuri:item/marisa"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 98002
+      },
+      "model": "minecraft:item/paper_plain"
+    }
+  ]
+}

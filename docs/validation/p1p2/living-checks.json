@@ -1,0 +1,397 @@
+[
+  {
+    "name": "recipe decoded field_notebook",
+    "pass": true,
+    "detail": "field_notebook"
+  },
+  {
+    "name": "recipe decoded food_bowl",
+    "pass": true,
+    "detail": "food_bowl"
+  },
+  {
+    "name": "recipe decoded yukkuri_carrier",
+    "pass": true,
+    "detail": "yukkuri_carrier"
+  },
+  {
+    "name": "recipe decoded yukkuri_nest",
+    "pass": true,
+    "detail": "yukkuri_nest"
+  },
+  {
+    "name": "recipe decoded yukkuri_toilet",
+    "pass": true,
+    "detail": "yukkuri_toilet"
+  },
+  {
+    "name": "recipe decoded wash_cloth",
+    "pass": true,
+    "detail": "wash_cloth"
+  },
+  {
+    "name": "recipe decoded yarn_ball",
+    "pass": true,
+    "detail": "yarn_ball"
+  },
+  {
+    "name": "recipe decoded teaching_whistle",
+    "pass": true,
+    "detail": "teaching_whistle"
+  },
+  {
+    "name": "plains discovers both ordinary variants",
+    "pass": true,
+    "detail": "[minecraft:sheep*(4-4):12, minecraft:pig*(4-4):10, minecraft:chicken*(4-4):10, minecraft:cow*(4-4):8, minecraft:horse*(2-6):5, minecraft:donkey*(1-3):1, mcyukkuri:reimu*(1-2):6, mcyukkuri:marisa*(1-2):6]"
+  },
+  {
+    "name": "house variants are not normal biome spawns",
+    "pass": true,
+    "detail": "[minecraft:sheep*(4-4):12, minecraft:pig*(4-4):10, minecraft:chicken*(4-4):10, minecraft:cow*(4-4):8, minecraft:horse*(2-6):5, minecraft:donkey*(1-3):1, mcyukkuri:reimu*(1-2):6, mcyukkuri:marisa*(1-2):6]"
+  },
+  {
+    "name": "ordinary spawn predicate accepts dry daylight",
+    "pass": true,
+    "detail": "BlockPos{x\u003d82, y\u003d65, z\u003d3}"
+  },
+  {
+    "name": "local population cap rejects another spawn",
+    "pass": true,
+    "detail": "8"
+  },
+  {
+    "name": "hand feed owns one real item before nutrition",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,Feeder:[I;1469682831,1976320957,-1798086295,-1235528004],GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:1,Mouth:{count:1,id:\"minecraft:apple\"},Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "second hand feed cannot reserve another item",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,Feeder:[I;1469682831,1976320957,-1798086295,-1235528004],GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:1,Mouth:{count:1,id:\"minecraft:apple\"},Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "chewing holds food without healing",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:20L,Bladder:0.0f,Energy:80.0f,EnergyProgress:20,Feeder:[I;1469682831,1976320957,-1798086295,-1235528004],GoldMedal:0b,HungerProgress:20,Hygiene:100.0f,HygieneProgress:20,MealTicks:21,Mouth:{count:1,id:\"minecraft:apple\"},Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:180,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003dchew; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "swallow consumes held food and grants nutrition once",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:75L,Bladder:10.0f,Energy:80.0f,EnergyProgress:75,GoldMedal:0b,HungerProgress:75,Hygiene:100.0f,HygieneProgress:75,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:8}]},RestWait:125,SharedMeal:0b,SocialWait:208,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "full nutrition rejects food even when injured",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:75L,Bladder:10.0f,Energy:80.0f,EnergyProgress:75,GoldMedal:0b,HungerProgress:75,Hygiene:100.0f,HygieneProgress:75,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:8}]},RestWait:125,SharedMeal:0b,SocialWait:208,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "injury returns the one unswallowed item",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,-2,0,0,-1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "repeated interruption cannot duplicate food",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,-2,0,0,-1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "NBT preserves identity and unswallowed ownership",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:20L,Bladder:0.0f,Energy:80.0f,EnergyProgress:20,Feeder:[I;1469682831,1976320957,-1798086295,-1235528004],GoldMedal:0b,HungerProgress:20,Hygiene:100.0f,HygieneProgress:20,MealTicks:21,Mouth:{count:1,id:\"minecraft:apple\"},Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:180,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "restored meal settles once",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:80L,Bladder:10.0f,Energy:80.0f,EnergyProgress:80,GoldMedal:0b,HungerProgress:80,Hygiene:100.0f,HygieneProgress:80,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:8}]},RestWait:120,SharedMeal:0b,SocialWait:203,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "distant stack loses one item after complete meal",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:10.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:40,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.89943211952611, 65.0, 24.5)"
+  },
+  {
+    "name": "bowl transfers only one serving",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:10.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:40,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(100.23990789143451, 65.0, 26.199391677655008); bowl\u003d2"
+  },
+  {
+    "name": "bowl inventory survives native NBT",
+    "pass": true,
+    "detail": "{Items:[{Slot:0b,count:2,id:\"minecraft:apple\"}],Waste:0,id:\"mcyukkuri:care\",x:99,y:65,z:24}"
+  },
+  {
+    "name": "breaking bowl drops its remaining food once",
+    "pass": true,
+    "detail": "2"
+  },
+  {
+    "name": "empty bowl does not trap food search",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:10.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,Nutrition:80.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:40,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(99.94918861959013, 65.0, 25.423366391579624)"
+  },
+  {
+    "name": "unreachable nearest bowl does not starve a consumer",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:250L,Bladder:10.0f,Energy:79.0f,EnergyProgress:90,GoldMedal:0b,HungerProgress:10,Hygiene:100.0f,HygieneProgress:250,MealTicks:0,Nutrition:79.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:0,SharedMeal:0b,SocialWait:191,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(101.68440844598129, 65.0, 26.496707311429127)"
+  },
+  {
+    "name": "two consumers cannot both eat one item",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:140L,Bladder:10.0f,Energy:80.0f,EnergyProgress:140,GoldMedal:0b,HungerProgress:140,Hygiene:100.0f,HygieneProgress:140,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:60,SharedMeal:0b,SocialWait:144,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.17880255375033, 65.0, 24.01437738395924); other\u003d40.0"
+  },
+  {
+    "name": "competition affects an actual nearby observer",
+    "pass": true,
+    "detail": "A-\u003eB\u003d0 B-\u003eA\u003d-1"
+  },
+  {
+    "name": "sharing transfers existing food instead of copying it",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:100L,Bladder:0.0f,Energy:80.0f,EnergyProgress:100,GoldMedal:0b,HungerProgress:100,Hygiene:100.0f,HygieneProgress:100,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,1,0,0],Innate:[I;20,20,50,100,80,80],Lessons:0,Players:[]},RestWait:100,SharedMeal:0b,SocialWait:125,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(97.3914642475311, 65.0, 26.047522996174497); other\u003d40.0"
+  },
+  {
+    "name": "recipient remembers the donor directionally",
+    "pass": true,
+    "detail": "10"
+  },
+  {
+    "name": "mobGriefing protects facility food",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:100L,Bladder:0.0f,Energy:80.0f,EnergyProgress:100,GoldMedal:0b,HungerProgress:100,Hygiene:100.0f,HygieneProgress:100,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:100,SharedMeal:0b,SocialWait:120,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(97.41516874372633, 65.0, 26.131191876886543)"
+  },
+  {
+    "name": "reachable sheltered nest can be claimed",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:5L,Bladder:0.0f,Energy:80.0f,EnergyProgress:5,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28587302404161L,HungerProgress:5,Hygiene:100.0f,HygieneProgress:5,MealTicks:0,NaturalHome:0b,Nutrition:60.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:195,SharedMeal:0b,SocialWait:215,Version:1,Wetness:0.0f}; behavior\u003dpeer; position\u003d(104.5, 65.0, 17.5)"
+  },
+  {
+    "name": "nest capacity prevents a second resident",
+    "pass": true,
+    "detail": "0c0e4988-fd0e-43fb-8565-081e8f127d62"
+  },
+  {
+    "name": "destroyed home is replaced by another nest",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:245L,Bladder:0.0f,Energy:79.0f,EnergyProgress:85,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:30236569845825L,HungerProgress:5,Hygiene:100.0f,HygieneProgress:245,MealTicks:0,NaturalHome:0b,Nutrition:89.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:0,SharedMeal:0b,SocialWait:160,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(106.27628315348969, 65.0, 20.231264141041432)"
+  },
+  {
+    "name": "rain sends resident to actual cover",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:406L,Bladder:0.0f,Energy:78.0f,EnergyProgress:86,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:30236569845825L,HungerProgress:166,Hygiene:99.0f,HygieneProgress:106,MealTicks:0,NaturalHome:0b,Nutrition:89.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:0,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003dreturn_home; position\u003d(110.5, 65.0, 19.2868339560901)"
+  },
+  {
+    "name": "sleep has an enter phase then recovers energy",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:452L,Bladder:0.0f,Energy:17.0f,EnergyProgress:132,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:30236569845825L,HungerProgress:212,Hygiene:99.0f,HygieneProgress:152,MealTicks:0,NaturalHome:0b,Nutrition:89.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:0,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003dsleep; position\u003d(110.5, 65.0, 19.5)"
+  },
+  {
+    "name": "sleep recovers and wakes",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:712L,Bladder:0.0f,Energy:99.0f,EnergyProgress:72,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:30236569845825L,HungerProgress:232,Hygiene:98.0f,HygieneProgress:112,MealTicks:0,NaturalHome:0b,Nutrition:88.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:1136,SharedMeal:0b,SocialWait:157,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(110.5, 65.0, 19.5)"
+  },
+  {
+    "name": "toilet accounts for actual need",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:0.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,NaturalHome:1b,Nutrition:90.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:40,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(97.42841817406095, 65.0, 26.209178337572872) waste\u003d2"
+  },
+  {
+    "name": "toilet capacity is finite",
+    "pass": true,
+    "detail": "8"
+  },
+  {
+    "name": "cleaning transfers accumulated waste once",
+    "pass": true,
+    "detail": "8"
+  },
+  {
+    "name": "cleaning an empty tray creates no more waste",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "brief wash cleans without immersion damage",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:70.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:4}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:5.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "dry cloth cannot clean or gain more trust",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:70.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:4}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:5.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "normal navigation rejects a water crossing",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(84.5, 65.0, 42.5)"
+  },
+  {
+    "name": "food does not lure ordinary species across water",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:0.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:40,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(86.24437706087409, 65.0, 42.5)"
+  },
+  {
+    "name": "fallen individual tries and reaches dry shore",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:0.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,Nutrition:90.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:42,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(117.4990618570803, 65.0, 39.35824261645251)"
+  },
+  {
+    "name": "continued rain differs from brief washing",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:125L,Bladder:0.0f,Energy:80.0f,EnergyProgress:45,GoldMedal:0b,HungerProgress:45,Hygiene:100.0f,HygieneProgress:45,MealTicks:0,Nutrition:90.0f,Personality:{Experience:[I;0,0,-2,0,0,-1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:155,SharedMeal:0b,SocialWait:0,Version:1,Wetness:62.0f}; behavior\u003dflee; position\u003d(132.257671832891, 65.0, 50.88767999703603)"
+  },
+  {
+    "name": "fire cancels leisure and starts escape",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:5L,Bladder:0.0f,Energy:80.0f,EnergyProgress:5,GoldMedal:0b,HungerProgress:5,Hygiene:100.0f,HygieneProgress:5,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,-2,0,0,-1],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:195,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003dflee; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "capture gives custody of one UUID",
+    "pass": true,
+    "detail": "a99e98fc-574c-4be9-b474-d81c660db7a9"
+  },
+  {
+    "name": "custody survives SavedData serialization",
+    "pass": true,
+    "detail": "{Captives:[{Data:{AbsorptionAmount:0.0f,Air:300s,ArmorDropChances:[0.085f,0.085f,0.085f,0.085f],ArmorItems:[{},{},{},{}],Brain:{memories:{}},CanPickUpLoot:0b,DeathTime:0s,FallDistance:0.0f,FallFlying:0b,Fire:-1s,HandDropChances:[0.085f,0.085f],HandItems:[{},{}],Health:10.0f,HurtByTimestamp:0,HurtTime:0s,Invulnerable:0b,LeftHanded:0b,Motion:[0.0d,0.0d,0.0d],OnGround:0b,PersistenceRequired:1b,PortalCooldown:0,Pos:[96.5d,65.0d,24.5d],Rotation:[0.0f,0.0f],Tags:[\"living_case\"],UUID:[I;618160753,273567519,-2146135048,980581095],YukkuriFoodCooldown:0,YukkuriLife:{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f},YukkuriRestDelay:600,attributes:[],id:\"mcyukkuri:reimu\"},Entity:[I;618160753,273567519,-2146135048,980581095],Token:[I;-1449223940,1464617961,-1267410916,1712175017]}],Relations:[{Affinity:2,From:[I;528480783,1586252339,-1815593930,-1729890994],To:[I;-1734913824,-1473493949,-1452880284,1636626636]},{Affinity:8,From:[I;-415372477,568871779,-1898959677,-1440926991],To:[I;1504533968,-1907472057,-2037851516,591303604]},{Affinity:2,From:[I;-301190853,1264599257,-1353736188,906964855],To:[I;1159905510,-1895086333,-1181315778,-1531487760]},{Affinity:2,From:[I;-2139945699,2001094880,-1178386700,-855363789],To:[I;-229029400,-1167373637,-1937465968,-1454091983]},{Affinity:2,From:[I;886187015,-1775221982,-1798735817,1223183812],To:[I;-1497752306,-1142734047,-1289887743,1391549915]},{Affinity:2,From:[I;55197874,1455243914,-1482129316,1868575214],To:[I;389825073,-45923980,-2133269556,2104583581]},{Affinity:2,From:[I;2109542903,1533169574,-1391152416,-1878067496],To:[I;-1868805687,-17350431,-1453114109,-1625788263]},{Affinity:2,From:[I;1819822377,216221329,-1656413324,1812307934],To:[I;-826255303,796871547,-1797865552,227602844]},{Affinity:-1,From:[I;941822593,1348094603,-1776366488,-1316726251],To:[I;-1084690157,1520845304,-1567783676,-863285900]},{Affinity:2,From:[I;-1868805687,-17350431,-1453114109,-1625788263],To:[I;2109542903,1533169574,-1391152416,-1878067496]},{Affinity:2,From:[I;1678619775,862866734,-1551105681,1403801413],To:[I;-1695484635,557403993,-1999696536,818889413]},{Affinity:37,From:[I;1283673223,-1816641311,-1970800449,2117156187],To:[I;1116861314,134169369,-2135020751,-438098567]},{Affinity:-1,From:[I;-1454032806,-301772823,-1972677870,-1644662803],To:[I;-1367338706,-1873655129,-1464959354,-1200465181]},{Affinity:-3,From:[I;877902780,-2026878520,-1417791206,-1184140085],To:[I;-1827918844,-639416333,-1461179320,-1605421506]},{Affinity:2,From:[I;-497197429,-1628222924,-1248032061,-1761016864],To:[I;-1840082394,2143571305,-1277335510,-2017568656]},{Affinity:-1,From:[I;1815567687,-291681674,-2143953208,-662215488],To:[I;-2134677727,1651589831,-1244542501,-623759377]},{Affinity:10,From:[I;-538709305,546848793,-1328249346,2084917461],To:[I;-1641473940,-1291303128,-1800332173,493105826]},{Affinity:2,From:[I;-271466233,-1085651243,-1368758648,713790929],To:[I;-474086067,-1243921398,-1831140773,1060748014]},{Affinity:2,From:[I;-1324593128,-932557867,-1769492034,-1296446093],To:[I;-1253615076,-663862034,-1835345866,2052998782]},{Affinity:37,From:[I;-1253615076,-663862034,-1835345866,2052998782],To:[I;-1324593128,-932557867,-1769492034,-1296446093]},{Affinity:2,From:[I;1116861314,134169369,-2135020751,-438098567],To:[I;1283673223,-1816641311,-1970800449,2117156187]},{Affinity:2,From:[I;-229029400,-1167373637,-1937465968,-1454091983],To:[I;-2139945699,2001094880,-1178386700,-855363789]},{Affinity:2,From:[I;-1840082394,2143571305,-1277335510,-2017568656],To:[I;-497197429,-1628222924,-1248032061,-1761016864]},{Affinity:2,From:[I;-1813084147,-453164318,-1317166655,-1629252403],To:[I;202262920,-49396741,-2056976354,-1894613662]},{Affinity:10,From:[I;-1375578785,-1617410022,-2005305659,-1592648876],To:[I;94909576,213861464,-1379650815,831172245]},{Affinity:2,From:[I;-2135712589,638209092,-1213714761,668078102],To:[I;933716062,1133725943,-1882707831,565878813]},{Affinity:2,From:[I;-474086067,-1243921398,-1831140773,1060748014],To:[I;-271466233,-1085651243,-1368758648,713790929]},{Affinity:2,From:[I;933716062,1133725943,-1882707831,565878813],To:[I;-2135712589,638209092,-1213714761,668078102]},{Affinity:2,From:[I;1159905510,-1895086333,-1181315778,-1531487760],To:[I;-301190853,1264599257,-1353736188,906964855]},{Affinity:-1,From:[I;-1235704417,-156480823,-2075850995,-2004980227],To:[I;1413226066,1185434722,-1657701785,-588440975]},{Affinity:2,From:[I;-826255303,796871547,-1797865552,227602844],To:[I;1819822377,216221329,-1656413324,1812307934]},{Affinity:2,From:[I;944196328,-1855959083,-1831284986,-2041001430],To:[I;-1318416457,1218791775,-1582429448,1085933638]},{Affinity:8,From:[I;559546863,-1007333671,-1978602016,-544935766],To:[I;-272147515,1114458797,-1448321436,-1550172678]},{Affinity:37,From:[I;-1695484635,557403993,-1999696536,818889413],To:[I;1678619775,862866734,-1551105681,1403801413]},{Affinity:2,From:[I;202262920,-49396741,-2056976354,-1894613662],To:[I;-1813084147,-453164318,-1317166655,-1629252403]},{Affinity:37,From:[I;-1318416457,1218791775,-1582429448,1085933638],To:[I;944196328,-1855959083,-1831284986,-2041001430]},{Affinity:-1,From:[I;2030851670,-694532976,-1693549374,-1783982123],To:[I;975935465,-1601877428,-1499712016,-307540616]},{Affinity:2,From:[I;-1260380985,-245479209,-1209070252,-695049614],To:[I;1235379360,1583107527,-1376910916,-2119348152]},{Affinity:8,From:[I;320053030,1204571801,-1172423583,-1432095556],To:[I;630976232,1801995850,-1579928022,-523090557]}],Version:1}"
+  },
+  {
+    "name": "blocked release keeps the captive",
+    "pass": true,
+    "detail": "a99e98fc-574c-4be9-b474-d81c660db7a9"
+  },
+  {
+    "name": "release preserves identity and paused physiology",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "copied used token cannot duplicate an entity",
+    "pass": true,
+    "detail": "a99e98fc-574c-4be9-b474-d81c660db7a9"
+  },
+  {
+    "name": "players have separate trust and fear",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:8,Interactions:1,Player:[I;383080918,-2055060515,-1110941670,288036132],TalkWait:240,Trust:-6},{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:240,Trust:3}]},RestWait:200,SharedMeal:0b,SocialWait:400,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "repeated talk respects a per-player cooldown",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:8,Interactions:1,Player:[I;383080918,-2055060515,-1110941670,288036132],TalkWait:240,Trust:-6},{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:240,Trust:3}]},RestWait:200,SharedMeal:0b,SocialWait:400,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "observation does not alter experience or memories",
+    "pass": true,
+    "detail": "{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:8,Interactions:1,Player:[I;383080918,-2055060515,-1110941670,288036132],TalkWait:240,Trust:-6},{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:240,Trust:3}]}"
+  },
+  {
+    "name": "same species has different approach willingness",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;90,90,90,90,90,90],Lessons:0,Players:[{Fear:8,Interactions:1,Player:[I;383080918,-2055060515,-1110941670,288036132],TalkWait:240,Trust:-6},{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:240,Trust:3}]},RestWait:200,SharedMeal:0b,SocialWait:400,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "acquaintances are directed",
+    "pass": true,
+    "detail": "{Captives:[],Relations:[{Affinity:2,From:[I;528480783,1586252339,-1815593930,-1729890994],To:[I;-1734913824,-1473493949,-1452880284,1636626636]},{Affinity:8,From:[I;-415372477,568871779,-1898959677,-1440926991],To:[I;1504533968,-1907472057,-2037851516,591303604]},{Affinity:2,From:[I;-301190853,1264599257,-1353736188,906964855],To:[I;1159905510,-1895086333,-1181315778,-1531487760]},{Affinity:2,From:[I;-2139945699,2001094880,-1178386700,-855363789],To:[I;-229029400,-1167373637,-1937465968,-1454091983]},{Affinity:2,From:[I;886187015,-1775221982,-1798735817,1223183812],To:[I;-1497752306,-1142734047,-1289887743,1391549915]},{Affinity:2,From:[I;55197874,1455243914,-1482129316,1868575214],To:[I;389825073,-45923980,-2133269556,2104583581]},{Affinity:2,From:[I;2109542903,1533169574,-1391152416,-1878067496],To:[I;-1868805687,-17350431,-1453114109,-1625788263]},{Affinity:2,From:[I;1819822377,216221329,-1656413324,1812307934],To:[I;-826255303,796871547,-1797865552,227602844]},{Affinity:-1,From:[I;941822593,1348094603,-1776366488,-1316726251],To:[I;-1084690157,1520845304,-1567783676,-863285900]},{Affinity:2,From:[I;-1868805687,-17350431,-1453114109,-1625788263],To:[I;2109542903,1533169574,-1391152416,-1878067496]},{Affinity:2,From:[I;1678619775,862866734,-1551105681,1403801413],To:[I;-1695484635,557403993,-1999696536,818889413]},{Affinity:37,From:[I;1283673223,-1816641311,-1970800449,2117156187],To:[I;1116861314,134169369,-2135020751,-438098567]},{Affinity:-1,From:[I;-1454032806,-301772823,-1972677870,-1644662803],To:[I;-1367338706,-1873655129,-1464959354,-1200465181]},{Affinity:2,From:[I;1961110646,778324384,-1300366971,1588250179],To:[I;-23630369,-464698853,-1487617627,-1235594579]},{Affinity:-3,From:[I;877902780,-2026878520,-1417791206,-1184140085],To:[I;-1827918844,-639416333,-1461179320,-1605421506]},{Affinity:2,From:[I;-497197429,-1628222924,-1248032061,-1761016864],To:[I;-1840082394,2143571305,-1277335510,-2017568656]},{Affinity:-1,From:[I;1815567687,-291681674,-2143953208,-662215488],To:[I;-2134677727,1651589831,-1244542501,-623759377]},{Affinity:10,From:[I;-538709305,546848793,-1328249346,2084917461],To:[I;-1641473940,-1291303128,-1800332173,493105826]},{Affinity:2,From:[I;-271466233,-1085651243,-1368758648,713790929],To:[I;-474086067,-1243921398,-1831140773,1060748014]},{Affinity:2,From:[I;-1324593128,-932557867,-1769492034,-1296446093],To:[I;-1253615076,-663862034,-1835345866,2052998782]},{Affinity:37,From:[I;-1253615076,-663862034,-1835345866,2052998782],To:[I;-1324593128,-932557867,-1769492034,-1296446093]},{Affinity:2,From:[I;1116861314,134169369,-2135020751,-438098567],To:[I;1283673223,-1816641311,-1970800449,2117156187]},{Affinity:35,From:[I;-1373987617,-292795102,-1478321618,-878975099],To:[I;-311588780,1916488605,-2001216461,-991472712]},{Affinity:2,From:[I;-229029400,-1167373637,-1937465968,-1454091983],To:[I;-2139945699,2001094880,-1178386700,-855363789]},{Affinity:2,From:[I;-1840082394,2143571305,-1277335510,-2017568656],To:[I;-497197429,-1628222924,-1248032061,-1761016864]},{Affinity:2,From:[I;-1813084147,-453164318,-1317166655,-1629252403],To:[I;202262920,-49396741,-2056976354,-1894613662]},{Affinity:10,From:[I;-1375578785,-1617410022,-2005305659,-1592648876],To:[I;94909576,213861464,-1379650815,831172245]},{Affinity:2,From:[I;-2135712589,638209092,-1213714761,668078102],To:[I;933716062,1133725943,-1882707831,565878813]},{Affinity:2,From:[I;-474086067,-1243921398,-1831140773,1060748014],To:[I;-271466233,-1085651243,-1368758648,713790929]},{Affinity:2,From:[I;933716062,1133725943,-1882707831,565878813],To:[I;-2135712589,638209092,-1213714761,668078102]},{Affinity:2,From:[I;1159905510,-1895086333,-1181315778,-1531487760],To:[I;-301190853,1264599257,-1353736188,906964855]},{Affinity:-1,From:[I;-1235704417,-156480823,-2075850995,-2004980227],To:[I;1413226066,1185434722,-1657701785,-588440975]},{Affinity:2,From:[I;-826255303,796871547,-1797865552,227602844],To:[I;1819822377,216221329,-1656413324,1812307934]},{Affinity:2,From:[I;944196328,-1855959083,-1831284986,-2041001430],To:[I;-1318416457,1218791775,-1582429448,1085933638]},{Affinity:8,From:[I;559546863,-1007333671,-1978602016,-544935766],To:[I;-272147515,1114458797,-1448321436,-1550172678]},{Affinity:37,From:[I;-1695484635,557403993,-1999696536,818889413],To:[I;1678619775,862866734,-1551105681,1403801413]},{Affinity:2,From:[I;202262920,-49396741,-2056976354,-1894613662],To:[I;-1813084147,-453164318,-1317166655,-1629252403]},{Affinity:37,From:[I;-1318416457,1218791775,-1582429448,1085933638],To:[I;944196328,-1855959083,-1831284986,-2041001430]},{Affinity:-1,From:[I;2030851670,-694532976,-1693549374,-1783982123],To:[I;975935465,-1601877428,-1499712016,-307540616]},{Affinity:2,From:[I;-1260380985,-245479209,-1209070252,-695049614],To:[I;1235379360,1583107527,-1376910916,-2119348152]},{Affinity:8,From:[I;320053030,1204571801,-1172423583,-1432095556],To:[I;630976232,1801995850,-1579928022,-523090557]}],Version:1}"
+  },
+  {
+    "name": "missing accessory blocks recognition without erasing relation",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "target medal does not grant observer recognition",
+    "pass": true,
+    "detail": "{Accessory:0b,AccessoryToken:[I;-206025209,1899187983,-1786728621,736451198],AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:1b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:12,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:-10}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+  },
+  {
+    "name": "observer medal grants recognition",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:1b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "wrong owner cannot take returned accessory",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "return restores identity recognition",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:1b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:6,Interactions:2,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:-4}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+  },
+  {
+    "name": "old accessory copy is invalid after a later removal",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:1b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[{Fear:12,Interactions:4,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:-8}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+  },
+  {
+    "name": "relationships survive world data reload",
+    "pass": true,
+    "detail": "{Captives:[],Relations:[{Affinity:2,From:[I;528480783,1586252339,-1815593930,-1729890994],To:[I;-1734913824,-1473493949,-1452880284,1636626636]},{Affinity:8,From:[I;-415372477,568871779,-1898959677,-1440926991],To:[I;1504533968,-1907472057,-2037851516,591303604]},{Affinity:2,From:[I;-301190853,1264599257,-1353736188,906964855],To:[I;1159905510,-1895086333,-1181315778,-1531487760]},{Affinity:2,From:[I;-2139945699,2001094880,-1178386700,-855363789],To:[I;-229029400,-1167373637,-1937465968,-1454091983]},{Affinity:2,From:[I;886187015,-1775221982,-1798735817,1223183812],To:[I;-1497752306,-1142734047,-1289887743,1391549915]},{Affinity:2,From:[I;55197874,1455243914,-1482129316,1868575214],To:[I;389825073,-45923980,-2133269556,2104583581]},{Affinity:2,From:[I;2109542903,1533169574,-1391152416,-1878067496],To:[I;-1868805687,-17350431,-1453114109,-1625788263]},{Affinity:2,From:[I;1819822377,216221329,-1656413324,1812307934],To:[I;-826255303,796871547,-1797865552,227602844]},{Affinity:-1,From:[I;941822593,1348094603,-1776366488,-1316726251],To:[I;-1084690157,1520845304,-1567783676,-863285900]},{Affinity:2,From:[I;-1868805687,-17350431,-1453114109,-1625788263],To:[I;2109542903,1533169574,-1391152416,-1878067496]},{Affinity:2,From:[I;1678619775,862866734,-1551105681,1403801413],To:[I;-1695484635,557403993,-1999696536,818889413]},{Affinity:37,From:[I;1283673223,-1816641311,-1970800449,2117156187],To:[I;1116861314,134169369,-2135020751,-438098567]},{Affinity:-1,From:[I;-1454032806,-301772823,-1972677870,-1644662803],To:[I;-1367338706,-1873655129,-1464959354,-1200465181]},{Affinity:2,From:[I;1961110646,778324384,-1300366971,1588250179],To:[I;-23630369,-464698853,-1487617627,-1235594579]},{Affinity:-3,From:[I;877902780,-2026878520,-1417791206,-1184140085],To:[I;-1827918844,-639416333,-1461179320,-1605421506]},{Affinity:2,From:[I;-497197429,-1628222924,-1248032061,-1761016864],To:[I;-1840082394,2143571305,-1277335510,-2017568656]},{Affinity:-1,From:[I;1815567687,-291681674,-2143953208,-662215488],To:[I;-2134677727,1651589831,-1244542501,-623759377]},{Affinity:10,From:[I;-538709305,546848793,-1328249346,2084917461],To:[I;-1641473940,-1291303128,-1800332173,493105826]},{Affinity:2,From:[I;-271466233,-1085651243,-1368758648,713790929],To:[I;-474086067,-1243921398,-1831140773,1060748014]},{Affinity:2,From:[I;-1324593128,-932557867,-1769492034,-1296446093],To:[I;-1253615076,-663862034,-1835345866,2052998782]},{Affinity:37,From:[I;-1253615076,-663862034,-1835345866,2052998782],To:[I;-1324593128,-932557867,-1769492034,-1296446093]},{Affinity:2,From:[I;1116861314,134169369,-2135020751,-438098567],To:[I;1283673223,-1816641311,-1970800449,2117156187]},{Affinity:35,From:[I;-1373987617,-292795102,-1478321618,-878975099],To:[I;-311588780,1916488605,-2001216461,-991472712]},{Affinity:2,From:[I;-229029400,-1167373637,-1937465968,-1454091983],To:[I;-2139945699,2001094880,-1178386700,-855363789]},{Affinity:2,From:[I;-1840082394,2143571305,-1277335510,-2017568656],To:[I;-497197429,-1628222924,-1248032061,-1761016864]},{Affinity:2,From:[I;-1813084147,-453164318,-1317166655,-1629252403],To:[I;202262920,-49396741,-2056976354,-1894613662]},{Affinity:10,From:[I;-1375578785,-1617410022,-2005305659,-1592648876],To:[I;94909576,213861464,-1379650815,831172245]},{Affinity:2,From:[I;-2135712589,638209092,-1213714761,668078102],To:[I;933716062,1133725943,-1882707831,565878813]},{Affinity:2,From:[I;-474086067,-1243921398,-1831140773,1060748014],To:[I;-271466233,-1085651243,-1368758648,713790929]},{Affinity:2,From:[I;933716062,1133725943,-1882707831,565878813],To:[I;-2135712589,638209092,-1213714761,668078102]},{Affinity:2,From:[I;1159905510,-1895086333,-1181315778,-1531487760],To:[I;-301190853,1264599257,-1353736188,906964855]},{Affinity:-1,From:[I;-1235704417,-156480823,-2075850995,-2004980227],To:[I;1413226066,1185434722,-1657701785,-588440975]},{Affinity:2,From:[I;-826255303,796871547,-1797865552,227602844],To:[I;1819822377,216221329,-1656413324,1812307934]},{Affinity:2,From:[I;944196328,-1855959083,-1831284986,-2041001430],To:[I;-1318416457,1218791775,-1582429448,1085933638]},{Affinity:8,From:[I;559546863,-1007333671,-1978602016,-544935766],To:[I;-272147515,1114458797,-1448321436,-1550172678]},{Affinity:37,From:[I;-1695484635,557403993,-1999696536,818889413],To:[I;1678619775,862866734,-1551105681,1403801413]},{Affinity:2,From:[I;202262920,-49396741,-2056976354,-1894613662],To:[I;-1813084147,-453164318,-1317166655,-1629252403]},{Affinity:37,From:[I;-1318416457,1218791775,-1582429448,1085933638],To:[I;944196328,-1855959083,-1831284986,-2041001430]},{Affinity:-1,From:[I;2030851670,-694532976,-1693549374,-1783982123],To:[I;975935465,-1601877428,-1499712016,-307540616]},{Affinity:2,From:[I;-1260380985,-245479209,-1209070252,-695049614],To:[I;1235379360,1583107527,-1376910916,-2119348152]},{Affinity:8,From:[I;320053030,1204571801,-1172423583,-1432095556],To:[I;630976232,1801995850,-1579928022,-523090557]}],Version:1}"
+  },
+  {
+    "name": "nearby peers trigger actual greeting and relationship",
+    "pass": true,
+    "detail": "; {Accessory:1b,AgeTicks:100L,Bladder:0.0f,Energy:80.0f,EnergyProgress:100,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:100,Hygiene:100.0f,HygieneProgress:100,MealTicks:0,NaturalHome:1b,Nutrition:60.0f,Personality:{Experience:[I;0,1,0,0,0,0],Innate:[I;0,100,80,20,50,60],Lessons:0,Players:[]},RestWait:100,SharedMeal:0b,SocialWait:420,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.17393139713104, 65.0, 24.5)"
+  },
+  {
+    "name": "toy is explored without being consumed",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:180L,Bladder:0.0f,Energy:79.0f,EnergyProgress:20,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:180,Hygiene:100.0f,HygieneProgress:180,MealTicks:0,NaturalHome:1b,Nutrition:60.0f,Personality:{Experience:[I;1,0,0,0,0,0],Innate:[I;100,0,50,20,50,80],Lessons:0,Players:[]},RestWait:20,SharedMeal:0b,SocialWait:200,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "stranger cannot immediately teach",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;20,20,20,20,20,20],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "trusted player starts a lesson",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;50,40,60,50,70,80],Lessons:0,Players:[{Fear:0,Interactions:0,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:20}]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(96.5, 65.0, 24.5)"
+  },
+  {
+    "name": "completed lesson grants one experience",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:200L,Bladder:0.0f,Energy:79.0f,EnergyProgress:40,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:200,Hygiene:100.0f,HygieneProgress:200,MealTicks:0,NaturalHome:1b,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,2,2],Innate:[I;50,40,60,50,70,80],Lessons:1,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:23}]},RestWait:0,SharedMeal:0b,SocialWait:200,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "second lesson starts after cooldown",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:265L,Bladder:0.0f,Energy:79.0f,EnergyProgress:105,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:25,Hygiene:100.0f,HygieneProgress:265,MealTicks:0,NaturalHome:1b,Nutrition:59.0f,Personality:{Experience:[I;0,0,0,0,2,2],Innate:[I;50,40,60,50,70,80],Lessons:1,Players:[{Fear:0,Interactions:1,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:23}]},RestWait:0,SharedMeal:0b,SocialWait:135,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "second completed lesson is retained",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:465L,Bladder:0.0f,Energy:78.0f,EnergyProgress:145,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:225,Hygiene:99.0f,HygieneProgress:165,MealTicks:0,NaturalHome:1b,Nutrition:59.0f,Personality:{Experience:[I;0,0,0,0,4,4],Innate:[I;50,40,60,50,70,80],Lessons:2,Players:[{Fear:0,Interactions:2,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:26}]},RestWait:0,SharedMeal:0b,SocialWait:199,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "third lesson starts",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:530L,Bladder:0.0f,Energy:77.0f,EnergyProgress:50,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:50,Hygiene:99.0f,HygieneProgress:230,MealTicks:0,NaturalHome:1b,Nutrition:58.0f,Personality:{Experience:[I;0,0,0,0,4,4],Innate:[I;50,40,60,50,70,80],Lessons:2,Players:[{Fear:0,Interactions:2,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:26}]},RestWait:0,SharedMeal:0b,SocialWait:134,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "three completed lessons teach waiting",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:730L,Bladder:0.0f,Energy:76.0f,EnergyProgress:90,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:10,Hygiene:98.0f,HygieneProgress:130,MealTicks:0,NaturalHome:1b,Nutrition:57.0f,Personality:{Experience:[I;0,0,0,0,6,6],Innate:[I;50,40,60,50,70,80],Lessons:3,Players:[{Fear:0,Interactions:3,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:29}]},RestWait:0,SharedMeal:0b,SocialWait:196,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "known instruction starts waiting",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:795L,Bladder:0.0f,Energy:76.0f,EnergyProgress:155,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:75,Hygiene:98.0f,HygieneProgress:195,MealTicks:0,NaturalHome:1b,Nutrition:57.0f,Personality:{Experience:[I;0,0,0,0,6,6],Innate:[I;50,40,60,50,70,80],Lessons:3,Players:[{Fear:0,Interactions:3,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:29}]},RestWait:0,SharedMeal:0b,SocialWait:131,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "learned waiting holds position",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:825L,Bladder:0.0f,Energy:75.0f,EnergyProgress:25,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:105,Hygiene:98.0f,HygieneProgress:225,MealTicks:0,NaturalHome:1b,Nutrition:57.0f,Personality:{Experience:[I;0,0,0,0,6,6],Innate:[I;50,40,60,50,70,80],Lessons:3,Players:[{Fear:0,Interactions:3,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:29}]},RestWait:0,SharedMeal:0b,SocialWait:101,Version:1,Wetness:0.0f}; behavior\u003dwait; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "danger interrupts learned waiting",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:825L,Bladder:0.0f,Energy:75.0f,EnergyProgress:25,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:105,Hygiene:98.0f,HygieneProgress:225,MealTicks:0,NaturalHome:1b,Nutrition:57.0f,Personality:{Experience:[I;0,0,-2,0,6,5],Innate:[I;50,40,60,50,70,80],Lessons:3,Players:[{Fear:0,Interactions:3,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:29}]},RestWait:0,SharedMeal:0b,SocialWait:340,Version:1,Wetness:0.0f}; behavior\u003dwait; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  },
+  {
+    "name": "personality memories and learning survive entity reload",
+    "pass": true,
+    "detail": "{Accessory:1b,AgeTicks:825L,Bladder:0.0f,Energy:75.0f,EnergyProgress:25,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424501313L,HungerProgress:105,Hygiene:98.0f,HygieneProgress:225,MealTicks:0,NaturalHome:1b,Nutrition:57.0f,Personality:{Experience:[I;0,0,-2,0,6,5],Innate:[I;50,40,60,50,70,80],Lessons:3,Players:[{Fear:0,Interactions:3,Player:[I;1469682831,1976320957,-1798086295,-1235528004],TalkWait:0,Trust:29}]},RestWait:0,SharedMeal:0b,SocialWait:340,Version:1,Wetness:0.0f}; behavior\u003didle; position\u003d(98.28740974893988, 65.0, 27.244627751298445)"
+  }
+]

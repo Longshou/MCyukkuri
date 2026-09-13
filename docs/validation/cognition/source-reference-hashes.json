@@ -1,0 +1,11 @@
+{
+  "root": "E:\\yukkuri\\Eight景U-ModLab",
+  "readOnly": true,
+  "files": {
+    "src/Mod/WildEvents.cs": "aeecfc8bb2af3df84d7e811c6ff515a4f04de49950aa32f67ddc6946c3200e56",
+    "src/Mod/WildEcology.cs": "872a6ce4ce5c770787402005a0999513d6ec744731d060bfea5fc131369d0cd8",
+    "analysis/decompiled/menu.cs": "d22a8e629ec62ff1df3a3e8008d4b983524469247636ff6cdeefb031056fe3fa",
+    "analysis/decompiled/yu_base.cs": "bff7e83dceb58417c908e79ee4d4aab01bfd272f96441e93b0e06054d9623002",
+    "analysis/decompiled/save.cs": "a3d6157623f4cb03c1a79f755edc27e7450f227a54b056e1210005e3fe21650d"
+  }
+}

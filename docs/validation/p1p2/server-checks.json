@@ -1,0 +1,947 @@
+[
+  {
+    "name": "notebook registered in custom tab",
+    "pass": true,
+    "detail": "five entries"
+  },
+  {
+    "name": "REIMU spawn egg and both creative tabs",
+    "pass": true,
+    "detail": "entity.mcyukkuri.reimu"
+  },
+  {
+    "name": "REIMU body and initial state",
+    "pass": true,
+    "detail": "{\"uuid\":\"5a7e880a-eb3e-4ac6-a2c0-a40772fbb218\",\"networkId\":61,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "entity.mcyukkuri.reimu actual spawn-egg use",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "MARISA spawn egg and both creative tabs",
+    "pass": true,
+    "detail": "entity.mcyukkuri.marisa"
+  },
+  {
+    "name": "MARISA body and initial state",
+    "pass": true,
+    "detail": "{\"uuid\":\"21e6653d-35aa-4cb5-a4ab-008b08db778f\",\"networkId\":64,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "entity.mcyukkuri.marisa actual spawn-egg use",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "HOUSE_REIMU spawn egg and both creative tabs",
+    "pass": true,
+    "detail": "entity.mcyukkuri.house_reimu"
+  },
+  {
+    "name": "HOUSE_REIMU body and initial state",
+    "pass": true,
+    "detail": "{\"uuid\":\"5ed76f98-b6bc-4c9e-bb27-7eaf69c76575\",\"networkId\":66,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "entity.mcyukkuri.house_reimu actual spawn-egg use",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "HOUSE_MARISA spawn egg and both creative tabs",
+    "pass": true,
+    "detail": "entity.mcyukkuri.house_marisa"
+  },
+  {
+    "name": "HOUSE_MARISA body and initial state",
+    "pass": true,
+    "detail": "{\"uuid\":\"04a32d06-a0d8-4dc2-9324-4040710deb05\",\"networkId\":68,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "entity.mcyukkuri.house_marisa actual spawn-egg use",
+    "pass": true,
+    "detail": "1"
+  },
+  {
+    "name": "reimu hand feed transfers once before swallowing",
+    "pass": true,
+    "detail": "{\"uuid\":\"ee2b1857-cf9d-488f-b76c-61f788b2e6b0\",\"networkId\":70,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":6.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu busy mouth rejects another feed",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "reimu non-food rejected",
+    "pass": true,
+    "detail": "{\"uuid\":\"ee2b1857-cf9d-488f-b76c-61f788b2e6b0\",\"networkId\":70,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu explicit action blocks hand feed",
+    "pass": true,
+    "detail": "{\"uuid\":\"ee2b1857-cf9d-488f-b76c-61f788b2e6b0\",\"networkId\":70,\"variant\":\"reimu\",\"action\":\"taiso\",\"start\":4151,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu creative feed keeps stack until swallow",
+    "pass": true,
+    "detail": "{\"uuid\":\"ee2b1857-cf9d-488f-b76c-61f788b2e6b0\",\"networkId\":70,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4151,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":8.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu swallowing heals and clears held food",
+    "pass": true,
+    "detail": "{\"uuid\":\"ee2b1857-cf9d-488f-b76c-61f788b2e6b0\",\"networkId\":70,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4151,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu ground stack consumes one",
+    "pass": true,
+    "detail": "{items\u003d[{item\u003d2 minecraft:apple, x\u003d24.65, z\u003d24.5, tags\u003d[p0, p0_case], id\u003d73, count\u003d2}], itemAlive\u003dtrue, entity\u003d{\"uuid\":\"8a18a4a0-2042-4b5d-8afa-0d7ecead6195\",\"networkId\":72,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d2}"
+  },
+  {
+    "name": "reimu single item removed on eating",
+    "pass": true,
+    "detail": "{\"uuid\":\"8620ede1-c057-4f5f-ac51-8104e508ae4c\",\"networkId\":74,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu mobGriefing prevents pickup",
+    "pass": true,
+    "detail": "{\"uuid\":\"dc79ae23-c542-4a6e-a3c3-6cc32f306467\",\"networkId\":76,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu pickup delay respected",
+    "pass": true,
+    "detail": "{\"uuid\":\"af0d2f2e-2ce5-4bf1-b9cf-375e4e57d390\",\"networkId\":78,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu goal reaches and consumes distant food",
+    "pass": true,
+    "detail": "{items\u003d[], itemAlive\u003dfalse, entity\u003d{\"uuid\":\"697ef171-168e-4bb3-91a6-4250af90db70\",\"networkId\":80,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4401,\"expression\":\"happy\",\"x\":26.899432119526132,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d1}"
+  },
+  {
+    "name": "reimu natural rest enters sleep",
+    "pass": true,
+    "detail": "{\"uuid\":\"c9fdfd10-8c82-4e4d-9580-4006f75bd95b\",\"networkId\":82,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu damage immediately startles",
+    "pass": true,
+    "detail": "{\"uuid\":\"c9fdfd10-8c82-4e4d-9580-4006f75bd95b\",\"networkId\":82,\"variant\":\"reimu\",\"action\":\"startle\",\"start\":4507,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu damage interrupts rest and flees",
+    "pass": true,
+    "detail": "{\"uuid\":\"c9fdfd10-8c82-4e4d-9580-4006f75bd95b\",\"networkId\":82,\"variant\":\"reimu\",\"action\":\"flee\",\"start\":4520,\"expression\":\"surprise\",\"x\":25.55687006167525,\"y\":65.0,\"z\":23.67101993332263,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu panic expires",
+    "pass": true,
+    "detail": "{\"uuid\":\"c9fdfd10-8c82-4e4d-9580-4006f75bd95b\",\"networkId\":82,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4623,\"expression\":\"neutral\",\"x\":27.564746229463253,\"y\":65.0,\"z\":19.56299887129462,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "reimu accepts idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts stretch_shape",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"stretch_shape\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts side_bend",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"side_bend\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts waddle",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"waddle\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts puff",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"puff\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts brace",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"brace\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts startle",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"startle\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts turn",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"turn\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts hop",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"hop\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts stretch",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"stretch\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts exercise_vertical",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"exercise_vertical\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts exercise_sides",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"exercise_sides\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts press",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"press\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts taiso",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"taiso\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts flee",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"flee\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts anatomy_mamu_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_mamu_extend\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts anatomy_mamu_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_mamu_retract\",\"start\":4630,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts anatomy_peni_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_peni_extend\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu accepts anatomy_peni_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_peni_retract\",\"start\":4630,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu unknown action rejected",
+    "pass": true,
+    "detail": "invalid"
+  },
+  {
+    "name": "reimu retract hidden part stays idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4643,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu partial retract starts partway through clip",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_mamu_retract\",\"start\":4637,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu retract returns idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4650,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu extension holds last pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"anatomy_peni_extend\",\"start\":4665,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu loop start tick remains stable",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"taiso\",\"start\":4680,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu one-shot ends",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4698,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu damage clears extension",
+    "pass": true,
+    "detail": "{\"uuid\":\"4f9e8259-c19e-499f-a25d-e8d1c812b2ef\",\"networkId\":83,\"variant\":\"reimu\",\"action\":\"startle\",\"start\":4702,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "reimu native NBT preserves identity and cooldowns",
+    "pass": true,
+    "detail": "{\"uuid\":\"26f7938f-5830-4e6b-b85f-5fd5663dad2a\",\"networkId\":85,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4703,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "reimu native NBT clears transient pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"26f7938f-5830-4e6b-b85f-5fd5663dad2a\",\"networkId\":85,\"variant\":\"reimu\",\"action\":\"idle\",\"start\":4703,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "marisa hand feed transfers once before swallowing",
+    "pass": true,
+    "detail": "{\"uuid\":\"b122c4ca-2313-4290-b491-50e19f552359\",\"networkId\":86,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":6.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa busy mouth rejects another feed",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "marisa non-food rejected",
+    "pass": true,
+    "detail": "{\"uuid\":\"b122c4ca-2313-4290-b491-50e19f552359\",\"networkId\":86,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa explicit action blocks hand feed",
+    "pass": true,
+    "detail": "{\"uuid\":\"b122c4ca-2313-4290-b491-50e19f552359\",\"networkId\":86,\"variant\":\"marisa\",\"action\":\"taiso\",\"start\":4704,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa creative feed keeps stack until swallow",
+    "pass": true,
+    "detail": "{\"uuid\":\"b122c4ca-2313-4290-b491-50e19f552359\",\"networkId\":86,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":4704,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":8.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa swallowing heals and clears held food",
+    "pass": true,
+    "detail": "{\"uuid\":\"b122c4ca-2313-4290-b491-50e19f552359\",\"networkId\":86,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":4704,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa ground stack consumes one",
+    "pass": true,
+    "detail": "{items\u003d[{item\u003d2 minecraft:apple, x\u003d24.65, z\u003d24.5, tags\u003d[p0, p0_case], id\u003d89, count\u003d2}], itemAlive\u003dtrue, entity\u003d{\"uuid\":\"0ad2115a-6fde-49e1-a2a0-348df41a9a30\",\"networkId\":88,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d2}"
+  },
+  {
+    "name": "marisa single item removed on eating",
+    "pass": true,
+    "detail": "{\"uuid\":\"65036c4f-a868-48e0-aa0e-1f1b38af5fe8\",\"networkId\":90,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa mobGriefing prevents pickup",
+    "pass": true,
+    "detail": "{\"uuid\":\"20cc53e6-1af0-4bcf-989f-006b81f6c188\",\"networkId\":92,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa pickup delay respected",
+    "pass": true,
+    "detail": "{\"uuid\":\"7448d97f-42e7-4f5b-b041-9642feae0a81\",\"networkId\":94,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa goal reaches and consumes distant food",
+    "pass": true,
+    "detail": "{items\u003d[], itemAlive\u003dfalse, entity\u003d{\"uuid\":\"257ce9a9-e102-40c2-a668-8c4be6f5d929\",\"networkId\":96,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":4954,\"expression\":\"happy\",\"x\":26.899432119526132,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d1}"
+  },
+  {
+    "name": "marisa natural rest enters sleep",
+    "pass": true,
+    "detail": "{\"uuid\":\"1dda9403-324e-401f-9e8c-b48257b5f902\",\"networkId\":98,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa damage immediately startles",
+    "pass": true,
+    "detail": "{\"uuid\":\"1dda9403-324e-401f-9e8c-b48257b5f902\",\"networkId\":98,\"variant\":\"marisa\",\"action\":\"startle\",\"start\":5060,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa damage interrupts rest and flees",
+    "pass": true,
+    "detail": "{\"uuid\":\"1dda9403-324e-401f-9e8c-b48257b5f902\",\"networkId\":98,\"variant\":\"marisa\",\"action\":\"flee\",\"start\":5073,\"expression\":\"surprise\",\"x\":25.55687006167525,\"y\":65.0,\"z\":23.67101993332263,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa panic expires",
+    "pass": true,
+    "detail": "{\"uuid\":\"1dda9403-324e-401f-9e8c-b48257b5f902\",\"networkId\":98,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5176,\"expression\":\"neutral\",\"x\":27.564746229463253,\"y\":65.0,\"z\":19.56299887129462,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "marisa accepts idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts stretch_shape",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"stretch_shape\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts side_bend",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"side_bend\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts waddle",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"waddle\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts puff",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"puff\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts brace",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"brace\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts startle",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"startle\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts turn",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"turn\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts hop",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"hop\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts stretch",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"stretch\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts exercise_vertical",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"exercise_vertical\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts exercise_sides",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"exercise_sides\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts press",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"press\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts taiso",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"taiso\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts flee",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"flee\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts anatomy_mamu_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_mamu_extend\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts anatomy_mamu_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_mamu_retract\",\"start\":5183,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts anatomy_peni_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_peni_extend\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa accepts anatomy_peni_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_peni_retract\",\"start\":5183,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa unknown action rejected",
+    "pass": true,
+    "detail": "invalid"
+  },
+  {
+    "name": "marisa retract hidden part stays idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5196,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa partial retract starts partway through clip",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_mamu_retract\",\"start\":5190,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa retract returns idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5203,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa extension holds last pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"anatomy_peni_extend\",\"start\":5218,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa loop start tick remains stable",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"taiso\",\"start\":5233,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa one-shot ends",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5251,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa damage clears extension",
+    "pass": true,
+    "detail": "{\"uuid\":\"05ae6d6e-1fa4-4fa4-b360-7eab6c16f405\",\"networkId\":99,\"variant\":\"marisa\",\"action\":\"startle\",\"start\":5255,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "marisa native NBT preserves identity and cooldowns",
+    "pass": true,
+    "detail": "{\"uuid\":\"42c36c9b-8d7e-4a13-8732-9f495d380e16\",\"networkId\":101,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5256,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "marisa native NBT clears transient pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"42c36c9b-8d7e-4a13-8732-9f495d380e16\",\"networkId\":101,\"variant\":\"marisa\",\"action\":\"idle\",\"start\":5256,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "house_reimu hand feed transfers once before swallowing",
+    "pass": true,
+    "detail": "{\"uuid\":\"ef01f56b-9470-4d44-8d63-979ab943342d\",\"networkId\":102,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":6.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu busy mouth rejects another feed",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "house_reimu non-food rejected",
+    "pass": true,
+    "detail": "{\"uuid\":\"ef01f56b-9470-4d44-8d63-979ab943342d\",\"networkId\":102,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu explicit action blocks hand feed",
+    "pass": true,
+    "detail": "{\"uuid\":\"ef01f56b-9470-4d44-8d63-979ab943342d\",\"networkId\":102,\"variant\":\"house_reimu\",\"action\":\"taiso\",\"start\":5257,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu creative feed keeps stack until swallow",
+    "pass": true,
+    "detail": "{\"uuid\":\"ef01f56b-9470-4d44-8d63-979ab943342d\",\"networkId\":102,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5257,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":8.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu swallowing heals and clears held food",
+    "pass": true,
+    "detail": "{\"uuid\":\"ef01f56b-9470-4d44-8d63-979ab943342d\",\"networkId\":102,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5257,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu ground stack consumes one",
+    "pass": true,
+    "detail": "{items\u003d[{item\u003d2 minecraft:apple, x\u003d24.65, z\u003d24.5, tags\u003d[p0, p0_case], id\u003d105, count\u003d2}], itemAlive\u003dtrue, entity\u003d{\"uuid\":\"132ec396-abb1-44d7-a054-5e11c50c1af9\",\"networkId\":104,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d2}"
+  },
+  {
+    "name": "house_reimu single item removed on eating",
+    "pass": true,
+    "detail": "{\"uuid\":\"a42638e5-51b5-4c87-b59c-b431fed93a71\",\"networkId\":106,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu mobGriefing prevents pickup",
+    "pass": true,
+    "detail": "{\"uuid\":\"ed366dd0-4dd0-46a8-8634-82f1882ddc42\",\"networkId\":108,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu pickup delay respected",
+    "pass": true,
+    "detail": "{\"uuid\":\"d0962ce9-464c-4755-873f-30a9d170cd83\",\"networkId\":110,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu goal reaches and consumes distant food",
+    "pass": true,
+    "detail": "{items\u003d[], itemAlive\u003dfalse, entity\u003d{\"uuid\":\"f2ff25dd-fb9b-491c-b104-c3cdae741d74\",\"networkId\":112,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5507,\"expression\":\"happy\",\"x\":26.899432119526132,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d1}"
+  },
+  {
+    "name": "house_reimu natural rest enters sleep",
+    "pass": true,
+    "detail": "{\"uuid\":\"58a041b5-22d1-4db2-ad5a-d1c2064e2aa4\",\"networkId\":114,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":0,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu damage immediately startles",
+    "pass": true,
+    "detail": "{\"uuid\":\"58a041b5-22d1-4db2-ad5a-d1c2064e2aa4\",\"networkId\":114,\"variant\":\"house_reimu\",\"action\":\"startle\",\"start\":5613,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu damage interrupts rest and flees",
+    "pass": true,
+    "detail": "{\"uuid\":\"58a041b5-22d1-4db2-ad5a-d1c2064e2aa4\",\"networkId\":114,\"variant\":\"house_reimu\",\"action\":\"flee\",\"start\":5626,\"expression\":\"surprise\",\"x\":25.610498655816397,\"y\":65.0,\"z\":23.73626591492167,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu panic expires",
+    "pass": true,
+    "detail": "{\"uuid\":\"58a041b5-22d1-4db2-ad5a-d1c2064e2aa4\",\"networkId\":114,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5729,\"expression\":\"neutral\",\"x\":27.652727017383437,\"y\":65.0,\"z\":19.57550855792473,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_reimu accepts idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts stretch_shape",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"stretch_shape\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts side_bend",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"side_bend\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts waddle",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"waddle\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts puff",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"puff\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts brace",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"brace\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts startle",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"startle\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts turn",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"turn\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts hop",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"hop\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts stretch",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"stretch\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts exercise_vertical",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"exercise_vertical\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts exercise_sides",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"exercise_sides\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts press",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"press\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts taiso",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"taiso\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts flee",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"flee\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts anatomy_mamu_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_mamu_extend\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts anatomy_mamu_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_mamu_retract\",\"start\":5736,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts anatomy_peni_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_peni_extend\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu accepts anatomy_peni_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_peni_retract\",\"start\":5736,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu unknown action rejected",
+    "pass": true,
+    "detail": "invalid"
+  },
+  {
+    "name": "house_reimu retract hidden part stays idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5749,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu partial retract starts partway through clip",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_mamu_retract\",\"start\":5743,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu retract returns idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5756,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu extension holds last pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"anatomy_peni_extend\",\"start\":5771,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu loop start tick remains stable",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"taiso\",\"start\":5786,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu one-shot ends",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5804,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu damage clears extension",
+    "pass": true,
+    "detail": "{\"uuid\":\"28d19018-4466-4a5f-9108-6b7f6bacdd4c\",\"networkId\":115,\"variant\":\"house_reimu\",\"action\":\"startle\",\"start\":5808,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_reimu native NBT preserves identity and cooldowns",
+    "pass": true,
+    "detail": "{\"uuid\":\"5db416c6-5f00-446e-a532-5636fff1f7b6\",\"networkId\":117,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5809,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "house_reimu native NBT clears transient pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"5db416c6-5f00-446e-a532-5636fff1f7b6\",\"networkId\":117,\"variant\":\"house_reimu\",\"action\":\"idle\",\"start\":5809,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "house_marisa hand feed transfers once before swallowing",
+    "pass": true,
+    "detail": "{\"uuid\":\"96e3ac05-faae-4af3-af07-299df8ae5894\",\"networkId\":118,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":6.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa busy mouth rejects another feed",
+    "pass": true,
+    "detail": "2 minecraft:apple"
+  },
+  {
+    "name": "house_marisa non-food rejected",
+    "pass": true,
+    "detail": "{\"uuid\":\"96e3ac05-faae-4af3-af07-299df8ae5894\",\"networkId\":118,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa explicit action blocks hand feed",
+    "pass": true,
+    "detail": "{\"uuid\":\"96e3ac05-faae-4af3-af07-299df8ae5894\",\"networkId\":118,\"variant\":\"house_marisa\",\"action\":\"taiso\",\"start\":5810,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa creative feed keeps stack until swallow",
+    "pass": true,
+    "detail": "{\"uuid\":\"96e3ac05-faae-4af3-af07-299df8ae5894\",\"networkId\":118,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":5810,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":8.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa swallowing heals and clears held food",
+    "pass": true,
+    "detail": "{\"uuid\":\"96e3ac05-faae-4af3-af07-299df8ae5894\",\"networkId\":118,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":5810,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa ground stack consumes one",
+    "pass": true,
+    "detail": "{items\u003d[{item\u003d2 minecraft:apple, x\u003d24.65, z\u003d24.5, tags\u003d[p0, p0_case], id\u003d121, count\u003d2}], itemAlive\u003dtrue, entity\u003d{\"uuid\":\"380d78c8-45bf-4330-bf32-6be68829cb74\",\"networkId\":120,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d2}"
+  },
+  {
+    "name": "house_marisa single item removed on eating",
+    "pass": true,
+    "detail": "{\"uuid\":\"0401270f-a174-41db-9f01-779caa65b87b\",\"networkId\":122,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"happy\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa mobGriefing prevents pickup",
+    "pass": true,
+    "detail": "{\"uuid\":\"49941bcb-bfce-4c5a-b55f-b9cf61810206\",\"networkId\":124,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa pickup delay respected",
+    "pass": true,
+    "detail": "{\"uuid\":\"ba5fc839-024c-4ebe-b65d-c51a178769b9\",\"networkId\":126,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa goal reaches and consumes distant food",
+    "pass": true,
+    "detail": "{items\u003d[], itemAlive\u003dfalse, entity\u003d{\"uuid\":\"14707e2f-3bc7-4219-928e-e92d78a398ec\",\"networkId\":128,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6060,\"expression\":\"happy\",\"x\":26.899432119526132,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}, itemCount\u003d1}"
+  },
+  {
+    "name": "house_marisa natural rest enters sleep",
+    "pass": true,
+    "detail": "{\"uuid\":\"646e0494-b007-4498-88c4-55fc168430ba\",\"networkId\":130,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":0,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa damage immediately startles",
+    "pass": true,
+    "detail": "{\"uuid\":\"646e0494-b007-4498-88c4-55fc168430ba\",\"networkId\":130,\"variant\":\"house_marisa\",\"action\":\"startle\",\"start\":6166,\"expression\":\"sleep\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa damage interrupts rest and flees",
+    "pass": true,
+    "detail": "{\"uuid\":\"646e0494-b007-4498-88c4-55fc168430ba\",\"networkId\":130,\"variant\":\"house_marisa\",\"action\":\"flee\",\"start\":6179,\"expression\":\"surprise\",\"x\":25.610498655816397,\"y\":65.0,\"z\":23.73626591492167,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa panic expires",
+    "pass": true,
+    "detail": "{\"uuid\":\"646e0494-b007-4498-88c4-55fc168430ba\",\"networkId\":130,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6282,\"expression\":\"neutral\",\"x\":27.652727017383437,\"y\":65.0,\"z\":19.57550855792473,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":600}"
+  },
+  {
+    "name": "house_marisa accepts idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts stretch_shape",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"stretch_shape\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts side_bend",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"side_bend\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts waddle",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"waddle\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts puff",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"puff\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts brace",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"brace\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts startle",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"startle\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts turn",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"turn\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts hop",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"hop\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts stretch",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"stretch\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts exercise_vertical",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"exercise_vertical\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts exercise_sides",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"exercise_sides\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts press",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"press\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts taiso",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"taiso\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts flee",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"flee\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts anatomy_mamu_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_mamu_extend\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts anatomy_mamu_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_mamu_retract\",\"start\":6289,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts anatomy_peni_extend",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_peni_extend\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa accepts anatomy_peni_retract",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_peni_retract\",\"start\":6289,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa unknown action rejected",
+    "pass": true,
+    "detail": "invalid"
+  },
+  {
+    "name": "house_marisa retract hidden part stays idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6302,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa partial retract starts partway through clip",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_mamu_retract\",\"start\":6296,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa retract returns idle",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6309,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa extension holds last pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"anatomy_peni_extend\",\"start\":6324,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa loop start tick remains stable",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"taiso\",\"start\":6339,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa one-shot ends",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6357,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa damage clears extension",
+    "pass": true,
+    "detail": "{\"uuid\":\"2da3e2be-b7a6-44a4-add3-ea765960fcf7\",\"networkId\":131,\"variant\":\"house_marisa\",\"action\":\"startle\",\"start\":6361,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":9.0,\"foodCooldown\":0,\"restDelay\":200}"
+  },
+  {
+    "name": "house_marisa native NBT preserves identity and cooldowns",
+    "pass": true,
+    "detail": "{\"uuid\":\"7e7be913-f054-4610-842c-5f1e8d060d4d\",\"networkId\":133,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6362,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  },
+  {
+    "name": "house_marisa native NBT clears transient pose",
+    "pass": true,
+    "detail": "{\"uuid\":\"7e7be913-f054-4610-842c-5f1e8d060d4d\",\"networkId\":133,\"variant\":\"house_marisa\",\"action\":\"idle\",\"start\":6362,\"expression\":\"neutral\",\"x\":24.5,\"y\":65.0,\"z\":24.5,\"health\":10.0,\"foodCooldown\":321,\"restDelay\":456}"
+  }
+]

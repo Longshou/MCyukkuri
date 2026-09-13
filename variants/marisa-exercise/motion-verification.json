@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "cubes": 179,
+  "bones": 145,
+  "minY": -5.000000000143778e-8,
+  "maxHeight": 21.542836602639497,
+  "maxSkinSeparation": 1.0000000116860974e-7,
+  "waddleBoundsError": 0,
+  "results": [
+    {
+      "clip": "exercise_vertical",
+      "samples": 131
+    },
+    {
+      "clip": "exercise_sides",
+      "samples": 59
+    }
+  ]
+}

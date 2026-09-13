@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "actions": 6,
+  "samples": 2824,
+  "checks": [
+    "end recovery",
+    "interrupt and restart",
+    "pause",
+    "loop",
+    "speed",
+    "frame-rate independence",
+    "finite poses",
+    "no negative character height",
+    "both licking turns"
+  ]
+}

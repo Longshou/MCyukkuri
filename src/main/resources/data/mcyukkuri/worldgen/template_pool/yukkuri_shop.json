@@ -1,0 +1,15 @@
+{
+  "name": "mcyukkuri:yukkuri_shop",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "mcyukkuri:yukkuri_shop",
+        "processors": "minecraft:empty",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

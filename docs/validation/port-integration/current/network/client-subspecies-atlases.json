@@ -1,0 +1,770 @@
+[
+  {
+    "expression": "neutral",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "happy",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "surprise",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "sleep",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "angry",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "confused",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "cry",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "drool",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "sleepy",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "teary",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "yawn",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "chewing",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "satisfied",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "open_smile",
+    "asset": "marisa_tsumuri",
+    "height": 256,
+    "width": 256
+  },
+  {
+    "expression": "neutral",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "reimu_wasa",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "reimu_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "reimu_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "reimu_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "marisa_sparse",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "marisa_face",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "neutral",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "happy",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "surprise",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleep",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "angry",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "confused",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "cry",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "drool",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "sleepy",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "teary",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "yawn",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "closed_smile",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "chewing_closed",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "satisfied",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  },
+  {
+    "expression": "open_smile",
+    "asset": "marisa_bean",
+    "height": 128,
+    "width": 128
+  }
+]

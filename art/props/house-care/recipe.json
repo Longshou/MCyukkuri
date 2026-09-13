@@ -1,0 +1,22 @@
+{
+  "status": "Minecraft integration draft; not a confirmed standard asset",
+  "units": "16 model units per block; opening faces north",
+  "blocks": {
+    "house_crevice": {"texture": "minecraft:block/oak_planks", "boxes": [[0,0,0,3,12,16],[13,0,0,16,12,16],[3,8,0,13,12,16],[3,0,13,13,8,16]]},
+    "burial_mound": {"texture": "minecraft:block/dirt", "boxes": [[2,0,2,14,3,14],[4,3,4,12,4,12]]}
+  },
+  "items": {
+    "food_scrap": "minecraft:item/bread",
+    "leaked_filling": "minecraft:item/cocoa_beans",
+    "bandage": "minecraft:item/paper",
+    "herbal_medicine": "minecraft:item/dried_kelp",
+    "yukkuri_remains": "minecraft:item/bundle"
+  },
+  "presentation": {"nest_lining": "minecraft:wheat", "eggs": "minecraft:egg", "egg_scale": 0.22, "egg_count_max": 4},
+  "recipes": {
+    "food_scrap": {"ingredients": ["minecraft:bread"], "count": 4},
+    "house_crevice": {"ingredients": ["minecraft:oak_planks","minecraft:oak_planks","minecraft:stick"], "count": 1},
+    "bandage": {"ingredients": ["minecraft:paper","minecraft:string"], "count": 2},
+    "herbal_medicine": {"ingredients": ["minecraft:dried_kelp","minecraft:sugar","minecraft:glass_bottle"], "count": 1}
+  }
+}

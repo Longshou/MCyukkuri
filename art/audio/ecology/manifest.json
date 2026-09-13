@@ -1,0 +1,24 @@
+{
+  "recipe_sha256": "1cf3cd87692b7cca3f08b31f8984cc39608702acad441577d4f52b3c213805a8",
+  "tool_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
+  "engine_sha256": {
+    "f1": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
+    "f2": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502"
+  },
+  "clips": {
+    "reimu": {
+      "master": "art/audio/ecology/reimu-song.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/ecology/reimu_song.ogg",
+      "master_sha256": "6d052a84d8b3b315b5bad99529a011c651e019f41368baa60c545a4fdf1684be",
+      "runtime_sha256": "9ab3fb2ded4edd46d083709d93212351929bd915e7cf6362ddd13325871340e5",
+      "duration_seconds": 8
+    },
+    "marisa": {
+      "master": "art/audio/ecology/marisa-song.wav",
+      "runtime": "src/main/resources/assets/mcyukkuri/sounds/ecology/marisa_song.ogg",
+      "master_sha256": "ad7943a3d8dc3eddca7d2c01fbfc57e4123bd434871ef9addbaad1425e9d73b2",
+      "runtime_sha256": "83794222392aa7de0a00a51ec7c00a1a86c8e7aa39636f14de108d39d2e012a7",
+      "duration_seconds": 8
+    }
+  }
+}

@@ -1,0 +1,1078 @@
+{
+  "pressed_teary": {
+    "id": "pressed_teary",
+    "label": "挤脸含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_blush_left": "N055",
+        "face_blush_right": "N055",
+        "face_mouth": "N014",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/8ce5c296916c97bac7b2.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "押しつぶし左右顔面１グラベース",
+        "index": 0,
+        "sprite_id": 6399,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "押しつぶし左右顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6868,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N063",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_mouth": {
+        "scale": [
+          1.5,
+          1.5,
+          1
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "pressed_cry": {
+    "id": "pressed_cry",
+    "label": "挤脸哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_blush_left": "N055",
+        "face_blush_right": "N055",
+        "face_mouth": "N022",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "押しつぶし左右顔面３グラベース",
+        "index": 0,
+        "sprite_id": 7846,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "押しつぶし左右顔面４グラベース",
+        "index": 0,
+        "sprite_id": 5453,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N064",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "licking": {
+    "id": "licking",
+    "label": "闭眼吐舌",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N035",
+        "face_eye_right": "N035",
+        "face_mouth": "N035",
+        "face_blush_left": "N035",
+        "face_blush_right": "N035",
+        "face_effect_mouth": "N035",
+        "face_brow_left": "N029",
+        "face_tear_left": "N001",
+        "face_brow_right": "N029",
+        "face_tear_right": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/2a7e89ac7d125a63ccf0.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/37ac1b379663c1f0195e.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "ぺろぺろ顔面グラベース",
+        "index": 0,
+        "sprite_id": 4383,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "斜めベロ出し顔面グラベース",
+        "index": 0,
+        "sprite_id": 7333,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N065",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "dying": {
+    "id": "dying",
+    "label": "垂瞳含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N021",
+        "face_eye_right": "N021",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N031",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死１顔面グラベース",
+        "index": 0,
+        "sprite_id": 6328,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死２顔面グラベース",
+        "index": 0,
+        "sprite_id": 7222,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死３顔面グラベース",
+        "index": 0,
+        "sprite_id": 7378,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N066",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "dying_b": {
+    "id": "dying_b",
+    "label": "垂瞳含泪 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N021",
+        "face_eye_right": "N021",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N031",
+        "face_tear_left": "N052",
+        "face_tear_right": "N052",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死１泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 7219,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死２泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 8255,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面瀕死３泣き顔面グラベース",
+        "index": 0,
+        "sprite_id": 5562,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N067",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "old_dead": {
+    "id": "old_dead",
+    "label": "闭眼平嘴",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "O09",
+        "face_eye_right": "O09",
+        "face_mouth": "N038",
+        "face_brow_left": "N002",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_brow_right": "N002",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面寿命１顔面グラベース",
+        "index": 0,
+        "sprite_id": 5151,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面寿命２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5018,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面寿命３顔面グラベース",
+        "index": 0,
+        "sprite_id": 6149,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N068",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "dying_blank": {
+    "id": "dying_blank",
+    "label": "白眼喘嘴",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N031",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面瀕死３死亡顔面グラベース",
+        "index": 0,
+        "sprite_id": 7782,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N069",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "dying_closed": {
+    "id": "dying_closed",
+    "label": "虚弱闭眼",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N056",
+        "face_eye_right": "N056",
+        "face_brow_left": "N039",
+        "face_brow_right": "N039",
+        "face_mouth": "N031",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_blush_left": "N044",
+        "face_blush_right": "N044",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "瀕死１顔面グラベース",
+        "index": 0,
+        "sprite_id": 4424,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5649,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死３顔面グラベース",
+        "index": 0,
+        "sprite_id": 6831,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N070",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.45,
+          1
+        ],
+        "position": [
+          0,
+          -0.15,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.45,
+          1
+        ],
+        "position": [
+          0,
+          -0.15,
+          0
+        ]
+      },
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          0.818,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          0.818,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "dying_closed_b": {
+    "id": "dying_closed_b",
+    "label": "虚弱闭眼 · 泪帧 B",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N056",
+        "face_eye_right": "N056",
+        "face_brow_left": "N039",
+        "face_brow_right": "N039",
+        "face_mouth": "N031",
+        "face_tear_left": "N052",
+        "face_tear_right": "N052",
+        "face_blush_left": "N044",
+        "face_blush_right": "N044",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "瀕死１顔面２グラベース",
+        "index": 0,
+        "sprite_id": 5412,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死２顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6158,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "瀕死３顔面２グラベース",
+        "index": 0,
+        "sprite_id": 8480,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N071",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.45,
+          1
+        ],
+        "position": [
+          0,
+          -0.15,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.45,
+          1
+        ],
+        "position": [
+          0,
+          -0.15,
+          0
+        ]
+      },
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          0.2615,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          0.2615,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "pressed_hidden": {
+    "id": "pressed_hidden",
+    "label": "被压遮挡",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_brow_left": "N029",
+        "face_brow_right": "N029",
+        "face_blush_left": "N044",
+        "face_tear_left": "N001",
+        "face_blush_right": "N044",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/e55c75ce1fbe8d4c30b8.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/e55c75ce1fbe8d4c30b8.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/1332a3015fd54776920c.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "うんうん押し付け顔面グラベース",
+        "index": 0,
+        "sprite_id": 5805,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N072",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -1,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -1,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "satisfied": {
+    "id": "satisfied",
+    "label": "满足闭眼",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N002",
+        "face_eye_right": "N002",
+        "face_brow_left": "N002",
+        "face_brow_right": "N002",
+        "face_mouth": "O06",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "正面満腹１顔面グラベース",
+        "index": 0,
+        "sprite_id": 7890,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹２顔面グラベース",
+        "index": 0,
+        "sprite_id": 6038,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹３顔面グラベース",
+        "index": 0,
+        "sprite_id": 4748,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "正面満腹４顔面グラベース",
+        "index": 0,
+        "sprite_id": 7480,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N073",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  },
+  "blank_frown": {
+    "id": "blank_frown",
+    "label": "白眼哭丧",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N039",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/c65e88644f22808b9f2a.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寝困惑死亡顔グラベース",
+        "index": 0,
+        "sprite_id": 6477,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse with thin/full sheen pairs; awaiting composition review",
+    "aliases": [],
+    "review_code": "N074",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_mouth": {
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按用户偏好先复用、优先泪花、区分 A/B；本组合尚待确认。"
+    }
+  }
+}

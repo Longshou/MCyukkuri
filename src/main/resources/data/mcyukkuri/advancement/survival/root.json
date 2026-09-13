@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "mcyukkuri:field_notebook"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.root.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "minecraft:textures/block/bookshelf.png"
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "mcyukkuri:field_notebook"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "meanFrameMs": 0.0,
+  "captures": [
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-b\\p0-control\\screenshots\\joint-stem-side-0000.png",
+      "clientTick": 2752,
+      "state": {
+        "entities": [],
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0ObserverB",
+        "world": true,
+        "tick": 9657,
+        "screen": "none"
+      }
+    }
+  ],
+  "frames": 0,
+  "maxFrameMs": 0.0
+}

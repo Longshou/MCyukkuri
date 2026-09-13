@@ -1,0 +1,17 @@
+{
+  "id": "25cb09bf-2236-4022-b591-0f5b3fceb37c",
+  "op": "preview",
+  "pass": true,
+  "time": "2026-09-12T21:44:00.033125200Z",
+  "result": {
+    "passenger": true,
+    "boat": 36,
+    "uuid": "a1f3deba-848c-47e5-b7ab-18aed58f7e36",
+    "accessory": false,
+    "boatUuid": "7c2f4e62-ff9b-4d5c-b716-e77fe4093706",
+    "target": 37,
+    "entityCode": "union:/E:/yukkuri/MCyukkuri/.local/subspecies-port/runtime-verified/classes/java/main/%23192!/",
+    "wetness": 0.0,
+    "boatState": "AFLOAT"
+  }
+}

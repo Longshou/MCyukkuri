@@ -31,15 +31,17 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User selected this expression on 2026-09-12",
   "aliases": [],
   "review_code": "N032",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "redrawn-awaiting-review",
-    "note": "恢复原版眼口，再换为已确认的下眼睑泪光。"
+    "status": "accepted",
+    "note": "采用第二轮新版。",
+    "date": "2026-09-12",
+    "basis": "Explicit user selection in review round 3"
   },
   "geometry_offsets": {
     "face_tear_left": {

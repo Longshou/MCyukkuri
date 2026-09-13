@@ -1,0 +1,149 @@
+[
+  {
+    "variant": "reimu",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "reimu",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "reimu",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "marisa",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "marisa",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "marisa",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "house_reimu",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "house_reimu",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "house_reimu",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "house_marisa",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "house_marisa",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "house_marisa",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "chen",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "chen",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "chen",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "alice",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "alice",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "alice",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  },
+  {
+    "variant": "patchouli",
+    "distance": 0.003999999724328518,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.004
+  },
+  {
+    "variant": "patchouli",
+    "distance": 0.0400000000372529,
+    "action": "waddle",
+    "pass": true,
+    "speed": 0.04
+  },
+  {
+    "variant": "patchouli",
+    "distance": 0.0,
+    "action": "idle",
+    "pass": true,
+    "speed": 0.0
+  }
+]

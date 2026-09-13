@@ -1,0 +1,8 @@
+{
+  "type": "mcyukkuri:human_building",
+  "biomes": "#mcyukkuri:human_buildings",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_thin",
+  "start_pool": "mcyukkuri:yukkuri_labor_factory"
+}

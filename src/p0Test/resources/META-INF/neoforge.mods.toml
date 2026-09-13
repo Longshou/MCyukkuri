@@ -1,0 +1,16 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="mcyukkuri_p0"
+version="1.0.0"
+displayName="MCyukkuri P0 acceptance fixture"
+description="Development-only, opt-in acceptance tests in an isolated world. Not packaged in MCyukkuri."
+
+[[dependencies.mcyukkuri_p0]]
+modId="mcyukkuri"
+type="required"
+versionRange="[0.1.0-dev,)"
+ordering="AFTER"
+side="BOTH"

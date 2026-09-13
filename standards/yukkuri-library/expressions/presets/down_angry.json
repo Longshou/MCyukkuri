@@ -3,12 +3,20 @@
   "label": "低头生气",
   "group": "生气 / 鼓脸",
   "recipe": {
-    "eyes": "down",
-    "brows": "angry",
-    "mouth": "frown",
-    "tears": "none",
-    "blush": "normal",
-    "effect": "stress"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N021",
+      "face_eye_right": "N021",
+      "face_mouth": "N014",
+      "face_effect_mouth": "N014",
+      "face_brow_left": "N029",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N029",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001"
+    },
+    "retained_special": []
   },
   "parts": {
     "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
@@ -19,8 +27,8 @@
     "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_mouth": "expressions/parts/117323ba709d564d34fb.png",
-    "face_effect_mouth": "expressions/parts/ad92fec544b486e15029.png"
+    "face_mouth": "expressions/parts/8ce5c296916c97bac7b2.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
     {
@@ -38,10 +46,24 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted the second reused-batch presentation on 2026-09-12",
   "aliases": [],
   "review_code": "N043",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_mouth": {
+      "scale": [
+        1.5,
+        1.5,
+        1
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户要求只重绘 N041/N042，其余六项通过；保存第二轮展示版本。"
+  }
 }

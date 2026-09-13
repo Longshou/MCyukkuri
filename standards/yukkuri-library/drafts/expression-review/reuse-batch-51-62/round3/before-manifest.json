@@ -1,0 +1,1237 @@
+{
+  "status": "emotion-revision-awaiting-review",
+  "before": "drafts/expression-review/reuse-batch-51-62/round2/before.json",
+  "active_count": 12,
+  "entries": [
+    {
+      "id": "open_cry",
+      "code": "N051",
+      "label": "睁眼哭喊",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/open_cry.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_eye_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_brow_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/6c43e5c9d5978be4060c.png",
+          "part_sha256": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9"
+        },
+        "face_brow_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/37e940968392d59867a9.png",
+          "part_sha256": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2"
+        },
+        "face_mouth": {
+          "preset": "pin_cry",
+          "code": "N022",
+          "preset_file": "expressions/presets/pin_cry.json",
+          "preset_sha256": "6d392e2ec597b27bd9b70ce111bf0a0e1e99f7686ee285df425b10ba65c01f6f",
+          "part": "expressions/parts/89d9d82b758ecf3447d8.png",
+          "part_sha256": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_tear_left",
+        "face_tear_right"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "open_cry_b",
+      "code": "N052",
+      "label": "睁眼哭喊 · 泪帧 B",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/open_cry_b.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_eye_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_brow_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/6c43e5c9d5978be4060c.png",
+          "part_sha256": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9"
+        },
+        "face_brow_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/37e940968392d59867a9.png",
+          "part_sha256": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2"
+        },
+        "face_mouth": {
+          "preset": "pin_cry",
+          "code": "N022",
+          "preset_file": "expressions/presets/pin_cry.json",
+          "preset_sha256": "6d392e2ec597b27bd9b70ce111bf0a0e1e99f7686ee285df425b10ba65c01f6f",
+          "part": "expressions/parts/89d9d82b758ecf3447d8.png",
+          "part_sha256": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_tear_left",
+        "face_tear_right"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "pursed",
+      "code": "N053",
+      "label": "睁眼抿嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/pursed.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_eye_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_mouth": {
+          "preset": "puff_teary",
+          "code": "N020",
+          "preset_file": "expressions/presets/puff_teary.json",
+          "preset_sha256": "952bbf468f842d5e7f78b6b1d6fca76585b1c09013e8095d23d98e0f360cde7f",
+          "part": "expressions/parts/351094a83deebb6be6dc.png",
+          "part_sha256": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c"
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+        },
+        "face_brow_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_brow_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_tear_left",
+        "face_tear_right",
+        "face_effect_mouth"
+      ],
+      "adjustments": [],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "chewing",
+      "code": "N054",
+      "label": "咀嚼张嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/chewing.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "sleep",
+          "code": "O09",
+          "preset_file": "expressions/presets/sleep.json",
+          "preset_sha256": "ff5f1670e3893fc07c4bc3a6c79c1234bc743c31a94b7701833ea7479b01b62f",
+          "part": "expressions/parts/5977a2811d629eb958f7.png",
+          "part_sha256": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60"
+        },
+        "face_eye_right": {
+          "preset": "sleep",
+          "code": "O09",
+          "preset_file": "expressions/presets/sleep.json",
+          "preset_sha256": "ff5f1670e3893fc07c4bc3a6c79c1234bc743c31a94b7701833ea7479b01b62f",
+          "part": "expressions/parts/5977a2811d629eb958f7.png",
+          "part_sha256": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60"
+        },
+        "face_mouth": {
+          "preset": "drool",
+          "code": "O06",
+          "preset_file": "expressions/presets/drool.json",
+          "preset_sha256": "00621b0ba229c6449548d11951dfb458612b16fd2ed214022a09c6d640138211",
+          "part": "expressions/parts/8023c0288f73ee416f1d.png",
+          "part_sha256": "85f550edb7ec79a6e1fedc31a4ba338cf0e4315b4ed10b5a7d6b5f30dffc782e"
+        },
+        "face_brow_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_brow_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_tear_left",
+        "face_tear_right",
+        "face_effect_mouth"
+      ],
+      "adjustments": [],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "chewing_closed",
+      "code": "N055",
+      "label": "咀嚼闭嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/chewing_closed.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "sleep",
+          "code": "O09",
+          "preset_file": "expressions/presets/sleep.json",
+          "preset_sha256": "ff5f1670e3893fc07c4bc3a6c79c1234bc743c31a94b7701833ea7479b01b62f",
+          "part": "expressions/parts/5977a2811d629eb958f7.png",
+          "part_sha256": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60"
+        },
+        "face_eye_right": {
+          "preset": "sleep",
+          "code": "O09",
+          "preset_file": "expressions/presets/sleep.json",
+          "preset_sha256": "ff5f1670e3893fc07c4bc3a6c79c1234bc743c31a94b7701833ea7479b01b62f",
+          "part": "expressions/parts/5977a2811d629eb958f7.png",
+          "part_sha256": "b96288379c66a744ff15786527c844f9c5b51bc2ccf9584a09b6ff251c00cf60"
+        },
+        "face_brow_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_tear_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_brow_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+          "part_sha256": "ffeb0eedc36f75e126726b316d23124731af6da5734e5440a7205fbbdd7b7b66",
+          "unchanged": true
+        },
+        "face_tear_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [],
+      "retained_special": [
+        "face_blush_left",
+        "face_blush_right",
+        "face_mouth"
+      ],
+      "retained_special_note": "偏侧咀嚼嘴及鼓腮尚无同类已确认部件，保留原造型待核对。",
+      "retained_empty": [
+        "face_tear_left",
+        "face_tear_right",
+        "face_effect_mouth"
+      ],
+      "adjustments": [],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "bad_taste_small",
+      "code": "N056",
+      "label": "难吃缩嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/bad_taste_small.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "squeezed_teary",
+          "code": "N014",
+          "preset_file": "expressions/presets/squeezed_teary.json",
+          "preset_sha256": "7c4b79fc954086154a8d7694fc9604d0d8e0918fd3cce53c9835ea580bd883ed",
+          "part": "expressions/parts/3b9c6d89915676f44eaa.png",
+          "part_sha256": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c"
+        },
+        "face_eye_right": {
+          "preset": "squeezed_teary",
+          "code": "N014",
+          "preset_file": "expressions/presets/squeezed_teary.json",
+          "preset_sha256": "7c4b79fc954086154a8d7694fc9604d0d8e0918fd3cce53c9835ea580bd883ed",
+          "part": "expressions/parts/566eded4a7f31e2afb97.png",
+          "part_sha256": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2"
+        },
+        "face_brow_left": {
+          "preset": "horrified",
+          "code": "N039",
+          "preset_file": "expressions/presets/horrified.json",
+          "preset_sha256": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
+          "part": "expressions/parts/59da7438c948a024001c.png",
+          "part_sha256": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838"
+        },
+        "face_brow_right": {
+          "preset": "horrified",
+          "code": "N039",
+          "preset_file": "expressions/presets/horrified.json",
+          "preset_sha256": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
+          "part": "expressions/parts/59da7438c948a024001c.png",
+          "part_sha256": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838"
+        },
+        "face_mouth": {
+          "preset": "pin_cry",
+          "code": "N022",
+          "preset_file": "expressions/presets/pin_cry.json",
+          "preset_sha256": "6d392e2ec597b27bd9b70ce111bf0a0e1e99f7686ee285df425b10ba65c01f6f",
+          "part": "expressions/parts/89d9d82b758ecf3447d8.png",
+          "part_sha256": "e565873cf3f2e554647e3102c9769bbad66334ed0ec058d21fcb67148e22fcf9"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_eye_left",
+        "face_brow_left",
+        "face_tear_left",
+        "face_eye_right",
+        "face_brow_right",
+        "face_tear_right",
+        "face_mouth"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "眉头抬起、挤眼压平，表现嫌恶难受；张嘴帧收窄哭喊嘴，闭嘴帧改为紧绷波浪嘴。",
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "bad_taste_closed",
+      "code": "N057",
+      "label": "难吃闭嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/bad_taste_closed.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "squeezed_teary",
+          "code": "N014",
+          "preset_file": "expressions/presets/squeezed_teary.json",
+          "preset_sha256": "7c4b79fc954086154a8d7694fc9604d0d8e0918fd3cce53c9835ea580bd883ed",
+          "part": "expressions/parts/3b9c6d89915676f44eaa.png",
+          "part_sha256": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c"
+        },
+        "face_eye_right": {
+          "preset": "squeezed_teary",
+          "code": "N014",
+          "preset_file": "expressions/presets/squeezed_teary.json",
+          "preset_sha256": "7c4b79fc954086154a8d7694fc9604d0d8e0918fd3cce53c9835ea580bd883ed",
+          "part": "expressions/parts/566eded4a7f31e2afb97.png",
+          "part_sha256": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2"
+        },
+        "face_brow_left": {
+          "preset": "horrified",
+          "code": "N039",
+          "preset_file": "expressions/presets/horrified.json",
+          "preset_sha256": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
+          "part": "expressions/parts/59da7438c948a024001c.png",
+          "part_sha256": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838"
+        },
+        "face_brow_right": {
+          "preset": "horrified",
+          "code": "N039",
+          "preset_file": "expressions/presets/horrified.json",
+          "preset_sha256": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
+          "part": "expressions/parts/59da7438c948a024001c.png",
+          "part_sha256": "9cdadd5f0823527f9353c6f24f4ff7e9ca11003d8d09e636d7afcaa004cbe838"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        },
+        "face_mouth": {
+          "preset": "endure",
+          "code": "N038",
+          "preset_file": "expressions/presets/endure.json",
+          "preset_sha256": "fdaf6ecd8ed837eb6a8ea4d4b89dc01f8fdf11751a145cbba58f8809c3f3b4be",
+          "part": "expressions/parts/ef9406d62e2711bc47b6.png",
+          "part_sha256": "82839e28caafa6beebb37f2af946fe735b5908bc4b9fe4883813e378de10fb27"
+        }
+      },
+      "changed_slots": [
+        "face_eye_left",
+        "face_brow_left",
+        "face_tear_left",
+        "face_eye_right",
+        "face_brow_right",
+        "face_tear_right",
+        "face_mouth"
+      ],
+      "retained_special": [
+        "face_blush_left",
+        "face_blush_right"
+      ],
+      "retained_special_note": "仅保留原稿鼓腮；嘴型已换成 N038 紧绷波浪嘴。",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "眉头抬起、挤眼压平，表现嫌恶难受；张嘴帧收窄哭喊嘴，闭嘴帧改为紧绷波浪嘴。",
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "angry_stare",
+      "code": "N058",
+      "label": "不满凝视",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/angry_stare.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_eye_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d126c585f0291a16309c.png",
+          "part_sha256": "b677bf5b0ebfb3871f97b6969aa2d093b21e28cf6ae7a6de6392fcd6894f7326"
+        },
+        "face_brow_left": {
+          "preset": "squeezed_cry",
+          "code": "N029",
+          "preset_file": "expressions/presets/squeezed_cry.json",
+          "preset_sha256": "0ac3215f1ef48eb51707ac8c0eb018c481adbbaf3cb95acd16c205ecf1700ca0",
+          "part": "expressions/parts/22aa133a1679fd7292be.png",
+          "part_sha256": "06c518bb75b39b40bfec1ffb238f71db0b7b36a897255fd3727d41f216f6edd9"
+        },
+        "face_brow_right": {
+          "preset": "squeezed_cry",
+          "code": "N029",
+          "preset_file": "expressions/presets/squeezed_cry.json",
+          "preset_sha256": "0ac3215f1ef48eb51707ac8c0eb018c481adbbaf3cb95acd16c205ecf1700ca0",
+          "part": "expressions/parts/60f941ca2e49069b1649.png",
+          "part_sha256": "2d84abf337a3d740d7596f9027922cbcce476a5d3c6ab1092228863bd85fcae7"
+        },
+        "face_mouth": {
+          "preset": "horrified",
+          "code": "N039",
+          "preset_file": "expressions/presets/horrified.json",
+          "preset_sha256": "befc81a3e04525740323c2e59c13a8e5b909b16a38d3becb9d1cdc4b9f8e01a6",
+          "part": "expressions/parts/c65e88644f22808b9f2a.png",
+          "part_sha256": "bbeead7d1ef44afc4a231e8799f17a2e05024170b192fb0db9febb6ece544586"
+        },
+        "face_blush_left": {
+          "preset": "flushed_smile",
+          "code": "N034",
+          "preset_file": "expressions/presets/flushed_smile.json",
+          "preset_sha256": "13a435d40a284e0f3fe946ac7bcdb44e244ba1e25579508c074f7fb105b54d2f",
+          "part": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+          "part_sha256": "13612804fe40d1aa3ceb1e422ec7cf5749ac065e513467e170892867930ebc14"
+        },
+        "face_blush_right": {
+          "preset": "flushed_smile",
+          "code": "N034",
+          "preset_file": "expressions/presets/flushed_smile.json",
+          "preset_sha256": "13a435d40a284e0f3fe946ac7bcdb44e244ba1e25579508c074f7fb105b54d2f",
+          "part": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+          "part_sha256": "13612804fe40d1aa3ceb1e422ec7cf5749ac065e513467e170892867930ebc14"
+        },
+        "face_effect_mouth": {
+          "preset": "flushed_smile",
+          "code": "N034",
+          "preset_file": "expressions/presets/flushed_smile.json",
+          "preset_sha256": "13a435d40a284e0f3fe946ac7bcdb44e244ba1e25579508c074f7fb105b54d2f",
+          "part": "expressions/parts/78921e8cffe8de942fcf.png",
+          "part_sha256": "f4a373e92887c97e09d722f2cf1adba0c226df9ce2246fd5516672c6600fcc8e"
+        },
+        "face_tear_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_tear_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_mouth"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_tear_left",
+        "face_tear_right"
+      ],
+      "adjustments": [
+        "嘴型复用 N039 下撇微张嘴，缩至 0.8，表达不满；眼睛与生气眉保持上轮。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "blank_happy",
+      "code": "N059",
+      "label": "白眼张嘴",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/blank_happy.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "blank_cry",
+          "code": "N027",
+          "preset_file": "expressions/presets/blank_cry.json",
+          "preset_sha256": "5cd1f4ccd37fb75e9a260424aa0d1bf15a61cf555c214a81d6e6740a51792664",
+          "part": "expressions/parts/8b678087ea009dbded48.png",
+          "part_sha256": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b"
+        },
+        "face_eye_right": {
+          "preset": "blank_cry",
+          "code": "N027",
+          "preset_file": "expressions/presets/blank_cry.json",
+          "preset_sha256": "5cd1f4ccd37fb75e9a260424aa0d1bf15a61cf555c214a81d6e6740a51792664",
+          "part": "expressions/parts/8b678087ea009dbded48.png",
+          "part_sha256": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b"
+        },
+        "face_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/b8bb63ec3084f999a9b4.png",
+          "part_sha256": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916"
+        },
+        "face_brow_left": {
+          "preset": "closed_smile",
+          "code": "N002",
+          "preset_file": "expressions/presets/closed_smile.json",
+          "preset_sha256": "904120c2ee47d9cb9eda6fbf40ee78ed5216dc72c45c415183a0db46d3061c51",
+          "part": "expressions/parts/af2d4cf86a7386999bbb.png",
+          "part_sha256": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+          "unchanged": true
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_brow_right": {
+          "preset": "closed_smile",
+          "code": "N002",
+          "preset_file": "expressions/presets/closed_smile.json",
+          "preset_sha256": "904120c2ee47d9cb9eda6fbf40ee78ed5216dc72c45c415183a0db46d3061c51",
+          "part": "expressions/parts/af2d4cf86a7386999bbb.png",
+          "part_sha256": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_tear_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/d114c9609a58da8454a5.png",
+          "part_sha256": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_tear_left",
+        "face_tear_right",
+        "face_effect_mouth"
+      ],
+      "adjustments": [],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "cold",
+      "code": "N060",
+      "label": "寒冷发颤",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/cold.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/485d013f2c55cd7c245a.png",
+          "part_sha256": "e7a4d994befa4563ffb186c86ee54266f050cfb61eb7d6b8157c189cd6584b11"
+        },
+        "face_eye_right": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/dfd8064961973aca66e6.png",
+          "part_sha256": "031ac5a10d9fec7bec6863923afef9abb917abbdc888d90a9c09359b74a0193b"
+        },
+        "face_brow_left": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/6c43e5c9d5978be4060c.png",
+          "part_sha256": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9"
+        },
+        "face_brow_right": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/37e940968392d59867a9.png",
+          "part_sha256": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2"
+        },
+        "face_mouth": {
+          "preset": "endure",
+          "code": "N038",
+          "preset_file": "expressions/presets/endure.json",
+          "preset_sha256": "fdaf6ecd8ed837eb6a8ea4d4b89dc01f8fdf11751a145cbba58f8809c3f3b4be",
+          "part": "expressions/parts/ef9406d62e2711bc47b6.png",
+          "part_sha256": "82839e28caafa6beebb37f2af946fe735b5908bc4b9fe4883813e378de10fb27"
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_eye_left",
+        "face_brow_left",
+        "face_tear_left",
+        "face_eye_right",
+        "face_brow_right",
+        "face_tear_right",
+        "face_mouth"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "复用已确认可爱眼型并压低为半睁眼，眉头抬起；N038 紧绷波浪嘴表达寒冷忍耐。当前只核对静态表情。",
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "cold_b",
+      "code": "N061",
+      "label": "寒冷发颤 · 泪帧 B",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/cold_b.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/485d013f2c55cd7c245a.png",
+          "part_sha256": "e7a4d994befa4563ffb186c86ee54266f050cfb61eb7d6b8157c189cd6584b11"
+        },
+        "face_eye_right": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/dfd8064961973aca66e6.png",
+          "part_sha256": "031ac5a10d9fec7bec6863923afef9abb917abbdc888d90a9c09359b74a0193b"
+        },
+        "face_brow_left": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/6c43e5c9d5978be4060c.png",
+          "part_sha256": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9"
+        },
+        "face_brow_right": {
+          "preset": "side_teary",
+          "code": "N041",
+          "preset_file": "expressions/presets/side_teary.json",
+          "preset_sha256": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+          "part": "expressions/parts/37e940968392d59867a9.png",
+          "part_sha256": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2"
+        },
+        "face_mouth": {
+          "preset": "endure",
+          "code": "N038",
+          "preset_file": "expressions/presets/endure.json",
+          "preset_sha256": "fdaf6ecd8ed837eb6a8ea4d4b89dc01f8fdf11751a145cbba58f8809c3f3b4be",
+          "part": "expressions/parts/ef9406d62e2711bc47b6.png",
+          "part_sha256": "82839e28caafa6beebb37f2af946fe735b5908bc4b9fe4883813e378de10fb27"
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_eye_left",
+        "face_brow_left",
+        "face_tear_left",
+        "face_eye_right",
+        "face_brow_right",
+        "face_tear_right",
+        "face_mouth"
+      ],
+      "retained_special": [],
+      "retained_special_note": "",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "复用已确认可爱眼型并压低为半睁眼，眉头抬起；N038 紧绷波浪嘴表达寒冷忍耐。当前只核对静态表情。",
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    },
+    {
+      "id": "cut_cry",
+      "code": "N062",
+      "label": "受损哭喊",
+      "preset": "drafts/expression-review/reuse-batch-51-62/presets/cut_cry.json",
+      "donors": {
+        "face_eye_left": {
+          "preset": "blank_cry",
+          "code": "N027",
+          "preset_file": "expressions/presets/blank_cry.json",
+          "preset_sha256": "5cd1f4ccd37fb75e9a260424aa0d1bf15a61cf555c214a81d6e6740a51792664",
+          "part": "expressions/parts/8b678087ea009dbded48.png",
+          "part_sha256": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b"
+        },
+        "face_eye_right": {
+          "preset": "blank_cry",
+          "code": "N027",
+          "preset_file": "expressions/presets/blank_cry.json",
+          "preset_sha256": "5cd1f4ccd37fb75e9a260424aa0d1bf15a61cf555c214a81d6e6740a51792664",
+          "part": "expressions/parts/8b678087ea009dbded48.png",
+          "part_sha256": "8b4c67952b00daaf30416e7dba2482fc5ba70a7f790ebf2a2e8be67abeb3446b"
+        },
+        "face_brow_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/6c43e5c9d5978be4060c.png",
+          "part_sha256": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9"
+        },
+        "face_brow_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/37e940968392d59867a9.png",
+          "part_sha256": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2"
+        },
+        "face_tear_left": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/70d38ef30d920ef604f2.png",
+          "part_sha256": "bf9e046035bbd2f0c160919ae8dc83a5a47bba78d2148604077fbc48a45de7e4"
+        },
+        "face_tear_right": {
+          "preset": "tear_sleep",
+          "code": "N012",
+          "preset_file": "expressions/presets/tear_sleep.json",
+          "preset_sha256": "152e788fded9d4492b5b22e1002a86c4afd409d30b1327a1e106a2c7c4e13bcb",
+          "part": "expressions/parts/dc96140aab738d6ad443.png",
+          "part_sha256": "5545f28484e1283f04efc9add0b82aac3cf1cbccc7d690dfa48d9cd57fbcf364"
+        },
+        "face_blush_left": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_blush_right": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/83cd598f7e2b72f72b9b.png",
+          "part_sha256": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+          "unchanged": true
+        },
+        "face_effect_mouth": {
+          "preset": "open_smile",
+          "code": "N001",
+          "preset_file": "expressions/presets/open_smile.json",
+          "preset_sha256": "84fa45ec5cde7a4784f8ffa1548334731b3aea38a931ba7dfe481295a554fd8a",
+          "part": "expressions/parts/fd1165af5d145a9ad4b4.png",
+          "part_sha256": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+          "unchanged": true
+        }
+      },
+      "changed_slots": [
+        "face_tear_left",
+        "face_tear_right"
+      ],
+      "retained_special": [
+        "face_mouth"
+      ],
+      "retained_special_note": "受损哭喊的缺口嘴保留原造型待核对。",
+      "retained_empty": [
+        "face_effect_mouth"
+      ],
+      "adjustments": [
+        "改用 N012 已确认下眼缘泪花，沿用 N032 的第 5 行挂接基准；本轮不保留长泪痕或滴落。"
+      ],
+      "note": "依据用户本轮反馈调整；未点名的四项保持上轮，均未新增确认。"
+    }
+  ],
+  "round": 2
+}

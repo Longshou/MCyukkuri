@@ -1,0 +1,5 @@
+numpy==2.2.3
+soundfile==0.12.1
+pyopenjtalk-plus==0.4.1.post9
+sudachipy==0.6.11
+sudachidict_core==20260723

@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "cubes": 57,
+  "bones": 17,
+  "checks": [
+    "geometry counts",
+    "embedded and resource pack textures identical",
+    "ZIP CRC and exact payload match"
+  ]
+}

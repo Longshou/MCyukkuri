@@ -1,0 +1,203 @@
+{
+  "source": "E:\\yukkuri\\YukkuriDiary-zhCN\\original",
+  "date": "2026-09-12",
+  "reader": "UnityPy 1.25.3",
+  "audio_clip_count": 423,
+  "audio_source_count": 776,
+  "sample_rate_channel_counts": {
+    "44100Hz/1ch": 348,
+    "44100Hz/2ch": 63,
+    "48000Hz/2ch": 12
+  },
+  "source_sha256": {
+    "sharedassets0.assets": "d10cdc15d5b2cf0a8439fe5087d6b07563f2fe39fc655327e2fe203ccae3f323",
+    "sharedassets1.assets": "222ff8919fcf8104cfeeb53227166ef296604c953c8988fb17ae7f80457328b4",
+    "sharedassets10.assets": "e148c5a96a89beb8d67776f48046e8ca35f5212f596216f7ebcd0d8b70735bc6",
+    "sharedassets12.assets": "dc3b6c574772e4681407bf43dab86127ed04a617b296d9b67da6d15358838f22",
+    "sharedassets14.assets": "ae4e9f8d0e567e5c500ba9c7919e5a820c07ddc232c487928bbeb6a92745c1ec",
+    "sharedassets2.assets": "a5aebce0d56fe70bef8fc25ffd97a0fb7e27aa9d16147e750c2a3eb16e9ef3f4",
+    "sharedassets3.assets": "cc43be907126a9a2deb4ca20bfa9294a30b9a61d3e45df10e1ff21faf8ddc78b",
+    "sharedassets4.assets": "c05dcf3cd08be6069e53784e1b346f95176b3acccca8d8ecf817d5d6521bbb8f",
+    "sharedassets5.assets": "b9db38876a1711780e048ede81010ed13818d880a30f9bb9e02e4e1e71726f88",
+    "sharedassets6.assets": "3632630a80a78a5426878a60cf338a86b86d3795f677eb03014662c91803f4f7",
+    "sharedassets9.assets": "1387bfff6bdff4f2059482f8fba8dc3ede0d59cfda780fc22c863858736895d5"
+  },
+  "inventory_sha256": "5d2e5b8e39f48002110db614893b810bcd8c130981d18dd6a7f6dd79779dfa5b",
+  "selected_samples": [
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 339,
+      "name": "ゆっ 1",
+      "wav": "sharedassets0.assets-339.wav",
+      "sha256": "3b21bd7599f3542028cd489ce8d35475404e4e7936a58e49294bc0f9d93cd8e5",
+      "length_seconds": 0.2873469293117523,
+      "sample_rate": 44100,
+      "channels": 2
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 341,
+      "name": "[まりさ]ゆっくりするのぜ",
+      "wav": "sharedassets0.assets-341.wav",
+      "sha256": "f7b8eecde7deef61f3b2766ea8a89551d9ce92a00dba61c5e3582aa0afc715d7",
+      "length_seconds": 1.381587266921997,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 343,
+      "name": "もーぐもーぐ",
+      "wav": "sharedassets0.assets-343.wav",
+      "sha256": "4e235b35219fdbc553487c16814baafc5fd24c1497c77ccda2bafd02306f1144",
+      "length_seconds": 1.4106122255325317,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 352,
+      "name": "ぷっくーまりさ",
+      "wav": "sharedassets0.assets-352.wav",
+      "sha256": "2c4e16318fc93452fb7ecf67cf8a2d559b17a809ae38ee4f572e83481dc70148",
+      "length_seconds": 1.1755101680755615,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 359,
+      "name": "[まりさ]ごはんさんありがとうなのぜ",
+      "wav": "sharedassets0.assets-359.wav",
+      "sha256": "d5c3f981db0dae41a22600f5f0778afef4dc893b20deb2541c7dbacac2d25b78",
+      "length_seconds": 2.321995496749878,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 373,
+      "name": "ゆんや 2",
+      "wav": "sharedassets0.assets-373.wav",
+      "sha256": "5216fffb4e77efafeaac7ec3d545d323532fed13769d28d3f063ab4fb3c5d30f",
+      "length_seconds": 2.937324285507202,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 377,
+      "name": "わーいわーいまりさ",
+      "wav": "sharedassets0.assets-377.wav",
+      "sha256": "1d23cf1d3bfb59555cf0a74b48a9d510beb93e11f863e06d87e6c85552e18483",
+      "length_seconds": 1.1755101680755615,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 380,
+      "name": "ゆっくりしていってね 2",
+      "wav": "sharedassets0.assets-380.wav",
+      "sha256": "9d41f3bf74065cad10b76bbedb9f5c47aa1bde4cca5198d6ed643456c924ac3d",
+      "length_seconds": 1.5673469305038452,
+      "sample_rate": 44100,
+      "channels": 2
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 386,
+      "name": "むーしゃむーしゃ",
+      "wav": "sharedassets0.assets-386.wav",
+      "sha256": "70a068f407fbd0ca9565c0ffe9c976cb174e9a8351da17d4445bc6675c559991",
+      "length_seconds": 1.436734676361084,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 389,
+      "name": "まりさはしあわせなのぜ 1",
+      "wav": "sharedassets0.assets-389.wav",
+      "sha256": "746426f1df658a02e7163b44e66c3d68ccf63dbe7c77fe4523a070d0a5adea8e",
+      "length_seconds": 2.0114285945892334,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 399,
+      "name": "ゆんやー 1",
+      "wav": "sharedassets0.assets-399.wav",
+      "sha256": "5cfd72abf9adc6cfb3d53d0a92e44031ef27cdc7289b0b33e390c08e120d1adb",
+      "length_seconds": 1.1500226259231567,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 413,
+      "name": "ぷっくー",
+      "wav": "sharedassets0.assets-413.wav",
+      "sha256": "aa25538e7767ec337f81ab762c815930c2ec8ad29df6e88873d946909577a1ff",
+      "length_seconds": 1.1755101680755615,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 416,
+      "name": "ゆんやゆんやしあわせだよー",
+      "wav": "sharedassets0.assets-416.wav",
+      "sha256": "4e171f83dd14786eef544d0dd82b31524a850f1506155f1a9438f8628d0c73ef",
+      "length_seconds": 3.0040817260742188,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 428,
+      "name": "れいむねしあわせだよー",
+      "wav": "sharedassets0.assets-428.wav",
+      "sha256": "947133fcf1994efea84ff8f1fe45fba86a5f550f8b824a12f3aa82f139e62b22",
+      "length_seconds": 1.9853061437606812,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets0.assets",
+      "path_id": 486,
+      "name": "わーいごはんさんだー",
+      "wav": "sharedassets0.assets-486.wav",
+      "sha256": "4f497454521bdb5e19786479db6cc82ad43f2e7c8f5138a85922f97c87e1e4b5",
+      "length_seconds": 1.750204086303711,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets2.assets",
+      "path_id": 592,
+      "name": "[れいむ]ごはんさんありがとうね",
+      "wav": "sharedassets2.assets-592.wav",
+      "sha256": "2b7806e5bbfe18ee4aa7ee6d006ee54a64294d90153589000c7dd9f651424a14",
+      "length_seconds": 1.9272562265396118,
+      "sample_rate": 44100,
+      "channels": 1
+    },
+    {
+      "file": "sharedassets2.assets",
+      "path_id": 622,
+      "name": "ゆっくりしていってね 1",
+      "wav": "sharedassets2.assets-622.wav",
+      "sha256": "8c9b6aa429ee24eaf2a401a3b53718da7ffe9e95394901d8273a4a3fe44acef3",
+      "length_seconds": 1.6195918321609497,
+      "sample_rate": 44100,
+      "channels": 2
+    }
+  ],
+  "limitations": [
+    "Names are original asset labels, not verified transcriptions.",
+    "No runtime IL2CPP call tracing; no proof of original engine version or F1/F2 parameter presets.",
+    "Reference WAV files stay in .local and are not game assets."
+  ]
+}

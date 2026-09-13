@@ -10,10 +10,11 @@ from PIL import Image, ImageDraw
 HERE = Path(__file__).resolve().parent
 LIB = HERE.parents[1]
 sys.path.insert(0, str(LIB))
-from geometry import vertices
+from mesh_geometry import vertices, poly_mesh
 from reference_design import make as make_reference_design
-from reference_design import SCALE
+from reference_design import SCALE, BODY_DIMENSIONS, BODY_PROFILE, FACE_OUTPUT, HAT_OFFSET, HAT_HAIR_TOP, HAIR_PROFILE, HAIR_HEM, HAIR_LAYER_HEIGHT
 from anatomy_library import compile_anatomy
+from reference_design import PENI_SCALE, PENI_TRAVEL, MAMU_TRAVEL, MAMU_OFFSET, MAMU_ROTATION
 
 def read(p): return json.loads(p.read_text(encoding='utf-8-sig'))
 def save(p, data):
@@ -46,7 +47,8 @@ if args.characters_only:
 OUT = HERE/'assembled'; OUT.mkdir(exist_ok=True)
 provenance = {}
 anatomy=read(LIB/'behaviors/anatomy.json')
-for part in anatomy['parts']:part['offset']=[round(v*SCALE,9) for v in part['offset']]
+for part in anatomy['parts']:part['offset']=(PENI_TRAVEL if part['id']=='peni' else MAMU_TRAVEL).copy()
+anatomy.update(id='anatomy.house',status='pending_confirmation',scope='House adult models; fitted to current belly',reference='README.md')
 
 def export(name, elements, rig, im):
     uid = lambda n: str(uuid.uuid5(uuid.NAMESPACE_URL, 'mcyukkuri/house/'+name+'/'+n))
@@ -84,11 +86,15 @@ def export(name, elements, rig, im):
         if b['parent']: g['parent'] = b['parent']
         for e, group in zip(elements, rig['groups']):
             if group != b['name']: continue
+            if e.get('type')=='mesh':
+                if 'poly_mesh' in g:raise ValueError('Only one mesh per bone is supported')
+                g['poly_mesh']=poly_mesh(e);continue
             cube = dict(origin=e['from'], size=[y-x for x,y in zip(e['from'], e['to'])], uv={k: dict(uv=f['uv'][:2], uv_size=[f['uv'][2]-f['uv'][0], f['uv'][3]-f['uv'][1]]) for k,f in e['faces'].items()})
             if any(e.get('rotation', [0,0,0])): cube.update(pivot=e['origin'], rotation=e['rotation'])
             g['cubes'].append(cube)
         geo.append(g)
     save(OUT/(name+'.geo.json'), {'format_version':'1.12.0', 'minecraft:geometry':[dict(description=dict(identifier='geometry.'+name, texture_width=size, texture_height=size, visible_bounds_width=4, visible_bounds_height=4, visible_bounds_offset=[0,1,0]), bones=geo)]})
+    rig['element_vertex_counts']=[len(vertices(e,size))//8 for e in elements]
     save(OUT/(name+'.rig.json'), rig)
     return dict(vertices=[v for e in elements for v in vertices(e,size)], rig=rig, texture=image_uri(im,texture_path), textureSize=size)
 
@@ -170,13 +176,25 @@ else:
 
 expression_index=read(LIB/'expressions/index.json')
 expression_labels={k:read(LIB/expression_index['presets'][k])['label'] for k in CFG['expressions']}
-for rel in ['components/common/rump.json','components/common/anatomy.json','components/common/anatomy-rig.json','behaviors/anatomy.json','anatomy_library.py','runtime/anatomy.js']:
+for rel in ['components/common/rump.json','components/common/anatomy.json','components/common/anatomy-rig.json','behaviors/anatomy.json','anatomy_library.py','runtime/anatomy.js','runtime/motion.js']:
     provenance[rel]=hashlib.sha256((LIB/rel).read_bytes()).hexdigest()
 data=dict(config=CFG,characters=characters,ordinaryCharacters=ordinary_characters,props=props,expressionLabels=expression_labels,anatomy=anatomy)
 runtime='const DATA='+json.dumps(data,ensure_ascii=False,separators=(',',':'))+';\n'
 for p in [LIB/'runtime/motion.js', LIB/'runtime/render.js', LIB/'runtime/anatomy.js', HERE/'lifecycle.js', HERE/'viewer.js']:
     runtime+=p.read_text(encoding='utf-8-sig')+'\n'
 (HERE/'index.html').write_text((HERE/'viewer.html').read_text(encoding='utf-8').replace('__RUNTIME__',runtime),encoding='utf-8')
-design_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [HERE/'reference_design.py',HERE/'config.json',HERE/'build.py',HERE/'viewer.html',HERE/'viewer.js']}
-save(OUT/'provenance.json',dict(inputs=provenance,design_sources=design_hashes,config='../config.json',references='../REFERENCES.md',design=CFG['design'],appearance_status=CFG['appearance_status'],runtime_validation='not_performed',external_images_included=False))
+preview=HERE/'previews/current/index.html';preview.parent.mkdir(parents=True,exist_ok=True)
+preview_revision=hashlib.sha256((HERE/'index.html').read_bytes()).hexdigest()[:12]
+preview_target='../../index.html?rev='+preview_revision
+preview.write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">'
+    '<title>家油 · 当前造型预览</title><style>body{margin:0}iframe{width:100%;height:100vh;border:0;display:block}</style>'
+    f'<iframe src="{preview_target}" title="家油当前造型预览"></iframe>'
+    f'<noscript><a href="{preview_target}">打开完整预览（需要 JavaScript）</a></noscript></html>',encoding='utf-8')
+
+design_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [HERE/'reference_design.py',HERE/'config.json',HERE/'build.py',HERE/'viewer.html',HERE/'viewer.js',HERE/'render_review.py',HERE/'mesh_geometry.py']}
+design_parameters=dict(peni_scale=PENI_SCALE,peni_travel=PENI_TRAVEL,mamu_travel=MAMU_TRAVEL,mamu_offset=MAMU_OFFSET,mamu_rotation=MAMU_ROTATION,body_dimensions=BODY_DIMENSIONS,body_profile=BODY_PROFILE,face_output=FACE_OUTPUT,hat_offset=HAT_OFFSET,hat_hair_top=HAT_HAIR_TOP,hair_profile=HAIR_PROFILE,hair_hem=HAIR_HEM,hair_layer_height=HAIR_LAYER_HEIGHT)
+outputs={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.iterdir() if p.is_file() and p.name.startswith(('house_reimu.','house_marisa.'))}
+save(OUT/'provenance.json',dict(inputs=provenance,design_sources=design_hashes,design_parameters=design_parameters,character_outputs=outputs,config='../config.json',references='../REFERENCES.md',preview='../previews/current/index.html',design=CFG['design'],appearance_status=CFG['appearance_status'],runtime_validation='not_performed',external_images_included=False))
 print('Built low-poly house characters with canonical components and expressions.')

@@ -1,0 +1,373 @@
+[
+  {
+    "action": "idle",
+    "duration": 1.0,
+    "loop": true,
+    "manifest": "capture-action-idle.json",
+    "count": 21,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4059,
+    "lastWorldTick": 4099,
+    "meanFrameMsIncludingCaptureIO": 32.15896129032258,
+    "maxFrameMsIncludingCaptureIO": 77.8167
+  },
+  {
+    "action": "stretch_shape",
+    "duration": 1.0,
+    "loop": false,
+    "manifest": "capture-action-stretch_shape.json",
+    "count": 21,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4107,
+    "lastWorldTick": 4148,
+    "meanFrameMsIncludingCaptureIO": 31.66488253968254,
+    "maxFrameMsIncludingCaptureIO": 79.5774
+  },
+  {
+    "action": "side_bend",
+    "duration": 2.36,
+    "loop": true,
+    "manifest": "capture-action-side_bend.json",
+    "count": 35,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4156,
+    "lastWorldTick": 4223,
+    "meanFrameMsIncludingCaptureIO": 31.756782242990653,
+    "maxFrameMsIncludingCaptureIO": 79.0694
+  },
+  {
+    "action": "waddle",
+    "duration": 1.2,
+    "loop": true,
+    "manifest": "capture-action-waddle.json",
+    "count": 23,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4231,
+    "lastWorldTick": 4276,
+    "meanFrameMsIncludingCaptureIO": 31.320828571428574,
+    "maxFrameMsIncludingCaptureIO": 72.8321
+  },
+  {
+    "action": "puff",
+    "duration": 6.4,
+    "loop": true,
+    "manifest": "capture-action-puff.json",
+    "count": 75,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4287,
+    "lastWorldTick": 4436,
+    "meanFrameMsIncludingCaptureIO": 34.63396448598131,
+    "maxFrameMsIncludingCaptureIO": 84.0655
+  },
+  {
+    "action": "brace",
+    "duration": 2.4,
+    "loop": true,
+    "manifest": "capture-action-brace.json",
+    "count": 35,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4447,
+    "lastWorldTick": 4515,
+    "meanFrameMsIncludingCaptureIO": 33.69843762376237,
+    "maxFrameMsIncludingCaptureIO": 84.8024
+  },
+  {
+    "action": "startle",
+    "duration": 0.6,
+    "loop": false,
+    "manifest": "capture-action-startle.json",
+    "count": 17,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4528,
+    "lastWorldTick": 4559,
+    "meanFrameMsIncludingCaptureIO": 36.380627272727274,
+    "maxFrameMsIncludingCaptureIO": 84.8835
+  },
+  {
+    "action": "turn",
+    "duration": 0.4,
+    "loop": false,
+    "manifest": "capture-action-turn.json",
+    "count": 15,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4567,
+    "lastWorldTick": 4596,
+    "meanFrameMsIncludingCaptureIO": 33.442483333333335,
+    "maxFrameMsIncludingCaptureIO": 79.9296
+  },
+  {
+    "action": "hop",
+    "duration": 0.2617993877991494,
+    "loop": true,
+    "manifest": "capture-action-hop.json",
+    "count": 14,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4603,
+    "lastWorldTick": 4629,
+    "meanFrameMsIncludingCaptureIO": 32.585997500000005,
+    "maxFrameMsIncludingCaptureIO": 78.0962
+  },
+  {
+    "action": "stretch",
+    "duration": 2.8,
+    "loop": true,
+    "manifest": "capture-action-stretch.json",
+    "count": 39,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4639,
+    "lastWorldTick": 4715,
+    "meanFrameMsIncludingCaptureIO": 31.88596218487395,
+    "maxFrameMsIncludingCaptureIO": 74.5027
+  },
+  {
+    "action": "exercise_vertical",
+    "duration": 2.62,
+    "loop": true,
+    "manifest": "capture-action-exercise_vertical.json",
+    "count": 38,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4724,
+    "lastWorldTick": 4798,
+    "meanFrameMsIncludingCaptureIO": 31.62640769230769,
+    "maxFrameMsIncludingCaptureIO": 75.3023
+  },
+  {
+    "action": "exercise_sides",
+    "duration": 2.36,
+    "loop": true,
+    "manifest": "capture-action-exercise_sides.json",
+    "count": 35,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4807,
+    "lastWorldTick": 4875,
+    "meanFrameMsIncludingCaptureIO": 32.17882452830189,
+    "maxFrameMsIncludingCaptureIO": 76.7737
+  },
+  {
+    "action": "press",
+    "duration": 4.8,
+    "loop": true,
+    "manifest": "capture-action-press.json",
+    "count": 59,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 4884,
+    "lastWorldTick": 5000,
+    "meanFrameMsIncludingCaptureIO": 31.970883425414367,
+    "maxFrameMsIncludingCaptureIO": 79.558
+  },
+  {
+    "action": "taiso",
+    "duration": 14.0,
+    "loop": true,
+    "manifest": "capture-action-taiso.json",
+    "count": 151,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5008,
+    "lastWorldTick": 5307,
+    "meanFrameMsIncludingCaptureIO": 31.901790000000002,
+    "maxFrameMsIncludingCaptureIO": 78.1897
+  },
+  {
+    "action": "flee",
+    "duration": 5.0,
+    "loop": true,
+    "manifest": "capture-action-flee.json",
+    "count": 61,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5319,
+    "lastWorldTick": 5440,
+    "meanFrameMsIncludingCaptureIO": 32.24715913978495,
+    "maxFrameMsIncludingCaptureIO": 75.1937
+  },
+  {
+    "action": "anatomy_mamu_extend",
+    "duration": 0.24,
+    "loop": false,
+    "manifest": "capture-action-anatomy_mamu_extend.json",
+    "count": 14,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5448,
+    "lastWorldTick": 5473,
+    "meanFrameMsIncludingCaptureIO": 30.41215581395349,
+    "maxFrameMsIncludingCaptureIO": 70.0175
+  },
+  {
+    "action": "anatomy_mamu_retract",
+    "duration": 0.65,
+    "loop": false,
+    "manifest": "capture-action-anatomy_mamu_retract.json",
+    "count": 18,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5495,
+    "lastWorldTick": 5529,
+    "meanFrameMsIncludingCaptureIO": 33.14156862745098,
+    "maxFrameMsIncludingCaptureIO": 74.5918
+  },
+  {
+    "action": "anatomy_peni_extend",
+    "duration": 0.24,
+    "loop": false,
+    "manifest": "capture-action-anatomy_peni_extend.json",
+    "count": 14,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5540,
+    "lastWorldTick": 5565,
+    "meanFrameMsIncludingCaptureIO": 32.20908,
+    "maxFrameMsIncludingCaptureIO": 69.6933
+  },
+  {
+    "action": "anatomy_peni_retract",
+    "duration": 0.65,
+    "loop": false,
+    "manifest": "capture-action-anatomy_peni_retract.json",
+    "count": 18,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5587,
+    "lastWorldTick": 5622,
+    "meanFrameMsIncludingCaptureIO": 30.81250727272727,
+    "maxFrameMsIncludingCaptureIO": 67.5493
+  },
+  {
+    "action": "side_bend",
+    "view": "house",
+    "manifest": "capture-house-side_bend.json",
+    "count": 35,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5632,
+    "lastWorldTick": 5699,
+    "meanFrameMsIncludingCaptureIO": 28.41988083333333,
+    "maxFrameMsIncludingCaptureIO": 72.1006
+  },
+  {
+    "action": "puff",
+    "view": "house",
+    "manifest": "capture-house-puff.json",
+    "count": 75,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5703,
+    "lastWorldTick": 5852,
+    "meanFrameMsIncludingCaptureIO": 27.770467041198504,
+    "maxFrameMsIncludingCaptureIO": 70.214
+  },
+  {
+    "action": "taiso",
+    "view": "house",
+    "manifest": "capture-house-taiso.json",
+    "count": 151,
+    "observedVariants": [
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "reimu"
+    ],
+    "firstWorldTick": 5856,
+    "lastWorldTick": 6155,
+    "meanFrameMsIncludingCaptureIO": 28.192859210526315,
+    "maxFrameMsIncludingCaptureIO": 68.9672
+  }
+]

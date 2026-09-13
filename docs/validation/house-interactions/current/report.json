@@ -1,0 +1,701 @@
+{
+  "models": {
+    "reimu": {
+      "path": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
+      "sha256": "7e1b7bb07d8f4cafddb0ce946b68aeb4705ff098d41e4dc58f52e12619fdbe02"
+    },
+    "marisa": {
+      "path": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+      "sha256": "2876cd1f83cc00328ee499eb306095afc037e655a9f8e2008070d309065a319c"
+    }
+  },
+  "geometry": {
+    "reimu": {
+      "house_pickup": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_carry": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "house_rump_core",
+            0.38274791159362
+          ],
+          [
+            "house_rump_round_end",
+            0.5112877762285898
+          ],
+          [
+            "face_effect_mouth",
+            0.7520107439760662
+          ]
+        ]
+      },
+      "house_deposit": {
+        "min_y": -0.00045533690801276457,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.00045533690801276457
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_crawl": {
+        "min_y": -0.0004196534802357703,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.0004196534802357703
+          ],
+          [
+            "house_rump_core",
+            0.3650888278237855
+          ],
+          [
+            "house_rump_round_end",
+            0.4637113551437059
+          ],
+          [
+            "face_effect_mouth",
+            0.7269845841461198
+          ]
+        ]
+      }
+    },
+    "marisa": {
+      "house_pickup": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_carry": {
+        "min_y": -0.000388776424636722,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.000388776424636722
+          ],
+          [
+            "house_rump_core",
+            0.38274791159362
+          ],
+          [
+            "house_rump_round_end",
+            0.5112877762285898
+          ],
+          [
+            "face_effect_mouth",
+            0.7520107439760662
+          ]
+        ]
+      },
+      "house_deposit": {
+        "min_y": -0.00045533690801276457,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.00045533690801276457
+          ],
+          [
+            "face_effect_mouth",
+            0.1272002896194726
+          ],
+          [
+            "face_mouth",
+            0.1772809232927135
+          ],
+          [
+            "face_tear_right",
+            0.1773752154294035
+          ]
+        ]
+      },
+      "house_crawl": {
+        "min_y": -0.0004196534802357703,
+        "lowest_parts": [
+          [
+            "house_body_surface",
+            -0.0004196534802357703
+          ],
+          [
+            "house_rump_core",
+            0.3650888278237855
+          ],
+          [
+            "house_rump_round_end",
+            0.4637113551437059
+          ],
+          [
+            "face_effect_mouth",
+            0.7269845841461198
+          ]
+        ]
+      }
+    }
+  },
+  "recordings": [
+    {
+      "variant": "reimu",
+      "view": "front",
+      "recording": {
+        "count": 108,
+        "manifest": "capture-house-reimu-front.json"
+      },
+      "checks": {
+        "variant": "house_reimu",
+        "checks": [
+          "goal selects real source",
+          "before contact source stays in world",
+          "interruption before contact preserves source",
+          "goal resumes after interruption",
+          "contact splits exactly one item",
+          "interruption and reload preserve held item",
+          "carrying resumes toward nest",
+          "deposit waits for contact",
+          "deposit transfers exactly once",
+          "completion conserves total stock"
+        ]
+      }
+    },
+    {
+      "variant": "reimu",
+      "view": "side",
+      "recording": {
+        "count": 115,
+        "manifest": "capture-house-reimu-side.json"
+      },
+      "checks": {
+        "variant": "house_reimu",
+        "checks": [
+          "goal selects real source",
+          "before contact source stays in world",
+          "interruption before contact preserves source",
+          "goal resumes after interruption",
+          "contact splits exactly one item",
+          "interruption and reload preserve held item",
+          "carrying resumes toward nest",
+          "deposit waits for contact",
+          "deposit transfers exactly once",
+          "completion conserves total stock"
+        ]
+      }
+    },
+    {
+      "variant": "marisa",
+      "view": "front",
+      "recording": {
+        "count": 107,
+        "manifest": "capture-house-marisa-front.json"
+      },
+      "checks": {
+        "variant": "house_marisa",
+        "checks": [
+          "goal selects real source",
+          "before contact source stays in world",
+          "interruption before contact preserves source",
+          "goal resumes after interruption",
+          "contact splits exactly one item",
+          "interruption and reload preserve held item",
+          "carrying resumes toward nest",
+          "deposit waits for contact",
+          "deposit transfers exactly once",
+          "completion conserves total stock"
+        ]
+      }
+    },
+    {
+      "variant": "marisa",
+      "view": "side",
+      "recording": {
+        "count": 104,
+        "manifest": "capture-house-marisa-side.json"
+      },
+      "checks": {
+        "variant": "house_marisa",
+        "checks": [
+          "goal selects real source",
+          "before contact source stays in world",
+          "interruption before contact preserves source",
+          "goal resumes after interruption",
+          "contact splits exactly one item",
+          "interruption and reload preserve held item",
+          "carrying resumes toward nest",
+          "deposit waits for contact",
+          "deposit transfers exactly once",
+          "completion conserves total stock"
+        ]
+      }
+    }
+  ],
+  "transitions": [
+    [
+      {
+        "client_tick": 600,
+        "world_tick": 66197,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 612,
+        "world_tick": 66209,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 624,
+        "world_tick": 66221,
+        "variant": "house_reimu",
+        "behavior": "house_carry",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 643,
+        "world_tick": 66240,
+        "variant": "house_reimu",
+        "behavior": "house_deposit",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          7.179255178001163
+        ]
+      },
+      {
+        "client_tick": 656,
+        "world_tick": 66253,
+        "variant": "house_reimu",
+        "behavior": "house_deposit",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 669,
+        "world_tick": 66266,
+        "variant": "house_reimu",
+        "behavior": "idle",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 711,
+        "world_tick": 66308,
+        "variant": "house_reimu",
+        "behavior": "house_scavenge",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.216878255208333
+        ]
+      },
+      {
+        "client_tick": 712,
+        "world_tick": 66309,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.222303602430555
+        ]
+      }
+    ],
+    [
+      {
+        "client_tick": 728,
+        "world_tick": 66325,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 739,
+        "world_tick": 66336,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 752,
+        "world_tick": 66349,
+        "variant": "house_reimu",
+        "behavior": "house_carry",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 771,
+        "world_tick": 66368,
+        "variant": "house_reimu",
+        "behavior": "house_deposit",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          7.1643523257260515
+        ]
+      },
+      {
+        "client_tick": 784,
+        "world_tick": 66381,
+        "variant": "house_reimu",
+        "behavior": "house_deposit",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 797,
+        "world_tick": 66394,
+        "variant": "house_reimu",
+        "behavior": "idle",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 839,
+        "world_tick": 66436,
+        "variant": "house_reimu",
+        "behavior": "house_scavenge",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.216878255208333
+        ]
+      },
+      {
+        "client_tick": 840,
+        "world_tick": 66437,
+        "variant": "house_reimu",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.222303602430555
+        ]
+      }
+    ],
+    [
+      {
+        "client_tick": 860,
+        "world_tick": 66457,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 871,
+        "world_tick": 66468,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 885,
+        "world_tick": 66482,
+        "variant": "house_marisa",
+        "behavior": "house_carry",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.708919270833333
+        ]
+      },
+      {
+        "client_tick": 903,
+        "world_tick": 66500,
+        "variant": "house_marisa",
+        "behavior": "house_deposit",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          7.164050645461472
+        ]
+      },
+      {
+        "client_tick": 917,
+        "world_tick": 66514,
+        "variant": "house_marisa",
+        "behavior": "house_deposit",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 929,
+        "world_tick": 66526,
+        "variant": "house_marisa",
+        "behavior": "idle",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 971,
+        "world_tick": 66568,
+        "variant": "house_marisa",
+        "behavior": "house_scavenge",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.04866536458334,
+          65.0,
+          6.917561848958333
+        ]
+      },
+      {
+        "client_tick": 978,
+        "world_tick": 66575,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.18424479166666,
+          65.0,
+          6.916531032986112
+        ]
+      }
+    ],
+    [
+      {
+        "client_tick": 988,
+        "world_tick": 66585,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 999,
+        "world_tick": 66597,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 1012,
+        "world_tick": 66610,
+        "variant": "house_marisa",
+        "behavior": "house_carry",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          6.7
+        ]
+      },
+      {
+        "client_tick": 1031,
+        "world_tick": 66628,
+        "variant": "house_marisa",
+        "behavior": "house_deposit",
+        "carrying": "1 mcyukkuri:food_scrap",
+        "position": [
+          178.5,
+          65.0,
+          7.16521826668239
+        ]
+      },
+      {
+        "client_tick": 1045,
+        "world_tick": 66643,
+        "variant": "house_marisa",
+        "behavior": "house_deposit",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 1057,
+        "world_tick": 66655,
+        "variant": "house_marisa",
+        "behavior": "idle",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.21240234375
+        ]
+      },
+      {
+        "client_tick": 1099,
+        "world_tick": 66696,
+        "variant": "house_marisa",
+        "behavior": "house_scavenge",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.216878255208333
+        ]
+      },
+      {
+        "client_tick": 1100,
+        "world_tick": 66697,
+        "variant": "house_marisa",
+        "behavior": "house_pickup",
+        "carrying": "0 minecraft:air",
+        "position": [
+          178.5,
+          65.0,
+          7.222303602430555
+        ]
+      }
+    ]
+  ],
+  "source_fingerprints": {
+    "scripts/runtime_house_interactions.py": "54406487a281cffad5d07f508a5e8d685c97ab69d1d2c2c6c6f2ac8155911af0",
+    "scripts/export_runtime_models.py": "edadf1e0aad129ee002e42a717a598b8cc2601f754d7789ef524f3402bd37ddb",
+    "scripts/validate_entity_assets.py": "b282f9337112c8880d158e97bbf7a4747fa669b3a1c23cc10ce291646575e362",
+    "src/main/java/io/github/longshou/mcyukkuri/house/HouseLife.java": "54c7db0564fd83e2f741849ee6d2da1af1fb0abcb159114c8ba86243af901cd7",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriModel.java": "512c084292ce4a8297207d511e7111ed9afab9e55175525a1607e92e0b0b7064",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriRenderer.java": "0347156e90d7527da0b7f88b16eb37eb1b838f6ed9ce76ab2757146ae3f82e5e",
+    "src/main/java/io/github/longshou/mcyukkuri/client/HouseScrapRenderer.java": "b8fb2712c95fbd557ff4def30b3c293c98e532b19db2a36788b67c3319679fa9",
+    "src/main/java/io/github/longshou/mcyukkuri/client/ClientEvents.java": "c5da545f5f9d8c5c523ac150b61d408bf5ecd7d1bb468eb85042f5689be8cb07",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/HouseInteractionPreview.java": "83ee5a94e69afc3d414246b0d56efcb6c2ad812eb596847f3efde6d00f8a9be5"
+  },
+  "build": "gradlew build compileP0TestJava succeeded",
+  "frozen_preview_exclusion": "Concurrent medal display block excluded; later full workspace build passed.",
+  "preserved_baseline": {
+    "reimu": {
+      "vertices": true,
+      "weights": true,
+      "bones": true,
+      "clips": true
+    },
+    "marisa": {
+      "vertices": true,
+      "weights": true,
+      "bones": true,
+      "clips": true
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "scope": "Only Java commands containing port-integration",
+  "remainingTaskJava": [],
+  "allStopped": true,
+  "checkedAtUtc": "2026-09-12T23:39:59.5123029Z",
+  "normalServerSaves": [
+    {
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server\\console-20260912-230754.log",
+      "sha256": "000a8d0e6bf7dada37274c180624fd1f076aea2e7d84d8462d782cafd4578b42",
+      "allDimensionsSaved": true
+    },
+    {
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server\\console-20260912-231347.log",
+      "sha256": "31fbc394e6c71a62304d8443f9a0c8c09ed77f2d3e0e72c167ab7c5902045675",
+      "allDimensionsSaved": true
+    }
+  ],
+  "registeredProcesses": [
+    {
+      "pid": 45540,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-a",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-a\\console-20260912-231126.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 46336,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-a",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-a\\console-20260912-231359.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientARunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 29660,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-b",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-b\\console-20260912-231147.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 44052,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-b",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\client-b\\console-20260912-231417.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ClientBRunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 6016,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\gametest",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\gametest\\console-20260912-230743.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0GameTestRunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0GameTestRunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0GameTestRunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 41688,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server\\console-20260912-231347.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunProgramArgs.txt"
+      ]
+    },
+    {
+      "pid": 43052,
+      "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server",
+      "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\runs\\server\\console-20260912-230754.log",
+      "command": [
+        "E:\\yukkuri\\.devtools\\mcyukkuri\\java\\jdk-21.0.12.1+1\\bin\\java.exe",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunClasspath.txt",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunVmArgs.txt",
+        "-Dfml.modFolders=mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\main;mcyukkuri%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\main;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\classes\\java\\p0Test;mcyukkuri_p0%%E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\resources\\p0Test",
+        "net.neoforged.devlaunch.Main",
+        "@E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\runtime-20260912-230707\\moddev\\p0ServerRunProgramArgs.txt"
+      ]
+    }
+  ],
+  "beanBirthSupplement": {
+    "directory": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\bean-birth-supplement-2",
+    "processExits": {
+      "captureServer": 0,
+      "captureClient": 0,
+      "readbackServer": 0
+    },
+    "normalServerSaves": [
+      {
+        "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\bean-birth-supplement-2\\runs\\server\\console.log",
+        "sha256": "673e29f68733c7f142b0435713bd3df5ca37376d7600dbe773f56801b404a46c",
+        "allDimensionsSaved": true
+      },
+      {
+        "log": "E:\\yukkuri\\MCyukkuri\\.local\\port-integration\\bean-birth-supplement-2\\snapshot-server-console.log",
+        "sha256": "4312fbe2154c9e8ab9c2e220ccf57fa884102ca83d6a1f14de06ef7a1d975358",
+        "allDimensionsSaved": true
+      }
+    ]
+  }
+}

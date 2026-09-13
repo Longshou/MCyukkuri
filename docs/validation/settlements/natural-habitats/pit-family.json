@@ -1,0 +1,89 @@
+{
+  "id": "7b84a759-c624-4275-ad4f-2ac0c6ef0938",
+  "op": "preview",
+  "pass": true,
+  "time": "2026-09-12T20:11:17.411404400Z",
+  "result": {
+    "preset": "FAMILY",
+    "count": 7,
+    "members": [
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "none",
+        "species": "chen",
+        "facing": "south",
+        "stage": "ADULT",
+        "home": "976, 64, 39",
+        "id": "2669a6cd-db04-49a0-9518-a1c85967be28",
+        "partner": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "mother": "none"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "none",
+        "species": "chen",
+        "facing": "south",
+        "stage": "ADULT",
+        "home": "976, 64, 39",
+        "id": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "partner": "2669a6cd-db04-49a0-9518-a1c85967be28",
+        "mother": "none"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "species": "chen",
+        "facing": "south",
+        "stage": "JUVENILE",
+        "home": "976, 64, 39",
+        "id": "14f2181f-57a2-4da5-a05c-3914f0273288",
+        "partner": "none",
+        "mother": "2669a6cd-db04-49a0-9518-a1c85967be28"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "species": "chen",
+        "facing": "south",
+        "stage": "JUVENILE",
+        "home": "976, 64, 39",
+        "id": "e9f2f137-aad4-4b76-91fc-f3283118e4d8",
+        "partner": "none",
+        "mother": "2669a6cd-db04-49a0-9518-a1c85967be28"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "species": "chen",
+        "facing": "south",
+        "stage": "JUVENILE",
+        "home": "976, 64, 39",
+        "id": "8452a132-b262-4375-8e8a-b3eb90d1709b",
+        "partner": "none",
+        "mother": "2669a6cd-db04-49a0-9518-a1c85967be28"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "species": "chen",
+        "facing": "south",
+        "stage": "JUVENILE",
+        "home": "976, 64, 39",
+        "id": "98c1ccb1-e862-474f-a6b6-b5c57a19d08c",
+        "partner": "none",
+        "mother": "2669a6cd-db04-49a0-9518-a1c85967be28"
+      },
+      {
+        "group": "f467ff64-304e-4b21-9086-e4fe1766dee5",
+        "father": "e070a304-602f-4a30-9778-d9db6b11c17b",
+        "species": "chen",
+        "facing": "south",
+        "stage": "JUVENILE",
+        "home": "976, 64, 39",
+        "id": "43c02c4a-b1f7-4628-a06a-59603d76bbef",
+        "partner": "none",
+        "mother": "2669a6cd-db04-49a0-9518-a1c85967be28"
+      }
+    ]
+  }
+}

@@ -1,0 +1,966 @@
+{
+  "origin": "project-original",
+  "status": "candidate-awaiting-listening-review",
+  "lines": [
+    {
+      "id": "chen.adult.o_hungry",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おなかが ぺーこぺーこ だよー。",
+      "chinese": "肚肚饿扁了哟——。",
+      "events": [
+        "hungry"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_food",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごはんさんだー。",
+      "chinese": "是饭先生呀——！",
+      "events": [
+        "food_found"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_eat",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "むーしゃ むーしゃ。おいしいよー。",
+      "chinese": "姆咻，姆咻。好吃哟——。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_happy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぽかぽか しあわせだよー。",
+      "chinese": "暖乎乎，好幸福哟——。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_toilet",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うんうんが でるよー。",
+      "chinese": "嗯嗯要出来了哟——。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_clean",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり したよー。",
+      "chinese": "舒畅了哟——。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_sleep",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーや すーや。",
+      "chinese": "呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_awake",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あさだよー。おはようだよー。",
+      "chinese": "早上啦，早安哟——。",
+      "events": [
+        "awake"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー。",
+      "chinese": "谢谢哟——。",
+      "events": [
+        "treated"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_understood",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わかったよー。",
+      "chinese": "明白了哟——。",
+      "events": [
+        "wait_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_wait",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここで まってるよー。",
+      "chinese": "在这里等哟——。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_praise",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "できたよー。ほめてねー。",
+      "chinese": "做到啦，要夸奖呢——！",
+      "events": [
+        "lesson_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_try",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっくり がんばるよー。",
+      "chinese": "要油库里地努力哟——。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_lost",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりを かえしてねー。",
+      "chinese": "把饰物还回来呢——！",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_returned",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりが もどったよー。",
+      "chinese": "饰物回来啦——！",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_play",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いっしょに あそぶよー。",
+      "chinese": "一起玩哟——。",
+      "events": [
+        "toy"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_puff",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぷくー。やだよー。",
+      "chinese": "噗咕——，不要哟——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_confused",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わからないよー。",
+      "chinese": "不明白哟——。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_birth",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うまれるよー。",
+      "chinese": "要生了哟——！",
+      "events": [
+        "birth"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_nuzzle",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーり すーり。きもちいいよー。",
+      "chinese": "擦擦脸，擦擦脸。好舒服哟——。",
+      "events": [
+        "nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.adult.o_want_nuzzle",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーり すーり したいよー。",
+      "chinese": "想擦擦脸哟——。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_hungry",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おなかが ぺーこぺーこ だよー。",
+      "chinese": "肚肚饿扁惹哟——。",
+      "events": [
+        "hungry"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_food",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごはんしゃんだー。",
+      "chinese": "是饭鲜生呀——！",
+      "events": [
+        "food_found"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_eat",
+      "species": "chen",
+      "age": "young",
+      "japanese": "むーしゃ むーしゃ。おいちいよー。",
+      "chinese": "姆咻，姆咻。好粗哟——。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_happy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぽかぽか しあわちぇだよー。",
+      "chinese": "暖乎乎，好幸胡哟——。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_toilet",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うんうんが でりゅよー。",
+      "chinese": "嗯嗯要粗来惹哟——。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_clean",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちゅっきり ちたよー。",
+      "chinese": "苏畅惹哟——。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_sleep",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーや しゅーや。",
+      "chinese": "呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_awake",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あしゃだよー。おはようだよー。",
+      "chinese": "早上啦，早安哟——。",
+      "events": [
+        "awake"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょーだよー。",
+      "chinese": "屑屑哟——。",
+      "events": [
+        "treated"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_understood",
+      "species": "chen",
+      "age": "young",
+      "japanese": "わきゃったよー。",
+      "chinese": "明白惹哟——。",
+      "events": [
+        "wait_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_wait",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここで まっちぇるよー。",
+      "chinese": "在介里等哟——。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_praise",
+      "species": "chen",
+      "age": "young",
+      "japanese": "できちゃよー。ほめちぇねー。",
+      "chinese": "做到啦，要夸奖捏——！",
+      "events": [
+        "lesson_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_try",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっくち がんばりゅよー。",
+      "chinese": "要油库气地努腻哟——。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_lost",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりを かえちてねー。",
+      "chinese": "把饰物还肥来捏——！",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_returned",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりが もどっちゃよー。",
+      "chinese": "饰物肥来啦——！",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_play",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いっちょに あしょぶよー。",
+      "chinese": "一起丸哟——。",
+      "events": [
+        "toy"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_puff",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぷきゅー。やだよー。",
+      "chinese": "噗啾——，不要哟——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_confused",
+      "species": "chen",
+      "age": "young",
+      "japanese": "わかりゃないよー。",
+      "chinese": "不明白哟——。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_birth",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うみゃれりゅよー。",
+      "chinese": "要生惹哟——！",
+      "events": [
+        "birth"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_nuzzle",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーり しゅーり。きもちいいよー。",
+      "chinese": "擦擦腻，擦擦腻。好苏服哟——。",
+      "events": [
+        "nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "chen.young.o_want_nuzzle",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーり しゅーり しちゃいよー。",
+      "chinese": "想擦擦腻哟——。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_hungry",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おなかが すいたわ。",
+      "chinese": "姆啾，肚子饿了哇。",
+      "events": [
+        "hungry"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_food",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ごはんさんね。",
+      "chinese": "姆啾，是饭先生呢。",
+      "events": [
+        "food_found"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_eat",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。むーしゃ むーしゃ。",
+      "chinese": "姆啾，姆咻，姆咻。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_happy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。しあわせだわ。",
+      "chinese": "姆啾，好幸福哇。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_toilet",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。うんうん するわ。",
+      "chinese": "姆啾，要嗯嗯了哇。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_clean",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すっきりだわ。",
+      "chinese": "姆啾，好舒畅哇。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_sleep",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーや すーや。",
+      "chinese": "姆啾，呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_awake",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おはようだわ。",
+      "chinese": "姆啾，早安哇。",
+      "events": [
+        "awake"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとう。",
+      "chinese": "姆啾，谢谢。",
+      "events": [
+        "treated"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_understood",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。わかったわ。",
+      "chinese": "姆啾，明白了哇。",
+      "events": [
+        "wait_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_wait",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。まっているわ。",
+      "chinese": "姆啾，在等着哇。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_praise",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。できたわ。",
+      "chinese": "姆啾，做到了哇。",
+      "events": [
+        "lesson_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_try",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ゆっくり がんばるわ。",
+      "chinese": "姆啾，要油库里地努力哇。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_lost",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おぼうしを かえしてね。",
+      "chinese": "姆啾，把帽帽还回来呢。",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_returned",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おぼうしが もどったわ。",
+      "chinese": "姆啾，帽帽回来了哇。",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_play",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。いっしょに あそびましょ。",
+      "chinese": "姆啾，一起玩吧。",
+      "events": [
+        "toy"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_puff",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぷくー。",
+      "chinese": "姆啾，噗咕——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_confused",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。よく わからないわ。",
+      "chinese": "姆啾，不太明白哇。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_birth",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。うまれるわ。",
+      "chinese": "姆啾，要生了哇！",
+      "events": [
+        "birth"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_nuzzle",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーり すーり。",
+      "chinese": "姆啾，擦擦脸，擦擦脸。",
+      "events": [
+        "nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.adult.o_want_nuzzle",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーり すーり したいわ。",
+      "chinese": "姆啾，想擦擦脸哇。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_hungry",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おなかが すいちゃわ。",
+      "chinese": "姆啾，肚肚饿惹哇。",
+      "events": [
+        "hungry"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_food",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ごはんしゃんね。",
+      "chinese": "姆啾，是饭鲜生捏。",
+      "events": [
+        "food_found"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_eat",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。むーしゃ むーしゃ。",
+      "chinese": "姆啾，姆咻，姆咻。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_happy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しあわちぇだわ。",
+      "chinese": "姆啾，好幸胡哇。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_toilet",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。うんうん しゅるわ。",
+      "chinese": "姆啾，要嗯嗯惹哇。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_clean",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ちゅっきりだわ。",
+      "chinese": "姆啾，好苏畅哇。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_sleep",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーや しゅーや。",
+      "chinese": "姆啾，呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_awake",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おはようだわ。",
+      "chinese": "姆啾，早安哇。",
+      "events": [
+        "awake"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょー。",
+      "chinese": "姆啾，屑屑。",
+      "events": [
+        "treated"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_understood",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。わきゃったわ。",
+      "chinese": "姆啾，明白惹哇。",
+      "events": [
+        "wait_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_wait",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。まっちぇいるわ。",
+      "chinese": "姆啾，在等着哇。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_praise",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。できちゃわ。",
+      "chinese": "姆啾，做到惹哇。",
+      "events": [
+        "lesson_learned"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_try",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ゆっくち がんばりゅわ。",
+      "chinese": "姆啾，要油库气地努腻哇。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_lost",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おぼうしを かえちてね。",
+      "chinese": "姆啾，把帽帽还肥来捏。",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_returned",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おぼうしが もどっちゃわ。",
+      "chinese": "姆啾，帽帽肥来惹哇。",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_play",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。いっちょに あしょびましょ。",
+      "chinese": "姆啾，一起丸吧。",
+      "events": [
+        "toy"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_puff",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぷきゅー。",
+      "chinese": "姆啾，噗啾——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_confused",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。よく わかりゃないわ。",
+      "chinese": "姆啾，不太明白哇。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_birth",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。うみゃれりゅわ。",
+      "chinese": "姆啾，要生惹哇！",
+      "events": [
+        "birth"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_nuzzle",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーり しゅーり。",
+      "chinese": "姆啾，擦擦腻，擦擦腻。",
+      "events": [
+        "nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    },
+    {
+      "id": "patchouli.young.o_want_nuzzle",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーり しゅーり しちゃいわ。",
+      "chinese": "姆啾，想擦擦腻哇。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+    }
+  ]
+}

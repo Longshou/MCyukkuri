@@ -1,0 +1,20 @@
+{
+  "startedAt": "2026-09-12T17:44:10.231Z",
+  "quick": false,
+  "previewDataSha256": "194b9ed6d4204b94fd4392360db69a264825e4a524f7b4324eab2975e8f6be04",
+  "viewerSha256": "ebd7eae4f0d414c183f399526262a0a15f446816fe82216750a3f89835fe88f0",
+  "exportsSha256": "1d06965380b5019609f109cb81f6843eeadce226435f4b279b55c68f4be98f3f",
+  "checks": [
+    "two actors; full/front/side/back default scenes",
+    "four distinct graded states and neutral restoration",
+    "actor and effects scale together at .3/1.2",
+    "four leak modes, 0/1/4/12 units",
+    "flight start/mid/landing and playback",
+    "search and Escape",
+    "approved egg fingerprints still accepted",
+    "390px layout",
+    "eight body-effect cards"
+  ],
+  "errors": [],
+  "ok": true
+}

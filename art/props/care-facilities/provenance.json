@@ -1,0 +1,15 @@
+{
+  "role": "P1/P2 game integration; standard character shape and source fingerprints unchanged",
+  "inputs": {
+    "art/props/care-facilities/recipe.json": "824254984a93a09c8c22110a052cae6b55a09d5fd7cafdea7773a89e70a8661a",
+    "art/props/food-bowl/food_bowl.geo.json": "65ee92fa0020d8e6c8039ef6884612e58e030b2c3a6bd62fb2abe30b799e00c3",
+    "art/props/food-bowl/feeding.png": "ecae350c80f0eca14c4a3b18b56f0c5971fbcdfa261a6a19a306ab057d17fc9c"
+  },
+  "outputs": {
+    "src/main/resources/assets/mcyukkuri/textures/block/care_bowl.png": "ecae350c80f0eca14c4a3b18b56f0c5971fbcdfa261a6a19a306ab057d17fc9c",
+    "src/main/resources/assets/mcyukkuri/blockstates/food_bowl.json": "41ddfa98e28c9c6f4fbb888b34d5d7fb20242bbc35c5652f1f4e69510e12e3e1",
+    "src/main/resources/assets/mcyukkuri/blockstates/yukkuri_nest.json": "a931f0e11bdb8574da5a13d5ccf36663c66c69f468ead01f77b70da2bcfac00f",
+    "src/main/resources/assets/mcyukkuri/blockstates/yukkuri_toilet.json": "9764b699e7f758734df54c652e411cfb7568af551b310c3027ff885cdac253d3",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json": "61ebb103a3233d7931c4e2b8003b510d1c7b0c26b55b650b4fb683f786a0b99f"
+  }
+}

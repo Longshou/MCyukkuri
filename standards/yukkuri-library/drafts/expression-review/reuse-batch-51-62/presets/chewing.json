@@ -1,0 +1,61 @@
+{
+  "id": "chewing",
+  "label": "咀嚼张嘴",
+  "group": "动作表情",
+  "recipe": {
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "O09",
+      "face_eye_right": "O09",
+      "face_mouth": "O06",
+      "face_brow_left": "N001",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N001",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": []
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "左右むしゃむしゃ１顔グラベース",
+      "index": 0,
+      "sprite_id": 7193,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "左右むしゃむしゃ２顔グラベース",
+      "index": 0,
+      "sprite_id": 4462,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "accepted",
+  "art": "User accepted batch N051–N062 selection on 2026-09-12",
+  "aliases": [],
+  "review_code": "N054",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户确认本轮改后版本；未点名项按“其他没问题”保存当前展示版。"
+  }
+}

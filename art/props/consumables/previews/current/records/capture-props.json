@@ -1,0 +1,27 @@
+{
+  "captures": [
+    {
+      "file": "screenshots/props-0000.png",
+      "state": {
+        "ecologyAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "entities": [],
+        "screen": "none",
+        "tick": 1731,
+        "world": true,
+        "client": "P0Preview",
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        }
+      },
+      "clientTick": 676,
+      "originalFile": "E:\\yukkuri\\MCyukkuri\\.local\\consumables-birth\\client-1789249837\\preview\\p0-control\\screenshots\\props-0000.png"
+    }
+  ],
+  "meanFrameMs": 0.0,
+  "maxFrameMs": 0.0,
+  "frames": 0
+}

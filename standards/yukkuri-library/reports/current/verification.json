@@ -1,0 +1,45 @@
+{
+  "alice": {
+    "compiled_motions": 19,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "chen": {
+    "compiled_motions": 19,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "marisa": {
+    "compiled_motions": 19,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "marisa_tsumuri": {
+    "compiled_motions": 8,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "patchouli": {
+    "compiled_motions": 19,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "reimu": {
+    "compiled_motions": 19,
+    "shared_expression_presets": 105,
+    "texture_parts_match": true,
+    "independent_hands": true
+  },
+  "base_motions": 9,
+  "composite_recipes": 6,
+  "unique_pixel_parts": 150,
+  "source_nonempty_fields": 221,
+  "source_empty_fields": 16,
+  "source_unique_sprites": 220,
+  "raw_game_pixels_in_library": false
+}

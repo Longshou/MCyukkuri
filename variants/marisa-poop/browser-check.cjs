@@ -1,0 +1,21 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {chromium}=require('../../tools/browser-check/node_modules/playwright-core');
+(async()=>{const b=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});try{
+ const p=await b.newPage({viewport:{width:1200,height:1000}}),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ await p.goto('file:///'+path.join(__dirname,'preview.html').replaceAll('\\','/'));
+ await p.waitForFunction(()=>window.poopDebug?.state().ready);
+ await p.evaluate(()=>poopDebug.setTime(2.8));await p.waitForTimeout(100);
+ await p.screenshot({path:path.join(__dirname,'browser-preview.png'),fullPage:true});
+ await p.locator('[data-angle="135"]').click();await p.evaluate(()=>poopDebug.setTime(4.25));await p.waitForTimeout(100);
+ await p.screenshot({path:path.join(__dirname,'browser-rear.png'),fullPage:true});
+ await p.locator('#filling').click();await p.waitForTimeout(100);assert((await p.evaluate(()=>poopDebug.state())).inspectFilling);await p.screenshot({path:path.join(__dirname,'browser-filling.png'),fullPage:true});
+ await p.locator('#replay').click();await p.waitForTimeout(400);assert((await p.evaluate(()=>poopDebug.state())).time>.2);assert(!(await p.evaluate(()=>poopDebug.state())).inspectFilling);
+ await p.locator('#play').click();let s=await p.evaluate(()=>poopDebug.state());assert(!s.playing);await p.waitForTimeout(100);assert.equal((await p.evaluate(()=>poopDebug.state())).time,s.time);
+ await p.locator('#phase').fill('3.2');await p.locator('#phase').dispatchEvent('input');assert.equal((await p.evaluate(()=>poopDebug.state())).time,3.2);
+ await p.locator('#rest').click();assert.equal((await p.evaluate(()=>poopDebug.state())).enabled,false);
+ await p.evaluate(()=>poopDebug.setTime(6.39));await p.locator('#play').click();await p.waitForTimeout(150);s=await p.evaluate(()=>poopDebug.state());assert.equal(s.time,6.4);assert.equal(s.playing,false);
+ await p.locator('#loop').check();await p.evaluate(()=>poopDebug.setTime(6.39));await p.locator('#play').click();await p.waitForTimeout(150);s=await p.evaluate(()=>poopDebug.state());assert(s.time<1&&s.playing);
+ await p.locator('#rest').click();const before=await p.evaluate(()=>poopDebug.state().az);await p.locator('#view').hover();await p.mouse.move(520,310);await p.mouse.down();await p.mouse.move(600,330);await p.mouse.up();assert.notEqual((await p.evaluate(()=>poopDebug.state())).az,before);
+ await p.setViewportSize({width:390,height:844});await p.waitForTimeout(100);assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:path.join(__dirname,'browser-mobile.png'),fullPage:true});
+ assert.deepEqual(errors,[]);fs.writeFileSync(path.join(__dirname,'browser-verification.json'),JSON.stringify({status:'passed',playPause:true,replay:true,scrub:true,rest:true,singlePlaybackStops:true,loopRestarts:true,drag:true,mobileNoOverflow:true,errors},null,2));console.log('Browser interactions passed.');
+}finally{await b.close();}})().catch(e=>{console.error(e);process.exit(1)});

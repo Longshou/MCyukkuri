@@ -1,0 +1,46 @@
+{
+  "status": "pending_visual_approval",
+  "author": "Original procedural pixel art; no external source pixels.",
+  "assets": {
+    "yukkuri_manju": {
+      "source": "art/structures/human-world/products/yukkuri_manju.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/item/yukkuri_manju.png",
+      "sha256": "89b8b0cf0b695a55fce265ab367828df4e6c7f4df905ecbc0b8529f0eee42981"
+    },
+    "live_yukkuri_bag": {
+      "source": "art/structures/human-world/products/live_yukkuri_bag.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/item/live_yukkuri_bag.png",
+      "sha256": "1532d75ce6f4c465c0e7f83a903ae2ad59f3b5bca8a08b7591226f00128d600c"
+    },
+    "silver_yukkuri_badge": {
+      "source": "art/structures/human-world/products/silver_yukkuri_badge.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/item/silver_yukkuri_badge.png",
+      "sha256": "e0a48cfd627907625ad005fd7b0af18bb6d4f6e3797d4528312cc3570410d2cc"
+    },
+    "gold_yukkuri_badge": {
+      "source": "art/structures/human-world/products/gold_yukkuri_badge.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/item/gold_yukkuri_badge.png",
+      "sha256": "4777e5eae55595d3f7460104e19d7fdfa2c8aacd12ccf91a98ec8e3e795ef0fe"
+    },
+    "labor_bench": {
+      "source": "art/structures/human-world/products/labor_bench.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/labor_bench.png",
+      "sha256": "344e6adfa7fffa3cec6024e621bcb2c941e7dd8ff77a7d52c50cc39e855485d6"
+    },
+    "manju_steamer": {
+      "source": "art/structures/human-world/products/manju_steamer.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/manju_steamer.png",
+      "sha256": "25a94d78b092cf500159749e3966b4b2aa1e40fc8b58f23e79950991226b0d83"
+    },
+    "live_packing_table": {
+      "source": "art/structures/human-world/products/live_packing_table.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/live_packing_table.png",
+      "sha256": "cc8b2dc15528c78e4826a42098b61c10e1bde72a37014d4e1dd67063b0cfb209"
+    },
+    "nursery_station": {
+      "source": "art/structures/human-world/products/nursery_station.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/nursery_station.png",
+      "sha256": "cf48475b8f88e050bf445265b95765721d9bd30bf75b1c31553258b1f7a22da1"
+    }
+  }
+}

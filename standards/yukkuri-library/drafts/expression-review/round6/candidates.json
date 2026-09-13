@@ -1,0 +1,333 @@
+{
+  "date": "2026-09-12",
+  "status": "accepted",
+  "variants": {
+    "N033": [
+      {
+        "key": "A",
+        "label": "棕灰无反光",
+        "preset": {
+          "id": "dull",
+          "label": "失去高光",
+          "group": "特殊状态",
+          "recipe": {
+            "eyes": "warm-brown-gray-a",
+            "brows": "relaxed",
+            "mouth": "smile",
+            "tears": "none",
+            "blush": "normal",
+            "effect": "none"
+          },
+          "parts": {
+            "face_eye_left": "drafts/expression-review/round6/parts/6b26a19b89ebe71df2d3.png",
+            "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_eye_right": "drafts/expression-review/round6/parts/6b26a19b89ebe71df2d3.png",
+            "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+            "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+          },
+          "sources": [
+            {
+              "field": "基本非ゆっくり症グラベース",
+              "index": 0,
+              "sprite_id": 7788,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "左右非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5294,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り１非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6463,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り２非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 7114,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り３非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6048,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "寝非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5400,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            }
+          ],
+          "status": "pending-review",
+          "art": "Draft adaptation; requires redraw before production use",
+          "aliases": [],
+          "review_code": "N033",
+          "origin": "new",
+          "review_pair": null,
+          "review_decision": {
+            "status": "redrawn-awaiting-review",
+            "note": "参考八景 U 暗灰眼与漫画失神眼睑；去掉环状瞳孔和高光，用低对比灰阶保留体积。"
+          },
+          "geometry_offsets": {
+            "face_eye_left": {
+              "scale": [
+                0.82,
+                1.04,
+                1
+              ]
+            },
+            "face_eye_right": {
+              "scale": [
+                0.82,
+                1.04,
+                1
+              ]
+            }
+          }
+        },
+        "description": "沿用第五轮眼型与加宽瞳仁，只把眼线和虹膜改为此前的偏棕灰色阶。",
+        "review_note": "棕灰配色已确认保存；A 默认，B/C 为同编号备选。"
+      },
+      {
+        "key": "B",
+        "label": "棕灰暗瞳孔",
+        "preset": {
+          "id": "dull",
+          "label": "失去高光",
+          "group": "特殊状态",
+          "recipe": {
+            "eyes": "warm-brown-gray-b",
+            "brows": "relaxed",
+            "mouth": "smile",
+            "tears": "none",
+            "blush": "normal",
+            "effect": "none"
+          },
+          "parts": {
+            "face_eye_left": "drafts/expression-review/round6/parts/33ae3d72d3c16f16a42a.png",
+            "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_eye_right": "drafts/expression-review/round6/parts/33ae3d72d3c16f16a42a.png",
+            "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+            "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+          },
+          "sources": [
+            {
+              "field": "基本非ゆっくり症グラベース",
+              "index": 0,
+              "sprite_id": 7788,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "左右非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5294,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り１非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6463,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り２非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 7114,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り３非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6048,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "寝非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5400,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            }
+          ],
+          "status": "pending-review",
+          "art": "Draft adaptation; requires redraw before production use",
+          "aliases": [],
+          "review_code": "N033",
+          "origin": "new",
+          "review_pair": null,
+          "review_decision": {
+            "status": "redrawn-awaiting-review",
+            "note": "参考八景 U 暗灰眼与漫画失神眼睑；去掉环状瞳孔和高光，用低对比灰阶保留体积。"
+          },
+          "geometry_offsets": {
+            "face_eye_left": {
+              "scale": [
+                0.82,
+                1.04,
+                1
+              ]
+            },
+            "face_eye_right": {
+              "scale": [
+                0.82,
+                1.04,
+                1
+              ]
+            }
+          }
+        },
+        "description": "沿用第五轮眼型与加宽瞳仁，只把眼线和虹膜改为此前的偏棕灰色阶。",
+        "review_note": "棕灰配色已确认保存；A 默认，B/C 为同编号备选。"
+      },
+      {
+        "key": "C",
+        "label": "棕灰半垂眼",
+        "preset": {
+          "id": "dull",
+          "label": "失去高光",
+          "group": "特殊状态",
+          "recipe": {
+            "eyes": "warm-brown-gray-c",
+            "brows": "relaxed",
+            "mouth": "smile",
+            "tears": "none",
+            "blush": "normal",
+            "effect": "none"
+          },
+          "parts": {
+            "face_eye_left": "drafts/expression-review/round6/parts/6918a7803ee2fb81144f.png",
+            "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_eye_right": "drafts/expression-review/round6/parts/6918a7803ee2fb81144f.png",
+            "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+            "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+            "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+            "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+            "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+          },
+          "sources": [
+            {
+              "field": "基本非ゆっくり症グラベース",
+              "index": 0,
+              "sprite_id": 7788,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "左右非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5294,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り１非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6463,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り２非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 7114,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "握り３非ゆっくり顔面グラベース",
+              "index": 0,
+              "sprite_id": 6048,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            },
+            {
+              "field": "寝非ゆっくり症顔グラベース",
+              "index": 0,
+              "sprite_id": 5400,
+              "file_id": 2,
+              "scope": "expression; perspective handled by 3D camera"
+            }
+          ],
+          "status": "pending-review",
+          "art": "Draft adaptation; requires redraw before production use",
+          "aliases": [],
+          "review_code": "N033",
+          "origin": "new",
+          "review_pair": null,
+          "review_decision": {
+            "status": "redrawn-awaiting-review",
+            "note": "参考八景 U 暗灰眼与漫画失神眼睑；去掉环状瞳孔和高光，用低对比灰阶保留体积。"
+          }
+        },
+        "description": "沿用第五轮眼型与加宽瞳仁，只把眼线和虹膜改为此前的偏棕灰色阶。",
+        "review_note": "棕灰配色已确认保存；A 默认，B/C 为同编号备选。"
+      }
+    ]
+  },
+  "style_review": {
+    "status": "accepted-direction",
+    "source": "drafts/expression-review/round5/candidates.json",
+    "sha256": "74f4e8e1f45822bff5564ae2887202595a6462dfb47804baaa9ccc65c00201db",
+    "note": "用户认可样式，未单独指定 A/B/C；保留三款，统一改色。"
+  },
+  "palette": {
+    "top": [
+      74,
+      67,
+      63
+    ],
+    "middle": [
+      116,
+      107,
+      96
+    ],
+    "bottom": [
+      153,
+      143,
+      128
+    ],
+    "outline": [
+      63,
+      51,
+      46
+    ],
+    "pupil": [
+      45,
+      40,
+      36
+    ]
+  },
+  "approval": {
+    "date": "2026-09-12",
+    "catalog": "expressions/variants/dull/index.json",
+    "default": "A"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "9706203b-d402-493d-b90b-4e4c5933e292",
+  "op": "reload",
+  "pass": true,
+  "time": "2026-09-11T19:02:04.415300800Z",
+  "result": {
+    "modelReplaced": true,
+    "state": {
+      "world": true,
+      "client": "P0Preview",
+      "screen": "none",
+      "entities": [
+        {
+          "uuid": "2afb69d8-489f-4724-a918-ff32fea0aeb0",
+          "networkId": 2,
+          "variant": "marisa",
+          "action": "idle",
+          "start": 6164,
+          "expression": "neutral",
+          "x": 2.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer"
+        },
+        {
+          "uuid": "fbecb1d6-a751-43f7-9bdc-bb847cfa990a",
+          "networkId": 4,
+          "variant": "house_marisa",
+          "action": "idle",
+          "start": 6164,
+          "expression": "neutral",
+          "x": 6.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer"
+        },
+        {
+          "uuid": "8957ad7a-5c4c-4fe8-b0ec-492dd3d733e4",
+          "networkId": 1,
+          "variant": "reimu",
+          "action": "idle",
+          "start": 6164,
+          "expression": "neutral",
+          "x": 0.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer"
+        },
+        {
+          "uuid": "df916df8-f330-47c9-95ed-0c119fee1388",
+          "networkId": 3,
+          "variant": "house_reimu",
+          "action": "idle",
+          "start": 6164,
+          "expression": "neutral",
+          "x": 4.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer"
+        }
+      ],
+      "tick": 10432
+    }
+  }
+}

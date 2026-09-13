@@ -1,0 +1,61 @@
+{
+  "engine": "AquesTalk1",
+  "status": "implemented-candidate-awaiting-listening-review",
+  "source_lines": "art/dialogue/runtime-lines.json",
+  "profiles": {
+    "reimu.adult": {
+      "voice": "f1",
+      "speed": 100,
+      "pitch": 100
+    },
+    "marisa.adult": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 100
+    },
+    "reimu.young": {
+      "voice": "f1",
+      "speed": 100,
+      "pitch": 125
+    },
+    "marisa.young": {
+      "voice": "f2",
+      "speed": 100,
+      "pitch": 125
+    },
+    "alice.adult": {
+      "voice": "f3",
+      "speed": 100,
+      "pitch": 105
+    },
+    "alice.young": {
+      "voice": "f3",
+      "speed": 100,
+      "pitch": 131
+    },
+    "chen.adult": {
+      "voice": "f1",
+      "speed": 110,
+      "pitch": 115
+    },
+    "chen.young": {
+      "voice": "f1",
+      "speed": 110,
+      "pitch": 144
+    },
+    "patchouli.adult": {
+      "voice": "f1",
+      "speed": 85,
+      "pitch": 90
+    },
+    "patchouli.young": {
+      "voice": "f1",
+      "speed": 85,
+      "pitch": 112
+    }
+  },
+  "flat_accent": true,
+  "output_sample_rate": 32000,
+  "peak_limit_dbfs": -3,
+  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语来自八景 U 原表；幼体音程 125 是本项目初始值，随变速一起改变时长，不声称复原日记参数。只调用本机工具，程序和 DLL 不打包。 新增 alice f3、chen f1、patchouli f1 的差异参数为本项目候选；没有声称是八景 U 或日记原配音参数。"
+}

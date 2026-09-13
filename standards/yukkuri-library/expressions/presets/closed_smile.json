@@ -21,16 +21,15 @@
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [],
-  "status": "pending-review",
+  "status": "accepted",
   "art": "User-selected component revisions; unchanged parts retain prior pixels.",
   "aliases": [],
   "review_code": "N002",
   "origin": "new",
   "review_pair": null,
   "review_decision": {
-    "status": "accepted-for-specified-parts",
-    "parts": [
-      "E1-B"
-    ]
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
   }
 }

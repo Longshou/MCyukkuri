@@ -3,12 +3,20 @@
   "label": "白眼张嘴",
   "group": "惊吓 / 困惑",
   "recipe": {
-    "eyes": "hollow",
-    "brows": "relaxed",
-    "mouth": "smile",
-    "tears": "none",
-    "blush": "normal",
-    "effect": "none"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N027",
+      "face_eye_right": "N027",
+      "face_mouth": "N001",
+      "face_brow_left": "N002",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_brow_right": "N002",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": []
   },
   "parts": {
     "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
@@ -31,10 +39,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted batch N051–N062 selection on 2026-09-12",
   "aliases": [],
   "review_code": "N059",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户确认本轮改后版本；未点名项按“其他没问题”保存当前展示版。"
+  }
 }

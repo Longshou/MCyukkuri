@@ -9,13 +9,9 @@ group = mod_group_id
 base { archivesName = mod_id }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-repositories {
-    maven {
-        name = 'GeckoLib'
-        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-        content { includeGroup('software.bernie.geckolib') }
-    }
-}
+// P0 acceptance code is a separate development mod and is never included in the release jar.
+sourceSets { p0Test }
+dependencies { p0TestImplementation sourceSets.main.output }
 
 neoForge {
     version = project.neo_version
@@ -38,16 +34,68 @@ neoForge {
     }
 }
 
-dependencies {
-    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+neoForge {
+    addModdingDependenciesTo sourceSets.p0Test
+    mods { mcyukkuri_p0 { sourceSet(sourceSets.p0Test) } }
+    runs {
+        configureEach { loadedMods = [mods.mcyukkuri] }
+        p0GameTest {
+            type = 'gameTestServer'
+            gameDirectory = file('.local/p0/gametest')
+            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
+            sourceSet = sourceSets.p0Test
+            systemProperty 'mcyukkuri.p0', 'true'
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'mcyukkuri_p0'
+        }
+        p0Preview {
+            client()
+            gameDirectory = file('.local/p0/preview')
+            programArguments.addAll '--username', 'P0Preview', '--width', '1280', '--height', '800',
+                    '--quickPlaySingleplayer', 'p0-preview'
+            jvmArgument '-Xmx2G'
+            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
+            sourceSet = sourceSets.p0Test
+            systemProperty 'mcyukkuri.p0', 'true'
+        }
+        p0Server {
+            server()
+            gameDirectory = file('.local/p0/server')
+            programArgument '--nogui'
+            jvmArgument '-Xmx2G'
+            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
+            sourceSet = sourceSets.p0Test
+            systemProperty 'mcyukkuri.p0', 'true'
+        }
+        p0ClientA {
+            client()
+            gameDirectory = file('.local/p0/client-a')
+            programArguments.addAll '--username', 'P0ObserverA', '--width', '1280', '--height', '800',
+                    '--quickPlayMultiplayer', '127.0.0.1:25586'
+            jvmArgument '-Xmx2G'
+            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
+            sourceSet = sourceSets.p0Test
+            systemProperty 'mcyukkuri.p0', 'true'
+        }
+        p0ClientB {
+            client()
+            gameDirectory = file('.local/p0/client-b')
+            programArguments.addAll '--username', 'P0ObserverB', '--width', '960', '--height', '640',
+                    '--quickPlayMultiplayer', '127.0.0.1:25586'
+            jvmArgument '-Xmx2G'
+            loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
+            sourceSet = sourceSets.p0Test
+            systemProperty 'mcyukkuri.p0', 'true'
+        }
+    }
 }
+
+tasks.named('check') { dependsOn tasks.named('compileP0TestJava') }
 
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [
         mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,
         mod_license: mod_license, minecraft_version_range: minecraft_version_range,
-        neo_version: neo_version, loader_version_range: loader_version_range,
-        geckolib_version: geckolib_version
+        neo_version: neo_version, loader_version_range: loader_version_range
     ]
     inputs.properties properties
     expand properties

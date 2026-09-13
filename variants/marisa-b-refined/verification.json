@@ -1,0 +1,9 @@
+{
+  "fourClips": true,
+  "rotateWhilePlaying": true,
+  "rotateWhilePaused": true,
+  "clipChangeKeepsCamera": true,
+  "zoom": true,
+  "mobileNoOverflow": true,
+  "errors": []
+}

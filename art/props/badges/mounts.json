@@ -1,0 +1,232 @@
+{
+  "status": "pending_visual_approval",
+  "units": "model units (16/block)",
+  "variants": {
+    "reimu": {
+      "part": "bow_outer_1",
+      "point": [
+        6.05,
+        10.55,
+        7.88
+      ],
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "diameter": 1.35
+    },
+    "marisa": {
+      "part": "hat_band",
+      "point": [
+        5.3,
+        11.05,
+        -2.25
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 1.35
+    },
+    "chen": {
+      "part": "chen_hat_lower",
+      "point": [
+        4.7,
+        10.25,
+        -2.8
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 1.1
+    },
+    "alice": {
+      "part": "alice_band_red_2",
+      "point": [
+        3.0,
+        10.1,
+        -3.94
+      ],
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "diameter": 1.05
+    },
+    "patchouli": {
+      "part": "patchouli_bonnet_corner_body1",
+      "point": [
+        6.4,
+        10.4,
+        -2.8
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 1.35
+    },
+    "house_reimu": {
+      "part": "bow_outer_1",
+      "point": [
+        1.452,
+        4.03,
+        1.56
+      ],
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "diameter": 0.324
+    },
+    "house_marisa": {
+      "part": "hat_band",
+      "point": [
+        1.27,
+        3.75,
+        -0.62
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 0.324
+    },
+    "remilia": {
+      "part": "predator_cap_crown",
+      "point": [
+        5.1,
+        10.25,
+        -2.7
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 0.9
+    },
+    "flandre": {
+      "part": "predator_cap_crown",
+      "point": [
+        5.1,
+        10.25,
+        -2.7
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 0.9
+    }
+  },
+  "detached": {
+    "reimu_ribbon": {
+      "part": "reimu_ribbon",
+      "point": [
+        6.05,
+        5.91,
+        -0.64
+      ],
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "diameter": 1.35
+    },
+    "marisa_hat": {
+      "part": "marisa_hat",
+      "point": [
+        6.22,
+        1.62,
+        -2.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "diameter": 1.35
+    },
+    "chen_hat": {
+      "part": "chen_hat_lower",
+      "point": [
+        4.7,
+        10.25,
+        -2.8
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 1.1
+    },
+    "alice_headband": {
+      "part": "alice_band_red_2",
+      "point": [
+        3.0,
+        10.1,
+        -3.94
+      ],
+      "normal": [
+        0,
+        0,
+        -1
+      ],
+      "diameter": 1.05
+    },
+    "patchouli_bonnet": {
+      "part": "patchouli_bonnet_corner_body1",
+      "point": [
+        6.4,
+        10.4,
+        -2.8
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 1.35
+    },
+    "remilia_bonnet": {
+      "part": "predator_cap_crown",
+      "point": [
+        5.1,
+        10.25,
+        -2.7
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 0.9
+    },
+    "flandre_bonnet": {
+      "part": "predator_cap_crown",
+      "point": [
+        5.1,
+        10.25,
+        -2.7
+      ],
+      "normal": [
+        0.8,
+        0,
+        -0.6
+      ],
+      "diameter": 0.9
+    }
+  }
+}

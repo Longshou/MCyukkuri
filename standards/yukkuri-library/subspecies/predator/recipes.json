@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "status": "design_draft",
+  "package": "predator",
+  "label": "捕食种油库里（蕾米莉亚系设计稿）",
+  "units_per_block": 16,
+  "source": "../../assembled/{base}/{base}.bbmodel + index.html",
+  "design_basis": {
+    "verified_traits": ["飞行", "翅膀", "尖牙"],
+    "verified_source": "wiki/hakkei-reference/lore/species/flandre/README.md、remilia/README.md，依据 L12《观察日记》种类表；两条记录均只支持「飞行、翅膀、尖牙」",
+    "design_inference": [
+      "蝙蝠形翅膀的翼骨分段数、膜面比例与后掠角度",
+      "獠牙长度、宽度与口部挂点",
+      "淡蓝发色与整体配色",
+      "用扁平白色荷叶边软帽替换魔理沙的女巫帽",
+      "体型较普通种放大的幅度"
+    ],
+    "unverified": "本轮未能打开任何原作者或社区原始配图（pixiv 百科与 atwiki 均拒绝抓取，Google 图片搜索不可用）。上列推断项全部是本次原创设计，不是已核实的原作细节，待用户确认。"
+  },
+  "texture": {
+    "size": 256,
+    "base_region": [0, 0, 128, 128],
+    "note": "基础 128 图集原样放在左上角；新增部件只使用右侧边距。UV 与纹理尺寸同步导出，游戏运行资源读取烘焙后的 0..1 UV，因此放大图集不影响接入。"
+  },
+  "uv_regions": {
+    "cap": [64, 48, 128, 64],
+    "wing_left": [128, 0, 192, 32],
+    "wing_right": [192, 0, 256, 32],
+    "face_eye_left": [128, 80, 148, 104],
+    "face_eye_right": [150, 80, 170, 104],
+    "face_brow_left": [172, 80, 198, 84],
+    "face_brow_right": [200, 80, 226, 84],
+    "face_mouth": [128, 106, 148, 114],
+    "face_blush_left": [150, 106, 162, 112],
+    "face_blush_right": [164, 106, 176, 112],
+    "face_tear_left": [128, 60, 142, 76],
+    "face_tear_right": [144, 60, 158, 76],
+    "face_effect_mouth": [160, 60, 176, 76],
+    "note": "帽与翼用 64..256 的上半区；十件五官改用 60..114 的新区块（更大），旧的脸部区块 0,0..113,28 在本亚种图集里被清空。这些都只是纹理坐标，不影响其他角色。"
+  },
+  "part_colors": {
+    "membrane": [68, 52, 80, 255],
+    "membrane_light": [104, 82, 120, 255],
+    "membrane_dark": [44, 32, 54, 255],
+    "bone": [150, 132, 168, 255],
+    "bone_dark": [104, 88, 122, 255],
+    "wing_leading": [188, 62, 74, 255],
+    "cap": [244, 196, 212, 255],
+    "cap_shade": [222, 158, 184, 255],
+    "cap_ribbon": [198, 54, 66, 255],
+    "tooth": [250, 248, 236, 255],
+    "tooth_edge": [206, 200, 182, 255],
+    "gum": [196, 126, 130, 255]
+  },
+  "hair_recolor": {
+    "scope_uv": [[0, 48, 16, 64], [16, 48, 32, 64], [32, 48, 48, 64]],
+    "note": "只替换发型专属 UV 区块内的金色像素；软帽区块另由 cap UV 决定，不受此映射影响。取色依据参考图 R1/R2/R3 的淡蓝紫发（高光偏白、暗部偏紫）。",
+    "map": {
+      "239,194,82": [168, 196, 232],
+      "255,220,114": [216, 232, 248],
+      "200,148,54": [128, 156, 208],
+      "228,180,71": [156, 184, 226],
+      "243,205,96": [200, 222, 244],
+      "187,135,47": [112, 140, 194]
+    }
+  },
+  "variants": {
+    "predator_remilia": {
+      "label": "捕食种·蕾米莉亚系",
+      "base": "marisa",
+      "shape": "predator",
+      "scale": 1,
+      "world_scale": 0.28872180451127816,
+      "description": "普通种身体上叠加一对蝙蝠形翼与上颌獠牙：翼从背侧伸出，带分段翼骨与膜面；獠牙悬在口部上缘。女巫帽换成扁平白色荷叶边软帽，避免帽子压住翼。",
+      "preview": {
+        "span": 19.5,
+        "centerY": 7.0,
+        "default_motion": "idle",
+        "default_expression": "neutral"
+      },
+      "body_scale": [1.06, 1.14, 1.05],
+      "remove_elements": ["brim_center", "brim_sides", "brim_front", "brim_back",
+                          "hat_base", "hat_band", "hat_taper_1", "hat_taper_2",
+                          "hat_taper_3", "hat_tip_bend", "hat_tip", "hat_tip_end"],
+      "face": {
+        "note": "八景 U 官方正视里眼睛很大、嘴在脸下方且不与眼重叠；方块风基座把五官都塞在 ~0.6 模型单位高的一条里，读起来挤且小。本亚种把十件五官重挂到更大的 UV 区块并放大几何，只改本亚种的图集与模型，不动共用素材，105 张表情仍按新 UV 逐张重贴。",
+        "parts": {
+          "face_eye_left": {"box": [0.6, 1.8, 5.4, 6.6], "uv": "face_eye_left"},
+          "face_eye_right": {"box": [-5.4, 1.8, -0.6, 6.6], "uv": "face_eye_right"},
+          "face_brow_left": {"box": [1.0, 6.8, 4.6, 7.5], "uv": "face_brow_left"},
+          "face_brow_right": {"box": [-4.6, 6.8, -1.0, 7.5], "uv": "face_brow_right"},
+          "face_mouth": {"box": [-1.9, 0.5, 1.9, 1.6], "uv": "face_mouth"},
+          "face_blush_left": {"box": [2.9, 2.6, 5.3, 4.0], "uv": "face_blush_left"},
+          "face_blush_right": {"box": [-5.3, 2.6, -2.9, 4.0], "uv": "face_blush_right"},
+          "face_tear_left": {"box": [2.2, 0.6, 4.2, 3.0], "uv": "face_tear_left"},
+          "face_tear_right": {"box": [-4.2, 0.6, -2.2, 3.0], "uv": "face_tear_right"},
+          "face_effect_mouth": {"box": [-2.2, 0.4, 2.2, 1.9], "uv": "face_effect_mouth"}
+        },
+        "clear_base_uv": [[0, 0, 113, 28]],
+        "face_z": -4.88,
+        "face_depth": 0.1,
+        "note_z": "躯干 soft_head_slice 的前表面在 z=-4.83（不是脸部元件自己的 -4.60），因此五官必须放到 -4.88..-4.78 才在其之前，否则整块被躯干挡住。"
+      },
+      "cap": {
+        "bone": "hat",
+        "shape": {"cx": 0, "cz": 1.30, "rx": 7.50, "rz": 6.55, "corner": 0.62},
+        "crown": {"key": "cap_body", "color": "cap", "y": [10.10, 10.58]},
+        "dome": [
+          {"key": "cap_body", "color": "cap", "y": [10.58, 10.92], "shrink": 0.20},
+          {"key": "cap_body", "color": "cap", "y": [10.92, 11.18], "shrink": 0.40},
+          {"key": "cap_body", "color": "cap", "y": [11.18, 11.34], "shrink": 0.62}
+        ],
+        "band": {"key": "cap_band", "color": "cap_ribbon", "y": [10.50, 10.90], "shrink": 0.045},
+        "brim": {"key": "cap_brim", "color": "cap_shade", "y": [10.20, 10.52], "shrink": 0.0},
+        "ruffle": {
+          "tabs": 8, "bump": 1.05, "taper": 0.45, "y": [10.16, 10.56],
+          "note": "帽檐外缘按 tab 数交替向外做凸起，凸起高度向外缘递减（taper），形成参考图 R1 的荷叶边。"
+        },
+        "bow_fit": {"offset_y": 10.30, "scale_y": 0.26},
+        "note": "参考图 R1/R3 的软帽是圆盘，而方块风基座的帽子是方盒。这里改用椭圆分段：两侧主板＝椭圆在 x=±rx*corner 处的矩形，四角＝该处椭圆边缘的薄块，于是俯视轮廓接近椭圆而非方形。三件分别取样贴图不同横带（帽身粉、帽带红、帽檐荷叶边），帽檐外缘再按 tab 做几何波浪。"
+      },
+      "wing": {
+        "root": [6.0, 6.00, 4.7],
+        "thickness": 0.5,
+        "yaw": 18,
+        "outline": [
+          [6.4, 6.80], [7.2, 7.30], [8.1, 7.50], [9.0, 7.45], [9.9, 7.20],
+          [10.5, 6.70], [10.9, 6.10], [11.2, 5.50], [11.5, 5.70], [11.9, 5.00],
+          [12.2, 5.25], [12.6, 4.50], [12.1, 4.15], [11.2, 4.20], [10.1, 4.35],
+          [8.8, 4.60], [7.5, 4.90], [6.4, 5.30]
+        ],
+        "fingers": [
+          {"to": [9.9, 7.20], "bone": "wing_a"},
+          {"to": [12.2, 5.25], "bone": "wing_b"},
+          {"to": [12.6, 4.50], "bone": "wing_c"}
+        ],
+        "finger_width": 0.7,
+        "fold": -28,
+        "scale_note": "翼长 ≈ 体宽 × 0.67（参考图 R2 实测：体宽约 150px，单翼自肩至尖端约 100px，翼高约 55px）。先前的 34 单位翼展是参考的 2.7 倍，且错误上扬，已按实测改小并改为下垂姿态。",
+        "note": "outline 为右翼轮廓（绝对 x,y，顺序：翼根→前缘→指骨尖→后缘凹口→回翼根，x 单调递增）。小型下垂三角翼：前缘近水平略升，翼尖下探，后缘两个凹口形成指骨扇形。要改翼形直接改这串点。fold 为收拢贴身角度（见 wing_fold 动作）。"
+      },
+      "note": "参考图 R1/R3 都不见獠牙，R2 张口时口内可见但无法判定有突出的尖牙。因此本稿**不做獠牙**，只保留原有口部；若后续确认该种有尖牙再补。"
+    }
+  },
+  "physical_scale": {
+    "ordinary_body_width_m": 0.24,
+    "predator_body_width_m": 0.2544,
+    "world_scale": 0.28872180451127816,
+    "note": "普通成体主体宽约 24 厘米。捕食种按 1.06 倍横向放大标定为主体宽约 25.4 厘米，仍是篮球级体型；翼展不计入主体尺寸。"
+  }
+}

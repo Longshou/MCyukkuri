@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "stretchSamples": 281,
+  "waddleSamples": 61,
+  "minY": 0,
+  "maxH": 24.25,
+  "maxFaceError": 8.881784197001252e-16,
+  "maxJoinError": 4.000000011217253e-7,
+  "waddleGeometryError": 0,
+  "checks": [
+    "ground stays at zero",
+    "face remains 12 x 8 throughout stretch",
+    "face and crown stay joined to skin",
+    "stretch returns to rest and clamps after end",
+    "all previous waddle geometry and normals preserved",
+    "texture bytes unchanged"
+  ]
+}

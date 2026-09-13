@@ -1,0 +1,12 @@
+{
+  "total": 11,
+  "passed": 9,
+  "failed": 2,
+  "failures": [
+    "[02:14:52] [Server thread/ERROR] [minecraft/LogTestReporter]: coreacceptance failed at -9518441, -60, -5592753! 4 core checks failed; first wound loses one finite filling unit",
+    "[02:14:57] [Server thread/ERROR] [minecraft/LogTestReporter]: nativespeech failed at -9518405, -60, -5592753! Speech expires without depending on expression timer"
+  ],
+  "human_assertions": 36,
+  "human_pass": true,
+  "note": "Final private GameTest run; shared checkout has concurrent wound changes. Full suite is not green."
+}

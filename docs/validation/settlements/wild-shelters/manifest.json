@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-13",
+  "environment": "Windows, JDK 21.0.12, Minecraft 1.21.1, NeoForge 21.1.250",
+  "game_tests": {
+    "groups": 4,
+    "assertions": 227,
+    "passed": 227
+  },
+  "client_snapshot": ".local\\settlements\\runtime\\20260913-031450",
+  "scenes": {
+    "family": 4,
+    "forest_led": 60,
+    "forest_shelters_including_chief": 13
+  },
+  "fingerprints": {
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ForageGoal.java": "2d9c53bf224be51914c4dbb84b5f6732493b0c7634e5b5aa83eb1696c1d993ca",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/HabitatLife.java": "9555c65f25bd83d6224039837760fb6c8d52ca52b89e476ddcbc7bad62b5eec4",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementCommands.java": "3be79b3766e69518c799543035ca1dd8196882d4be11d96cbf161db5fa609219",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementComposition.java": "b0788f679d43f122a720184c1c5f25530704e0c8cf947ed493f9c3ada8296581",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementData.java": "fc6583f6dda1a5153530ecc08f915f1edeb070f1a485dfa778da62de446c3402",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementLife.java": "0efc33cea3572f5be7acf519c426fa9b3f8c60b3445922e8b0300929a7846a0f",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementObservation.java": "969fc682c85319c46e603ff9e9c46165a40c9b761030e113774471f4f0c50e78",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementSpawner.java": "62ec40625c4ba9a11f487447532806a6fcf0746480e70b3f60c727dbc7955fd2",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ShelterBlock.java": "32a0f2b8ba05c2e2d72f21aa603070b801f640f8dae74cf2aa8d9c17a4cb2591",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ShelterBlockEntity.java": "492a92cea4b362d33616c06a95df010194037592a8a254edeac327890fed5671",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ShelterGeometry.java": "f3479e9c02fc2aae528d1c1b49a1fb311e9f72b96ed08871cacfef14281a16a5",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ShelterPlacement.java": "62e103249badd8bcb7b4fefb5ea1db2f8d551fcc5d921fd724ed68d12b57c180",
+    "src/main/java/io/github/longshou/mcyukkuri/client/ShelterRenderer.java": "1a1e29eceadccf272ff1d7fb355c41511a60f497442e4bfd87fe861f4aef6592",
+    "standards/yukkuri-library/ecology/wild-shelters/assembled/cardboard_shelter.json": "ca9e83c8094d3655e99948b9ebe3081b4f80eaba841a73d39497d58159ec022c",
+    "standards/yukkuri-library/ecology/wild-shelters/assembled/forest_burrow.json": "3e580587c92696abcf04f96f0d9282b1d72337229021b23137b0de5becfefa7c",
+    "standards/yukkuri-library/ecology/wild-shelters/assembled/wild_latrine.json": "3be18d84f7c2aa21dafe6d8def3b03b7395ff1a3e9702a8a341b710b88f3c1b1",
+    "standards/yukkuri-library/ecology/wild-shelters/assembled/wild_latrine_dirty.json": "01ec25f5e6a61fd1f316d20f765f44d913f413dedc794d97fd9fcf5972498a2f"
+  },
+  "screenshots": {
+    "burrow.png": "6dda3a7447af7e2ba416780f793094fc0e73bd27868d92706e219639acac6ef7",
+    "cardboard.png": "380d67109bab33226341a1bba60bdce9a0c2f2073d72255586a85baf2489bce6",
+    "forest-houses.png": "1bb2f083941ba807b4ac06247b0488090a8d8f008230d64e3223e1834e4c8788"
+  },
+  "limitations": [
+    "Controlled flat fixture with trees, not a survey of natural terrain distribution.",
+    "Preview residents frozen for static inspection; movement is covered by GameTests.",
+    "No dedicated chunk-unload or cancellation-event assertion; no long-term ecological balance test.",
+    "Models pending user confirmation.",
+    "No dedicated full-latrine scenario assertion."
+  ],
+  "built_jar": {
+    "path": "build/libs/mcyukkuri-0.1.0-dev.jar",
+    "sha256": "879b7e5413400fc810cf79ef01bc9275e045cbd2d54247297089f51bebf45417"
+  }
+}

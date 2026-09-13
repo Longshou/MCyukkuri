@@ -1,0 +1,31 @@
+{
+  "groups": 10,
+  "passed": 9,
+  "failed": [
+    "coreacceptance"
+  ],
+  "coreFailures": [
+    {
+      "name": "wound loses one finite filling unit",
+      "pass": false,
+      "detail": "{Bandage:0,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:205,Version:2,Wound:1,Wounds:[{Emitted:0,Id:[I;-1614394350,1580484243,-1846000064,834300733],Kind:\"dent\",LastRelease:0L,Severity:1,Size:1.0f,Triangle:41562,U:0.2639628f,V:0.2360372f}]}"
+    },
+    {
+      "name": "leak creates one physical source-tagged item",
+      "pass": false,
+      "detail": "items"
+    },
+    {
+      "name": "capture preserves remaining filling and treatment",
+      "pass": false,
+      "detail": "{Bandage:1200,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:325,Version:2,Wound:1,Wounds:[{Emitted:0,Id:[I;-1614394350,1580484243,-1846000064,834300733],Kind:\"dent\",LastRelease:0L,Severity:1,Size:1.0f,Triangle:41562,U:0.2639628f,V:0.2360372f}]}"
+    },
+    {
+      "name": "fed clean bandage closes wound over actual ticks",
+      "pass": false,
+      "detail": "{Bandage:990,Burns:0,Filling:12,HairLoss:0,Infection:0,KnownPortions:[],Mold:0,MoldExposure:0,ReleaseCursor:0,Settled:0b,Ticks:535,Version:2,Wound:0,Wounds:[]}"
+    }
+  ],
+  "log": ".local/settlements/gametest-full/acceptance.log",
+  "logSha256": "ec880d6983b8a264ecf87ed4a275703c2c03a34cc3cefc7be3748e28fe24195a"
+}

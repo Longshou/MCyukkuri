@@ -1,0 +1,65 @@
+{
+  "recorded_utc": "2026-09-12T21:19:06.066342+00:00",
+  "scope": "cold-storage, carrier actual-hand fix, notebook, survival advancements",
+  "source_confirmation": "cold-storage visual design pending user confirmation",
+  "game_test": {
+    "checks": 47,
+    "failed": 0,
+    "exit": 0,
+    "snapshot": ".local/p7-freezer-notebook/gametest-1789247418862833300"
+  },
+  "client": {
+    "snapshot": ".local/p7-freezer-notebook/preview-1789247725906498900",
+    "owned_pid_stopped": 46852,
+    "actual_controls": [
+      "capture",
+      "store",
+      "break",
+      "rebuild",
+      "retrieve",
+      "release",
+      "open_guide",
+      "observe"
+    ],
+    "guide_pages": 34,
+    "guide_max_height": 108,
+    "observation_pages": 14,
+    "observation_max_height": 99,
+    "font_locale": "zh_cn"
+  },
+  "not_run": [
+    "dedicated multiplayer",
+    "long survival balance",
+    "power-loss recovery",
+    "English/Japanese client layout"
+  ],
+  "source_sha256": {
+    "src/main/java/io/github/longshou/mcyukkuri/freezer/FreezerBlock.java": "747c985b651d003220c56c5442fe8e4fbea60b49e577a8d55d5ab92f7edbe166",
+    "src/main/java/io/github/longshou/mcyukkuri/freezer/FreezerModule.java": "eb7f42f895e9d4f1eb3e2e4eb8510ffcc645fb58326c2ab06ea113b226d756e6",
+    "src/main/java/io/github/longshou/mcyukkuri/freezer/FreezerStorage.java": "5510e377e6da4e5254f54f483ec03fc73ade32ab3ee75d50695acf27dc8bfe0a",
+    "src/main/java/io/github/longshou/mcyukkuri/notebook/NotebookGuide.java": "626d11aa8057c102fd6cccb1caff037867685db102cdd832417f03435721fef7",
+    "src/main/java/io/github/longshou/mcyukkuri/notebook/SurvivalProgress.java": "97fcecde52d821c4adb158481225a1780184fe3a6f9ac776ea8431a31b27b146",
+    "src/main/java/io/github/longshou/mcyukkuri/item/CarrierItem.java": "54eb60ffeb82ea002030fbdc869cce00dbe6a4de4359fa5f165b2f64c4ec938e",
+    "src/main/java/io/github/longshou/mcyukkuri/item/NotebookItem.java": "bf7bf510300a7462917e8afcf0073944bf0e305c200e86a63f2cb0192db081ef",
+    "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriWorldData.java": "7f531462f5d67a07a70b490b7182ea59b11cd891852014a368abc35800fca332"
+  },
+  "matching_test_and_client_class_sha256": {
+    "classes/java/main/io/github/longshou/mcyukkuri/freezer/FreezerBlock.class": "4589134e659ef420adf9e6d40400834eb3fd545937d5c89cd061a94dd8e08340",
+    "classes/java/main/io/github/longshou/mcyukkuri/freezer/FreezerModule.class": "85dd918e9e865e7879c547d99f9e6ab8acfbe209e9a5511eb3d1b2c31c678b91",
+    "classes/java/main/io/github/longshou/mcyukkuri/freezer/FreezerStorage.class": "95f22423e41d8b0a636a1ecbf67f4d54614142d7b5895f01742c20d5b22b0d23",
+    "classes/java/main/io/github/longshou/mcyukkuri/notebook/NotebookGuide.class": "3b704f5bf1d392425a8df8bfb667f4de098c5e6d8fa0c9017fa0d9ff0fe29b15",
+    "classes/java/main/io/github/longshou/mcyukkuri/notebook/SurvivalProgress.class": "ca5a380a7d89483ee9fff42c7aa937ce466aa2a87b0c489bf198bdb98a526c9b",
+    "classes/java/main/io/github/longshou/mcyukkuri/item/CarrierItem.class": "6a4c9cc69f461304e5b831e43cf8f7b734ceef4b7f4f2b97e9a4f7ace11a0997",
+    "classes/java/main/io/github/longshou/mcyukkuri/item/NotebookItem.class": "b98beb7a13ad0d7af8fa8e8eadb7a14ae80b5b97004bcf9fb051a86cfaeb9927",
+    "classes/java/main/io/github/longshou/mcyukkuri/life/YukkuriWorldData.class": "4b185d2d0f2420f6d522d32e759b7b502d34d34a69069aa5bacadf8078106e49"
+  },
+  "screenshots_sha256": {
+    "art/props/cold-storage/previews/current/freezer-overview.png": "df00e58579ab9ccf45e0126194fb287c1685c3b45773ae583b07d4c7442b7ec8",
+    "art/props/cold-storage/previews/current/freezer-front.png": "4cf19f36420f93479d67e7de52f123229f530b99f5aa1de00ee8d02a10d34883",
+    "art/props/cold-storage/previews/current/freezer-side.png": "aff3e222040e998e4520ecfdb90fb7daa207214147b57c5656a9208eb9881e84",
+    "art/props/cold-storage/previews/current/freezer-back.png": "aecb4d720ee1dd276b1cff58511c837b685b06225fb8f75a75d16dce7a9a18ae",
+    "art/props/cold-storage/previews/current/notebook-guide.png": "17ab0abf09e8ef9548428284237e33fb739a35176e1dbe04b114f9f34b9d1a51",
+    "art/props/cold-storage/previews/current/notebook-storage.png": "f1496f63d00ae335b7c76479b5581064adee098fae006f296df28de7aaf0bd68",
+    "art/props/cold-storage/previews/current/notebook-observation.png": "0f121c4bb8471a2d373708ac85f8c8281c0f48567594abe2557a8010326aaca5"
+  }
+}

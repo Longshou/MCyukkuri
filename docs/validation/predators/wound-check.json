@@ -1,0 +1,56 @@
+[
+  {
+    "variant": "reimu",
+    "skinVertices": 73392,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "marisa",
+    "skinVertices": 73392,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "chen",
+    "skinVertices": 66912,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "alice",
+    "skinVertices": 66912,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "patchouli",
+    "skinVertices": 66912,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "house_reimu",
+    "skinVertices": 15198,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "house_marisa",
+    "skinVertices": 15198,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "remilia",
+    "skinVertices": 72669,
+    "sharedBindings": true,
+    "fingerprints": true
+  },
+  {
+    "variant": "flandre",
+    "skinVertices": 72669,
+    "sharedBindings": true,
+    "fingerprints": true
+  }
+]

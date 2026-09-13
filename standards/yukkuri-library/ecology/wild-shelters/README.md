@@ -1,0 +1,13 @@
+# 天然住所的叶床、结界与纸箱
+
+原创制作源为 `build.py`。当前选用已接入 Minecraft。用户于 2026-09-13 确认已展示的天然洞穴叶床、细枝结界及浅坑布置，指纹登记在 `manifest.json` 的 `approvals`；纸箱和便所造型仍待确认。用户已否定此前的整座覆土工事，现行森林资产仅有散落叶床 `forest_burrow` 和至多三根细枝 `nest_boundary`；洞顶、洞壁与坑底由现有地形提供。
+
+运行 `python standards/yukkuri-library/ecology/wild-shelters/build.py` 同步可编辑 `.bbmodel`、静态网格、图集、选用快照及游戏资源，并刷新 `previews/current/`。需要现有 Python、Pillow 与 Node.js。`verify.py` 核对源、选用与运行文件，并写入当前报告。
+
+每格十六单位，+Z 为入口。叶床宽不足一格、厚度不足一单位；细枝长约半格。运行时叶床按勘测床位显示，细枝移至入口并靠向现有侧壁，浅坑沿上的细枝横放贴地，没有拱框或绑绳，森林模型碰撞为空。纸箱保留 3×3×2 格的外壳、一人睡位与原创纸板纹理。均为静态网格，无角色骨架或独立动画。
+
+![当前实际网格多角度预览](previews/current/shelters-sheet.png)
+
+天然住所的能力与尺度以用户 2026-09-13 的生态纠正为依据；此前覆土图像的转译不再作为普通野外油库里的建造能力。纸箱参考为ゲスあき《街でゆっくり・ダンボールハウスでゆっくり》（2013-09-05，[原页面](http://blog.livedoor.jp/yukkuri_anko/archives/29803869.html)）。参考图不进入运行纹理。
+
+`manifest.json` 保存来源及当前导出指纹。[生活环境说明](../../../../docs/WILD_SHELTERS.md)记录地形勘测、搬运和天气行为。

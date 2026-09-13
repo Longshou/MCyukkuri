@@ -1,0 +1,19 @@
+{
+  "cubes": 57,
+  "bones": 17,
+  "results": [
+    {
+      "name": "stretch",
+      "samples": 41,
+      "error": 7.629394573882564e-7,
+      "exportMatches": true
+    },
+    {
+      "name": "waddle",
+      "samples": 41,
+      "error": 7.631935261542822e-7,
+      "exportMatches": true
+    }
+  ],
+  "status": "passed"
+}

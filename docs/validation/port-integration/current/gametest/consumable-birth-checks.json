@@ -1,0 +1,170 @@
+[
+  {
+    "name": "assistance requires a usable home",
+    "pass": true
+  },
+  {
+    "name": "birth fixture claims real natural shelter",
+    "pass": true
+  },
+  {
+    "name": "juvenile cannot receive reproductive filling",
+    "pass": true
+  },
+  {
+    "name": "sterile mother cannot receive dose",
+    "pass": true
+  },
+  {
+    "name": "elder mother cannot receive dose",
+    "pass": true
+  },
+  {
+    "name": "NoAI cannot reserve an unadvanceable birth",
+    "pass": true
+  },
+  {
+    "name": "unloaded factory owner cannot bypass factory budget",
+    "pass": true
+  },
+  {
+    "name": "insufficient nutrition refuses without consuming the dose",
+    "pass": true
+  },
+  {
+    "name": "dose reserves one real portion",
+    "pass": true
+  },
+  {
+    "name": "partial operation has no pregnancy or nutrition charge",
+    "pass": true
+  },
+  {
+    "name": "mid-operation reload cancels and returns the original portion",
+    "pass": true
+  },
+  {
+    "name": "pending return clears exactly once",
+    "pass": true
+  },
+  {
+    "name": "dose can restart after cancellation",
+    "pass": true
+  },
+  {
+    "name": "leaving contact range returns dose without conception",
+    "pass": true
+  },
+  {
+    "name": "eligible adult starts committed assistance",
+    "pass": true
+  },
+  {
+    "name": "dose waits for the final contact tick",
+    "pass": true
+  },
+  {
+    "name": "completion creates one live litter with unknown father",
+    "pass": true
+  },
+  {
+    "name": "birth charges existing nutritional budget once",
+    "pass": true
+  },
+  {
+    "name": "repeat dose cannot reset existing litter or take an item",
+    "pass": true
+  },
+  {
+    "name": "entity and family save preserve litter child IDs and unknown father",
+    "pass": true
+  },
+  {
+    "name": "birth cannot commit before full emergence",
+    "pass": true
+  },
+  {
+    "name": "NoAI and unloaded-style pause never advances gestation",
+    "pass": true
+  },
+  {
+    "name": "carrier reserves the real maternal identity",
+    "pass": true
+  },
+  {
+    "name": "carrier restore keeps pregnancy and child IDs",
+    "pass": true
+  },
+  {
+    "name": "duplicate carrier token cannot create a second mother",
+    "pass": true
+  },
+  {
+    "name": "blocked front outlet pauses delivery without birth",
+    "pass": true
+  },
+  {
+    "name": "missing ground support pauses delivery",
+    "pass": true
+  },
+  {
+    "name": "maternal movement pauses active emergence",
+    "pass": true
+  },
+  {
+    "name": "first live child is a real small baby at front outlet",
+    "pass": true
+  },
+  {
+    "name": "child retains real mother unknown father and birth identity",
+    "pass": true
+  },
+  {
+    "name": "real newborn retains the emergence facing",
+    "pass": true
+  },
+  {
+    "name": "birth initializes innate cognition with real ancestry and zero learned points",
+    "pass": true
+  },
+  {
+    "name": "repeated cognition birth cannot reroll the newborn",
+    "pass": true
+  },
+  {
+    "name": "already born child cannot spawn twice",
+    "pass": true
+  },
+  {
+    "name": "stationary first sibling occupies the exit and delays the next",
+    "pass": true
+  },
+  {
+    "name": "second child completes the original litter",
+    "pass": true
+  },
+  {
+    "name": "postpartum body returns gradually instead of creating a new litter",
+    "pass": true
+  },
+  {
+    "name": "postpartum recovery reaches ordinary body dimensions",
+    "pass": true
+  },
+  {
+    "name": "second eligible mother can conceive separately",
+    "pass": true
+  },
+  {
+    "name": "maternal death cancels only unborn children and releases their reservation",
+    "pass": true
+  },
+  {
+    "name": "original live siblings survive another maternal death",
+    "pass": true
+  },
+  {
+    "name": "natural birth choice is stable before conception",
+    "pass": true
+  }
+]

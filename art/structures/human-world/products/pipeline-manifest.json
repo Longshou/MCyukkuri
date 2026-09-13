@@ -1,0 +1,31 @@
+{
+  "status": "pending_visual_approval",
+  "geometry": "Native block elements; tray passenger attaches at y=4/16 blocks.",
+  "assets": {
+    "factory_receiving_table": {
+      "source": "art/structures/human-world/products/factory_receiving_table.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_receiving_table.png",
+      "sha256": "4d46f72f3ba30adbd733bd27fe62f6e77750b6ec8f81368346dedf2681c9564a"
+    },
+    "factory_inspection_table": {
+      "source": "art/structures/human-world/products/factory_inspection_table.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_inspection_table.png",
+      "sha256": "956f46a1d545c440e72186a5c983f88540a006e87503973c337d16da7cd4cb61"
+    },
+    "factory_washing_table": {
+      "source": "art/structures/human-world/products/factory_washing_table.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_washing_table.png",
+      "sha256": "073f700c82dbb1221c4466c856afb17d0e051dd02b75489805322206afa1f186"
+    },
+    "factory_observation_station": {
+      "source": "art/structures/human-world/products/factory_observation_station.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_observation_station.png",
+      "sha256": "9514149ce067dbef130719aad869b9933bf67ecab9b159eafb27d60e010fcf48"
+    },
+    "factory_transfer_tray": {
+      "source": "art/structures/human-world/products/factory_transfer_tray.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/factory_transfer_tray.png",
+      "sha256": "59cf4c68187e73d272f8651ed615201eb1905cc3b373a7299d183fef0a5e796b"
+    }
+  }
+}

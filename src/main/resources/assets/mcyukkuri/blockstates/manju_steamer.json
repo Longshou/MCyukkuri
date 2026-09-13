@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mcyukkuri:block/manju_steamer",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "mcyukkuri:block/manju_steamer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mcyukkuri:block/manju_steamer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mcyukkuri:block/manju_steamer",
+      "y": 270
+    }
+  }
+}

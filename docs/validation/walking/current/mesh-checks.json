@@ -1,0 +1,72 @@
+[
+  {
+    "variant": "house_reimu",
+    "runtime_sha256": "e7f171042ee5348d225808d231caeff044e80502c963193acb1b36f6d06cc01a",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 0.8021892010752122,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "house_marisa",
+    "runtime_sha256": "993d71e26d4cfbe925d0d5a813af98955d26e8de02c2c3c579012195aab9d560",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 0.8021892010752122,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "reimu",
+    "runtime_sha256": "25e6527a25d2ea5cd48fdf98745da5a91c38797eebd5b166751d13ba16b2a60e",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 1.8174293961882229,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "marisa",
+    "runtime_sha256": "fb4709b3dcdf432c995a6c1e0bec02db87596319d522badc63e23f8f7028cffe",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 1.8174293961882229,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "chen",
+    "runtime_sha256": "da6f19137c09d695ff2b61a4c716c5508a09612e49707f251c0111a58d8e3d87",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 1.8174293961882229,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "alice",
+    "runtime_sha256": "ebfbe7b738c02203e5a798e989144f1ae36f83152a0306d47911c38b634dcacb",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 1.8174293961882229,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  },
+  {
+    "variant": "patchouli",
+    "runtime_sha256": "1b5b6245647107eb8d134bc2ee54a971f88cf4d0f0d2076cb3d041bac7ccd290",
+    "asset_contract": "pass",
+    "only_waddle_changed": true,
+    "samples": 121,
+    "rump_centroid_x_span_units": 1.8174293961882229,
+    "minimum_visible_y_units": 0.0,
+    "loop_seam_max_units": 0.0
+  }
+]

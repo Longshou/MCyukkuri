@@ -1,0 +1,379 @@
+[
+  {
+    "op": "preview",
+    "command": "living-care",
+    "result": {
+      "tick": 18088,
+      "players": [
+        {
+          "count": 0,
+          "held": "minecraft:air",
+          "carrierToken": "null",
+          "uuid": "1b2212ab-402e-3b66-861f-7a6c331e81c7",
+          "name": "P0Preview"
+        }
+      ],
+      "entities": [
+        {
+          "uuid": "2f91cd2a-d772-4f0e-a7e6-e9f974d70949",
+          "networkId": 5,
+          "variant": "reimu",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 90.49546206293117,
+          "y": 65.0,
+          "z": 6.004390161146872,
+          "health": 8.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 0,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:760L,Bladder:20.0f,Energy:62.0f,EnergyProgress:120,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424439873L,HungerProgress:40,Hygiene:71.0f,HygieneProgress:160,MealTicks:0,NaturalHome:0b,Nutrition:43.0f,Personality:{Experience:[I;0,1,0,2,0,1],Innate:[I;34,49,52,39,70,80],Lessons:0,Players:[{Fear:6,Interactions:5,Player:[I;455217835,1076771686,-2044757396,857637319],TalkWait:44,Trust:11}]},RestWait:0,SharedMeal:0b,SocialWait:296,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "64b249b5-0bec-4fa5-8343-e36d55198f7c",
+          "networkId": 6,
+          "variant": "marisa",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 93.5,
+          "y": 65.0,
+          "z": 4.5,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 1,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 60.0,
+          "energy": 80.0,
+          "hygiene": 100.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;49,59,22,37,70,56],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "bf555b4a-90ce-40d1-a2dd-cbe7a197022e",
+          "networkId": 7,
+          "variant": "house_reimu",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 96.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 2,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;24,26,62,63,54,30],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "a543d5c7-8733-48c4-b34a-4109e3c88d0d",
+          "networkId": 8,
+          "variant": "house_marisa",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 99.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 3,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;44,36,33,72,37,22],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        }
+      ]
+    }
+  },
+  {
+    "op": "preview",
+    "command": "living-bowl",
+    "count": 0,
+    "result": {
+      "tick": 18100,
+      "players": [
+        {
+          "count": 0,
+          "held": "minecraft:air",
+          "carrierToken": "null",
+          "uuid": "1b2212ab-402e-3b66-861f-7a6c331e81c7",
+          "name": "P0Preview"
+        }
+      ],
+      "entities": [
+        {
+          "uuid": "2f91cd2a-d772-4f0e-a7e6-e9f974d70949",
+          "networkId": 5,
+          "variant": "reimu",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 90.49546206293117,
+          "y": 65.0,
+          "z": 6.004390161146872,
+          "health": 8.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 0,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:760L,Bladder:20.0f,Energy:62.0f,EnergyProgress:120,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424439873L,HungerProgress:40,Hygiene:71.0f,HygieneProgress:160,MealTicks:0,NaturalHome:0b,Nutrition:43.0f,Personality:{Experience:[I;0,1,0,2,0,1],Innate:[I;34,49,52,39,70,80],Lessons:0,Players:[{Fear:6,Interactions:5,Player:[I;455217835,1076771686,-2044757396,857637319],TalkWait:44,Trust:11}]},RestWait:0,SharedMeal:0b,SocialWait:296,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "64b249b5-0bec-4fa5-8343-e36d55198f7c",
+          "networkId": 6,
+          "variant": "marisa",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 93.5,
+          "y": 65.0,
+          "z": 4.5,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 1,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 60.0,
+          "energy": 80.0,
+          "hygiene": 100.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;49,59,22,37,70,56],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "bf555b4a-90ce-40d1-a2dd-cbe7a197022e",
+          "networkId": 7,
+          "variant": "house_reimu",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 96.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 2,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;24,26,62,63,54,30],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "a543d5c7-8733-48c4-b34a-4109e3c88d0d",
+          "networkId": 8,
+          "variant": "house_marisa",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 99.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 3,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;44,36,33,72,37,22],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        }
+      ]
+    }
+  },
+  {
+    "op": "care-check",
+    "empty": true,
+    "result": {
+      "displayFood": "0 minecraft:air"
+    }
+  },
+  {
+    "op": "preview",
+    "command": "living-bowl",
+    "count": 3,
+    "result": {
+      "tick": 18112,
+      "players": [
+        {
+          "count": 0,
+          "held": "minecraft:air",
+          "carrierToken": "null",
+          "uuid": "1b2212ab-402e-3b66-861f-7a6c331e81c7",
+          "name": "P0Preview"
+        }
+      ],
+      "entities": [
+        {
+          "uuid": "2f91cd2a-d772-4f0e-a7e6-e9f974d70949",
+          "networkId": 5,
+          "variant": "reimu",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 90.49546206293117,
+          "y": 65.0,
+          "z": 6.004390161146872,
+          "health": 8.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 0,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:760L,Bladder:20.0f,Energy:62.0f,EnergyProgress:120,GoldMedal:0b,HomeDimension:\"minecraft:overworld\",HomePos:28312424439873L,HungerProgress:40,Hygiene:71.0f,HygieneProgress:160,MealTicks:0,NaturalHome:0b,Nutrition:43.0f,Personality:{Experience:[I;0,1,0,2,0,1],Innate:[I;34,49,52,39,70,80],Lessons:0,Players:[{Fear:6,Interactions:5,Player:[I;455217835,1076771686,-2044757396,857637319],TalkWait:44,Trust:11}]},RestWait:0,SharedMeal:0b,SocialWait:296,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "64b249b5-0bec-4fa5-8343-e36d55198f7c",
+          "networkId": 6,
+          "variant": "marisa",
+          "action": "idle",
+          "start": 16714,
+          "expression": "neutral",
+          "x": 93.5,
+          "y": 65.0,
+          "z": 4.5,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 1,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 60.0,
+          "energy": 80.0,
+          "hygiene": 100.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:80.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:100.0f,HygieneProgress:0,MealTicks:0,Nutrition:60.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;49,59,22,37,70,56],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "bf555b4a-90ce-40d1-a2dd-cbe7a197022e",
+          "networkId": 7,
+          "variant": "house_reimu",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 96.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 2,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;24,26,62,63,54,30],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        },
+        {
+          "uuid": "a543d5c7-8733-48c4-b34a-4109e3c88d0d",
+          "networkId": 8,
+          "variant": "house_marisa",
+          "action": "idle",
+          "start": 16715,
+          "expression": "neutral",
+          "x": 99.0,
+          "y": 65.0,
+          "z": 4.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 600,
+          "index": 3,
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "nutrition": 43.0,
+          "energy": 62.0,
+          "hygiene": 71.0,
+          "accessory": true,
+          "mouthCount": 0,
+          "lifeNBT": "{Accessory:1b,AgeTicks:0L,Bladder:0.0f,Energy:62.0f,EnergyProgress:0,GoldMedal:0b,HungerProgress:0,Hygiene:71.0f,HygieneProgress:0,MealTicks:0,Nutrition:43.0f,Personality:{Experience:[I;0,0,0,0,0,0],Innate:[I;44,36,33,72,37,22],Lessons:0,Players:[]},RestWait:200,SharedMeal:0b,SocialWait:0,Version:1,Wetness:0.0f}"
+        }
+      ]
+    }
+  },
+  {
+    "op": "care-check",
+    "result": {
+      "displayFood": "1 minecraft:apple"
+    }
+  },
+  {
+    "op": "block-interact",
+    "x": 94,
+    "y": 65,
+    "z": 8,
+    "result": "SUCCESS"
+  },
+  {
+    "op": "capture",
+    "name": "living-bowl-menu",
+    "keepScreen": true,
+    "result": {
+      "manifest": "capture-living-bowl-menu.json",
+      "count": 1
+    }
+  },
+  {
+    "op": "close-screen",
+    "result": "closed"
+  },
+  {
+    "op": "capture",
+    "name": "living-bowl-filled",
+    "result": {
+      "manifest": "capture-living-bowl-filled.json",
+      "count": 1
+    }
+  },
+  {
+    "op": "stop",
+    "result": "Stopping owned P0 client"
+  }
+]

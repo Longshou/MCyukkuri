@@ -1,0 +1,58 @@
+{
+  "status": "implemented_pending_visual_approval",
+  "authorship": "Original programmatic pixel artwork; no downloaded artwork.",
+  "geometry": "src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java",
+  "rig": "Minecraft HumanoidModel: head, hat, body, right_arm, left_arm, right_leg, left_leg; long_hair and mohawk parent=head",
+  "texture_size": [
+    64,
+    64
+  ],
+  "animation": "Native humanoid walking, head look and arm swing; resting pose override",
+  "textures": {
+    "oniisan": {
+      "source": "standards/yukkuri-library/textures/human/oniisan.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/oniisan.png",
+        "art/source/human-runtime/textures/oniisan.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/oniisan.png"
+      ],
+      "sha256": "5821178cb3eb66f22c1b9f37d612ea58b47b4bf1918038c263e110e87d88ae34"
+    },
+    "brother": {
+      "source": "standards/yukkuri-library/textures/human/brother.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/brother.png",
+        "art/source/human-runtime/textures/brother.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/brother.png"
+      ],
+      "sha256": "50bac8c12e2290fcd02a00ee0c4e90e80622d2e07ad6b6d31bb2685f1696f387"
+    },
+    "sister": {
+      "source": "standards/yukkuri-library/textures/human/sister.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/sister.png",
+        "art/source/human-runtime/textures/sister.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/sister.png"
+      ],
+      "sha256": "e7ef41d0b3eba541abebe002ccfec79e310f0651f05cd86677803a225908de7b"
+    },
+    "shopkeeper": {
+      "source": "standards/yukkuri-library/textures/human/shopkeeper.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/shopkeeper.png",
+        "art/source/human-runtime/textures/shopkeeper.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png"
+      ],
+      "sha256": "caa5daf29c5d9e879713754587d1c9e550aa8f593fafbec0223314fea5c9a7cd"
+    },
+    "factory_worker": {
+      "source": "standards/yukkuri-library/textures/human/factory_worker.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/factory_worker.png",
+        "art/source/human-runtime/textures/factory_worker.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/factory_worker.png"
+      ],
+      "sha256": "3ce2f68f567b0d07f255084177491ef056a7af28acc1f5323b51065db10b59c0"
+    }
+  }
+}

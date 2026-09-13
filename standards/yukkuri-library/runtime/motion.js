@@ -4,6 +4,7 @@ function compileMotion(rig){
  let c=compiledMotion.get(rig);if(c)return c;
  const ids=Object.fromEntries(rig.bones.map((b,i)=>[b.name,i]));
  c={parents:rig.bones.map(b=>b.parent==null?-1:ids[b.parent]),groups:rig.groups.map(n=>ids[n]),clips:{}};
+ let offset=0;c.ranges=rig.groups.map((_,i)=>{const start=offset;offset+=(rig.element_vertex_counts?.[i]??36)*8;return [start,offset];});
  for(const [name,clip] of Object.entries(rig.clips||{stretch:rig}))c.clips[name]=rig.bones.map(b=>Object.entries(clip.tracks[b.name]||{}).map(([ch,keys])=>({ch,keys:Object.entries(keys).map(([t,v])=>[Number(t),v]).sort((a,b)=>a[0]-b[0])})));
  compiledMotion.set(rig,c);return c;
 }
@@ -27,7 +28,7 @@ function poseVertices(vertices,rig,time,enabled=true,travel=false,clipName='stre
   normal.push([m[5]*m[10]-m[6]*m[9],m[6]*m[8]-m[4]*m[10],m[4]*m[9]-m[5]*m[8],m[2]*m[9]-m[1]*m[10],m[0]*m[10]-m[2]*m[8],m[1]*m[8]-m[0]*m[9],m[1]*m[6]-m[2]*m[5],m[2]*m[4]-m[0]*m[6],m[0]*m[5]-m[1]*m[4]]);
  }
  const out=vertices.slice(),offset=travel&&clipName==='waddle'?travelOffset(rig,time):0;
- for(let cube=0;cube<c.groups.length;cube++){const m=world[c.groups[cube]],n=normal[c.groups[cube]];for(let i=cube*288;i<(cube+1)*288;i+=8){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],nx=vertices[i+5],ny=vertices[i+6],nz=vertices[i+7];out[i]=m[0]*x+m[1]*y+m[2]*z+m[3];out[i+1]=m[4]*x+m[5]*y+m[6]*z+m[7];out[i+2]=m[8]*x+m[9]*y+m[10]*z+m[11]+offset;const ax=n[0]*nx+n[1]*ny+n[2]*nz,ay=n[3]*nx+n[4]*ny+n[5]*nz,az=n[6]*nx+n[7]*ny+n[8]*nz,l=Math.hypot(ax,ay,az);out[i+5]=ax/l;out[i+6]=ay/l;out[i+7]=az/l;}}
+ for(let cube=0;cube<c.groups.length;cube++){const m=world[c.groups[cube]],n=normal[c.groups[cube]];for(let i=c.ranges[cube][0];i<c.ranges[cube][1];i+=8){const x=vertices[i],y=vertices[i+1],z=vertices[i+2],nx=vertices[i+5],ny=vertices[i+6],nz=vertices[i+7];out[i]=m[0]*x+m[1]*y+m[2]*z+m[3];out[i+1]=m[4]*x+m[5]*y+m[6]*z+m[7];out[i+2]=m[8]*x+m[9]*y+m[10]*z+m[11]+offset;const ax=n[0]*nx+n[1]*ny+n[2]*nz,ay=n[3]*nx+n[4]*ny+n[5]*nz,az=n[6]*nx+n[7]*ny+n[8]*nz,l=Math.hypot(ax,ay,az);out[i+5]=ax/l;out[i+6]=ay/l;out[i+7]=az/l;}}
  return out;
 }
 if(typeof module!=='undefined')module.exports={poseVertices};

@@ -1,0 +1,30 @@
+[
+  {
+    "variant": "reimu",
+    "pass": true
+  },
+  {
+    "variant": "marisa",
+    "pass": true
+  },
+  {
+    "variant": "house_reimu",
+    "pass": true
+  },
+  {
+    "variant": "house_marisa",
+    "pass": true
+  },
+  {
+    "variant": "chen",
+    "pass": true
+  },
+  {
+    "variant": "alice",
+    "pass": true
+  },
+  {
+    "variant": "patchouli",
+    "pass": true
+  }
+]

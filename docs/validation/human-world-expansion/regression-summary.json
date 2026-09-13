@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-12T19:42:59.536147+00:00",
+  "total": 18,
+  "passed": 11,
+  "failed": 7,
+  "human_assertions": 80,
+  "human_pass": true,
+  "failures": [
+    "[03:41:16] [Server thread/ERROR] [minecraft/LogTestReporter]: settlementacceptance failed at -12452564, -60, -13321623! [Check[name=FOREST variable population, pass=false], Check[name=FOREST_LED variable population, pass=false]]",
+    "[03:41:26] [Server thread/ERROR] [minecraft/LogTestReporter]: livingacceptance failed at -12452552, -60, -13321623! 5 living checks failed; first: local population cap rejects another spawn",
+    "[03:41:33] [Server thread/ERROR] [minecraft/LogTestReporter]: entityacceptance failed at -12452540, -60, -13321623! 2 checks failed; first: house_reimu goal reaches and consumes distant food; details in p0-control/server-checks.json",
+    "[03:41:34] [Server thread/ERROR] [minecraft/LogTestReporter]: householdresources failed at -12452534, -60, -13321623! Waiting for actual waste carry outside",
+    "[03:41:37] [Server thread/ERROR] [minecraft/LogTestReporter]: coreacceptance failed at -12452528, -60, -13321623! 8 core checks failed; first real goal carries and deposits six source items",
+    "[03:41:39] [Server thread/ERROR] [minecraft/LogTestReporter]: instrumentacceptance failed at -12452552, -60, -13321616! [Check[name=plain shears transfer immature brood, pass=false], Check[name=Unexpected exception: java.lang.ClassCastException: class io.github.longshou.mcyukkuri.life.CareBlockEntity cannot be cast to class io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity (io.github.longshou.mcyukkuri.life.CareBlockEntity and io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity are in module mcyukkuri@0.1.0-dev of loader 'TRANSFORMER' @629f066f), pass=false]]",
+    "[03:41:41] [Server thread/ERROR] [minecraft/LogTestReporter]: settlementreturn failed at -12452534, -60, -13321616! Complete forest fixture, population=0, loaded=0"
+  ],
+  "log": ".local/human-world/regression-clean/acceptance.log",
+  "log_sha256": "0b7855e176d1c91dfffe81c8622756f10c868b7272c85b44709280217078225a",
+  "scope": "Full default P0 registration in a clean world with frozen compiled classes and resources. Other module failures remain unresolved."
+}

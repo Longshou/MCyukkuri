@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "presets": 13,
+  "checks": [
+    "13 distinct preset textures",
+    "left and right eyes independent",
+    "custom component combinations",
+    "downloaded model embeds current custom texture and four clips",
+    "expression changes preserve animation time",
+    "half-speed side exercise duration retained",
+    "mobile layout"
+  ],
+  "errors": []
+}

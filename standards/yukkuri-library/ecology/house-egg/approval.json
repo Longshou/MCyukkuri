@@ -1,0 +1,24 @@
+{
+  "id": "house-egg.r2.4",
+  "status": "user_approved",
+  "approved_on": "2026-09-13",
+  "user_confirmation": "可以",
+  "scope": "此前展示的 R2.4 完整家油卵与配套裂壳造型；其他周边素材不在本次确认范围",
+  "runtime_status": "not_integrated",
+  "archive": "approved-r2.4.zip",
+  "archive_sha256": "cb288f25a3ebcdf1a198717bb2ffee9a88475e0591176d0a004e06aaf9257c6c",
+  "assets": {
+    "house_egg": {
+      "bbmodel_sha256": "07917d75aebc3d976397a7dfdd0eaadc02ac1da0fcdfc401a1137b7adb360d97",
+      "mesh_sha256": "8c8b02cd048a59326ae44c73b7c777a267429e01bd8c45d9bc675a5658ed358d",
+      "texture_sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
+    },
+    "house_egg_cracked": {
+      "bbmodel_sha256": "1f4850823601d2fb9dc87f7900533e8af28d86dbf45c7fb3fa71ca104bbd5635",
+      "mesh_sha256": "3f1909962355acb684bf9b204d5bd703e13d1513ee129b75ba64a1efc8fd25b2",
+      "texture_sha256": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57"
+    }
+  },
+  "authoring_origin": "drafts/peripheral-props/revision2.py",
+  "reuse_rule": "以此快照及文件指纹为标准；修改后作为新候选，不继承原确认状态"
+}

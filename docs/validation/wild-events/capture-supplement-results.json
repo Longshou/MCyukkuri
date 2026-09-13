@@ -1,0 +1,300 @@
+[
+  {
+    "scene": "sisters",
+    "record": {
+      "manifest": "capture-sisters-latest.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "dialogue.mcyukkuri.native.reimu.young.l0134",
+          "expression": "teary",
+          "food": 35.0,
+          "id": "9f3948b4-6b48-4a94-b6c2-bbac0a9e4154",
+          "position": "(9002.988687551915, 65.0, 5.860340114974766)",
+          "behavior": "event_sisters"
+        },
+        {
+          "speech": "dialogue.mcyukkuri.native.marisa.young.l0134",
+          "expression": "teary",
+          "food": 35.0,
+          "id": "7db434b4-5a25-4ef1-beeb-ae4ef624af2d",
+          "position": "(9002.376134669514, 64.0, 5.439328067968493)",
+          "behavior": "event_sisters"
+        },
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 80.0,
+          "id": "6e324a8e-d9b1-441c-b397-d6d71811ca1a",
+          "position": "(9006.0, 65.0, 13.0)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [],
+      "scene": "893564f0-04bb-49ae-96e9-0ed8601e9a7f:WAITING:"
+    }
+  },
+  {
+    "scene": "sisters-fed-0",
+    "record": {
+      "manifest": "capture-sisters-latest-fed-0.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "dialogue.mcyukkuri.native.reimu.young.l0134",
+          "expression": "teary",
+          "food": 54.0,
+          "id": "9f3948b4-6b48-4a94-b6c2-bbac0a9e4154",
+          "position": "(9002.988687551915, 65.0, 5.860340114974766)",
+          "behavior": "event_sisters"
+        },
+        {
+          "speech": "dialogue.mcyukkuri.native.marisa.young.l0134",
+          "expression": "teary",
+          "food": 34.0,
+          "id": "7db434b4-5a25-4ef1-beeb-ae4ef624af2d",
+          "position": "(9002.376134669514, 64.0, 5.439328067968493)",
+          "behavior": "event_sisters"
+        },
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 80.0,
+          "id": "6e324a8e-d9b1-441c-b397-d6d71811ca1a",
+          "position": "(9006.0, 65.0, 13.0)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [
+        "9f3948b4-6b48-4a94-b6c2-bbac0a9e4154"
+      ],
+      "scene": "893564f0-04bb-49ae-96e9-0ed8601e9a7f:WAITING:"
+    }
+  },
+  {
+    "scene": "sisters-fed-1",
+    "record": {
+      "manifest": "capture-sisters-latest-fed-1.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 54.0,
+          "id": "9f3948b4-6b48-4a94-b6c2-bbac0a9e4154",
+          "position": "(9002.85811308388, 65.0, 6.061973518579286)",
+          "behavior": "follow_parent"
+        },
+        {
+          "speech": "",
+          "expression": "happy",
+          "food": 54.0,
+          "id": "7db434b4-5a25-4ef1-beeb-ae4ef624af2d",
+          "position": "(9002.471106625875, 64.0, 5.628579735745804)",
+          "behavior": "follow_parent"
+        },
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 80.0,
+          "id": "6e324a8e-d9b1-441c-b397-d6d71811ca1a",
+          "position": "(9006.0, 65.0, 13.0)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [
+        "9f3948b4-6b48-4a94-b6c2-bbac0a9e4154",
+        "7db434b4-5a25-4ef1-beeb-ae4ef624af2d"
+      ],
+      "scene": "893564f0-04bb-49ae-96e9-0ed8601e9a7f:COMPLETE:all_members_actually_fed"
+    }
+  },
+  {
+    "scene": "single_parent",
+    "record": {
+      "manifest": "capture-single_parent-latest.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "dialogue.mcyukkuri.native.reimu.adult.l0134",
+          "expression": "teary",
+          "food": 35.0,
+          "id": "97800899-935d-4adb-9919-dd6335b0b8b9",
+          "position": "(9050.78363563891, 65.0, 6.306656714475086)",
+          "behavior": "event_single_parent"
+        },
+        {
+          "speech": "dialogue.mcyukkuri.native.marisa.young.l0134",
+          "expression": "teary",
+          "food": 35.0,
+          "id": "b30f35b8-d726-470a-b2be-629d730c9ced",
+          "position": "(9050.10350270057, 65.0, 5.895753307475611)",
+          "behavior": "event_single_parent"
+        }
+      ],
+      "fed": [],
+      "scene": "883179e1-8e37-4f8a-a09b-94475f5c5edb:WAITING:"
+    }
+  },
+  {
+    "scene": "single_parent-fed-0",
+    "record": {
+      "manifest": "capture-single_parent-latest-fed-0.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "dialogue.mcyukkuri.native.reimu.adult.l0134",
+          "expression": "teary",
+          "food": 54.0,
+          "id": "97800899-935d-4adb-9919-dd6335b0b8b9",
+          "position": "(9050.78363563891, 65.0, 6.306656714475086)",
+          "behavior": "event_single_parent"
+        },
+        {
+          "speech": "dialogue.mcyukkuri.native.marisa.young.l0134",
+          "expression": "teary",
+          "food": 34.0,
+          "id": "b30f35b8-d726-470a-b2be-629d730c9ced",
+          "position": "(9050.10350270057, 65.0, 5.895753307475611)",
+          "behavior": "event_single_parent"
+        }
+      ],
+      "fed": [
+        "97800899-935d-4adb-9919-dd6335b0b8b9"
+      ],
+      "scene": "883179e1-8e37-4f8a-a09b-94475f5c5edb:WAITING:"
+    }
+  },
+  {
+    "scene": "single_parent-fed-1",
+    "record": {
+      "manifest": "capture-single_parent-latest-fed-1.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 54.0,
+          "id": "97800899-935d-4adb-9919-dd6335b0b8b9",
+          "position": "(9050.78363563891, 65.0, 6.306656714475086)",
+          "behavior": "idle"
+        },
+        {
+          "speech": "",
+          "expression": "happy",
+          "food": 54.0,
+          "id": "b30f35b8-d726-470a-b2be-629d730c9ced",
+          "position": "(9050.10350270057, 65.0, 5.895753307475611)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [
+        "b30f35b8-d726-470a-b2be-629d730c9ced",
+        "97800899-935d-4adb-9919-dd6335b0b8b9"
+      ],
+      "scene": "883179e1-8e37-4f8a-a09b-94475f5c5edb:COMPLETE:all_members_actually_fed"
+    }
+  },
+  {
+    "scene": "boat",
+    "record": {
+      "manifest": "capture-boat-latest.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "",
+          "expression": "teary",
+          "food": 80.0,
+          "id": "1e090871-55d5-4357-983f-b447acc21f06",
+          "position": "(9099.21457706755, 65.0, 8.481714829838022)",
+          "behavior": "event_river"
+        },
+        {
+          "speech": "",
+          "expression": "surprise",
+          "food": 80.0,
+          "id": "c2bed11a-d4da-4788-8830-8e5d0a1033ef",
+          "position": "(9100.6, 64.96888549804689, 8.5)",
+          "behavior": "event_river"
+        }
+      ],
+      "fed": [],
+      "scene": "9e1c3951-0bcc-4765-89d9-cc0ac13f76cc:APPROACH:"
+    }
+  },
+  {
+    "scene": "boat-rescue",
+    "rescue": {
+      "command": "event-rescue"
+    },
+    "record": {
+      "manifest": "capture-boat-latest-rescue.json",
+      "count": 13
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 79.0,
+          "id": "1e090871-55d5-4357-983f-b447acc21f06",
+          "position": "(9098.577863508672, 65.0, 10.090043201418185)",
+          "behavior": "idle"
+        },
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 79.0,
+          "id": "c2bed11a-d4da-4788-8830-8e5d0a1033ef",
+          "position": "(9098.447361292836, 65.0, 10.964354997206351)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [],
+      "scene": "9e1c3951-0bcc-4765-89d9-cc0ac13f76cc:COMPLETE:actual_boat_rescue_observed"
+    }
+  },
+  {
+    "scene": "expedition",
+    "record": {
+      "manifest": "capture-expedition-latest.json",
+      "count": 31
+    },
+    "state": {
+      "actors": [
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 79.0,
+          "id": "cad86da8-6c49-4415-8df5-51ec7e55621e",
+          "position": "(9146.172421983489, 65.0, 8.505884219862457)",
+          "behavior": "idle"
+        },
+        {
+          "speech": "",
+          "expression": "neutral",
+          "food": 79.0,
+          "id": "c2e5afe5-11e7-40e9-92bd-092c83d69de7",
+          "position": "(9146.986399143016, 65.0, 8.503223938698547)",
+          "behavior": "idle"
+        }
+      ],
+      "fed": [],
+      "scene": "a5a54562-cb31-4651-8796-b08689648060:COMPLETE:real_squad_reported_and_returned"
+    }
+  }
+]

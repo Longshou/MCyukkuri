@@ -1,0 +1,401 @@
+[
+  {
+    "destination": "server",
+    "op": "snapshot",
+    "result": {
+      "serverTick": 3500,
+      "players": [
+        "P0ObserverA",
+        "P0ObserverB"
+      ],
+      "entities": [
+        {
+          "uuid": "08129bb7-013a-49be-8182-1af4d04f5b04",
+          "networkId": 1,
+          "variant": "reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 0.0,
+          "y": 65.0,
+          "z": 0.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 200
+        },
+        {
+          "uuid": "0526ab67-62cb-49b2-9233-340042f327aa",
+          "networkId": 2,
+          "variant": "marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 2.0,
+          "y": 65.0,
+          "z": 0.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 200
+        },
+        {
+          "uuid": "17b755ae-b8ec-4a51-94e8-46bd81d1f541",
+          "networkId": 3,
+          "variant": "house_reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 4.0,
+          "y": 65.0,
+          "z": 0.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 200
+        },
+        {
+          "uuid": "b32ca7f5-3a31-4d85-9777-0822b2137860",
+          "networkId": 4,
+          "variant": "house_marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 6.0,
+          "y": 65.0,
+          "z": 0.0,
+          "health": 10.0,
+          "foodCooldown": 0,
+          "restDelay": 200
+        }
+      ],
+      "averageTickMillis": 0.609423,
+      "tick": 3500
+    }
+  },
+  {
+    "destination": "client-a",
+    "op": "snapshot",
+    "result": {
+      "tick": 3504,
+      "world": true,
+      "client": "P0ObserverA",
+      "screen": "none",
+      "entities": [
+        {
+          "uuid": "0526ab67-62cb-49b2-9233-340042f327aa",
+          "networkId": 2,
+          "variant": "marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 2.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "b32ca7f5-3a31-4d85-9777-0822b2137860",
+          "networkId": 4,
+          "variant": "house_marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 6.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "08129bb7-013a-49be-8182-1af4d04f5b04",
+          "networkId": 1,
+          "variant": "reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 0.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "17b755ae-b8ec-4a51-94e8-46bd81d1f541",
+          "networkId": 3,
+          "variant": "house_reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 4.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        }
+      ]
+    }
+  },
+  {
+    "destination": "client-b",
+    "op": "snapshot",
+    "result": {
+      "client": "P0ObserverB",
+      "screen": "none",
+      "entities": [
+        {
+          "uuid": "0526ab67-62cb-49b2-9233-340042f327aa",
+          "networkId": 2,
+          "variant": "marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 2.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "b32ca7f5-3a31-4d85-9777-0822b2137860",
+          "networkId": 4,
+          "variant": "house_marisa",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 6.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "08129bb7-013a-49be-8182-1af4d04f5b04",
+          "networkId": 1,
+          "variant": "reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 0.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        },
+        {
+          "uuid": "17b755ae-b8ec-4a51-94e8-46bd81d1f541",
+          "networkId": 3,
+          "variant": "house_reimu",
+          "action": "taiso",
+          "start": 2965,
+          "expression": "neutral",
+          "x": 4.0,
+          "y": 65.0,
+          "z": 0.0,
+          "renderer": "YukkuriRenderer",
+          "behavior": "idle",
+          "behaviorStart": 0,
+          "accessory": true,
+          "mouthCount": 0,
+          "dialogue": ""
+        }
+      ],
+      "tick": 3506,
+      "world": true
+    }
+  },
+  {
+    "destination": "client-a",
+    "op": "capture",
+    "name": "dedicated-a-latejoin",
+    "result": {
+      "count": 1,
+      "manifest": "capture-dedicated-a-latejoin.json"
+    }
+  },
+  {
+    "destination": "client-b",
+    "op": "capture",
+    "name": "dedicated-b-latejoin",
+    "result": {
+      "count": 1,
+      "manifest": "capture-dedicated-b-latejoin.json"
+    }
+  },
+  {
+    "destination": "server",
+    "op": "network-feed",
+    "result": {
+      "target": 1,
+      "uuid": "08129bb7-013a-49be-8182-1af4d04f5b04"
+    }
+  },
+  {
+    "destination": "client-a",
+    "op": "interact",
+    "result": {
+      "id": "bd057526-4be8-4397-a951-93b1668e5fb8",
+      "op": "interact",
+      "pass": true,
+      "time": "2026-09-11T20:36:31.282272700Z",
+      "result": {
+        "predictedResult": "SUCCESS",
+        "target": "08129bb7-013a-49be-8182-1af4d04f5b04"
+      }
+    }
+  },
+  {
+    "destination": "client-b",
+    "op": "interact",
+    "result": {
+      "id": "ced7d76a-a98e-433e-ad59-904da7f4d0a8",
+      "op": "interact",
+      "pass": true,
+      "time": "2026-09-11T20:36:31.385306Z",
+      "result": {
+        "predictedResult": "SUCCESS",
+        "target": "08129bb7-013a-49be-8182-1af4d04f5b04"
+      }
+    }
+  },
+  {
+    "destination": "server",
+    "op": "players",
+    "result": [
+      {
+        "held": 1,
+        "name": "P0ObserverA"
+      },
+      {
+        "held": 2,
+        "name": "P0ObserverB"
+      }
+    ]
+  },
+  {
+    "destination": "client-b",
+    "op": "reload",
+    "result": {
+      "modelReplaced": true,
+      "state": {
+        "client": "P0ObserverB",
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "0526ab67-62cb-49b2-9233-340042f327aa",
+            "networkId": 2,
+            "variant": "marisa",
+            "action": "taiso",
+            "start": 2965,
+            "expression": "neutral",
+            "x": 2.0,
+            "y": 65.0,
+            "z": 0.0,
+            "renderer": "YukkuriRenderer",
+            "behavior": "idle",
+            "behaviorStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": ""
+          },
+          {
+            "uuid": "b32ca7f5-3a31-4d85-9777-0822b2137860",
+            "networkId": 4,
+            "variant": "house_marisa",
+            "action": "taiso",
+            "start": 2965,
+            "expression": "neutral",
+            "x": 6.0,
+            "y": 65.0,
+            "z": 0.0,
+            "renderer": "YukkuriRenderer",
+            "behavior": "idle",
+            "behaviorStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": ""
+          },
+          {
+            "uuid": "08129bb7-013a-49be-8182-1af4d04f5b04",
+            "networkId": 1,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 3520,
+            "expression": "neutral",
+            "x": 0.0,
+            "y": 65.0,
+            "z": 0.0,
+            "renderer": "YukkuriRenderer",
+            "behavior": "take_food",
+            "behaviorStart": 3533,
+            "accessory": true,
+            "mouthCount": 1,
+            "dialogue": ""
+          },
+          {
+            "uuid": "17b755ae-b8ec-4a51-94e8-46bd81d1f541",
+            "networkId": 3,
+            "variant": "house_reimu",
+            "action": "taiso",
+            "start": 2965,
+            "expression": "neutral",
+            "x": 4.0,
+            "y": 65.0,
+            "z": 0.0,
+            "renderer": "YukkuriRenderer",
+            "behavior": "idle",
+            "behaviorStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": ""
+          }
+        ],
+        "tick": 3580,
+        "world": true
+      }
+    }
+  },
+  {
+    "destination": "client-b",
+    "op": "assets",
+    "result": {
+      "chewingMotion": true,
+      "accessoryVisibility": true,
+      "clips": 76,
+      "mandatoryAtlases": 20,
+      "samples": 456,
+      "idleRestoration": true
+    }
+  },
+  {
+    "destination": "server",
+    "op": "unload",
+    "result": "Observers moved away; awaiting actual chunk unload"
+  }
+]

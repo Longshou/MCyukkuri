@@ -9,6 +9,7 @@
 | 先天倾向、成长经历、饰品识别、亲缘与社会地位 | [性格与社会关系](personality-social.md) |
 | 食物、馅料、住所、家油、巢与卵 | [资源与生活生态](resources-ecology.md) |
 | 日常互动、环境遭遇与作品故事 | [事件与生活情景](events.md) |
+| 商店、加工所与人类活动 | [漫画／小说核读及结构、NPC 生成建议](../../shops-factory-npcs.md) |
 | 外形、亚种与图片出处 | [种族目录](../lore/species/README.md) |
 | 原作品和本设定的差异 | [设定差异](../lore/conflicts.md) |
 

@@ -1,0 +1,11 @@
+// Keep actual source-set destinations and project-cache history separate from other active tasks.
+allprojects { layout.buildDirectory.set(file('.local/consumables-birth/build')) }
+gradle.projectsEvaluated {
+    rootProject.sourceSets.each { source ->
+        def target = rootProject.layout.buildDirectory.dir("classes/java/${source.name}")
+        rootProject.tasks.named(source.compileJavaTaskName) { destinationDirectory.set(target) }
+        source.output.classesDirs.setFrom(target)
+    }
+    rootProject.neoForge.runs.getByName('p0GameTest').gameDirectory = rootProject.file('.local/consumables-birth/gametest')
+    rootProject.neoForge.runs.getByName('p0Preview').gameDirectory = rootProject.file('.local/consumables-birth/preview')
+}

@@ -1,0 +1,306 @@
+{
+  "date": "2026-09-13",
+  "scope": "30 behavioral groups; individual animations and voice alternatives are not counted again",
+  "entries": [
+    {
+      "id": "food_seek",
+      "category": "生理",
+      "behavior": "觅食／找食盆",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.seekFood / ForageGoal",
+      "presentation": "seek_food / drool",
+      "status": "既有实现；本轮核对需求优先级",
+      "source": "W1"
+    },
+    {
+      "id": "meal",
+      "category": "生理",
+      "behavior": "取食—咀嚼—吞咽—满足",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.tick",
+      "presentation": "take_food/chew/swallow/meal_finish；咀嚼开闭嘴与满足闭眼",
+      "status": "本轮补表情阶段",
+      "source": "W1"
+    },
+    {
+      "id": "share",
+      "category": "社会",
+      "behavior": "亲代／亲友让食",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.tryShare",
+      "presentation": "share短反应；真实整口转交",
+      "status": "既有实现；不是复制食物",
+      "source": "N1"
+    },
+    {
+      "id": "drink",
+      "category": "生理",
+      "behavior": "饮水与口干",
+      "contexts": "三类",
+      "implementation": "YukkuriLife / Consumables",
+      "presentation": "seek_water/drink",
+      "status": "消耗品任务维护；本轮不重写",
+      "source": "W2"
+    },
+    {
+      "id": "sleep",
+      "category": "生理",
+      "behavior": "入睡—睡眠—醒来",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.tickGoal",
+      "presentation": "sleep_enter/sleep/wake；sleepy/sleep/yawn",
+      "status": "本轮补过渡表情",
+      "source": "W1"
+    },
+    {
+      "id": "toilet",
+      "category": "生理",
+      "behavior": "找厕所—用力—排出",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.planToilet/tickGoal",
+      "presentation": "seek_toilet/toilet；brace+闭嘴，完成短反应",
+      "status": "本轮补开始台词/动作/优先级",
+      "source": "W2"
+    },
+    {
+      "id": "outdoor_toilet",
+      "category": "生理",
+      "behavior": "野外有意识排泄",
+      "contexts": "流浪/族群",
+      "implementation": "YukkuriLife.GROUND_TOILET",
+      "presentation": "ground_toilet；40接触tick后单份排出",
+      "status": "本轮新增，避开住所附近和食物掉落",
+      "source": "W3"
+    },
+    {
+      "id": "accident",
+      "category": "生理",
+      "behavior": "厕所不可用时忍不住",
+      "contexts": "宠物/野外无安全点",
+      "implementation": "YukkuriLife.GROUND_TOILET",
+      "presentation": "toilet_accident；含泪、卫生下降",
+      "status": "本轮新增分阶段；不伪称成功使用厕所",
+      "source": "W2"
+    },
+    {
+      "id": "constipation",
+      "category": "生理",
+      "behavior": "便秘与幼体体操缓解",
+      "contexts": "三类",
+      "implementation": "YukkuriLife.exerciseReliefTicks",
+      "presentation": "便意高时含泪；体操不减口干或直接排空",
+      "status": "本轮补暂时排便缓解；饮水仍独立",
+      "source": "W2"
+    },
+    {
+      "id": "clean",
+      "category": "生理",
+      "behavior": "擦洗／池中清洁",
+      "contexts": "宠物/有设施族群",
+      "implementation": "YukkuriLife.wash / PlayLife",
+      "presentation": "washed/pool；独立卫生数值",
+      "status": "既有实现；擦脸亲昵不当作洗澡",
+      "source": "W2"
+    },
+    {
+      "id": "shelter",
+      "category": "生理",
+      "behavior": "避雨／回屋",
+      "contexts": "三类",
+      "implementation": "YukkuriLife / HabitatLife",
+      "presentation": "return_home与实际步行",
+      "status": "既有实现；亚种防雨另维护",
+      "source": "N1"
+    },
+    {
+      "id": "affection",
+      "category": "社会",
+      "behavior": "想要亲近与孤独",
+      "contexts": "三类",
+      "implementation": "DailyLife.clock",
+      "presentation": "需求页与高需求含泪",
+      "status": "本轮新增；无离线累积，不扣健康",
+      "source": "N2"
+    },
+    {
+      "id": "peer_nuzzle",
+      "category": "社会",
+      "behavior": "同伴／亲子擦擦脸",
+      "contexts": "三类",
+      "implementation": "DailyLife.nuzzle",
+      "presentation": "seek_affection→nuzzle→满足；闭口微笑+小幅擦动",
+      "status": "本轮新增；双向关系/识别/真实距离",
+      "source": "N2"
+    },
+    {
+      "id": "owner_nuzzle",
+      "category": "社会",
+      "behavior": "主动亲近熟悉人类",
+      "contexts": "宠物/熟悉人类的流浪",
+      "implementation": "DailyLife.plan/invite",
+      "presentation": "亲近需求驱动接近；实际接触才完成",
+      "status": "本轮新增；所有权不等于信任",
+      "source": "W2"
+    },
+    {
+      "id": "manual_rub",
+      "category": "社会",
+      "behavior": "人类温柔擦脸",
+      "contexts": "宠物/接受接触的野生",
+      "implementation": "OperationLife.RUB",
+      "presentation": "近距离40tick；30tick缓解亲昵需求",
+      "status": "本轮修正远距离与忙碌时擦脸",
+      "source": "W2"
+    },
+    {
+      "id": "greet",
+      "category": "社会",
+      "behavior": "问候与辨认",
+      "contexts": "三类",
+      "implementation": "YukkuriSocial",
+      "presentation": "peer/known_peer/unrecognized",
+      "status": "本轮限制隔墙/睡眠/敌对；与新会话互斥",
+      "source": "N1"
+    },
+    {
+      "id": "talk",
+      "category": "社会",
+      "behavior": "温言与冷言回应",
+      "contexts": "三类",
+      "implementation": "YukkuriSocial.talk",
+      "presentation": "gentle/cold；独立信任恐惧",
+      "status": "本轮温言小幅缓解亲昵；冷言不奖励",
+      "source": "W2"
+    },
+    {
+      "id": "family_follow",
+      "category": "社会",
+      "behavior": "跟随亲代／等待孩子",
+      "contexts": "流浪家庭/族群/宠物家庭",
+      "implementation": "FamilyLife",
+      "presentation": "follow_parent/wait_child/search_family",
+      "status": "既有实现；危机和失饰规则保留",
+      "source": "N1"
+    },
+    {
+      "id": "court",
+      "category": "社会",
+      "behavior": "伴侣与育幼",
+      "contexts": "三类",
+      "implementation": "FamilyLife / FamilyData",
+      "presentation": "courtship/tend_brood",
+      "status": "胎生任务维护；与日常会话互斥",
+      "source": "N2"
+    },
+    {
+      "id": "sumo",
+      "category": "活动",
+      "behavior": "友好相扑",
+      "contexts": "三类",
+      "implementation": "GroupInteractionGoal",
+      "presentation": "sumo_prepare/sumo_push",
+      "status": "既有实现；本轮阻止抢占擦脸对象",
+      "source": "W2"
+    },
+    {
+      "id": "protect",
+      "category": "社会",
+      "behavior": "欺负与保护同伴",
+      "contexts": "三类",
+      "implementation": "GroupInteractionGoal",
+      "presentation": "bully_peer/protect_peer",
+      "status": "既有实际见证条件；行为与攻击反馈分开",
+      "source": "N1"
+    },
+    {
+      "id": "boredom",
+      "category": "活动",
+      "behavior": "无聊与休闲需求",
+      "contexts": "三类",
+      "implementation": "DailyLife.clock",
+      "presentation": "观察页；饱食安全时寻找活动",
+      "status": "本轮新增；睡眠不增加",
+      "source": "W3"
+    },
+    {
+      "id": "sing",
+      "category": "活动",
+      "behavior": "独唱油库里之歌",
+      "contexts": "三类",
+      "implementation": "DailyLife.SING / EcologyAudio",
+      "presentation": "sing；开闭口、摆头、音符、8秒原创哼唱",
+      "status": "本轮新增；中断/移出跟踪即停声",
+      "source": "N3"
+    },
+    {
+      "id": "listen",
+      "category": "活动",
+      "behavior": "绑定同伴听歌",
+      "contexts": "三类",
+      "implementation": "DailyLife.singTo",
+      "presentation": "listen_song；闭口微笑，听完才缓解需求",
+      "status": "本轮新增；不凭附近人数伪造观众",
+      "source": "N3"
+    },
+    {
+      "id": "young_exercise",
+      "category": "活动",
+      "behavior": "幼体嗯嗯体操",
+      "contexts": "三类",
+      "implementation": "DailyLife.EXERCISE",
+      "presentation": "unun_exercise；已选taiso动作14秒",
+      "status": "本轮新增；完整结束才结算",
+      "source": "W2"
+    },
+    {
+      "id": "adult_exercise",
+      "category": "活动",
+      "behavior": "成体跟拍",
+      "contexts": "三类",
+      "implementation": "DailyLife.EXERCISE",
+      "presentation": "exercise_watch；微笑跟拍，不用幼体扭动",
+      "status": "本轮新增；不获得便秘缓解",
+      "source": "W2"
+    },
+    {
+      "id": "exercise_together",
+      "category": "活动",
+      "behavior": "成体带幼体活动",
+      "contexts": "族群/宠物家庭",
+      "implementation": "DailyLife.plan",
+      "presentation": "同一会话，成幼不同动作",
+      "status": "本轮新增；可见亲近成体才绑定",
+      "source": "W2"
+    },
+    {
+      "id": "toy",
+      "category": "活动",
+      "behavior": "推动／试探玩具",
+      "contexts": "三类",
+      "implementation": "YukkuriSocial.beginPlay",
+      "presentation": "真实物品接触、运动、能量消耗",
+      "status": "本轮在首次有效触碰缓解无聊",
+      "source": "W2"
+    },
+    {
+      "id": "playground",
+      "category": "活动",
+      "behavior": "滑梯／蹦床／浅池",
+      "contexts": "有设施个体",
+      "implementation": "PlayLife",
+      "presentation": "slide_down/trampoline/pool",
+      "status": "既有设施行为；本轮不重做",
+      "source": "W2"
+    },
+    {
+      "id": "community",
+      "category": "社会",
+      "behavior": "聚落集合与住所维护",
+      "contexts": "流浪/族群",
+      "implementation": "SettlementLife / HabitatLife",
+      "presentation": "实际返家、拾材、清理",
+      "status": "既有实现；41情景卡由野外事件任务核对",
+      "source": "N1"
+    }
+  ]
+}

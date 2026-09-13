@@ -1,0 +1,378 @@
+{
+  "frames": [
+    {
+      "state": {
+        "instances": 3,
+        "playing": 3,
+        "tick": 7007,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-000.png"
+    },
+    {
+      "state": {
+        "instances": 3,
+        "playing": 3,
+        "tick": 7017,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-001.png"
+    },
+    {
+      "state": {
+        "instances": 3,
+        "playing": 3,
+        "tick": 7026,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-002.png"
+    },
+    {
+      "state": {
+        "instances": 3,
+        "playing": 3,
+        "tick": 7036,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-003.png"
+    },
+    {
+      "state": {
+        "instances": 3,
+        "playing": 2,
+        "tick": 7046,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "dialogue.mcyukkuri.native.chen.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-004.png"
+    },
+    {
+      "state": {
+        "instances": 2,
+        "playing": 0,
+        "tick": 7056,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "dialogue.mcyukkuri.native.alice.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "dialogue.mcyukkuri.native.patchouli.adult.l0101",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-005.png"
+    },
+    {
+      "state": {
+        "instances": 0,
+        "playing": 0,
+        "tick": 7067,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-006.png"
+    },
+    {
+      "state": {
+        "instances": 0,
+        "playing": 0,
+        "tick": 7077,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-007.png"
+    },
+    {
+      "state": {
+        "instances": 0,
+        "playing": 0,
+        "tick": 7087,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-008.png"
+    },
+    {
+      "state": {
+        "instances": 0,
+        "playing": 0,
+        "tick": 7097,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-009.png"
+    },
+    {
+      "state": {
+        "instances": 0,
+        "playing": 0,
+        "tick": 7107,
+        "entities": [
+          {
+            "end": 7061,
+            "species": "alice",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7050,
+            "species": "chen",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          },
+          {
+            "end": 7065,
+            "species": "patchouli",
+            "key": "",
+            "sequence": 2,
+            "start": 6997,
+            "young": false
+          }
+        ]
+      },
+      "file": ".local/dialogue-species/preview/dialogue-control/screenshots/adult-interrupt-010.png"
+    }
+  ]
+}

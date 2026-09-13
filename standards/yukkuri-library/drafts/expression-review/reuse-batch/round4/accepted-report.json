@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-09-12T04:35:18.431699+08:00",
+  "round": 4,
+  "status": "accepted",
+  "scope": "Promote accepted cute N041/N042 without changing displayed pixels or geometry",
+  "sources": {
+    "drafts/expression-review/reuse-batch/round4/accepted-presentation.json": "fcbb85ecb08ebfbf16a4ac89e140240e3e56f3ef7770abfca72b3feccd6dca5b",
+    "drafts/expression-review/reuse-batch/round4/approvals-applied.json": "1e260221c0d027bf49d36ddb3dc55525e9e4dcacf1eebe5d43f6a2c07cdfd065",
+    "expressions/component-review/next-batch-decisions.json": "eecaabdb2c635a044aad1a19d32a7f5ce0e52ce72fd3617b736de9f103031542",
+    "expressions/component-review/review-progress.json": "f24816b8470c73d4ece3cd71d63f476ab5f1057076f220761fe1251294e900ea",
+    "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+    "expressions/parts/485d013f2c55cd7c245a.png": "e7a4d994befa4563ffb186c86ee54266f050cfb61eb7d6b8157c189cd6584b11",
+    "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+    "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+    "expressions/parts/8ff9316def1aeb45e228.png": "3679918b7f7735cd8be73424aff4d5ebd1aa92361153f0e8ebce17c6a031ed74",
+    "expressions/parts/a2d92d0aa068ba181a3d.png": "8bfc1b70703edd508dde2290d03f155af6aaea119b7ec3029642db3d48610896",
+    "expressions/parts/c7733b57eafee3c403e5.png": "9b1e5b4e31fff22de4206fb9e4658541dd3e410f0adb6c8c30f3b6df77024b90",
+    "expressions/parts/cf74fd4a8cea4e27f150.png": "43518e6499922134344b6f3b3f2e480e64df713c5d459a42ca1728d1220b5b0b",
+    "expressions/parts/dfd8064961973aca66e6.png": "031ac5a10d9fec7bec6863923afef9abb917abbdc888d90a9c09359b74a0193b",
+    "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+    "expressions/parts/index.json": "db1dd2c0a4e21f34eb421cce35361a28ef932dc22183be65268ad26ee9ab1a5c",
+    "expressions/presets/side_teary.json": "55d34686d9e425eb4b8d7544e32a29189660bca16245fe950fb5230692765af3",
+    "expressions/presets/side_teary_b.json": "0d51f21f4ed3a577c190ea04d6a4934c41f8edcc0d27dde4e6ed5c855db33920",
+    "tools/accept_cute_lament.py": "210a1f28f76bbbde779c37d81f65644d6ad652c7614e7da24539e870adb33f41",
+    "tools/sync_expression_exports.py": "0ee4c4ffa26c9a679285aa8555cbe7867d5cad6455c89b73df408c2beab81dd7"
+  },
+  "outputs": {
+    "assembled/alice/index.html": "5a09d312dd58610a6917a4c05c5a90f424dc2c123185864deb267f3b9f0e0ea4",
+    "assembled/alice/textures/side_teary.png": "20b9ee00e8db60ff7ab49709a1a9c7706ac31f19e8a4106f0159776312800579",
+    "assembled/alice/textures/side_teary_b.png": "863a05fe14d257a7f33cc8967877993ee5232c5d04dd9d117225778386a3f782",
+    "assembled/chen/index.html": "520266315f2f6be2b4f92c3ee1f41f273577f5cb5cd8eb9010722ae8939fb581",
+    "assembled/chen/textures/side_teary.png": "19ec6d95d4df9f4a52c700c4002a8533d7dc20ab493d26005a1b9f44b196ac6d",
+    "assembled/chen/textures/side_teary_b.png": "077fc33be0917e1229129183904ad9673a53d29158fb344bd0f476d0d4ce2531",
+    "assembled/marisa/index.html": "e078ef20e88cccca21309cd11c629664e60a3f4aa2e28ea5cfbd18b648568056",
+    "assembled/marisa/textures/side_teary.png": "c6788933ff363becabd6350b4ee059eada7d7918f967ccd0b4d98d509b1b5ba1",
+    "assembled/marisa/textures/side_teary_b.png": "3d3a62c7f6b9890d82474a3413eba9528fcf21a9b0036c66efc3009591001664",
+    "assembled/marisa_tsumuri/index.html": "541a798696099968dd8c2ff462ed30c8c6afe872ae3e92ef2cc4c68f20e031a6",
+    "assembled/marisa_tsumuri/textures/side_teary.png": "4513db19e7db08a27a94b79e47564850ebb7274e80d820ac5d4b5ac40ab07f47",
+    "assembled/marisa_tsumuri/textures/side_teary_b.png": "85d8e9790df90460fd6e368558c6e8c136d99e1fee7169409a8f53b56a0f3628",
+    "assembled/patchouli/index.html": "378c36f365d81de0370683f7eb9e3c06d56ac1237b94cb30aa95771720209e48",
+    "assembled/patchouli/textures/side_teary.png": "41c93ac9a360d332b745976886e27a893d63edbe0332e23a675a09500d73dcd3",
+    "assembled/patchouli/textures/side_teary_b.png": "55cd23238b1b9f1c86a81bc699e6892274dba19da541804a12c7082de2197667",
+    "assembled/reimu/index.html": "93d6684bf93b2f65ba2cef25e60b29ad6b7e1c7f4a001ab3e779788ca5c17a9b",
+    "assembled/reimu/textures/side_teary.png": "6cdea89edc022398ada0db42d1908f617a573c42243ed1bbb318323b24aeaa3b",
+    "assembled/reimu/textures/side_teary_b.png": "7293c1c0e83b5cb768172f38f50eb65cfd4542cdfec8f41955487472bf1b3a70",
+    "previews/current/pending-batch-oblique.png": "3360c7cf50e5a9f8ac6dd795c8c30b74053d67f3fdbc97b459c97d52a223d4c2",
+    "previews/current/pending-batch-page.png": "360f30e22d83254f9e353bcfe2adb369be8ce9ac3000e7bd2900552a009f4e7d",
+    "previews/current/pending-batch.png": "ded55c8fd25c2ed843bfbd2e15eccc55fafcef23b7262ffd9b6455d04a743232"
+  },
+  "checks": {
+    "approved_shape_identical": true,
+    "all_approval_fingerprints": "pass",
+    "export_atlas_slots": 120,
+    "embedded_preview_textures": "pass",
+    "catalog_statuses": "pass",
+    "browser": {
+      "expressions": 2,
+      "characters": 2,
+      "views": 4,
+      "angles": [
+        "front",
+        "oblique"
+      ],
+      "comparisons": [
+        {
+          "code": "N041",
+          "changed": true
+        },
+        {
+          "code": "N042",
+          "changed": true
+        }
+      ],
+      "errors": []
+    },
+    "visual": "Front and oblique views checked after promotion",
+    "not_run": "Minecraft runtime; no runtime resource changes",
+    "standard_library": "validate.py passed: all 630 character/expression atlases match source recipes; 150 unique pixel parts"
+  },
+  "active_batch_count": 0,
+  "pending_count": 35
+}

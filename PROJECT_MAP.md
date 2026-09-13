@@ -5,14 +5,19 @@
 | 模组代码 | `src/main/java/` | 入口、注册、实体及游戏逻辑；客户端实现在 `client/` |
 | 游戏资源 | `src/main/resources/` | 实际打包到模组的几何、贴图、动画、语言和物品模型 |
 | 模组声明 | `src/main/templates/` | 构建时替换版本号等信息的模板 |
+| 游戏验收夹具 | `src/p0Test/` | 独立开发模组，执行真实引擎行为检查与客户端采集；不进入发行 Jar |
 | 标准素材制作 | `standards/yukkuri-library/` | 共用组件、角色登记、造型、表情、动作、派生资产及配套导出 |
-| 当前实体接入素材 | `art/source/` | 当前 M1 灵梦、魔理沙使用的选定源模型快照；不随标准库更新自动替换 |
+| 当前实体接入素材 | `art/source/` | `standard-runtime/` 保存九种实体的选定快照与适配骨架；七种既有角色预览留在原包，两种捕食种预览见 `predator-runtime/`；旧 `reimu/`、`marisa/` 保留为历史基线 |
 | 历史动作与表情 | `art/library/` | 按内容哈希保存的源文件包、清单与冻结方案；恢复说明见 `docs/ASSET_WORKFLOW.md` |
-| 独立道具 | `art/props/` | 馅料、食盆等制作源及来源记录；尚未自动接入游戏 |
+| 独立道具 | `art/props/` | 馅料、食盆等制作源及来源记录；`care-facilities/` 已接入生活设施，`wild-shelters/` 保存天然住所叶床／细枝结界／纸箱选用，其他包不自动接入 |
+| 人类建筑 | `art/structures/human-world/` | 商店、工厂的原创布局、模板实体与生成规则；人类服装接入见 `art/source/human-runtime/` |
+| 音频制作 | `art/audio/` | 动作音效与日语语音的台词、参数、WAV 母带、来源指纹和试听；游戏 OGG 位于 `src/main/resources/assets/mcyukkuri/sounds/` |
+| 原版对白整理 | `art/dialogue/` | 八景 U 原版角色台词检索、Mod 对照、选用原句与译文；仅选中的台词进入游戏 |
 | 旧版兼容素材 | `standards/yukkuri-v1/` | 生命周期、亚种等既有原型依赖；当前共用素材仍在 `yukkuri-library/` 制作 |
 | 历史打包工具 | `tools/project-library/` | 保存与恢复旧素材包，保留原有相对路径依赖；遵守本机执行边界 |
 | 设定与作品来源 | `wiki/` | 设定、出处与核读资料；不作为运行代码或素材导出目录 |
 | 开发文档 | `docs/` | 环境说明、阶段计划、实现边界和验收说明 |
+| 游戏验收证据 | `docs/validation/` 下的 `species/`、`predators/`、`badges/`、`factory-pipeline/`、`cold-storage/`、`house-motion/`、`house-interactions/`、`walking/`、`p0/`、`p1p2/`、`core/`、`dialogue/`、`port-remainder/`、`settlements/` 等专题目录 | 分阶段断言、文件指纹和精选实机截图；完整临时日志与帧序列放 `.local/` 的对应任务目录 |
 | 项目脚本 | `scripts/` | 跨目录的资源处理与验证入口；每个脚本注明用途和执行边界 |
 | CI 与协作模板 | `.github/` | 构建流程、Issue 和 PR 模板 |
 | 本机工作文件 | `.local/` | 临时草稿、下载的参考资料、一次性探针；不提交，不作为唯一正式来源 |
@@ -24,9 +29,13 @@
 
 `standards/yukkuri-library/` 内的组件、角色登记与配方共同定义制作源，`assembled/<角色>/` 保存与源同步的可编辑模型、几何、动画、贴图和预览。新造型从这里制作，并在角色或资产包的登记中标明确认状态。
 
-`art/source/` 保存当前 M1 接入所选用的灵梦、魔理沙快照。`src/main/resources/assets/mcyukkuri/` 中的对应几何和贴图来源于这两份快照；游戏动画位于运行资源的 `animations/entity/`。这些文件与标准库中的同名角色可能属于不同制作版本，不能因名字相同而合并或删除。详细对应关系见 [美术来源登记](art/runtime-sources.json)。
+`art/source/standard-runtime/` 保存灵梦、魔理沙、橙、爱丽丝、帕秋莉与两种家油的选定快照、适配骨架和动作预览。运行模型位于 `src/main/resources/assets/mcyukkuri/yukkuri/`，每份 JSON 包含三角面、绑定和 19 个数字关键帧动作；两种家油另含夹取、搬运、放下和蠕动四段行为动作。表情贴图位于 `textures/entity/<实体 ID>/`。导出入口为 `scripts/export_runtime_models.py`，详细对应关系见 [美术来源登记](art/runtime-sources.json)。
 
-帕秋莉当前已确认静态标准造型，仍处于标准素材库中，尚未接入游戏实体。选用新版标准模型替换游戏资源时，需要单独完成骨架、资源标识、动画、尺寸和来源登记的适配，并在指定环境验收。
+该选用目录另已加入 `remilia/` 与 `flandre/` 两种捕食种快照，使当前实体范围增至九种。其制作源在 `standards/yukkuri-library/subspecies/predator/`，交互预览和选用说明在 [predator-runtime](art/source/predator-runtime/README.md)，行为和本轮验收见[捕食种实现](docs/PREDATOR_IMPLEMENTATION.md)。七种既有角色的预览与历史检查保持独立；九种资源校验通过不代表九种都已完成同一轮多人验收。
+
+`art/source/reimu/`、`marisa/` 及旧运行目录 `geo/entity/`、`animations/entity/` 中的文件保留为此前 M1 基线，当前渲染器不再读取。它们与标准库中的同名角色属于不同制作版本，不能因名字相同而合并或覆盖。
+
+橙、爱丽丝、帕秋莉已从标准素材库选定导出并接入游戏；帕秋莉的运行骨架另有长发接地适配，静态标准造型不变。接入与本轮验收见 [种族实装记录](docs/SPECIES_IMPLEMENTATION.md)。选用新版标准模型替换游戏资源时，需要单独完成骨架、资源标识、动画、尺寸和来源登记的适配，并在指定环境验收。
 
 `standards/yukkuri-library.zip` 是历史导出包，不能覆盖当前制作目录。`archives/` 只保留历史备份说明；说明中列出的本地备份不随仓库提供。旧造型、过期预览和检查报告可从 Git 历史追溯，不能用作当前造型或运行验收的依据。
 

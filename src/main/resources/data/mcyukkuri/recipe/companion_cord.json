@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [{"item":"minecraft:string"},{"item":"minecraft:string"},{"item":"minecraft:dandelion"}],
+  "result": {"id":"mcyukkuri:companion_cord","count":1}
+}

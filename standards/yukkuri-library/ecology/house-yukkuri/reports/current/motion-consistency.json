@@ -1,0 +1,12 @@
+{
+  "executed_utc": "2026-09-11T12:50:44.349Z",
+  "environment": {
+    "node": "v22.13.1",
+    "platform": "win32"
+  },
+  "mixed_element_comparisons": 12243,
+  "legacy_cube_rigs_equal": true,
+  "scope": "All exported character clips at three sample times; per-element poses compared against fixed 36-vertex chunks.",
+  "motion_sha256": "2789afd284591f2994433c94ac101e774796f61634e306c98e9b6eae9e0ff65d",
+  "index_sha256": "c511aefedf5f6ffaa52aa9f59a7e0d8e32ed1e5022d87a01a60e4580d5d8fa1f"
+}

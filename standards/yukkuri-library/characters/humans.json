@@ -1,0 +1,14 @@
+{
+  "id": "humans",
+  "entities": ["oniisan", "caretaker_brother", "caretaker_sister"],
+  "outfits": ["oniisan", "brother", "sister", "shopkeeper", "factory_worker"],
+  "source": "tools/author_human_npcs.py",
+  "geometry": "../../src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java",
+  "geometry_path_base": "standards/yukkuri-library",
+  "rig": "Minecraft HumanoidModel; long_hair and mohawk are parented to head",
+  "textures": "textures/human",
+  "exports": "assembled/humans/textures",
+  "provenance": "provenance/human-npcs.json",
+  "behavior": "../../src/main/java/io/github/longshou/mcyukkuri/human/HumanNpc.java",
+  "status": "implemented_pending_visual_approval"
+}

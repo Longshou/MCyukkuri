@@ -1,0 +1,8114 @@
+[
+  {
+    "name": "基本おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本表髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本裏髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ１髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ２髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ３髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ４髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ４髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ４もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "実ゆ４おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ドヤ顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本泣き叫び顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本泣き叫びB顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本よだれ顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本よだれ２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本困惑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本困惑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本困惑顔３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目笑顔顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目笑顔２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本あくび顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本あくび２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本睡眠顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本睡眠２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目睡眠顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本涙目睡眠２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ涙目顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ涙目顔Bグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ涙目顔B２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本寝起き顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本驚愕顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー１顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー１頬グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本怒り顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２頬グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぷくー２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本食べ散らかしグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ビンタグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本うるみ目グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本横涙グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本驚き顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本下困惑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本綴じ笑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本キリ泣きA顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本キリ泣きB顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本キリ泣き舌A顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本キリ泣き舌B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本キリ死亡顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本泣き叫び白目顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本泣き叫び白目顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ泣き叫び顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本バツ泣き叫び顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本正面涙目顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本正面涙目顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本非ゆっくり症グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本綴じ目潤みグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本発情顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本発情顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本エロ笑顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本エロ笑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本テクノブレイクグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本耐え顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ドン引き顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ドン引き顔グラ２ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本横涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本横涙目顔グラベース２",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本下怒り顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぼーるけり顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本ぺにぺにグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本こだねグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おくるみ漏らしグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おくるみ漏らし２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本おくるみ染みグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本オノマトペ",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本茎成長",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "干物死顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１中身漏れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１中身グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ほほ削り１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３右２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび３左２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４右２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "のび４左２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３もみあげ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう顔３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう顔４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうんたいそう顔５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぼーるけり３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１中身グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２中身グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３中身グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "潰れ顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ涙目顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプ涙目顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプよだれ顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "縦ジャンプよだれ顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地２泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地３泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "着地４ゲロ６グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針左髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針右髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブルボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブル足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブル汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブルカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブルカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブルおくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "針ダブル髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右閉じ笑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ドヤ顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右泣き叫び顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右泣き叫びB顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右泣き叫び２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右泣き叫び２B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右涙目B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右涙目笑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右涙目笑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右水飲みグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右水飲み２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右バツ顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右バツ泣き叫び顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右バツ泣き叫び顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右発情顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右発情顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右エロ笑顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右エロ笑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右テクノブレイクグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ドン引き顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ドン引き顔グラ２ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右横涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右横涙目顔グラベース２",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本左右４頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右口閉じ顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゆんやー１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゆんやー２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右怒り顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右関心顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー１顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー１頬グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー２頬グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ぷくー２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右非ゆっくり症顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右オノマトペ",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右むしゃむしゃ１顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右むしゃむしゃ２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右むしゃむしゃ３顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右むしゃむしゃ４顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右まずまず１顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右まずまず２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右まずまず３顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右まずまず４顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右驚き１顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右驚き２顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右驚き記号グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右不穏顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右怒り顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右困惑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右困惑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右困惑顔３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右困惑顔４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右ゲロ６グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "基本回転おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寒さ震え左右顔面2グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "削れ左右ライングラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶし左右顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶし左右顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶし左右顔面３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶし左右顔面４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押しつぶしゲロ６グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろおくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ舌グラ１ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ舌グラ２ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ舌グラ３ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぺろぺろ舌グラ４ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "横向き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "横向き涙目顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "横向き涙目B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねおくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ねおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね針１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね針２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "左右跳ね針３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死１泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面寿命１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面焼死１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死２泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面寿命２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面焼死２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面瀕死３死亡顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面寿命３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面焼死３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死１顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死２顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "瀕死３顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りボディグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り足焼きグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ１グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ２グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り汚れグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおくるみグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りボディグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り足焼きグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ１グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ２グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り汚れグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおくるみグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りボディグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り足焼きグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ１グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ２グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り汚れグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおくるみグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りボディグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り足焼きグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ１グラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りカビ２グラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り汚れグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおくるみグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振りおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り泣き叫び２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面ケツ振り泣き叫び２B顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろ足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろおくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろ髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "後ろ頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３左２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ケツ上げ３右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り１非ゆっくり顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り２非ゆっくり顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３髪裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐え顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐え頬１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐え頬２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐え汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐えカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り耐えカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り吐き顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り死亡顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り３非ゆっくり顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り４足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り４汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り４カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り４カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り５ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り５足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り５汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り５カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り５カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り下呂１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り下呂２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り下呂３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り下呂４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り下呂５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り左２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握り右２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこカビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこカビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこおくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリうんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリうんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリうんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左１うんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左１うんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左１うんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ左２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左２うんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左２うんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ左２うんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右１うんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右１うんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右１うんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りうんこ右２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右２うんこ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右２うんこ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "握りケツフリ右２うんこ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い１顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "臭い２顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けダウンボディグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けダウン足焼きグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けダウンカビ１グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けダウンカビ２グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けダウン汚れグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けボディグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け足焼きグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ１グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ２グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け汚れグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおくるみグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けボディグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け足焼きグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ１グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ２グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け汚れグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおくるみグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けボディグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け足焼きグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ１グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ２グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け汚れグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおくるみグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けボディグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け足焼きグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ１グラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けカビ２グラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け汚れグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおくるみグラ4ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付けおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け泣き叫び２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "押し付け泣き叫び２B顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付け髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付けもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付けおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付けおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付け頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "うんうん押し付け顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹１泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹２泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹３死亡顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４泣き顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "正面満腹４死亡顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しボディグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しボディグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しボディグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し足焼きグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し汚れグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ１グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ２グラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおくるみグラ1ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し足焼きグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し汚れグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ１グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ２グラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおくるみグラ2ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し足焼きグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し汚れグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ１グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しカビ２グラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおくるみグラ3ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しもみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出しおかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し舌グラ１ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "斜めベロ出し舌グラ２ベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動よだれ顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ジャンプ移動よだれ顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝殴りボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝顔面うんうんグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝顔面うんうんフィニッシュ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝顔面うんうんフィニッシュ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ボディ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝殴りボディ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝足焼き２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝汚れ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝カビ１２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝カビ２２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝おくるみ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝うんうん１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝うんうん２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝うんうん３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝うんうん４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝涙目顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝涙目顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝涙目顔面３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝涙目顔面４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び顔面３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び顔面４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝困惑顔４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝困惑死亡顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝下困惑顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び白目顔面１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝泣き叫び白目顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝キリ泣きA顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝キリ泣きB顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝キリ泣き舌A顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝キリ泣き舌B顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝キリ死亡顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝非ゆっくり症顔グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝発情顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝発情顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝エロ笑顔１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝エロ笑顔２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝テクノブレイクグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝針グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝固定グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "寝ゲロ６グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１ボディ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１ボディカビグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１ボディ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１涙目顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１泣き叫び顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび１泣き叫び顔面２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２ボディ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２ボディカビグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２ボディ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび２涙目顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３ボディ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３ボディカビグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３ボディ汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすび３涙目顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすびうんうん１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすびうんうん２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすびうんうん３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "なすびうんうん４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ３グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ４グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ５グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ぱんち３ゲロ６グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー３ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー３おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー３髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー３もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー３顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー４ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー４おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー４髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー４もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー４顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー５ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー５おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー５髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー５もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "ハンマー５顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン１顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン非ゆっくり症顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２おかざり裏グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２ボディグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２足焼きグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２汚れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２カビ１グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２カビ２グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２おくるみグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２髪グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２もみあげグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２おかざりグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２おかざり団子グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２頭うんこグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "デコピン２顔面グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "水しぶきグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "中身漏れグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "キリグラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "虐待オプショングラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "傷グラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  },
+  {
+    "name": "アイコングラベース",
+    "type": "UnityEngine.Sprite[]",
+    "public": true,
+    "static": false
+  }
+]

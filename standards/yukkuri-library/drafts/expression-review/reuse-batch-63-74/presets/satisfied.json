@@ -1,0 +1,75 @@
+{
+  "id": "satisfied",
+  "label": "满足闭眼",
+  "group": "动作表情",
+  "recipe": {
+    "source": "user-directed-component-revision",
+    "donors": {
+      "face_eye_left": "N002",
+      "face_eye_right": "N002",
+      "face_brow_left": "N002",
+      "face_brow_right": "N002",
+      "face_mouth": "O06",
+      "face_blush_left": "N001",
+      "face_tear_left": "N001",
+      "face_blush_right": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": []
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/f8ec9038ad0fd5ba7822.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "正面満腹１顔面グラベース",
+      "index": 0,
+      "sprite_id": 7890,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "正面満腹２顔面グラベース",
+      "index": 0,
+      "sprite_id": 6038,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "正面満腹３顔面グラベース",
+      "index": 0,
+      "sprite_id": 4748,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "正面満腹４顔面グラベース",
+      "index": 0,
+      "sprite_id": 7480,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "accepted",
+  "art": "User accepted N063–N074 round 2 on 2026-09-12",
+  "aliases": [],
+  "review_code": "N073",
+  "origin": "new",
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户全部通过第二轮展示版本，包括 N065 原舌头、N070/N071 原版与 N074 加强悲伤版本。"
+  }
+}

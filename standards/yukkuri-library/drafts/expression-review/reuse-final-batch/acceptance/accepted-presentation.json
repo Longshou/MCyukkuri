@@ -1,0 +1,839 @@
+{
+  "impact": {
+    "id": "impact",
+    "label": "受击挤眼",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N056",
+        "face_eye_right": "N056",
+        "face_brow_left": "N029",
+        "face_brow_right": "N029",
+        "face_mouth": "N022",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右跳ね顔面グラベース",
+        "index": 0,
+        "sprite_id": 8180,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち１顔面グラベース",
+        "index": 0,
+        "sprite_id": 4484,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5019,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ハンマー１顔面グラベース",
+        "index": 0,
+        "sprite_id": 6298,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ハンマー２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5959,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N075",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "impact_teary": {
+    "id": "impact_teary",
+    "label": "受击挤眼含泪",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N056",
+        "face_eye_right": "N056",
+        "face_brow_left": "N029",
+        "face_brow_right": "N029",
+        "face_mouth": "N022",
+        "face_tear_left": "N052",
+        "face_tear_right": "N052",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右跳ね顔面２グラベース",
+        "index": 0,
+        "sprite_id": 6335,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "ぱんち３顔面グラベース",
+        "index": 0,
+        "sprite_id": 7175,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N076",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          0.0995,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          0.0995,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "flick_dull": {
+    "id": "flick_dull",
+    "label": "受击失神",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N033",
+        "face_eye_right": "N033",
+        "face_brow_left": "N033",
+        "face_brow_right": "N033",
+        "face_blush_left": "N055",
+        "face_blush_right": "N055",
+        "face_mouth": "N033",
+        "face_tear_left": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "cheek_scale": 1.4,
+    "parts": {
+      "face_eye_left": "expressions/parts/6b26a19b89ebe71df2d3.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/6b26a19b89ebe71df2d3.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "デコピン非ゆっくり症顔面グラベース",
+        "index": 0,
+        "sprite_id": 4675,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N079",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_eye_left": {
+        "scale": [
+          0.82,
+          1.04,
+          1
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          0.82,
+          1.04,
+          1
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "cry_b": {
+    "id": "cry_b",
+    "label": "闭眼哭喊 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "O04",
+        "face_brow_left": "O04",
+        "face_blush_left": "O04",
+        "face_tear_left": "N052",
+        "face_eye_right": "O04",
+        "face_brow_right": "O04",
+        "face_blush_right": "O04",
+        "face_tear_right": "N052",
+        "face_mouth": "O04",
+        "face_effect_mouth": "O04"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本泣き叫びB顔グラベース",
+        "index": 0,
+        "sprite_id": 6786,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右泣き叫び２B顔グラベース",
+        "index": 0,
+        "sprite_id": 5297,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い１顔面２グラベース",
+        "index": 0,
+        "sprite_id": 5339,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "臭い２顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7184,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１泣き叫び顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7794,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N003",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.1715,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.1715,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "teary_b": {
+    "id": "teary_b",
+    "label": "含泪 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "O05",
+        "face_brow_left": "O05",
+        "face_blush_left": "O05",
+        "face_tear_left": "N052",
+        "face_eye_right": "O05",
+        "face_brow_right": "O05",
+        "face_blush_right": "O05",
+        "face_tear_right": "N052",
+        "face_mouth": "O05",
+        "face_effect_mouth": "O05"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
+      "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/57a99722f11714cc0584.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 7035,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 8059,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "横向き涙目B顔グラベース",
+        "index": 0,
+        "sprite_id": 6594,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝涙目顔面２グラベース",
+        "index": 0,
+        "sprite_id": 7791,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N004",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "confused_small": {
+    "id": "confused_small",
+    "label": "困惑小嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N046",
+        "face_eye_right": "N046",
+        "face_brow_left": "N051",
+        "face_brow_right": "N051",
+        "face_mouth": "N053",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/351094a83deebb6be6dc.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔２グラベース",
+        "index": 0,
+        "sprite_id": 4494,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔２グラベース",
+        "index": 0,
+        "sprite_id": 6014,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N006",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_mouth": {
+        "position": [
+          0,
+          0.12,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          1
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "blank_confused": {
+    "id": "blank_confused",
+    "label": "困惑白眼",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N051",
+        "face_brow_right": "N051",
+        "face_mouth": "N053",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/351094a83deebb6be6dc.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本困惑顔３グラベース",
+        "index": 0,
+        "sprite_id": 5640,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "基本驚愕顔グラベース",
+        "index": 0,
+        "sprite_id": 5640,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右困惑顔３グラベース",
+        "index": 0,
+        "sprite_id": 6626,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N007",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_mouth": {
+        "position": [
+          0,
+          0.12,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          1
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "teary_smile": {
+    "id": "teary_smile",
+    "label": "含泪笑",
+    "group": "笑脸",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N046",
+        "face_eye_right": "N046",
+        "face_brow_left": "N002",
+        "face_brow_right": "N002",
+        "face_mouth": "N001",
+        "face_tear_left": "N051",
+        "face_tear_right": "N051",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目笑顔顔グラベース",
+        "index": 0,
+        "sprite_id": 7697,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目笑顔グラベース",
+        "index": 0,
+        "sprite_id": 5276,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんフィニッシュ１グラベース",
+        "index": 0,
+        "sprite_id": 6424,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび１顔面グラベース",
+        "index": 0,
+        "sprite_id": 5736,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび２顔面グラベース",
+        "index": 0,
+        "sprite_id": 7626,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "なすび３顔面グラベース",
+        "index": 0,
+        "sprite_id": 5286,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N008",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  },
+  "teary_smile_b": {
+    "id": "teary_smile_b",
+    "label": "含泪笑 · 泪帧 B",
+    "group": "笑脸",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N046",
+        "face_eye_right": "N046",
+        "face_brow_left": "N002",
+        "face_brow_right": "N002",
+        "face_mouth": "N001",
+        "face_tear_left": "N052",
+        "face_tear_right": "N052",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "基本涙目笑顔２顔グラベース",
+        "index": 0,
+        "sprite_id": 5146,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右涙目笑顔２グラベース",
+        "index": 0,
+        "sprite_id": 6292,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "寝顔面うんうんフィニッシュ２グラベース",
+        "index": 0,
+        "sprite_id": 4878,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved component reuse and retained special fracture stages; awaiting review",
+    "aliases": [],
+    "review_code": "N009",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "scale": [
+          1.15,
+          1.7,
+          1
+        ],
+        "position": [
+          0,
+          -0.7015,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "本批尚待用户核对；优先复用已确认五官与泪花。"
+    }
+  }
+}

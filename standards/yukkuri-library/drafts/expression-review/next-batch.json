@@ -1,0 +1,24 @@
+{
+  "status": "review-complete-with-deferred",
+  "stage": "review-complete",
+  "active_count": 0,
+  "pending_count": 3,
+  "deferred_ids": [
+    "pressed_hidden",
+    "shattered",
+    "shattered_fade"
+  ],
+  "entries": [],
+  "active_compositions": "drafts/expression-review/reuse-final-batch/reuse-manifest.json",
+  "approved_codes": [
+    "N075",
+    "N076",
+    "N079",
+    "N003",
+    "N004",
+    "N006",
+    "N007",
+    "N008",
+    "N009"
+  ]
+}

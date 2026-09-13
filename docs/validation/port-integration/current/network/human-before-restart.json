@@ -1,0 +1,110 @@
+[
+  {
+    "role": "labor_foreman",
+    "job": "RESIDENT",
+    "uuid": "02bf3557-b9d4-4649-bf53-94c3ceda766d",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "factory_oniisan",
+    "job": "RESIDENT",
+    "uuid": "0799a2dc-fce7-4587-bfd7-fb3f300c9175",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "factory_worker",
+    "job": "FACTORY",
+    "uuid": "0b7c3807-5e3c-4bfa-a1e1-f7b00a01759e",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "manju_worker",
+    "job": "FACTORY",
+    "uuid": "3cbf6577-96f8-4abc-8e2b-843a9b7ff9be",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "bag_worker",
+    "job": "FACTORY",
+    "uuid": "45025bcf-6bc6-45c0-8132-887f9070c4cd",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "bag_nursery_attendant",
+    "job": "RESIDENT",
+    "uuid": "6c9269fc-c4a8-4968-88aa-be863c5e2a22",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "shopkeeper",
+    "job": "SHOPKEEPER",
+    "uuid": "75d207df-aba2-4a98-8d3a-fc1f6d195387",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "manju_foreman",
+    "job": "RESIDENT",
+    "uuid": "9175ebe4-0be3-418c-bb5e-3c36e5827152",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "",
+    "job": "RESIDENT",
+    "uuid": "92d5c5b1-6db5-4b43-b7ff-c7d67855a571",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "shop_sister",
+    "job": "RESIDENT",
+    "uuid": "9f1ae4be-232e-4f96-9be3-fd7b3633f640",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "bag_foreman",
+    "job": "RESIDENT",
+    "uuid": "a3a72413-4fc6-437d-87dd-7c449a0cd1fd",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "",
+    "job": "SHOPKEEPER",
+    "uuid": "ae3c2f68-15b1-43c4-9e8b-a57d8b34c052",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "",
+    "job": "RESIDENT",
+    "uuid": "b2a04448-f3ec-4630-80f9-0c5e24ea688e",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "manju_nursery_attendant",
+    "job": "RESIDENT",
+    "uuid": "c0a54800-bf82-44ac-9ad0-78ec487f589d",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "shop_brother",
+    "job": "RESIDENT",
+    "uuid": "cfda565c-e770-4a52-a0f8-ae264fcca122",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "labor_worker",
+    "job": "FACTORY",
+    "uuid": "de88c5c9-d19e-42aa-9c25-1dba85a06e4c",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "",
+    "job": "FACTORY",
+    "uuid": "f32eb64d-3caa-4a05-9a57-15e464b8d3eb",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  },
+  {
+    "role": "",
+    "job": "RESIDENT",
+    "uuid": "f52e0768-7fee-4c2a-9d4d-ea6a384214b5",
+    "production": "{Batches:0,Breeding:{NextGroup:0},Delay:0,Material:32,Output:[],Pipeline:{BatchNumbers:[],Held:0,Inspected:0,NextPurpose:1,PurposeMode:0,Residents:[],SaleFilter:0,Serial:0,TrayBroken:0b}}"
+  }
+]

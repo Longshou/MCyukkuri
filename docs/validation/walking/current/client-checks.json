@@ -1,0 +1,44 @@
+[
+  {
+    "variant": "reimu",
+    "carryChecked": false,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "marisa",
+    "carryChecked": false,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "house_reimu",
+    "carryChecked": true,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "house_marisa",
+    "carryChecked": true,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "chen",
+    "carryChecked": false,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "alice",
+    "carryChecked": false,
+    "idleRestored": true,
+    "walking": true
+  },
+  {
+    "variant": "patchouli",
+    "carryChecked": false,
+    "idleRestored": true,
+    "walking": true
+  }
+]

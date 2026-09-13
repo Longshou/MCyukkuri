@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MC 接入模型 · 动作预览</title>
+<style>
+body{margin:0;background:#e9e5dc;color:#292c26;font:16px system-ui,sans-serif}main{max-width:1050px;margin:auto;padding:24px}h1{font-size:26px;margin:0 0 8px}p{line-height:1.6}nav{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}label{display:flex;gap:6px;align-items:center}select,button{font:inherit;padding:8px;border:1px solid #aaa99e;border-radius:7px;background:#faf9f4}canvas{width:100%;height:570px;display:block;background:linear-gradient(#fbfaf4,#d9dac9);border-radius:12px;touch-action:none}input[type=range]{width:70%}#status{font-variant-numeric:tabular-nums}.note{font-size:14px;color:#62665b}
+</style>
+<main>
+<h1>MC 接入模型 · 动作预览</h1>
+<p>灵梦、魔理沙、橙、爱丽丝、帕秋莉及两种家油。拖动旋转，滚轮缩放；可暂停后拖动时间轴查看动作。</p>
+<nav>
+<label>角色 <select id="subject"><option value="reimu">标准灵梦</option><option value="marisa">标准魔理沙</option><option value="chen">橙</option><option value="alice">爱丽丝</option><option value="patchouli">帕秋莉</option><option value="house_reimu">家油灵梦</option><option value="house_marisa">家油魔理沙</option></select></label>
+<label>动作 <select id="action"></select></label>
+<label>表情 <select id="expression"></select></label>
+<button id="play">暂停</button><button id="reset">恢复常态</button>
+<label><input id="ground" type="checkbox" checked>显示地面</label>
+<button data-angle="0">正面</button><button data-angle="1.570796">侧面</button><button data-angle="3.141593">背面</button>
+</nav>
+<canvas id="view" width="1000" height="570"></canvas>
+<p><input id="time" type="range" min="0" max="1" step=".005"> <span id="status"></span></p>
+<p class="note">本页读取与 Minecraft 打包资源相同的三角面、绑定和动作数据，使用独立预览渲染器。帕秋莉的长发下端已适配地面接触；橙的双尾随臀部运动。家油鼓腮表现为身体膨胀，伸缩部件默认收回。动作观感可通过暂停和时间轴逐帧查看；本页不代替游戏验收。</p>
+</main>
+<script src="preview-data.js"></script>
+<script src="../../../standards/yukkuri-library/runtime/render.js"></script>
+<script src="preview.js"></script>
+</html>

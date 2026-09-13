@@ -3,22 +3,32 @@
   "label": "难吃闭嘴",
   "group": "动作表情",
   "recipe": {
-    "eyes": "squeeze",
-    "brows": "angry",
-    "mouth": "chew",
-    "tears": "flow",
-    "blush": "puffed",
-    "effect": "none"
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N014",
+      "face_eye_right": "N014",
+      "face_brow_left": "N039",
+      "face_brow_right": "N039",
+      "face_tear_left": "N012",
+      "face_tear_right": "N012",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": [
+      "face_blush_left",
+      "face_blush_right",
+      "face_mouth"
+    ],
+    "tears": "approved-N012-lower-eyelid-sheen"
   },
   "parts": {
-    "face_eye_left": "expressions/parts/1e1fc4b592016361b740.png",
-    "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+    "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+    "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
     "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
-    "face_tear_left": "expressions/parts/97ba5043859e5125be77.png",
-    "face_eye_right": "expressions/parts/26cb3982157973c2eae0.png",
-    "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+    "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+    "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+    "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
     "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
-    "face_tear_right": "expressions/parts/0c07c0e27873a7528c5d.png",
+    "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
     "face_mouth": "expressions/parts/5617664e421bf1411685.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
@@ -38,10 +48,73 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "User accepted batch N051–N062 selection on 2026-09-12",
   "aliases": [],
   "review_code": "N057",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "geometry_offsets": {
+    "face_brow_left": {
+      "position": [
+        0,
+        -0.65,
+        0
+      ]
+    },
+    "face_eye_left": {
+      "scale": [
+        1,
+        0.65,
+        1
+      ],
+      "position": [
+        0,
+        -0.1,
+        0
+      ]
+    },
+    "face_brow_right": {
+      "position": [
+        0,
+        -0.65,
+        0
+      ]
+    },
+    "face_eye_right": {
+      "scale": [
+        1,
+        0.65,
+        1
+      ],
+      "position": [
+        0,
+        -0.1,
+        0
+      ]
+    },
+    "face_tear_left": {
+      "position": [
+        0,
+        0.656,
+        0
+      ]
+    },
+    "face_tear_right": {
+      "position": [
+        0,
+        0.656,
+        0
+      ]
+    }
+  },
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "按用户要求恢复首轮偏侧咀嚼嘴，其余眼眉与泪花保持第二轮；整项已确认。"
+  },
+  "semantic_usage": {
+    "emotion": "嫌难吃、勉强入口或咀嚼",
+    "reference": "drafts/expression-review/reuse-batch-51-62/round2/REFERENCE.md"
+  }
 }

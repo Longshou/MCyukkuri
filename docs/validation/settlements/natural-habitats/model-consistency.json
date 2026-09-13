@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-12T20:09:39.895858+00:00",
+  "checks": [
+    {
+      "model": "forest_burrow",
+      "vertices": 192,
+      "source_selected_runtime_match": true,
+      "finite_normalized_vertices": true,
+      "model_sha256": "6045f7af132dbe0193d07db75b35f82a87ca3e0e68b0d9964719b65afba0e360"
+    },
+    {
+      "model": "nest_boundary",
+      "vertices": 180,
+      "source_selected_runtime_match": true,
+      "finite_normalized_vertices": true,
+      "model_sha256": "52fc7218d1344e0eb3ef42061d735e7278fb70ecb7393238f0aa8773c5df18ec"
+    },
+    {
+      "model": "cardboard_shelter",
+      "vertices": 1770,
+      "source_selected_runtime_match": true,
+      "finite_normalized_vertices": true,
+      "model_sha256": "ca9e83c8094d3655e99948b9ebe3081b4f80eaba841a73d39497d58159ec022c"
+    },
+    {
+      "model": "wild_latrine",
+      "vertices": 276,
+      "source_selected_runtime_match": true,
+      "finite_normalized_vertices": true,
+      "model_sha256": "3be18d84f7c2aa21dafe6d8def3b03b7395ff1a3e9702a8a341b710b88f3c1b1"
+    },
+    {
+      "model": "wild_latrine_dirty",
+      "vertices": 384,
+      "source_selected_runtime_match": true,
+      "finite_normalized_vertices": true,
+      "model_sha256": "01ec25f5e6a61fd1f316d20f765f44d913f413dedc794d97fd9fcf5972498a2f"
+    }
+  ],
+  "authoring_sha256": "b248755299fa04ea8072eabed5a0cbd0134734dc5aaf97631ab4297bf0be00a4",
+  "scope": "File identity, finite mesh values, normalized normals and valid UVs; does not establish aesthetic approval."
+}

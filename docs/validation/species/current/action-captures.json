@@ -1,0 +1,116 @@
+[
+  {
+    "action": "idle",
+    "duration": 1.0,
+    "count": 17,
+    "manifest": "capture-species-idle.json"
+  },
+  {
+    "action": "stretch_shape",
+    "duration": 1.0,
+    "count": 17,
+    "manifest": "capture-species-stretch_shape.json"
+  },
+  {
+    "action": "side_bend",
+    "duration": 2.36,
+    "count": 31,
+    "manifest": "capture-species-side_bend.json"
+  },
+  {
+    "action": "waddle",
+    "duration": 1.2,
+    "count": 19,
+    "manifest": "capture-species-waddle.json"
+  },
+  {
+    "action": "puff",
+    "duration": 6.4,
+    "count": 71,
+    "manifest": "capture-species-puff.json"
+  },
+  {
+    "action": "brace",
+    "duration": 2.4,
+    "count": 31,
+    "manifest": "capture-species-brace.json"
+  },
+  {
+    "action": "startle",
+    "duration": 0.6,
+    "count": 13,
+    "manifest": "capture-species-startle.json"
+  },
+  {
+    "action": "turn",
+    "duration": 0.4,
+    "count": 11,
+    "manifest": "capture-species-turn.json"
+  },
+  {
+    "action": "hop",
+    "duration": 0.2617993877991494,
+    "count": 10,
+    "manifest": "capture-species-hop.json"
+  },
+  {
+    "action": "stretch",
+    "duration": 2.8,
+    "count": 35,
+    "manifest": "capture-species-stretch.json"
+  },
+  {
+    "action": "exercise_vertical",
+    "duration": 2.62,
+    "count": 34,
+    "manifest": "capture-species-exercise_vertical.json"
+  },
+  {
+    "action": "exercise_sides",
+    "duration": 2.36,
+    "count": 31,
+    "manifest": "capture-species-exercise_sides.json"
+  },
+  {
+    "action": "press",
+    "duration": 4.8,
+    "count": 52,
+    "manifest": "capture-species-press.json"
+  },
+  {
+    "action": "taiso",
+    "duration": 14.0,
+    "count": 146,
+    "manifest": "capture-species-taiso.json"
+  },
+  {
+    "action": "flee",
+    "duration": 5.0,
+    "count": 57,
+    "manifest": "capture-species-flee.json"
+  },
+  {
+    "action": "anatomy_mamu_extend",
+    "duration": 0.24,
+    "count": 10,
+    "manifest": "capture-species-anatomy_mamu_extend.json"
+  },
+  {
+    "action": "anatomy_mamu_retract",
+    "duration": 0.65,
+    "count": 14,
+    "manifest": "capture-species-anatomy_mamu_retract.json"
+  },
+  {
+    "action": "anatomy_peni_extend",
+    "duration": 0.24,
+    "count": 10,
+    "manifest": "capture-species-anatomy_peni_extend.json"
+  },
+  {
+    "action": "anatomy_peni_retract",
+    "duration": 0.65,
+    "count": 14,
+    "manifest": "capture-species-anatomy_peni_retract.json"
+  }
+]

@@ -1,10 +1,14 @@
 # 油库里美术素材库
 
-本目录是标准美术制作与复用入口，当前实体接入使用的历史快照另见 [art](../../art/README.md)。目录职责与修改规则见 [AGENTS.md](AGENTS.md)；本机不执行构建、测试、游戏、预览服务器或浏览器验证。
+人类 NPC 首批制作登记见 [humans.json](characters/humans.json)，包含鬼威惨、爱派大哥哥、大姐姐及两套职业服装；[配套导出](assembled/humans/README.md)已接入，造型待确认。
+
+本目录是标准美术制作与复用入口，当前实体接入使用的选定快照另见 [art](../../art/README.md)。目录职责与修改规则见 [AGENTS.md](AGENTS.md)。
 
 | 入口 | 内容 |
 | --- | --- |
+| [全身伤口标准](ecology/body-wounds/README.md) | 已确认的 R3.1 游戏适配：四类伤情、多处挂接、局部变形和漏馅；七种角色的选定源、导出和实机预览已冻结 |
 | [素材登记](index.html) | 角色、共用组件、动作和表情 |
+| [89 项标准表情](standard-expressions.html) · [标准说明](STANDARD-EXPRESSIONS.md) | 当前已确认造型与指纹；72、77、78 暂缓 |
 | [标准帕秋莉模型](assembled/patchouli/patchouli.bbmodel) · [独立预览](assembled/patchouli/index.html) | 已确认的五撮宽厚刘海、完整包脸侧发、贴地小束尾与浅粉新月软帽 |
 | [标准种族对照](species.html) · [造型与来源](STANDARD-SPECIES.md) | 橙、爱丽丝、帕秋莉的专属造型与共用边界 |
 | [螺壳魔理沙](TSUMURI.md) | 已确认的居中壳形与互斥伸缩控制 |
@@ -18,7 +22,7 @@
 ## 当前登记
 
 - 9 个基础动作、6 个骨架复合动作配方、2 个已确认的多角色复合动作包。
-- 105 个表情配方：13 个原有版标为 `retained`，92 个新增版标为 `pending-review`；另有 2 个独立叠加效果。
+- 105 个表情配方：89 项已确认并保存为[标准表情](STANDARD-EXPRESSIONS.md)，13 项仅作历史对照，3 项暂缓；另有 2 个独立叠加效果。本次标准确认以[集合与指纹](provenance/standard-expressions.json)为准。
 - 魔理沙与灵梦引用同一份身体、油臀、脸部和鼓脸几何；3 个完全相同的头发几何也已提取共用。
 - 辫子、后发与饰物分别建模；左右辫子可独立活动。
 - 两角色共用麻姆麻姆、佩尼佩尼及伸缩控制；默认缩回，通过按钮伸出或缩回，切换时保持互斥。见 [标准伸缩部件](ANATOMY.md)。
@@ -56,7 +60,9 @@ A/B 泪帧共用眼睛与嘴，只换眼泪部件。方向图、动作姿态图�
 
 `presentation/expressions.json` 只是“随动作建议”的独立时间表。手动选择表情后即可覆盖建议，动作数据不携带五官图片。
 
-原有与新增均登记在选择器及图鉴，O 编号为原有，N 编号为新增；完整编号见 [表情清单](expressions/review-list.md)。13 个原有表情已恢复，包括笑脸、愤怒、哭泣、睡觉、困倦等；鼓脸保留已确认的专用眼嘴与偏移。新增版仍需核对，来源映射不代表画面已通过确认。后续重绘以已有表情为画风和五官位置基准，不得用旧批量脚本覆盖已确认部件。
+原有与新增均登记在选择器及图鉴，O 编号为原有，N 编号为新增；完整编号见 [表情清单](expressions/review-list.md)。13 个原有表情已恢复，包括笑脸、愤怒、哭泣、睡觉、困倦等；鼓脸保留已确认的专用眼嘴与偏移。89 项已保存为标准，3 项暂缓，13 项仅作历史对照；来源映射本身不代表确认。后续重绘以已有表情为画风和五官位置基准，不得用旧批量脚本覆盖已确认部件。
+
+2026-09-12 已选定 N032、N039、N040 新版、N037 原版、N026 第三轮加强泪花版、N024/N025 第四轮差分，以及 N020 第五轮完整展示版；[批次登记](expressions/component-review/n016-n040-decisions.json) 保存所选配方和部件指纹。当前待审队列已清空，N072/N077/N078 暂缓；复用批次十二项均已保存，记录见[本批确认登记](expressions/component-review/next-batch-decisions.json)。[已保存垂眼哭丧可爱版](drafts/expression-review/reuse-batch/round4/README.md)沿用八景 U 的嘆き顔情绪依据，按用户偏好改为圆润大瞳孔和简洁眼线，N041/N042 第四轮可爱版已确认保存。N051–N062 全批已保存，包括已确认泪花 A/B 差分。N063–N074 第二轮展示的 11 项已全部保存，见[批准登记](expressions/component-review/batch-63-74-decisions.json)。最后一轮九项已确认，见[登记](expressions/component-review/final-batch-decisions.json)；[表情核对收尾](drafts/expression-review/next-batch.html)记录三项暂缓用途；[89 项标准表情预览](standard-expressions.html)可继续查看。本批次九项修订已全部确认。N033 棕灰版已保存，A 为默认，B/C 为同编号备选，登记见[备选配方](expressions/variants/dull/index.json)。[当前比较页](drafts/expression-review/batch-16-40.html) 保留三款已确认棕灰版的对照。候选源与重建方式见 [第六轮说明](drafts/expression-review/round6/README.md)。
 
 ## 原作核对
 
@@ -68,7 +74,7 @@ A/B 泪帧共用眼睛与嘴，只换眼泪部件。方向图、动作姿态图�
 
 ## 搬到其他项目与导出
 
-本项目内保持本目录为制作入口。若在指定验证环境复现完整导出，可使用 Python 与 Pillow 运行以下命令；这些命令不在本机执行：
+本项目内保持本目录为制作入口。需要复现完整导出时，使用已有 Python 与 Pillow 环境运行以下命令：
 
 ```sh
 python -m pip install Pillow
@@ -87,6 +93,6 @@ python validate.py
 1. 在登记页搜索同义名称、原作字段与别名。
 2. 能引用现有动作的，新增复合配方；能引用现有五官的，新增表情配方。
 3. 只有确实缺少基础形变或像素部件时才新增基础素材。
-4. 同步来源、组件及配套导出，交付最新预览；完整构建与验证安排在指定环境，界面观察由用户完成。
+4. 同步来源、组件及配套导出，查看并交付最新预览，记录检查结果；标准造型仍由用户确认。
 
 库级新检查结果写入 `reports/current/`。旧库级检查输出已清理；当前造型确认以 `provenance/` 中的记录与文件指纹为准，运行验收仍需单独提供证据。

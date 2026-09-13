@@ -1,0 +1,57 @@
+{
+  "frames": 0,
+  "maxFrameMs": 0.0,
+  "meanFrameMs": 0.0,
+  "captures": [
+    {
+      "clientTick": 1460,
+      "state": {
+        "tick": 30560,
+        "screen": "none",
+        "client": "P0Preview",
+        "entities": [
+          {
+            "uuid": "faabb94a-8a5c-4c8f-8e25-a9a17d144923",
+            "networkId": 34,
+            "variant": "marisa",
+            "action": "idle",
+            "start": 0,
+            "expression": "neutral",
+            "x": 976.5,
+            "y": 65.0,
+            "z": 40.5,
+            "renderer": "YukkuriRenderer",
+            "behavior": "idle",
+            "behaviorStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ],
+        "dialogueAudio": {
+          "playing": 0,
+          "instances": 0
+        },
+        "world": true
+      },
+      "file": "cardboard.png"
+    }
+  ]
+}

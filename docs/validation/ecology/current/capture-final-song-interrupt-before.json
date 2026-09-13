@@ -1,0 +1,243 @@
+{
+  "captures": [
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-song-interrupt-before-0000.png",
+      "clientTick": 2284,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7737,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "db3b81fe-d179-416e-99f9-83557342ce97",
+            "networkId": 57,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7734,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-song-interrupt-before-0001.png",
+      "clientTick": 2294,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7747,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "db3b81fe-d179-416e-99f9-83557342ce97",
+            "networkId": 57,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7734,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-song-interrupt-before-0002.png",
+      "clientTick": 2304,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7756,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "db3b81fe-d179-416e-99f9-83557342ce97",
+            "networkId": 57,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7734,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    },
+    {
+      "file": "E:\\yukkuri\\MCyukkuri\\.local\\ecology\\preview\\p0-control\\screenshots\\final-song-interrupt-before-0003.png",
+      "clientTick": 2314,
+      "state": {
+        "ecologyAudio": {
+          "instances": 1,
+          "playing": 1
+        },
+        "dialogueAudio": {
+          "instances": 0,
+          "playing": 0
+        },
+        "client": "P0Preview",
+        "world": true,
+        "tick": 7766,
+        "screen": "none",
+        "entities": [
+          {
+            "uuid": "db3b81fe-d179-416e-99f9-83557342ce97",
+            "networkId": 57,
+            "variant": "reimu",
+            "action": "idle",
+            "start": 0,
+            "expression": "open_smile",
+            "x": 2213.5,
+            "y": 65.0,
+            "z": 5.5,
+            "renderer": "YukkuriRenderer",
+            "bodyYaw": -180.0,
+            "previousBodyYaw": -180.0,
+            "yaw": -180.0,
+            "behavior": "sing",
+            "behaviorStart": 7734,
+            "crawling": false,
+            "crawlStart": 0,
+            "accessory": true,
+            "mouthCount": 0,
+            "dialogue": "",
+            "speechStart": 0,
+            "speechEnd": 0,
+            "speechSequence": 0,
+            "scale": 1.0,
+            "stage": 2,
+            "broodCount": 0,
+            "broodBorn": 0,
+            "broodProgress": 1.0,
+            "broodVariation": 1.0,
+            "wound": 0,
+            "bandaged": false,
+            "carrying": "0 minecraft:air",
+            "wounds": [],
+            "filling": 12,
+            "contact": "NONE",
+            "contactTurn": 0.0,
+            "hairLoss": 0
+          }
+        ]
+      }
+    }
+  ],
+  "frames": 82,
+  "maxFrameMs": 61.2063,
+  "meanFrameMs": 18.26228048780488
+}

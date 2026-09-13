@@ -1,0 +1,116 @@
+[
+  {
+    "variant": "house_reimu",
+    "frames": 81,
+    "travel_blocks": 0.9484301215277782,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-house_reimu.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-house_reimu.gif",
+    "sha256": "f4716abceec6c253e71dd323494e66505deeb1e87076dcebfee826f5263df646"
+  },
+  {
+    "variant": "house_marisa",
+    "frames": 79,
+    "travel_blocks": 0.9472365451388889,
+    "moving_frames": 57,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-house_marisa.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-house_marisa.gif",
+    "sha256": "0b7adc6762d367429e7de2b4a80fda4c569bf9a8161d19948ca2d289633e42d7"
+  },
+  {
+    "variant": "reimu",
+    "frames": 81,
+    "travel_blocks": 1.8943917100694438,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-reimu.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-reimu.gif",
+    "sha256": "835b3507e2eb292e241f0c1d32ca8e1e79094487dfc1ff27d172105877f26dea"
+  },
+  {
+    "variant": "marisa",
+    "frames": 81,
+    "travel_blocks": 1.8943917100694438,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-marisa.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-marisa.gif",
+    "sha256": "185b8d57f43c2b69ce4b921f7d78431fedd6bf50df5a25d544ba1fb1fec28a6d"
+  },
+  {
+    "variant": "chen",
+    "frames": 81,
+    "travel_blocks": 1.8943917100694438,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-chen.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-chen.gif",
+    "sha256": "a76b332499f6ca70b9853cbbca3aa63ac1242dd6bbc0598a2c7bcba83fa81427"
+  },
+  {
+    "variant": "alice",
+    "frames": 81,
+    "travel_blocks": 1.8943917100694438,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-alice.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-alice.gif",
+    "sha256": "64e03f195be526fc01cdbe781e647e4b0dadfcff721d156d940cee38ad4f58f4"
+  },
+  {
+    "variant": "patchouli",
+    "frames": 81,
+    "travel_blocks": 1.8943917100694438,
+    "moving_frames": 59,
+    "stopped_frames": 22,
+    "ground_y_range": [
+      65.0,
+      65.0
+    ],
+    "manifest": ".local/waddle/p0/preview/p0-control/capture-walk-rear-patchouli.json",
+    "gif": "art/source/standard-runtime/previews/current/walk-rear-patchouli.gif",
+    "sha256": "8c9ae128d39174d5456e4660d0ced2f8d17c1b43b9f833e570a13ed1835af243"
+  },
+  {
+    "variant": "house_reimu",
+    "carry": true,
+    "frames": 81,
+    "carried_count_stable": true,
+    "moving_frames": 59,
+    "stopped_frames": 22
+  },
+  {
+    "variant": "house_marisa",
+    "carry": true,
+    "frames": 81,
+    "carried_count_stable": true,
+    "moving_frames": 59,
+    "stopped_frames": 22
+  }
+]

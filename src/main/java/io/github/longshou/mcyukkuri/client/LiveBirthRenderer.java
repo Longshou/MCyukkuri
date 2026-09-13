@@ -1,0 +1,167 @@
+package io.github.longshou.mcyukkuri.client;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import org.joml.Vector3f;
+
+/** Client-only view of the saved litter. Clipping and emergence never create an entity. */
+final class LiveBirthRenderer {
+    private static final Map<YukkuriModel,float[]> SKINS=new WeakHashMap<>(),CHILDREN=new WeakHashMap<>();
+    private record Vertex(Vector3f point,float u,float v){
+        Vertex mix(Vertex other,float q){return new Vertex(new Vector3f(point).lerp(other.point,q),u+(other.u-u)*q,v+(other.v-v)*q);}
+    }
+    static float contraction(YukkuriEntity mother,float partial){
+        if(mother.liveDeliveryTicks()<0||mother.liveChildCount()==0||!mother.visibleWounds().isEmpty())return 0;
+        // A paused server phase also pauses the contraction; interpolation cannot advance a birth.
+        double wave=.5+.5*Math.sin(mother.liveDeliveryTicks()*Math.PI*2/48);
+        return (float)(.22+.78*Math.pow(wave,4));
+    }
+    static Delivery prepare(YukkuriEntity mother,YukkuriModel model,float partial){
+        if(mother.liveDeliveryTicks()<0||mother.liveChildCount()<1||!mother.visibleWounds().isEmpty()||!mother.contactPose().equals("NONE"))return null;
+        return new Delivery(mother,model,contraction(mother,partial));
+    }
+    static void renderDose(YukkuriEntity entity,PoseStack pose,MultiBufferSource buffers,int light){
+        // Single-use applicator at the rear; the delivery outlet is a different front surface.
+        pose.pushPose();pose.translate(0,.10,.64);pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90));
+        pose.scale(.75f,.75f,.75f);PropModels.render("reproductive_filling",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);pose.popPose();
+    }
+    static final class Delivery {
+        private final YukkuriEntity mother;
+        private final List<Vertex[]> skin=new ArrayList<>(),child=new ArrayList<>();
+        private final List<Vector3f> hole;
+        private final Vector3f center;
+        private final float plane;
+        private final String childId;
+        private final boolean visible;
+        Delivery(YukkuriEntity mother,YukkuriModel model,float contraction){
+            this.mother=mother;
+            float belly=mother.livePregnancyProgress();
+            var outlet=LiveBirthGeometry.modelOutlet(mother,belly,contraction);plane=outlet.z-.04f;
+            float[] maternal=SKINS.computeIfAbsent(model,key->key.deliveryVertices(true));
+            for(int i=0;i<maternal.length;i+=24){
+                var tri=triangle(maternal,i);for(var v:tri)LiveBirthGeometry.deform(v.point,belly,contraction);skin.add(tri);
+            }
+            int next=0;while(next<mother.liveChildCount()&&(mother.liveBornMask()&(1<<next))!=0)next++;
+            next=Math.min(next,mother.liveChildCount()-1);childId=mother.liveChildAssetId(next);
+            float elapsed=mother.liveDeliveryTicks()-next*LiveBirthGeometry.INTERVAL;
+            float progress=Math.clamp(elapsed/LiveBirthGeometry.EMERGENCE,0,1);visible=elapsed>0;
+            float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
+            float[] newborn=CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false));
+            float minZ=Float.MAX_VALUE;for(int i=2;i<newborn.length;i+=8)minZ=Math.min(minZ,newborn[i]*scale);
+            float endZ=-(mother.getBbWidth()/mother.getScale()*.5f+.15f)*16/mother.growthScale();
+            float z=plane-minZ+(endZ-(plane-minZ))*LiveBirthGeometry.smooth(progress);
+            float bodyHeight=8.48f*(childId.endsWith("_bean")?1.55f:1),halfHeight=bodyHeight*.5f;
+            float baseY=Math.max(.015f*16/mother.growthScale(),outlet.y-bodyHeight*scale*.5f);
+            for(int i=0;i<newborn.length;i+=24){
+                var tri=triangle(newborn,i);
+                for(var v:tri){
+                    float px=v.point.x,py=v.point.y,pz=v.point.z*scale+z;
+                    float pressure=visible?LiveBirthGeometry.smooth(progress/.12f)*(1-LiveBirthGeometry.smooth((progress-.78f)/.22f))
+                            *(float)Math.exp(-Math.pow((pz-plane)/.60,2)):0;
+                    float nx=Math.min(1,Math.abs(px/6)),ny=Math.min(1,Math.abs((py-halfHeight)/halfHeight));
+                    float sx=(1-.24f*pressure)*(float)Math.sqrt(1-.32f*ny*ny*pressure);
+                    float sy=(1-.18f*pressure)*(float)Math.sqrt(1-.32f*nx*nx*pressure);
+                    v.point.set(px*scale*sx,((py-halfHeight)*sy+halfHeight)*scale+baseY,pz);
+                }
+                child.add(tri);
+            }
+            var section=new ArrayList<Vector3f>();
+            if(visible)for(var tri:child)for(int k=0;k<3;k++){
+                Vector3f a=tri[k].point,b=tri[(k+1)%3].point;
+                if((a.z<=plane&&b.z>plane)||(b.z<=plane&&a.z>plane))section.add(new Vector3f(a).lerp(b,(plane-a.z)/(b.z-a.z)));
+            }
+            var hull=hull(section);center=new Vector3f(outlet.x,outlet.y,plane);
+            if(hull.size()>2){
+                center.x=0;center.y=0;for(var p:hull){center.x+=p.x/hull.size();center.y+=p.y/hull.size();}
+                hole=hull;for(var p:hole){var radial=new Vector3f(p).sub(center);radial.z=0;if(radial.lengthSquared()>1e-10)p.fma(.018f,radial.normalize());p.z=plane;}
+            }else{
+                hole=new ArrayList<>();for(int i=0;i<24;i++){double a=i*Math.PI*2/24;hole.add(new Vector3f(center.x+.025f*(float)Math.cos(a),center.y+.27f*(float)Math.sin(a),plane));}
+            }
+        }
+        boolean drawMotherTriangle(PoseStack pose,VertexConsumer buffer,int light,int overlay,Vector3f[] points,float[] uv){
+            if((points[0].z+points[1].z+points[2].z)/3>plane+1.6f)return false;
+            float left=Float.MAX_VALUE,right=-Float.MAX_VALUE,bottom=Float.MAX_VALUE,top=-Float.MAX_VALUE;
+            for(var p:hole){left=Math.min(left,p.x);right=Math.max(right,p.x);bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);}
+            if(Math.min(points[0].x,Math.min(points[1].x,points[2].x))>right||Math.max(points[0].x,Math.max(points[1].x,points[2].x))<left
+                    ||Math.min(points[0].y,Math.min(points[1].y,points[2].y))>top||Math.max(points[0].y,Math.max(points[1].y,points[2].y))<bottom)return false;
+            List<Vertex> remaining=new ArrayList<>();for(int i=0;i<3;i++)remaining.add(new Vertex(new Vector3f(points[i]),uv[i*2],uv[i*2+1]));
+            // Subtract a convex hole, keeping every exterior strip of the original textured triangle.
+            for(int edge=0;edge<hole.size()&&!remaining.isEmpty();edge++){
+                Vector3f a=hole.get(edge),b=hole.get((edge+1)%hole.size());
+                polygon(pose,buffer,light,overlay,clip(remaining,a,b,false),255,255,255);
+                remaining=clip(remaining,a,b,true);
+            }
+            return true;
+        }
+        void render(PoseStack pose,MultiBufferSource buffers,int light){
+            if(visible){
+                var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+childId+"/sleep.png")));
+                for(var tri:child)polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,front(List.of(tri),plane),255,255,255);
+            }
+            var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/reproductive_filling.png")));
+            for(int i=0;i<hole.size();i++){
+                Vector3f a=hole.get(i),b=hole.get((i+1)%hole.size());
+                Vector3f ao=outer(a),bo=outer(b);
+                // Closed annulus, with an inner wall and a raised skin edge; no painted open crescent.
+                quad(pose,ink,light,new Vector3f(a).add(0,0,.14f),new Vector3f(b).add(0,0,.14f),b,a,128,91,78);
+                quad(pose,ink,light,a,b,new Vector3f(bo).add(0,0,-.035f),new Vector3f(ao).add(0,0,-.035f),255,231,185);
+                quad(pose,ink,light,new Vector3f(ao).add(0,0,-.035f),new Vector3f(bo).add(0,0,-.035f),bo,ao,255,231,185);
+                var cap=new Vector3f(center).add(0,0,.16f);
+                polygon(pose,ink,light,OverlayTexture.NO_OVERLAY,List.of(swatch(cap),swatch(new Vector3f(b).add(0,0,.14f)),swatch(new Vector3f(a).add(0,0,.14f))),128,91,78);
+            }
+        }
+        private Vector3f outer(Vector3f point){
+            var radial=new Vector3f(point).sub(center);radial.z=0;if(radial.lengthSquared()>1e-10)radial.normalize();
+            var p=new Vector3f(point).fma(.14f,radial);p.z=surfaceZ(p.x,p.y);return p;
+        }
+        private float surfaceZ(float x,float y){
+            float best=Float.MAX_VALUE;
+            for(var tri:skin){var a=tri[0].point;var b=tri[1].point;var c=tri[2].point;
+                float det=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);if(Math.abs(det)<1e-8)continue;
+                float u=((x-a.x)*(c.y-a.y)-(y-a.y)*(c.x-a.x))/det,v=((b.x-a.x)*(y-a.y)-(b.y-a.y)*(x-a.x))/det;
+                if(u>=-.001&&v>=-.001&&u+v<=1.001)best=Math.min(best,a.z+(b.z-a.z)*u+(c.z-a.z)*v);
+            }
+            return best==Float.MAX_VALUE?plane+.02f:best-.005f;
+        }
+    }
+    private static Vertex[] triangle(float[] data,int start){
+        Vertex[] result=new Vertex[3];for(int i=0;i<3;i++){int p=start+i*8;result[i]=new Vertex(new Vector3f(data[p],data[p+1],data[p+2]),data[p+3],data[p+4]);}return result;
+    }
+    private static float side(Vector3f a,Vector3f b,Vector3f p){return (b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x);}
+    private static List<Vertex> clip(List<Vertex> input,Vector3f a,Vector3f b,boolean inside){
+        var output=new ArrayList<Vertex>();if(input.isEmpty())return output;
+        var previous=input.getLast();float pd=side(a,b,previous.point)*(inside?1:-1);
+        for(var current:input){float cd=side(a,b,current.point)*(inside?1:-1);if((pd>=0)!=(cd>=0))output.add(previous.mix(current,pd/(pd-cd)));if(cd>=0)output.add(current);previous=current;pd=cd;}return output;
+    }
+    private static List<Vertex> front(List<Vertex> input,float plane){
+        var output=new ArrayList<Vertex>();var previous=input.getLast();float pd=plane-previous.point.z;
+        for(var current:input){float cd=plane-current.point.z;if((pd>=0)!=(cd>=0))output.add(previous.mix(current,pd/(pd-cd)));if(cd>=0)output.add(current);previous=current;pd=cd;}return output;
+    }
+    private static List<Vector3f> hull(List<Vector3f> points){
+        if(points.size()<3)return List.of();points.sort(Comparator.<Vector3f>comparingDouble(p->p.x).thenComparingDouble(p->p.y));
+        var result=new ArrayList<Vector3f>();for(var p:points){while(result.size()>=2&&side(result.get(result.size()-2),result.getLast(),p)<=0)result.removeLast();result.add(new Vector3f(p));}
+        int lower=result.size();for(int i=points.size()-2;i>=0;i--){var p=points.get(i);while(result.size()>lower&&side(result.get(result.size()-2),result.getLast(),p)<=0)result.removeLast();result.add(new Vector3f(p));}
+        if(!result.isEmpty())result.removeLast();return result;
+    }
+    private static Vertex swatch(Vector3f p){return new Vertex(p,(11.5f)/16,.5f);}
+    private static void quad(PoseStack pose,VertexConsumer buffer,int light,Vector3f a,Vector3f b,Vector3f c,Vector3f d,int r,int g,int blue){polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,List.of(swatch(a),swatch(b),swatch(c),swatch(d)),r,g,blue);}
+    private static void polygon(PoseStack stack,VertexConsumer buffer,int light,int overlay,List<Vertex> polygon,int r,int g,int b){
+        for(int i=1;i+1<polygon.size();i++){
+            Vertex[] tri={polygon.getFirst(),polygon.get(i),polygon.get(i+1)};
+            var normal=new Vector3f(tri[1].point).sub(tri[0].point).cross(new Vector3f(tri[2].point).sub(tri[0].point));if(normal.lengthSquared()<1e-12)continue;normal.normalize();
+            for(int k=0;k<4;k++){var v=tri[Math.min(k,2)];buffer.addVertex(stack.last().pose(),v.point.x/16,v.point.y/16,v.point.z/16).setColor(r,g,b,255).setUv(v.u,v.v).setOverlay(overlay).setLight(light).setNormal(stack.last(),normal.x,normal.y,normal.z);}
+        }
+    }
+    private LiveBirthRenderer(){}
+}

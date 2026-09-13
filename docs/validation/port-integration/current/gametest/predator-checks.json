@@ -1,0 +1,126 @@
+[
+  {
+    "name": "Purchased unbadged predator retains wild hunting",
+    "pass": true
+  },
+  {
+    "name": "Unbadged predator rejects commands",
+    "pass": true
+  },
+  {
+    "name": "Badge without education is insufficient",
+    "pass": true
+  },
+  {
+    "name": "Educated silver predator respects protected companions",
+    "pass": true
+  },
+  {
+    "name": "Owner can stop hunting",
+    "pass": true
+  },
+  {
+    "name": "Owner order survives reload",
+    "pass": true
+  },
+  {
+    "name": "Owner transfer invalidates old command",
+    "pass": true
+  },
+  {
+    "name": "Return command requires an assigned nest",
+    "pass": true
+  },
+  {
+    "name": "Predator claims a real covered twig nest",
+    "pass": true
+  },
+  {
+    "name": "Ordinary species cannot claim predator nest",
+    "pass": true
+  },
+  {
+    "name": "Educated predator accepts return command",
+    "pass": true
+  },
+  {
+    "name": "Loading an airborne save restores safe gravity",
+    "pass": true
+  },
+  {
+    "name": "Wild predator weaves and claims a covered elevated nest",
+    "pass": true
+  },
+  {
+    "name": "Six actual animals produce two sale pages",
+    "pass": true
+  },
+  {
+    "name": "Second page lists both predators",
+    "pass": true
+  },
+  {
+    "name": "Predator purchase transfers the real individual at quoted price",
+    "pass": true
+  },
+  {
+    "name": "Purchased predator keeps species and UUID in authoritative custody",
+    "pass": true
+  },
+  {
+    "name": "Repeated stale purchase cannot debit twice",
+    "pass": true
+  },
+  {
+    "name": "Opaque wall prevents hunting a hidden prey",
+    "pass": true
+  },
+  {
+    "name": "Low obstacle keeps a real collision surface",
+    "pass": true
+  },
+  {
+    "name": "Live pursuit starts with visible eligible prey",
+    "pass": true
+  },
+  {
+    "name": "Hungry adult uses real flying navigation",
+    "pass": true
+  },
+  {
+    "name": "Hunt moves toward prey",
+    "pass": true
+  },
+  {
+    "name": "Real flight crosses the low physical obstacle",
+    "pass": true
+  },
+  {
+    "name": "Nearby wild prey receives an escape response",
+    "pass": true
+  },
+  {
+    "name": "Actual pursuit reaches a bite",
+    "pass": true
+  },
+  {
+    "name": "Flight consumes finite energy",
+    "pass": true
+  },
+  {
+    "name": "Flandre also uses finite flight",
+    "pass": true
+  },
+  {
+    "name": "Scavenging consumes one actual portion and grants its nutrition (removed\u003dtrue, food\u003d29.0, meal\u003d0)",
+    "pass": true
+  },
+  {
+    "name": "Prey physically escapes away from its start",
+    "pass": true
+  },
+  {
+    "name": "Interrupt restores gravity and ground navigation",
+    "pass": true
+  }
+]

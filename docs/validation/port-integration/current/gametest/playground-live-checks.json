@@ -1,0 +1,86 @@
+[
+  {
+    "name": "PAPER live route starts",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC live route starts",
+    "pass": true
+  },
+  {
+    "name": "SLIDE live route starts",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE live route starts",
+    "pass": true
+  },
+  {
+    "name": "POOL live route starts",
+    "pass": true
+  },
+  {
+    "name": "PAPER real route completed",
+    "pass": true
+  },
+  {
+    "name": "PAPER real route costs energy",
+    "pass": true
+  },
+  {
+    "name": "PAPER stops without injury",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC real route completed",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC real route costs energy",
+    "pass": true
+  },
+  {
+    "name": "CERAMIC stops without injury",
+    "pass": true
+  },
+  {
+    "name": "SLIDE real route completed",
+    "pass": true
+  },
+  {
+    "name": "SLIDE real route costs energy",
+    "pass": true
+  },
+  {
+    "name": "SLIDE stops without injury",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE real route completed",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE real route costs energy",
+    "pass": true
+  },
+  {
+    "name": "TRAMPOLINE stops without injury",
+    "pass": true
+  },
+  {
+    "name": "three physical trampoline launches",
+    "pass": true
+  },
+  {
+    "name": "POOL real route completed",
+    "pass": true
+  },
+  {
+    "name": "POOL real route costs energy",
+    "pass": true
+  },
+  {
+    "name": "POOL stops without injury",
+    "pass": true
+  }
+]

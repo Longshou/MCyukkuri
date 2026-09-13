@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-12T17:44:09.990Z",
+  "sourceSha256": "ba9c345e54b3ea61cc257d39fceedbab3c8e75477bca5dbfbadc1c27660f50ef",
+  "editorSha256": "c4ffa34d5e3e7f4666b494c3ca2a41afd8875059f5659ac93ad1a17b4897d47c",
+  "dataSha256": "194b9ed6d4204b94fd4392360db69a264825e4a524f7b4324eab2975e8f6be04",
+  "checks": [
+    "two actors, six locations, skin and occluded views",
+    "three simultaneous independent wounds",
+    "four motion clips at start/mid/end",
+    "compressed and dry surface attachment",
+    "actual canvas click placement",
+    "add/edit/remove/clear and recipe reload",
+    "current posed model download exactly matches preview vertices and UV",
+    "motion playback completion",
+    "mobile editor layout",
+    "existing injury card opens placement editor",
+    "two independent outlets in four modes and flight playback"
+  ],
+  "errors": [],
+  "ok": true
+}

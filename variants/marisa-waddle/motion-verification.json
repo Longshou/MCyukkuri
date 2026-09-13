@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "rest geometry and texture identical to selected base",
+    "53 cubes / 11 linked bones",
+    "all Blockbench animator references resolve",
+    "241 samples of complete cycle: floor error below 0.001 model units",
+    "unit normals and finite posed vertices",
+    "loop endpoints identical"
+  ],
+  "lowest": -6.22007504919031e-7,
+  "highestGround": 1.653430647952092e-8
+}

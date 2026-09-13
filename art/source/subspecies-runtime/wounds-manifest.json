@@ -1,0 +1,54 @@
+{
+  "exporter": "scripts/export_subspecies_wounds.cjs",
+  "sha256": "32e504a0e6d92eb3480b71a9ced38f28de87a53a8aacaa29c17609e222a76ed6",
+  "models": {
+    "marisa_tsumuri": {
+      "runtime_sha256": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a",
+      "surface_sha256": "e29bf35bb83a58f65f5e301628b7ec67daaba9ee93baa59e0e5efccb4c1f7ca1",
+      "skin_vertices": 73392,
+      "face_vertices": 11520
+    },
+    "reimu_wasa": {
+      "runtime_sha256": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5",
+      "surface_sha256": "a288a89d261be991abb075139a3cc9c0e15d60d7670428ad2020a2c8f6f4548f",
+      "skin_vertices": 66912,
+      "face_vertices": 11520
+    },
+    "reimu_sparse": {
+      "runtime_sha256": "d36f99a280a21d6fbd8710c6deae81839e3f9efac99de1646a818c2927e58001",
+      "surface_sha256": "1db6cb669ecb86556f71a36c05a06164194fbc67eb3ab1856347a4f094e8a5ad",
+      "skin_vertices": 73392,
+      "face_vertices": 11520
+    },
+    "reimu_face": {
+      "runtime_sha256": "69b349a0cede6561e2ebf99769f822aefc74c9f1054daefb2a24cf9f627ae4d4",
+      "surface_sha256": "0a7775d967700c2219bd7c4dc2cdc4948fcd19de381b75a4ef5a4c5d19eef06c",
+      "skin_vertices": 73392,
+      "face_vertices": 9342
+    },
+    "reimu_bean": {
+      "runtime_sha256": "44b7c248fd9d26904107ff7cffd0e9d908672e7355598559285d7a49627b629d",
+      "surface_sha256": "91ad9af1a441158113c9870fd501fd6b04fd09f87e2e324e59c9c49d9da5545d",
+      "skin_vertices": 96786,
+      "face_vertices": 3306
+    },
+    "marisa_sparse": {
+      "runtime_sha256": "23b6c2934da5665c07a59ac849f1eaa2209e74bb39b01400b78cc2c628999570",
+      "surface_sha256": "1b6538bc04fa8844ab6ba45ed7b322513045918764552ac9e61e2f3f8b5a6221",
+      "skin_vertices": 73392,
+      "face_vertices": 11520
+    },
+    "marisa_face": {
+      "runtime_sha256": "2c7cd4d83a65fe9f217c03d91fefb6ceba730ebb7eb94bfb46e31d8970a91d8e",
+      "surface_sha256": "1d0a6a937222f42f5f79ba9bda7d9f16594e2cd7404008ea09b830912d1e587d",
+      "skin_vertices": 73392,
+      "face_vertices": 9342
+    },
+    "marisa_bean": {
+      "runtime_sha256": "dd92ddd897e4a91e816b2718ab27afac7fbec993d6375aff4ff58f1fe1c65c48",
+      "surface_sha256": "e205da5a2485e81baeddeb3f7ce529dd18452ceeaa68f5f2ab92a507777c4e81",
+      "skin_vertices": 96786,
+      "face_vertices": 3306
+    }
+  }
+}

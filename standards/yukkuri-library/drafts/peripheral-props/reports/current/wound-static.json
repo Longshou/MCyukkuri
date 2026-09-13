@@ -1,0 +1,11 @@
+{
+  "date": "2026-09-12T17:44:45.511Z",
+  "status": "passed",
+  "sourceSha256": "ba9c345e54b3ea61cc257d39fceedbab3c8e75477bca5dbfbadc1c27660f50ef",
+  "checks": [
+    "two actors: six surface locations and inverse hit positioning",
+    "independent placement/severity/quantity and clear-all",
+    "shared skin vertices remain welded through four source clips; outlet follows posed skin",
+    "body and released material scale together; flight landing stays above floor"
+  ]
+}

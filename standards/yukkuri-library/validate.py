@@ -17,7 +17,8 @@ for row in coverage['rows']:
 for alias,target in idx['aliases'].items():assert target in idx['presets'],(alias,target)
 recipe_hashes={}
 for id,ref in idx['presets'].items():
- p=read(ref);assert p['status'] in ['retained','needs-redraw','pending-review'];sig=json.dumps({'parts':p['parts'],'requires':p.get('requires',[]),'cheek_scale':p.get('cheek_scale',1),'offsets':p.get('geometry_offsets',{})},sort_keys=True)
+ p=read(ref);assert p['status'] in ['retained','needs-redraw','pending-review','accepted'];sig=json.dumps({'parts':p['parts'],'requires':p.get('requires',[]),'cheek_scale':p.get('cheek_scale',1),'offsets':p.get('geometry_offsets',{})},sort_keys=True)
+ if p['status']=='accepted':assert p.get('review_decision',{}).get('status')=='accepted',(id,'missing user decision')
  assert sig not in recipe_hashes or p.get('duplicate_of')==recipe_hashes[sig],(id,recipe_hashes.get(sig));recipe_hashes.setdefault(sig,id)
  for part in p['parts'].values():assert (R/part).is_file()
 for name in [p.stem for p in sorted((R/'characters').glob('*.json'))]:

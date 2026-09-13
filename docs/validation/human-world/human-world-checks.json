@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Shop template has its authored footprint",
+    "pass": true
+  },
+  {
+    "name": "Factory template has its authored footprint",
+    "pass": true
+  },
+  {
+    "name": "Rotated shop places through vanilla StructureTemplate",
+    "pass": true
+  },
+  {
+    "name": "Factory places through vanilla StructureTemplate",
+    "pass": true
+  },
+  {
+    "name": "Both structures contain five finite human residents",
+    "pass": true
+  },
+  {
+    "name": "Profession and attitude are separate",
+    "pass": true
+  },
+  {
+    "name": "Rotated structure stock binds to its keeper (4)",
+    "pass": true
+  },
+  {
+    "name": "Factory reserves are not silently processed",
+    "pass": true
+  },
+  {
+    "name": "Missing companion has a persistent exact identity",
+    "pass": true
+  },
+  {
+    "name": "Unsold stock cannot be taken with a free carrier",
+    "pass": true
+  },
+  {
+    "name": "Insufficient funds cannot remove a live individual",
+    "pass": true
+  },
+  {
+    "name": "Purchase transfers the actual animal",
+    "pass": true
+  },
+  {
+    "name": "Purchase preserves UUID, family and education",
+    "pass": true
+  },
+  {
+    "name": "Purchased carrier belongs to buyer",
+    "pass": true
+  },
+  {
+    "name": "A repeated stale quote cannot charge or clone",
+    "pass": true
+  },
+  {
+    "name": "Factory accepts an authoritative owned carrier",
+    "pass": true
+  },
+  {
+    "name": "Delivery retires its token and keeps the same individual",
+    "pass": true
+  },
+  {
+    "name": "Delivery cannot pay twice",
+    "pass": true
+  },
+  {
+    "name": "Worker processes only the delivered physical input",
+    "pass": true
+  },
+  {
+    "name": "Oniisan respects sold and factory-owned individuals",
+    "pass": true
+  },
+  {
+    "name": "Caretaker offers the recorded missing companion",
+    "pass": true
+  },
+  {
+    "name": "Exact missing companion returns and earns reward",
+    "pass": true
+  },
+  {
+    "name": "Completed rescue cannot be rewarded twice",
+    "pass": true
+  },
+  {
+    "name": "NPC home, quest identity, completion and supplies survive NBT",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 0",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 1",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 2",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 3",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 4",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 5",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 6",
+    "pass": true
+  },
+  {
+    "name": "Finite supply trade 7",
+    "pass": true
+  },
+  {
+    "name": "Daily supply limit is enforced",
+    "pass": true
+  },
+  {
+    "name": "Reload does not refresh daily trade quota",
+    "pass": true
+  },
+  {
+    "name": "Nighttime trade is refused",
+    "pass": true
+  },
+  {
+    "name": "Menu rejects remote operations",
+    "pass": true
+  }
+]

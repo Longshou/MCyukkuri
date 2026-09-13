@@ -1,0 +1,44 @@
+{
+  "id": "open_drool_b",
+  "label": "睁眼流口水 · 滴落",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "eyes": "normal",
+    "brows": "normal",
+    "mouth": "round",
+    "tears": "none",
+    "blush": "normal",
+    "effect": "drool_b"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+    "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/d13e58a1fac0d5caa71f.png",
+    "face_effect_mouth": "expressions/parts/ab30220834cd3d2d47ea.png"
+  },
+  "sources": [
+    {
+      "field": "縦ジャンプよだれ顔２グラベース",
+      "index": 0,
+      "sprite_id": 4745,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    },
+    {
+      "field": "ジャンプ移動よだれ顔２グラベース",
+      "index": 0,
+      "sprite_id": 5026,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

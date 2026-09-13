@@ -29,9 +29,39 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check packaged entity assets
+        run: python scripts/validate_entity_assets.py
+      - name: Check living facility exports
+        run: python scripts/export_living_assets.py --check
+      - name: Check family presentation exports
+        run: python scripts/export_family_assets.py --check
+      - name: Check house and care exports
+        run: python scripts/export_house_assets.py --check
+      - name: Check selected peripheral exports
+        run: python scripts/export_peripheral_assets.py --check
+      - name: Check operation tool exports
+        run: python standards/yukkuri-library/drafts/operation-tools/build.py --check
       - name: Build mod
         run: ./gradlew build --no-daemon
         shell: bash
+      - name: Run entity and living GameTests
+        run: ./gradlew runP0GameTest --no-daemon
+        shell: bash
+      - name: Upload P0 assertions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-checks-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            .local/p0/gametest/p0-control/server-checks.json
+            .local/p0/gametest/p0-control/living-checks.json
+            .local/p0/gametest/p0-control/family-checks.json
+            .local/p0/gametest/p0-control/core-checks.json
+            .local/p0/gametest/p0-control/filling-checks.json
+          if-no-files-found: warn
       - name: Upload development jar
         uses: actions/upload-artifact@v4
         with:

@@ -11,7 +11,7 @@ displayURL="https://github.com/Longshou/MCyukkuri"
 authors="Longshou"
 description='''
 A Minecraft foundation for a living Yukkuri world: species, behavior, habitats and field notes.
-Early development build with Reimu and Marisa entities. Ecology is not implemented yet.
+Standard and house Reimu/Marisa with food, rest, wandering and synchronized animation actions.
 '''
 
 [[dependencies.${mod_id}]]
@@ -25,12 +25,5 @@ side="BOTH"
 modId="minecraft"
 type="required"
 versionRange="${minecraft_version_range}"
-ordering="NONE"
-side="BOTH"
-
-[[dependencies.${mod_id}]]
-modId="geckolib"
-type="required"
-versionRange="[${geckolib_version},5)"
 ordering="NONE"
 side="BOTH"

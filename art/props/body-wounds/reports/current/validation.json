@@ -1,0 +1,132 @@
+{
+  "date": "2026-09-12T19:07:34.998072+00:00",
+  "scope": "R3.1 七种角色全身伤口的游戏接入",
+  "build": "Gradle build + compileP0TestJava 通过；无普通单元测试源集，行为由独立 GameTest 夹具执行",
+  "gameTests": {
+    "assertions": 272,
+    "failed": 0,
+    "runtimeJarSha256": "2732a8ccaa970d3ad6b9455bbd9e6db0ddd325a4b62b4e92bf7192c7b8dae699"
+  },
+  "client": {
+    "runtimeJarSha256": "2732a8ccaa970d3ad6b9455bbd9e6db0ddd325a4b62b4e92bf7192c7b8dae699",
+    "actualClientCapture": true,
+    "sevenModels": {
+      "reimu": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "marisa": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "house_reimu": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "house_marisa": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "chen": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "alice": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      },
+      "patchouli": {
+        "sourceHashMatches": true,
+        "packagedWoundEqualsCurrentExport": true
+      }
+    },
+    "sync": true,
+    "resourceReload": true,
+    "chewing": true
+  },
+  "review": {
+    "self": "查看本轮近景、多方向及动作帧；修正平法线偏移接缝、五官薄片与凹陷交错、掉落地板碰撞。",
+    "independent": "审查 agent 查看家油近景、灵梦近景和侧弯中间帧，未见明显错挂或悬空；旧存档两类伤情丢失已按建议修正并加入检查。",
+    "limits": [
+      "标准伤口造型仍待用户确认。",
+      "游戏中的伤处由实际伤害驱动；编辑器配方导入和全局干瘪滑块未接入。",
+      "未进行远程多人长时间压力测试；本记录不代表其他并行玩法完成验收。"
+    ]
+  },
+  "sourceSha256": {
+    "src/main/java/io/github/longshou/mcyukkuri/body/BodyLife.java": "0a2013ac62d8868a46b754af4801b83b13fba25d4280ff0d831a4228263d95e5",
+    "src/main/java/io/github/longshou/mcyukkuri/body/BodyWound.java": "4fb86e8bd5ecc1d1ee59ff792accd6d7b35b2ff0a8f829e4b33e10719d992dee",
+    "src/main/java/io/github/longshou/mcyukkuri/body/DetachedItems.java": "5bd1e71617921c8330d2755db980b813487fde9a0dc7deadae5f42fd639e55ea",
+    "src/main/java/io/github/longshou/mcyukkuri/body/FillingResource.java": "bf84ceb55d774d2b515068cd5418074150575c11d870354d7e76646c8c8bc5a7",
+    "src/main/java/io/github/longshou/mcyukkuri/body/GraveBlock.java": "1eb916a7841c8205bbc6101f08ab141dcbdc1eba0eb71cc5a260f5b8bac85647",
+    "src/main/java/io/github/longshou/mcyukkuri/body/GraveBlockEntity.java": "199130e07131b6d08b0f3bceaadd8bd744cc0ea8a85d2e1780180cb8d79153ac",
+    "src/main/java/io/github/longshou/mcyukkuri/body/WoundPlacement.java": "87f5fce414cde81d6a548c97699bd2c1f75d52a67649c3c1b38690c48f82edb5",
+    "src/main/java/io/github/longshou/mcyukkuri/body/WoundSurface.java": "89f24ab520a86dfd728bd2c8baa401366987d62ec5223079c825ed03b0c7f1c5",
+    "src/main/java/io/github/longshou/mcyukkuri/client/WoundRenderer.java": "2d183a678d68cceb2a6f83b16cbb1073d4b5456eceb49d956435764a2e1bc1bb",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriModel.java": "e4c9e71ed1ca199f9e32bc9945e575af5dc5f482b1516e1f58109c6024aa7d1b",
+    "src/main/java/io/github/longshou/mcyukkuri/client/YukkuriRenderer.java": "0347156e90d7527da0b7f88b16eb37eb1b838f6ed9ce76ab2757146ae3f82e5e",
+    "src/main/java/io/github/longshou/mcyukkuri/client/MaterialDropRenderer.java": "6ea347d6675a614260e34edcfe55762784e3a5a4d6fe7b86bf49a18a764a850e",
+    "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java": "10426adfc918ce620f5fdbd29f843a1e2aeef12c0511ff12432b5812334c9081",
+    "scripts/export_wound_surfaces.cjs": "ffc87d0b6deef6a1a98a1a3924005b0056cb891ddcac6c0bbb9f9b503886429b",
+    "scripts/verify_wound_runtime.py": "e25271234546c54fa7fcd575df22e151d1083b585adcfb7d50ceaed1472d0923",
+    "scripts/run_wound_checks.py": "1d607b220e633fe7f7242b2ae00a3b1523b3bd00e8d02e62a42cb5596aae163f",
+    "scripts/capture_wound_preview.py": "3b6ec7dc1e31168024846493d1eafdb66c0207a26a9422b0c9ebc61845cb4c7d",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/WoundGameTests.java": "87a20459a7a21226eceebf9b10afbc706bd74011ae8df7b205b09b296152fd87",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/WoundPreview.java": "1c0471a46d1a494d159f50fc83703a265d037444ee8902bbcfcaf1b317ea00fd",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/P0Client.java": "c56645e2563e4489b26abfa066f65da0741576663e2cc247382d782688d5e864"
+  },
+  "previewSha256": {
+    "wound-alice-front-0000.png": "18cfc42051ae1ab44adb81cfc18bafae87a5f83953f2bd571bbd9d1d072b5636",
+    "wound-chen-front-0000.png": "5ed7e54843377e3d1443444d1f64638e177cbcda1f1acf7a4330cf39a5bcd539",
+    "wound-house-close-0000.png": "2862d3a66c2974eb9931e754413edb34018ca6bdbd3820418162ebb745b26980",
+    "wound-house-side-skin-0000.png": "d1b0f0eb9fd05dd5cb557bbe3b25c38475cb5379d1db24d90333e0f67cbe4c5f",
+    "wound-house_marisa-front-0000.png": "9087181eb379476ae332c5a7b4565fd7a04182b8a43925c64465ecd286b0b17d",
+    "wound-house_reimu-front-0000.png": "c8a28a5001d3dba47cdd77c4990e1be2993307a91851297e5bf018c0129018e9",
+    "wound-marisa-back-skin-0000.png": "630e25c7b529bbd2d75c7ef65990952606482f8867383230dcf099a29b705e23",
+    "wound-marisa-front-0000.png": "0da64f363bc00cc6cf9b5e9da30d558d0e613c7314a40eb161bb255cce91c98c",
+    "wound-patchouli-front-0000.png": "054f5be52d0e8752d4eaea4018aca643b1a8ba13a7cc785f9240111cdfa7b3b5",
+    "wound-reimu-back-0000.png": "a7227d302c0da40f5b28f4639fa008e119d1924d240d212288930d674b717b2a",
+    "wound-reimu-bottom-skin-0000.png": "5795226b5d2cec35d967225870d35fdaf26ca4edd2b39d89abc3816e22ef9a10",
+    "wound-reimu-close-0000.png": "25d950c6baa14d283d13f2f9d8ce88d86977383d6511957dca5b0949c97e9305",
+    "wound-reimu-front-0000.png": "ffea2574bd5863bd5497c15fcbc24c8baadbf5fbd224a88c4e3da1039e650b4c",
+    "wound-reimu-oblique-0000.png": "2fd7cccef7f28229633ce4e387ee9076863babe1ff18cd51be4eb8f23713f6b8",
+    "wound-reimu-press-0000.png": "3d71ec134afe24abc79a486fa770af461ffec8e6d436826b7586d9e0566d7aa9",
+    "wound-reimu-press-0001.png": "143226a72e0fca257c40252ba7bc0ec744e263bb23cb12585c8168981c19db1a",
+    "wound-reimu-press-0002.png": "8c0d3c0a4ff730d49a6fba9c99995eca75c82d839c5d8c0f0c2aee90006ddea3",
+    "wound-reimu-press-0003.png": "7ce672407ea78eb5e175d55abc4d12b4b373f3aa2ddfa2e46a94270ff310e65c",
+    "wound-reimu-press-0004.png": "d516f23fac91203e6b2ccbb7b0ec7695507786df419940f9b2a5a2b9ce590d72",
+    "wound-reimu-press-0005.png": "93e0e9f70f3cf27859ecd01767e28650f0a3dfa8e3af25eeca46642037323865",
+    "wound-reimu-press-0006.png": "cec64714a50e6ac730c62171ac69045eb7b7239ecff30ad8e96468ebf84e6ef1",
+    "wound-reimu-release-0000.png": "153ded3344f3f873b1b1532506f5b59b00e007960434ee40bee23a7f2d66128c",
+    "wound-reimu-release-0001.png": "162731222b35171157dc7cca94eda30dfc73e2aa3661063b991628bae4a8706c",
+    "wound-reimu-release-0002.png": "52ceefceab68087c62247fc5178a61759de6b727889378b9dd445eac73f3abe2",
+    "wound-reimu-release-0003.png": "922af05f3bcaab85b45efbdc56c5600fc7c8febc53b3d95d874c6cb406b2dbc7",
+    "wound-reimu-release-0004.png": "4e6ce1212a968951fdf57d05872f69dbcd648bbcb34e8b5ceaf5820ab5fc5569",
+    "wound-reimu-release-0005.png": "478e8eb55a56df2e8409b0a6bb8cc816ac8edd39ba5fae37542fe15d86281595",
+    "wound-reimu-release-0006.png": "9766727695e31ec445edbc8851f090c8304a96278b71ab7980c795f1ae43b6c9",
+    "wound-reimu-release-0007.png": "5021cc6c285da2eec8330ba95fb6627753f5e16143c126eb157178f9da70e13c",
+    "wound-reimu-side-skin-0000.png": "428e4fb794511764dd5e280ab8a0f98787626a08c14d6e9c0e7e1f0a82fece67",
+    "wound-reimu-side_bend-0000.png": "6b1db04ffb2bb3f9b78da854339058f0d454a7e5953311b44885e087b0495f83",
+    "wound-reimu-side_bend-0001.png": "3f382602c447679fb52a5ab1e7ec0697b6ae3de72bfc021e87ffcf0b8cd7c284",
+    "wound-reimu-side_bend-0002.png": "cbe922d0b2f52a29caf0e46373132e01970ee2b2f54aed4b708c19c30534e6b4",
+    "wound-reimu-side_bend-0003.png": "59ec5e80acf4bc2f3f80af1d1d5c713c80a8f7837b7d1e909aabce587fe71dda",
+    "wound-reimu-side_bend-0004.png": "7f6ae764c7eec15382f9fe30af1c63f99acc0873d7bfaa59ff5eea76d2b3cb57",
+    "wound-reimu-side_bend-0005.png": "8b8e0ebce64c8396acd6136d7d588b4262ec9a1a8592a17670c0d5f460bdfa03",
+    "wound-reimu-side_bend-0006.png": "53316530c31c18cfd7e9f158479a03b074481f359240d448a6d23d39426c89e4",
+    "wound-reimu-stretch_shape-0000.png": "729be8c0b8d36e688bf6f9e8b352af826c169ba9e6c316650c645bcb69fd604d",
+    "wound-reimu-stretch_shape-0001.png": "99460142aefa03ecf6c11da6b1cbca25243e6e759e2bf86b207bbacd554185a1",
+    "wound-reimu-stretch_shape-0002.png": "7d639c06ef2d48c451858b998ccf48f437ccc19d562b005bfc5872466ed35242",
+    "wound-reimu-stretch_shape-0003.png": "7d639c06ef2d48c451858b998ccf48f437ccc19d562b005bfc5872466ed35242",
+    "wound-reimu-stretch_shape-0004.png": "7d639c06ef2d48c451858b998ccf48f437ccc19d562b005bfc5872466ed35242",
+    "wound-reimu-stretch_shape-0005.png": "7d639c06ef2d48c451858b998ccf48f437ccc19d562b005bfc5872466ed35242",
+    "wound-reimu-stretch_shape-0006.png": "7d639c06ef2d48c451858b998ccf48f437ccc19d562b005bfc5872466ed35242",
+    "wound-reimu-top-skin-0000.png": "e2665eb63c1c27cea6646c9b00eb1bb444946e75f1e86ad70db03e61ddbba910",
+    "wound-reimu-waddle-0000.png": "0a9e464d0bdffb665c20faa82ba9354cccdf7ae3d0a24f224882cc85fc29a2fd",
+    "wound-reimu-waddle-0001.png": "edfac6c9d52a89d9d5ce3bbbe48f2216c7607800509ce56315dbb4766b3f7ced",
+    "wound-reimu-waddle-0002.png": "cbf1c51fd576f3e10cd66de37d129668be469cc9e6e74268b259672d65224e05",
+    "wound-reimu-waddle-0003.png": "c73cddb84300a0e0c61223fb81e45b74e5798d7d7599f101fafe9d8254fc037e",
+    "wound-reimu-waddle-0004.png": "969bdfb822025d29cb0403c931fc7ed6e38a3333ff1c1a3cc5ac3234a381b30d",
+    "wound-reimu-waddle-0005.png": "a3b338f3da4dff9a520f44f1f60cb4b5583816730dcc09ff1918540069d3eb99",
+    "wound-reimu-waddle-0006.png": "3507110c515e7b868bf21c319474989503755d6779689e8bcfb928db49e32df6"
+  }
+}

@@ -1,0 +1,5396 @@
+{
+  "status": "implemented-candidate-awaiting-listening-review",
+  "source": "native-u/catalogue-data.js",
+  "substitutions": {
+    "my_name": "原版角色自称，按成体／幼语选择",
+    "【飼い主】": "原版默认称呼 にんげんさん；中文 人类先生"
+  },
+  "lines": [
+    {
+      "id": "marisa.adult.l0013",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり していってね！",
+      "chinese": "油库里洗跌一跌捏！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "\"ゆっくり していってね！\""
+      },
+      "source_sha256": "ae50011ac2dffff8efe772d3fca49b6723f08d753111209ec477f27ad33d28c4",
+      "events": [
+        "hello",
+        "newborn",
+        "hatched",
+        "introduced",
+        "peer",
+        "known_peer"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0024",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくりするぜ！",
+      "chinese": "要油库里贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっくりするぜ！"
+      },
+      "source_sha256": "cd0cd2b347bb0df65da0a3e0e8562db305d9772b612647ebae149ba360b9bc84",
+      "events": [
+        "idle",
+        "house_arrival",
+        "house_deposit"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0025",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0102",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆんやぁぁぁ！いたいのぜぇぇぇ！",
+      "chinese": "油嗯呀啊啊！好痛贼——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 102,
+        "index": 101,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いたいのぜぇぇぇ！"
+      },
+      "source_sha256": "4afdfe19b796caba690fa127d704c6d863260a419cc4e6d279ebdd046ccef331",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0134",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おなかすいたよ！",
+      "chinese": "肚子饿了哦！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいたよ！"
+      },
+      "source_sha256": "7b611b11cda775b629b6bff0c6a09ffc3eb93e0f3ea0955abe59776462deaf86",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0222",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ！ごはんさん！",
+      "chinese": "油！饭先生！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんさん！"
+      },
+      "source_sha256": "2572e4e4c4a96c4e8ba615384ea2f7050d8aca71eeb5a1db616cfa6c66d1dd20",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0233",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり たべるぜ！",
+      "chinese": "要油库里地吃贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "\"ゆっくり たべるぜ！\""
+      },
+      "source_sha256": "a4f93dc6d115adb2dc1b9e8cc4a1e3126680f910f1f609f3d19d5940b3bf51b4",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0321",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "\"むーしゃ むーしゃ\""
+      },
+      "source_sha256": "b846be1fbb5095ed18e3b29de4bcce071cf27c809e8d51261dec055f6c319dd5",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0376",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "しあわせー！",
+      "chinese": "好幸福——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわせー！"
+      },
+      "source_sha256": "40339efb800de62c7fee1d8148dda64d14c8203023f70d7861c7c8c76055b943",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0420",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うんうん するよ！",
+      "chinese": "要嗯嗯了哦！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "\"うんうん するよ！\""
+      },
+      "source_sha256": "193939f512618697e7e72e245e2b13f29a34dbf7d3d19b7d6a832764b3d3028a",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0453",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "好舒畅——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "washed",
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0486",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すーや……すーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "すーや……すーや……"
+      },
+      "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0508",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり おはようなのぜ！！",
+      "chinese": "油库里，早上好贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "\"ゆっくり おはようなのぜ！！\""
+      },
+      "source_sha256": "0387041b833f8f503c6dd89469653fda35e216f505f9566dbb8c217994705d1b",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0596",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり……ゆっくりぃ！",
+      "chinese": "油库里……油库里——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくり……ゆっくりぃ！"
+      },
+      "source_sha256": "b63f9240cab81b5159e7285459191ca8673a0bcafe9523cd027e141c6653ec83",
+      "events": [
+        "wait_family",
+        "lost_parent",
+        "family_died",
+        "afraid",
+        "cold"
+      ]
+    },
+    {
+      "id": "marisa.adult.l0794",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん ありがとー なのぜ！",
+      "chinese": "人类先生，谢谢贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "\"【飼い主】 ありがとー なのぜ！\""
+      },
+      "source_sha256": "1464aa76b5e2f8fe23532f00b569b65b639500846366015b10038403348e9f6f",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "marisa.adult.l1916",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり りかいしたぜ！",
+      "chinese": "油库里地明白了贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "\"ゆっくり りかいしたぜ！\""
+      },
+      "source_sha256": "b5b189e8c00632c477733360f246c8fb9c310f581f65e31b19d48b7b2b5e19ba",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "marisa.adult.l1927",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり……わかったのぜ……",
+      "chinese": "油库里……知道了贼……",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくり……わかったのぜ……"
+      },
+      "source_sha256": "75ce2701fcc371d774a0749cac46881aecdd605d12da46bedab3b5041b1c975a",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "marisa.adult.l1940",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "がんばったのぜ！ほめてね！",
+      "chinese": "很努力了贼！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったのぜ！ほめてね！"
+      },
+      "source_sha256": "b94e6922e5ae4ac5c75244f88da916522814141d7cb5af377202c6570655d88e",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "marisa.adult.l1982",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっくり がんばるのぜ！",
+      "chinese": "要油库里地努力贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "\"ゆっくり がんばるのぜ！\""
+      },
+      "source_sha256": "73152c4d4ef6cdf22fe16f95764d69669006dc9b77347b9bbc7b9139c3c180cf",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "marisa.adult.l2444",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさの おぼーし かえすのぜ！",
+      "chinese": "把魔理沙的帽帽还回来贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "\"my_nameの おぼーし かえすのぜ！\""
+      },
+      "source_sha256": "70688e51f5ee983e33c45d50ece8219833f7903791a82afda48fe9026ecb48f3",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "marisa.adult.l2455",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさの おぼーし おかえりっなのぜ！",
+      "chinese": "魔理沙的帽帽，欢迎回来贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "\"my_nameの おぼーし おかえりっなのぜ！\""
+      },
+      "source_sha256": "23e1f0bb42564efd798db33138e6f3d9b0d863455119fafeb8454ab6c01da85d",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "marisa.adult.l2598",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "heard",
+        "busy",
+        "shy",
+        "house_peek"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3005",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆきゃっ♪",
+      "chinese": "油呀♪",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ゆきゃっ♪"
+      },
+      "source_sha256": "8bbd80895b8cd8a1c22312522ccd420408c4ea18895026df3db7cc4f2f9a3e79",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3896",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うまれる！",
+      "chinese": "要生了！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うまれる！"
+      },
+      "source_sha256": "a79e20aa265b839cf37e8046384e27ce204f5df91f696c8a0f7eb69f937ecc72",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "marisa.adult.l5502",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "grown",
+        "laid_eggs",
+        "expecting"
+      ]
+    },
+    {
+      "id": "marisa.adult.l5525",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさも あそぶのぜ！！",
+      "chinese": "魔理沙也要玩贼！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "\"my_nameも あそぶのぜ！！\""
+      },
+      "source_sha256": "aafda5e6b4a671578cde49375da7634db8c95d2d3b37520506c1e63fbd693ed5",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "marisa.adult.l5832",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぷくっ ぷくーっ",
+      "chinese": "噗咕！噗咕——！",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "\"ぷくっ ぷくーっ\""
+      },
+      "source_sha256": "c6afc62d9f7c6d3f2aead1ca9d8b2b00b76c59c6e40f521e4eb4aedee4b85704",
+      "events": [
+        "mine",
+        "lesson_refused",
+        "puff"
+      ]
+    },
+    {
+      "id": "marisa.adult.l6041",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "なんだったのぜ？",
+      "chinese": "刚才怎么了贼？",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "なんだったのぜ？"
+      },
+      "source_sha256": "f19dfb52e2b99ac21a74f370f894844aadf777624bd6b816c270ae666c0633f2",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "marisa.young.l0013",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "\"ゆっくち しちぇいっちぇにぇ！\""
+      },
+      "source_sha256": "fe7b3478f004e66237aa555fede4646435f346c18da0b539c48eb9e7036f0502",
+      "events": [
+        "hello",
+        "newborn",
+        "hatched",
+        "introduced",
+        "peer",
+        "known_peer"
+      ]
+    },
+    {
+      "id": "marisa.young.l0024",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっきゅりしゅりゅじぇ！",
+      "chinese": "要油库气杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機",
+        "raw": "ゆっきゅりしゅりゅじぇ！"
+      },
+      "source_sha256": "bc7f687fe7795a4c62ecb7d5a784cf1ea2a51607cb89ffbf6bc215d4ecec60bd",
+      "events": [
+        "idle",
+        "house_arrival",
+        "house_deposit"
+      ]
+    },
+    {
+      "id": "marisa.young.l0025",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "marisa.young.l0102",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆんやぁぁぁ！いちゃいのじぇぇぇぇ！",
+      "chinese": "油嗯呀啊啊！好痛痛杰——！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 102,
+        "index": 101,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いちゃいのじぇぇぇぇ！"
+      },
+      "source_sha256": "089406c4b0b1e87f0bb3ce2ca3548b1ab6d9fdd1aac262e6d5f40443790643e1",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "marisa.young.l0134",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おなかすいちゃよ！",
+      "chinese": "肚肚饿惹哦！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいちゃよ！"
+      },
+      "source_sha256": "4686be999ee45aa01215f9bdd855bfc70e93c3fb009899f775ff5d63a0acc213",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "marisa.young.l0222",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっ！ごはんしゃん！",
+      "chinese": "油！饭鲜生！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんしゃん！"
+      },
+      "source_sha256": "49a15c7f26b9011098f92a8d9df98d25b120d26b442dcebd390b343b0e8254a1",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "marisa.young.l0233",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち たべりゅじぇ！",
+      "chinese": "要油库气地粗杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "\"ゆっくち たべりゅじぇ！\""
+      },
+      "source_sha256": "078d02359fa56142719f213bc25c98910583eb953d304d7deabfbb620e09e437",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "marisa.young.l0321",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "\"むーしゃ むーしゃ\""
+      },
+      "source_sha256": "b846be1fbb5095ed18e3b29de4bcce071cf27c809e8d51261dec055f6c319dd5",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "marisa.young.l0376",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しあわちぇー！",
+      "chinese": "好幸胡——！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわちぇー！"
+      },
+      "source_sha256": "c5587fc1ef18e7f69c92dc877aebe55b2316f4b6ab8a22bd70af97ca84a43038",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "marisa.young.l0420",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うんうん すりゅよ！",
+      "chinese": "要嗯嗯惹哦！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "\"うんうん すりゅよ！\""
+      },
+      "source_sha256": "899831539434063d00d6b986064f9885567e6cca8296e1410d038035335c0ad6",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "marisa.young.l0453",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちゅっきりー！",
+      "chinese": "好苏畅——！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "ちゅっきりー！"
+      },
+      "source_sha256": "146b024f137b852579752d4cb05a1c2699760849b17359d4d3b41402a459affe",
+      "events": [
+        "washed",
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "marisa.young.l0486",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しゅーや……しゅーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "しゅーや……しゅーや……"
+      },
+      "source_sha256": "84fa760b3c929889efb5bef65d8cb668cc51d651fe8b9d5946a64f3acacc67ce",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "marisa.young.l0508",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち おはようなのじぇ！！",
+      "chinese": "油库气，早上好杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "\"ゆっくち おはようなのじぇ！！\""
+      },
+      "source_sha256": "7d2a475f53e5d5722a3d68f0c9be2c8ccf8410174bc4533d3e8639d2914191ea",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "marisa.young.l0596",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち……ゆっくちぃ！",
+      "chinese": "油库气……油库气——！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくち……ゆっくちぃ！"
+      },
+      "source_sha256": "f89e1240915194e5cbf6dc93cc0f8175e0b72d118464fcf7e2b9ee32f89871e3",
+      "events": [
+        "wait_family",
+        "lost_parent",
+        "family_died",
+        "afraid",
+        "cold"
+      ]
+    },
+    {
+      "id": "marisa.young.l0794",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんさん ありがちょー だじぇ！",
+      "chinese": "人类鲜生，屑屑杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "\"【飼い主】 ありがちょー だじぇ！\""
+      },
+      "source_sha256": "68862ef6821131600f7c31f28ac25874ca56dbcf72ae51c516045d0f6151240c",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "marisa.young.l1916",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち りきゃいちたじぇ！",
+      "chinese": "油库气地明白惹杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "\"ゆっくち りきゃいちたじぇ！\""
+      },
+      "source_sha256": "e3e159088548e1fab207af2af21ffae8e3feeddd39326eac8b602f0a2a0f5d1f",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "marisa.young.l1927",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち……わかったのじぇ……",
+      "chinese": "油库气……知道惹杰……",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくち……わかったのじぇ……"
+      },
+      "source_sha256": "1c74ebd5b2d4eef0421a37b82473dbece2e06a9dfb960ce945d0cd7ed19da40a",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "marisa.young.l1940",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "がんばったのじぇ！ほめちぇにぇ！",
+      "chinese": "很努腻惹杰！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったのじぇ！ほめちぇにぇ！"
+      },
+      "source_sha256": "1b20b898a6af1a76d89c101441181870dddc4b000fbadcf47bbd3d61c2b7d0d9",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "marisa.young.l1982",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち がんばりゅのじぇ！",
+      "chinese": "要油库气地努腻杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "\"ゆっくち がんばりゅのじぇ！\""
+      },
+      "source_sha256": "8bb8eee84e49ba4df9ef032527c22df6706651fad5d2e6ece4882e2ea8698c3b",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "marisa.young.l2444",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃの おぼーし かえしゅのじぇ！",
+      "chinese": "把魔理沙的帽帽还肥来杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "\"my_nameの おぼーし かえしゅのじぇ！\""
+      },
+      "source_sha256": "384b1538545a9eea2a2120547b19a1fce4e0f4165b710f8fe2db25161f2ee3bd",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "marisa.young.l2455",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃの おぼーし おかえりっなのじぇ！",
+      "chinese": "魔理沙的帽帽，欢迎肥来杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "\"my_nameの おぼーし おかえりっなのじぇ！\""
+      },
+      "source_sha256": "766613e9219a3f4def8120bb6403a5e31805f700581778c15e1eb0564eef7604",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "marisa.young.l2598",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "heard",
+        "busy",
+        "shy",
+        "house_peek"
+      ]
+    },
+    {
+      "id": "marisa.young.l3005",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆきゃっ♪",
+      "chinese": "油呀♪",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ゆきゃっ♪"
+      },
+      "source_sha256": "8bbd80895b8cd8a1c22312522ccd420408c4ea18895026df3db7cc4f2f9a3e79",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "marisa.young.l3896",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うみゃれりゅ！",
+      "chinese": "要生惹！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うみゃれりゅ！"
+      },
+      "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "marisa.young.l5502",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "grown",
+        "laid_eggs",
+        "expecting"
+      ]
+    },
+    {
+      "id": "marisa.young.l5525",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃも あしょぶのじぇ！！",
+      "chinese": "魔理沙也要丸杰！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "\"my_nameも あしょぶのじぇ！！\""
+      },
+      "source_sha256": "716843ad31cf86d704c96cb2dfc3b11490cd6a7d00a5d900cd1e6c8b31e237a8",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "marisa.young.l5832",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぷきゅっ ぷきゅーっ",
+      "chinese": "噗啾！噗啾——！",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "\"ぷきゅっ ぷきゅーっ\""
+      },
+      "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
+      "events": [
+        "mine",
+        "lesson_refused",
+        "puff"
+      ]
+    },
+    {
+      "id": "marisa.young.l6041",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にゃんだったのじぇ？",
+      "chinese": "刚才怎么惹杰？",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "にゃんだったのじぇ？"
+      },
+      "source_sha256": "c5ec019b79c7a3e5e2bbabc39806d20b1f98b20e8267fd37e77712e95fc26f45",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0013",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり していってね！",
+      "chinese": "油库里洗跌一跌捏！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "\"ゆっくり していってね！\""
+      },
+      "source_sha256": "ae50011ac2dffff8efe772d3fca49b6723f08d753111209ec477f27ad33d28c4",
+      "events": [
+        "hello",
+        "newborn",
+        "hatched",
+        "introduced",
+        "peer",
+        "known_peer"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0024",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくりするよ！",
+      "chinese": "要油库里哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっくりするよ！"
+      },
+      "source_sha256": "82f5e305d405e67c69a53ab6072b58f21ebad8ebc6dcb3dba72f5e0195043c0e",
+      "events": [
+        "idle",
+        "house_arrival",
+        "house_deposit"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0025",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0101",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆんやぁぁぁ！いたいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊！好痛哟——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いたいよぉぉぉ！"
+      },
+      "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0134",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おなかすいたよ！",
+      "chinese": "肚子饿了哦！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいたよ！"
+      },
+      "source_sha256": "7b611b11cda775b629b6bff0c6a09ffc3eb93e0f3ea0955abe59776462deaf86",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0222",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ！ごはんさん！",
+      "chinese": "油！饭先生！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんさん！"
+      },
+      "source_sha256": "2572e4e4c4a96c4e8ba615384ea2f7050d8aca71eeb5a1db616cfa6c66d1dd20",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0233",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり たべるよ！",
+      "chinese": "要油库里地吃哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "\"ゆっくり たべるよ！\""
+      },
+      "source_sha256": "ac4d840c171a21cb70a43f769b9cbcb16d794994f6c1b7755d04f953f70bccab",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0321",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "\"むーしゃ むーしゃ\""
+      },
+      "source_sha256": "b846be1fbb5095ed18e3b29de4bcce071cf27c809e8d51261dec055f6c319dd5",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0376",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "しあわせー！",
+      "chinese": "好幸福——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわせー！"
+      },
+      "source_sha256": "40339efb800de62c7fee1d8148dda64d14c8203023f70d7861c7c8c76055b943",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0420",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うんうん するよ！",
+      "chinese": "要嗯嗯了哦！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "\"うんうん するよ！\""
+      },
+      "source_sha256": "193939f512618697e7e72e245e2b13f29a34dbf7d3d19b7d6a832764b3d3028a",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0453",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "好舒畅——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "washed",
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0486",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すーや……すーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "すーや……すーや……"
+      },
+      "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0508",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり おはようなんだよ！！",
+      "chinese": "油库里，早上好哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "\"ゆっくり おはようなんだよ！！\""
+      },
+      "source_sha256": "80476bfb1872e77605b177aa7d8d53c8d2afb61a04db12928f2529917665bd1f",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0596",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり……ゆっくりぃ！",
+      "chinese": "油库里……油库里——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくり……ゆっくりぃ！"
+      },
+      "source_sha256": "b63f9240cab81b5159e7285459191ca8673a0bcafe9523cd027e141c6653ec83",
+      "events": [
+        "wait_family",
+        "lost_parent",
+        "family_died",
+        "afraid",
+        "cold"
+      ]
+    },
+    {
+      "id": "reimu.adult.l0794",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん ありがとー だよ！",
+      "chinese": "人类先生，谢谢哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "\"【飼い主】 ありがとー だよ！\""
+      },
+      "source_sha256": "fa012992bf7c19d2256db253fa9d2b0c178801e21be213adfbdb801b8ae61062",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "reimu.adult.l1916",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり りかいしたよ！",
+      "chinese": "油库里地明白了哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "\"ゆっくり りかいしたよ！\""
+      },
+      "source_sha256": "eb6dc55ba31b460a704cf69243abeaaf5834a3ac55dbda2ae61299579d656e9d",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "reimu.adult.l1927",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり……わかったんだよ……",
+      "chinese": "油库里……知道了哟……",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくり……わかったんだよ……"
+      },
+      "source_sha256": "f4427d84add89034239895fec512a9e8ac3540dd9a5015203dfbbc6e905b1e9c",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "reimu.adult.l1940",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "がんばったんだよ！ほめてね！",
+      "chinese": "很努力了哟！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったんだよ！ほめてね！"
+      },
+      "source_sha256": "dae6ef0d8be37674747566afab19d542aff4570237b456bd87dd147e7123932a",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "reimu.adult.l1982",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり がんばるんだよ！",
+      "chinese": "要油库里地努力哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "\"ゆっくり がんばるんだよ！\""
+      },
+      "source_sha256": "65fc2f73a0cc2a8a74c9b4b22ecc68d7120e032af6bad3402aac5698d85006ee",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "reimu.adult.l2444",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむの おりぼん かえすんだよ！",
+      "chinese": "把灵梦的缎带还回来哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "\"my_nameの おりぼん かえすんだよ！\""
+      },
+      "source_sha256": "f61a4e4f18150c26071c1af1ba61f4f1d8d01aef4e252bea7d28149c76e20007",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "reimu.adult.l2455",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむの おりぼん おかえりっなんだよ！",
+      "chinese": "灵梦的缎带，欢迎回来哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "\"my_nameの おりぼん おかえりっなんだよ！\""
+      },
+      "source_sha256": "1558e5da9e8c043559d2b4e7b66cf1217e0e60f7e8223214791772f274f34c7c",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "reimu.adult.l2598",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "heard",
+        "busy",
+        "shy",
+        "house_peek"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3005",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆきゃっ♪",
+      "chinese": "油呀♪",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ゆきゃっ♪"
+      },
+      "source_sha256": "8bbd80895b8cd8a1c22312522ccd420408c4ea18895026df3db7cc4f2f9a3e79",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3896",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うまれる！",
+      "chinese": "要生了！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うまれる！"
+      },
+      "source_sha256": "a79e20aa265b839cf37e8046384e27ce204f5df91f696c8a0f7eb69f937ecc72",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "reimu.adult.l5502",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "grown",
+        "laid_eggs",
+        "expecting"
+      ]
+    },
+    {
+      "id": "reimu.adult.l5525",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむも あそぶんだよ！！",
+      "chinese": "灵梦也要玩哟！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "\"my_nameも あそぶんだよ！！\""
+      },
+      "source_sha256": "b4443dd830bf01697a389af4beda08734c7b31acdc5e9e8e563e143ac037502c",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "reimu.adult.l5832",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぷくっ ぷくーっ",
+      "chinese": "噗咕！噗咕——！",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "\"ぷくっ ぷくーっ\""
+      },
+      "source_sha256": "c6afc62d9f7c6d3f2aead1ca9d8b2b00b76c59c6e40f521e4eb4aedee4b85704",
+      "events": [
+        "mine",
+        "lesson_refused",
+        "puff"
+      ]
+    },
+    {
+      "id": "reimu.adult.l6041",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "なんだったんだよ？",
+      "chinese": "刚才怎么了哟？",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "なんだったんだよ？"
+      },
+      "source_sha256": "709d5535b3fd04d47d4147e55b95227b66fb1b47cad935a21eee25d99700fe0f",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "reimu.young.l0013",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "ゆっくち しちぇいっちぇにぇ！"
+      },
+      "source_sha256": "f06bab4d8bf57f57d9d7a0b5e83603539d6692c060c23134ea2524bea029f6e9",
+      "events": [
+        "hello",
+        "newborn",
+        "hatched",
+        "introduced",
+        "peer",
+        "known_peer"
+      ]
+    },
+    {
+      "id": "reimu.young.l0024",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっきゅりしゅりゅよ！",
+      "chinese": "要油库气哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっきゅりしゅりゅよ！"
+      },
+      "source_sha256": "0f51008191a6378922f0234e9e569dd879a84511ff2ff973fa19afd0422ddb3f",
+      "events": [
+        "idle",
+        "house_arrival",
+        "house_deposit"
+      ]
+    },
+    {
+      "id": "reimu.young.l0025",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "reimu.young.l0101",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆんやぁぁぁ！いちゃいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊！好痛痛哟——！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いちゃいよぉぉぉ！"
+      },
+      "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "reimu.young.l0134",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おなかすいちゃよ！",
+      "chinese": "肚肚饿惹哦！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいちゃよ！"
+      },
+      "source_sha256": "4686be999ee45aa01215f9bdd855bfc70e93c3fb009899f775ff5d63a0acc213",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "reimu.young.l0222",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっ！ごはんしゃん！",
+      "chinese": "油！饭鲜生！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんしゃん！"
+      },
+      "source_sha256": "49a15c7f26b9011098f92a8d9df98d25b120d26b442dcebd390b343b0e8254a1",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "reimu.young.l0233",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち たべりゅよ！",
+      "chinese": "要油库气地粗哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "ゆっくち たべりゅよ！"
+      },
+      "source_sha256": "359957de50c3e23fb0ee33a1289bd0d0414e4794e79dcacf13cf2497af379200",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "reimu.young.l0321",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "むーしゃ むーしゃ"
+      },
+      "source_sha256": "1b402be3dbaa2a9a4707e51b8efe29edbbe57c864ea2721bfe4270dc5aa11d12",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "reimu.young.l0376",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しあわちぇー！",
+      "chinese": "好幸胡——！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわちぇー！"
+      },
+      "source_sha256": "c5587fc1ef18e7f69c92dc877aebe55b2316f4b6ab8a22bd70af97ca84a43038",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "reimu.young.l0420",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うんうん すりゅよ！",
+      "chinese": "要嗯嗯惹哦！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "うんうん すりゅよ！"
+      },
+      "source_sha256": "64e2198d8120cdb2c3f77a39933f7a8ce6b6b7b21f5189f95563c9bbf05b6a5c",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "reimu.young.l0453",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちゅっきりー！",
+      "chinese": "好苏畅——！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "ちゅっきりー！"
+      },
+      "source_sha256": "146b024f137b852579752d4cb05a1c2699760849b17359d4d3b41402a459affe",
+      "events": [
+        "washed",
+        "toilet_done"
+      ]
+    },
+    {
+      "id": "reimu.young.l0486",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しゅーや……しゅーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "しゅーや……しゅーや……"
+      },
+      "source_sha256": "84fa760b3c929889efb5bef65d8cb668cc51d651fe8b9d5946a64f3acacc67ce",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "reimu.young.l0508",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち おはようなんぢゃよ！！",
+      "chinese": "油库气，早上好哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "ゆっくち おはようなんぢゃよ！！"
+      },
+      "source_sha256": "95a38a8cca324b8b6948fbcd1b20b0b0201fbf272b03683ab45686306c115f0c",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "reimu.young.l0596",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち……ゆっくちぃ！",
+      "chinese": "油库气……油库气——！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくち……ゆっくちぃ！"
+      },
+      "source_sha256": "f89e1240915194e5cbf6dc93cc0f8175e0b72d118464fcf7e2b9ee32f89871e3",
+      "events": [
+        "wait_family",
+        "lost_parent",
+        "family_died",
+        "afraid",
+        "cold"
+      ]
+    },
+    {
+      "id": "reimu.young.l0794",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんさん ありがちょー ぢゃよ！",
+      "chinese": "人类鲜生，屑屑哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "【飼い主】 ありがちょー ぢゃよ！"
+      },
+      "source_sha256": "e5d7015b9b9f1488076181c4a5af1c7be9c67bae19f65104b7fa3a894daa1ff6",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "reimu.young.l1916",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち りきゃいちたよ！",
+      "chinese": "油库气地明白惹哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "ゆっくち りきゃいちたよ！"
+      },
+      "source_sha256": "caca806c39e4e80c662b06e697ffea680826f6e02e43b03867c471873297bb4f",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "reimu.young.l1927",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち……わかったんぢゃよ……",
+      "chinese": "油库气……知道惹哟……",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくち……わかったんぢゃよ……"
+      },
+      "source_sha256": "b168357059a0222cf26f8415d5e4ae59cbe878763cbf2a91c53ec3159f090482",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "reimu.young.l1940",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "がんばったんぢゃよ！ほめちぇにぇ！",
+      "chinese": "很努腻惹哟！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったんぢゃよ！ほめちぇにぇ！"
+      },
+      "source_sha256": "13f76a4c7c5cb2b2baaecb6c1358c374c8660e7e510d52c0afe2b3b5859ff499",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "reimu.young.l1982",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち がんばりゅんぢゃよ！",
+      "chinese": "要油库气地努腻哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "ゆっくち がんばりゅんぢゃよ！"
+      },
+      "source_sha256": "e39bc6cc65e9858edec2fbf42cdcf4cf00231d7c42716e23283fe48224f51f8b",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "reimu.young.l2444",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅの おりびょん かえしゅんぢゃよ！",
+      "chinese": "把灵梦的缎带还肥来哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "my_nameの おりびょん かえしゅんぢゃよ！"
+      },
+      "source_sha256": "9dd60cb32584071bdd5b1563b21154dd822d7d86cd2f88ab20fa3fc2f95cbd47",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "reimu.young.l2455",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅの おりびょん おかえりっなんぢゃよ！",
+      "chinese": "灵梦的缎带，欢迎肥来哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "my_nameの おりびょん おかえりっなんぢゃよ！"
+      },
+      "source_sha256": "d7c9b14ffc95c709359618d2dba5c824e5c2a4f2c3181949a8f34a6f8f5b5b0a",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "reimu.young.l2598",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "heard",
+        "busy",
+        "shy",
+        "house_peek"
+      ]
+    },
+    {
+      "id": "reimu.young.l3005",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆきゃっ♪",
+      "chinese": "油呀♪",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ゆきゃっ♪"
+      },
+      "source_sha256": "8bbd80895b8cd8a1c22312522ccd420408c4ea18895026df3db7cc4f2f9a3e79",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "reimu.young.l3896",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うみゃれりゅ！",
+      "chinese": "要生惹！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うみゃれりゅ！"
+      },
+      "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "reimu.young.l5502",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "grown",
+        "laid_eggs",
+        "expecting"
+      ]
+    },
+    {
+      "id": "reimu.young.l5525",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅも あしょぶんぢゃよ！！",
+      "chinese": "灵梦也要丸哟！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "my_nameも あしょぶんぢゃよ！！"
+      },
+      "source_sha256": "2144d8af734570bfab7deeb3779973adb3b6247049b19a119340164be94b510f",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "reimu.young.l5832",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぷきゅっ ぷきゅーっ",
+      "chinese": "噗啾！噗啾——！",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "ぷきゅっ ぷきゅーっ"
+      },
+      "source_sha256": "5187d9f0b44d728e7eda557cb609610022784a8e76b035cac80f80a66be48163",
+      "events": [
+        "mine",
+        "lesson_refused",
+        "puff"
+      ]
+    },
+    {
+      "id": "reimu.young.l6041",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にゃんだったんぢゃよ？",
+      "chinese": "刚才怎么惹哟？",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "にゃんだったんぢゃよ？"
+      },
+      "source_sha256": "d3155a57120511c92ebabc4a1ac28466ff06da49d81f8ccee771212eb700be74",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3291",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すーり すーり",
+      "chinese": "擦擦脸，擦擦脸。",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "\"すーり すーり\""
+      },
+      "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "reimu.adult.l3302",
+      "origin": "native",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すーり すーり したいんだよ",
+      "chinese": "想要擦擦脸哟。",
+      "source": {
+        "file": "yukkuri/reimu/sei_serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "\"すーり すーり したいんだよ\""
+      },
+      "source_sha256": "85e0a609c878bca3241b408740558865a0307487c603ec23cf89e8922ab69405",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "reimu.young.l3291",
+      "origin": "native",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しゅーり しゅーり",
+      "chinese": "擦擦腻，擦擦腻。",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "しゅーり しゅーり"
+      },
+      "source_sha256": "ad79972ce7632f0b67b9ac7ba65ef213a06f976d026c9a6586f65e9ce11f46ee",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "reimu.young.l3302",
+      "origin": "native",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しゅーり しゅーり しちゃいんぢゃよ",
+      "chinese": "想要擦擦腻哟。",
+      "source": {
+        "file": "yukkuri/reimu/serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "しゅーり しゅーり しちゃいんぢゃよ"
+      },
+      "source_sha256": "0b19808818dc4cf3c9db3ef666cb3e7b0bca31fad634277e440e7014a0dc8ae0",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3291",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すーり すーり",
+      "chinese": "擦擦脸，擦擦脸。",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "\"すーり すーり\""
+      },
+      "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.adult.l3302",
+      "origin": "native",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すーり すーり したいんだぜ",
+      "chinese": "想要擦擦脸贼。",
+      "source": {
+        "file": "yukkuri/marisa/sei_serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "\"すーり すーり したいんだぜ\""
+      },
+      "source_sha256": "084d686c33d07b2fdd68da067dad72816b34ef465dd8370992b1ce93f9e25998",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.young.l3291",
+      "origin": "native",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しゅーり しゅーり",
+      "chinese": "擦擦腻，擦擦腻。",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "\"しゅーり しゅーり\""
+      },
+      "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "marisa.young.l3302",
+      "origin": "native",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しゅーり しゅーり しちゃいんだじぇ",
+      "chinese": "想要擦擦腻杰。",
+      "source": {
+        "file": "yukkuri/marisa/serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "\"しゅーり しゅーり しちゃいんだじぇ\""
+      },
+      "source_sha256": "04436efbe09bcdc469921b6ffdb9a1bdc49d36f7bc2e5f5500268c222485465b",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "alice.adult.l0013",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり していってね！",
+      "chinese": "油库里洗跌一跌捏！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "\"ゆっくり していってね！\""
+      },
+      "source_sha256": "ae50011ac2dffff8efe772d3fca49b6723f08d753111209ec477f27ad33d28c4",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "alice.adult.l0024",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくりするわ！",
+      "chinese": "要油库里哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっくりするわ！"
+      },
+      "source_sha256": "f8b6999e3e562e79970df89938d09c8e6b86b44a40d6a3baa1da46650ec9a63f",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "alice.adult.l0025",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "alice.adult.l0101",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆんやぁぁぁ！いたいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊！好痛哟——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いたいよぉぉぉ！"
+      },
+      "source_sha256": "f26668142dc9a7bf78c1730fbc5bf1fa94ad66244e9a0aff99db2bac7bbea5bd",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "alice.adult.l0134",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おなかすいたよ！",
+      "chinese": "肚子饿了哦！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいたよ！"
+      },
+      "source_sha256": "7b611b11cda775b629b6bff0c6a09ffc3eb93e0f3ea0955abe59776462deaf86",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "alice.adult.l0222",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっ！ごはんさん！",
+      "chinese": "油！饭先生！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんさん！"
+      },
+      "source_sha256": "2572e4e4c4a96c4e8ba615384ea2f7050d8aca71eeb5a1db616cfa6c66d1dd20",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "alice.adult.l0233",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり たべるよ！",
+      "chinese": "要油库里地吃哟！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "\"ゆっくり たべるよ！\""
+      },
+      "source_sha256": "ac4d840c171a21cb70a43f769b9cbcb16d794994f6c1b7755d04f953f70bccab",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "alice.adult.l0321",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "\"むーしゃ むーしゃ\""
+      },
+      "source_sha256": "b846be1fbb5095ed18e3b29de4bcce071cf27c809e8d51261dec055f6c319dd5",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "alice.adult.l0376",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "しあわせー！",
+      "chinese": "好幸福——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわせー！"
+      },
+      "source_sha256": "40339efb800de62c7fee1d8148dda64d14c8203023f70d7861c7c8c76055b943",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "alice.adult.l0420",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うんうん するよ！",
+      "chinese": "要嗯嗯了哦！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "\"うんうん するよ！\""
+      },
+      "source_sha256": "193939f512618697e7e72e245e2b13f29a34dbf7d3d19b7d6a832764b3d3028a",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "alice.adult.l0453",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すっきりー！",
+      "chinese": "好舒畅——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "すっきりー！"
+      },
+      "source_sha256": "fc8f6bda1d01ed9d31a54dd7032310c74c17e4c8b8be3af17e066be17e496c0e",
+      "events": [
+        "toilet_done",
+        "washed"
+      ]
+    },
+    {
+      "id": "alice.adult.l0486",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーや……すーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "すーや……すーや……"
+      },
+      "source_sha256": "e8da08b432dca9f8b1e9d367368325dc748b5835b0641252fbf52ba921acc943",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "alice.adult.l0508",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり おはようだわ！！",
+      "chinese": "油库里，早上好哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "\"ゆっくり おはようだわ！！\""
+      },
+      "source_sha256": "43869a7fd3c3c9b4c651599473f28c92e04fec50758ba2bb1edfe03a89346cc7",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "alice.adult.l0596",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり……ゆっくりぃ！",
+      "chinese": "油库里……油库里——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくり……ゆっくりぃ！"
+      },
+      "source_sha256": "b63f9240cab81b5159e7285459191ca8673a0bcafe9523cd027e141c6653ec83",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "alice.adult.l0794",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん ありがとー だわ！",
+      "chinese": "人类先生，谢谢哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "\"【飼い主】 ありがとー だわ！\""
+      },
+      "source_sha256": "205be7a90e841a1b44d07f90f7f4d9fd9a31148294db41dc0346c3e365baa985",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "alice.adult.l1916",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり りかいしたよ！",
+      "chinese": "油库里地明白了哟！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "\"ゆっくり りかいしたよ！\""
+      },
+      "source_sha256": "eb6dc55ba31b460a704cf69243abeaaf5834a3ac55dbda2ae61299579d656e9d",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "alice.adult.l1927",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり……わかったわ……",
+      "chinese": "油库里……知道了哇……",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくり……わかったわ……"
+      },
+      "source_sha256": "e49fd8305e11e5c32eadb61a7d2626dc73bb077441ff08d1e44c2e9f651f01e2",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "alice.adult.l1940",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "がんばったわ！ほめてね！",
+      "chinese": "很努力了哇！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったわ！ほめてね！"
+      },
+      "source_sha256": "29e14a25c5c9d3e53dd9fecf9cf5da392af36a622b6db24c4b705a0131a6c478",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "alice.adult.l1982",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆっくり がんばるわ！",
+      "chinese": "要油库里地努力哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "\"ゆっくり がんばるわ！\""
+      },
+      "source_sha256": "a27741f52429eac3b07188383318a20354247dc1f624f1609403ac92a0b93600",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "alice.adult.l2444",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすの おかざり かえすわ！",
+      "chinese": "把爱丽丝的发带还回来哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "\"my_nameの おかざり かえすわ！\""
+      },
+      "source_sha256": "11efc26285ed4b8e8033203b9dca72611fdf115935ccad915acf4357a8156512",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "alice.adult.l2455",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすの おかざり おかえりっだわ！",
+      "chinese": "爱丽丝的发带，欢迎回来哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "\"my_nameの おかざり おかえりっだわ！\""
+      },
+      "source_sha256": "87be1f470a3a2fef848092a8d89326ec203234978fe22a391cb2a20141817b21",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "alice.adult.l2598",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "alice.adult.l3005",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ときゃっ♪",
+      "chinese": "都呀♪",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ときゃっ♪"
+      },
+      "source_sha256": "6f16f06f310e5e4cf252e3ebc7bf3f1a0e4c13c944f922b0d1fd3e6682ce96e6",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "alice.adult.l3896",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うまれる！",
+      "chinese": "要生了！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うまれる！"
+      },
+      "source_sha256": "a79e20aa265b839cf37e8046384e27ce204f5df91f696c8a0f7eb69f937ecc72",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "alice.adult.l5502",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "expecting",
+        "grown",
+        "laid_eggs"
+      ]
+    },
+    {
+      "id": "alice.adult.l5525",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすも あそぶわ！！",
+      "chinese": "爱丽丝也要玩哇！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "\"my_nameも あそぶわ！！\""
+      },
+      "source_sha256": "b2aa1eb37e82048ca95187c6d4e580789f0286d869411f07d3f374676724b237",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "alice.adult.l5832",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぷくっ ぷくーっ",
+      "chinese": "噗咕！噗咕——！",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "\"ぷくっ ぷくーっ\""
+      },
+      "source_sha256": "c6afc62d9f7c6d3f2aead1ca9d8b2b00b76c59c6e40f521e4eb4aedee4b85704",
+      "events": [
+        "lesson_refused",
+        "mine",
+        "puff"
+      ]
+    },
+    {
+      "id": "alice.adult.l6041",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "なんだったの？",
+      "chinese": "刚才怎么了？",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "なんだったの？"
+      },
+      "source_sha256": "1834fa3b46742db06a7179b799e0e438fa02701403a79d9925596ba88f30d323",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "alice.adult.l3291",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーり すーり",
+      "chinese": "擦擦脸，擦擦脸。",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "\"すーり すーり\""
+      },
+      "source_sha256": "64678e75d6459ed5654d1864475e4323e0b99e92125e3d1063c701a027a14471",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "alice.adult.l3302",
+      "origin": "native",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーり すーり したいのよ",
+      "chinese": "想要擦擦脸哟。",
+      "source": {
+        "file": "yukkuri/arisu/sei_serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "\"すーり すーり したいのよ\""
+      },
+      "source_sha256": "01b6140126e52450926045cb522e9b43ea784a4737ea0ecc55b0a0136a68f4d4",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "alice.young.l0013",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "\"ゆっくち しちぇいっちぇにぇ！\""
+      },
+      "source_sha256": "fe7b3478f004e66237aa555fede4646435f346c18da0b539c48eb9e7036f0502",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "alice.young.l0024",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっきゅりしゅりゅわ！",
+      "chinese": "要油库气哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっきゅりしゅりゅわ！"
+      },
+      "source_sha256": "4edccb969e35c086d2a9ee64ee979d0c0b07c65bf5dfdc8450a10c77eaec3305",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "alice.young.l0025",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "house_pickup"
+      ]
+    },
+    {
+      "id": "alice.young.l0101",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆんやぁぁぁ！いちゃいよぉぉぉ！",
+      "chinese": "油嗯呀啊啊！好痛痛哟——！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "ゆんやぁぁぁ！いちゃいよぉぉぉ！"
+      },
+      "source_sha256": "d81357c9517acdf8418fca27b6f8edfe75a89acbb8aa87619c4c9324a398e3a5",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "alice.young.l0134",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おなかすいちゃよ！",
+      "chinese": "肚肚饿惹哦！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 134,
+        "index": 133,
+        "group": "待機空腹ノーマル",
+        "raw": "おなかすいちゃよ！"
+      },
+      "source_sha256": "4686be999ee45aa01215f9bdd855bfc70e93c3fb009899f775ff5d63a0acc213",
+      "events": [
+        "hungry"
+      ]
+    },
+    {
+      "id": "alice.young.l0222",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっ！ごはんしゃん！",
+      "chinese": "油！饭鲜生！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 222,
+        "index": 221,
+        "group": "エサ発見",
+        "raw": "ゆっ！ごはんしゃん！"
+      },
+      "source_sha256": "49a15c7f26b9011098f92a8d9df98d25b120d26b442dcebd390b343b0e8254a1",
+      "events": [
+        "food_found"
+      ]
+    },
+    {
+      "id": "alice.young.l0233",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち たべりゅよ！",
+      "chinese": "要油库气地粗哟！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 233,
+        "index": 232,
+        "group": "通常",
+        "raw": "\"ゆっくち たべりゅよ！\""
+      },
+      "source_sha256": "15c69d0be2de4d63ff792605266910850fb2ae0479f7ebc5aec4c11f0a7cfcf3",
+      "events": [
+        "take_food"
+      ]
+    },
+    {
+      "id": "alice.young.l0321",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "むーしゃ むーしゃ",
+      "chinese": "姆咻，姆咻。",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 321,
+        "index": 320,
+        "group": "通常２",
+        "raw": "\"むーしゃ むーしゃ\""
+      },
+      "source_sha256": "b846be1fbb5095ed18e3b29de4bcce071cf27c809e8d51261dec055f6c319dd5",
+      "events": [
+        "chew",
+        "take_food"
+      ]
+    },
+    {
+      "id": "alice.young.l0376",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しあわちぇー！",
+      "chinese": "好幸胡——！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 376,
+        "index": 375,
+        "group": "良",
+        "raw": "しあわちぇー！"
+      },
+      "source_sha256": "c5587fc1ef18e7f69c92dc877aebe55b2316f4b6ab8a22bd70af97ca84a43038",
+      "events": [
+        "fed",
+        "gentle",
+        "leisure_done",
+        "nuzzle_done"
+      ]
+    },
+    {
+      "id": "alice.young.l0420",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うんうん すりゅよ！",
+      "chinese": "要嗯嗯惹哦！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 420,
+        "index": 419,
+        "group": "うんうん宣言",
+        "raw": "\"うんうん すりゅよ！\""
+      },
+      "source_sha256": "899831539434063d00d6b986064f9885567e6cca8296e1410d038035335c0ad6",
+      "events": [
+        "need_toilet"
+      ]
+    },
+    {
+      "id": "alice.young.l0453",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゅっきりー！",
+      "chinese": "好苏畅——！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 453,
+        "index": 452,
+        "group": "うんうん終了",
+        "raw": "ちゅっきりー！"
+      },
+      "source_sha256": "146b024f137b852579752d4cb05a1c2699760849b17359d4d3b41402a459affe",
+      "events": [
+        "toilet_done",
+        "washed"
+      ]
+    },
+    {
+      "id": "alice.young.l0486",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しゅーや……しゅーや……",
+      "chinese": "呼——呀……呼——呀……",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 486,
+        "index": 485,
+        "group": "睡眠",
+        "raw": "しゅーや……しゅーや……"
+      },
+      "source_sha256": "84fa760b3c929889efb5bef65d8cb668cc51d651fe8b9d5946a64f3acacc67ce",
+      "events": [
+        "sleep"
+      ]
+    },
+    {
+      "id": "alice.young.l0508",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち おはようぢゃわ！！",
+      "chinese": "油库气，早上好哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 508,
+        "index": 507,
+        "group": "起床１",
+        "raw": "\"ゆっくち おはようぢゃわ！！\""
+      },
+      "source_sha256": "2fac4186457f0c3d4c696517427a25ace334876d8e10e8e39fbcc3d8fa31c9bd",
+      "events": [
+        "awake"
+      ]
+    },
+    {
+      "id": "alice.young.l0596",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち……ゆっくちぃ！",
+      "chinese": "油库气……油库气——！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 596,
+        "index": 595,
+        "group": "汎用嘆き",
+        "raw": "ゆっくち……ゆっくちぃ！"
+      },
+      "source_sha256": "f89e1240915194e5cbf6dc93cc0f8175e0b72d118464fcf7e2b9ee32f89871e3",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "alice.young.l0794",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんさん ありがちょー だわ！",
+      "chinese": "人类鲜生，屑屑哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 794,
+        "index": 793,
+        "group": "お礼",
+        "raw": "\"【飼い主】 ありがちょー だわ！\""
+      },
+      "source_sha256": "15165e3b737cfd4f8c712c9c2c26fd91754e2f23d0d2c8e1e6e33a041c1435e9",
+      "events": [
+        "treated"
+      ]
+    },
+    {
+      "id": "alice.young.l1916",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち りきゃいちたよ！",
+      "chinese": "油库气地明白惹哟！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 1916,
+        "index": 1915,
+        "group": "教育：理解",
+        "raw": "\"ゆっくち りきゃいちたよ！\""
+      },
+      "source_sha256": "491596c6b4c5c1c15181bff4a8a4d98e1728ab02b00d5349635ea9fd132d4c4e",
+      "events": [
+        "wait_learned"
+      ]
+    },
+    {
+      "id": "alice.young.l1927",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち……わかったわ……",
+      "chinese": "油库气……知道惹哇……",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 1927,
+        "index": 1926,
+        "group": "教育：理解２",
+        "raw": "ゆっくち……わかったわ……"
+      },
+      "source_sha256": "206293d1521b58d84a6aa7a403ca2c7b5dc63a842cfca3935de121b10d9aa730",
+      "events": [
+        "wait_turn"
+      ]
+    },
+    {
+      "id": "alice.young.l1940",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "がんばったわ！ほめちぇにぇ！",
+      "chinese": "很努腻惹哇！要夸奖捏！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 1940,
+        "index": 1939,
+        "group": "教育：成功",
+        "raw": "がんばったわ！ほめちぇにぇ！"
+      },
+      "source_sha256": "82a6715e0563184f1bdd7600a0ef066759233715925b6052a4a7205da0b842c3",
+      "events": [
+        "lesson_learned"
+      ]
+    },
+    {
+      "id": "alice.young.l1982",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆっくち がんばりゅわ！",
+      "chinese": "要油库气地努腻哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 1982,
+        "index": 1981,
+        "group": "教育受諾：成功",
+        "raw": "\"ゆっくち がんばりゅわ！\""
+      },
+      "source_sha256": "bc5787a7024795fa7f6de8a183b92de0427b9e2e641ad57f75e71f6becfa460b",
+      "events": [
+        "exercise",
+        "lesson_progress",
+        "lesson_start"
+      ]
+    },
+    {
+      "id": "alice.young.l2444",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅの おかじゃり かえしゅわ！",
+      "chinese": "把爱丽丝的发带还肥来哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 2444,
+        "index": 2443,
+        "group": "おかざり取り上げ",
+        "raw": "\"my_nameの おかじゃり かえしゅわ！\""
+      },
+      "source_sha256": "720460424cb20bcee8e25c133ae2e2c6f0d0ede25070d73ded6538fc61a405b4",
+      "events": [
+        "lost_accessory"
+      ]
+    },
+    {
+      "id": "alice.young.l2455",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅの おかじゃり おかえりっぢゃわ！",
+      "chinese": "爱丽丝的发带，欢迎肥来哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 2455,
+        "index": 2454,
+        "group": "おかざり回収",
+        "raw": "\"my_nameの おかじゃり おかえりっぢゃわ！\""
+      },
+      "source_sha256": "4ca27ef757bab73cfee99cd01a25f7938608644f51dde1b398811f190bab36d7",
+      "events": [
+        "returned_accessory"
+      ]
+    },
+    {
+      "id": "alice.young.l2598",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 2598,
+        "index": 2597,
+        "group": "疑問",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "alice.young.l3005",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ときゃっ♪",
+      "chinese": "都呀♪",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 3005,
+        "index": 3004,
+        "group": "歓喜",
+        "raw": "ときゃっ♪"
+      },
+      "source_sha256": "6f16f06f310e5e4cf252e3ebc7bf3f1a0e4c13c944f922b0d1fd3e6682ce96e6",
+      "events": [
+        "caregiver",
+        "courtship",
+        "share"
+      ]
+    },
+    {
+      "id": "alice.young.l3896",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うみゃれりゅ！",
+      "chinese": "要生惹！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 3896,
+        "index": 3895,
+        "group": "誕生",
+        "raw": "うみゃれりゅ！"
+      },
+      "source_sha256": "c0d8ec7a70b7758fbcabc00029ffcf8f6bc26e5e7475bd3d94e4068d0db0be54",
+      "events": [
+        "birth"
+      ]
+    },
+    {
+      "id": "alice.young.l5502",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆわぁぁぁぁ♪",
+      "chinese": "油哇啊啊啊♪",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 5502,
+        "index": 5501,
+        "group": "喜び",
+        "raw": "ゆわぁぁぁぁ♪"
+      },
+      "source_sha256": "1c6ee0c25019456c32cf9171e2d1080bd09095fd321541f434bafdc3c5ede438",
+      "events": [
+        "expecting",
+        "grown",
+        "laid_eggs"
+      ]
+    },
+    {
+      "id": "alice.young.l5525",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅも あしょぶわ！！",
+      "chinese": "爱丽丝也要丸哇！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 5525,
+        "index": 5524,
+        "group": "遊び反応",
+        "raw": "\"my_nameも あしょぶわ！！\""
+      },
+      "source_sha256": "69c8858fb69ae67de11669043fd6a809e4ac080cdbc70b8b3f6cc4d90de87698",
+      "events": [
+        "toy"
+      ]
+    },
+    {
+      "id": "alice.young.l5832",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぷきゅっ ぷきゅーっ",
+      "chinese": "噗啾！噗啾——！",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 5832,
+        "index": 5831,
+        "group": "ぷくー",
+        "raw": "\"ぷきゅっ ぷきゅーっ\""
+      },
+      "source_sha256": "c030683b0742c1b9fa51a24096958c1b286d926f2ba318c22845c9e1057cceb5",
+      "events": [
+        "lesson_refused",
+        "mine",
+        "puff"
+      ]
+    },
+    {
+      "id": "alice.young.l6041",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にゃんだったにょ？",
+      "chinese": "刚才怎么惹？",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 6041,
+        "index": 6040,
+        "group": "汎用なにごと",
+        "raw": "にゃんだったにょ？"
+      },
+      "source_sha256": "cddcdb43088dd7018bf624f6abf866561d78912165086b392d3f57d23b05491a",
+      "events": [
+        "unrecognized"
+      ]
+    },
+    {
+      "id": "alice.young.l3291",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しゅーり しゅーり",
+      "chinese": "擦擦腻，擦擦腻。",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 3291,
+        "index": 3290,
+        "group": "すりすり",
+        "raw": "\"しゅーり しゅーり\""
+      },
+      "source_sha256": "f6344bfe24cc70d26213192871cadf19be54c5b426b4368483a7592e047950ca",
+      "events": [
+        "nuzzle"
+      ]
+    },
+    {
+      "id": "alice.young.l3302",
+      "origin": "native",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しゅーり しゅーり しちゃいのよ",
+      "chinese": "想要擦擦腻哟。",
+      "source": {
+        "file": "yukkuri/arisu/serifu.csv",
+        "line": 3302,
+        "index": 3301,
+        "group": "すりすり",
+        "raw": "\"しゅーり しゅーり しちゃいのよ\""
+      },
+      "source_sha256": "74b0a3e57ca4c951dbed4de879f53395d5ac0db0d931631c894353e52dcf0574",
+      "events": [
+        "want_nuzzle"
+      ]
+    },
+    {
+      "id": "chen.adult.l0013",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっくり していってね！",
+      "chinese": "油库里洗跌一跌捏！",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "ゆっくり していってね！"
+      },
+      "source_sha256": "ae65255305c31eb6b6e177eb7fec36cd95bad736598e4d87d179495cc3f875b5",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "chen.adult.l0024",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっくりするよ！わかってねー！",
+      "chinese": "要油库里哟！要明白呢——！",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっくりするよ！わかってねー！"
+      },
+      "source_sha256": "68558d3ee5a3c42b271cb6f6a08c96f1c4f35bda3fc2f13c213a8f6c517d3acf",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "chen.adult.l0025",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "caregiver",
+        "courtship",
+        "expecting",
+        "grown",
+        "house_pickup",
+        "laid_eggs",
+        "share"
+      ]
+    },
+    {
+      "id": "chen.adult.l0002",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 2,
+        "index": 1,
+        "group": "着地",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "chen.adult.l0101",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いたいよぉぉぉ！わかってねぇぇぇ！",
+      "chinese": "好痛哟——！要明白呢——！",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "いたいよぉぉぉ！わかってねぇぇぇ！"
+      },
+      "source_sha256": "61439448d6d2726b1a95a45096dac90b7b8cb597ee4267dff0a50a0100368803",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "chen.adult.l0080",
+      "origin": "native",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっくり……",
+      "chinese": "油库里……",
+      "source": {
+        "file": "yukkuri/tilen/sei_serifu.csv",
+        "line": 80,
+        "index": 79,
+        "group": "死亡",
+        "raw": "ゆっくり……"
+      },
+      "source_sha256": "84f7b1b0e60af1b1eebfddec33c42a88fe471c74906a505ebe08fda7604bd33b",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "chen.young.l0013",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "ゆっくち しちぇいっちぇにぇ！"
+      },
+      "source_sha256": "f06bab4d8bf57f57d9d7a0b5e83603539d6692c060c23134ea2524bea029f6e9",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "chen.young.l0024",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっきゅりしゅりゅよ！わきゃってにぇー！",
+      "chinese": "要油库气哟！要明白捏——！",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっきゅりしゅりゅよ！わきゃってにぇー！"
+      },
+      "source_sha256": "3ea618ec63ba0035733279122f95d2029ca7dbea3ce98c1a0830f888b1e8f96f",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "chen.young.l0025",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっゆっ",
+      "chinese": "油！油！",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "ゆっゆっ"
+      },
+      "source_sha256": "a6173928d1eb7a472fe694086f5c5d754afc491108611b5c89c6043a021597f1",
+      "events": [
+        "caregiver",
+        "courtship",
+        "expecting",
+        "grown",
+        "house_pickup",
+        "laid_eggs",
+        "share"
+      ]
+    },
+    {
+      "id": "chen.young.l0002",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 2,
+        "index": 1,
+        "group": "着地",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "chen.young.l0101",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いちゃいよぉぉぉ！わかっちぇにぇぇぇ！",
+      "chinese": "好痛痛哟——！要明白捏——！",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "いちゃいよぉぉぉ！わかっちぇにぇぇぇ！"
+      },
+      "source_sha256": "0f455341bf7c6568555996d52c0287a069be193bd5107b08b647e4ed1f30969c",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "chen.young.l0080",
+      "origin": "native",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっくち……",
+      "chinese": "油库气……",
+      "source": {
+        "file": "yukkuri/tilen/serifu.csv",
+        "line": 80,
+        "index": 79,
+        "group": "死亡",
+        "raw": "ゆっくち……"
+      },
+      "source_sha256": "a12b6ce377d4ebdd6ea6382aa8ae9731c4bb21f684af74d7ccc668c936fcaab7",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0013",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ゆっくり していってね！",
+      "chinese": "油库里洗跌一跌捏！",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "ゆっくり していってね！"
+      },
+      "source_sha256": "ae65255305c31eb6b6e177eb7fec36cd95bad736598e4d87d179495cc3f875b5",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0024",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ゆっくりするわ！",
+      "chinese": "要油库里哇！",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっくりするわ！"
+      },
+      "source_sha256": "f8b6999e3e562e79970df89938d09c8e6b86b44a40d6a3baa1da46650ec9a63f",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0025",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ♪",
+      "chinese": "姆啾♪",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "むきゅ♪"
+      },
+      "source_sha256": "7503883e166986126af72d804a7bd87b642a121b2c25a800ef146f3e8f9d4362",
+      "events": [
+        "caregiver",
+        "courtship",
+        "expecting",
+        "grown",
+        "house_pickup",
+        "laid_eggs",
+        "share"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0002",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 2,
+        "index": 1,
+        "group": "着地",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0101",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅぅぅぅ！いたいわぁぁぁ！",
+      "chinese": "姆啾——！好痛哇——！",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "むきゅぅぅぅ！いたいわぁぁぁ！"
+      },
+      "source_sha256": "2842db29175630b50d4d37f30e96d31306f034de569361010cf695c0924533da",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "patchouli.adult.l0080",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ゆっくり……",
+      "chinese": "油库里……",
+      "source": {
+        "file": "yukkuri/patyu/sei_serifu.csv",
+        "line": 80,
+        "index": 79,
+        "group": "死亡",
+        "raw": "ゆっくり……"
+      },
+      "source_sha256": "84f7b1b0e60af1b1eebfddec33c42a88fe471c74906a505ebe08fda7604bd33b",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0013",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ゆっくち しちぇいっちぇにぇ！",
+      "chinese": "油库气洗切一切捏！",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 13,
+        "index": 12,
+        "group": "ゆっくりしていってね",
+        "raw": "ゆっくち しちぇいっちぇにぇ！"
+      },
+      "source_sha256": "f06bab4d8bf57f57d9d7a0b5e83603539d6692c060c23134ea2524bea029f6e9",
+      "events": [
+        "hatched",
+        "hello",
+        "introduced",
+        "known_peer",
+        "newborn",
+        "peer"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0024",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ゆっきゅりしゅりゅわ！",
+      "chinese": "要油库气哇！",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 24,
+        "index": 23,
+        "group": "待機時基本",
+        "raw": "ゆっきゅりしゅりゅわ！"
+      },
+      "source_sha256": "4edccb969e35c086d2a9ee64ee979d0c0b07c65bf5dfdc8450a10c77eaec3305",
+      "events": [
+        "house_arrival",
+        "house_deposit",
+        "idle"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0025",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅっ むきゅっ",
+      "chinese": "姆啾，姆啾。",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 25,
+        "index": 24,
+        "group": "待機時基本",
+        "raw": "むきゅっ むきゅっ"
+      },
+      "source_sha256": "f528efba87342ca9ef3b4e3dc85659cefba37972c711d7a4cd5ad4e28871a67e",
+      "events": [
+        "caregiver",
+        "courtship",
+        "expecting",
+        "grown",
+        "house_pickup",
+        "laid_eggs",
+        "share"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0002",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ゆゆっ？",
+      "chinese": "油油？",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 2,
+        "index": 1,
+        "group": "着地",
+        "raw": "ゆゆっ？"
+      },
+      "source_sha256": "8e10c44c00de0e3cd75c9b13dd073a7cb7eb9417b2e9500029fd13b46e9b3eca",
+      "events": [
+        "busy",
+        "heard",
+        "house_peek",
+        "shy"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0101",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅぅぅぅ！いちゃいわぁぁぁ！",
+      "chinese": "姆啾——！好痛痛哇——！",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 101,
+        "index": 100,
+        "group": "痛い",
+        "raw": "むきゅぅぅぅ！いちゃいわぁぁぁ！"
+      },
+      "source_sha256": "669595c2606c03b6fa267ea3975df55a5d75b076fd15e9356c25cbbf308fd025",
+      "events": [
+        "wounded"
+      ]
+    },
+    {
+      "id": "patchouli.young.l0080",
+      "origin": "native",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ゆっくち……",
+      "chinese": "油库气……",
+      "source": {
+        "file": "yukkuri/patyu/serifu.csv",
+        "line": 80,
+        "index": 79,
+        "group": "死亡",
+        "raw": "ゆっくち……"
+      },
+      "source_sha256": "a12b6ce377d4ebdd6ea6382aa8ae9731c4bb21f684af74d7ccc668c936fcaab7",
+      "events": [
+        "afraid",
+        "cold",
+        "family_died",
+        "lost_parent",
+        "wait_family"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hungry",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おなかが ぺーこぺーこ だよー。",
+      "chinese": "肚肚饿扁了哟——。",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hungry"
+      },
+      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba"
+    },
+    {
+      "id": "chen.adult.o_food",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごはんさんだー。",
+      "chinese": "是饭先生呀——！",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_food"
+      },
+      "source_sha256": "03d3a09c4f27c65bd676a04a8a4f81a1c9424107c29221dfbef1bf6054d5a609"
+    },
+    {
+      "id": "chen.adult.o_eat",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "むーしゃ むーしゃ。おいしいよー。",
+      "chinese": "姆咻，姆咻。好吃哟——。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_eat"
+      },
+      "source_sha256": "20ed02592ae3205ed751824114a92baaf33db0f2678598be5d109968af3b5545"
+    },
+    {
+      "id": "chen.adult.o_happy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぽかぽか しあわせだよー。",
+      "chinese": "暖乎乎，好幸福哟——。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_happy"
+      },
+      "source_sha256": "2b79739db0e5793c8fd215c637dbaa114106f5eb016833acbc409cebb0164636"
+    },
+    {
+      "id": "chen.adult.o_toilet",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うんうんが でるよー。",
+      "chinese": "嗯嗯要出来了哟——。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_toilet"
+      },
+      "source_sha256": "ce393797231c8757b122c4a67ba4f9f863dcdb9cb5ea80cffdaeecec0fa502ed"
+    },
+    {
+      "id": "chen.adult.o_clean",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すっきり したよー。",
+      "chinese": "舒畅了哟——。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_clean"
+      },
+      "source_sha256": "c8c20aaf365704f841db9f786e18a7cbc16e137a5d34cd8d1c4e7f102df3cc7b"
+    },
+    {
+      "id": "chen.adult.o_sleep",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーや すーや。",
+      "chinese": "呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_sleep"
+      },
+      "source_sha256": "42ff08feb82f0ee1bccdea93eece05a9174362689dd3628f9e3567b8c9806da2"
+    },
+    {
+      "id": "chen.adult.o_awake",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あさだよー。おはようだよー。",
+      "chinese": "早上啦，早安哟——。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_awake"
+      },
+      "source_sha256": "54daaffd68c28b9931fb09db910da71ff46191a2a56939df8827cc035b249ca2"
+    },
+    {
+      "id": "chen.adult.o_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー。",
+      "chinese": "谢谢哟——。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_thanks"
+      },
+      "source_sha256": "6e4393c6c92ac21cadd8f21444c1f6095bca188c2a6fd219f6f2ac5c78fa1e85"
+    },
+    {
+      "id": "chen.adult.o_understood",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わかったよー。",
+      "chinese": "明白了哟——。",
+      "events": [
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_understood"
+      },
+      "source_sha256": "45779ba96769d5adef0fc3ef0a59cae45c60883e6a99df85105222bcf96016c7"
+    },
+    {
+      "id": "chen.adult.o_wait",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここで まってるよー。",
+      "chinese": "在这里等哟——。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_wait"
+      },
+      "source_sha256": "5cebb575b63ae57bb1f694a3b2a854ec72a33c62aebbaf0b27452f02a8902c8e"
+    },
+    {
+      "id": "chen.adult.o_praise",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "できたよー。ほめてねー。",
+      "chinese": "做到啦，要夸奖呢——！",
+      "events": [
+        "lesson_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_praise"
+      },
+      "source_sha256": "c0cb91b08648dfcc6bb78c41ba0bf571a85b8c7f82040cfaeeaf2564118b7717"
+    },
+    {
+      "id": "chen.adult.o_try",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆっくり がんばるよー。",
+      "chinese": "要油库里地努力哟——。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_try"
+      },
+      "source_sha256": "d0d7f73f17819214370b2e8a1cdd98bd622665229e62b54ca8fe1d3e9add7177"
+    },
+    {
+      "id": "chen.adult.o_lost",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりを かえしてねー。",
+      "chinese": "把饰物还回来呢——！",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_lost"
+      },
+      "source_sha256": "f17497c34c2130a7427a70e31745d73a497b37563908c7283f2bd4b8cc34951f"
+    },
+    {
+      "id": "chen.adult.o_returned",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりが もどったよー。",
+      "chinese": "饰物回来啦——！",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_returned"
+      },
+      "source_sha256": "88d1a76877a0ec3ff6fc76741e30b34e389ca4775f1d205c85a42c535e68d241"
+    },
+    {
+      "id": "chen.adult.o_play",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いっしょに あそぶよー。",
+      "chinese": "一起玩哟——。",
+      "events": [
+        "toy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_play"
+      },
+      "source_sha256": "08ef7f954f6e6632a2cb9849013f03a828b6942e9b10921746a9b63ec1e15c3f"
+    },
+    {
+      "id": "chen.adult.o_puff",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぷくー。やだよー。",
+      "chinese": "噗咕——，不要哟——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_puff"
+      },
+      "source_sha256": "99f839dea82dd51ebb9fb5fd570d32d7cca61010b3c7d3a1570bf0f3b752474d"
+    },
+    {
+      "id": "chen.adult.o_confused",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わからないよー。",
+      "chinese": "不明白哟——。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_confused"
+      },
+      "source_sha256": "dd4b08b97eb085937641f2fbea41adfa8dee70c0f146d9ecad465437b8bee975"
+    },
+    {
+      "id": "chen.adult.o_birth",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うまれるよー。",
+      "chinese": "要生了哟——！",
+      "events": [
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_birth"
+      },
+      "source_sha256": "214112f7611d5bd3445651e645852b1fc999eb841659b11be13aa78d91024d49"
+    },
+    {
+      "id": "chen.adult.o_nuzzle",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーり すーり。きもちいいよー。",
+      "chinese": "擦擦脸，擦擦脸。好舒服哟——。",
+      "events": [
+        "nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_nuzzle"
+      },
+      "source_sha256": "283f039ddce8f95eb4a5ebe62a1a8951daff08cf60b1f0f2c5d2391ea649ecb2"
+    },
+    {
+      "id": "chen.adult.o_want_nuzzle",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーり すーり したいよー。",
+      "chinese": "想擦擦脸哟——。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_want_nuzzle"
+      },
+      "source_sha256": "f2dc9ef6aab0e4e2b8b695fedc2fc088f768de687a56a5e2d395415abfacffa9"
+    },
+    {
+      "id": "chen.young.o_hungry",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おなかが ぺーこぺーこ だよー。",
+      "chinese": "肚肚饿扁惹哟——。",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hungry"
+      },
+      "source_sha256": "7c4eda47875a921c34b8c95beacbe16831be45e34d6e0b6be0e6ef1b52c2e0ba"
+    },
+    {
+      "id": "chen.young.o_food",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごはんしゃんだー。",
+      "chinese": "是饭鲜生呀——！",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_food"
+      },
+      "source_sha256": "2bdcd62eda63b78145ddf7a1745dd26f9fc779fa7b8ba8eab59f40c4e5ac6503"
+    },
+    {
+      "id": "chen.young.o_eat",
+      "species": "chen",
+      "age": "young",
+      "japanese": "むーしゃ むーしゃ。おいちいよー。",
+      "chinese": "姆咻，姆咻。好粗哟——。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_eat"
+      },
+      "source_sha256": "1622201490e8e78c53f6274810328ead3ef0d135e4a273b006bdbae0a6b69822"
+    },
+    {
+      "id": "chen.young.o_happy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぽかぽか しあわちぇだよー。",
+      "chinese": "暖乎乎，好幸胡哟——。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_happy"
+      },
+      "source_sha256": "9262ba0880e98a49c65a50319a9bfa8dfab6bc579fc9d472f697be8e8af7805f"
+    },
+    {
+      "id": "chen.young.o_toilet",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うんうんが でりゅよー。",
+      "chinese": "嗯嗯要粗来惹哟——。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_toilet"
+      },
+      "source_sha256": "1afea8968bc5f97f89f59766e27d6d1bbdaf9cb5e6b1d436e01e24f92cb916d8"
+    },
+    {
+      "id": "chen.young.o_clean",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちゅっきり ちたよー。",
+      "chinese": "苏畅惹哟——。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_clean"
+      },
+      "source_sha256": "b25b190bc2f7d7f84b80708f1193eec2cfa628a6d07b648ce8bb6f7bec38c4a6"
+    },
+    {
+      "id": "chen.young.o_sleep",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーや しゅーや。",
+      "chinese": "呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_sleep"
+      },
+      "source_sha256": "5a21d4d5a7e2f14750a6f39d3c1ce684ca0970892fc34407b5784f932cf0e21c"
+    },
+    {
+      "id": "chen.young.o_awake",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あしゃだよー。おはようだよー。",
+      "chinese": "早上啦，早安哟——。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_awake"
+      },
+      "source_sha256": "b1544795fcd6104481d144913a38077e18c361eb2c0e2714da202c9c2d29c856"
+    },
+    {
+      "id": "chen.young.o_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょーだよー。",
+      "chinese": "屑屑哟——。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_thanks"
+      },
+      "source_sha256": "898b6ee09e706c9018133ecabe9e181e5531aa9df67d32b5aae7b04f0f0e5a96"
+    },
+    {
+      "id": "chen.young.o_understood",
+      "species": "chen",
+      "age": "young",
+      "japanese": "わきゃったよー。",
+      "chinese": "明白惹哟——。",
+      "events": [
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_understood"
+      },
+      "source_sha256": "2690f9de69bdc067e12c5db77848384c0af4d3d51c9a8e12eb29819e5a8d027d"
+    },
+    {
+      "id": "chen.young.o_wait",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここで まっちぇるよー。",
+      "chinese": "在介里等哟——。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_wait"
+      },
+      "source_sha256": "2ef052e5eeffeee5c0fbd672145d317a473732cfcbfa63b185db580fd2ced516"
+    },
+    {
+      "id": "chen.young.o_praise",
+      "species": "chen",
+      "age": "young",
+      "japanese": "できちゃよー。ほめちぇねー。",
+      "chinese": "做到啦，要夸奖捏——！",
+      "events": [
+        "lesson_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_praise"
+      },
+      "source_sha256": "47eb33cf62e0de9cddf58986a2bf83370e26801c1e7d50d0a539f618c78b2e9a"
+    },
+    {
+      "id": "chen.young.o_try",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆっくち がんばりゅよー。",
+      "chinese": "要油库气地努腻哟——。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_try"
+      },
+      "source_sha256": "c653403bf77db3928e28d3eada5458938030bb79f290968bd46c67f0bf5b5551"
+    },
+    {
+      "id": "chen.young.o_lost",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりを かえちてねー。",
+      "chinese": "把饰物还肥来捏——！",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_lost"
+      },
+      "source_sha256": "baf01814c935c90b28fb3a57d0d36d799e99221b000daad87bfa00a627878b64"
+    },
+    {
+      "id": "chen.young.o_returned",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃりが もどっちゃよー。",
+      "chinese": "饰物肥来啦——！",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_returned"
+      },
+      "source_sha256": "9ac47c79a4b70d351a96dbeb8d549939982ff3494159a7737dab5eb8733caf21"
+    },
+    {
+      "id": "chen.young.o_play",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いっちょに あしょぶよー。",
+      "chinese": "一起丸哟——。",
+      "events": [
+        "toy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_play"
+      },
+      "source_sha256": "ed244cf5f2ec1565e0609a7bc50fb7731391dd153b301375e0269e3c1da6bf9d"
+    },
+    {
+      "id": "chen.young.o_puff",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぷきゅー。やだよー。",
+      "chinese": "噗啾——，不要哟——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_puff"
+      },
+      "source_sha256": "f6157d8e206650f7f8d5b7ed101caf36a1fdff7f1713abe6a97ea8e662860574"
+    },
+    {
+      "id": "chen.young.o_confused",
+      "species": "chen",
+      "age": "young",
+      "japanese": "わかりゃないよー。",
+      "chinese": "不明白哟——。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_confused"
+      },
+      "source_sha256": "edc469e5390ef75c3ffc4ccde88443669ab16cdee1378c0d77c5ae707204e1e1"
+    },
+    {
+      "id": "chen.young.o_birth",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うみゃれりゅよー。",
+      "chinese": "要生惹哟——！",
+      "events": [
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_birth"
+      },
+      "source_sha256": "c26f01cacb36b4128f16c2c38bdc9b4e8691cd608d6d7bdf41be51e2ab3c60bd"
+    },
+    {
+      "id": "chen.young.o_nuzzle",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーり しゅーり。きもちいいよー。",
+      "chinese": "擦擦腻，擦擦腻。好苏服哟——。",
+      "events": [
+        "nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_nuzzle"
+      },
+      "source_sha256": "39b07e5eca52a0ab81ebf4971406e2ed87a753b2f04e4a5ba1b9aa489ad9df8d"
+    },
+    {
+      "id": "chen.young.o_want_nuzzle",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅーり しゅーり しちゃいよー。",
+      "chinese": "想擦擦腻哟——。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_want_nuzzle"
+      },
+      "source_sha256": "a01fd5154a702bc166746356fd95744d382f95a9cedaf2e8911a92655eccd1db"
+    },
+    {
+      "id": "patchouli.adult.o_hungry",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おなかが すいたわ。",
+      "chinese": "姆啾，肚子饿了哇。",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hungry"
+      },
+      "source_sha256": "9e80adaffec8c00c250f95ff22a5e6e6644f7026ab28e443b7c7b1c8898015f4"
+    },
+    {
+      "id": "patchouli.adult.o_food",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ごはんさんね。",
+      "chinese": "姆啾，是饭先生呢。",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_food"
+      },
+      "source_sha256": "165989399b0b478628c506812922b9fb399ed45d037404d5059e45f054f76086"
+    },
+    {
+      "id": "patchouli.adult.o_eat",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。むーしゃ むーしゃ。",
+      "chinese": "姆啾，姆咻，姆咻。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_eat"
+      },
+      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f"
+    },
+    {
+      "id": "patchouli.adult.o_happy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。しあわせだわ。",
+      "chinese": "姆啾，好幸福哇。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_happy"
+      },
+      "source_sha256": "4cee4bf76042fb7356beadfe93cc6dfc596bf80066a98cac4663882b7f45e2db"
+    },
+    {
+      "id": "patchouli.adult.o_toilet",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。うんうん するわ。",
+      "chinese": "姆啾，要嗯嗯了哇。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_toilet"
+      },
+      "source_sha256": "532396404c045ca15ed243f255da8119a43ff87828280b735ad02b0a70ce01a0"
+    },
+    {
+      "id": "patchouli.adult.o_clean",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すっきりだわ。",
+      "chinese": "姆啾，好舒畅哇。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_clean"
+      },
+      "source_sha256": "0cebbc01c8bb92030e57384597701747730dd6a606c0b6423c2f69c9ca69b2ad"
+    },
+    {
+      "id": "patchouli.adult.o_sleep",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーや すーや。",
+      "chinese": "姆啾，呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_sleep"
+      },
+      "source_sha256": "38ea06a38f3ba9f17bdceebbba4303a7e67ccde8be3a231ff4642fcf5abb7f85"
+    },
+    {
+      "id": "patchouli.adult.o_awake",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おはようだわ。",
+      "chinese": "姆啾，早安哇。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_awake"
+      },
+      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28"
+    },
+    {
+      "id": "patchouli.adult.o_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとう。",
+      "chinese": "姆啾，谢谢。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_thanks"
+      },
+      "source_sha256": "6790a8498b33aea3cb544b2c82fa6e18e848bf36a33ac6f3f923764cc9c75a40"
+    },
+    {
+      "id": "patchouli.adult.o_understood",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。わかったわ。",
+      "chinese": "姆啾，明白了哇。",
+      "events": [
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_understood"
+      },
+      "source_sha256": "f8f59b2ab358832659e1021f1253543b05145b0b6571fc1d69317316679970e4"
+    },
+    {
+      "id": "patchouli.adult.o_wait",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。まっているわ。",
+      "chinese": "姆啾，在等着哇。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_wait"
+      },
+      "source_sha256": "791c77d674d926832c008967aa4f5b1a4d23b72209fa328df9eb73b57af3f98e"
+    },
+    {
+      "id": "patchouli.adult.o_praise",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。できたわ。",
+      "chinese": "姆啾，做到了哇。",
+      "events": [
+        "lesson_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_praise"
+      },
+      "source_sha256": "e84ecbf1ee3345a6241adec33a773d41b3da8c92f28a1c621340864a94af38f5"
+    },
+    {
+      "id": "patchouli.adult.o_try",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ゆっくり がんばるわ。",
+      "chinese": "姆啾，要油库里地努力哇。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_try"
+      },
+      "source_sha256": "21d73c982d4146db9343e2c63cd35096135594503c184f810698f97df52eec6e"
+    },
+    {
+      "id": "patchouli.adult.o_lost",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おぼうしを かえしてね。",
+      "chinese": "姆啾，把帽帽还回来呢。",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_lost"
+      },
+      "source_sha256": "594163df75affa410cedf64d46e97cd14e1ca4ca917e5a1fe0280df1faf45ae4"
+    },
+    {
+      "id": "patchouli.adult.o_returned",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おぼうしが もどったわ。",
+      "chinese": "姆啾，帽帽回来了哇。",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_returned"
+      },
+      "source_sha256": "b20da8f53e39a187a884923eb6d415438c3824b656c41b27d35d6f1b975d97b2"
+    },
+    {
+      "id": "patchouli.adult.o_play",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。いっしょに あそびましょ。",
+      "chinese": "姆啾，一起玩吧。",
+      "events": [
+        "toy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_play"
+      },
+      "source_sha256": "e25b650191b5076f482d91461e93785c3823a052312fd4098d71187820ae4f71"
+    },
+    {
+      "id": "patchouli.adult.o_puff",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぷくー。",
+      "chinese": "姆啾，噗咕——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_puff"
+      },
+      "source_sha256": "f68945a052d7b3f11effce1bc6eb4b9eea0cc9824f2b923839cc6e311461cf4e"
+    },
+    {
+      "id": "patchouli.adult.o_confused",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。よく わからないわ。",
+      "chinese": "姆啾，不太明白哇。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_confused"
+      },
+      "source_sha256": "2ae562823219ca86607aac8ec5f97dfde71e15488d2d974e562fcd73ebe23b79"
+    },
+    {
+      "id": "patchouli.adult.o_birth",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。うまれるわ。",
+      "chinese": "姆啾，要生了哇！",
+      "events": [
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_birth"
+      },
+      "source_sha256": "27ce130333f52b463d025ec00fca60bf95847785747e2d6d440457c9811a5ec9"
+    },
+    {
+      "id": "patchouli.adult.o_nuzzle",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーり すーり。",
+      "chinese": "姆啾，擦擦脸，擦擦脸。",
+      "events": [
+        "nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_nuzzle"
+      },
+      "source_sha256": "36d6ac42fd53460c2bb33c7361a80cb269f65427d8d97db03f4a91324e26d406"
+    },
+    {
+      "id": "patchouli.adult.o_want_nuzzle",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。すーり すーり したいわ。",
+      "chinese": "姆啾，想擦擦脸哇。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_want_nuzzle"
+      },
+      "source_sha256": "26aa474c60cfba15ad4553bdfe01eb9bf75a29f742d75eea85cfc5ff461df928"
+    },
+    {
+      "id": "patchouli.young.o_hungry",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おなかが すいちゃわ。",
+      "chinese": "姆啾，肚肚饿惹哇。",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hungry"
+      },
+      "source_sha256": "58ece1b9098d06989e9569cec59bc7e4cf55001f2fba7871f7315ac4ab71d446"
+    },
+    {
+      "id": "patchouli.young.o_food",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ごはんしゃんね。",
+      "chinese": "姆啾，是饭鲜生捏。",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_food"
+      },
+      "source_sha256": "384c8cba8bc7b20b8734fbebb14a961f4150c128e2842ea1aee9063abf1cc15f"
+    },
+    {
+      "id": "patchouli.young.o_eat",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。むーしゃ むーしゃ。",
+      "chinese": "姆啾，姆咻，姆咻。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_eat"
+      },
+      "source_sha256": "9365fddb96e6e12b54f09d5b8996253276f7d163d7417a8f5740ee94f08e335f"
+    },
+    {
+      "id": "patchouli.young.o_happy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しあわちぇだわ。",
+      "chinese": "姆啾，好幸胡哇。",
+      "events": [
+        "fed",
+        "gentle",
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_happy"
+      },
+      "source_sha256": "5e968bdd55be5d906e783bba18916cebda9f33ca0c72f712a590e8f58da47ddc"
+    },
+    {
+      "id": "patchouli.young.o_toilet",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。うんうん しゅるわ。",
+      "chinese": "姆啾，要嗯嗯惹哇。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_toilet"
+      },
+      "source_sha256": "7557b91b086e94891784f43233890bb170412bd63982828dce659cab02b9cd36"
+    },
+    {
+      "id": "patchouli.young.o_clean",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ちゅっきりだわ。",
+      "chinese": "姆啾，好苏畅哇。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_clean"
+      },
+      "source_sha256": "182c282bf73c840cc8b6b543879b410d25d63436465e9da518e13ec8bda08c8f"
+    },
+    {
+      "id": "patchouli.young.o_sleep",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーや しゅーや。",
+      "chinese": "姆啾，呼——呀，呼——呀。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_sleep"
+      },
+      "source_sha256": "f362632d25c0198ca961b97f0272b9eafe53eb0eb9f4362c966025e0d3f25e97"
+    },
+    {
+      "id": "patchouli.young.o_awake",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おはようだわ。",
+      "chinese": "姆啾，早安哇。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_awake"
+      },
+      "source_sha256": "c1a9682a2b8afd17fa286de549ef4c1f7f09434990e976db88478c52b5c97c28"
+    },
+    {
+      "id": "patchouli.young.o_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょー。",
+      "chinese": "姆啾，屑屑。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_thanks"
+      },
+      "source_sha256": "082e003b961cbc7a55e48022d6e332e0ad45df782e97c93e32aaa5436778a8d8"
+    },
+    {
+      "id": "patchouli.young.o_understood",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。わきゃったわ。",
+      "chinese": "姆啾，明白惹哇。",
+      "events": [
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_understood"
+      },
+      "source_sha256": "91aaf91d1dd3db45ac4e580cccdd8578911a0415827ac0c382469f50b114142f"
+    },
+    {
+      "id": "patchouli.young.o_wait",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。まっちぇいるわ。",
+      "chinese": "姆啾，在等着哇。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_wait"
+      },
+      "source_sha256": "e496f38223cabeba47c97b4a3a3f1c68945ad2ef29739d0810e63f866824db5b"
+    },
+    {
+      "id": "patchouli.young.o_praise",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。できちゃわ。",
+      "chinese": "姆啾，做到惹哇。",
+      "events": [
+        "lesson_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_praise"
+      },
+      "source_sha256": "41d97b4e9e16a0da24592165dd2ef0dc21a13878f2b79ad2aaef9f513f208190"
+    },
+    {
+      "id": "patchouli.young.o_try",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ゆっくち がんばりゅわ。",
+      "chinese": "姆啾，要油库气地努腻哇。",
+      "events": [
+        "lesson_start",
+        "lesson_progress",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_try"
+      },
+      "source_sha256": "29410c35a042473c90d288e8bea84d5b6ef5716d5a9c690030c18f5896687cf4"
+    },
+    {
+      "id": "patchouli.young.o_lost",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おぼうしを かえちてね。",
+      "chinese": "姆啾，把帽帽还肥来捏。",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_lost"
+      },
+      "source_sha256": "c32658313047fae90423ae20ef344a4a519d2f5b5db55c95ea43f2a9f0235423"
+    },
+    {
+      "id": "patchouli.young.o_returned",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おぼうしが もどっちゃわ。",
+      "chinese": "姆啾，帽帽肥来惹哇。",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_returned"
+      },
+      "source_sha256": "d7bd194c504e41fa1648766370cb7453efdd72777a60e38ec071c0992da1425b"
+    },
+    {
+      "id": "patchouli.young.o_play",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。いっちょに あしょびましょ。",
+      "chinese": "姆啾，一起丸吧。",
+      "events": [
+        "toy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_play"
+      },
+      "source_sha256": "233e3d74a712e1edf3307cdfec1e8b545e744760c22864a6e35baba40379d069"
+    },
+    {
+      "id": "patchouli.young.o_puff",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぷきゅー。",
+      "chinese": "姆啾，噗啾——！",
+      "events": [
+        "puff",
+        "mine",
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_puff"
+      },
+      "source_sha256": "30835a44dda0b6cdd8ab3fb72507368bd04c9c56541ccdb75ee99ea020ec6aa1"
+    },
+    {
+      "id": "patchouli.young.o_confused",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。よく わかりゃないわ。",
+      "chinese": "姆啾，不太明白哇。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_confused"
+      },
+      "source_sha256": "e1444f7655ee726ceedf8906e273cb029ce61f4864be2fd3974c255d6fa9bb81"
+    },
+    {
+      "id": "patchouli.young.o_birth",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。うみゃれりゅわ。",
+      "chinese": "姆啾，要生惹哇！",
+      "events": [
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_birth"
+      },
+      "source_sha256": "61076ce7897640595cabad75a484426d359124942cdca674a40412fbd4948173"
+    },
+    {
+      "id": "patchouli.young.o_nuzzle",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーり しゅーり。",
+      "chinese": "姆啾，擦擦腻，擦擦腻。",
+      "events": [
+        "nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_nuzzle"
+      },
+      "source_sha256": "b3bc3c9c1a780942b8859a78579e7fe461e6f995ceaa7ea2bcd58d6bd6c8ba8d"
+    },
+    {
+      "id": "patchouli.young.o_want_nuzzle",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。しゅーり しゅーり しちゃいわ。",
+      "chinese": "姆啾，想擦擦腻哇。",
+      "events": [
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_want_nuzzle"
+      },
+      "source_sha256": "8a999837f77d081774af6d43b53f6576b0a0f56093e3c9fb1113103f30e824a3"
+    }
+  ]
+}

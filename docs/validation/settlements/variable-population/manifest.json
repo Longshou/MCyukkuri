@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-13",
+  "revision": "variable population",
+  "checks": {
+    "rules": 146,
+    "movement": 2
+  },
+  "scenes": [
+    {
+      "scene": "family",
+      "population": 6,
+      "households": 1,
+      "juveniles": 4
+    },
+    {
+      "scene": "single-parent",
+      "population": 2,
+      "households": 1,
+      "juveniles": 1
+    },
+    {
+      "scene": "forest-large",
+      "population": 48,
+      "households": 12,
+      "juveniles": 25
+    },
+    {
+      "scene": "forest-led",
+      "population": 33,
+      "households": 6,
+      "juveniles": 21
+    }
+  ],
+  "build": "normal Gradle build passed; no source exclusions in final build",
+  "sourceSha256": {
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/ForageGoal.java": "2d9c53bf224be51914c4dbb84b5f6732493b0c7634e5b5aa83eb1696c1d993ca",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementCommands.java": "3be79b3766e69518c799543035ca1dd8196882d4be11d96cbf161db5fa609219",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementComposition.java": "b0788f679d43f122a720184c1c5f25530704e0c8cf947ed493f9c3ada8296581",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementData.java": "a889b1bf3d51ff914e5764d127c82f2bfb895f55fbed8ec9c5e38e7a3c86800f",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementLife.java": "a237ab544261a554dc5b4e46f52b392b1e88da527d86a5242b1e9f4758262d5a",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementObservation.java": "969fc682c85319c46e603ff9e9c46165a40c9b761030e113774471f4f0c50e78",
+    "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementSpawner.java": "ef0fe165f3fa04384815daaa76b783fe020814bec2ee0b3fb811640c96ba225a",
+    "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriConfig.java": "6273840a2850d0e27af4dd258270c63a77c5e94cbd2afeb5d36f32410139ef78",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyLife.java": "8a67cb7daae39c5fa78a386b7ed01047a94ffa25fe233aa3809e9b1b73a2764a",
+    "src/main/java/io/github/longshou/mcyukkuri/family/FamilyData.java": "d0967da44b8b0d7875ad6aed172821b8c740d3bc1065f56b68c1365446637491",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/SettlementGameTests.java": "faf5c12c23981005930387c6b2fb5ede9c455230e08fc730286c531c71e3e98c",
+    "src/p0Test/java/io/github/longshou/mcyukkuri/p0/SettlementPreview.java": "151f3a06c0d1bd6617a99f04bed695d2e35b5d743af9029ddf57da56ccd10872"
+  },
+  "artifactSha256": {
+    "family.json": "0964dd0691e1e57d8b669eea292e6a749fa1d64944bf1b0880fe997e26a33ead",
+    "family.png": "f83816122d949c0a01e1b9895ee78565472d88a3ae92dc3f69152c14e9bc0ae3",
+    "forest-large.json": "301309e236bf84385a8ad9a57738e500a81d09b0a73ebc463bbf6619d02b4b01",
+    "forest-large.png": "7e659f569e2776ee5093b307bf543f874cfb0f2a987788098bb4c30bce878c3b",
+    "forest-led.json": "d88354a2635ea6af7b641418d4668aafa60d5d49ebe8d2ffe366e008a96b9fbd",
+    "forest-led.png": "bafd6467a20325ce8251966fe99101cc8d1e193c20d061cdb2712fcc49e48ca6",
+    "full-suite.json": "d088f8a322811dd27064a7013a69c1069387ad21838245bf8d26de985843a7a3",
+    "settlement-checks.json": "119b0aac8a7fb327b73fe988d1ee14d34984db51dc0ab6908e488fd8c4b49455",
+    "settlement-movement-checks.json": "c9936fdd19ff61e588d493f4b2061470dd357850aabae94ecd1922569b169e45",
+    "single-parent.json": "188afa3643ae4017252c3f86aafed638f6c8f95d97354e7bde9ba07546ac4b6c",
+    "single-parent.png": "f6a5c49194ad15244ce17d05cab0d2270102aee72bb2ae2cbb0767f2933bb5ba"
+  }
+}

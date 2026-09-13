@@ -1,0 +1,9 @@
+{
+  "previousFourClipsUnchanged": true,
+  "cheekFrontNeverBehindFacePlane": true,
+  "cubes": 210,
+  "bones": 178,
+  "puffDuration": 6.4,
+  "eyesStayOnFacePlane": true,
+  "expressionRestoredAfterDeflation": true
+}

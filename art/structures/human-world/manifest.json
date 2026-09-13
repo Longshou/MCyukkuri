@@ -1,0 +1,57 @@
+[
+  {
+    "name": "yukkuri_shop",
+    "size": [
+      25,
+      13,
+      25
+    ],
+    "blocks": 8125,
+    "entities": 17,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "yukkuri_factory",
+    "size": [
+      37,
+      13,
+      31
+    ],
+    "blocks": 14911,
+    "entities": 6,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "yukkuri_labor_factory",
+    "size": [
+      41,
+      15,
+      35
+    ],
+    "blocks": 21525,
+    "entities": 10,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "yukkuri_manju_factory",
+    "size": [
+      41,
+      15,
+      35
+    ],
+    "blocks": 21525,
+    "entities": 13,
+    "source": "art/structures/human-world/build.py"
+  },
+  {
+    "name": "yukkuri_bag_factory",
+    "size": [
+      41,
+      15,
+      35
+    ],
+    "blocks": 21525,
+    "entities": 13,
+    "source": "art/structures/human-world/build.py"
+  }
+]

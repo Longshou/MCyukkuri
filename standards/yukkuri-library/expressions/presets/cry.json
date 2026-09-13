@@ -111,11 +111,16 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "retained",
+  "status": "accepted",
   "art": "Existing project pixels restored; no redraw",
   "aliases": [],
   "retained_source": "standards/yukkuri-v1/textures/marisa/cry.png",
   "review_code": "O04",
   "origin": "original",
-  "review_pair": "cry__new"
+  "review_pair": "cry__new",
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-09-12",
+    "note": "用户将 89 项已核对表情保存为标准；沿用当前展示造型，仅补齐正式确认状态。"
+  }
 }

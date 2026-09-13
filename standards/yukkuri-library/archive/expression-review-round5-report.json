@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-09-11T18:34:30.009242+00:00",
+  "scope": "Round 5: N024/N025 accepted; N020 selected B with approved E3-PUFF eyes and fitted tears; three broader N033 irises",
+  "environment": "Windows, Python 3.13/Pillow, headless Chrome/Playwright",
+  "source_files": {
+    "drafts/expression-review/batch-16-40.html": "f286c6703d61a95ab5a778d339e12f9137288198afb95c0c29f7f996420c06bd",
+    "drafts/expression-review/round5/candidates.json": "74f4e8e1f45822bff5564ae2887202595a6462dfb47804baaa9ccc65c00201db",
+    "drafts/expression-review/round5/parts/76b1aa123b208184f590.png": "a75ada45b89168298875b772d65c94f49d7ba012e58e3b69f79a7b9ccbc697d1",
+    "drafts/expression-review/round5/parts/8f2e0ca2c382ac8a8a06.png": "5dd936eee24b06c9bcb9462ee71fc68318752fa5c174052362c2e97971678381",
+    "drafts/expression-review/round5/parts/a0e03080fbb7ae0e31d0.png": "391858a84a16ca5cf85584ddb499d3d6272ac3b78f6c77b82e6692dc5d3b45a3",
+    "drafts/expression-review/round5/review-template.html": "7c5338ffb92e4c56cb23fcf5e8e483929db9d3c6e98fe21253cabd244deda8d1",
+    "expressions/component-review/before-n016-n040-round5.json": "50e6c065493b38c730324c2281fb07a74b6f20f83fd350883690c9dcf3e3ffe9",
+    "expressions/parts/1219e3a3aec64b7705b0.png": "f8155bb31644896583e259a8d764514052bb96c1497fbe6c743970ecf63dee71",
+    "expressions/parts/1cadef959b1def31db66.png": "47a76d795924045461ff7c33a0a7b0a539da57ee89429a69b4e3b35c545fb6e4",
+    "expressions/parts/2b2bee38c2a69027e93d.png": "9210a1fcca3555fb11bee58f0fa0ab5d99e5e1adff6e5f5a8b8c8d2dae6094b0",
+    "expressions/parts/351094a83deebb6be6dc.png": "5d5735061f764f17c586be11e3bd673cfdc699a2894d225dea9f7dcdf4e1f24c",
+    "expressions/parts/37e940968392d59867a9.png": "582776686258afb2bb0e51d909ca193c77b6289643bf974441d3fd1b416debb2",
+    "expressions/parts/3b9c6d89915676f44eaa.png": "b1cdf7a3198de094dbf800158d5ff4337416c0e2cddca8bde844f24e2507468c",
+    "expressions/parts/566eded4a7f31e2afb97.png": "7d8c43bb3e3ad0734ae4f78f5e0876894c68e8db7f3832c6ba7ac3d8f90bcbc2",
+    "expressions/parts/6c43e5c9d5978be4060c.png": "9e892d7540f7a00bab5cbb85d87a1b873163de02ca03734ef9bab653b2ab7cb9",
+    "expressions/parts/7425436c510ac9dab5b4.png": "9b3cef0a5cf65de8a7c5ade0e01e412aec7697f830db744dedc614d4315caa53",
+    "expressions/parts/83cd598f7e2b72f72b9b.png": "03f2027a51e97ea2035886c9d566cffa068c933b472cd3f969a149b4f5dae115",
+    "expressions/parts/8ff9316def1aeb45e228.png": "3679918b7f7735cd8be73424aff4d5ebd1aa92361153f0e8ebce17c6a031ed74",
+    "expressions/parts/a2d92d0aa068ba181a3d.png": "8bfc1b70703edd508dde2290d03f155af6aaea119b7ec3029642db3d48610896",
+    "expressions/parts/af2d4cf86a7386999bbb.png": "5a61b973dd44cf16d25c2c9f506d1003277cd8be6dfead39822f56b70c2d9b0b",
+    "expressions/parts/b8bb63ec3084f999a9b4.png": "f46a498d7aac1b772f1660305028e2abd8577b7e10cad21fc209a25315ac5916",
+    "expressions/parts/bac5f95d5525427392a7.png": "55954f1d142c15d3d34eb02de35b25dc8517749d5a9a1a7ddad3a1822c7e910b",
+    "expressions/parts/cf74fd4a8cea4e27f150.png": "43518e6499922134344b6f3b3f2e480e64df713c5d459a42ca1728d1220b5b0b",
+    "expressions/parts/d10ccf2eb6de430d7a31.png": "0516a0a406610c8f7332d9a6f27099640ffbc72da233736faa8db23adb86e7e8",
+    "expressions/parts/d114c9609a58da8454a5.png": "d3a0be82873a1e459e7b0e1d4be47dcafef3ac5a54caaeb63d7fc1ec390037b5",
+    "expressions/parts/d1c2604f732d235e0436.png": "25ccb8e0f7ef5e4fea96c92a22d524cc9ed4ec144841e67e267fce26a59d51dd",
+    "expressions/parts/fd1165af5d145a9ad4b4.png": "e0db4af1e76fb71820b33bc14a71abdc87697f034c58d99aa60ab925d9dbeeb8",
+    "expressions/presets/puff_teary.json": "b788a68996222764cffe4c0bf323aa470aca076066db34953544b49fc59bd23c",
+    "expressions/presets/tongue_cry.json": "9ff689283c84d690b3b2ebdce584d4e4be222c9ae36c1c0b0bfbd00415f6138e",
+    "expressions/presets/tongue_cry_b.json": "656ab3576fe49502099d3cf0005ee5f4d8b4f5793803d5c23d3c2e5224e846f9",
+    "tools/build_expression_round5_review.py": "4453732ecda4fd6b05f1c04b4fc0a5751703664d00530addc874be5962c38055",
+    "tools/review_expression_round5.py": "f3aa04e21bebc006d2b53f5db469fb5085da38307abf381bdb83aaa6d1b252d5",
+    "tools/sync_expression_exports.py": "903444073befeda8455ca4a12609763a0f01395290acb1d49e52f4f17d187438"
+  },
+  "outputs": {
+    "assembled/alice/textures/puff_teary.png": "b4514c968909ff05517ca406cc78afcc4b4dc2e39bf3d66413069c46ba99b384",
+    "assembled/alice/textures/tongue_cry.png": "d6c957053b3181a71d44f66626450cdc64e9462e0d8cda2d7630253e88428bc3",
+    "assembled/alice/textures/tongue_cry_b.png": "11dc3cfbc061499ca81063acdc5b050f956051f278d470b9e17f17b99d5ba559",
+    "assembled/alice/index.html": "a91ca94a090735fcbeb2fc649eec0b8b3730e476229cb91ea4e341e4900c0c38",
+    "assembled/chen/textures/puff_teary.png": "677f05b03a5cc400282bcda33daa535d872c0e8ca32dbe3059ca7b50194fa5ed",
+    "assembled/chen/textures/tongue_cry.png": "eb9163a7d84cef09a667ab1f94f4e155a25fc3a1bc004c96e12111d9213f4135",
+    "assembled/chen/textures/tongue_cry_b.png": "1c1cafc17524e64c3d7fd9dd5998076e9dc190f9748c070d4b6474ee9201be08",
+    "assembled/chen/index.html": "da8d955f3b9b2c63130e251d2b1a92247f2d5fa593c36ff4f0382444e6303c2b",
+    "assembled/marisa/textures/puff_teary.png": "a9c80f21f36f1aac3d1782302009411adb64c76fa8b415611ac1a7631f8721ce",
+    "assembled/marisa/textures/tongue_cry.png": "b630e27bd371bdbf7f154f7083e71bfbb1a08e1f402a16a855daae76c06edf61",
+    "assembled/marisa/textures/tongue_cry_b.png": "4346213bac1731ea15451811a1443fc20e794757e97a3fd69ee631a9fa02706d",
+    "assembled/marisa/index.html": "51abcd20297a690f1a96ef9e9ae0eb4eea520051c94407d661d12c07d11f010e",
+    "assembled/marisa_tsumuri/textures/puff_teary.png": "74bd007a7a3ed05c6134bdd2bfbd55431a7e2ebce90cbb1e3df04882d9858a14",
+    "assembled/marisa_tsumuri/textures/tongue_cry.png": "f14e2f3fb1f2c842d35fd3f485dd071a9280c35cc2d57b0d829ad3368cd49924",
+    "assembled/marisa_tsumuri/textures/tongue_cry_b.png": "ed67c92d6e090b4c2946ae779107fed6d85ab2b2f5ce37469b03bec51130258b",
+    "assembled/marisa_tsumuri/index.html": "d53ed8cc94108f374169fe661de3d319ad949244a062cee620b83e3180785fdc",
+    "assembled/patchouli/textures/puff_teary.png": "b936f40df92a5a2e4b355496f6095c310614d07bf59d204c599cc7fb84cfd294",
+    "assembled/patchouli/textures/tongue_cry.png": "2856513d990d4f57e0c63b608de703e069f2a52f48e2a92e1edff127ee19a693",
+    "assembled/patchouli/textures/tongue_cry_b.png": "70c0ac16c152e1a3e0cacfbdb570f8bb75e337a318308c362dc492fca51f6d74",
+    "assembled/patchouli/index.html": "fee9f6abe0fdc6821698cbeeaa6980f47d0f6a12079c6fb7b024e518668335b0",
+    "assembled/reimu/textures/puff_teary.png": "c79560226afe90983a00ec7e33aaa879775d307d4baaf98ebcd31cac57aa3d6c",
+    "assembled/reimu/textures/tongue_cry.png": "6e60d1fba18b30f768543ee3d34317624e3b84ee6436c306ddd508320a607c9d",
+    "assembled/reimu/textures/tongue_cry_b.png": "a42d4dfc0580a55af1283c5825f8b31257a5726a2e65ae08c7ca91a9f326dec4",
+    "assembled/reimu/index.html": "fbd8971678af72ed29897a562aa4b21572723a9db8ba1e453491123b44603c27",
+    "previews/current/expression-review.png": "7f181e9826f2056a2053693afc4a5b64b97734c8afd8385ec91092d5b63da68d",
+    "previews/current/n020-variants.png": "df768b0da6453e71dd48e2fa992afe26c0a350fd8005f51526ff72fb91506014",
+    "previews/current/n033-variants.png": "798e4485b7e5de7b31574598b9624d2f2a5823bc4d97207400d6b34d2268e4b4"
+  },
+  "checks": {
+    "confirmed_fingerprints": "pass",
+    "approved_closed_eye_pixels": "exact match",
+    "selected_B_mouth_and_brows": "exact match",
+    "matched_before_after_payloads": "pass",
+    "source_atlas_validation": {
+      "alice": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "chen": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "marisa": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "marisa_tsumuri": {
+        "compiled_motions": 8,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "patchouli": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "reimu": {
+        "compiled_motions": 19,
+        "shared_expression_presets": 105,
+        "texture_parts_match": true,
+        "independent_hands": true
+      },
+      "base_motions": 9,
+      "composite_recipes": 6,
+      "unique_pixel_parts": 145,
+      "source_nonempty_fields": 221,
+      "source_empty_fields": 16,
+      "source_unique_sprites": 220,
+      "raw_game_pixels_in_library": false
+    },
+    "browser": {
+      "checked": 4,
+      "groups": 2,
+      "expressions": 2,
+      "viewsPerCandidate": 4,
+      "angles": [
+        "front",
+        "oblique"
+      ],
+      "matchedVariants": true,
+      "errors": []
+    }
+  },
+  "visual_review": {
+    "reviewer": "assistant",
+    "scope": "All front comparisons plus representative oblique view for each expression",
+    "observations": [
+      "Closed eye lines match previously selected E3-PUFF; tears follow the lower edge with no detached upper glint.",
+      "N033 shows broader iris cores while retaining sclera; B dark pupil is wider."
+    ]
+  },
+  "not_executed": [
+    "Minecraft runtime acceptance",
+    "new animation review"
+  ],
+  "pending_user_selection": [
+    "N020 fitted tear appearance",
+    "N033 A/B/C broader iris choice"
+  ]
+}

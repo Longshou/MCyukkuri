@@ -1,0 +1,44 @@
+[
+  {
+    "chewing": true,
+    "variant": "reimu",
+    "geometryCompatible": true,
+    "vertices": 181308
+  },
+  {
+    "chewing": true,
+    "variant": "marisa",
+    "geometryCompatible": true,
+    "vertices": 180156
+  },
+  {
+    "chewing": true,
+    "variant": "house_reimu",
+    "geometryCompatible": true,
+    "vertices": 104516
+  },
+  {
+    "chewing": true,
+    "variant": "house_marisa",
+    "geometryCompatible": true,
+    "vertices": 99188
+  },
+  {
+    "chewing": true,
+    "variant": "chen",
+    "geometryCompatible": true,
+    "vertices": 175784
+  },
+  {
+    "chewing": true,
+    "variant": "alice",
+    "geometryCompatible": true,
+    "vertices": 173288
+  },
+  {
+    "chewing": true,
+    "variant": "patchouli",
+    "geometryCompatible": true,
+    "vertices": 202472
+  }
+]

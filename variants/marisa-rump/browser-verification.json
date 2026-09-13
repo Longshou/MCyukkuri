@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "browser": "152.0.7977.76",
+  "checks": [
+    "opposite sway poses differ",
+    "back view",
+    "play / pause",
+    "forward demonstration",
+    "rest pose",
+    "drag / reset / zoom",
+    "mobile viewport"
+  ],
+  "errors": []
+}

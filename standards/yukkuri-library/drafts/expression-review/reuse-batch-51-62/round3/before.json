@@ -1,0 +1,988 @@
+{
+  "open_cry": {
+    "id": "open_cry",
+    "label": "睁眼哭喊",
+    "group": "哭泣",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N001",
+        "face_eye_right": "N001",
+        "face_brow_left": "N012",
+        "face_brow_right": "N012",
+        "face_mouth": "N022",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": [],
+      "tears": "approved-N012-lower-eyelid-sheen"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右泣き叫び顔グラベース",
+        "index": 0,
+        "sprite_id": 7294,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "デコピン２顔面グラベース",
+        "index": 0,
+        "sprite_id": 5765,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N051",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    }
+  },
+  "open_cry_b": {
+    "id": "open_cry_b",
+    "label": "睁眼哭喊 · 泪帧 B",
+    "group": "哭泣",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N001",
+        "face_eye_right": "N001",
+        "face_brow_left": "N012",
+        "face_brow_right": "N012",
+        "face_mouth": "N022",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": [],
+      "tears": "approved-N012-lower-eyelid-sheen",
+      "phase_note": "用户指定两帧均用同款泪花；当前同形，保留原来源编号。"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右泣き叫びB顔グラベース",
+        "index": 0,
+        "sprite_id": 7246,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N052",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    },
+    "duplicate_of": "open_cry"
+  },
+  "pursed": {
+    "id": "pursed",
+    "label": "睁眼抿嘴",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N001",
+        "face_eye_right": "N001",
+        "face_mouth": "N020",
+        "face_effect_mouth": "N001",
+        "face_brow_left": "N001",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_brow_right": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/351094a83deebb6be6dc.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右口閉じ顔グラベース",
+        "index": 0,
+        "sprite_id": 4893,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N053",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_mouth": {
+        "position": [
+          0,
+          0.12,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          1
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "先复用已确认部件，再核对本组合；尚未整体确认。"
+    }
+  },
+  "chewing": {
+    "id": "chewing",
+    "label": "咀嚼张嘴",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "O09",
+        "face_eye_right": "O09",
+        "face_mouth": "O06",
+        "face_brow_left": "N001",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_brow_right": "N001",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/8023c0288f73ee416f1d.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右むしゃむしゃ１顔グラベース",
+        "index": 0,
+        "sprite_id": 7193,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右むしゃむしゃ２顔グラベース",
+        "index": 0,
+        "sprite_id": 4462,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N054",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "先复用已确认部件，再核对本组合；尚未整体确认。"
+    }
+  },
+  "chewing_closed": {
+    "id": "chewing_closed",
+    "label": "咀嚼闭嘴",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "O09",
+        "face_eye_right": "O09",
+        "face_brow_left": "N001",
+        "face_tear_left": "N001",
+        "face_brow_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": [
+        "face_blush_left",
+        "face_blush_right",
+        "face_mouth"
+      ]
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_left": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/5977a2811d629eb958f7.png",
+      "face_brow_right": "expressions/parts/fbfe0d80b0bcf2df3c4b.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/5617664e421bf1411685.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右むしゃむしゃ３顔グラベース",
+        "index": 0,
+        "sprite_id": 4474,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右むしゃむしゃ４顔グラベース",
+        "index": 0,
+        "sprite_id": 5353,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N055",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "先复用已确认部件，再核对本组合；尚未整体确认。"
+    }
+  },
+  "bad_taste_small": {
+    "id": "bad_taste_small",
+    "label": "难吃缩嘴",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N014",
+        "face_eye_right": "N014",
+        "face_brow_left": "N039",
+        "face_brow_right": "N039",
+        "face_mouth": "N022",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": [],
+      "tears": "approved-N012-lower-eyelid-sheen"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/89d9d82b758ecf3447d8.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右まずまず２顔グラベース",
+        "index": 0,
+        "sprite_id": 8580,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N056",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_mouth": {
+        "scale": [
+          0.7,
+          0.65,
+          1
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          0.656,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          0.656,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    },
+    "semantic_usage": {
+      "emotion": "嫌难吃、勉强入口或咀嚼",
+      "reference": "drafts/expression-review/reuse-batch-51-62/round2/REFERENCE.md"
+    }
+  },
+  "bad_taste_closed": {
+    "id": "bad_taste_closed",
+    "label": "难吃闭嘴",
+    "group": "动作表情",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N014",
+        "face_eye_right": "N014",
+        "face_brow_left": "N039",
+        "face_brow_right": "N039",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_effect_mouth": "N001",
+        "face_mouth": "N038"
+      },
+      "retained_special": [
+        "face_blush_left",
+        "face_blush_right"
+      ],
+      "tears": "approved-N012-lower-eyelid-sheen"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/3b9c6d89915676f44eaa.png",
+      "face_brow_left": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/566eded4a7f31e2afb97.png",
+      "face_brow_right": "expressions/parts/59da7438c948a024001c.png",
+      "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "左右まずまず３顔グラベース",
+        "index": 0,
+        "sprite_id": 6069,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右まずまず４顔グラベース",
+        "index": 0,
+        "sprite_id": 7173,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N057",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.65,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.65,
+          1
+        ],
+        "position": [
+          0,
+          -0.1,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          0.656,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          0.656,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    },
+    "semantic_usage": {
+      "emotion": "嫌难吃、勉强入口或咀嚼",
+      "reference": "drafts/expression-review/reuse-batch-51-62/round2/REFERENCE.md"
+    }
+  },
+  "angry_stare": {
+    "id": "angry_stare",
+    "label": "不满凝视",
+    "group": "生气 / 鼓脸",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N001",
+        "face_eye_right": "N001",
+        "face_brow_left": "N029",
+        "face_brow_right": "N029",
+        "face_mouth": "N039",
+        "face_blush_left": "N034",
+        "face_blush_right": "N034",
+        "face_effect_mouth": "N034",
+        "face_tear_left": "N001",
+        "face_tear_right": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
+      "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/d126c585f0291a16309c.png",
+      "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
+      "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/c65e88644f22808b9f2a.png",
+      "face_effect_mouth": "expressions/parts/78921e8cffe8de942fcf.png"
+    },
+    "sources": [
+      {
+        "field": "左右不穏顔グラベース",
+        "index": 0,
+        "sprite_id": 6939,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      },
+      {
+        "field": "左右怒り顔グラベース",
+        "index": 0,
+        "sprite_id": 5620,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N058",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_mouth": {
+        "scale": [
+          0.8,
+          0.8,
+          1
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    }
+  },
+  "blank_happy": {
+    "id": "blank_happy",
+    "label": "白眼张嘴",
+    "group": "惊吓 / 困惑",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_mouth": "N001",
+        "face_brow_left": "N002",
+        "face_blush_left": "N001",
+        "face_tear_left": "N001",
+        "face_brow_right": "N002",
+        "face_blush_right": "N001",
+        "face_tear_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": []
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+      "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寝困惑顔４グラベース",
+        "index": 0,
+        "sprite_id": 7359,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N059",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {},
+    "review_decision": {
+      "status": "pending-review",
+      "note": "先复用已确认部件，再核对本组合；尚未整体确认。"
+    }
+  },
+  "cold": {
+    "id": "cold",
+    "label": "寒冷发颤",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N041",
+        "face_eye_right": "N041",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N038",
+        "face_effect_mouth": "N001",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001"
+      },
+      "retained_special": [],
+      "tears": "approved-N012-lower-eyelid-sheen"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/485d013f2c55cd7c245a.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/dfd8064961973aca66e6.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寒さ震え左右顔面グラベース",
+        "index": 0,
+        "sprite_id": 8343,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N060",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.5,
+          1
+        ],
+        "position": [
+          0,
+          -0.25,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.5,
+          1
+        ],
+        "position": [
+          0,
+          -0.25,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          0.5325,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          0.5325,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    },
+    "semantic_usage": {
+      "emotion": "寒冷、无力、嘴唇发紧",
+      "reference": "drafts/expression-review/reuse-batch-51-62/round2/REFERENCE.md"
+    }
+  },
+  "cold_b": {
+    "id": "cold_b",
+    "label": "寒冷发颤 · 泪帧 B",
+    "group": "睡眠 / 生理",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N041",
+        "face_eye_right": "N041",
+        "face_brow_left": "N041",
+        "face_brow_right": "N041",
+        "face_mouth": "N038",
+        "face_effect_mouth": "N001",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001"
+      },
+      "retained_special": [],
+      "tears": "approved-N012-lower-eyelid-sheen",
+      "phase_note": "用户指定两帧均用同款泪花；当前同形，保留原来源编号。"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/485d013f2c55cd7c245a.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/dfd8064961973aca66e6.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/ef9406d62e2711bc47b6.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "寒さ震え左右顔面2グラベース",
+        "index": 0,
+        "sprite_id": 8091,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N061",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_brow_left": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_brow_right": {
+        "position": [
+          0,
+          -0.8,
+          0
+        ]
+      },
+      "face_eye_left": {
+        "scale": [
+          1,
+          0.5,
+          1
+        ],
+        "position": [
+          0,
+          -0.25,
+          0
+        ]
+      },
+      "face_eye_right": {
+        "scale": [
+          1,
+          0.5,
+          1
+        ],
+        "position": [
+          0,
+          -0.25,
+          0
+        ]
+      },
+      "face_tear_left": {
+        "position": [
+          0,
+          0.5325,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          0.5325,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    },
+    "semantic_usage": {
+      "emotion": "寒冷、无力、嘴唇发紧",
+      "reference": "drafts/expression-review/reuse-batch-51-62/round2/REFERENCE.md"
+    },
+    "duplicate_of": "cold"
+  },
+  "cut_cry": {
+    "id": "cut_cry",
+    "label": "受损哭喊",
+    "group": "特殊状态",
+    "recipe": {
+      "source": "approved-component-reuse",
+      "donors": {
+        "face_eye_left": "N027",
+        "face_eye_right": "N027",
+        "face_brow_left": "N012",
+        "face_brow_right": "N012",
+        "face_tear_left": "N012",
+        "face_tear_right": "N012",
+        "face_blush_left": "N001",
+        "face_blush_right": "N001",
+        "face_effect_mouth": "N001"
+      },
+      "retained_special": [
+        "face_mouth"
+      ],
+      "tears": "approved-N012-lower-eyelid-sheen"
+    },
+    "parts": {
+      "face_eye_left": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
+      "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
+      "face_eye_right": "expressions/parts/8b678087ea009dbded48.png",
+      "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
+      "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+      "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
+      "face_mouth": "expressions/parts/919ab03cf9e23721f204.png",
+      "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+    },
+    "sources": [
+      {
+        "field": "削れ左右顔面グラベース",
+        "index": 0,
+        "sprite_id": 7117,
+        "file_id": 2,
+        "scope": "expression; perspective handled by 3D camera"
+      }
+    ],
+    "status": "pending-review",
+    "art": "Approved components assembled for user review; retained special components explicitly listed",
+    "aliases": [],
+    "review_code": "N062",
+    "origin": "new",
+    "review_pair": null,
+    "geometry_offsets": {
+      "face_tear_left": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      },
+      "face_tear_right": {
+        "position": [
+          0,
+          -0.145,
+          0
+        ]
+      }
+    },
+    "review_decision": {
+      "status": "pending-review",
+      "note": "按本轮泪花与情绪反馈修订，待用户核对。"
+    }
+  }
+}

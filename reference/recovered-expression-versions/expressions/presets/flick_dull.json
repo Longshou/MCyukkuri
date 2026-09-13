@@ -1,0 +1,38 @@
+{
+  "id": "flick_dull",
+  "label": "受击失神",
+  "group": "特殊状态",
+  "recipe": {
+    "eyes": "dull",
+    "brows": "relaxed",
+    "mouth": "smile",
+    "tears": "none",
+    "blush": "puffed",
+    "effect": "none"
+  },
+  "cheek_scale": 1.4,
+  "parts": {
+    "face_eye_left": "expressions/parts/98b8d08eae4618af9b6b.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/a428b0dd455203bcce3d.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/98b8d08eae4618af9b6b.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/a428b0dd455203bcce3d.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/b8bb63ec3084f999a9b4.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [
+    {
+      "field": "デコピン非ゆっくり症顔面グラベース",
+      "index": 0,
+      "sprite_id": 4675,
+      "file_id": 2,
+      "scope": "expression; perspective handled by 3D camera"
+    }
+  ],
+  "status": "implemented",
+  "art": "original pixel adaptation; accepted neutral/fear retained",
+  "aliases": []
+}

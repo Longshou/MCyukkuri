@@ -1,0 +1,282 @@
+{
+  "cubes": 210,
+  "bones": 178,
+  "results": [
+    {
+      "name": "puff",
+      "samples": 41,
+      "error": 0.00012828826902477886,
+      "example": {
+        "name": "puff_left_4",
+        "time": 1.76,
+        "axis": 2,
+        "min": [
+          -6.6026928864746095,
+          2.338399978637695,
+          -5.800128288268752
+        ],
+        "max": [
+          -1.7969071405487056,
+          2.741600128173828,
+          -4.619932479858107
+        ],
+        "expected": {
+          "min": [
+            -6.602692800000001,
+            2.3384,
+            -5.799999999999727
+          ],
+          "max": [
+            -1.7969071999999993,
+            2.7416,
+            -4.619999999999891
+          ]
+        },
+        "playing": [
+          [
+            "animation.marisa.stretch",
+            false
+          ],
+          [
+            "animation.marisa.waddle",
+            false
+          ],
+          [
+            "animation.marisa.exercise_vertical",
+            false
+          ],
+          [
+            "animation.marisa.exercise_sides",
+            false
+          ],
+          [
+            "animation.marisa.puff",
+            true
+          ]
+        ]
+      },
+      "exportMatchesWithinTolerance": true
+    },
+    {
+      "name": "exercise_vertical",
+      "samples": 41,
+      "error": 7.629394573882564e-7,
+      "example": {
+        "name": "hat_tip",
+        "time": 0.13,
+        "axis": 1,
+        "min": [
+          3.0999999046325684,
+          16.893777981469725,
+          -1
+        ],
+        "max": [
+          5.099999904632568,
+          18.093776837060545,
+          1
+        ],
+        "expected": {
+          "min": [
+            3.1,
+            16.8937776,
+            -1
+          ],
+          "max": [
+            5.1,
+            18.093777600000003,
+            1
+          ]
+        },
+        "playing": [
+          [
+            "animation.marisa.stretch",
+            false
+          ],
+          [
+            "animation.marisa.waddle",
+            false
+          ],
+          [
+            "animation.marisa.exercise_vertical",
+            true
+          ],
+          [
+            "animation.marisa.exercise_sides",
+            false
+          ],
+          [
+            "animation.marisa.puff",
+            false
+          ]
+        ]
+      },
+      "exportMatchesWithinTolerance": true
+    },
+    {
+      "name": "exercise_sides",
+      "samples": 41,
+      "error": 7.688749867895694e-7,
+      "example": {
+        "name": "hat_tip",
+        "time": 1.06,
+        "axis": 1,
+        "min": [
+          1.3061875030400063,
+          19.687520035675266,
+          -1
+        ],
+        "max": [
+          3.437522878940431,
+          21.12231296857622,
+          1
+        ],
+        "expected": {
+          "min": [
+            1.3061875047176528,
+            19.687519668671325,
+            -1
+          ],
+          "max": [
+            3.4375230200864726,
+            21.122313737451208,
+            1
+          ]
+        },
+        "playing": [
+          [
+            "animation.marisa.stretch",
+            false
+          ],
+          [
+            "animation.marisa.waddle",
+            false
+          ],
+          [
+            "animation.marisa.exercise_vertical",
+            false
+          ],
+          [
+            "animation.marisa.exercise_sides",
+            true
+          ],
+          [
+            "animation.marisa.puff",
+            false
+          ]
+        ]
+      },
+      "exportMatchesWithinTolerance": true
+    },
+    {
+      "name": "stretch",
+      "samples": 41,
+      "error": 7.629394573882564e-7,
+      "example": {
+        "name": "hat_tip",
+        "time": 0.36,
+        "axis": 1,
+        "min": [
+          3.0999999046325684,
+          16.658188181469725,
+          -1
+        ],
+        "max": [
+          5.099999904632568,
+          17.858187037060546,
+          1
+        ],
+        "expected": {
+          "min": [
+            3.1,
+            16.6581878,
+            -1
+          ],
+          "max": [
+            5.1,
+            17.858187800000003,
+            1
+          ]
+        },
+        "playing": [
+          [
+            "animation.marisa.stretch",
+            true
+          ],
+          [
+            "animation.marisa.waddle",
+            false
+          ],
+          [
+            "animation.marisa.exercise_vertical",
+            false
+          ],
+          [
+            "animation.marisa.exercise_sides",
+            false
+          ],
+          [
+            "animation.marisa.puff",
+            false
+          ]
+        ]
+      },
+      "exportMatchesWithinTolerance": true
+    },
+    {
+      "name": "waddle",
+      "samples": 41,
+      "error": 7.631935261542822e-7,
+      "example": {
+        "name": "hat_tip",
+        "time": 0.6,
+        "axis": 1,
+        "min": [
+          3.076289300343185,
+          16.60832146011223,
+          -1
+        ],
+        "max": [
+          5.0795137759209785,
+          17.813702183182812,
+          1
+        ],
+        "expected": {
+          "min": [
+            3.0762893936555917,
+            16.608321078900723,
+            -1
+          ],
+          "max": [
+            5.079513872315403,
+            17.81370294637634,
+            1
+          ]
+        },
+        "playing": [
+          [
+            "animation.marisa.stretch",
+            false
+          ],
+          [
+            "animation.marisa.waddle",
+            true
+          ],
+          [
+            "animation.marisa.exercise_vertical",
+            false
+          ],
+          [
+            "animation.marisa.exercise_sides",
+            false
+          ],
+          [
+            "animation.marisa.puff",
+            false
+          ]
+        ]
+      },
+      "exportMatchesWithinTolerance": true
+    }
+  ],
+  "status": "passed"
+}
