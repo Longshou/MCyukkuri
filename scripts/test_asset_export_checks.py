@@ -112,6 +112,16 @@ class AssetExportChecks(unittest.TestCase):
                     self.assertRaises((SystemExit, ValueError)):
                 self.run_check(exporter)
 
+    def test_extra_manifest_terminal_newline_is_rejected_and_identified(self):
+        read_bytes = Path.read_bytes
+        manifest = ROOT / 'art/source/rounded-runtime/manifest.json'
+        def extra_newline(path):
+            data = read_bytes(path)
+            return data + b'\n' if path == manifest else data
+        with patch.object(Path, 'read_bytes', extra_newline), self.assertRaisesRegex(
+                SystemExit, r'inputs:art/source/rounded-runtime/manifest\.json'):
+            self.run_check(living)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -93,7 +93,15 @@ def main():
     for path, data in generated.items():
         if args.check:
             if not check_output(path,data):
-                raise SystemExit(f'Living asset export differs: {path.relative_to(ROOT)}')
+                detail = ''
+                if path == SOURCE / 'provenance.json' and path.is_file():
+                    recorded, expected = provenance(path), json.loads(data)
+                    changed = [f'{kind}:{key}' for kind in ('inputs', 'outputs')
+                               for key in sorted(set(recorded.get(kind, {})) | set(expected.get(kind, {})))
+                               if recorded.get(kind, {}).get(key) != expected.get(kind, {}).get(key)]
+                    if changed:
+                        detail = ' (' + ', '.join(changed) + ')'
+                raise SystemExit(f'Living asset export differs: {path.relative_to(ROOT)}{detail}')
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
