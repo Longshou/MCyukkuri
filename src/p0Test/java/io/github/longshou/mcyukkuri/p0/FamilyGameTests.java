@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -40,6 +41,7 @@ public final class FamilyGameTests {
     private net.minecraft.gametest.framework.GameTestSequence sequence;
     private YukkuriEntity a,b,child;
     private FamilyData.Brood pregnancy;
+    private long naturalStartTick;
     private UUID savedId,token;
     private int growthBirthFlags;
     private float growthStartWidth,growthStartHeight;
@@ -238,12 +240,22 @@ public final class FamilyGameTests {
         later(1,"natural court",()-> {
             pregnancy=a.family().brood();check("actual family goal conceives after courtship",pregnancy!=null,a.getBehaviorId()+" / "+a.family().save());
             if(pregnancy==null)return;batches.add(pregnancy);pregnancy.duration=200;pregnancy.elapsed=20;
+            naturalStartTick=helper.getTick();
             life(a,t->t.putFloat("Nutrition",90));life(b,t->t.putFloat("Nutrition",90));
         });
-        later(800,"natural delivery",()-> {
-            check("actual gestation gives birth without a spawn command",pregnancy!=null&&pregnancy.complete(),pregnancy==null?"no brood":pregnancy.unborn()+" elapsed="+pregnancy.elapsed+" behavior="+a.getBehaviorId()+" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save());
+        // Gestation counts eligible ticks, not wall ticks: LIVE delivery pauses for
+        // movement or an occupied outlet and each sibling has its own birthTick.
+        // Observe real completion within the same overall 6000-tick deadline.
+        sequence.thenIdle(800).thenWaitUntil(()->helper.assertTrue(pregnancy!=null&&pregnancy.complete(),
+                "Waiting for actual gestation: "+pregnancyDetails()));
+        later(1,"natural delivery",()-> {
+            check("actual gestation gives birth without a spawn command",pregnancy!=null&&pregnancy.complete(),pregnancyDetails());
             if(pregnancy==null||!pregnancy.complete())return;
             child=(YukkuriEntity)level.getEntity(pregnancy.children.getFirst().id);
+        });
+        sequence.thenWaitUntil(()->helper.assertTrue(child!=null&&!child.family().awaitingLanding(),
+                "Waiting for newborn to land before following: "+(child==null?"missing":child.position())));
+        later(1,"natural newborn landing",()-> {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
             child.moveTo(a.getX()+5,65,a.getZ(),0,0);
             life(child,t->t.putFloat("Nutrition",85));
@@ -251,6 +263,20 @@ public final class FamilyGameTests {
         later(180,"family following",()-> {
             check("child approaches a real parent",child!=null&&Math.min(child.distanceToSqr(a),child.distanceToSqr(b))<9,child==null?"missing":child.position());
         });
+    }
+    private String pregnancyDetails() {
+        if(pregnancy==null)return "no brood";
+        int last=pregnancy.children.size()-1;
+        int next=0;while(next<pregnancy.children.size()&&pregnancy.children.get(next).born)next++;
+        String nextAt=next==pregnancy.children.size()?"complete":String.valueOf(pregnancy.duration
+                +(pregnancy.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.birthTick(next):next*8));
+        int completeAt=pregnancy.duration+(pregnancy.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.birthTick(last):last*8);
+        String outletClear=pregnancy.kind==FamilyData.BirthKind.LIVE&&next<pregnancy.children.size()
+                ?String.valueOf(LiveBirthGeometry.clear(a,pregnancy.children.get(next),next)):"not pending";
+        return "kind="+pregnancy.kind+" observedTicks="+(helper.getTick()-naturalStartTick)+" mother="+a.getVariant()+" children="+pregnancy.children.size()+" unborn="+pregnancy.unborn()
+                +" elapsed="+pregnancy.elapsed+" nextAt="+nextAt+" completeAt="+completeAt
+                +" ready="+a.family().readyForDelivery()+" outletClear="+outletClear+" motion="+a.getDeltaMovement()+" behavior="+a.getBehaviorId()
+                +" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save();
     }
     private void persistence() {
         later(1,"pregnant capture setup",()-> {
