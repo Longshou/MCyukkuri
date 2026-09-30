@@ -5,9 +5,11 @@ Reads art/props/care-facilities/recipe.json and the existing bowl source, never
 edits standard character snapshots. --check compares bytes without writing.
 """
 import argparse
-import hashlib
 import json
+from asset_export_checks import check_output, fingerprints, provenance
 from export_peripheral_assets import owned_paths
+from export_rounded_runtime import presentation as rounded_presentation
+from runtime_model_fingerprint import matches_model_fingerprint
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +19,7 @@ SOURCE = ROOT / 'art/props/care-facilities'
 
 def outputs():
     recipe = json.loads((SOURCE / 'recipe.json').read_text(encoding='utf-8'))
+    previous = provenance(SOURCE / 'provenance.json')
     result = {}
     delegated = owned_paths()
     def emit(path, value):
@@ -50,11 +53,34 @@ def outputs():
         emit(ASSETS / 'blockstates' / (name+'.json'), {'variants':{'':{'model':'mcyukkuri:block/'+name}}})
     for name, texture in {'wash_cloth':'white_wool','yarn_ball':'magenta_wool','yukkuri_waste':'brown_terracotta','teaching_whistle':'copper_block'}.items():
         emit(ASSETS / 'models/item' / (name+'.json'), {'parent':'minecraft:item/generated','textures':{'layer0':'minecraft:block/'+texture}})
+    inputs = {ROOT/path:(ROOT/path).read_bytes() for path in
+              ('art/props/care-facilities/recipe.json',bowl['source_geometry'],bowl['source_texture'])}
+    # The rounded selection owns the ordinary species' mouth anchors. Derive
+    # them from its frozen meshes instead of restoring the historical recipe.
+    manifest_path = ROOT / 'art/source/rounded-runtime/manifest.json'
+    if manifest_path.is_file():
+        manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+        inputs[manifest_path] = manifest_path.read_bytes()
+        for ident, record in manifest['models'].items():
+            if ident not in recipe['presentation']['variants']:
+                continue
+            model_path = (ROOT / record['rig']).parent / 'runtime.model.json'
+            data = model_path.read_bytes()
+            if not matches_model_fingerprint(data, record['runtime_sha256']):
+                raise ValueError(f'Rounded living source fingerprint differs: {ident}')
+            model = json.loads(data)
+            recipe['presentation']['variants'][ident] = rounded_presentation(
+                ident, model, recipe['presentation']['variants'][ident])
+            inputs[model_path] = data
+        selected_path = manifest_path.parent / 'presentation.json'
+        selected = json.loads(selected_path.read_text(encoding='utf-8'))['living']
+        if selected != recipe['presentation']:
+            raise ValueError('Rounded living selection differs from its recipe and source meshes')
+        inputs[selected_path] = selected_path.read_bytes()
     emit(ASSETS / 'yukkuri_presentation/living.json', recipe['presentation'])
     records = {'role':'P1/P2 game integration; standard character shape and source fingerprints unchanged',
-               'inputs':{path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest() for path in
-                         ('art/props/care-facilities/recipe.json',bowl['source_geometry'],bowl['source_texture'])},
-               'outputs':{path.relative_to(ROOT).as_posix():hashlib.sha256(data).hexdigest() for path,data in result.items()}}
+               'inputs':fingerprints(ROOT,inputs,previous.get('inputs',{})),
+               'outputs':fingerprints(ROOT,result,previous.get('outputs',{}))}
     emit(SOURCE / 'provenance.json', records)
     return result
 
@@ -66,7 +92,7 @@ def main():
     generated = outputs()
     for path, data in generated.items():
         if args.check:
-            if not path.is_file() or path.read_bytes() != data:
+            if not check_output(path,data):
                 raise SystemExit(f'Living asset export differs: {path.relative_to(ROOT)}')
         else:
             path.parent.mkdir(parents=True, exist_ok=True)

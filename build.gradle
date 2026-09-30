@@ -41,6 +41,8 @@ neoForge {
         configureEach { loadedMods = [mods.mcyukkuri] }
         p0GameTest {
             type = 'gameTestServer'
+            jvmArgument '-Xmx4G'
+            systemProperty 'mcyukkuri.p0.suite', 'integration'
             gameDirectory = file('.local/p0/gametest')
             loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
             sourceSet = sourceSets.p0Test

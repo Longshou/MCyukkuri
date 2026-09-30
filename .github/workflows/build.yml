@@ -32,6 +32,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install asset validation dependencies
+        run: python -m pip install Pillow==12.3.0
+      - name: Test asset validators
+        shell: bash
+        run: |
+          python scripts/test_runtime_model_fingerprint.py
+          python scripts/test_runtime_atlas.py
+          python scripts/test_validate_entity_assets.py
+          python scripts/test_asset_export_checks.py
+          python scripts/test_operation_exports.py
       - name: Check packaged entity assets
         run: python scripts/validate_entity_assets.py
       - name: Check living facility exports
@@ -47,7 +57,7 @@ jobs:
       - name: Build mod
         run: ./gradlew build --no-daemon
         shell: bash
-      - name: Run entity and living GameTests
+      - name: Run full integration GameTests
         run: ./gradlew runP0GameTest --no-daemon
         shell: bash
       - name: Upload P0 assertions

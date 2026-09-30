@@ -12,9 +12,15 @@ import re
 import struct
 import sys
 
+from runtime_model_fingerprint import matches_model_fingerprint
+
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 IDS = {'reimu', 'marisa', 'house_reimu', 'house_marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre'}
+BASE_EXPRESSIONS = {'neutral', 'happy', 'cry', 'teary', 'drool', 'confused', 'yawn',
+                    'sleep', 'angry', 'surprise', 'sleepy'}
+ROUNDED_EXPRESSIONS = BASE_EXPRESSIONS | {'closed_smile', 'chewing', 'chewing_closed',
+                                         'satisfied', 'open_smile', 'smug', 'puff'}
 
 
 def read(path):
@@ -30,16 +36,72 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def require_text_hash(path, expected, message):
+    require(matches_model_fingerprint(path.read_bytes(), expected), message)
+
+
+def same_text(first, second):
+    # Match the client fingerprint rule: only LF/CRLF conversion is tolerated.
+    return first.read_bytes().replace(b'\r\n', b'\n') == second.read_bytes().replace(b'\r\n', b'\n')
+
+
+def validate_manifest(manifest):
+    # The ledger also registers subspecies and forms, which are not enum variants.
+    require(IDS <= manifest['models'].keys(), 'manifest must register all nine base variants')
+    selected = read(ROOT / manifest['rounded_runtime']['manifest'])
+    for ident in IDS & selected['models'].keys():
+        record, rounded = manifest['models'][ident], selected['models'][ident]
+        for key in ('geometry_identifier', 'selected_model', 'selected_model_sha256',
+                    'selected_rig', 'selected_rig_sha256', 'selected_runtime_sha256',
+                    'snapshot', 'rig', 'runtime', 'runtime_sha256', 'textures'):
+            require(record[key] == rounded[key], f'{ident}: {key} differs from rounded selection')
+
+
+def validate_sources(ident, record, rounded):
+    path = ASSETS / 'yukkuri' / (ident + '.json')
+    require(ROOT / record['runtime'] == path and record['geometry_identifier'] == ident,
+            'selected runtime path or identity differs')
+    snapshot = (ROOT / record['rig']).with_name('runtime.model.json')
+    require(same_text(path, snapshot), 'runtime differs from selected snapshot')
+    require_text_hash(path, record['runtime_sha256'], 'runtime fingerprint drift')
+    require_text_hash(ROOT / record['selected_model'], record['selected_model_sha256'], 'selected model drift; re-export explicitly')
+    require_text_hash(ROOT / record['selected_rig'], record['selected_rig_sha256'], 'selected rig drift')
+    require_text_hash(ROOT / record['snapshot'], record['selected_model_sha256'], 'editable snapshot differs from source')
+    if rounded:
+        source = (ROOT / record['selected_model']).with_name('runtime.model.json')
+        selected = (ROOT / record['snapshot']).parent
+        require_text_hash(source, record['selected_runtime_sha256'], 'selected source runtime drift')
+        require_text_hash(selected / 'runtime.model.json', record['selected_runtime_sha256'], 'selected runtime snapshot drift')
+        require_text_hash(selected / 'animation-rig.json', record['selected_rig_sha256'], 'selected rig snapshot drift')
+    else:
+        require_text_hash(ROOT / record['standard_motion_source'], record['standard_motion_sha256'], 'standard motion drift')
+
+
+def validate_textures(ident, record, model):
+    rounded = model.get('body_profile') == 'rounded_standard_v1'
+    predator = ident in ('remilia', 'flandre')
+    expected = ROUNDED_EXPRESSIONS if rounded else BASE_EXPRESSIONS | ({'biting'} if predator else set())
+    require(set(record['textures']) == expected, 'unexpected expression atlas selection')
+    size = 256 if rounded or predator else 128
+    require(model.get('texture_size', size) == size, 'model texture size differs from selection')
+    for expression, texture in record['textures'].items():
+        output = ROOT / texture['runtime']
+        require(output == ASSETS / 'textures/entity' / ident / (expression + '.png'),
+                f'{expression}: texture runtime path differs')
+        data = output.read_bytes()
+        require(len(data) >= 24 and data[:8] == b'\x89PNG\r\n\x1a\n' and
+                struct.unpack('>II', data[16:24]) == (size, size), 'invalid texture atlas')
+        require(sha(output) == texture['sha256'], f'{expression}: texture drift')
+        require(sha(ROOT / texture['source']) == texture.get('source_sha256', texture['sha256']),
+                f'{expression}: source texture drift')
+        if rounded or 'snapshot' in texture:
+            require(sha(ROOT / texture['snapshot']) == texture['sha256'], f'{expression}: snapshot texture drift')
+
+
 def validate(ident, record, actions):
     path = ASSETS / 'yukkuri' / (ident + '.json')
     model = read(path)
-    snapshot = ROOT / 'art/source/standard-runtime' / ident
-    require(path.read_bytes() == (snapshot / 'runtime.model.json').read_bytes(), 'runtime differs from selected snapshot')
-    require(sha(path) == record['runtime_sha256'], 'runtime fingerprint drift')
-    require(sha(ROOT / record['selected_model']) == record['selected_model_sha256'], 'selected model drift; re-export explicitly')
-    require(sha(ROOT / record['selected_rig']) == record['selected_rig_sha256'], 'selected rig drift')
-    require(sha(ROOT / record['standard_motion_source']) == record['standard_motion_sha256'], 'standard motion drift')
-    require(sha(ROOT / record['snapshot']) == record['selected_model_sha256'], 'editable snapshot differs from source')
+    validate_sources(ident, record, model.get('body_profile') == 'rounded_standard_v1')
     require(model['id'] == ident and model['format'] == 1 and model['units_per_block'] == 16, 'invalid model identity/format')
     require(model['house'] == ident.startswith('house_'), 'variant mismatch')
     bones, verts, weights = model['bones'], model['vertices'], model['weights']
@@ -89,14 +151,7 @@ def validate(ident, record, actions):
             require(len(keys) > 0 and all(len(k) == 4 and all(math.isfinite(x) for x in k) for k in keys), f'{name}: invalid keyframe')
             require(all(a[0] < b[0] for a, b in zip(keys, keys[1:])), f'{name}: unordered keys')
             require(keys[0][0] >= 0 and keys[-1][0] <= duration + 1e-7, f'{name}: keys outside clip')
-    require(len(record['textures']) == (12 if predator else 11), 'unexpected expression atlas count')
-    for expression, texture in record['textures'].items():
-        output = ROOT / texture['runtime']
-        data = output.read_bytes()
-        size=256 if predator else 128
-        require(data[:8] == b'\x89PNG\r\n\x1a\n' and struct.unpack('>II', data[16:24]) == (size, size), 'invalid texture atlas')
-        require(sha(output) == texture['sha256'] == sha(ROOT / texture['source']), f'{expression}: texture drift')
-    require({'neutral', 'happy', 'surprise', 'sleep', 'angry'} <= record['textures'].keys(), 'missing behavior expression')
+    validate_textures(ident, record, model)
     egg = ident + '_spawn_egg'
     require(read(ASSETS / 'models/item' / (egg + '.json'))['parent'] == 'minecraft:item/template_spawn_egg', 'spawn egg model')
     for locale in ('en_us', 'zh_cn'):
@@ -114,7 +169,7 @@ def validate_operation_props(ident):
         require(mesh['vertices'] and len(mesh['vertices']) % 24 == 0 and all(math.isfinite(v) for v in mesh['vertices']), f'{name}: invalid geometry')
         require((ASSETS / 'textures/props' / (name + '.png')).is_file(), f'{name}: missing texture')
         selected = ROOT / 'art/props/operation-tools/selected' / name / (name + '.mesh.json')
-        require(sha(selected) == sha(ASSETS / 'yukkuri_props' / (name + '.json')), f'{name}: selected mesh drift')
+        require(same_text(selected, ASSETS / 'yukkuri_props' / (name + '.json')), f'{name}: selected mesh drift')
         if name.startswith('restraint_frame_'):
             require(math.isfinite(mesh['body_lift']) and mesh['body_lift'] > 0, f'{name}: invalid support height')
         if name.startswith('wrap_sling_'):
@@ -124,7 +179,7 @@ def validate_operation_props(ident):
 def main():
     errors = []
     manifest = read(ROOT / 'art/runtime-sources.json')
-    require(set(manifest['models']) == IDS, 'manifest must register all nine variants')
+    validate_manifest(manifest)
     for name in ('living', 'family'):
         presentation = read(ASSETS / 'yukkuri_presentation' / (name + '.json'))
         require(set(presentation['variants']) == IDS, f'{name}: missing variant presentation')

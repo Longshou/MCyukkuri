@@ -9,9 +9,10 @@
     "food_scrap": "minecraft:item/bread",
     "leaked_filling": "minecraft:item/cocoa_beans",
     "bandage": "minecraft:item/paper",
-    "herbal_medicine": "minecraft:item/dried_kelp",
-    "yukkuri_remains": "minecraft:item/bundle"
+    "herbal_medicine": "minecraft:item/dried_kelp"
   },
+  "item_models": {"yukkuri_remains": "art/props/house-care/yukkuri_remains.item.json"},
+  "item_models_note": "Selected current RemainsRenderer item configuration; no new art geometry or standard approval.",
   "presentation": {"nest_lining": "minecraft:wheat", "eggs": "minecraft:egg", "egg_scale": 0.22, "egg_count_max": 4},
   "recipes": {
     "food_scrap": {"ingredients": ["minecraft:bread"], "count": 4},
