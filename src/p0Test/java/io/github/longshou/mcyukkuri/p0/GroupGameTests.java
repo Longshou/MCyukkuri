@@ -23,10 +23,21 @@ public final class GroupGameTests {
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     private static void floor(ServerLevel level,int start){
         for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)level.setChunkForced(chunk,0,true);
+        // Entity-ticking chunks need FULL neighbors within two chunks. Finish
+        // their normal generation before waiting on the uncapped test clock.
+        for(int chunk=(start>>4)-2;chunk<=((start+31)>>4)+2;chunk++)
+            for(int z=-2;z<=2;z++)level.getChunk(chunk,z);
         for(int x=start;x<start+32;x++)for(int z=0;z<12;z++){
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());
             for(int y=65;y<70;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
         }
+    }
+    private static void chunksReady(GameTestHelper helper,int start){
+        var level=helper.getLevel();
+        for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)helper.assertTrue(
+                level.isPositionEntityTicking(new BlockPos(chunk*16+8,65,5)),
+                "Waiting for group fixture chunk "+chunk+",0; forced="
+                        +level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(chunk,0)));
     }
     private static void clean(ServerLevel level,int start){
         level.getEntitiesOfClass(Entity.class,new AABB(start,63,0,start+32,71,12),e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
@@ -41,7 +52,7 @@ public final class GroupGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=500,batch="group_rules")
     public static void groupRules(GameTestHelper helper){
         var test=new GroupGameTests();var level=helper.getLevel();floor(level,1296);
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(1302,65,5)),"waiting for group area"))
+        helper.startSequence().thenWaitUntil(()->chunksReady(helper,1296))
         .thenExecute(()->{
             try{test.rules(level);}catch(Throwable e){test.check("unexpected "+e,false);}finally{clean(level,1296);}
             P0Control.write("group-rule-checks",test.checks);var failures=test.checks.stream().filter(c->!c.pass).toList();
@@ -97,7 +108,7 @@ public final class GroupGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=600,batch="group_live")
     public static void liveBout(GameTestHelper helper){
         var test=new GroupGameTests();var level=helper.getLevel();floor(level,1344);var pair=new YukkuriEntity[2];
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(1350,65,5)),"waiting for live group area"))
+        helper.startSequence().thenWaitUntil(()->chunksReady(helper,1344))
         .thenExecute(()->{pair[0]=test.spawn(level,1350.5,true);pair[1]=test.spawn(level,1351.2,true);test.friend(level,pair[0],pair[1]);
             helper.assertTrue(pair[0].groupInteraction().challenge(pair[1]),"live bout starts");})
         .thenIdle(210).thenExecute(()->{
