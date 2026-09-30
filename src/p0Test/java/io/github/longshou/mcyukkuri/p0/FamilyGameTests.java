@@ -138,6 +138,19 @@ public final class FamilyGameTests {
             int small=0,big=0;for(int seed=0;seed<1000;seed++){small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);}
             check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
         });
+        later(1,"recorded bean-body birth",()-> {
+            pair();var data=FamilyData.get(level);var brood=conceive(1);
+            // Exercise the rare congenital branch deterministically, without changing production odds.
+            brood.children.getFirst().subspeciesFlags=3<<4;
+            brood.elapsed=brood.duration+40;
+            var baby=data.birth(brood,0,level,new Vec3(176.5,65,27.5));
+            check("recorded bean newborn retains ancestry and narrower juvenile bounds",baby!=null
+                    &&baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
+                    &&io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
+                    &&baby.family().stage()==FamilyLife.Stage.JUVENILE
+                    &&Math.abs(baby.growthScale()-.3)<.001&&Math.abs(baby.getBbWidth()-.1845)<.001,
+                    baby==null?"birth failed":baby.subspecies().save()+" width="+baby.getBbWidth());
+        });
         for(int wanted=1;wanted<=5;wanted++) {
             int count=wanted;
             later(1,"birth count "+count,()-> {
@@ -153,8 +166,12 @@ public final class FamilyGameTests {
                 for(int i=0;i<count;i++) {
                     var baby=data.birth(brood,i,level,new Vec3(176.5+i,65,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
                     baby.setNoAi(true);
+                    // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
+                    float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
+                            ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*.3f:.24f;
                     check(count+" child "+i+" has actual parents and juvenile bounds",baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
-                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-.24)<.001&&Math.abs(baby.growthScale()-.3)<.001,baby.family().save());
+                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-expectedWidth)<.001&&Math.abs(baby.growthScale()-.3)<.001,
+                            java.util.Map.of("family",baby.family().save(),"model",baby.subspecies().assetId(),"width",baby.getBbWidth(),"expectedWidth",expectedWidth));
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;
                 }
@@ -209,10 +226,16 @@ public final class FamilyGameTests {
     }
     private void natural() {
         later(1,"natural court setup",()-> {
-            pair();if(a.getUUID().compareTo(b.getUUID())>0){var swap=a;a=b;b=swap;}
+            pair();pregnancy=null;child=null;
+            if(a.getUUID().compareTo(b.getUUID())>0){var swap=a;a=b;b=swap;}
             a.setNoAi(false);b.setNoAi(false);a.family().introduce(b);
         });
-        later(220,"natural court",()-> {
+        // Courtship includes real navigation. Observe conception instead of assuming
+        // it always finishes exactly 220 ticks after both goals become available.
+        // The unchanged overall 6000-tick GameTest deadline still catches failure.
+        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null,
+                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()));
+        later(1,"natural court",()-> {
             pregnancy=a.family().brood();check("actual family goal conceives after courtship",pregnancy!=null,a.getBehaviorId()+" / "+a.family().save());
             if(pregnancy==null)return;batches.add(pregnancy);pregnancy.duration=200;pregnancy.elapsed=20;
             life(a,t->t.putFloat("Nutrition",90));life(b,t->t.putFloat("Nutrition",90));

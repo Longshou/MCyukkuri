@@ -104,8 +104,8 @@ public final class SubspeciesGameTests {
         for(var id:io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS){
             var mesh=io.github.longshou.mcyukkuri.body.WoundSurface.get(id);
             try(var in=io.github.longshou.mcyukkuri.body.WoundSurface.class.getResourceAsStream("/assets/mcyukkuri/yukkuri/"+id+".json")){
-                var hash=java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(in.readAllBytes()));
-                check(id+" wound surface matches model",hash.equals(mesh.runtimeSourceHash));
+                var hash=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(in.readAllBytes());
+                check(id+" wound surface matches model",hash.matches(mesh.runtimeSourceHash));
             }catch(Exception ex){throw new IllegalStateException(ex);}
             float low=Float.MAX_VALUE,high=-Float.MAX_VALUE;
             for(int i=0;i<mesh.skinCount;i++){low=Math.min(low,mesh.points[i*5+1]);high=Math.max(high,mesh.points[i*5+1]);}

@@ -28,8 +28,10 @@ public final class PredatorGameTests {
     private net.minecraft.world.entity.item.ItemEntity portion;
     private double startX,maxY,startDistance,maxHuntX,minHuntDistance;
     private int approachTick=-1;
-    private boolean flew,frightened,bit,flandreFlew,crossedObstacle,approached;
+    private boolean flew,frightened,bit,flandreFlew,crossedObstacle,approached,flandreReleased,flandreSpentFlightEnergy;
+    private float flandreFlightEnergy=Float.NaN;
     private final List<Map<String,Object>> trace=new ArrayList<>();
+    private final List<Map<String,Object>> flandreTrace=new ArrayList<>();
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="predators")
     public static void predatorAcceptance(GameTestHelper h){
@@ -37,7 +39,19 @@ public final class PredatorGameTests {
         for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)l.setChunkForced(x,z,true);
         h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+50,65,15)),"Waiting for predator arena"))
             .thenExecute(()->{try{t.setup(l);t.rules(l);t.live(l);}catch(Throwable e){t.check("Setup: "+e,false);}})
-            .thenExecuteFor(400,()->{if(t.hunter!=null){t.flew|=t.hunter.predatorFlying();t.maxY=Math.max(t.maxY,t.hunter.getY());
+            .thenExecuteFor(400,()->{if(t.hunter!=null){
+                if(!t.flandreReleased&&t.flier.tickCount>=160){
+                    t.check("Flandre patrol starts from the prepared clear launch area",
+                        t.flier.position().distanceToSqr(new Vec3(X+36,65,20))<.01
+                        &&t.flier.family().adult()&&!t.flier.life().hasUrgentNeed()
+                        &&t.flier.life().energy()>45&&!l.isNight()&&!l.isRaining());
+                    t.flier.setNoAi(false);t.flandreReleased=true;
+                }
+                if(t.flier.predatorFlying()){
+                    if(Float.isNaN(t.flandreFlightEnergy))t.flandreFlightEnergy=t.flier.life().energy();
+                    else t.flandreSpentFlightEnergy|=t.flier.life().energy()<t.flandreFlightEnergy;
+                }
+                t.flew|=t.hunter.predatorFlying();t.maxY=Math.max(t.maxY,t.hunter.getY());
                 t.crossedObstacle|=t.hunter.predatorFlying()&&t.hunter.getX()>X+9&&t.hunter.getY()>65.5;
                 // A successful bite ends the pursuit and may send the hunter back past its
                 // starting point. Require actual forward progress AND reduced separation
@@ -52,6 +66,7 @@ public final class PredatorGameTests {
                     }
                 }
                 t.frightened|=t.prey.isPanicking();t.bit|=t.prey.getHealth()<t.prey.getMaxHealth();t.flandreFlew|=t.flier.predatorFlying();
+                if(t.flier.tickCount%20==0)t.flandreTrace.add(t.flandreState(l));
                 if(t.hunter.tickCount%20==0)t.trace.add(Map.of("tick",t.hunter.tickCount,"hunter",t.hunter.position().toString(),"prey",t.prey.position().toString(),"task",task,"distance",t.hunter.distanceTo(t.prey),"health",t.prey.getHealth(),"energy",t.hunter.life().energy(),"lineOfSight",t.hunter.hasLineOfSight(t.prey),"crossedObstacle",t.crossedObstacle,"approached",t.approached));}})
             .thenExecute(()->{
                 try{
@@ -61,12 +76,14 @@ public final class PredatorGameTests {
                     t.check("Nearby wild prey receives an escape response",t.frightened);
                     t.check("Actual pursuit reaches a bite",t.bit);
                     t.check("Flight consumes finite energy",t.hunter.life().energy()<90);
-                    t.check("Flandre also uses finite flight",t.flandreFlew&&t.flier.getY()<75);
+                    t.check("Flandre also uses finite flight (observed="+t.flandreFlew+", state="+t.flandreState(l)+")",t.flandreFlew&&t.flier.getY()<75);
+                    t.check("Flandre real flight consumes finite energy",t.flandreSpentFlightEnergy);
                     t.check("Scavenging consumes one actual portion and grants its nutrition (removed="+t.portion.isRemoved()+", food="+t.scavenger.life().nutrition()+", meal="+t.scavenger.life().mealTicks()+")",t.portion.isRemoved()&&t.scavenger.life().nutrition()>25);
                     t.check("Prey physically escapes away from its start",t.prey.position().distanceToSqr(new Vec3(X+12,65,20))>1);
                     t.hunter.predator().stop();t.check("Interrupt restores gravity and ground navigation",!t.hunter.predatorFlying()&&!t.hunter.isNoGravity()&&t.hunter.getNavigation() instanceof net.minecraft.world.entity.ai.navigation.GroundPathNavigation);
                 }catch(Throwable e){t.check("Live: "+e,false);}
                 P0Control.write("predator-checks",t.checks);P0Control.write("predator-trace",t.trace);
+                P0Control.write("predator-flandre-trace",t.flandreTrace);
                 P0Control.write("predator-live",Map.of("flew",t.flew,"maxY",t.maxY,"bit",t.bit,"frightened",t.frightened,
                     "hunter",t.hunter==null?"missing":t.hunter.position().toString(),"prey",t.prey==null?"missing":t.prey.position().toString(),
                     "approached",t.approached,"approachTick",t.approachTick,"maxHuntX",t.maxHuntX,"minHuntDistance",t.minHuntDistance));
@@ -75,6 +92,22 @@ public final class PredatorGameTests {
                 for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)l.setChunkForced(x,z,false);
                 var failures=t.checks.stream().filter(c->!c.pass).toList();if(failures.isEmpty())h.succeed();else h.fail(failures.toString());
             });
+    }
+    private Map<String,Object> flandreState(ServerLevel l){
+        var state=new LinkedHashMap<String,Object>();
+        state.put("tick",flier.tickCount);state.put("position",flier.position().toString());
+        state.put("flying",flier.predatorFlying());state.put("task",flier.predator().activity());
+        state.put("lifeTask",flier.life().activity());state.put("familyTask",flier.family().activity());
+        state.put("brood",flier.family().brood()!=null);state.put("adult",flier.family().adult());
+        state.put("energy",flier.life().energy());state.put("nutrition",flier.life().nutrition());
+        state.put("wetness",flier.life().wetness());state.put("urgentNeed",flier.life().hasUrgentNeed());
+        state.put("panicking",flier.isPanicking());state.put("inWater",flier.isInWaterOrBubble());
+        state.put("sleeping",flier.life().isSleeping());state.put("mealTicks",flier.life().mealTicks());
+        state.put("night",l.isNight());state.put("raining",l.isRaining());
+        state.put("entityTicking",l.isPositionEntityTicking(flier.blockPosition()));
+        state.put("noAi",flier.isNoAi());state.put("alive",flier.isAlive());
+        state.put("onGround",flier.onGround());state.put("noGravity",flier.isNoGravity());
+        return state;
     }
     private void setup(ServerLevel l){
         l.setDayTime(6000);l.updateSkyBrightness();l.setWeatherParameters(60000,0,false,false);
@@ -149,6 +182,11 @@ public final class PredatorGameTests {
         check("Low obstacle keeps a real collision surface",!l.getBlockState(new BlockPos(X+8,65,20)).getCollisionShape(l,new BlockPos(X+8,65,20)).isEmpty());
         check("Live pursuit starts with visible eligible prey",hunter.hasLineOfSight(prey)&&hunter.predator().wantsHunt()&&hunter.predator().mayHunt(prey));
         flier=create(l,YukkuriVariant.FLANDRE,36,20,80);
+        // Patrol has an initial 160-tick wait. Keep its starting prerequisites fixed
+        // during that wait, rather than letting unrelated ground AI wander before
+        // the first random flight destination is selected. PredatorLife's clock
+        // still advances with no AI; after release the real goal owns all movement.
+        flier.setNoAi(true);
         scavenger=create(l,YukkuriVariant.FLANDRE,55,20,25);
         portion=new net.minecraft.world.entity.item.ItemEntity(l,X+55.6,65,20,io.github.longshou.mcyukkuri.body.FillingResource.portion(prey,"predation"));
         portion.setNoPickUpDelay();l.addFreshEntity(portion);

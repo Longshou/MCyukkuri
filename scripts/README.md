@@ -1,5 +1,9 @@
 # 项目脚本
 
+`python scripts/test_runtime_atlas.py` 检查原生方块／物品模型引用的模组贴图是否存在，并核对 `textures/props/` 已通过 `assets/minecraft/atlases/blocks.json` 加入方块图集；真实客户端重载后仍须检查缺图警告与实际外观。
+
+跨平台模型指纹通过 `runtime_model_fingerprint.py` 比较原始、LF 和 CRLF 三种字节表示；Java 客户端及 GameTest 使用相同的 `ModelFingerprint` 规则。只容忍换行转换，不忽略模型数值、空格、字段顺序或结尾换行的变化。保留已有导出指纹，避免仅因跨平台检出而更换存档中的表面标识。`python scripts/test_runtime_model_fingerprint.py` 核对换行兼容、内容漂移拒绝及19种已打包模型、23组脱下帽饰的徽章挂接资源；Gradle `check` 同时运行 `verifyModelFingerprint`。
+
 灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑；`preview_reimu_deficient.py` 生成当前四视图和动作检查，页面检查用 `node scripts/verify_marisa_deficient_browser.cjs reimu`。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
 
 人工试玩使用[实验地图](../docs/EXPERIMENTAL_MAP.md)：`build_experimental_map.py` 在 `.local/experimental-map/` 生成全新世界的数据包和元数据，再由游戏完成16区场地落地；`launch_experimental_map.ps1` 读取固定运行清单，直接进入 `run/saves/MCyukkuri-Lab/`。根目录 `启动实验地图.cmd` 是双击入口，不重新构建，不覆盖既有存档。

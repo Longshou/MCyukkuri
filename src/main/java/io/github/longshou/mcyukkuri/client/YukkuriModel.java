@@ -32,7 +32,7 @@ public final class YukkuriModel {
     private final Map<String,List<ExpressionPatch>> expressionPatches=new HashMap<>();
     private List<ExpressionPatch> activePatches=List.of();
     private final String id;
-    private final String sourceHash;
+    private final io.github.longshou.mcyukkuri.body.ModelFingerprint sourceHash;
     private boolean warnedWoundMismatch;
     private JsonObject badgeMount;
     private final Binding[] bindings;
@@ -214,8 +214,8 @@ public final class YukkuriModel {
         assetIds.addAll(io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS);
         for (String id : assetIds) {
             try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri/" + id + ".json")).open()) {
-                byte[] bytes=stream.readAllBytes();String hash;
-                try{hash=java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));}catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
+                byte[] bytes=stream.readAllBytes();
+                var hash=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(bytes);
                 loaded.put(id, new YukkuriModel(JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject(),hash));
             } catch (IOException error) {
                 throw new UncheckedIOException("Cannot load Yukkuri model " + id, error);
@@ -227,9 +227,9 @@ public final class YukkuriModel {
             Map<String,JsonObject> props=new HashMap<>();
             for(var entry:data.getAsJsonObject("detached").entrySet()) {
                 try(var prop=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_props/"+entry.getKey()+".json")).open()) {
-                    String hash=java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(prop.readAllBytes()));
-                    if(hash.equals(entry.getValue().getAsJsonObject().get("model_sha256").getAsString()))props.put(entry.getKey(),entry.getValue().getAsJsonObject());
-                } catch(java.security.NoSuchAlgorithmException impossible) {throw new IllegalStateException(impossible);}
+                    var fingerprint=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(prop.readAllBytes());
+                    if(fingerprint.matches(entry.getValue().getAsJsonObject().get("model_sha256").getAsString()))props.put(entry.getKey(),entry.getValue().getAsJsonObject());
+                }
             }
             detachedBadges=Map.copyOf(props);
             for(var entry:loaded.entrySet()) {
@@ -237,7 +237,7 @@ public final class YukkuriModel {
                 if(mount==null)continue;
                 int first=mount.get("triangle").getAsInt();
                 boolean belongs=model.parts.stream().anyMatch(p->p.name.equals(mount.get("part").getAsString())&&first>=p.start&&first+3<=p.start+p.count);
-                if(model.sourceHash.equals(mount.get("model_sha256").getAsString())&&belongs)model.badgeMount=mount;
+                if(model.sourceHash.matches(mount.get("model_sha256").getAsString())&&belongs)model.badgeMount=mount;
                 else org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Badge attachment disabled for incompatible accessory geometry: {}",entry.getKey());
             }
         } catch(IOException error) { throw new UncheckedIOException("Cannot load badge mounts",error); }
@@ -246,7 +246,7 @@ public final class YukkuriModel {
         models = Map.copyOf(loaded);
     }
 
-    private YukkuriModel(JsonObject data,String hash) {
+    private YukkuriModel(JsonObject data,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) {
         sourceHash=hash;
         id = data.get("id").getAsString();
         if (data.get("format").getAsInt() != 1 || data.get("units_per_block").getAsInt() != 16)
@@ -451,7 +451,7 @@ public final class YukkuriModel {
         }
     }
 
-    public boolean woundGeometryCompatible(){return sourceHash.equals(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
+    public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,
             net.minecraft.client.renderer.MultiBufferSource buffers){

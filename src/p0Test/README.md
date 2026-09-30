@@ -1,5 +1,7 @@
 # 实体与生活游戏验收夹具
 
+跨平台回归：模型来源指纹只容忍 LF／CRLF 换行差异，真实内容变化仍须失败。群落返回测试在计时前加载实体 tick 所需的相邻 FULL 区块，不缩短实际寻路距离；家庭测试按正常／豆形幼体分别核对碰撞宽度，并包含确定性的豆形出生用例，避免将合法的低概率亚种误报为失败。自然求偶检查等待真实受孕状态，仍受原有6000 tick总时限约束；捕食种巡飞先固定初始等待期间的起点，再交给真实AI移动，并核对飞行耗能。
+
 `mcyukkuri.p0.suite=remains` 注册 `RemainsGameTests`、`WoundGameTests` 与 `CoreGameTests`，检查真实扣血后的轻伤／致命伤、死亡点遗体、身份与伤口保存、主动搬运、放下及铲子安葬。`RemainsPreview` 通过 `remains-setup/view/state/item` 提供本轮客户端近景。实现、固定产物与验收见[受伤与遗体](../../docs/INJURIES_AND_REMAINS.md)。
 
 遗体专项已覆盖 19 种运行形态及偏离面部中心的实际命中；放下测试经过 `ServerPlayerGameMode.useItemOn`，分别检查生存模式、创造模式及空间受阻。客户端用 `remains-prepare-collect` 准备目标，再通过 `interact`、`block-interact` 发送实际交互包；`remains-client` 核对快照，`remains-render-check` 验证实际物品渲染器的四种显示场景，`remains-inventory` 打开物品栏。

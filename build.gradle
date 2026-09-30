@@ -91,6 +91,16 @@ neoForge {
 
 tasks.named('check') { dependsOn tasks.named('compileP0TestJava') }
 
+sourceSets { fingerprintTest }
+dependencies { fingerprintTestImplementation sourceSets.main.output }
+def verifyModelFingerprint = tasks.register('verifyModelFingerprint', JavaExec) {
+    dependsOn tasks.named('fingerprintTestClasses')
+    classpath = sourceSets.fingerprintTest.runtimeClasspath
+    mainClass = 'io.github.longshou.mcyukkuri.body.ModelFingerprintTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifyModelFingerprint }
+
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [
         mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,

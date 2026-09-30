@@ -1,4 +1,5 @@
 """Verify selected source, output fingerprints and finite shared skin data without modifying them."""
+from runtime_model_fingerprint import matches_model_fingerprint
 import gzip,hashlib,json,math
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ def main():
         assert sha(m['runtime_source'])==m['source_sha256']
         assert sha(m['output'])==m['output_sha256']
         with gzip.open(ROOT/m['output'],'rt') as f:data=json.load(f)
-        assert data['runtimeSourceHash']==m['source_sha256']
+        assert matches_model_fingerprint((ROOT/m['runtime_source']).read_bytes(),data['runtimeSourceHash'])
         assert len(data['points'])==len(data['weights'])*5 and data['skinCount']%3==0
         assert all(math.isfinite(x) for x in data['points'])
         assert all(all(0<=b<len(data['bones']) and math.isfinite(w) and w>=0 for b,w in weights) and abs(sum(w for b,w in weights)-1)<.00002 for weights in data['weights'])
