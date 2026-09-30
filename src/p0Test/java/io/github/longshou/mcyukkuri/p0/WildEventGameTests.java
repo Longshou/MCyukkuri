@@ -57,7 +57,7 @@ public final class WildEventGameTests {
     public static void acceptance(GameTestHelper helper) {
         var t=new WildEventGameTests();t.level=helper.getLevel();t.setup();
         var sequence=helper.startSequence().thenWaitUntil(() -> {
-            for(int i=0;i<SLOTS;i++)helper.assertTrue(t.level.isPositionEntityTicking(new BlockPos(X+i*48+8,65,8)),"waiting for event fixture chunks");
+            for(int i=0;i<SLOTS;i++)GameTestChunks.assertTicking(helper,(X+i*48)/16,(X+i*48)/16+1,0,0);
         }).thenExecute(() -> t.run("data",t::dataRules))
                 .thenExecute(() -> t.run("kinship",t::kinshipRules))
                 .thenExecute(() -> t.run("feeding",t::feedingRules))
@@ -102,7 +102,7 @@ public final class WildEventGameTests {
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false,level.getServer());
         level.setDayTime(6000);level.setWeatherParameters(24000,0,false,false);
         for(int i=0;i<SLOTS;i++) {
-            int x=X+i*48;level.setChunkForced(x/16,0,true);level.setChunkForced(x/16+1,0,true);
+            int x=X+i*48;GameTestChunks.setForced(level,x/16,0,true);GameTestChunks.setForced(level,x/16+1,0,true);
             for(int dx=0;dx<24;dx++)for(int z=0;z<16;z++) {
                 level.setBlockAndUpdate(new BlockPos(x+dx,64,z),Blocks.STONE.defaultBlockState());
                 for(int y=65;y<71;y++)level.setBlockAndUpdate(new BlockPos(x+dx,y,z),Blocks.AIR.defaultBlockState());
@@ -440,5 +440,5 @@ public final class WildEventGameTests {
             java.util.Map.entry("scene",WildEvents.activity(e)),java.util.Map.entry("noai",e.isNoAi()),java.util.Map.entry("day",level.isDay())));
         P0Control.write("wild-debug-"+name,values);
     }
-    private void cleanup(){for(var a:actors)if(a!=null)a.discard();player.discard();otherPlayer.discard();for(int i=0;i<SLOTS;i++){level.setChunkForced((X+i*48)/16,0,false);level.setChunkForced((X+i*48)/16+1,0,false);}}
+    private void cleanup(){for(var a:actors)if(a!=null)a.discard();player.discard();otherPlayer.discard();for(int i=0;i<SLOTS;i++){GameTestChunks.setForced(level,(X+i*48)/16,0,false);GameTestChunks.setForced(level,(X+i*48)/16+1,0,false);}}
 }

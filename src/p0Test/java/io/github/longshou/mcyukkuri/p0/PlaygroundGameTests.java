@@ -25,7 +25,7 @@ public final class PlaygroundGameTests {
     private final List<Check> checks=new ArrayList<>();
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     private static void floor(ServerLevel level,int start){
-        for(int chunk=start>>4;chunk<=(start+79)>>4;chunk++)level.setChunkForced(chunk,0,true);
+        for(int chunk=start>>4;chunk<=(start+79)>>4;chunk++)GameTestChunks.setForced(level,chunk,0,true);
         level.getEntitiesOfClass(Entity.class,new AABB(start,63,0,start+80,73,16),e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
         for(int x=start;x<start+80;x++)for(int z=0;z<16;z++){
             for(int y=65;y<72;y++)level.removeBlock(new BlockPos(x,y,z),false);
@@ -41,13 +41,13 @@ public final class PlaygroundGameTests {
     private void finish(GameTestHelper helper,String file,int start){
         P0Control.write(file,checks);
         helper.getLevel().getEntitiesOfClass(YukkuriEntity.class,new AABB(start,63,0,start+80,73,16)).forEach(Entity::discard);
-        for(int chunk=start>>4;chunk<=(start+79)>>4;chunk++)helper.getLevel().setChunkForced(chunk,0,false);
+        for(int chunk=start>>4;chunk<=(start+79)>>4;chunk++)GameTestChunks.setForced(helper.getLevel(),chunk,0,false);
         var failed=checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="play_rules")
     public static void rules(GameTestHelper helper){
         var test=new PlaygroundGameTests();var level=helper.getLevel();floor(level,1600);
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(1605,65,8)),"waiting for physical playground area"))
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,1600>>4,(1600+79)>>4,0,0))
         .thenExecute(()->{
             try{
                 var root=new BlockPos(1610,65,8);
@@ -87,7 +87,7 @@ public final class PlaygroundGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=900,batch="play_live")
     public static void routes(GameTestHelper helper){
         var test=new PlaygroundGameTests();var level=helper.getLevel();floor(level,1696);var entities=new ArrayList<YukkuriEntity>();var trace=new ArrayList<Object>();
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(1700,65,8)),"waiting for real playground route area"))
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,1696>>4,(1696+79)>>4,0,0))
         .thenExecute(()->{
             int i=0;for(var kind:PlayBlock.Kind.values()){
                 var root=new BlockPos(1702+i*12,65,8);var facility=PlayItem.place(level,root,kind,Direction.SOUTH);if(kind==PlayBlock.Kind.POOL)facility.fill();

@@ -53,7 +53,7 @@ public final class ShelterGameTests {
             level.setDayTime(previousDay);
             level.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT).set(previousDaylight,level.getServer());
             level.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING).set(previousGrief,level.getServer());
-            for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,previousForced.contains(net.minecraft.world.level.ChunkPos.asLong(x,z)));
+            for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,previousForced.contains(net.minecraft.world.level.ChunkPos.asLong(x,z)));
         };
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info){}
@@ -62,7 +62,7 @@ public final class ShelterGameTests {
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner){}
         });
         daylightFixture(level);
-        for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,true);
+        for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,true);
         var previous=ShelterBlock.shelter(level,ORIGIN);if(previous!=null)previous.rollback();
         for(int x=944;x<992;x++)for(int z=-16;z<32;z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.GRASS_BLOCK.defaultBlockState());
@@ -82,7 +82,7 @@ public final class ShelterGameTests {
                 "lining",home[0].lining(),"plant",level.getBlockState(outside).toString(),
                 "navigationDone",worker.getNavigation().isDone(),"wanted",new Vec3(worker.getMoveControl().getWantedX(),worker.getMoveControl().getWantedY(),worker.getMoveControl().getWantedZ()).toString()));
         });
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(ORIGIN),"Waiting for resource fixture")).thenIdle(20)
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,59,61,-1,1)).thenIdle(20)
             .thenExecute(()->{
                 level.getEntitiesOfClass(Entity.class,new AABB(ORIGIN).inflate(22),e->e instanceof YukkuriEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
                 level.setDayTime(1000);
@@ -137,13 +137,13 @@ public final class ShelterGameTests {
     public static void shelterAcceptance(GameTestHelper helper) {
         var level=helper.getLevel();var test=new ShelterGameTests();
         daylightFixture(level);
-        for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,true);
+        for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,true);
         var previous=ShelterBlock.shelter(level,ORIGIN);if(previous!=null)previous.rollback();
         for(int x=944;x<992;x++)for(int z=-16;z<32;z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.GRASS_BLOCK.defaultBlockState());
             for(int y=65;y<70;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
         }
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(ORIGIN),"Waiting for shelter fixture"))
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,59,61,-1,1))
             .thenExecute(()->{
                 try{
                     level.getEntitiesOfClass(Entity.class,new AABB(ORIGIN).inflate(22),e->e instanceof YukkuriEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
@@ -152,7 +152,7 @@ public final class ShelterGameTests {
                 finally {
                     var home=ShelterBlock.shelter(level,ORIGIN);if(home!=null)home.rollback();
                     level.getEntitiesOfClass(YukkuriEntity.class,new AABB(ORIGIN).inflate(20)).forEach(Entity::discard);
-                    for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,false);
+                    for(int x=59;x<=61;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,false);
                 }
                 P0Control.write("shelter-checks",test.checks);
                 var failed=test.checks.stream().filter(c->!c.pass).toList();

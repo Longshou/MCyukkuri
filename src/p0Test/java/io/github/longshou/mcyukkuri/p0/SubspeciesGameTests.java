@@ -36,12 +36,12 @@ public final class SubspeciesGameTests {
             .thenExecute(()->{
                 P0Control.write("subspecies-checks",t.checks);
                 t.level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,80,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity).forEach(Entity::discard);
-                t.level.setChunkForced(X/16,0,false);
+                GameTestChunks.setForced(t.level,X/16,0,false);
                 var failed=t.checks.stream().filter(c->!c.pass()).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
             });
     }
     private void setup(){
-        level.setChunkForced(X/16,0,true);
+        GameTestChunks.setForced(level,X/16,0,true);
         for(var p:BlockPos.betweenClosed(X,64,0,X+15,69,15))level.setBlockAndUpdate(p,p.getY()==64?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
         for(var p:BlockPos.betweenClosed(X,65,0,X+15,65,15))level.setBlockAndUpdate(p,Blocks.GRASS_BLOCK.defaultBlockState());
         for(var p:BlockPos.betweenClosed(X+5,65,5,X+11,65,9))level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState());

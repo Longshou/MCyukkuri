@@ -107,19 +107,21 @@ public final class P0Server {
         P0Server fixture = new P0Server();
         fixture.level = helper.getLevel(); fixture.server = fixture.level.getServer();
         fixture.setup(); fixture.buildChecks();
-        long at = 1;
-        for (Step step : fixture.steps) {
-            at += step.delay;
-            helper.runAtTickTime(at, () -> {
-                try { step.run.run(); }
-                catch (Throwable error) { fixture.checks.add(new Check(step.name, false, error.toString())); }
-                P0Control.write("server-checks", fixture.checks);
+        helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper, -1, 2, -1, 2)).thenExecute(() -> {
+            long at = helper.getTick() + 1;
+            for (Step step : fixture.steps) {
+                at += step.delay;
+                helper.runAtTickTime(at, () -> {
+                    try { step.run.run(); }
+                    catch (Throwable error) { fixture.checks.add(new Check(step.name, false, error.toString())); }
+                    P0Control.write("server-checks", fixture.checks);
+                });
+            }
+            helper.runAtTickTime(at + 1, () -> {
+                var failures = fixture.checks.stream().filter(c -> !c.pass).toList();
+                if (failures.isEmpty()) helper.succeed();
+                else helper.fail(failures.size() + " checks failed; first: " + failures.getFirst().name + "; details in p0-control/server-checks.json");
             });
-        }
-        helper.runAtTickTime(at + 1, () -> {
-            var failures = fixture.checks.stream().filter(c -> !c.pass).toList();
-            if (failures.isEmpty()) helper.succeed();
-            else helper.fail(failures.size() + " checks failed; first: " + failures.getFirst().name + "; details in p0-control/server-checks.json");
         });
     }
 
@@ -272,7 +274,7 @@ public final class P0Server {
     }
 
     private void forceArena(boolean force) {
-        for (int x = -1; x <= 2; x++) for (int z = -1; z <= 2; z++) level.setChunkForced(x, z, force);
+        for (int x = -1; x <= 2; x++) for (int z = -1; z <= 2; z++) GameTestChunks.setForced(level, x, z, force);
     }
 
     private void positionObserver(ServerPlayer observer, String view) {

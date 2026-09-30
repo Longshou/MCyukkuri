@@ -34,7 +34,7 @@ public final class OperationGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=500,batch="operations")
     public static void operationAcceptance(GameTestHelper helper){
         var test=new OperationGameTests();var level=helper.getLevel();
-        for(int x=43;x<=45;x++)level.setChunkForced(x,0,true);
+        for(int x=43;x<=45;x++)GameTestChunks.setForced(level,x,0,true);
         for(int x=700;x<732;x++)for(int z=0;z<12;z++){
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());
             for(int y=65;y<72;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -44,7 +44,7 @@ public final class OperationGameTests {
             try{test.run(level);}catch(Throwable error){test.check("Unexpected exception: "+error,false);}
             finally{
                 level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
-                for(int x=43;x<=45;x++)level.setChunkForced(x,0,false);
+                for(int x=43;x<=45;x++)GameTestChunks.setForced(level,x,0,false);
             }
             P0Control.write("operation-checks",test.checks);
             var failed=test.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());

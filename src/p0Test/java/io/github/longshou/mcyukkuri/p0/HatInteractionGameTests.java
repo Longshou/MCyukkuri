@@ -34,7 +34,7 @@ public final class HatInteractionGameTests {
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=600,batch="hats")
     public static void interactions(GameTestHelper helper){
-        checks.clear();var level=helper.getLevel();var floor=new BlockPos(1096,64,8);level.setChunkForced(68,0,true);
+        checks.clear();var level=helper.getLevel();var floor=new BlockPos(1096,64,8);GameTestChunks.setForced(level,68,0,true);
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(floor.above()),"Hat arena is ticking"))
             .thenExecute(()->{
                 for(int x=1088;x<1104;x++)for(int z=0;z<16;z++){
@@ -96,7 +96,7 @@ public final class HatInteractionGameTests {
                 floating.life().takeAccessory(player.getUUID());HatCarry.tick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(floating));
                 check("missing hat with no safe ground releases custody",!child.isPassenger()&&!floating.isVehicle());floating.discard();
                 write();helper.assertTrue(checks.stream().allMatch(Check::pass),"All hat checks pass; see hat-checks.json");
-                parent.discard();child.discard();level.setChunkForced(68,0,false);
+                parent.discard();child.discard();GameTestChunks.setForced(level,68,0,false);
             }).thenSucceed();
     }
     private static void write(){

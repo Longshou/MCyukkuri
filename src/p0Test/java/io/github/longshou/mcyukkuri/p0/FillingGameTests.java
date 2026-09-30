@@ -40,7 +40,7 @@ public final class FillingGameTests {
     public static void fillingAcceptance(GameTestHelper helper) {
         var test = new FillingGameTests();
         var level = helper.getLevel();
-        for (int x=25;x<=27;x++) level.setChunkForced(x,0,true);
+        for (int x=25;x<=27;x++) GameTestChunks.setForced(level,x,0,true);
         for (int x=400;x<445;x++) for(int z=0;z<12;z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());
             for(int y=65;y<70;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -57,7 +57,7 @@ public final class FillingGameTests {
         } finally {
             level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
             level.setBlockAndUpdate(new BlockPos(406,65,5),Blocks.AIR.defaultBlockState());
-            for (int x=25;x<=27;x++)level.setChunkForced(x,0,false);
+            for (int x=25;x<=27;x++)GameTestChunks.setForced(level,x,0,false);
         }
         P0Control.write("filling-checks",test.checks);
         var failed=test.checks.stream().filter(c->!c.pass).toList();

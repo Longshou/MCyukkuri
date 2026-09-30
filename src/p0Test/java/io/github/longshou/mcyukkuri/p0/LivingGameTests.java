@@ -103,11 +103,7 @@ public final class LivingGameTests {
     private void check(String name,boolean success,Object detail) { checks.add(new Check(name,success,String.valueOf(detail))); }
     private String state() { return a==null?"no subject":a.life().save()+"; behavior="+a.getBehaviorId()+"; position="+a.position(); }
     private void setup() {
-        for (int x=5;x<=8;x++) for(int z=0;z<=3;z++) level.setChunkForced(x,z,true);
-        // Complete the two-chunk FULL halo before the uncapped GameTest clock
-        // starts checking entities. Block loading alone does not make boundary
-        // chunks entity ticking, so an immediate population query can miss them.
-        for (int x=3;x<=10;x++) for(int z=-2;z<=5;z++) level.getChunk(x,z);
+        for (int x=5;x<=8;x++) for(int z=0;z<=3;z++) GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_RANDOMTICKING).set(0,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());

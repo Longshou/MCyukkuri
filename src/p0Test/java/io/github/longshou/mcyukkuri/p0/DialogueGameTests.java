@@ -86,6 +86,6 @@ public final class DialogueGameTests {
     }
     private static void forceChunks(GameTestHelper helper,boolean force){
         var pos=helper.absolutePos(net.minecraft.core.BlockPos.ZERO);
-        for(int x=(pos.getX()>>4)-1;x<=(pos.getX()>>4)+1;x++)for(int z=(pos.getZ()>>4)-1;z<=(pos.getZ()>>4)+1;z++)helper.getLevel().setChunkForced(x,z,force);
+        for(int x=(pos.getX()>>4)-1;x<=(pos.getX()>>4)+1;x++)for(int z=(pos.getZ()>>4)-1;z<=(pos.getZ()>>4)+1;z++)GameTestChunks.setForced(helper.getLevel(),x,z,force);
     }
 }

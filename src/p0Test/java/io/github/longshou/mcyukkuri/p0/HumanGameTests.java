@@ -30,7 +30,7 @@ public final class HumanGameTests {
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=700, batch="human_world")
     public static void humanWorldAcceptance(GameTestHelper h) {
         var t = new HumanGameTests(); var level = h.getLevel();
-        for (int x=62;x<=69;x++) for (int z=0;z<=4;z++) level.setChunkForced(x,z,true);
+        for (int x=62;x<=69;x++) for (int z=0;z<=4;z++) GameTestChunks.setForced(level,x,z,true);
         h.startSequence().thenWaitUntil(() -> {
             for (int x=62;x<=69;x++) for (int z=0;z<=4;z++)
                 h.assertTrue(level.isPositionEntityTicking(new BlockPos(x*16+8,67,z*16+8)),"Waiting for all human fixture chunks");
@@ -53,7 +53,7 @@ public final class HumanGameTests {
                 try { t.run(level); } catch(Throwable e) { t.check("Unexpected exception: "+e,false); }
                 finally {
                     level.getEntitiesOfClass(Entity.class,AREA,e->!(e instanceof net.minecraft.world.entity.player.Player)).forEach(Entity::discard);
-                    for(int x=62;x<=69;x++)for(int z=0;z<=4;z++)level.setChunkForced(x,z,false);
+                    for(int x=62;x<=69;x++)for(int z=0;z<=4;z++)GameTestChunks.setForced(level,x,z,false);
                 }
                 P0Control.write("human-world-checks",t.checks);
                 var failed=t.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())h.succeed();else h.fail(failed.toString());

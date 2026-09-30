@@ -44,17 +44,23 @@ public final class CoreGameTests {
     private final List<java.util.Map<String,Object>> roofTrace=new ArrayList<>();
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=9000,batch="core")
     public static void coreAcceptance(GameTestHelper helper){
-        var test=new CoreGameTests();test.helper=helper;test.level=helper.getLevel();test.setup();test.house();test.hiding();test.body();test.founders();
-        test.later(1,"cleanup",()->test.clear());
-        helper.runAtTickTime(test.at+1,()->{P0Control.write("core-checks",test.checks);var failed=test.checks.stream().filter(c->!c.pass).toList();
-            if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" core checks failed; first "+failed.getFirst().name);});
+        var test=new CoreGameTests();test.helper=helper;test.level=helper.getLevel();test.setup();
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,16,19,0,2)).thenExecute(()->{
+            test.at+=helper.getTick();test.house();test.hiding();test.body();test.founders();
+            test.later(1,"cleanup",()->test.clear());
+            helper.runAtTickTime(test.at+1,()->{P0Control.write("core-checks",test.checks);var failed=test.checks.stream().filter(c->!c.pass).toList();
+                if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" core checks failed; first "+failed.getFirst().name);});
+        });
     }
     static void houseMotionAcceptance(GameTestHelper helper){
-        var test=new CoreGameTests();test.helper=helper;test.level=helper.getLevel();test.motionOnly=true;test.setup();test.house();test.hiding();
-        test.later(1,"crawl guards",()->{try{test.crawlGuards();}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}});
-        test.later(1,"cleanup",()->test.clear());
-        helper.runAtTickTime(test.at+1,()->{P0Control.write("house-motion-checks",test.checks);var failed=test.checks.stream().filter(c->!c.pass).toList();
-            if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" house motion checks failed; first "+failed.getFirst().name);});
+        var test=new CoreGameTests();test.helper=helper;test.level=helper.getLevel();test.motionOnly=true;test.setup();
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,16,19,0,2)).thenExecute(()->{
+            test.at+=helper.getTick();test.house();test.hiding();
+            test.later(1,"crawl guards",()->{try{test.crawlGuards();}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}});
+            test.later(1,"cleanup",()->test.clear());
+            helper.runAtTickTime(test.at+1,()->{P0Control.write("house-motion-checks",test.checks);var failed=test.checks.stream().filter(c->!c.pass).toList();
+                if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" house motion checks failed; first "+failed.getFirst().name);});
+        });
     }
     @SuppressWarnings("unchecked")
     private void primeCrawl(YukkuriEntity e) throws ReflectiveOperationException {
@@ -181,7 +187,7 @@ public final class CoreGameTests {
     private int founderStock(List<YukkuriEntity> residents){return nest.food()+residents.stream().mapToInt(e->e.life().mouth().getCount()+e.house().carrying().getCount()).sum();}
     private void later(int delay,String name,Runnable step){at+=delay;helper.runAtTickTime(at,()->{try{step.run();}catch(Throwable error){check(name,false,error.toString());}P0Control.write("core-checks",checks);});}
     private void setup(){
-        for(int x=16;x<=19;x++)for(int z=0;z<=2;z++)level.setChunkForced(x,z,true);
+        for(int x=16;x<=19;x++)for(int z=0;z<=2;z++)GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
         level.setDayTime(6000);level.setWeatherParameters(6000,0,false,false);
         clear();for(int x=256;x<304;x++)for(int z=0;z<48;z++){

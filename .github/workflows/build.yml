@@ -91,11 +91,9 @@ jobs:
         with:
           name: p0-checks-${{ matrix.os }}-${{ github.sha }}
           path: |
-            .local/p0/gametest/p0-control/server-checks.json
-            .local/p0/gametest/p0-control/living-checks.json
-            .local/p0/gametest/p0-control/family-checks.json
-            .local/p0/gametest/p0-control/core-checks.json
-            .local/p0/gametest/p0-control/filling-checks.json
+            .local/p0/gametest/p0-control/*checks.json
+            .local/p0/gametest/logs/latest.log
+          include-hidden-files: true
           if-no-files-found: warn
       - name: Upload development jar
         uses: actions/upload-artifact@v4

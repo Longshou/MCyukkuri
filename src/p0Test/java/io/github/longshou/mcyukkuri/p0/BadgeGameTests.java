@@ -35,7 +35,7 @@ public final class BadgeGameTests {
     public static void badgeSystem(GameTestHelper h) {
         var t=new BadgeGameTests();var l=h.getLevel();
         t.observe(h,"badge-exam-trace");t.force(l,true);
-        h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+5,65,5)),"Waiting for badge arena"))
+        h.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(h,X>>4,(X+24)>>4,0,0))
             .thenExecute(()->{
                 try { t.setup(l);t.checks(l);t.routines(l);t.routineStarted=l.getGameTime(); }
                 catch(Throwable e) {t.check("Setup exception: "+e,false);}
@@ -76,7 +76,7 @@ public final class BadgeGameTests {
     public static void goldExamWithSlowNavigation(GameTestHelper h) {
         var t=new BadgeGameTests();var l=h.getLevel();
         t.observe(h,"badge-slow-exam-trace");t.force(l,true);
-        h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+5,65,5)),"Waiting for slow-exam arena"))
+        h.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(h,X>>4,(X+24)>>4,0,0))
             .thenExecute(()->{
                 t.setup(l);t.animal.life().setMedal(1);t.trained(t.animal,90);
                 t.shop.setNoAi(false);
@@ -99,7 +99,7 @@ public final class BadgeGameTests {
             });
     }
     private void force(ServerLevel level,boolean force) {
-        for(int x=X>>4;x<=(X+24)>>4;x++)level.setChunkForced(x,0,force);
+        for(int x=X>>4;x<=(X+24)>>4;x++)GameTestChunks.setForced(level,x,0,force);
     }
     private void observe(GameTestHelper helper,String report) {
         var level=helper.getLevel();

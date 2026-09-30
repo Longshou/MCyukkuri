@@ -25,7 +25,7 @@ public final class EcologyGameTests {
     static void floor(ServerLevel level, int x) {
         level.setDayTime(6000);level.setWeatherParameters(24000,0,false,false);
         level.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT).set(false,level.getServer());
-        for(int chunk=x>>4;chunk<=(x+31)>>4;chunk++)level.setChunkForced(chunk,0,true);
+        for(int chunk=x>>4;chunk<=(x+31)>>4;chunk++)GameTestChunks.setForced(level,chunk,0,true);
         for(int dx=x;dx<x+32;dx++)for(int z=0;z<14;z++){
             level.setBlockAndUpdate(new BlockPos(dx,64,z),Blocks.SMOOTH_QUARTZ.defaultBlockState());
             for(int y=65;y<71;y++)level.setBlockAndUpdate(new BlockPos(dx,y,z),Blocks.AIR.defaultBlockState());
@@ -51,7 +51,7 @@ public final class EcologyGameTests {
     }
     private static void clean(ServerLevel level,int x) {
         level.getEntitiesOfClass(Entity.class,new AABB(x,63,0,x+32,75,14),e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
-        for(int chunk=x>>4;chunk<=(x+31)>>4;chunk++)level.setChunkForced(chunk,0,false);
+        for(int chunk=x>>4;chunk<=(x+31)>>4;chunk++)GameTestChunks.setForced(level,chunk,0,false);
     }
     private void finish(GameTestHelper helper,String report,int x) {
         P0Control.write(report,checks);clean(helper.getLevel(),x);
@@ -61,7 +61,7 @@ public final class EcologyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=500,batch="ecology_rules")
     public static void rules(GameTestHelper helper) {
         var test=new EcologyGameTests();var level=helper.getLevel();floor(level,2048);
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(2050,65,5)),"waiting for ecology area"))
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,2048>>4,(2048+31)>>4,0,0))
             .thenExecute(()->{try{test.rules(level);}catch(Throwable e){test.check("unexpected: "+e,false);}test.finish(helper,"ecology-rules",2048);});
     }
     private void rules(ServerLevel level) {
@@ -119,7 +119,7 @@ public final class EcologyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="ecology_live")
     public static void live(GameTestHelper helper) {
         var test=new EcologyGameTests();var level=helper.getLevel();floor(level,2112);var pair=new YukkuriEntity[2];var seen=new HashSet<String>();
-        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(2115,65,5)),"waiting for live ecology"))
+        helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,2112>>4,(2112+31)>>4,0,0))
             .thenExecute(()->{pair[0]=spawn(level,2115.5,5.5);pair[1]=spawn(level,2116.22,5.5);friends(level,pair[0],pair[1]);
                 helper.assertTrue(pair[0].dailyLife().nuzzle(pair[1]),"live nuzzle starts "+state(pair[0])+" OTHER "+state(pair[1]));
                 helper.onEachTick(()->{if(pair[0]!=null){seen.add(pair[0].getBehaviorId());seen.add("face:"+pair[0].getExpressionId());

@@ -22,11 +22,7 @@ public final class GroupGameTests {
     private final ArrayList<Check> checks=new ArrayList<>();
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     private static void floor(ServerLevel level,int start){
-        for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)level.setChunkForced(chunk,0,true);
-        // Entity-ticking chunks need FULL neighbors within two chunks. Finish
-        // their normal generation before waiting on the uncapped test clock.
-        for(int chunk=(start>>4)-2;chunk<=((start+31)>>4)+2;chunk++)
-            for(int z=-2;z<=2;z++)level.getChunk(chunk,z);
+        for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)GameTestChunks.setForced(level,chunk,0,true);
         for(int x=start;x<start+32;x++)for(int z=0;z<12;z++){
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());
             for(int y=65;y<70;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -41,7 +37,7 @@ public final class GroupGameTests {
     }
     private static void clean(ServerLevel level,int start){
         level.getEntitiesOfClass(Entity.class,new AABB(start,63,0,start+32,71,12),e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
-        for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)level.setChunkForced(chunk,0,false);
+        for(int chunk=start>>4;chunk<=(start+31)>>4;chunk++)GameTestChunks.setForced(level,chunk,0,false);
     }
     private YukkuriEntity spawn(ServerLevel level,double x,boolean ai){
         var e=ModEntities.REIMU.get().create(level);e.moveTo(x,65,5.5,0,0);e.setNoAi(!ai);e.setOnGround(true);e.setPersistenceRequired();

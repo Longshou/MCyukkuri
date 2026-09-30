@@ -36,8 +36,8 @@ public final class PredatorGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="predators")
     public static void predatorAcceptance(GameTestHelper h){
         var t=new PredatorGameTests();var l=h.getLevel();
-        for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)l.setChunkForced(x,z,true);
-        h.startSequence().thenWaitUntil(()->h.assertTrue(l.isPositionEntityTicking(new BlockPos(X+50,65,15)),"Waiting for predator arena"))
+        for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)GameTestChunks.setForced(l,x,z,true);
+        h.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(h,X>>4,(X+64)>>4,0,1))
             .thenExecute(()->{try{t.setup(l);t.rules(l);t.live(l);}catch(Throwable e){t.check("Setup: "+e,false);}})
             .thenExecuteFor(400,()->{if(t.hunter!=null){
                 if(!t.flandreReleased&&t.flier.tickCount>=160){
@@ -89,7 +89,7 @@ public final class PredatorGameTests {
                     "approached",t.approached,"approachTick",t.approachTick,"maxHuntX",t.maxHuntX,"minHuntDistance",t.minHuntDistance));
                 l.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof HumanNpc||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
                 if(t.player!=null)t.player.discard();
-                for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)l.setChunkForced(x,z,false);
+                for(int x=X>>4;x<=(X+64)>>4;x++)for(int z=0;z<=1;z++)GameTestChunks.setForced(l,x,z,false);
                 var failures=t.checks.stream().filter(c->!c.pass).toList();if(failures.isEmpty())h.succeed();else h.fail(failures.toString());
             });
     }

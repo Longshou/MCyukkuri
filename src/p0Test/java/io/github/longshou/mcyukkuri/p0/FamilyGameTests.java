@@ -65,7 +65,7 @@ public final class FamilyGameTests {
         });
     }
     private void setup() {
-        for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)level.setChunkForced(x,z,true);
+        for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());
         level.setDayTime(6000);level.setWeatherParameters(6000,0,false,false);
