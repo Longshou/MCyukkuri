@@ -2,17 +2,31 @@
 from pathlib import Path
 import base64,json,subprocess,os
 from PIL import Image,ImageDraw,ImageFont
+import placement_fit
 ROOT=Path(__file__).resolve().parents[1]
 LIB=ROOT/'standards/yukkuri-library'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/hat-interactions/previews/current'
 TMP=ROOT/'.local/hat-interactions/render'
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
+def slim(m):
+    # The page poses only idle and waddle; keep what it reads and pack each drawn part contiguously.
+    vertices,weights,parts=[],[],[]
+    for p in m['parts']:
+        if p.get('anatomy'):continue
+        start=len(weights)
+        vertices+=[round(v,5) for v in m['vertices'][p['start']*8:(p['start']+p['count'])*8]]
+        weights+=m['weights'][p['start']:p['start']+p['count']]
+        parts.append({**p,'start':start})
+    return {'id':m['id'],'bones':m['bones'],'parts':parts,'vertices':vertices,'weights':weights,
+            'clips':{k:m['clips'][k] for k in ('idle','waddle')},'texture_size':m.get('texture_size',128)}
 def main():
     OUT.mkdir(parents=True,exist_ok=True);TMP.mkdir(parents=True,exist_ok=True)
     hats=read(ASSETS/'yukkuri_presentation/hat_interactions.json')['variants']
     presentation=read(ASSETS/'yukkuri_presentation/living.json')['variants']|read(ASSETS/'yukkuri_presentation/subspecies.json')
-    models={i:read(ASSETS/'yukkuri'/f'{i}.json') for i in list(hats)+['reimu','house_reimu']}
+    # The game shows each model with its placement fit spliced in; preview the same meshes.
+    fits=placement_fit.load()
+    models={i:slim(placement_fit.fitted(ASSETS/'yukkuri'/f'{i}.json',fits)) for i in list(hats)+['reimu','house_reimu']}
     textures={};names={'marisa':'魔理沙','marisa_sparse':'稀毛魔理沙','marisa_face':'歪脸魔理沙','marisa_bean':'豆形魔理沙','house_marisa':'家魔理沙'}
     for ident in hats:
         child='house_reimu' if ident=='house_marisa' else 'marisa_bean' if ident=='marisa_bean' else 'reimu'

@@ -1,0 +1,104 @@
+{
+  "createdAt": "2026-10-07T08:33:24.323Z",
+  "scope": "Offline opaque facial texel / skin intersection samples",
+  "motionSha256": "c769cdc3b0659b6b1ba0b5ae4b4e5d68577f1fe37a9dc74d52eac76bf881ef10",
+  "poseSha256": "bfb8a06a8ccbcf079047139ff4c1aa7af523c909141a3807d4f1efd1f2122713",
+  "scriptSha256": "815898f2074c1cb2b9a41adba2ec17706384c7e0681741546f2d0c90f3515da1",
+  "models": [
+    {
+      "id": "alice",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "chen",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "flandre",
+      "checks": 1542,
+      "minimumClearance": 0.03593494601576097
+    },
+    {
+      "id": "house_marisa",
+      "checks": 1554,
+      "minimumClearance": 0.019329148789347883
+    },
+    {
+      "id": "house_reimu",
+      "checks": 1554,
+      "minimumClearance": 0.019329148789347883
+    },
+    {
+      "id": "marisa",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "marisa_bean",
+      "checks": 1554,
+      "minimumClearance": 0.03899702478701084
+    },
+    {
+      "id": "marisa_face",
+      "checks": 14742,
+      "minimumClearance": 0.0026085775452333593
+    },
+    {
+      "id": "marisa_sparse",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "marisa_tsumuri",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "patchouli",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "reimu",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "reimu_bean",
+      "checks": 1554,
+      "minimumClearance": 0.03899702478701084
+    },
+    {
+      "id": "reimu_deibu",
+      "checks": 10644,
+      "minimumClearance": 0.030569455763300724
+    },
+    {
+      "id": "reimu_face",
+      "checks": 14742,
+      "minimumClearance": 0.0026085775452333593
+    },
+    {
+      "id": "reimu_sparse",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "reimu_wasa",
+      "checks": 14742,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "reimu_wasa_deibu",
+      "checks": 14322,
+      "minimumClearance": -0.002834208243567282
+    },
+    {
+      "id": "remilia",
+      "checks": 1542,
+      "minimumClearance": 0.03593494601576097
+    }
+  ]
+}

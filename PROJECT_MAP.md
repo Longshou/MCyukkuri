@@ -2,6 +2,8 @@
 
 魔理沙帽子的脱戴与小幼油帽托参数、当前预览和验收位于 [art/source/hat-interactions/](art/source/hat-interactions/README.md)，由现行角色几何推导；稀毛与歪脸的造型源仍归不足形态制作包。
 
+当前游戏形态的帽子、头饰与头发位置适配：制作源在 `standards/yukkuri-library/presentation/placement-fit/`，游戏接入记录、预览与验收在 [art/source/placement-fit/](art/source/placement-fit/README.md)；运行时在动作修订之前拼接，不改写基础模型。
+
 当前圆润标准体型的制作配方、冻结输入与合并组件位于 `standards/yukkuri-library/body-standard/`，正式模型仍导出到各角色登记的路径。家油、DOS 与豆形保留各自原体型；稀毛、歪脸魔理沙及灵梦分别由 [rounded-marisa](standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md) 和 [rounded-reimu](standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md) 采用圆润身体并同步游戏资源。标准更新不自动替换其他游戏接入快照。
 
 2026-09-13 已按用户要求另外完成[圆润游戏选用](art/source/rounded-runtime/README.md)：八只当前标准导出和多毛灵胖组合保存在 `art/source/rounded-runtime/`。该目录现在负责普通五种、壳种、多毛及两种灵胖的运行快照；旧 `standard-runtime/` 的普通五种和 `subspecies-runtime/` 的壳种／多毛记录作为历史基线，家油与六种不足油继续由各自原包维护。

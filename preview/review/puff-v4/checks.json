@@ -1,0 +1,181 @@
+{
+  "createdAt": "2026-10-07T08:32:12.211Z",
+  "scope": "Offline mesh regression and renders; no live game/browser acceptance",
+  "motionSha256": "c769cdc3b0659b6b1ba0b5ae4b4e5d68577f1fe37a9dc74d52eac76bf881ef10",
+  "scriptSha256": "7a137669bbd626bf3f5166d409145f286d52e9628e33fe820fd04ee7bbf2f7e9",
+  "models": [
+    {
+      "id": "alice",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 27262560,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "45d642d9436d05ead7107d7fb8b5091828d6c6f476cf5adeb0178f90db214ffb"
+    },
+    {
+      "id": "chen",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 29864640,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "77b1f923adbb1d4b1c0d522ddbb0d047e38d77d8e9ef391bd0e7b2299e7eeb3c"
+    },
+    {
+      "id": "flandre",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 9310080,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4"
+    },
+    {
+      "id": "house_marisa",
+      "bodyEdges": 4512,
+      "stationaryVertexChecks": 38280,
+      "featureChecks": 8704800,
+      "protectedSkinChecks": 76320,
+      "maxCheekDisplacement": 0.17368555465114066,
+      "baseSha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e"
+    },
+    {
+      "id": "house_reimu",
+      "bodyEdges": 4512,
+      "stationaryVertexChecks": 38280,
+      "featureChecks": 12860640,
+      "protectedSkinChecks": 76320,
+      "maxCheekDisplacement": 0.17368555465114066,
+      "baseSha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d"
+    },
+    {
+      "id": "marisa",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 14383200,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "2d4d114098260245bc4c84d60d00e47c45eec47acd6f8d64d92e7f1e79eed46d"
+    },
+    {
+      "id": "marisa_bean",
+      "bodyEdges": 18720,
+      "stationaryVertexChecks": 164400,
+      "featureChecks": 16486080,
+      "protectedSkinChecks": 148320,
+      "maxCheekDisplacement": 0.37852656888504777,
+      "baseSha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931"
+    },
+    {
+      "id": "marisa_face",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 39600,
+      "featureChecks": 14345760,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7583544693688804,
+      "baseSha256": "c5ab0dc852c81e3b0c714c4bf9d2e5619c10755211749520c72273fc54baa707"
+    },
+    {
+      "id": "marisa_sparse",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 5934240,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "d1d2a6eb11242a81d8a0e554f249cd92cfa6df856fcde06551d6a39ec62ef0b7"
+    },
+    {
+      "id": "marisa_tsumuri",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 59161440,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "08f6dce56a4a107936cdd359496e496521bd074310b0891a856518d39e21e892"
+    },
+    {
+      "id": "patchouli",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 95453280,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "41838e58ab83b00bde8bef5c1c8de0024da8df3ee001d4acaef8f4180f1deba7"
+    },
+    {
+      "id": "reimu",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 18925920,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "fc30d62ec7ba2c399074b4912b992f975c6fdac35a9a3530bff22747b0f159cc"
+    },
+    {
+      "id": "reimu_bean",
+      "bodyEdges": 18720,
+      "stationaryVertexChecks": 164400,
+      "featureChecks": 18545280,
+      "protectedSkinChecks": 148320,
+      "maxCheekDisplacement": 0.37852656888504777,
+      "baseSha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069"
+    },
+    {
+      "id": "reimu_deibu",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 23381280,
+      "protectedSkinChecks": 82080,
+      "maxCheekDisplacement": 0.8490315778713731,
+      "baseSha256": "fc5656930c17d6bcc1cb2e1ec86b3fd971897a0ad95ae53b5306d0c62a3cee19"
+    },
+    {
+      "id": "reimu_face",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 39600,
+      "featureChecks": 18925920,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7583544693688804,
+      "baseSha256": "e7b8937855d75fdf02a91bb2e567a39db5accbfc04552b7917f20e0bdeb66932"
+    },
+    {
+      "id": "reimu_sparse",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 11537760,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "532999e5b05ac34cd42472347e3277fd61c93df28a1e38e2f5ffb6a72d1362a4"
+    },
+    {
+      "id": "reimu_wasa",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 37053120,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "c8e8610937e0334e081c199c5ca6f2b742837db5193680db7a1f25c45fb4a2e7"
+    },
+    {
+      "id": "reimu_wasa_deibu",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 37053120,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 1.1083654507733343,
+      "baseSha256": "3dcd05b9b64a4459be2f76e68b8075e0ee73c94c0d4f0aa04c24cbec8e3b3e41"
+    },
+    {
+      "id": "remilia",
+      "bodyEdges": 4608,
+      "stationaryVertexChecks": 38790,
+      "featureChecks": 9347520,
+      "protectedSkinChecks": 86400,
+      "maxCheekDisplacement": 0.7389103005155562,
+      "baseSha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023"
+    }
+  ],
+  "poseSha256": "bfb8a06a8ccbcf079047139ff4c1aa7af523c909141a3807d4f1efd1f2122713",
+  "javaModelSha256": "377434718e4e8d5a79dddc9aaaec24b72e6f8657b36e77034f8fc68ce7b7f594"
+}

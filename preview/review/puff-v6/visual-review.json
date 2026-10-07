@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-07T09:33:31.527978+00:00",
+  "reviewer": "Codex agent visual inspection",
+  "status": "pending_user_review",
+  "scope": "Current exported offline images and eight sampled GIF frames; no browser UI, live game, wounds, pregnancy or carrying acceptance",
+  "runtimeSha256": "54fac26af3c8911724ea93eaab703c8013533432fec8fef997ba4c0f7eb5fc8e",
+  "poseSha256": "ab8fee9430c58a226c017cca964aa3e14f89eba8a374554b30b91356780126b7",
+  "images": [
+    {
+      "path": "art/source/motion-corrections/previews/current/review.png",
+      "sha256": "e050cf85b4f78050e973328fddee7a7f6c55eb443be7f95b6cf8d6c003427e5b",
+      "inspection": "Viewed neutral and puff: front, three-quarter, side and rear"
+    },
+    {
+      "path": "art/source/motion-corrections/previews/current/all-models.png",
+      "sha256": "0225d70917d18bfcaab9a42e7a253bad7fa8e291f4a422a36033114cc8c240bf",
+      "inspection": "Viewed 19 current model silhouettes"
+    },
+    {
+      "path": "art/source/motion-corrections/previews/current/contact-angles.png",
+      "sha256": "f6a008117b79706ad72e79a64c770f0ad75f9dac6195f2fe47cdf238d9300bce",
+      "inspection": "Viewed both side and three-quarter contact angles of six selected models"
+    },
+    {
+      "path": "art/source/motion-corrections/previews/current/face-stability.gif",
+      "sha256": "82743f6568822faa131ea27781f402fb541ea8e1b7bc1275c5f89f893676a8e2",
+      "inspection": "Viewed sampled frames at 0.0, 0.4, 1.0, 1.6, 5.4 and 6.0 seconds using contact sheet"
+    }
+  ],
+  "observations": [
+    "Cheeks expand locally while eyes, brows, mouth and body base remain stable",
+    "Blush follows skin rather than floating forward",
+    "Side hair, cuffs and tips remain outside the puff silhouette without obvious engulfing in inspected views",
+    "Puff restores during release"
+  ],
+  "limitations": [
+    "Offline sampling cannot prove exact zero intersection at all continuous times",
+    "User has not approved the new silhouette as a standard"
+  ]
+}

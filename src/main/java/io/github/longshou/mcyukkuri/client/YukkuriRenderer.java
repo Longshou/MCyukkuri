@@ -31,8 +31,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(YukkuriEntity entity) {
-        String expression = entity.getVariant().isHouse() && entity.getAnimationId().equals("puff")
-                ? "angry" : entity.getExpressionId();
+        return textureAt(entity, 0);
+    }
+
+    private ResourceLocation textureAt(YukkuriEntity entity, float partialTick) {
+        float elapsed = Math.max(0,(entity.level().getGameTime()-entity.getAnimationStartTick()+partialTick)/20f);
+        String expression = YukkuriModel.get(entity.subspecies().assetId())
+                .expressionFor(entity.getAnimationId(),elapsed,entity.getExpressionId());
         return MCYukkuri.id("textures/entity/" + entity.subspecies().assetId() + "/" + expression + ".png");
     }
 
@@ -73,7 +78,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.tickCount+partialTick)*2)*.008,0,0);
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTime > 0 || entity.deathTime > 0);
-            var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(entity)));
+            var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
             String behavior = hatCarrier||hatParent!=null?"idle":entity.getBehaviorId();
             if(behavior.equals("slide_down")){
                 var facility=io.github.longshou.mcyukkuri.play.PlayBlock.facility(entity.level(),entity.blockPosition());

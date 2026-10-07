@@ -33,6 +33,11 @@ def sha(path):
 def validate(ident, record, actions):
     path = ASSETS / 'yukkuri' / (ident + '.json')
     model = read(path)
+    # The client applies selected motion revisions after loading base geometry.
+    revisions = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')['models']
+    if ident in revisions:
+        require(revisions[ident]['bone_names'] == [b['name'] for b in model['bones']], 'motion skeleton differs')
+        model['clips'].update(revisions[ident]['clips'])
     snapshot = ROOT / 'art/source/standard-runtime' / ident
     require(path.read_bytes() == (snapshot / 'runtime.model.json').read_bytes(), 'runtime differs from selected snapshot')
     require(sha(path) == record['runtime_sha256'], 'runtime fingerprint drift')
