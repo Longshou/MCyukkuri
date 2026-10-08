@@ -1,5 +1,7 @@
 # 魔理沙帽子交互
 
+2026-10-07 追加：[头饰与头发位置适配](../placement-fit/README.md)把普通、歪脸魔理沙的帽子下移1.5、稀毛下移0.5，头发顶部收圆。帽子外形不变；帽托位置、障碍盒和幼油外形已按拼接后的网格由 `export_hat_interactions.py` 重导，预览按新网格重绘。下方实机截图与机制记录属于此前几何，未在新几何下重新实机采集。
+
 普通、稀毛、歪脸、豆形与家魔理沙的帽子可独立取下、戴回。身体与头发继续共同变形；帽身、帽檐和蝴蝶结由 `hat_follow` 控制。稀毛与歪脸本轮体态修复的制作源见[不足形态包](../../../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)。造型仍待用户确认。
 
 [交互预览](previews/current/index.html) · [五种状态总览](previews/current/overview.png) · [稀毛脱帽](previews/current/marisa_sparse-remove.gif) · [稀毛帽托](previews/current/marisa_sparse-carry.gif)。预览读取当前游戏模型，家油按同屏可读尺寸放大展示。

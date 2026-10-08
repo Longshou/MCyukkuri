@@ -102,6 +102,11 @@ def validate(ident, record, actions):
     path = ASSETS / 'yukkuri' / (ident + '.json')
     model = read(path)
     validate_sources(ident, record, model.get('body_profile') == 'rounded_standard_v1')
+    # The client applies selected motion revisions after loading base geometry.
+    revisions = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')['models']
+    if ident in revisions:
+        require(revisions[ident]['bone_names'] == [b['name'] for b in model['bones']], 'motion skeleton differs')
+        model['clips'].update(revisions[ident]['clips'])
     require(model['id'] == ident and model['format'] == 1 and model['units_per_block'] == 16, 'invalid model identity/format')
     require(model['house'] == ident.startswith('house_'), 'variant mismatch')
     bones, verts, weights = model['bones'], model['vertices'], model['weights']

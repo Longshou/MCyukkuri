@@ -28,5 +28,8 @@
     "Compound motion files reference base motions and contain no baked tracks.",
     "Face and accessory geometry are not stored in motion files.",
     "Generated engine clips are build outputs only."
-  ]
+  ],
+  "selected_runtime_variants": {
+    "contact_safe": "motions/variants/contact-safe/recipe.json"
+  }
 }

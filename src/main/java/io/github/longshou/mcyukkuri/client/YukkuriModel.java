@@ -62,6 +62,38 @@ public final class YukkuriModel {
     private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
     private final Map<String, Clip> clips = new HashMap<>();
+    private record ExpressionSpan(float start, float end, String expression) {}
+    private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
+    private final Map<String, float[]> puffEnvelopes = new HashMap<>();
+    /** One rest-space morph target: refined skin, blush carriers and swung side locks. */
+    private float[] puffOffsets;
+    private float puffAmount;
+    private Part puffSurface;
+    private int puffPartIndex=-1;
+    private final Map<Integer,Part> puffAttachments=new HashMap<>();
+    private final Map<String,String> expressionAliases=new HashMap<>();
+    private HouseNormals puffNormals;
+    private final Vector3f puffBlendedNormal=new Vector3f();
+    String geometryExpression(String expression) { return expressionAliases.getOrDefault(expression,expression); }
+
+    private static float smooth(float x) { x=Math.clamp(x,0,1); return x*x*(3-2*x); }
+
+    /** Inflate, hold (with an optional tremor that only shrinks the cheeks) and release. */
+    static float puffEnvelope(float[] e,float time){
+        float u=(time-e[0])/(e[1]-e[0]),base=smooth(u/e[2])*smooth((1-u)/e[2]);
+        if(base<=0||e.length<5)return base;
+        float hold=smooth((u-e[2])/e[2])*smooth((1-e[2]-u)/e[2]);
+        return base*(1-e[3]*hold*(float)(.5-.5*Math.cos(2*Math.PI*e[4]*(time-e[0]))));
+    }
+
+    public String expressionFor(String action, float elapsed, String fallback) {
+        Clip clip = clips.get(action);
+        if (clip == null) return fallback;
+        float time = clip.loop ? elapsed % clip.duration : Math.min(elapsed, clip.duration);
+        for (ExpressionSpan span : actionExpressions.getOrDefault(action, List.of()))
+            if (time >= span.start && time < span.end) return span.expression;
+        return fallback;
+    }
     // Rendering is serial on the render thread; these buffers are not entity state.
     private final Matrix4f[] world;
     private final float[][] pose;
@@ -76,15 +108,16 @@ public final class YukkuriModel {
         final int[] groups;
         final List<Integer> triangles=new ArrayList<>();
         final Vector3f[] normals;
-        HouseNormals(float[] vertices,List<Part> parts){
+        HouseNormals(float[] vertices,List<Part> parts){this(vertices,parts,false);}
+        HouseNormals(float[] vertices,List<Part> parts,boolean smooth){
             groups=new int[vertices.length/8];java.util.Arrays.fill(groups,-1);
             var ids=new HashMap<String,Integer>();
-            for(var part:parts)if(part.name.equals("house_body_surface")){
+            for(var part:parts)if(smooth||part.name.equals("house_body_surface")){
                 for(int first=part.start;first<part.start+part.count;first+=3)triangles.add(first);
                 for(int i=part.start;i<part.start+part.count;i++){
                     int offset=i*8;
                     String key=Math.round(vertices[offset]*100000)+","+Math.round(vertices[offset+1]*100000)+","+Math.round(vertices[offset+2]*100000)+":"+
-                            Math.round(vertices[offset+5]*1000)+","+Math.round(vertices[offset+6]*1000)+","+Math.round(vertices[offset+7]*1000);
+                            (smooth?"":Math.round(vertices[offset+5]*1000)+","+Math.round(vertices[offset+6]*1000)+","+Math.round(vertices[offset+7]*1000));
                     groups[i]=ids.computeIfAbsent(key,k->ids.size());
                 }
             }
@@ -209,6 +242,19 @@ public final class YukkuriModel {
     }
     private static void reload(ResourceManager manager) {
         Map<String, YukkuriModel> loaded = new HashMap<>();
+        JsonObject motionRevisions;
+        try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/motion_corrections.json")).open()) {
+            JsonObject root = JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            // Format 2 stores the puff as offsets; an older override pack keeps the base clips instead.
+            if (root.get("format").getAsInt() == 2) motionRevisions = root.getAsJsonObject("models");
+            else { motionRevisions = new JsonObject(); org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections ignored: unsupported format {}", root.get("format")); }
+        } catch (IOException error) { throw new UncheckedIOException("Cannot load motion corrections", error); }
+        JsonObject placementFits;
+        try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/placement_fit.json")).open()) {
+            JsonObject root = JsonParser.parseReader(new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            if (root.get("format").getAsInt() == 1) placementFits = root.getAsJsonObject("models");
+            else { placementFits = new JsonObject(); org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit ignored: unsupported format {}", root.get("format")); }
+        } catch (IOException error) { throw new UncheckedIOException("Cannot load placement fit", error); }
         var assetIds = new ArrayList<String>();
         for (YukkuriVariant variant : YukkuriVariant.values()) assetIds.add(variant.assetId());
         assetIds.addAll(io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS);
@@ -216,7 +262,14 @@ public final class YukkuriModel {
             try (var stream = manager.getResourceOrThrow(MCYukkuri.id("yukkuri/" + id + ".json")).open()) {
                 byte[] bytes=stream.readAllBytes();
                 var hash=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(bytes);
-                loaded.put(id, new YukkuriModel(JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject(),hash));
+                JsonObject data = JsonParser.parseString(new String(bytes,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                // Seat headwear and round the hair first; motion revisions were authored on the fitted mesh.
+                JsonObject fit = placementFits.getAsJsonObject(id);
+                if (fit != null) applyFit(id,data,fit,hash);
+                JsonObject revision = motionRevisions.getAsJsonObject(id);
+                if (revision != null) applyRevision(id,data,revision);
+                // Hash still identifies unchanged base geometry for wounds and badges.
+                loaded.put(id, new YukkuriModel(data,hash));
             } catch (IOException error) {
                 throw new UncheckedIOException("Cannot load Yukkuri model " + id, error);
             }
@@ -246,8 +299,89 @@ public final class YukkuriModel {
         models = Map.copyOf(loaded);
     }
 
+    /** Splice placement-fit meshes into the base model they were authored on: a part is overwritten
+     *  in place (same triangle order) or appended and redirected; flat normals are rebuilt. */
+    static void applyFit(String id,JsonObject data,JsonObject fit,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) {
+        if (!hash.matches(fit.get("base_sha256").getAsString())) { org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit skipped for changed base geometry: {}",id); return; }
+        JsonArray vertices=data.getAsJsonArray("vertices"),weights=data.getAsJsonArray("weights"),parts=data.getAsJsonArray("parts"),bones=data.getAsJsonArray("bones");
+        for (var raw:fit.getAsJsonArray("parts")) {
+            JsonObject entry=raw.getAsJsonObject();int index=entry.get("part_index").getAsInt();
+            if (index<0||index>=parts.size()) throw new IllegalArgumentException("Invalid placement fit part");
+            JsonObject part=parts.get(index).getAsJsonObject();
+            if (!part.get("name").getAsString().equals(entry.get("name").getAsString())) throw new IllegalArgumentException("Placement fit part mismatch");
+            float[] source=floats(entry.getAsJsonArray("vertices"));JsonArray binding=entry.getAsJsonArray("weights"),indices=entry.getAsJsonArray("indices");
+            int count=indices.size();boolean inplace=entry.get("inplace").getAsBoolean();
+            if (count%3!=0||source.length%5!=0||binding.size()*5!=source.length*3||(inplace&&count!=part.get("count").getAsInt()))
+                throw new IllegalArgumentException("Invalid placement fit mesh");
+            int start=inplace?part.get("start").getAsInt():vertices.size()/8;
+            int[] corner=new int[3];var a=new Vector3f();var b=new Vector3f();
+            for (int t=0;t<count;t+=3) {
+                for (int j=0;j<3;j++) { corner[j]=indices.get(t+j).getAsInt(); if (corner[j]<0||corner[j]*5+5>source.length) throw new IllegalArgumentException("Invalid placement fit index"); }
+                a.set(source[corner[1]*5]-source[corner[0]*5],source[corner[1]*5+1]-source[corner[0]*5+1],source[corner[1]*5+2]-source[corner[0]*5+2]);
+                b.set(source[corner[2]*5]-source[corner[0]*5],source[corner[2]*5+1]-source[corner[0]*5+1],source[corner[2]*5+2]-source[corner[0]*5+2]);
+                a.cross(b);if (a.lengthSquared()>1e-24f) a.normalize(); else a.set(0,0,-1);
+                for (int j=0;j<3;j++) {
+                    int k=corner[j],target=start+t+j;float[] row={source[k*5],source[k*5+1],source[k*5+2],source[k*5+3],source[k*5+4],a.x,a.y,a.z};
+                    JsonArray bind=new JsonArray();bind.add(binding.get(k*3));bind.add(binding.get(k*3+1));bind.add(binding.get(k*3+2));
+                    if (inplace) { for (int c=0;c<8;c++) vertices.set(target*8+c,new com.google.gson.JsonPrimitive(row[c])); weights.set(target,bind); }
+                    else { for (float value:row) vertices.add(value); weights.add(bind); }
+                }
+            }
+            if (!inplace) { part.addProperty("start",start); part.addProperty("count",count); }
+        }
+        for (var raw:fit.getAsJsonArray("bone_pivots")) {
+            JsonObject moved=raw.getAsJsonObject();int index=moved.get("index").getAsInt();
+            if (index<0||index>=bones.size()||!bones.get(index).getAsJsonObject().get("name").getAsString().equals(moved.get("name").getAsString()))
+                throw new IllegalArgumentException("Placement fit bone mismatch");
+            bones.get(index).getAsJsonObject().add("pivot",moved.getAsJsonArray("pivot").deepCopy());
+        }
+    }
+
+    /** Merge selected motion clips and the puff morph into a base model whose skeleton matches. */
+    static void applyRevision(String id,JsonObject data,JsonObject revision) {
+        JsonArray expected = revision.getAsJsonArray("bone_names"), actual = data.getAsJsonArray("bones");
+        boolean compatible = expected.size() == actual.size();
+        for (int i=0; compatible && i<expected.size(); i++)
+            compatible = expected.get(i).getAsString().equals(actual.get(i).getAsJsonObject().get("name").getAsString());
+        if (!compatible) { org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Motion corrections skipped for incompatible skeleton: {}",id); return; }
+        revision.getAsJsonObject("clips").entrySet().forEach(e -> data.getAsJsonObject("clips").add(e.getKey(),e.getValue()));
+        if (revision.has("expression_aliases")) data.add("expression_aliases",revision.get("expression_aliases"));
+        if (revision.has("expression_patches")) {
+            if (!data.has("expression_patches")) data.add("expression_patches",new JsonObject());
+            revision.getAsJsonObject("expression_patches").entrySet().forEach(e -> data.getAsJsonObject("expression_patches").add(e.getKey(),e.getValue()));
+        }
+        if (revision.has("puff_surface")) {
+            JsonObject surface=revision.getAsJsonObject("puff_surface").deepCopy();
+            appendPuffPart(data,surface);data.add("puff_surface",surface);
+        }
+        if (revision.has("puff_attachments")) {
+            JsonArray attachments=revision.getAsJsonArray("puff_attachments").deepCopy();
+            for(var raw:attachments)appendPuffPart(data,raw.getAsJsonObject());
+            data.add("puff_attachments",attachments);
+        }
+        if (revision.has("puff_offsets")) data.add("puff_offsets",revision.get("puff_offsets"));
+    }
+
+    /** Expand a shared-corner puff mesh into the vertex list; offsets are full xyz per corner. */
+    private static void appendPuffPart(JsonObject data,JsonObject part) {
+        JsonArray source=part.getAsJsonArray("vertices"),indices=part.getAsJsonArray("indices"),offsets=part.getAsJsonArray("offsets");
+        int start=data.getAsJsonArray("vertices").size()/8,count=indices==null?source.size()/8:indices.size();
+        if(source.size()%8!=0||count%3!=0||offsets==null||offsets.size()*8!=source.size()*3)throw new IllegalArgumentException("Invalid puff mesh");
+        JsonArray expandedOffsets=new JsonArray();
+        for(int i=0;i<count;i++){
+            int index=indices==null?i:indices.get(i).getAsInt();
+            if(index<0||index*8+8>source.size())throw new IllegalArgumentException("Invalid puff index");
+            for(int k=0;k<8;k++)data.getAsJsonArray("vertices").add(source.get(index*8+k));
+            for(int k=0;k<3;k++)expandedOffsets.add(offsets.get(index*3+k));
+            JsonArray binding=new JsonArray();binding.add(part.get("bone"));binding.add(part.get("bone"));binding.add(0);data.getAsJsonArray("weights").add(binding);
+        }
+        part.remove("vertices");part.remove("indices");part.addProperty("start",start);part.addProperty("count",count);
+        part.add("offsets",expandedOffsets);
+    }
+
     private YukkuriModel(JsonObject data,io.github.longshou.mcyukkuri.body.ModelFingerprint hash) {
         sourceHash=hash;
+        if(data.has("expression_aliases"))data.getAsJsonObject("expression_aliases").entrySet().forEach(e->expressionAliases.put(e.getKey(),e.getValue().getAsString()));
         id = data.get("id").getAsString();
         if (data.get("format").getAsInt() != 1 || data.get("units_per_block").getAsInt() != 16)
             throw new IllegalArgumentException("Unsupported Yukkuri model format");
@@ -287,6 +421,25 @@ public final class YukkuriModel {
                 java.util.Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
             }
         }
+        if(data.has("puff_surface")) {
+            puffOffsets=new float[vertices.length/8*3];
+            JsonObject surface=data.getAsJsonObject("puff_surface");puffPartIndex=surface.get("part_index").getAsInt();
+            if(puffPartIndex<0||puffPartIndex>=parts.size())throw new IllegalArgumentException("Invalid puff surface");
+            puffSurface=puffPart(surface,parts.get(puffPartIndex),bindings.length);
+            for(var raw:data.has("puff_attachments")?data.getAsJsonArray("puff_attachments"):new JsonArray()){
+                JsonObject attachment=raw.getAsJsonObject();int index=attachment.get("part_index").getAsInt();
+                if(index<0||index>=parts.size())throw new IllegalArgumentException("Invalid puff attachment");
+                puffAttachments.put(index,puffPart(attachment,parts.get(index),bindings.length));
+            }
+            // Side locks keep their own triangles; their swing is a rest-space offset per corner.
+            for(var raw:data.has("puff_offsets")?data.getAsJsonArray("puff_offsets"):new JsonArray()){
+                JsonObject moved=raw.getAsJsonObject();int index=moved.get("part_index").getAsInt();
+                if(index<0||index>=parts.size())throw new IllegalArgumentException("Invalid puff offsets");
+                Part part=parts.get(index);float[] offsets=floats(moved.getAsJsonArray("offsets"));
+                if(offsets.length!=part.count*3)throw new IllegalArgumentException("Puff offsets differ from part topology");
+                System.arraycopy(offsets,0,puffOffsets,part.start*3,offsets.length);
+            }
+        }
         if(data.has("expression_patches"))for(var entry:data.getAsJsonObject("expression_patches").entrySet()){
             var list=new ArrayList<ExpressionPatch>();for(var raw:entry.getValue().getAsJsonArray()){
                 var patch=raw.getAsJsonObject();int index=patch.get("index").getAsInt();if(index<0||index>=parts.size())throw new IllegalArgumentException("Invalid expression part");
@@ -323,9 +476,27 @@ public final class YukkuriModel {
             float duration = clip.get("duration").getAsFloat();
             if (!(duration > 0)) throw new IllegalArgumentException("Invalid clip duration");
             clips.put(entry.getKey(), new Clip(duration, clip.get("loop").getAsBoolean(), tracks));
+            if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
+            if (clip.has("expression_spans")) {
+                List<ExpressionSpan> spans = new ArrayList<>();
+                for (var raw : clip.getAsJsonArray("expression_spans")) {
+                    JsonArray span = raw.getAsJsonArray();
+                    spans.add(new ExpressionSpan(span.get(0).getAsFloat(),span.get(1).getAsFloat(),span.get(2).getAsString()));
+                }
+                actionExpressions.put(entry.getKey(),List.copyOf(spans));
+            }
         }
         if (!clips.containsKey("idle")) throw new IllegalArgumentException("Missing idle defaults");
         houseNormals=id.startsWith("house_")?new HouseNormals(restVertices,parts):null;
+        if(puffSurface!=null)puffNormals=new HouseNormals(restVertices,List.of(puffSurface),true);
+    }
+
+    private Part puffPart(JsonObject source,Part original,int vertexCount){
+        int start=source.get("start").getAsInt(),count=source.get("count").getAsInt();
+        float[] offsets=floats(source.getAsJsonArray("offsets"));
+        if(start<0||count<0||count%3!=0||start+count>vertexCount||offsets.length!=count*3)throw new IllegalArgumentException("Invalid puff mesh range");
+        System.arraycopy(offsets,0,puffOffsets,start*3,offsets.length);
+        return new Part(original.name,start,count,original.anatomy);
     }
 
     private static float[] floats(JsonArray values) {
@@ -360,6 +531,19 @@ public final class YukkuriModel {
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         clips.getOrDefault(selected, clips.get("idle")).sample(selected.equals(action)?elapsed:behaviorTicks/20f, pose);
+        puffAmount=0;
+        float[] envelope=puffEnvelopes.get(selected);
+        if (envelope!=null&&puffSurface!=null) {
+            Clip clip=clips.get(selected);
+            float time=selected.equals(action)?elapsed:behaviorTicks/20f;
+            time=clip.loop?time%clip.duration:Math.min(time,clip.duration);
+            puffAmount=puffEnvelope(envelope,time);
+        }
+        // The gripping locks and the wound renderer own different contact
+        // geometry. Keep their original mesh until those combined poses have
+        // their own morph bindings; never detach a held item or move wound ink.
+        // The side-lock swing is part of the same morph, so it stops with it.
+        if(gripping||drawingWoundedBody)puffAmount=0;
         if (selected.equals("house_carry") && action.equals("waddle")) {
             // Walking owns the body; the carry clip retains the two closed locks.
             clips.get("waddle").sample(elapsed, pose);
@@ -393,6 +577,15 @@ public final class YukkuriModel {
         }
         PoseStack.Pose transform = stack.last();
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
+        if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
+            for(var n:puffNormals.normals)n.zero();
+            for(int first:puffNormals.triangles){
+                for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
+                normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);normal.cross(edge);
+                for(int corner=0;corner<3;corner++)puffNormals.normals[puffNormals.groups[first+corner]].add(normal);
+            }
+            for(var n:puffNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
+        }
         if(houseNormals!=null&&!drawingWoundedBody){
             for(var n:houseNormals.normals)n.zero();
             for(int first:houseNormals.triangles){
@@ -403,10 +596,14 @@ public final class YukkuriModel {
             for(var n:houseNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
         }
         var pregnantSurface=new PregnancyFaces.Surface();
-        if(pregnancyBelly>.001f)for(var part:parts)if(bodySurface(part.name))for(int first=part.start;first<part.start+part.count;first+=3){
-            for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);pregnantSurface.add(triangle);
+        if(pregnancyBelly>.001f)for(int index=0;index<parts.size();index++)if(bodySurface(parts.get(index).name)){
+            Part surface=puffAmount>0&&index==puffPartIndex?puffSurface:parts.get(index);
+            for(int first=surface.start;first<surface.start+surface.count;first+=3){
+                for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);pregnantSurface.add(triangle);
+            }
         }
-        for (Part part : parts) {
+        for (int partIndex=0;partIndex<parts.size();partIndex++) {
+            Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
             if(drawingWoundedBody&&io.github.longshou.mcyukkuri.body.WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
             if (!accessory && LivingPresentation.variants.get(id).accessoryPrefixes().stream().anyMatch(part.name::startsWith)) continue;
@@ -442,6 +639,8 @@ public final class YukkuriModel {
                     int uv = (first + index) * 8 + 3;
                     Vector3f vertexNormal=houseNormals!=null&&houseNormals.groups[first+index]>=0
                             ?houseNormals.normals[houseNormals.groups[first+index]]:normal;
+                    if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[first+index]>=0)
+                        vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[first+index]],puffAmount).normalize();
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(255, 255, 255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
@@ -459,11 +658,11 @@ public final class YukkuriModel {
         if(drawingWoundedBody&&!woundGeometryCompatible()){
             drawingWoundedBody=false;if(!warnedWoundMismatch){org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
         }
-        setExpression(entity.getExpressionId());
+        setExpression(expressionFor(action,elapsed,entity.getExpressionId()));
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
-            if(drawingWoundedBody)WoundRenderer.render(entity,world,stack,buffer,buffers,light,overlay);
+            if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatMotion="";setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
@@ -483,6 +682,8 @@ public final class YukkuriModel {
         }finally{drawingWoundedBody=false;setExpression("");}
     }
     private void setExpression(String name){
+        // A revision may carry its own named patch; otherwise borrow the alias's geometry.
+        if(!expressionPatches.containsKey(name))name=geometryExpression(name);
         for(var patch:activePatches)System.arraycopy(restVertices,patch.start,vertices,patch.start,patch.values.length);
         activePatches=expressionPatches.getOrDefault(name,List.of());
         for(var patch:activePatches)System.arraycopy(patch.values,0,vertices,patch.start,patch.values.length);
@@ -520,6 +721,7 @@ public final class YukkuriModel {
         int offset = index * 8;
         Binding binding = bindings[index];
         target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
+        if(puffAmount>0)target.add(puffAmount*puffOffsets[index*3],puffAmount*puffOffsets[index*3+1],puffAmount*puffOffsets[index*3+2]);
         if (binding.weight > 0) {
             second.set(target);
             world[binding.second].transformPosition(second);

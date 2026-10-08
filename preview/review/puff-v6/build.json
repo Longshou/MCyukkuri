@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-10-07T09:30:30.799170+00:00",
+  "scope": "Isolated Gradle build and fixed packaged artifact; copied generated output to existing launcher directories; no game/UI started",
+  "command": "gradlew.bat --init-script .local/puff-contact/init.gradle --project-cache-dir .local/puff-contact/gradle-cache --no-configuration-cache build printPuffPaths",
+  "jar": ".local/puff-contact/release/mcyukkuri-0.1.0-dev.jar",
+  "jarSha256": "68822ab83eeec5a7188c70f2d0c7256ec8736270cb920c4baeec3abadefed384",
+  "runtimeSha256": "54fac26af3c8911724ea93eaab703c8013533432fec8fef997ba4c0f7eb5fc8e",
+  "javaSourceSha256": "2d581221c7e838f23f5501c0130f18792309d2808ce298d574c0ffe74f7962a6",
+  "mainClasses": ".local/puff-contact/build/classes/java/main",
+  "p0TestClasses": ".local/puff-contact/build/classes/java/p0Test",
+  "mainResources": ".local/puff-contact/build/resources/main",
+  "buildLog": ".local/puff-contact/build.log",
+  "launcherClasses": "build/classes/java/main",
+  "launcherResources": "build/resources/main",
+  "textures": 19,
+  "baseModels": 19
+}

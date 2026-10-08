@@ -350,10 +350,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 19.345,
+      "hang_clearance_height": 17.845,
       "hanging_anchor": [
         1.6,
-        19.28,
+        17.78,
         1.635
       ]
     },
@@ -382,10 +382,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 11.25,
+      "hang_clearance_height": 11.1661,
       "hanging_anchor": [
         0,
-        11.21,
+        11.1261,
         1.0
       ]
     },

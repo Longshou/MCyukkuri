@@ -82,13 +82,15 @@ final class WoundRenderer {
         }
     }
     static boolean active(YukkuriEntity e){return !e.visibleWounds().isEmpty();}
-    static void render(YukkuriEntity e,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
-        render(e,e.subspecies().assetId(),e.getExpressionId(),e.visibleWounds(),e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
+    static void render(YukkuriEntity e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
+        render(e,e.subspecies().assetId(),expression,e.visibleWounds(),e.livePregnancyProgress(),e.visibleBandage(),e.visibleFilling(),e.getVariant().isHouse(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,float pregnancy,boolean bandaged,int filling,boolean house,
                        Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         if(wounds.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
-        if(geometry==null||geometry.mesh!=mesh||!geometry.expression.equals(expression)||!geometry.same(wounds)){geometry=new Geometry(mesh,wounds,expression);CACHE.put(key,geometry);}
+        String faceExpression=YukkuriModel.get(asset).geometryExpression(expression);
+        if(geometry==null||geometry.mesh!=mesh||!geometry.expression.equals(faceExpression)||!geometry.same(wounds)){geometry=new Geometry(mesh,wounds,faceExpression);CACHE.put(key,geometry);}
+        // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=new Vector3f();for(int i=0;i<geometry.rest.length;i++){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;k<w.length;k+=2){world[(int)w[k]].transformPosition(geometry.rest[i],temp);dest.fma(w[k+1],temp);}}
         // Face wafers use the same deformed triangles as the skin; independent sampling produces rim z-fighting.
         for(int i=mesh.skinCount;i<geometry.rest.length;i++){var h=geometry.faceAnchors[i];if(h==null)continue;

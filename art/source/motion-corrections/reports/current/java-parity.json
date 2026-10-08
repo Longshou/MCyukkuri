@@ -1,0 +1,129 @@
+{
+  "createdAt": "2026-10-07T16:37:55.528Z",
+  "scope": "Production YukkuriModel.applyFit, applyRevision, constructor and render() driven offline with a recording VertexConsumer; compared triangle by triangle with preview/review/pose.js. No Minecraft client, lighting or GPU.",
+  "models": [
+    {
+      "id": "alice",
+      "frames": 10,
+      "triangles": 261176,
+      "maximumError": 0.0000023722041273543937
+    },
+    {
+      "id": "chen",
+      "frames": 10,
+      "triangles": 272908,
+      "maximumError": 0.000002442121981971468
+    },
+    {
+      "id": "flandre",
+      "frames": 10,
+      "triangles": 85772,
+      "maximumError": 0.00000240400915885175
+    },
+    {
+      "id": "house_marisa",
+      "frames": 10,
+      "triangles": 79558,
+      "maximumError": 9.684999993098131e-7
+    },
+    {
+      "id": "house_reimu",
+      "frames": 10,
+      "triangles": 92902,
+      "maximumError": 0.0000010580000004978274
+    },
+    {
+      "id": "marisa",
+      "frames": 10,
+      "triangles": 220248,
+      "maximumError": 0.0000028999999983625457
+    },
+    {
+      "id": "marisa_bean",
+      "frames": 10,
+      "triangles": 153676,
+      "maximumError": 0.000004131499999004973
+    },
+    {
+      "id": "marisa_face",
+      "frames": 10,
+      "triangles": 201396,
+      "maximumError": 0.000002455574872328725
+    },
+    {
+      "id": "marisa_sparse",
+      "frames": 10,
+      "triangles": 73848,
+      "maximumError": 0.0000028999999983625457
+    },
+    {
+      "id": "marisa_tsumuri",
+      "frames": 10,
+      "triangles": 363688,
+      "maximumError": 0.0000044374999994545306
+    },
+    {
+      "id": "patchouli",
+      "frames": 10,
+      "triangles": 360768,
+      "maximumError": 0.000002538499998649968
+    },
+    {
+      "id": "reimu",
+      "frames": 10,
+      "triangles": 274468,
+      "maximumError": 0.0000022711481584281046
+    },
+    {
+      "id": "reimu_bean",
+      "frames": 10,
+      "triangles": 160276,
+      "maximumError": 0.000004131499999004973
+    },
+    {
+      "id": "reimu_deibu",
+      "frames": 10,
+      "triangles": 300724,
+      "maximumError": 0.0000023999999996249244
+    },
+    {
+      "id": "reimu_face",
+      "frames": 10,
+      "triangles": 270496,
+      "maximumError": 0.0000022999999984563146
+    },
+    {
+      "id": "reimu_sparse",
+      "frames": 10,
+      "triangles": 142028,
+      "maximumError": 0.000002027000002513546
+    },
+    {
+      "id": "reimu_wasa",
+      "frames": 10,
+      "triangles": 326588,
+      "maximumError": 0.000002390968463217291
+    },
+    {
+      "id": "reimu_wasa_deibu",
+      "frames": 10,
+      "triangles": 326310,
+      "maximumError": 0.0000029999999995311555
+    },
+    {
+      "id": "remilia",
+      "frames": 10,
+      "triangles": 85892,
+      "maximumError": 0.0000021310149538322776
+    }
+  ],
+  "triangles": 4052722,
+  "maximumError": 0.0000044374999994545306,
+  "envelopeSamples": 641,
+  "envelopeMaximumError": 5.33652343426283e-7,
+  "runtimeSha256": "5a1e79e5d9ddc2f7cddb35e81b723967844088b6d4c40ae2bc40bd9e479b74c0",
+  "placementFitSha256": "1d2fc4f182188b8087f53252237f1794fa6c4b5a1ad38fa77f1e0bbf8edd983d",
+  "javaSha256": "e782a06bf9054d537166d34a911ea0af884aed78a06da511e8d80668e3274f80",
+  "poseSha256": "e9d35033ec04075caec8db1841941eae304b1b6710f39cd7be396eb1994bdad8",
+  "scriptSha256": "dbb550c81542829a47e60ef205108faea2d5e3a2da5a0c6492e9cc1573dd70c8"
+}

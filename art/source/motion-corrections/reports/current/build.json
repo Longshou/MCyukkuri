@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-10-07T12:06:19.016662+00:00",
+  "scope": "Isolated Gradle build and fixed packaged artifact; copied the outputs to the directories the existing launcher reads; no game or UI started",
+  "command": "gradlew.bat --init-script scripts/puff_checks.init.gradle --project-cache-dir .local/puff-v7/gradle-cache --no-configuration-cache build writePuffClasspath",
+  "result": "BUILD SUCCESSFUL; compileJava, processResources, jar, compileP0TestJava executed; test NO-SOURCE",
+  "jar": ".local/puff-v7/release/mcyukkuri-0.1.0-dev.jar",
+  "jarSha256": "2888775406e4e47ccdb153b7819e84e9f86a0b9c18f51356abc2c88ed3c962db",
+  "jarContentChecks": {
+    "motionResourceMatchesSource": true,
+    "cheekPuffTextures": 19,
+    "yukkuriModelClassMatchesBuild": true,
+    "woundRendererClassMatchesBuild": true
+  },
+  "runtimeSha256": "1dc31cd90aae395df15cc6fcb677a03307e8a287aba5eb72cdb009a3832f5ca2",
+  "javaSourceSha256": {
+    "YukkuriModel.java": "fee8de80a1c316b9d4edd17e71f06f2f1c6767cf0b987552abfbcb2bdfb4b53a",
+    "WoundRenderer.java": "154f602e6b366b11b6c9c6803da8a071fdb2e03afc5451b9e6bce81de690b937"
+  },
+  "mainClasses": ".local/puff-v7/build/classes/java/main",
+  "p0TestClasses": ".local/puff-v7/build/classes/java/p0Test",
+  "mainResources": ".local/puff-v7/build/resources/main",
+  "buildLog": ".local/puff-v7/build.log",
+  "launcherCopies": {
+    "classes": "build/classes/java/main",
+    "resources": "build/resources/main",
+    "jar": "build/libs/mcyukkuri-0.1.0-dev.jar",
+    "verified": "identical file sets and hashes after copy"
+  },
+  "textures": 19,
+  "baseModels": 19,
+  "note": "First built with an equivalent task-local init script; the committed scripts/puff_checks.init.gradle rebuild reported every task up to date and produced the same JAR hash."
+}

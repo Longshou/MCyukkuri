@@ -3628,5 +3628,82 @@
       "house_marisa"
     ],
     "validation": "art/source/hat-interactions/reports/current/verification.md"
+  },
+  "motion_corrections": {
+    "manifest": "art/source/motion-corrections/manifest.json",
+    "source": "standards/yukkuri-library/motions/variants/contact-safe",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
+    "format": 2,
+    "revision": "contact-safe-20261007-v7",
+    "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
+    "preview": "preview/review/index.html",
+    "models": [
+      "alice",
+      "chen",
+      "flandre",
+      "house_marisa",
+      "house_reimu",
+      "marisa",
+      "marisa_bean",
+      "marisa_face",
+      "marisa_sparse",
+      "marisa_tsumuri",
+      "patchouli",
+      "reimu",
+      "reimu_bean",
+      "reimu_deibu",
+      "reimu_face",
+      "reimu_sparse",
+      "reimu_wasa",
+      "reimu_wasa_deibu",
+      "remilia"
+    ],
+    "status": "pending_user_review",
+    "geometry_modified": false,
+    "runtime_morph_geometry_modified": true,
+    "current_previews": "art/source/motion-corrections/previews/current",
+    "current_reports": "art/source/motion-corrections/reports/current",
+    "history": "preview/review/puff-v6"
+  },
+  "placement_fit": {
+    "manifest": "art/source/placement-fit/manifest.json",
+    "source": "standards/yukkuri-library/presentation/placement-fit",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
+    "format": 1,
+    "revision": "placement-fit-20261007-v1",
+    "applied_before": "motion_corrections",
+    "models": [
+      "reimu",
+      "reimu_face",
+      "reimu_sparse",
+      "reimu_wasa",
+      "reimu_deibu",
+      "reimu_wasa_deibu",
+      "marisa",
+      "marisa_face",
+      "marisa_sparse",
+      "marisa_tsumuri",
+      "chen",
+      "alice"
+    ],
+    "checked_unchanged": [
+      "reimu_bean",
+      "house_reimu",
+      "marisa_bean",
+      "house_marisa",
+      "patchouli",
+      "remilia",
+      "flandre"
+    ],
+    "status": "pending_user_review",
+    "geometry_modified": false,
+    "runtime_fit_geometry_modified": true,
+    "derived_reexports": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json"
+    ],
+    "current_previews": "art/source/placement-fit/previews/current",
+    "current_reports": "art/source/placement-fit/reports/current"
   }
 }
