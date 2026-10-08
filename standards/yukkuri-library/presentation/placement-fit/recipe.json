@@ -568,6 +568,53 @@
      "rebind": false
     },
     {
+     "op": "frill",
+     "note": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head",
+     "parts": "brim_center",
+     "y": 8.6,
+     "center": [
+      0,
+      0.55
+     ],
+     "radii": [
+      7.3,
+      7.6
+     ],
+     "drop": 1.6,
+     "short": 0.72,
+     "span": 120,
+     "thickness": 0.16,
+     "count": 14,
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "around": "^(rounded_body_surface|crown|hair_cap|back_hair|rear_side_hair_(left|right)|bang_[0-9]+|bang_tip_[0-9]+)$",
+     "gap": 0.12
+    },
+    {
      "op": "droop",
      "note": "soft brim bends down over the side hair; front and back stay level over the bangs and back locks",
      "parts": "brim_.*",
@@ -592,6 +639,191 @@
      "note": "scalp block squashes with the hair cap",
      "parts": "crown",
      "family": "soft_head_slice"
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "side_lock_1",
+     "tip": "side_tip_1",
+     "ribbon": "side_ribbon_1",
+     "plaits": 5,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "hand_right",
+      "lower": "hand_right_tip",
+      "ribbon": "hand_right_ribbon",
+      "split": 3.5
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      6.75,
+      9.25,
+      -3.7
+     ],
+     "gather": {
+      "y": 7.0,
+      "width": [
+       1.75,
+       1.6
+      ],
+      "depth": [
+       1.35,
+       1.3
+      ]
+     },
+     "end": [
+      6.75,
+      2.65,
+      -3.8
+     ],
+     "width": [
+      1.65,
+      2.0
+     ],
+     "depth": [
+      1.45,
+      1.55
+     ],
+     "bow": {
+      "center": [
+       6.9,
+       2.0,
+       -4.45
+      ],
+      "loop": [
+       1.5,
+       1.3
+      ],
+      "knot": [
+       0.56,
+       0.7
+      ],
+      "thick": 0.5,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 1.4,
+      "bottom": 0.15,
+      "width": [
+       1.7,
+       1.95
+      ],
+      "depth": 1.35,
+      "points": 3,
+      "radius": 0.45,
+      "spread": 0.3
+     }
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "side_lock_-1",
+     "clear": "side_tip_-1|side_ribbon_-1",
+     "root": [
+      -6.95,
+      9.15,
+      -2.6
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.1,
+        0,
+        -0.7
+       ],
+       "width": 0.95,
+       "depth": 0.75,
+       "end": 2.7,
+       "dx": -0.1,
+       "dz": -0.1
+      },
+      {
+       "offset": [
+        -0.1,
+        0,
+        0.0
+       ],
+       "width": 1.0,
+       "depth": 0.85,
+       "end": 1.1,
+       "dx": -0.2
+      },
+      {
+       "offset": [
+        0.05,
+        0,
+        0.7
+       ],
+       "width": 0.9,
+       "depth": 0.75,
+       "end": 1.9,
+       "dx": -0.1,
+       "dz": 0.1
+      }
+     ],
+     "bones": {
+      "upper": "hand_left"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
     }
    ]
   },
@@ -695,6 +927,53 @@
      "rebind": false
     },
     {
+     "op": "frill",
+     "note": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head",
+     "parts": "brim_center",
+     "y": 8.6,
+     "center": [
+      0,
+      0.55
+     ],
+     "radii": [
+      7.3,
+      7.6
+     ],
+     "drop": 1.6,
+     "short": 0.72,
+     "span": 120,
+     "thickness": 0.16,
+     "count": 14,
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "around": "^(rounded_body_surface|crown|hair_cap|back_hair|rear_side_hair_(left|right)|bang_[0-9]+|bang_tip_[0-9]+)$",
+     "gap": 0.12
+    },
+    {
      "op": "droop",
      "note": "soft brim bends down over the side hair; front and back stay level over the bangs and back locks",
      "parts": "brim_.*",
@@ -713,6 +992,191 @@
      "back": 0.2,
      "refine": 0.03,
      "sharpness": 3
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "side_lock_1",
+     "tip": "side_tip_1",
+     "ribbon": "side_ribbon_1",
+     "plaits": 5,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "hand_right",
+      "lower": "hand_right_tip",
+      "ribbon": "hand_right_ribbon",
+      "split": 3.5
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      6.75,
+      9.25,
+      -3.7
+     ],
+     "gather": {
+      "y": 7.0,
+      "width": [
+       1.75,
+       1.6
+      ],
+      "depth": [
+       1.35,
+       1.3
+      ]
+     },
+     "end": [
+      6.75,
+      2.65,
+      -3.8
+     ],
+     "width": [
+      1.65,
+      2.0
+     ],
+     "depth": [
+      1.45,
+      1.55
+     ],
+     "bow": {
+      "center": [
+       6.9,
+       2.0,
+       -4.45
+      ],
+      "loop": [
+       1.5,
+       1.3
+      ],
+      "knot": [
+       0.56,
+       0.7
+      ],
+      "thick": 0.5,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 1.4,
+      "bottom": 0.15,
+      "width": [
+       1.7,
+       1.95
+      ],
+      "depth": 1.35,
+      "points": 3,
+      "radius": 0.45,
+      "spread": 0.3
+     }
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "side_lock_-1",
+     "clear": "side_tip_-1|side_ribbon_-1",
+     "root": [
+      -6.95,
+      9.15,
+      -2.6
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.1,
+        0,
+        -0.7
+       ],
+       "width": 0.95,
+       "depth": 0.75,
+       "end": 2.7,
+       "dx": -0.1,
+       "dz": -0.1
+      },
+      {
+       "offset": [
+        -0.1,
+        0,
+        0.0
+       ],
+       "width": 1.0,
+       "depth": 0.85,
+       "end": 1.1,
+       "dx": -0.2
+      },
+      {
+       "offset": [
+        0.05,
+        0,
+        0.7
+       ],
+       "width": 0.9,
+       "depth": 0.75,
+       "end": 1.9,
+       "dx": -0.1,
+       "dz": 0.1
+      }
+     ],
+     "bones": {
+      "upper": "hand_left"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
     }
    ]
   },
@@ -720,15 +1184,62 @@
    "steps": [
     {
      "op": "affine",
-     "note": "hat pulled down so the crown takes in the top of the head and the brim rests on the forehead edge",
+     "note": "hat pulled down so the crown takes in the top of the head and the brim rests just above the brows, leaving room for the frill",
      "parts": "brim_.*|hat_.*|bow_.*",
      "translate": [
       0,
-      -1.15,
+      -0.9,
       0
      ],
      "bones": "hat_follow|hat|bow",
      "rebind": false
+    },
+    {
+     "op": "frill",
+     "note": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head",
+     "parts": "brim_center",
+     "y": 8.2,
+     "center": [
+      0,
+      0.55
+     ],
+     "radii": [
+      7.2,
+      7.6
+     ],
+     "drop": 1.3,
+     "short": 0.72,
+     "span": 120,
+     "thickness": 0.16,
+     "count": 14,
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "around": "^(rounded_body_surface|crown|hair_cap|back_hair|rear_side_hair_(left|right)|bang_[0-9]+|bang_tip_[0-9]+)$",
+     "gap": 0.12
     },
     {
      "op": "droop",
@@ -748,6 +1259,178 @@
      "front": 0.25,
      "back": 0.7,
      "refine": 0.03
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "side_lock_1",
+     "tip": "side_tip_1",
+     "ribbon": "side_ribbon_1",
+     "plaits": 5,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "hand_right",
+      "lower": "hand_right_tip",
+      "ribbon": "hand_right_ribbon",
+      "split": 3.5
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      6.55,
+      8.7,
+      -3.3
+     ],
+     "gather": {
+      "y": 6.9,
+      "width": [
+       0.95,
+       0.8
+      ],
+      "depth": [
+       0.8,
+       0.75
+      ]
+     },
+     "end": [
+      6.6,
+      3.3,
+      -3.4
+     ],
+     "width": [
+      0.85,
+      1.05
+     ],
+     "depth": [
+      0.85,
+      0.9
+     ],
+     "bow": {
+      "center": [
+       6.7,
+       2.75,
+       -3.85
+      ],
+      "loop": [
+       0.9,
+       0.82
+      ],
+      "knot": [
+       0.38,
+       0.45
+      ],
+      "thick": 0.4,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 2.4,
+      "bottom": 1.5,
+      "width": [
+       0.9,
+       1.05
+      ],
+      "depth": 0.8,
+      "points": 3,
+      "radius": 0.26,
+      "spread": 0.25
+     }
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "side_lock_-1",
+     "clear": "side_tip_-1|side_ribbon_-1",
+     "root": [
+      -6.55,
+      8.7,
+      -1.9
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.05,
+        0,
+        -0.3
+       ],
+       "width": 0.45,
+       "depth": 0.4,
+       "end": 4.7,
+       "dx": -0.1
+      },
+      {
+       "offset": [
+        -0.05,
+        0,
+        0.25
+       ],
+       "width": 0.42,
+       "depth": 0.38,
+       "end": 5.5,
+       "dx": -0.15
+      }
+     ],
+     "bones": {
+      "upper": "hand_left"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
     }
    ]
   },
@@ -801,16 +1484,660 @@
      "note": "scalp block squashes with the hair cap",
      "parts": "crown",
      "family": "soft_head_slice"
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "side_lock_1",
+     "tip": "side_tip_1",
+     "ribbon": "side_ribbon_1",
+     "plaits": 5,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "hand_right",
+      "lower": "hand_right_tip",
+      "ribbon": "hand_right_ribbon",
+      "split": 3.5
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      6.75,
+      9.25,
+      -3.7
+     ],
+     "gather": {
+      "y": 7.0,
+      "width": [
+       1.75,
+       1.6
+      ],
+      "depth": [
+       1.35,
+       1.3
+      ]
+     },
+     "end": [
+      6.75,
+      2.65,
+      -3.8
+     ],
+     "width": [
+      1.65,
+      2.0
+     ],
+     "depth": [
+      1.45,
+      1.55
+     ],
+     "bow": {
+      "center": [
+       6.9,
+       2.0,
+       -4.45
+      ],
+      "loop": [
+       1.5,
+       1.3
+      ],
+      "knot": [
+       0.56,
+       0.7
+      ],
+      "thick": 0.5,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 1.4,
+      "bottom": 0.15,
+      "width": [
+       1.7,
+       1.95
+      ],
+      "depth": 1.35,
+      "points": 3,
+      "radius": 0.45,
+      "spread": 0.3
+     }
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "side_lock_-1",
+     "clear": "side_tip_-1|side_ribbon_-1",
+     "root": [
+      -6.95,
+      9.15,
+      -2.6
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.1,
+        0,
+        -0.7
+       ],
+       "width": 0.95,
+       "depth": 0.75,
+       "end": 2.7,
+       "dx": -0.1,
+       "dz": -0.1
+      },
+      {
+       "offset": [
+        -0.1,
+        0,
+        0.0
+       ],
+       "width": 1.0,
+       "depth": 0.85,
+       "end": 1.1,
+       "dx": -0.2
+      },
+      {
+       "offset": [
+        0.05,
+        0,
+        0.7
+       ],
+       "width": 0.9,
+       "depth": 0.75,
+       "end": 1.9,
+       "dx": -0.1,
+       "dz": 0.1
+      }
+     ],
+     "bones": {
+      "upper": "hand_left"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
     }
    ]
   },
   "marisa_bean": {
-   "note": "Hat was lowered 0.62 onto the bean hair top in the bean-braid revision and validated in game.",
-   "steps": []
+   "steps": [
+    {
+     "op": "frill",
+     "note": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head",
+     "parts": "brim_center",
+     "y": 12.56,
+     "center": [
+      0,
+      -0.38
+     ],
+     "radii": [
+      3.5,
+      4.3
+     ],
+     "drop": 0.62,
+     "short": 0.62,
+     "span": 110,
+     "thickness": 0.1,
+     "count": 12,
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "hug": 0.03
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "bean_braid_1_0",
+     "tip": "bean_braid_1_1",
+     "ribbon": "bean_braid_tie_1",
+     "plaits": 4,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "soft_head_slice_29_bend",
+      "lower": "soft_head_slice_25_bend",
+      "ribbon": "soft_head_slice_22_bend",
+      "split": 9.9
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      3.45,
+      12.3,
+      -2.7
+     ],
+     "gather": {
+      "y": 11.3,
+      "width": [
+       1.2,
+       1.05
+      ],
+      "depth": [
+       1.0,
+       0.95
+      ]
+     },
+     "end": [
+      3.5,
+      9.2,
+      -2.8
+     ],
+     "width": [
+      1.15,
+      1.4
+     ],
+     "depth": [
+      1.05,
+      1.15
+     ],
+     "bow": {
+      "center": [
+       3.55,
+       8.95,
+       -3.25
+      ],
+      "loop": [
+       0.95,
+       0.85
+      ],
+      "knot": [
+       0.4,
+       0.48
+      ],
+      "thick": 0.4,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 8.7,
+      "bottom": 7.9,
+      "width": [
+       1.1,
+       1.3
+      ],
+      "depth": 0.9,
+      "points": 3,
+      "radius": 0.3,
+      "spread": 0.25
+     }
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "bean_braid_-1_[01]",
+     "clear": "bean_braid_tie_-1",
+     "root": [
+      -3.4,
+      12.3,
+      -2.5
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.1,
+        0,
+        -0.4
+       ],
+       "width": 0.8,
+       "depth": 0.65,
+       "end": 9.4,
+       "dx": -0.1
+      },
+      {
+       "offset": [
+        -0.1,
+        0,
+        0.1
+       ],
+       "width": 0.85,
+       "depth": 0.7,
+       "end": 8.6,
+       "dx": -0.2
+      },
+      {
+       "offset": [
+        0.05,
+        0,
+        0.55
+       ],
+       "width": 0.75,
+       "depth": 0.62,
+       "end": 9.9,
+       "dx": -0.1
+      }
+     ],
+     "bones": {
+      "upper": "soft_head_slice_29_bend"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
+    }
+   ]
   },
   "house_marisa": {
-   "note": "Hat brim already sits on the wrapped hair top; hat-carry limits were validated on this geometry.",
-   "steps": []
+   "steps": [
+    {
+     "op": "frill",
+     "note": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head",
+     "parts": "brim_center",
+     "y": 3.37,
+     "center": [
+      0,
+      0.2
+     ],
+     "radii": [
+      1.6,
+      1.91
+     ],
+     "drop": 0.33,
+     "short": 0.62,
+     "span": 110,
+     "thickness": 0.05,
+     "count": 10,
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "hug": 0.03
+    },
+    {
+     "op": "braid",
+     "note": "Marisa's single braid on her left (+x), per Hakkei U 6203, the classic composite and 家ゆ: an unplaited gathered section from under the brim, five chevron plaits widening toward the bow (about 1.5x Reimu's tied lock), a white two-loop bow turned outward at blush height and a pointed tuft near the body bottom",
+     "parts": "side_lock_1_house_fit_[0-9]+",
+     "tip": "side_tip_1_house_fit_0",
+     "ribbon": "side_ribbon_1_house_fit_0",
+     "plaits": 5,
+     "offset": 0.24,
+     "lump": 2.15,
+     "radius": 0.36,
+     "taper": 0.42,
+     "tilt": [
+      10,
+      30
+     ],
+     "twist": 4,
+     "bones": {
+      "upper": "hand_right",
+      "lower": "hand_right_tip",
+      "ribbon": "hand_right_ribbon",
+      "split": 1.43
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     },
+     "root": [
+      2.18,
+      3.42,
+      -1.3
+     ],
+     "gather": {
+      "y": 2.75,
+      "width": [
+       0.62,
+       0.55
+      ],
+      "depth": [
+       0.5,
+       0.48
+      ]
+     },
+     "end": [
+      2.22,
+      1.05,
+      -1.33
+     ],
+     "width": [
+      0.55,
+      0.68
+     ],
+     "depth": [
+      0.52,
+      0.56
+     ],
+     "bow": {
+      "center": [
+       2.24,
+       0.82,
+       -1.58
+      ],
+      "loop": [
+       0.5,
+       0.45
+      ],
+      "knot": [
+       0.2,
+       0.25
+      ],
+      "thick": 0.2,
+      "lift": 12,
+      "yaw": -30
+     },
+     "tuft": {
+      "top": 0.6,
+      "bottom": 0.06,
+      "width": [
+       0.6,
+       0.7
+      ],
+      "depth": 0.45,
+      "points": 3,
+      "radius": 0.16,
+      "spread": 0.12
+     },
+     "clear": "side_tip_1_house_fit_[1-9]|side_ribbon_1_house_fit_[1-9]"
+    },
+    {
+     "op": "strands",
+     "note": "loose side hair opposite the braid: unbraided pointed strands without a tie, ending at staggered heights (Hakkei U 5802)",
+     "parts": "side_lock_-1_house_fit_[0-9]+",
+     "clear": "side_tip_-1_house_fit_[0-9]+|side_ribbon_-1_house_fit_[0-9]+",
+     "root": [
+      -1.9,
+      3.42,
+      -1.32
+     ],
+     "strands": [
+      {
+       "offset": [
+        0.04,
+        0,
+        -0.25
+       ],
+       "width": 0.38,
+       "depth": 0.3,
+       "end": 1.1,
+       "dx": -0.04
+      },
+      {
+       "offset": [
+        -0.04,
+        0,
+        0.0
+       ],
+       "width": 0.4,
+       "depth": 0.34,
+       "end": 0.5,
+       "dx": -0.08
+      },
+      {
+       "offset": [
+        0.02,
+        0,
+        0.25
+       ],
+       "width": 0.36,
+       "depth": 0.3,
+       "end": 0.8,
+       "dx": -0.04
+      }
+     ],
+     "bones": {
+      "upper": "hand_left"
+     },
+     "swatches": {
+      "light": [
+       32,
+       48
+      ],
+      "mid": [
+       16,
+       32
+      ],
+      "dark": [
+       48,
+       64
+      ],
+      "row": [
+       48,
+       64
+      ],
+      "ribbon": [
+       112,
+       48
+      ],
+      "ribbon_shade": [
+       16,
+       64
+      ]
+     }
+    }
+   ]
   },
   "chen": {
    "steps": [
@@ -922,6 +2249,81 @@
      "contact_edge": true
     },
     {
+     "op": "affine",
+     "note": "A5 Chen's cap is a small puffy mob cap (Hakkei U 7337/7487): taller crown above the rim",
+     "parts": "chen_hat_(lower|upper|top)",
+     "pivot": [
+      0,
+      10.2,
+      0.4
+     ],
+     "scale": [
+      1.0,
+      1.8,
+      1.0
+     ],
+     "rebind": false
+    },
+    {
+     "op": "dome",
+     "note": "A5 the stepped crown rounds into a soft bun",
+     "parts": "chen_hat_(rim|lower|upper|top)",
+     "box_from": "chen_hat_(rim|lower|upper|top)",
+     "radii": {
+      "x": 3.4,
+      "y": 3.1,
+      "front": 2.8,
+      "back": 2.8
+     },
+     "refine": 0.03,
+     "rebind": false
+    },
+    {
+     "op": "frill",
+     "note": "A5 ruffled dark-green rim all round the cap, as in the Hakkei cap sprite",
+     "parts": "chen_hat_rim",
+     "y": 10.25,
+     "center": [
+      0,
+      0.2
+     ],
+     "radii": [
+      5.95,
+      4.35
+     ],
+     "drop": 0.42,
+     "short": 0.6,
+     "span": 360,
+     "thickness": 0.14,
+     "count": 24,
+     "swatches": {
+      "light": [
+       32,
+       64
+      ],
+      "mid": [
+       24,
+       64
+      ],
+      "dark": [
+       40,
+       64
+      ],
+      "row": [
+       64,
+       72
+      ],
+      "ribbon": [
+       36,
+       60
+      ],
+      "ribbon_shade": [
+       20,
+       60
+      ]
+     }
+    },
+    {
      "op": "bind",
      "note": "scalp block squashes with the hair cap",
      "parts": "chen_crown",
@@ -1028,16 +2430,164 @@
    ]
   },
   "patchouli": {
-   "note": "Bonnet rim sits on the fringe top; lowering it hides the fringe and lets hair show through the frill.",
-   "steps": []
+   "steps": [
+    {
+     "op": "affine",
+     "note": "A5 Patchouli's mob cap is puffy (Hakkei U 8094/8511): the crown rises above the rim; the rim and frill stay on the fringe top",
+     "parts": "patchouli_bonnet_(body|top|corner_body-?1|corner_top-?1)",
+     "pivot": [
+      0,
+      10.55,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.7,
+      1.0
+     ],
+     "rebind": false,
+     "rigid": [
+      {
+       "parts": "patchouli_crescent_[0-9]+_[0-9]+",
+       "anchor": [
+        2.8,
+        11.4,
+        -5.8
+       ]
+      },
+      {
+       "parts": "patchouli_hat_ribbon_-1",
+       "anchor": [
+        -7.7,
+        11.1,
+        3.3
+       ]
+      },
+      {
+       "parts": "patchouli_hat_ribbon_1",
+       "anchor": [
+        7.7,
+        11.1,
+        3.3
+       ]
+      }
+     ]
+    },
+    {
+     "op": "dome",
+     "note": "A5 the boxy crown rounds into a soft puff",
+     "parts": "patchouli_bonnet_(body|top|corner_body-?1|corner_top-?1)",
+     "box_from": "patchouli_bonnet_(rim|body|top|corner_rim-?1|corner_body-?1|corner_top-?1)",
+     "radii": {
+      "x": 4.8,
+      "y": 3.4,
+      "front": 3.8,
+      "back": 3.8
+     },
+     "refine": 0.03,
+     "rebind": false
+    }
+   ]
   },
   "remilia": {
    "note": "Rounded hair crown with the mob cap ruffle resting on it.",
-   "steps": []
+   "steps": [
+    {
+     "op": "affine",
+     "note": "A5 the mob cap puffs up above its band (Hakkei U predator sprites): a soft bag over the head, not a lid; the bow rides on it",
+     "parts": "predator_cap_crown",
+     "pivot": [
+      0,
+      9.4,
+      0.35
+     ],
+     "scale": [
+      1.0,
+      1.65,
+      1.0
+     ],
+     "rebind": false,
+     "rigid": [
+      {
+       "parts": "predator_cap_(bow|tail)_-?1|predator_cap_knot",
+       "anchor": [
+        0,
+        10.2,
+        5.9
+       ]
+      }
+     ]
+    },
+    {
+     "op": "droop",
+     "note": "A5 the ruffle settles onto the hair instead of standing out flat; less at the front so it stays off the eyes",
+     "parts": "predator_cap_ruffle",
+     "center": [
+      0,
+      0.35
+     ],
+     "radii": [
+      6.3,
+      5.2
+     ],
+     "span": 0.25,
+     "amount": 0.45,
+     "power": 1.2,
+     "front": 0.5,
+     "back": 1.0,
+     "refine": 0.03
+    }
+   ]
   },
   "flandre": {
    "note": "Rounded hair crown with the mob cap ruffle resting on it.",
-   "steps": []
+   "steps": [
+    {
+     "op": "affine",
+     "note": "A5 the mob cap puffs up above its band (Hakkei U predator sprites): a soft bag over the head, not a lid; the bow rides on it",
+     "parts": "predator_cap_crown",
+     "pivot": [
+      0,
+      9.4,
+      0.35
+     ],
+     "scale": [
+      1.0,
+      1.65,
+      1.0
+     ],
+     "rebind": false,
+     "rigid": [
+      {
+       "parts": "predator_cap_(bow|tail)_-?1|predator_cap_knot",
+       "anchor": [
+        -4.1,
+        10.2,
+        -5.0
+       ]
+      }
+     ]
+    },
+    {
+     "op": "droop",
+     "note": "A5 the ruffle settles onto the hair instead of standing out flat; less at the front so it stays off the eyes",
+     "parts": "predator_cap_ruffle",
+     "center": [
+      0,
+      0.35
+     ],
+     "radii": [
+      6.3,
+      5.2
+     ],
+     "span": 0.25,
+     "amount": 0.45,
+     "power": 1.2,
+     "front": 0.5,
+     "back": 1.0,
+     "refine": 0.03
+    }
+   ]
   }
  }
 }

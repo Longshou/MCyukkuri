@@ -87,9 +87,9 @@ class RuntimePose{
   this.src=Float64Array.from(this.model.vertices);
   for(const p of patches[name]||[]){const part=this.model.parts[p.index];if(!part||p.vertices.length!==part.count*8)throw Error('Invalid expression part');this.src.set(p.vertices,part.start*8);}
  }
- frame(action,t){
+ frame(action,t,adjust){
   const model=this.model,poses=model.bones.map(()=>[0,0,0,0,0,0,1,1,1]),world=[];
-  sample(this.clips.idle,0,poses);sample(this.clips[action],t,poses);
+  sample(this.clips.idle,0,poses);sample(this.clips[action],t,poses);if(adjust)adjust(poses,model.bones);
   for(let i=0;i<model.bones.length;i++){
    const p=model.bones[i].pivot,v=poses[i],[x,y,z]=v.slice(3,6).map(a=>a*Math.PI/180);
    const cx=Math.cos(x),sx=Math.sin(x),cy=Math.cos(y),sy=Math.sin(y),cz=Math.cos(z),sz=Math.sin(z),[a,b,d]=v.slice(6);

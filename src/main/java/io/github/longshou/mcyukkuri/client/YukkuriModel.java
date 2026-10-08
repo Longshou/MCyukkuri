@@ -61,6 +61,11 @@ public final class YukkuriModel {
     private String hatMotion="";
     private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
+    /** Afloat in a hat boat the side locks tuck inside the inverted crown instead of poking through its wall
+     *  (extra Z roll per bone, previewed with scripts/render_hat_boat_preview.cjs --roll). */
+    private static final Map<String,Float> AFLOAT_ROLL=Map.of("hand_right_tip",-50f,"hand_left",8f);
+    private boolean afloat;
+    public void setAfloat(boolean value){afloat=value;}
     private final Map<String, Clip> clips = new HashMap<>();
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
@@ -565,6 +570,7 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
+        if(afloat)for(int i=0;i<bones.length;i++){Float roll=AFLOAT_ROLL.get(bones[i].name);if(roll!=null)pose[i][5]+=roll;}
         for (int i = 0; i < bones.length; i++) {
             Bone bone = bones[i];
             float[] v = pose[i];
@@ -673,7 +679,7 @@ public final class YukkuriModel {
                 .map(w->io.github.longshou.mcyukkuri.body.WoundMigration.restore(id,mesh,body,w))
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
-        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        setCarrying(false);setAfloat(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));

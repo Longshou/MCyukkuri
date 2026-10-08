@@ -5,7 +5,9 @@
 
    node scripts/render_form_preview.cjs --ids marisa_sparse,marisa --out .local/preview/hat.png
         [--fit <placement_fit.json>] [--clips idle:0,walk:0.4] [--views front,quarter,side,back,top]
-        [--size 360] [--wrap columns] [--span 13] [--center 9] [--expression neutral] [--hide regex]
+        [--size 360] [--wrap columns] [--span 13] [--center 9] [--expression neutral] [--hide regex] [--no-motion]
+
+   --no-motion skips the motion revision (base clips only), e.g. while the fit changes lock meshes before re-export.
 
    --fit defaults to the packaged resource; pass a trial file from export_placement_fit.cjs --out.
    Textures are decoded once through Python/Pillow into .local/preview-cache. */
@@ -38,10 +40,10 @@ function writePng(file,w,h,rgba){
  fs.writeFileSync(file,Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',ihdr),chunk('IDAT',zlib.deflateSync(rows)),chunk('IEND',Buffer.alloc(0))]));
 }
 const cells=views.length*clips.length,cols=wrap>0?Math.min(wrap,cells):cells,band=Math.ceil(cells/cols),rowsN=ids.length*band,W=cols*size,H=rowsN*size,sheet=new Uint8ClampedArray(W*H*4);
-for(let i=0;i<W*H;i++){sheet[i*4]=242;sheet[i*4+1]=238;sheet[i*4+2]=228;sheet[i*4+3]=255;}
+for(let i=0;i<W*H;i++){sheet[i*4]=198;sheet[i*4+1]=206;sheet[i*4+2]=218;sheet[i*4+3]=255;}
 ids.forEach((id,r)=>{
  const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',id+'.json')));
- const pose=new RuntimePose(model,1,revisions[id]||null,fits[id]||null);pose.expression(expression);
+ const pose=new RuntimePose(model,1,args.includes('--no-motion')?null:revisions[id]||null,fits[id]||null);pose.expression(expression);
  const tex=texture(id,expression),texSize=model.texture_size||128,hideRe=hide?new RegExp(hide):null;
  clips.forEach(([clip,t],ci)=>{
   if(!pose.clips[clip])throw Error(id+': no clip '+clip);

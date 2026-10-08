@@ -8,6 +8,7 @@
    Used by scripts/export_placement_fit.cjs; never writes files. */
 'use strict';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const sculpt=require('./sculpt.cjs');
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 
 /* ---- deformations (rest space, one point at a time) ---- */
@@ -62,7 +63,7 @@ function mapper(step){
  if(step.op==='affine'||step.op==='seat')return p=>affine(step.matrix,p);
  if(step.op==='dome')return p=>dome(step,p);
  if(step.op==='taper')return p=>taper(step,p);
- if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse')return p=>p;
+ if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse'||step.op==='braid'||step.op==='strands'||step.op==='frill')return p=>p;
  throw Error('Unknown placement step '+step.op);
 }
 
@@ -174,6 +175,27 @@ function author(model,entry){
    for(const i of partsMatching(model,g.parts))work.apply(i,gm,false);for(const b of bonesMatching(model,g.bones))work.pivots[b]=gm(work.pivots[b]);
    log.push({step:'rider '+g.parts,translate:d.map(x=>+x.toFixed(4))});}
   if(step.op==='bind'){for(const i of parts)work.bind(i,step.family);continue;}
+  if(step.op==='frill'){
+   // Append a white ruffle under the brim to the first matched part (same bone), before the brim droops.
+   // With `around` the pleats follow the outermost head surface (those parts, in the frill's height band) plus `gap`.
+   let shaped=step;
+   if(step.around){const pts=work.points(partsMatching(model,step.around)).filter(v=>v[1]<=step.y+.2&&v[1]>=step.y-step.drop),[cx,cz]=step.center,wedge=step.span/step.count*Math.PI/180;
+    shaped={...step,radiusAt:ang=>{let r=0;for(const v of pts){const dx=v[0]-cx,dz=v[2]-cz,d=Math.hypot(dx,dz);let da=Math.atan2(dz,dx)-ang;da=Math.atan2(Math.sin(da),Math.cos(da));
+     if(Math.abs(da)<=wedge)r=Math.max(r,d*Math.cos(da));}
+     return r>0?r+(step.gap??.15):Math.hypot(step.radii[0]*Math.cos(ang),step.radii[1]*Math.sin(ang));}};}
+   const e=work.edit(parts[0]),w=e.tris[0].w[0];e.tris.push(...sculpt.frill(shaped,model.texture_size||128,w));e.refined=true;
+   log.push({step:raw.note||'frill'});continue;}
+  if(step.op==='braid'||step.op==='strands'){
+   // Replace whole hair pieces with generated geometry (see sculpt.cjs); listed leftovers are emptied.
+   const bone=n=>{const i=model.bones.findIndex(b=>b.name===n);if(i<0)throw Error(model.id+': no bone '+n);return [i,i,0];};
+   const set=(index,tris)=>{const e=work.edit(index);e.tris=tris;e.refined=true;};
+   const tex=model.texture_size||128,b=step.bones;
+   if(step.op==='braid'){const r=sculpt.braid(step,tex,{upper:bone(b.upper),lower:bone(b.lower),ribbon:bone(b.ribbon)});
+    set(parts[0],r.lock);set(partsMatching(model,step.tip)[0],r.tip);set(partsMatching(model,step.ribbon)[0],r.ribbon);}
+   else set(parts[0],sculpt.strands(step,tex,{upper:bone(b.upper)}));
+   for(const i of step.clear?partsMatching(model,step.clear):[])set(i,[]);
+   for(const i of parts.slice(1))set(i,[]);
+   log.push({step:raw.note||step.op});continue;}
   if(step.op==='collapse'){
    // Remove a piece without changing triangle order: every corner moves to the piece's anchor
    // (its bounding-box centre, or the given point), leaving zero-area triangles that draw nothing.

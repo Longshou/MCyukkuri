@@ -141,6 +141,8 @@ public final class FamilyLife {
         entity.life().personality().load(personality);
         entity.syncFamily();
     }
+    /** Caught on a parent's hat at birth: the newborn no longer waits to land. */
+    public void caughtInHat() { awaitingLanding=false;entity.showReaction("happy","newborn",100); }
     public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
     /** Manufactured filling has no identified father and does not create or replace a partner. */
     public void assisted(UUID brood) {

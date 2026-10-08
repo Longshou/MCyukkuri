@@ -263,9 +263,18 @@ public final class FamilyData extends SavedData {
         if(level.getEntity(brood.mother) instanceof YukkuriEntity parent)entity.habitat().inherit(parent);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
         io.github.longshou.mcyukkuri.cognition.Cognition.born(entity,brood.mother,brood.father);
+        if(brood.kind==BirthKind.STEM&&brood.detachedHolder==null)HatCarry.catchNewborn(entity,catchers(entity,actualFather,brood.mother,level));
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
         setDirty();return entity;
+    }
+    /** Stem drops only: the father first, then hatted kin by recorded lineage. The mother is carrying the stem. */
+    private List<YukkuriEntity> catchers(YukkuriEntity child, YukkuriEntity father, UUID mother, ServerLevel level) {
+        List<YukkuriEntity> out=new ArrayList<>();if(father!=null)out.add(father);
+        level.getEntitiesOfClass(YukkuriEntity.class,child.getBoundingBox().inflate(3)).stream()
+                .filter(kin->kin!=father&&kin!=child&&!kin.getUUID().equals(mother)&&related(child.getUUID(),kin.getUUID()))
+                .sorted(java.util.Comparator.comparingDouble(child::distanceToSqr)).forEach(out::add);
+        return out;
     }
     public void cancel(Brood brood) {
         if(brood==null||brood.cancelled)return;
