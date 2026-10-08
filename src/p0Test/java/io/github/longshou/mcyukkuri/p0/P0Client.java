@@ -352,7 +352,7 @@ public final class P0Client {
             for(String face:List.of("neutral","happy","surprise","sleep","angry")) {
                 try(var stream=mc.getResourceManager().getResourceOrThrow(MCYukkuri.id("textures/entity/"+variant.assetId()+"/"+face+".png")).open();
                     var image=com.mojang.blaze3d.platform.NativeImage.read(stream)) {
-                    int expected=variant.isPredator()?256:128;
+                    int expected=variant.isHouse()?128:256;
                     if(image.getWidth()!=expected || image.getHeight()!=expected)throw new IllegalStateException("Invalid atlas: "+variant);
                 }
             }
@@ -365,7 +365,7 @@ public final class P0Client {
                 var location=MCYukkuri.id("textures/entity/"+asset+"/"+face+".png");
                 try(var stream=mc.getResourceManager().getResourceOrThrow(location).open();
                     var image=com.mojang.blaze3d.platform.NativeImage.read(stream)) {
-                    int expected=asset.equals("marisa_tsumuri")?256:128;
+                    int expected=asset.equals("marisa_tsumuri")?512:asset.endsWith("_bean")?128:256;
                     if(image.getWidth()!=expected||image.getHeight()!=expected)throw new IllegalStateException("Invalid subspecies atlas: "+location);
                     subspeciesAtlases.add(Map.of("asset",asset,"expression",face,"width",image.getWidth(),"height",image.getHeight()));
                 }

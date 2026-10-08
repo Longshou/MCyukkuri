@@ -25,12 +25,12 @@
 
 macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA 打开仓库根目录，选择 Gradle 项目，Project SDK 和 Gradle JVM 都设为 21。
 
-产物为 `build/libs/mcyukkuri-0.1.0-dev.jar`。手动装入游戏时，需要版本匹配的 NeoForge。当前七种实体使用项目内的网格与骨架渲染器，不再要求 GeckoLib。
+产物为 `build/libs/mcyukkuri-0.1.0-dev.jar`。手动装入游戏时，需要版本匹配的 NeoForge。九种油库里实体及其亚种形态使用项目内的网格与骨架渲染器，不需要 GeckoLib。
 
 ## 第一版验收
 
 1. `build` 成功，产物含 `META-INF/neoforge.mods.toml` 和 `assets/mcyukkuri/`。
-2. `runClient` 进入主菜单；日志包含 `Yukkuri World initialized with five standard species and two house variants.`。
+2. `runClient` 进入主菜单；日志包含 `Yukkuri World initialized with nine Yukkuri entity types.`。
 3. 创建创造模式测试世界，物品栏可见“油库里世界”分类和观察笔记。
 4. 也可运行 `/give @s mcyukkuri:field_notebook` 检查物品注册。
 
@@ -54,9 +54,9 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 
 ## 制作源与运行资源
 
-目录职责统一见 [项目地图](../PROJECT_MAP.md)。标准模型在 `standards/yukkuri-library/` 制作；当前七种实体使用 `art/source/standard-runtime/` 中选定的快照和适配骨架，运行数据位于 `src/main/resources/assets/mcyukkuri/yukkuri/`。对应关系见 [美术来源登记](../art/runtime-sources.json)。
+目录职责统一见 [项目地图](../PROJECT_MAP.md)。标准模型在 `standards/yukkuri-library/` 制作；当前实体使用 `art/source/` 下选定的快照（普通五种等见 `rounded-runtime/`，其余见各自目录），运行数据位于 `src/main/resources/assets/mcyukkuri/yukkuri/`。对应关系见 [美术来源登记](../art/runtime-sources.json)。
 
-标准造型确认、素材导出和游戏接入是不同状态。采用新版标准模型时，单独检查资源标识、骨架、贴图与动画适配，再在指定环境验收；不因标准库更新自动覆盖 M1 接入资源。
+标准造型确认、素材导出和游戏接入是不同状态。采用新版标准模型时，单独检查资源标识、骨架、贴图与动画适配，再在指定环境验收；不因标准库更新自动覆盖已接入资源。
 
 模型每次修改后提供最新预览，交由用户观察。旧截图与检查结果归档，不能代替本次检查。历史基础项目验收见 [M0 记录](history/M0_VALIDATION.md)，不覆盖当前实体改动。
 

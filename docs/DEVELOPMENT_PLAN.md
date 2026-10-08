@@ -9,7 +9,7 @@
 - **顺序**：阶段 0 最先做。阶段 1、2 是核心体验，优先做。阶段 3–5 是内容扩充，可以按兴趣交替推进。阶段 6 中的 6.2（代码结构整理）应在阶段 4 新增种族之前完成。
 - **标注**：
   - **【原创】**：作品中没有的数值或规则，由本项目自定，可以随时调整。
-  - **【待定】**：作品之间有冲突，需要用户拍板。附录 A 汇总了这些冲突，并给出推荐默认值。
+  - **【待定】**：作品之间有冲突。附录 A 已给出采用的版本，实现时按附录执行；以后想改，直接改附录。
 - **证据级别**：Wiki 中 A 为作者作品，W 为社区整理，I 为推测，P 为原创。作品之间没有统一正史，以 Wiki 采纳的“本设定”为准。
 
 ## 现状速览
@@ -51,7 +51,7 @@
 
 ## 阶段 0：整理基线
 
-### 0.1 合并整合分支（S）
+### 0.1 合并整合分支（S）——2026-10-08 已完成
 
 - **目标**：`main` 恢复可构建，远端只剩一条主线。
 - **改动**：
@@ -59,6 +59,7 @@
   - 确认 PR #4、#5 已关闭。
   - 删除已合并的远端分支：`fix/cloud-runtime-portability`、`placement-fit`、`claude/loving-keller-b30d2v`。
 - **完成标准**：`main` 的 CI 为绿色，Actions 页能下载开发 Jar。
+- **结果**：PR #6 已压缩合并（仓库不允许合并提交），PR #4、#5 已关闭；`claude/loving-keller-b30d2v` 合并后被自动删除。`fix/cloud-runtime-portability` 和 `placement-fit` 在云端会话中推送删除失败，需要在 GitHub 网页上手动删除；原始提交在 PR #4、#5 的页面里仍可查看。
 
 ### 0.2 确认伤口与徽章在全部形态上显示（S）
 
@@ -68,14 +69,13 @@
   - 螺壳魔理沙 `marisa_tsumuri` 在 `yukkuri/badge_mounts.json` 中没有身上挂点。
 - **改动**：
   - 进游戏用 `/yukkuri action` 逐个查看各形态。
-  - 给 `marisa_tsumuri` 补上身上挂点，挂在螺壳饰物上，依据见 `wiki/badges.md`。
+  - 给 `marisa_tsumuri` 补上身上挂点，挂在螺壳饰物上，依据见 `wiki/badges.md`。螺壳魔理沙没有帽子部件，现有挂点规格（`art/props/badges/mounts.json`，挂在 `hat_band` 上）用不上，需要在螺壳表面重新选点，经 `scripts/export_rounded_attachments.py` 和 `export_badges.py` 导出后看预览确认。
 - **完成标准**：19 种形态受伤后都能看到伤口；佩戴徽章后都能看到圆牌；日志里没有 “Wound/Badge attachment disabled” 警告。
 
-### 0.3 修正过期文案（S）
+### 0.3 修正过期文案（S）——2026-10-08 已完成
 
 - **改动**：
   - `MCYukkuri.commonSetup` 的启动日志还写着“five standard species and two house variants”，`docs/DEVELOPMENT.md` 也还写着“七种实体”，都改成当前数量。
-  - `CORE_GAMEPLAY.md`、`SHOWCASE.md` 仍在教绷带和草药，这两样已经禁用。
   - `GROWTH_BALANCE.md` 说性格与灵胖“仍在设计阶段”，实际已实现。
   - `COGNITION_IMPLEMENTATION.md` 仍写“六维性格”，实际是四项倾向。
   - `SPECIES_IMPLEMENTATION.md` 说对白“尚未接入”，实际已接入。
@@ -83,14 +83,14 @@
   - README 首页的状态段按 0.1 之后的情况重写。
 - **完成标准**：文档描述与游戏行为一致。
 
-### 0.4 清理无用资源和占位物品（S）
+### 0.4 清理无用资源和占位物品（S）——旧资源部分 2026-10-08 已完成
 
 - **改动**：
-  - 删除不再引用的旧 M1 资源：`assets/mcyukkuri/geo/entity/`、`animations/entity/`、`textures/entity/reimu.png`、`textures/entity/marisa.png`。
-  - `bandage`、`herbal_medicine` 已注册但配方禁用，贴图借用原版纸和干海带。二选一：彻底删除，或补上专用美术后重新启用。推荐删除，药物统一走 `life/Consumables`。
+  - 删除不再引用的旧 M1 资源：`assets/mcyukkuri/geo/entity/`、`animations/entity/`、`textures/entity/reimu.png`、`textures/entity/marisa.png`。已完成：几何与贴图在 `art/source/reimu/`、`art/source/marisa/` 中有同指纹的原件；唯一的动画文件移到了同一目录，`art/runtime-sources.json` 已同步。
+  - `bandage` 的配方已禁用，但商店仍在出售（`human/HumanMenu` 第 9 项），所以保留，只按 [周边美术清单](PROP_ART_INVENTORY.md) 替换借用的原版贴图。`herbal_medicine` 已无获取途径，留到 6.6 美术替换时一并决定去留。
 - **完成标准**：构建通过；进入旧存档没有缺失物品报错。
 
-### 0.5 让可选测试重新可用（S）
+### 0.5 让可选测试重新可用（S）——2026-10-08 断言已改，未运行
 
 - **改动**：`src/p0Test/.../P0Client.java` 第 355、368 行的图集尺寸断言已过期。当前实际尺寸为：普通种和圆润形态 256，家油和豆形 128，捕食种 256，螺壳 512。按这些尺寸改正后，`runP0GameTest` 和客户端采集可以作为排查工具继续使用。
 - **完成标准**：本地 `./gradlew runP0GameTest` 能跑完。它不作为合并门槛。
@@ -417,7 +417,7 @@
 
 ## 推荐的近期顺序
 
-1. 0.1 合并整合分支 → 0.2 进游戏确认伤口和徽章 → 0.3、0.4 清理
+1. 0.2 进游戏确认伤口和徽章，并补螺壳挂点（0.1、0.3、0.4 的旧资源清理和 0.5 已完成）
 2. 1.1 失饰的社会后果（最有特色、改动集中）
 3. 1.3 温度 → 1.2 水
 4. 2.1 茎脱落物品 → 2.3 离巢独立
@@ -428,9 +428,9 @@
 9. 6.1 资源瘦身（任何时候觉得加载慢都可以插入）
 10. 阶段 4、5 按兴趣挑选
 
-## 附录 A：需要用户拍板的设定冲突
+## 附录 A：设定冲突的采用决定
 
-| 编号 | 冲突 | 依据 | 推荐默认 |
+| 编号 | 冲突 | 依据 | 采用（2026-10-08，用户授权自行决定） |
 | --- | --- | --- | --- |
 | A1 | 水：八景写怕水、不能渡水；にっき写会游泳 | `lore/conflicts.md`、`rules.md` | 采八景：怕水，螺壳稍耐 |
 | A2 | 被炉魔理沙：L22 耐寒怕热、慢行；L23 冬季活动、夏眠；L12 视为饰物变体 | `lore/species/marisa/kotatsu-marisa.md` | 作为饰物变体，取 L23 的冬活夏眠 |

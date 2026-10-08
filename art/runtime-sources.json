@@ -3536,51 +3536,41 @@
   },
   "legacy_models": {
     "reimu": {
-      "role": "selected_m1_integration_snapshot",
+      "role": "historical_m1_snapshot",
       "editable_model": "art/source/reimu/reimu.bbmodel",
       "geometry": {
         "source": "art/source/reimu/reimu.geo.json",
-        "runtime": "src/main/resources/assets/mcyukkuri/geo/entity/reimu.geo.json",
-        "source_sha256": "446281bee97c2bd897338004d67311facce8b986f3517f2fe6939cb9f50c8e73",
-        "runtime_sha256": "446281bee97c2bd897338004d67311facce8b986f3517f2fe6939cb9f50c8e73"
+        "source_sha256": "446281bee97c2bd897338004d67311facce8b986f3517f2fe6939cb9f50c8e73"
       },
       "texture": {
         "source": "art/source/reimu/reimu.png",
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu.png",
-        "source_sha256": "94a794c38ef8dac8d101611ffefd8549039e6a45bc8c08f58b3835a0cbeb06da",
-        "runtime_sha256": "94a794c38ef8dac8d101611ffefd8549039e6a45bc8c08f58b3835a0cbeb06da"
+        "source_sha256": "94a794c38ef8dac8d101611ffefd8549039e6a45bc8c08f58b3835a0cbeb06da"
       },
       "animation": {
-        "source_and_runtime": "src/main/resources/assets/mcyukkuri/animations/entity/reimu.animation.json",
-        "origin": "M1 entity animation authored for the selected model",
-        "sha256": "3f421a26967f6a3b7f92bd9385cb857bcbb41add812533418a8764d2e079a55b"
-      },
-      "runtime_validation": "pending"
+        "origin": "M1 entity animation authored for the selected model; moved out of runtime resources 2026-10-08",
+        "sha256": "3f421a26967f6a3b7f92bd9385cb857bcbb41add812533418a8764d2e079a55b",
+        "source": "art/source/reimu/reimu.animation.json"
+      }
     },
     "marisa": {
-      "role": "selected_m1_integration_snapshot",
+      "role": "historical_m1_snapshot",
       "editable_model": "art/source/marisa/marisa.bbmodel",
       "geometry": {
         "source": "art/source/marisa/marisa.geo.json",
-        "runtime": "src/main/resources/assets/mcyukkuri/geo/entity/marisa.geo.json",
-        "source_sha256": "bd235553bc2e70ad8b89ebe4a4cca2ed5fef36f7e59ca2f4bf77d61e3292f0c7",
-        "runtime_sha256": "bd235553bc2e70ad8b89ebe4a4cca2ed5fef36f7e59ca2f4bf77d61e3292f0c7"
+        "source_sha256": "bd235553bc2e70ad8b89ebe4a4cca2ed5fef36f7e59ca2f4bf77d61e3292f0c7"
       },
       "texture": {
         "source": "art/source/marisa/marisa.png",
-        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa.png",
-        "source_sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c",
-        "runtime_sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
+        "source_sha256": "a7aae820ace87283fe28757e71214ba22dd78fdf1b23cf5c65acc1f980f1663c"
       },
       "animation": {
-        "source_and_runtime": "src/main/resources/assets/mcyukkuri/animations/entity/marisa.animation.json",
-        "origin": "M1 entity animation authored for the selected model",
-        "sha256": "ee1dec8b4d3d931750d21900034e6d5e7f47874dffd75f8375a65bd5b6eabe75"
-      },
-      "runtime_validation": "pending"
+        "origin": "M1 entity animation authored for the selected model; moved out of runtime resources 2026-10-08",
+        "sha256": "ee1dec8b4d3d931750d21900034e6d5e7f47874dffd75f8375a65bd5b6eabe75",
+        "source": "art/source/marisa/marisa.animation.json"
+      }
     }
   },
-  "legacy_status": "Preserved earlier M1 files; no longer referenced by the entity renderer",
+  "legacy_status": "Earlier M1 files kept as history under art/source/{reimu,marisa}/; runtime copies removed from the mod jar on 2026-10-08",
   "preview": "art/source/rounded-runtime/previews/current/index.html",
   "exporter": "scripts/export_runtime_models.py",
   "body_wounds": {
