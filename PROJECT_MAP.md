@@ -60,7 +60,7 @@
 
 ## 文档维护
 
-根 README 只提供项目状态与导航；目录职责集中维护在本页，开发规则维护在 `AGENTS.md`。版本与运行命令见 `docs/DEVELOPMENT.md`，功能状态见 `docs/ROADMAP.md`，具体实现与未验收事项放对应的专题文档。
+根 README 只提供项目状态与导航；目录职责集中维护在本页，开发规则维护在 `AGENTS.md`。版本与运行命令见 `docs/DEVELOPMENT.md`，已交付功能见 `docs/ROADMAP.md`，后续开发顺序见 `docs/DEVELOPMENT_PLAN.md`，具体实现与未验收事项放对应的专题文档。
 
 本机上级 `E:/yukkuri/` 已按游戏、资料和工具分类，入口见上级 `从这里开始.md`。2026-09-13 清理范围、保留的源码和历史记录见[本机目录清理](docs/DIRECTORY_CLEANUP.md)。项目 `.local/` 中已结束测试的重复编译产物可以清理，但当前试玩固定运行目录、玩家存档、未提交源码、唯一素材与诊断记录须分别识别。
 
