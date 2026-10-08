@@ -63,13 +63,13 @@ function mapper(step){
  if(step.op==='affine'||step.op==='seat')return p=>affine(step.matrix,p);
  if(step.op==='dome')return p=>dome(step,p);
  if(step.op==='taper')return p=>taper(step,p);
- if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse'||step.op==='braid'||step.op==='strands'||step.op==='frill')return p=>p;
+ if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse'||step.op==='braid'||step.op==='strands'||step.op==='frill'||step.op==='puff')return p=>p;
  throw Error('Unknown placement step '+step.op);
 }
 
 /* ---- working geometry ---- */
 class Working{
- constructor(model){this.model=model;this.parts=new Map();this.pivots=model.bones.map(b=>b.pivot.slice());this.families=new Map();
+ constructor(model){this.model=model;this.parts=new Map();this.ground=[];this.pivots=model.bones.map(b=>b.pivot.slice());this.families=new Map();
   model.bones.forEach((b,i)=>{const m=/^(.*_slice)_\d+_bend$/.exec(b.name);if(m){if(!this.families.has(m[1]))this.families.set(m[1],[]);this.families.get(m[1]).push(i);}});
   for(const list of this.families.values())list.sort((a,b)=>model.bones[a].pivot[1]-model.bones[b].pivot[1]);
   this.familyOf=new Map();for(const list of this.families.values())for(const i of list)this.familyOf.set(i,list);}
@@ -185,13 +185,32 @@ function author(model,entry){
      return r>0?r+(step.gap??.15):Math.hypot(step.radii[0]*Math.cos(ang),step.radii[1]*Math.sin(ang));}};}
    const e=work.edit(parts[0]),w=e.tris[0].w[0];e.tris.push(...sculpt.frill(shaped,model.texture_size||128,w));e.refined=true;
    log.push({step:raw.note||'frill'});continue;}
+  if(step.op==='puff'){
+   // Replace a boxy crown with a generated puff (sculpt.cjs) on the first part's binding; `clear` parts are emptied.
+   // Each rider group moves rigidly so its anchor sits on the puff surface at height `y` (default: its own).
+   const e=work.edit(parts[0]),w=e.tris[0].w[0];e.tris=sculpt.puff(step,model.texture_size||128,w);e.refined=true;
+   for(const i of step.clear?partsMatching(model,step.clear):[]){const c=work.edit(i);c.tris=[];c.refined=true;}
+   const {point}=sculpt.puffShape(step),[cx,y0,cz]=step.center,[rx,ry,rz]=step.radii;
+   for(const g of step.riders||[]){const a=g.anchor,y=g.y??a[1],theta=Math.atan2((a[2]-cz)/rz,(a[0]-cx)/rx),phi=Math.asin(clamp((y-y0)/ry,0,1));
+    const q=point(theta,phi),out=g.out??.05,n=[Math.cos(theta)*out,0,Math.sin(theta)*out],d=[q[0]+n[0]-a[0],q[1]-a[1],q[2]+n[2]-a[2]];
+    for(const i of partsMatching(model,g.parts))work.apply(i,p=>[p[0]+d[0],p[1]+d[1],p[2]+d[2]],false);
+    log.push({step:'puff rider '+g.parts,translate:d.map(v=>+v.toFixed(4))});}
+   log.push({step:raw.note||'puff'});continue;}
   if(step.op==='braid'||step.op==='strands'){
    // Replace whole hair pieces with generated geometry (see sculpt.cjs); listed leftovers are emptied.
    const bone=n=>{const i=model.bones.findIndex(b=>b.name===n);if(i<0)throw Error(model.id+': no bone '+n);return [i,i,0];};
    const set=(index,tris)=>{const e=work.edit(index);e.tris=tris;e.refined=true;};
    const tex=model.texture_size||128,b=step.bones;
    if(step.op==='braid'){const r=sculpt.braid(step,tex,{upper:bone(b.upper),lower:bone(b.lower),ribbon:bone(b.ribbon)});
-    set(parts[0],r.lock);set(partsMatching(model,step.tip)[0],r.tip);set(partsMatching(model,step.ribbon)[0],r.ribbon);}
+    set(parts[0],r.lock);set(partsMatching(model,step.tip)[0],r.tip);set(partsMatching(model,step.ribbon)[0],r.ribbon);
+    // The long braid reaches the ground: its lowest rest point bends the lower bone outward on contact (see README).
+    // Only the dedicated lock bones (hand_*) bend; the bean braid rides body slice bones and stays as it is.
+    // The bow hangs from its knot: no clip animates the ribbon bone, so its pivot moves to the knot top.
+    if(/^hand_/.test(b.ribbon)){const i=bone(b.ribbon)[0],c=step.bow.center;work.pivots[i]=[c[0],c[1]+step.bow.knot[1]/2,c[2]];}
+    // Contact points: the lowest rest vertices of the lower braid and of the bow, at most one per 0.2 cell, eight each.
+    for(const [tris,name] of [[r.tip,b.lower],[r.ribbon,b.ribbon]]){if(!/^hand_/.test(name))continue;const seen=new Set(),points=tris.flatMap(t=>t.v).sort((a,c)=>a[1]-c[1])
+     .filter(v=>{const k=Math.round(v[0]/.2)+','+Math.round(v[2]/.2);if(seen.has(k))return false;seen.add(k);return true;}).slice(0,8);
+     work.ground.push({index:bone(name)[0],name,points:points.map(v=>v.slice(0,3).map(x=>+x.toFixed(5))),clearance:step.ground_clearance??.05});}}
    else set(parts[0],sculpt.strands(step,tex,{upper:bone(b.upper)}));
    for(const i of step.clear?partsMatching(model,step.clear):[])set(i,[]);
    for(const i of parts.slice(1))set(i,[]);
@@ -248,7 +267,7 @@ function encode(model,work){
   parts.push({part_index:index,name:model.parts[index].name,inplace,vertices,weights,indices});
  }
  const pivots=[];work.pivots.forEach((p,i)=>{const o=model.bones[i].pivot;if(Math.hypot(p[0]-o[0],p[1]-o[1],p[2]-o[2])>1e-9)pivots.push({index:i,name:model.bones[i].name,pivot:p.map(x=>+x.toFixed(6))});});
- return {parts,bone_pivots:pivots};
+ return work.ground.length?{parts,bone_pivots:pivots,ground_contacts:work.ground}:{parts,bone_pivots:pivots};
 }
 
 module.exports={author,encode,refine,dome,taper,matrixOf,partsMatching,bounds};

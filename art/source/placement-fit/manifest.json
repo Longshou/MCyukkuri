@@ -2,11 +2,11 @@
   "revision": "placement-fit-20261007-v1",
   "status": "pending_user_review",
   "recipe": "standards/yukkuri-library/presentation/placement-fit/recipe.json",
-  "recipe_sha256": "9dc362a5bae19fcc2f1c3b3199a2e8598ac83a121de59053fd08aad53a6d6b09",
+  "recipe_sha256": "7baa04c2c8c06da9e1c0c9bda5358e37e982be2142eb5ab1c737d0c6345d15ab",
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
-  "author_sha256": "84d6d3dabe734ce22daca5eec6c03877e54b99165901f82e29a8bbfe07836664",
+  "author_sha256": "7e02cafd2a965b1409c63992f59622bdbc3831399d1a3e5c38ca1ee9c23a6e18",
   "exporter": "scripts/export_placement_fit.cjs",
-  "exporter_sha256": "764a59969298c49d944cf352367795454000aa41b8a43f9117b3fcdbdaca1c1c",
+  "exporter_sha256": "58ab7b244faf766504a4b255efb6764fe91771f392d52aa024bdb2c5e9a7d27a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "models": {
     "reimu": {
@@ -869,6 +869,10 @@
         "hand_right_tip",
         "hand_right_ribbon"
       ],
+      "ground_contacts": [
+        "hand_right_tip",
+        "hand_right_ribbon"
+      ],
       "log": [
         {
           "step": "hair top follows the rounded head",
@@ -968,6 +972,10 @@
         "hand_right_tip",
         "hand_right_ribbon"
       ],
+      "ground_contacts": [
+        "hand_right_tip",
+        "hand_right_ribbon"
+      ],
       "log": [
         {
           "step": "hair top follows the rounded head",
@@ -1037,7 +1045,12 @@
       "bone_pivots": [
         "hat_follow",
         "hat",
-        "bow"
+        "bow",
+        "hand_right_ribbon"
+      ],
+      "ground_contacts": [
+        "hand_right_tip",
+        "hand_right_ribbon"
       ],
       "log": [
         {
@@ -1096,7 +1109,13 @@
         "side_tip_1",
         "side_ribbon_1"
       ],
-      "bone_pivots": [],
+      "bone_pivots": [
+        "hand_right_ribbon"
+      ],
+      "ground_contacts": [
+        "hand_right_tip",
+        "hand_right_ribbon"
+      ],
       "log": [
         {
           "step": "hair top follows the rounded head",
@@ -1239,7 +1258,13 @@
         "side_ribbon_1_house_fit_1",
         "brim_center"
       ],
-      "bone_pivots": [],
+      "bone_pivots": [
+        "hand_right_ribbon"
+      ],
+      "ground_contacts": [
+        "hand_right_tip",
+        "hand_right_ribbon"
+      ],
       "log": [
         {
           "step": "white scalloped frill under the brim around the head, as in Hakkei U hat sprites 5680/8105: the hat reads as worn over the head"
@@ -1372,7 +1397,11 @@
         "chen_side_right",
         "chen_crown_tuft_right",
         "chen_side_lock_left",
-        "chen_side_lock_right"
+        "chen_side_lock_right",
+        "chen_hat_rim",
+        "chen_hat_lower",
+        "chen_hat_upper",
+        "chen_hat_top"
       ],
       "bone_pivots": [
         "chen_hat",
@@ -1409,6 +1438,19 @@
         {
           "step": "cap rests on the rounded hair",
           "travel": 0.0839
+        },
+        {
+          "step": "A5 the stepped crown rounds into a soft bun",
+          "box": [
+            -5.8667,
+            5.8667,
+            -4.095,
+            4.484,
+            13.964
+          ]
+        },
+        {
+          "step": "A5 ruffled dark-green rim all round the cap, as in the Hakkei cap sprite"
         }
       ]
     },
@@ -1515,18 +1557,169 @@
     "patchouli": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
       "base_sha256": "41838e58ab83b00bde8bef5c1c8de0024da8df3ee001d4acaef8f4180f1deba7",
-      "unchanged": "Bonnet rim sits on the fringe top; lowering it hides the fringe and lets hair show through the frill."
+      "parts": [
+        "patchouli_bonnet_body",
+        "patchouli_bonnet_top",
+        "patchouli_bonnet_corner_body-1",
+        "patchouli_bonnet_corner_top-1",
+        "patchouli_bonnet_corner_body1",
+        "patchouli_bonnet_corner_top1",
+        "patchouli_hat_ribbon_-1",
+        "patchouli_hat_ribbon_1",
+        "patchouli_crescent_0_3",
+        "patchouli_crescent_0_4",
+        "patchouli_crescent_0_5",
+        "patchouli_crescent_0_6",
+        "patchouli_crescent_1_1",
+        "patchouli_crescent_1_2",
+        "patchouli_crescent_1_3",
+        "patchouli_crescent_1_4",
+        "patchouli_crescent_1_5",
+        "patchouli_crescent_1_6",
+        "patchouli_crescent_1_7",
+        "patchouli_crescent_1_8",
+        "patchouli_crescent_2_0",
+        "patchouli_crescent_2_1",
+        "patchouli_crescent_2_2",
+        "patchouli_crescent_2_3",
+        "patchouli_crescent_2_4",
+        "patchouli_crescent_2_5",
+        "patchouli_crescent_2_6",
+        "patchouli_crescent_2_7",
+        "patchouli_crescent_2_8",
+        "patchouli_crescent_2_9",
+        "patchouli_crescent_3_0",
+        "patchouli_crescent_3_1",
+        "patchouli_crescent_3_2",
+        "patchouli_crescent_3_3",
+        "patchouli_crescent_3_4",
+        "patchouli_crescent_3_9",
+        "patchouli_crescent_4_0",
+        "patchouli_crescent_4_1",
+        "patchouli_crescent_4_2",
+        "patchouli_crescent_4_3",
+        "patchouli_crescent_5_0",
+        "patchouli_crescent_5_1",
+        "patchouli_crescent_5_2",
+        "patchouli_crescent_6_0",
+        "patchouli_crescent_6_1",
+        "patchouli_crescent_6_2",
+        "patchouli_crescent_7_0",
+        "patchouli_crescent_7_1",
+        "patchouli_crescent_7_2",
+        "patchouli_crescent_8_0",
+        "patchouli_crescent_8_1",
+        "patchouli_crescent_8_2",
+        "patchouli_crescent_9_0",
+        "patchouli_crescent_9_1",
+        "patchouli_crescent_9_2",
+        "patchouli_crescent_10_1",
+        "patchouli_crescent_10_2",
+        "patchouli_crescent_10_3",
+        "patchouli_crescent_11_3",
+        "patchouli_crescent_11_4",
+        "patchouli_crescent_11_5"
+      ],
+      "refined": [
+        "patchouli_bonnet_body",
+        "patchouli_bonnet_top",
+        "patchouli_bonnet_corner_body-1",
+        "patchouli_bonnet_corner_top-1",
+        "patchouli_bonnet_corner_body1",
+        "patchouli_bonnet_corner_top1"
+      ],
+      "bone_pivots": [],
+      "log": [
+        {
+          "step": "rider patchouli_crescent_[0-9]+_[0-9]+",
+          "translate": [
+            0,
+            0.595,
+            0
+          ]
+        },
+        {
+          "step": "rider patchouli_hat_ribbon_-1",
+          "translate": [
+            0,
+            0.385,
+            0
+          ]
+        },
+        {
+          "step": "rider patchouli_hat_ribbon_1",
+          "translate": [
+            0,
+            0.385,
+            0
+          ]
+        },
+        {
+          "step": "A5 the boxy crown rounds into a soft puff",
+          "box": [
+            -8.3627,
+            8.3627,
+            -5.901,
+            5.9006,
+            15.1448
+          ]
+        }
+      ]
     },
     "remilia": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
       "base_sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
-      "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
+      "parts": [
+        "predator_cap_ruffle",
+        "predator_cap_crown",
+        "predator_cap_bow_-1",
+        "predator_cap_tail_-1",
+        "predator_cap_bow_1",
+        "predator_cap_tail_1",
+        "predator_cap_knot"
+      ],
+      "refined": [
+        "predator_cap_ruffle"
+      ],
+      "bone_pivots": [],
+      "log": [
+        {
+          "step": "rider predator_cap_(bow|tail)_-?1|predator_cap_knot",
+          "translate": [
+            0,
+            0.52,
+            0
+          ]
+        }
+      ]
     },
     "flandre": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
       "base_sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
-      "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
+      "parts": [
+        "predator_cap_ruffle",
+        "predator_cap_crown",
+        "predator_cap_bow_-1",
+        "predator_cap_tail_-1",
+        "predator_cap_bow_1",
+        "predator_cap_tail_1",
+        "predator_cap_knot"
+      ],
+      "refined": [
+        "predator_cap_ruffle"
+      ],
+      "bone_pivots": [],
+      "log": [
+        {
+          "step": "rider predator_cap_(bow|tail)_-?1|predator_cap_knot",
+          "translate": [
+            0,
+            0.52,
+            0
+          ]
+        }
+      ]
     }
   },
-  "runtime_sha256": "b3c1988ba5d88fdb41fea036e43db9e3a62545b15e7e41c0652c17cf0aab67c5"
+  "runtime_sha256": "9837427f95c0ede450e7d089173d75ef3bcf9ce29118d0664047e61fd0205853"
 }

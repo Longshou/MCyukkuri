@@ -56,7 +56,7 @@ function spliceFit(model,fit){
     for(let i=0;i<8;i++)vertices[o+i]=row[i];weights[start+t+j]=w;}}
   if(!e.inplace){part.start=start;part.count=count;}}
  for(const b of fit.bone_pivots){if(!bones[b.index]||bones[b.index].name!==b.name)throw Error('Placement fit bone mismatch');bones[b.index].pivot=b.pivot.slice();}
- return {...model,vertices,weights,parts,bones};
+ return {...model,vertices,weights,parts,bones,ground_contacts:fit.ground_contacts||[]};
 }
 class RuntimePose{
  constructor(model,scale=1,revision=null,fit=null){
@@ -90,13 +90,22 @@ class RuntimePose{
  frame(action,t,adjust){
   const model=this.model,poses=model.bones.map(()=>[0,0,0,0,0,0,1,1,1]),world=[];
   sample(this.clips.idle,0,poses);sample(this.clips[action],t,poses);if(adjust)adjust(poses,model.bones);
-  for(let i=0;i<model.bones.length;i++){
-   const p=model.bones[i].pivot,v=poses[i],[x,y,z]=v.slice(3,6).map(a=>a*Math.PI/180);
+  const local=(i,roll=0)=>{
+   const p=model.bones[i].pivot,v=poses[i],[x,y,z]=[v[3],v[4],v[5]+roll].map(a=>a*Math.PI/180);
    const cx=Math.cos(x),sx=Math.sin(x),cy=Math.cos(y),sy=Math.sin(y),cz=Math.cos(z),sz=Math.sin(z),[a,b,d]=v.slice(6);
    let m=[cz*cy*a,(cz*sy*sx-sz*cx)*b,(cz*sy*cx+sz*sx)*d,0,sz*cy*a,(sz*sy*sx+cz*cx)*b,(sz*sy*cx-cz*sx)*d,0,-sy*a,cy*sx*b,cy*cx*d,0];
    for(let r=0;r<3;r++)m[r*4+3]=p[r]+v[r]-m[r*4]*p[0]-m[r*4+1]*p[1]-m[r*4+2]*p[2];
-   const parent=model.bones[i].parent;if(parent>=0)m=multiply(world[parent],m);world.push(m);
-  }
+   const parent=model.bones[i].parent;return parent>=0?multiply(world[parent],m):m;};
+  for(let i=0;i<model.bones.length;i++)world.push(local(i));
+  // Ground contact (placement fit): a hair end that would pass below the ground swings about its bone's Z axis,
+  // whichever way clears it with the smaller angle (YukkuriModel.groundContacts does the same).
+  for(const g of model.ground_contacts||[]){const height=roll=>{const m=local(g.index,roll);return Math.min(...g.points.map(q=>transform(m,...q)[1]));};
+   if(height(0)>=g.clearance)continue;
+   const solve=sign=>{if(height(sign*90)<g.clearance)return null;let lo=0,hi=90;for(let k=0;k<14;k++){const mid=(lo+hi)/2;if(height(sign*mid)>=g.clearance)hi=mid;else lo=mid;}return sign*hi;};
+   const up=solve(1),down=solve(-1);
+   const roll=up===null&&down===null?(height(90)>=height(-90)?90:-90):up===null?down:down===null?up:Math.abs(up)<=Math.abs(down)?up:down;
+   poses[g.index][5]+=roll;const moved=new Set([g.index]);world[g.index]=local(g.index);
+   for(let i=g.index+1;i<model.bones.length;i++)if(moved.has(model.bones[i].parent)){moved.add(i);world[i]=local(i);}}
   const out=this.output,src=this.src,offsets=this.puffOffsets,puff=puffAmount(this.clips[action],t);out.fill(0);
   for(let pi=0;pi<model.parts.length;pi++){
    const part=puff>0?(this.puffSurface?.part_index===pi?this.puffSurface:this.puffAttachments.get(pi)||model.parts[pi]):model.parts[pi];

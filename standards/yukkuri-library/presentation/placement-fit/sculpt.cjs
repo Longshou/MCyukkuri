@@ -144,4 +144,25 @@ function frill(step,texture,binding){
   mesh.orient(from,[(p0[0]+p1[0]+q0[0]+q1[0])/4,step.y-drop/2,(p0[2]+p1[2]+q0[2]+q1[2])/4]);}
  return mesh.tris;
 }
-module.exports={braid,strands,frill};
+/* Mob-cap crown (Patchouli comic in reference/standard-species: a soft, cloud-like puff over the head): a half
+   ellipsoid from the band up, center [x, y0, z], radii [rx, ry, rz]. The base tucks in to `tuck` of the full
+   radius and swells out by φ≈0.35; `lumps` {count, amp} ripple the side into soft billows that fade toward the top.
+   Lower rings take the `body` swatch, upper rings the `top` swatch (atlas pixels of the swatch corner). */
+function puffShape(step){
+ const [cx,y0,cz]=step.center,[rx,ry,rz]=step.radii,tuck=step.tuck??.9,L=step.lumps||{count:0,amp:0};
+ const radius=(theta,phi)=>{const h=Math.pow(Math.cos(phi),.7)*(tuck+(1-tuck)*Math.min(1,phi/.35));
+  return h*(1+L.amp*Math.cos(L.count*theta)*Math.pow(Math.cos(phi),1.5));};
+ const point=(theta,phi)=>{const r=radius(theta,phi);return [cx+Math.cos(theta)*rx*r,y0+ry*Math.sin(phi),cz+Math.sin(theta)*rz*r];};
+ return {point,radius};
+}
+function puff(step,texture,binding){
+ const mesh=new Mesh(texture),{point}=puffShape(step),rings=step.rings||8,seg=step.segments||40,[cx,y0,cz]=step.center;
+ const sw=step.swatches,uvOf=i=>{const s=i<rings*.55?sw.body:sw.top;return [s[0]+4,s[1]+4];};
+ const P=[];for(let i=0;i<rings;i++){const phi=i/rings*Math.PI/2;P.push(Array.from({length:seg},(_,j)=>point(j/seg*2*Math.PI,phi)));}
+ const apex=[cx,y0+step.radii[1],cz];
+ for(let i=0;i+1<rings;i++)for(let j=0;j<seg;j++){const k=(j+1)%seg,u=uvOf(i);mesh.quad(P[i][j],P[i][k],P[i+1][k],P[i+1][j],u,u,u,u,binding);}
+ for(let j=0;j<seg;j++){const u=uvOf(rings-1);mesh.tri(P[rings-1][j],P[rings-1][(j+1)%seg],apex,u,u,u,binding);}
+ mesh.orient(0,[cx,y0+step.radii[1]*.3,cz]);
+ return mesh.tris;
+}
+module.exports={braid,strands,frill,puff,puffShape};
