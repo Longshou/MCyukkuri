@@ -69,6 +69,24 @@ public final class HatCarry {
         carrier.setPersistenceRequired();child.setPersistenceRequired();child.fallDistance=0;
         carrier.showReaction("happy","gentle",40);return true;
     }
+    /** Ticks a newborn caught at birth stays on the brim before it is set down on safe ground. */
+    public static final int CATCH_HOLD_TICKS=200;
+    private static final String CATCH_RELEASE="mcyukkuri:hat_catch_release";
+    /** Hat catch at stem birth (原创 adaptation of the hat carrying young: 《解体新书》 L06, 餡サイクロペディア「まりさ」).
+     *  The first hatted catcher close to the falling newborn (the father, then recorded kin) takes it onto
+     *  its brim instead of letting it drop. Egg and live births never fall, so they are not caught.
+     *  One newborn per hat; the rest land normally. */
+    public static boolean catchNewborn(YukkuriEntity child,java.util.List<YukkuriEntity> catchers){
+        for(var catcher:catchers)if(catchNewborn(child,catcher))return true;
+        return false;
+    }
+    private static boolean catchNewborn(YukkuriEntity child,YukkuriEntity father){
+        if(father==null||!(child.level() instanceof ServerLevel level)||father.distanceToSqr(child)>9||!canSeat(father,child))return false;
+        if(!father.hasLineOfSight(child)||!child.startRiding(father,true))return false;
+        child.fallDistance=0;child.setDeltaMovement(Vec3.ZERO);child.family().caughtInHat();
+        child.getPersistentData().putLong(CATCH_RELEASE,level.getGameTime()+CATCH_HOLD_TICKS);
+        father.setPersistenceRequired();father.showReaction("happy","newborn",60);return true;
+    }
     public static String carryAction(YukkuriEntity carrier){return carrier.getAnimationId().equals("waddle")?"waddle":"idle";}
     public static org.joml.Matrix4f hatPose(YukkuriEntity carrier,float partial){
         float elapsed=Math.max(0,(carrier.level().getGameTime()-carrier.getAnimationStartTick()+partial)/20f);
@@ -140,6 +158,9 @@ public final class HatCarry {
             return;
         }
         child.fallDistance=0;child.getNavigation().stop();
+        // A newborn caught at birth is set down once the hold time has passed (if ground is available).
+        var data=child.getPersistentData();
+        if(data.contains(CATCH_RELEASE)&&carrier.level().getGameTime()>=data.getLong(CATCH_RELEASE)&&putDown(carrier))data.remove(CATCH_RELEASE);
     }
     private HatCarry(){}
 }

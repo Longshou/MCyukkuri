@@ -50,6 +50,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.pushPose();
             var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;
             boolean hatCarrier=entity.isVehicle()&&io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity);
+            // In her own hat boat Marisa curls up inside the inverted crown (water is masked there).
+            var hatBoat=entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat?boat:null;
+            if(hatBoat!=null)pose.translate(0,io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.RIDER_SINK*hatBoat.hullScale(),0);
             if(hatParent!=null){
                 var offset=io.github.longshou.mcyukkuri.family.HatCarry.seatWorld(hatParent,partialTick).subtract(entity.getPosition(partialTick));
                 pose.translate(offset.x,offset.y,offset.z);
@@ -60,6 +63,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
             if(!hatCarrier&&hatParent==null)dailyMotion(entity,partialTick,pose);
             pose.pushPose();pose.scale(entity.growthScale(),entity.growthScale(),entity.growthScale());
+            if(hatBoat!=null)pose.scale(1.03f,.94f,1.03f);
             var model=YukkuriModel.get(entity.subspecies().assetId());
             String contact=entity.contactPose();boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
             if(contact.equals("BOX"))PropModels.render("iron_enclosure_"+entity.subspecies().assetId(),1,pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
@@ -99,6 +103,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
             else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             model.setCarrying(!entity.getCarriedItem().isEmpty());
+            model.setAfloat(hatBoat!=null);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();

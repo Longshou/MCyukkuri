@@ -61,6 +61,11 @@ public final class YukkuriModel {
     private String hatMotion="";
     private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
+    /** Afloat in a hat boat the side locks tuck inside the inverted crown instead of poking through its wall
+     *  (extra Z roll per bone, previewed with scripts/render_hat_boat_preview.cjs --roll). */
+    private static final Map<String,Float> AFLOAT_ROLL=Map.of("hand_right_tip",-50f,"hand_left",8f);
+    private boolean afloat;
+    public void setAfloat(boolean value){afloat=value;}
     private final Map<String, Clip> clips = new HashMap<>();
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
@@ -101,6 +106,10 @@ public final class YukkuriModel {
     private final Vector3f second = new Vector3f(), normal = new Vector3f(), edge = new Vector3f();
 
     private record Bone(String name, int parent, float x, float y, float z) {}
+    private record GroundContact(int bone, Vector3f[] points, float clearance) {}
+    private final List<GroundContact> groundContacts = new ArrayList<>();
+    private final Matrix4f contactMatrix = new Matrix4f();
+    private final Vector3f contactPoint = new Vector3f();
     private record Binding(int first, int second, float weight) {}
     private record Part(String name, int start, int count, String anatomy) {}
     /** Share light across a deforming skin plane, while preserving authored hard edges. */
@@ -335,6 +344,7 @@ public final class YukkuriModel {
                 throw new IllegalArgumentException("Placement fit bone mismatch");
             bones.get(index).getAsJsonObject().add("pivot",moved.getAsJsonArray("pivot").deepCopy());
         }
+        if (fit.has("ground_contacts")) data.add("ground_contacts",fit.getAsJsonArray("ground_contacts").deepCopy());
     }
 
     /** Merge selected motion clips and the puff morph into a base model whose skeleton matches. */
@@ -449,6 +459,13 @@ public final class YukkuriModel {
         }
         JsonObject allClips=data.getAsJsonObject("clips").deepCopy();
         if(data.has("behavior_clips"))for(var entry:data.getAsJsonObject("behavior_clips").entrySet())allClips.add(entry.getKey(),entry.getValue());
+        if(data.has("ground_contacts"))for(var raw:data.getAsJsonArray("ground_contacts")){
+            var contact=raw.getAsJsonObject();int bone=contact.get("index").getAsInt();
+            if(bone<0||bone>=bones.length||!bones[bone].name.equals(contact.get("name").getAsString()))throw new IllegalArgumentException("Ground contact bone mismatch");
+            var points=contact.getAsJsonArray("points");Vector3f[] at=new Vector3f[points.size()];
+            for(int i=0;i<at.length;i++)at[i]=new Vector3f(floats(points.get(i).getAsJsonArray()));
+            groundContacts.add(new GroundContact(bone,at,contact.get("clearance").getAsFloat()));
+        }
         if(data.has("grip")){
             var grip=data.getAsJsonObject("grip");gripBones=new int[2];gripPoints=new Vector3f[2];
             for(int i=0;i<2;i++){gripBones[i]=grip.getAsJsonArray("bones").get(i).getAsInt();
@@ -565,16 +582,9 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        for (int i = 0; i < bones.length; i++) {
-            Bone bone = bones[i];
-            float[] v = pose[i];
-            Matrix4f matrix = world[i];
-            if (bone.parent < 0) matrix.identity();
-            else matrix.set(world[bone.parent]);
-            matrix.translate(bone.x + v[0], bone.y + v[1], bone.z + v[2])
-                    .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
-                    .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
-        }
+        if(afloat)for(int i=0;i<bones.length;i++){Float roll=AFLOAT_ROLL.get(bones[i].name);if(roll!=null)pose[i][5]+=roll;}
+        for (int i = 0; i < bones.length; i++) local(i, 0, world[i]);
+        groundContacts();
         PoseStack.Pose transform = stack.last();
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
         if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
@@ -651,6 +661,45 @@ public final class YukkuriModel {
     }
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
+    private void local(int i, float roll, Matrix4f matrix) {
+        Bone bone = bones[i];
+        float[] v = pose[i];
+        if (bone.parent < 0) matrix.identity();
+        else matrix.set(world[bone.parent]);
+        matrix.translate(bone.x + v[0], bone.y + v[1], bone.z + v[2])
+                .rotateZYX((v[5] + roll) * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
+                .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
+    }
+    private float contactHeight(GroundContact contact, float roll) {
+        local(contact.bone, roll, contactMatrix);
+        float lowest = Float.MAX_VALUE;
+        for (Vector3f point : contact.points) lowest = Math.min(lowest, contactMatrix.transformPosition(point, contactPoint).y);
+        return lowest;
+    }
+    private float contactRoll(GroundContact contact, float sign) {
+        if (contactHeight(contact, sign * 90) < contact.clearance) return Float.NaN;
+        float lo = 0, hi = 90;
+        for (int k = 0; k < 14; k++) { float mid = (lo + hi) / 2; if (contactHeight(contact, sign * mid) >= contact.clearance) hi = mid; else lo = mid; }
+        return sign * hi;
+    }
+    /** Placement-fit ground contact (preview/review/pose.js does the same): a long braid end that would pass
+     *  below the ground swings about its bone's Z axis, whichever way clears it with the smaller angle. */
+    private void groundContacts() {
+        for (GroundContact contact : groundContacts) {
+            if (contactHeight(contact, 0) >= contact.clearance) continue;
+            float up = contactRoll(contact, 1), down = contactRoll(contact, -1), roll;
+            if (Float.isNaN(up) && Float.isNaN(down)) roll = contactHeight(contact, 90) >= contactHeight(contact, -90) ? 90 : -90;
+            else if (Float.isNaN(up)) roll = down;
+            else if (Float.isNaN(down)) roll = up;
+            else roll = Math.abs(up) <= Math.abs(down) ? up : down;
+            pose[contact.bone][5] += roll;
+            boolean[] moved = new boolean[bones.length];
+            moved[contact.bone] = true; local(contact.bone, 0, world[contact.bone]);
+            for (int i = contact.bone + 1; i < bones.length; i++)
+                if (bones[i].parent >= 0 && moved[bones[i].parent]) { moved[i] = true; local(i, 0, world[i]); }
+        }
+    }
+
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,
             net.minecraft.client.renderer.MultiBufferSource buffers){
@@ -673,7 +722,7 @@ public final class YukkuriModel {
                 .map(w->io.github.longshou.mcyukkuri.body.WoundMigration.restore(id,mesh,body,w))
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
-        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        setCarrying(false);setAfloat(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));

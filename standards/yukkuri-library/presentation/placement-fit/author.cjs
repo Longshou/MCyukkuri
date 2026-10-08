@@ -8,6 +8,7 @@
    Used by scripts/export_placement_fit.cjs; never writes files. */
 'use strict';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const sculpt=require('./sculpt.cjs');
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 
 /* ---- deformations (rest space, one point at a time) ---- */
@@ -46,19 +47,29 @@ function drape(step,p){
  const a=k[i],b=k[i+1],q=clamp((d-a[0])/(b[0]-a[0]),0,1),drop=a[1]+(b[1]-a[1])*q,w=clamp((p[1]-step.y0)/(step.y1-step.y0),0,1);
  return [p[0],p[1]-drop*w,p[2]];
 }
+/* Soft brim: points outside an ellipse about the hat axis (center [x,z], radii [rx,rz]) sink by
+   amount*s^power, s=(r-1)/span clamped to [0,1] in normalised elliptical distance r. The sink is
+   weighted by direction: sides 1, front (-z) and back (+z) by their own factors, so a brim can droop
+   over the ears while staying clear of the eyes; sharpness>1 narrows the drooping arc toward the sides. */
+function droop(step,p){
+ const [cx,cz]=step.center,[rx,rz]=step.radii,dx=(p[0]-cx)/rx,dz=(p[2]-cz)/rz,r=Math.hypot(dx,dz);if(r<=1)return p;
+ const s=clamp((r-1)/step.span,0,1),dir=(dx*dx+dz*dz*(dz<0?step.front??1:step.back??1))/(dx*dx+dz*dz);
+ return [p[0],p[1]-step.amount*Math.pow(dir,step.sharpness||1)*Math.pow(s,step.power||2),p[2]];
+}
 function mapper(step){
+ if(step.op==='droop')return p=>droop(step,p);
  if(step.op==='drape')return p=>drape(step,p);
  if(step.op==='follow'){const a=step.anchor,m=dome(step,a),d=[m[0]-a[0],m[1]-a[1],m[2]-a[2]];return p=>[p[0]+d[0],p[1]+d[1],p[2]+d[2]];}
  if(step.op==='affine'||step.op==='seat')return p=>affine(step.matrix,p);
  if(step.op==='dome')return p=>dome(step,p);
  if(step.op==='taper')return p=>taper(step,p);
- if(step.op==='bind'||step.op==='lift'||step.op==='conform')return p=>p;
+ if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse'||step.op==='braid'||step.op==='strands'||step.op==='frill'||step.op==='puff')return p=>p;
  throw Error('Unknown placement step '+step.op);
 }
 
 /* ---- working geometry ---- */
 class Working{
- constructor(model){this.model=model;this.parts=new Map();this.pivots=model.bones.map(b=>b.pivot.slice());this.families=new Map();
+ constructor(model){this.model=model;this.parts=new Map();this.ground=[];this.pivots=model.bones.map(b=>b.pivot.slice());this.families=new Map();
   model.bones.forEach((b,i)=>{const m=/^(.*_slice)_\d+_bend$/.exec(b.name);if(m){if(!this.families.has(m[1]))this.families.set(m[1],[]);this.families.get(m[1]).push(i);}});
   for(const list of this.families.values())list.sort((a,b)=>model.bones[a].pivot[1]-model.bones[b].pivot[1]);
   this.familyOf=new Map();for(const list of this.families.values())for(const i of list)this.familyOf.set(i,list);}
@@ -164,6 +175,51 @@ function author(model,entry){
    for(const i of partsMatching(model,g.parts))work.apply(i,gm,false);for(const b of bonesMatching(model,g.bones))work.pivots[b]=gm(work.pivots[b]);
    log.push({step:'rider '+g.parts,translate:d.map(x=>+x.toFixed(4))});}
   if(step.op==='bind'){for(const i of parts)work.bind(i,step.family);continue;}
+  if(step.op==='frill'){
+   // Append a white ruffle under the brim to the first matched part (same bone), before the brim droops.
+   // With `around` the pleats follow the outermost head surface (those parts, in the frill's height band) plus `gap`.
+   let shaped=step;
+   if(step.around){const pts=work.points(partsMatching(model,step.around)).filter(v=>v[1]<=step.y+.2&&v[1]>=step.y-step.drop),[cx,cz]=step.center,wedge=step.span/step.count*Math.PI/180;
+    shaped={...step,radiusAt:ang=>{let r=0;for(const v of pts){const dx=v[0]-cx,dz=v[2]-cz,d=Math.hypot(dx,dz);let da=Math.atan2(dz,dx)-ang;da=Math.atan2(Math.sin(da),Math.cos(da));
+     if(Math.abs(da)<=wedge)r=Math.max(r,d*Math.cos(da));}
+     return r>0?r+(step.gap??.15):Math.hypot(step.radii[0]*Math.cos(ang),step.radii[1]*Math.sin(ang));}};}
+   const e=work.edit(parts[0]),w=e.tris[0].w[0];e.tris.push(...sculpt.frill(shaped,model.texture_size||128,w));e.refined=true;
+   log.push({step:raw.note||'frill'});continue;}
+  if(step.op==='puff'){
+   // Replace a boxy crown with a generated puff (sculpt.cjs) on the first part's binding; `clear` parts are emptied.
+   // Each rider group moves rigidly so its anchor sits on the puff surface at height `y` (default: its own).
+   const e=work.edit(parts[0]),w=e.tris[0].w[0];e.tris=sculpt.puff(step,model.texture_size||128,w);e.refined=true;
+   for(const i of step.clear?partsMatching(model,step.clear):[]){const c=work.edit(i);c.tris=[];c.refined=true;}
+   const {point}=sculpt.puffShape(step),[cx,y0,cz]=step.center,[rx,ry,rz]=step.radii;
+   for(const g of step.riders||[]){const a=g.anchor,y=g.y??a[1],theta=Math.atan2((a[2]-cz)/rz,(a[0]-cx)/rx),phi=Math.asin(clamp((y-y0)/ry,0,1));
+    const q=point(theta,phi),out=g.out??.05,n=[Math.cos(theta)*out,0,Math.sin(theta)*out],d=[q[0]+n[0]-a[0],q[1]-a[1],q[2]+n[2]-a[2]];
+    for(const i of partsMatching(model,g.parts))work.apply(i,p=>[p[0]+d[0],p[1]+d[1],p[2]+d[2]],false);
+    log.push({step:'puff rider '+g.parts,translate:d.map(v=>+v.toFixed(4))});}
+   log.push({step:raw.note||'puff'});continue;}
+  if(step.op==='braid'||step.op==='strands'){
+   // Replace whole hair pieces with generated geometry (see sculpt.cjs); listed leftovers are emptied.
+   const bone=n=>{const i=model.bones.findIndex(b=>b.name===n);if(i<0)throw Error(model.id+': no bone '+n);return [i,i,0];};
+   const set=(index,tris)=>{const e=work.edit(index);e.tris=tris;e.refined=true;};
+   const tex=model.texture_size||128,b=step.bones;
+   if(step.op==='braid'){const r=sculpt.braid(step,tex,{upper:bone(b.upper),lower:bone(b.lower),ribbon:bone(b.ribbon)});
+    set(parts[0],r.lock);set(partsMatching(model,step.tip)[0],r.tip);set(partsMatching(model,step.ribbon)[0],r.ribbon);
+    // The long braid reaches the ground: its lowest rest point bends the lower bone outward on contact (see README).
+    // Only the dedicated lock bones (hand_*) bend; the bean braid rides body slice bones and stays as it is.
+    // The bow hangs from its knot: no clip animates the ribbon bone, so its pivot moves to the knot top.
+    if(/^hand_/.test(b.ribbon)){const i=bone(b.ribbon)[0],c=step.bow.center;work.pivots[i]=[c[0],c[1]+step.bow.knot[1]/2,c[2]];}
+    // Contact points: the lowest rest vertices of the lower braid and of the bow, at most one per 0.2 cell, eight each.
+    for(const [tris,name] of [[r.tip,b.lower],[r.ribbon,b.ribbon]]){if(!/^hand_/.test(name))continue;const seen=new Set(),points=tris.flatMap(t=>t.v).sort((a,c)=>a[1]-c[1])
+     .filter(v=>{const k=Math.round(v[0]/.2)+','+Math.round(v[2]/.2);if(seen.has(k))return false;seen.add(k);return true;}).slice(0,8);
+     work.ground.push({index:bone(name)[0],name,points:points.map(v=>v.slice(0,3).map(x=>+x.toFixed(5))),clearance:step.ground_clearance??.05});}}
+   else set(parts[0],sculpt.strands(step,tex,{upper:bone(b.upper)}));
+   for(const i of step.clear?partsMatching(model,step.clear):[])set(i,[]);
+   for(const i of parts.slice(1))set(i,[]);
+   log.push({step:raw.note||step.op});continue;}
+  if(step.op==='collapse'){
+   // Remove a piece without changing triangle order: every corner moves to the piece's anchor
+   // (its bounding-box centre, or the given point), leaving zero-area triangles that draw nothing.
+   for(const i of parts){const b=bounds(work.points([i])),c=step.to||[0,1,2].map(a=>(b.lo[a]+b.hi[a])/2);work.apply(i,()=>c,false);}
+   log.push({step:raw.note||'collapse '+step.parts});continue;}
   if(step.op==='conform'){
    // A thin ribbon lies on the target: every point moves along dir so the ribbon's inner face sits
    // gap outside the target's far surface at that spot. Same shift through the thickness, so it bends, not squashes.
@@ -211,7 +267,7 @@ function encode(model,work){
   parts.push({part_index:index,name:model.parts[index].name,inplace,vertices,weights,indices});
  }
  const pivots=[];work.pivots.forEach((p,i)=>{const o=model.bones[i].pivot;if(Math.hypot(p[0]-o[0],p[1]-o[1],p[2]-o[2])>1e-9)pivots.push({index:i,name:model.bones[i].name,pivot:p.map(x=>+x.toFixed(6))});});
- return {parts,bone_pivots:pivots};
+ return work.ground.length?{parts,bone_pivots:pivots,ground_contacts:work.ground}:{parts,bone_pivots:pivots};
 }
 
 module.exports={author,encode,refine,dome,taper,matrixOf,partsMatching,bounds};

@@ -53,8 +53,16 @@ public final class HatBoatEntity extends Entity {
     @Override public net.minecraft.world.entity.LivingEntity getControllingPassenger() {
         return getFirstPassenger() instanceof YukkuriEntity y ? y : null;
     }
+    /** The hull's crown (where the rider curls up) lies this many model units behind the boat origin. */
+    public static final float CROWN_OFFSET = 2.35f;
+    /** Render-only drop (blocks at hull scale 1) that seats the rider inside the inverted crown; her logical
+     *  position stays above the waterline so she is never treated as standing in water. */
+    public static final float RIDER_SINK = -2.9f / 16;
     @Override protected void positionRider(Entity passenger, MoveFunction move) {
-        if (hasPassenger(passenger)) move.accept(passenger, getX(), getY() + .055, getZ());
+        if (!hasPassenger(passenger)) return;
+        // Sit over the crown, not over the bow: the hull's -z (bow) points forward.
+        double yaw = Math.toRadians(getYRot()), back = CROWN_OFFSET / 16 * hullScale();
+        move.accept(passenger, getX() + Math.sin(yaw) * back, getY() + .055, getZ() - Math.cos(yaw) * back);
     }
     public static HatBoatEntity find(YukkuriEntity y) {
         if (y.getVehicle() instanceof HatBoatEntity boat) return boat;

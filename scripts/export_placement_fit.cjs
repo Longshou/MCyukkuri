@@ -29,7 +29,7 @@ for(const [id,entry] of Object.entries(recipe.models)){
  const {work,log}=author(model,entry),fit=encode(model,work);
  result.models[id]={base_sha256:sha(bytes),...fit};
  manifest.models[id]={base:rel(file),base_sha256:sha(bytes),parts:fit.parts.map(p=>p.name),refined:fit.parts.filter(p=>!p.inplace).map(p=>p.name),
-  bone_pivots:fit.bone_pivots.map(b=>b.name),log};
+  bone_pivots:fit.bone_pivots.map(b=>b.name),...(fit.ground_contacts?{ground_contacts:fit.ground_contacts.map(g=>g.name)}:{}),log};
  console.log(id+': '+fit.parts.length+' parts ('+fit.parts.filter(p=>!p.inplace).length+' refined), '+fit.bone_pivots.length+' pivots');
 }
 const text=JSON.stringify(result)+'\n';

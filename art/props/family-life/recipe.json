@@ -70,10 +70,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 11.1661,
+      "hang_clearance_height": 12.839,
       "hanging_anchor": [
         0,
-        11.1261,
+        12.799,
         1.0
       ]
     },
@@ -102,10 +102,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 12.346092,
+      "hang_clearance_height": 13.852892,
       "hanging_anchor": [
         0,
-        12.04,
+        13.5468,
         1.156
       ]
     },
@@ -118,10 +118,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1,
-      "hang_clearance_height": 11.4,
+      "hang_clearance_height": 12.7,
       "hanging_anchor": [
         0,
-        11.35,
+        12.65,
         0.35
       ]
     },
@@ -134,15 +134,15 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1,
-      "hang_clearance_height": 11.4,
+      "hang_clearance_height": 12.7,
       "hanging_anchor": [
         0,
-        11.35,
+        12.65,
         0.35
       ]
     }
   },
   "note": "Use the approved single forward arched stalk topology. Count spacing fits the selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because child birth size stays 0.30. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. No source character or approval record is replaced.",
   "rounded_source": "art/source/rounded-runtime/attachments.json",
-  "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the unchanged band centre."
+  "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the unchanged band centre. 2026-10-08 (plan A5): the chen, patchouli, remilia and flandre caps were puffed up, so their anchors and clearance heights rise by the cap-top change straight above the anchor (+1.673, +1.507, +1.3, +1.3)."
 }

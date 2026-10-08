@@ -15,15 +15,28 @@
 
 身体、五官、腮红与身体尺寸均未改动。具体步骤、参数与适用形态见制作源说明和 [recipe.json](../../../standards/yukkuri-library/presentation/placement-fit/recipe.json)。
 
+## 第二版（2026-10-08，待用户复查）
+
+按[完善计划](../../../docs/DEVELOPMENT_PLAN.md)阶段 A 修改，参数见制作源说明的“2026-10-08 补充”。
+
+- 魔理沙的单根辫子：六种魔理沙形态都改为一侧一根粗长的辫子（5 节人字纹，白色双圈蝴蝶结，尖发簇），另一侧为散发。辫梢着地时向外弯，不穿进地面。家魔理沙的辫子止于 0.95，拾取物品时蝴蝶结不被压进地面。
+- 帽子的覆盖感：稀毛魔理沙的帽子下移 0.9 并让帽檐两侧下弯；普通、歪脸魔理沙的帽檐两侧下弯。帽檐下加一圈荷叶边，普通、歪脸、稀毛形态的荷叶边贴着头部轮廓。
+- 软帽：橙、蕾米莉亚、弗兰的帽身拉高，像罩在头上的布帽，两位吸血鬼的蝴蝶结作为刚体随帽身移动；帕秋莉的方块帽身换成云朵状的软帽，月牙饰和帽带贴到新帽面上。幼体的果实悬挂点随帽顶升高。
+- 帽船：骑乘者坐进倒扣的帽冠，只露出眼睛以上；漂浮时辫梢收进帽冠。
+
+预览：[魔理沙各形态](previews/current/2026-10-08-marisa.png)、[软帽前后对比](previews/current/2026-10-08-headwear.png)、[帽船](previews/current/2026-10-08-hat-boat.png)、[辫梢着地](previews/current/2026-10-08-ground-bend.png)。
+
+未做实机检查。帽船的水面遮罩、骑乘者交互位置、帽子接生，都要进游戏确认。
+
 ## 运行资源与配套重导
 
 | 产物 | 位置 | 说明 |
 | --- | --- | --- |
-| 位置适配 | `src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json` | 12种形态的替换网格与骨骼枢轴；游戏与检查室在动作修订之前拼接 |
+| 位置适配 | `src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json` | 替换网格、骨骼枢轴与辫梢着地点；游戏与检查室在动作修订之前拼接 |
 | 来源清单 | [manifest.json](manifest.json) | 配方、生成器、导出器、每个基础模型及运行资源的指纹 |
 | 鼓腮修订 | `yukkuri_presentation/motion_corrections.json` | 按拼接后的网格重新导出：侧发外摆角度和脸颊让位以新头发为障碍 |
 | 帽子交互 | `yukkuri_presentation/hat_interactions.json` | 帽托位置、障碍盒和幼油外形按新网格重导；抬起距离只取决于帽檐，未变 |
-| 果实悬挂点 | `yukkuri_presentation/family.json` | 幼油魔理沙挂在帽尖、幼橙挂在帽顶，悬挂点随帽子下移（−1.5、−0.0839） |
+| 果实悬挂点 | `yukkuri_presentation/family.json` | 幼油魔理沙挂在帽尖、幼橙挂在帽顶，悬挂点随帽子下移（−1.5、−0.0839）；第二版中橙、帕秋莉、蕾米莉亚、弗兰随帽顶升高（+1.673、+1.507、+1.3、+1.3） |
 
 基础模型文件没有改写，伤口与徽章使用的模型指纹因此不受本版影响。游戏端 `YukkuriModel.applyFit` 核对每种形态的基础指纹，不一致时跳过并记录警告。
 
