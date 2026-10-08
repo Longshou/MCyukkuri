@@ -1,8 +1,6 @@
 # 开发指南
 
-以下命令供任务所需的本机开发、CI 或其他验证环境使用；先核对对应依赖，再选择所需步骤。执行边界统一维护在 [项目约定](../AGENTS.md)。
-
-2026-09-13 本机核对：默认 Java 为 17，根 `build/libs` 为旧包；请使用[当前可运行性检查](validation/play-readiness/current/README.md)给出的 Java 21 命令及本轮隔离产物。该页保留首次联合回归的一项失败；后续[金章排查](validation/gold-exam/current/README.md)修正了验收时序，完整联合回归 42 项通过。旧资源检查入口仍待同步，下文的历史资源检查命令目前并非全部通过。
+构建与运行命令。流程从简：日常开发只要求 `build` 通过，玩法改动进游戏看一眼；其余检查按需使用。开发顺序见 [完善计划](DEVELOPMENT_PLAN.md)。
 
 ## 固定环境
 
@@ -38,7 +36,13 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 
 观察笔记已有八页个体状态和七页使用指南，包含成长、亲缘、身体和家油生活。当前玩法、配置和实机证据见 [核心玩法记录](CORE_GAMEPLAY.md)。测试入口继续使用 [P0 隔离夹具](P0_VALIDATION.md)，`runP0GameTest` 同时运行实体、生活、家庭和核心生态测试。
 
-交付前运行 `python scripts/validate_entity_assets.py`、`python scripts/export_living_assets.py --check`、`python scripts/export_family_assets.py --check`、`python scripts/export_house_assets.py --check`、`./gradlew build runP0GameTest`。
+## 可选检查
+
+以下工具保留，排查问题或大改后再用，不作为合并门槛：
+
+- `./gradlew runP0GameTest`：无窗口测试服务器中运行实体、生活、家庭与核心生态 GameTest。
+- `./gradlew verifyModelFingerprint`：模型指纹换行兼容检查。
+- `python scripts/validate_entity_assets.py` 及 `scripts/export_*_assets.py --check`：素材导出与运行资源一致性检查，说明见 [项目脚本](../scripts/README.md)。
 
 ## 专用服务器
 
@@ -58,7 +62,7 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 
 ## 自动构建
 
-GitHub Actions 在 `main` 推送和 PR 时，先检查七种实体的资源契约，再使用 Java 21 分别在 Ubuntu / Windows 构建并运行 `runP0GameTest`。成功后在该次运行的 Artifacts 中下载开发 Jar；基础与生活断言报告单独上传。GameTest 使用 Minecraft 内置无窗口测试服务器，不启动普通专服，不代为接受 EULA，也不替代客户端、多人或完整生存验收。本轮未提交或推送，尚无本轮 CI 结果。
+GitHub Actions 在 `main` 推送和 PR 时用 Java 21（Ubuntu）执行 `./gradlew build`，并上传开发 Jar 到该次运行的 Artifacts。构建只检出 `src/` 与 Gradle 包装器，不检出大型美术目录。
 
 ## 上游文档
 
