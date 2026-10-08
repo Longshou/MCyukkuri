@@ -103,7 +103,8 @@ def validate(ident, record, actions):
     model = read(path)
     validate_sources(ident, record, model.get('body_profile') == 'rounded_standard_v1')
     # The client applies selected motion revisions after loading base geometry.
-    revisions = read(ASSETS / 'yukkuri_presentation/motion_corrections.json')['models']
+    corrections = ASSETS / 'yukkuri_presentation/motion_corrections.json'
+    revisions = read(corrections)['models'] if corrections.exists() else {}
     if ident in revisions:
         require(revisions[ident]['bone_names'] == [b['name'] for b in model['bones']], 'motion skeleton differs')
         model['clips'].update(revisions[ident]['clips'])
