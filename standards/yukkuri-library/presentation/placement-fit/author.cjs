@@ -46,13 +46,23 @@ function drape(step,p){
  const a=k[i],b=k[i+1],q=clamp((d-a[0])/(b[0]-a[0]),0,1),drop=a[1]+(b[1]-a[1])*q,w=clamp((p[1]-step.y0)/(step.y1-step.y0),0,1);
  return [p[0],p[1]-drop*w,p[2]];
 }
+/* Soft brim: points outside an ellipse about the hat axis (center [x,z], radii [rx,rz]) sink by
+   amount*s^power, s=(r-1)/span clamped to [0,1] in normalised elliptical distance r. The sink is
+   weighted by direction: sides 1, front (-z) and back (+z) by their own factors, so a brim can droop
+   over the ears while staying clear of the eyes; sharpness>1 narrows the drooping arc toward the sides. */
+function droop(step,p){
+ const [cx,cz]=step.center,[rx,rz]=step.radii,dx=(p[0]-cx)/rx,dz=(p[2]-cz)/rz,r=Math.hypot(dx,dz);if(r<=1)return p;
+ const s=clamp((r-1)/step.span,0,1),dir=(dx*dx+dz*dz*(dz<0?step.front??1:step.back??1))/(dx*dx+dz*dz);
+ return [p[0],p[1]-step.amount*Math.pow(dir,step.sharpness||1)*Math.pow(s,step.power||2),p[2]];
+}
 function mapper(step){
+ if(step.op==='droop')return p=>droop(step,p);
  if(step.op==='drape')return p=>drape(step,p);
  if(step.op==='follow'){const a=step.anchor,m=dome(step,a),d=[m[0]-a[0],m[1]-a[1],m[2]-a[2]];return p=>[p[0]+d[0],p[1]+d[1],p[2]+d[2]];}
  if(step.op==='affine'||step.op==='seat')return p=>affine(step.matrix,p);
  if(step.op==='dome')return p=>dome(step,p);
  if(step.op==='taper')return p=>taper(step,p);
- if(step.op==='bind'||step.op==='lift'||step.op==='conform')return p=>p;
+ if(step.op==='bind'||step.op==='lift'||step.op==='conform'||step.op==='collapse')return p=>p;
  throw Error('Unknown placement step '+step.op);
 }
 
@@ -164,6 +174,11 @@ function author(model,entry){
    for(const i of partsMatching(model,g.parts))work.apply(i,gm,false);for(const b of bonesMatching(model,g.bones))work.pivots[b]=gm(work.pivots[b]);
    log.push({step:'rider '+g.parts,translate:d.map(x=>+x.toFixed(4))});}
   if(step.op==='bind'){for(const i of parts)work.bind(i,step.family);continue;}
+  if(step.op==='collapse'){
+   // Remove a piece without changing triangle order: every corner moves to the piece's anchor
+   // (its bounding-box centre, or the given point), leaving zero-area triangles that draw nothing.
+   for(const i of parts){const b=bounds(work.points([i])),c=step.to||[0,1,2].map(a=>(b.lo[a]+b.hi[a])/2);work.apply(i,()=>c,false);}
+   log.push({step:raw.note||'collapse '+step.parts});continue;}
   if(step.op==='conform'){
    // A thin ribbon lies on the target: every point moves along dir so the ribbon's inner face sits
    // gap outside the target's far surface at that spot. Same shift through the thickness, so it bends, not squashes.

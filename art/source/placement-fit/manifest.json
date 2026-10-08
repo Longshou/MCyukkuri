@@ -2,9 +2,9 @@
   "revision": "placement-fit-20261007-v1",
   "status": "pending_user_review",
   "recipe": "standards/yukkuri-library/presentation/placement-fit/recipe.json",
-  "recipe_sha256": "4907214ae343326f74f86f1394563523899612aad97d967c77e13e07db878942",
+  "recipe_sha256": "123290a16c6760d42badfd95c71e2f4329268cd635dfca957ecde3e51cff413c",
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
-  "author_sha256": "fd45ae79844f5b3033206e096eac00c2e0ad1e299f71acde07553e5f1fb55981",
+  "author_sha256": "429e45bcee5cc0613779052fdd23b2f96cbb35dd7f048178e3c16ebdaf1a4b83",
   "exporter": "scripts/export_placement_fit.cjs",
   "exporter_sha256": "764a59969298c49d944cf352367795454000aa41b8a43f9117b3fcdbdaca1c1c",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
@@ -850,7 +850,11 @@
         "rear_side_hair_left",
         "rear_side_hair_right",
         "side_lock_-1",
-        "side_lock_1"
+        "side_lock_1",
+        "brim_center",
+        "brim_sides",
+        "brim_front",
+        "brim_back"
       ],
       "bone_pivots": [
         "hat_follow",
@@ -932,7 +936,11 @@
         "rear_side_hair_left",
         "rear_side_hair_right",
         "side_lock_-1",
-        "side_lock_1"
+        "side_lock_1",
+        "brim_center",
+        "brim_sides",
+        "brim_front",
+        "brim_back"
       ],
       "bone_pivots": [
         "hat_follow",
@@ -982,7 +990,12 @@
         "bow_left_tail",
         "bow_right_tail"
       ],
-      "refined": [],
+      "refined": [
+        "brim_center",
+        "brim_sides",
+        "brim_front",
+        "brim_back"
+      ],
       "bone_pivots": [
         "hat_follow",
         "hat",
@@ -1327,5 +1340,5 @@
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     }
   },
-  "runtime_sha256": "1d2fc4f182188b8087f53252237f1794fa6c4b5a1ad38fa77f1e0bbf8edd983d"
+  "runtime_sha256": "8dc247e19fa76152e1260ea80dadfda87601fca7e43197499b20b2b9e4286959"
 }
