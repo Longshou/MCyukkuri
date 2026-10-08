@@ -5,9 +5,9 @@ Owns selected static meshes, item/block dispatch models and new survival recipes
 --check is read-only. Existing P1/P4 exporters defer the same paths to this owner.
 """
 import argparse
-import hashlib
 import json
 import io
+from asset_export_checks import check_output, fingerprint, fingerprints, provenance
 from pathlib import Path
 from PIL import Image
 
@@ -27,8 +27,20 @@ def owned_paths():
                for kind in ('recipe', 'advancement/recipes/misc')}
     return result
 
+
+def selected_bowl_palette(atlas_bytes, palette_bytes):
+    """Reuse the selected original palette, avoiding encoder-version drift."""
+    with Image.open(io.BytesIO(atlas_bytes)) as atlas, Image.open(io.BytesIO(palette_bytes)) as palette:
+        crop = atlas.crop((0, 0, 256, 256))
+        if (crop.mode != palette.mode or crop.size != palette.size or
+                crop.tobytes() != palette.tobytes()):
+            raise ValueError('Selected bowl palette differs from the preview atlas crop')
+    return palette_bytes
+
+
 def outputs():
     spec = recipe()
+    previous = provenance(SOURCE / 'provenance.json')
     result, inputs, index = {}, {}, {}
     def emit(path, data):
         result[path] = (json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n').encode('utf-8')
@@ -50,8 +62,11 @@ def outputs():
         if name in ('food_bowl_forage', 'food_bowl_wheat'):
             # The preview atlas embeds vanilla pixels in its top-right corner. Runtime references
             # those vanilla resources directly and ships only our original palette at top-left.
-            atlas = Image.open(io.BytesIO(texture)); out = io.BytesIO()
-            atlas.crop((0, 0, 256, 256)).save(out, format='PNG'); texture = out.getvalue()
+            palette_path = ROOT / spec['source'] / 'food_bowl/texture.png'
+            palette_bytes = palette_path.read_bytes()
+            texture = selected_bowl_palette(texture, palette_bytes)
+            key = palette_path.relative_to(ROOT).as_posix()
+            inputs[key] = fingerprint(palette_path, palette_bytes, previous.get('inputs', {}).get(key))
             for part in mesh['parts']:
                 native = part['name'].startswith(('cut_grass_', 'laid_wheat_'))
                 if native:
@@ -69,13 +84,15 @@ def outputs():
         emit(ASSETS / f'yukkuri_props/{name}.json', mesh)
         result[ASSETS / f'textures/props/{name}.png'] = texture
         for path in (mesh_path, texture_path):
-            inputs[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+            key = path.relative_to(ROOT).as_posix()
+            inputs[key] = fingerprint(path, path.read_bytes(), previous.get('inputs', {}).get(key))
         index[name] = {'bounds': bounds, 'triangles': len(vertices) // 24}
     # Species accessories are selected from the same fitted triangles hidden on
     # their owner, preserving the real bonnet/headband shape when removed.
     living_path = ROOT / 'art/props/care-facilities/recipe.json'
     living = json.loads(living_path.read_text(encoding='utf-8'))['presentation']['variants']
-    inputs[living_path.relative_to(ROOT).as_posix()] = hashlib.sha256(living_path.read_bytes()).hexdigest()
+    key = living_path.relative_to(ROOT).as_posix()
+    inputs[key] = fingerprint(living_path, living_path.read_bytes(), previous.get('inputs', {}).get(key))
     for species, name in spec.get('species_accessories', {}).items():
         model_path = ROOT / f'art/source/standard-runtime/{species}/runtime.model.json'
         texture_path = ROOT / f'art/source/standard-runtime/{species}/textures/neutral.png'
@@ -94,7 +111,8 @@ def outputs():
              'vertices': vertices, 'parts': parts, 'bounds': bounds})
         result[ASSETS / f'textures/props/{name}.png'] = texture_path.read_bytes()
         for path in (model_path, texture_path):
-            inputs[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+            key = path.relative_to(ROOT).as_posix()
+            inputs[key] = fingerprint(path, path.read_bytes(), previous.get('inputs', {}).get(key))
         index[name] = {'bounds': bounds, 'triangles': len(vertices)//24}
     emit(ASSETS / 'yukkuri_props/index.json', index)
     for name in spec['items'] + list(spec.get('species_accessories', {}).values()):
@@ -119,9 +137,10 @@ def outputs():
     for name in spec['retired_recipes']:
         for kind in ('recipe', 'advancement/recipes/misc'):
             emit(DATA / f'{kind}/{name}.json', {'neoforge:conditions': [{'type': 'neoforge:false'}]})
-    inputs['art/props/runtime-peripheral/recipe.json'] = hashlib.sha256((SOURCE/'recipe.json').read_bytes()).hexdigest()
+    key = 'art/props/runtime-peripheral/recipe.json'
+    inputs[key] = fingerprint(SOURCE/'recipe.json', (SOURCE/'recipe.json').read_bytes(), previous.get('inputs', {}).get(key))
     emit(SOURCE / 'provenance.json', {'status': spec['status'], 'skeleton': 'static props; no character rig changes',
-         'inputs': inputs, 'outputs': {p.relative_to(ROOT).as_posix(): hashlib.sha256(b).hexdigest() for p,b in result.items()}})
+         'inputs': inputs, 'outputs': fingerprints(ROOT,result,previous.get('outputs',{}))})
     return result
 
 def main():
@@ -131,7 +150,7 @@ def main():
     generated = outputs()
     for path, content in generated.items():
         if args.check:
-            if not path.is_file() or path.read_bytes() != content:
+            if not check_output(path,content):
                 raise SystemExit(f'Peripheral export differs: {path.relative_to(ROOT)}')
         else:
             path.parent.mkdir(parents=True, exist_ok=True)

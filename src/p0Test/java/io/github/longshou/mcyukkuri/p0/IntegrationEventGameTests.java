@@ -69,8 +69,8 @@ public final class IntegrationEventGameTests {
         t.level = helper.getLevel();
         t.setup();
         var sequence = helper.startSequence().thenWaitUntil(() -> {
-            for (int i = 0; i < SLOTS; i++) helper.assertTrue(t.level.isPositionEntityTicking(
-                    new BlockPos(X + i * STRIDE + 8, 65, Z + 8)), "waiting for isolated event edge chunks");
+            for (int i = 0; i < SLOTS; i++) GameTestChunks.assertTicking(helper,
+                    (X+i*STRIDE)/16,(X+i*STRIDE)/16+1,Z/16,Z/16);
         }).thenExecute(() -> t.run("lookout setup", t::lookoutSetup));
         for (int i = 0; i < 90; i++) sequence.thenIdle(1).thenExecute(t::sampleLook);
         sequence.thenExecute(() -> t.run("lookout result", t::lookoutResult))
@@ -98,7 +98,7 @@ public final class IntegrationEventGameTests {
     private void setup() {
         for (int i = 0; i < SLOTS; i++) {
             int x = X + i * STRIDE;
-            for (int dx = 0; dx < 2; dx++) level.setChunkForced(x / 16 + dx, Z / 16, true);
+            for (int dx = 0; dx < 2; dx++) GameTestChunks.setForced(level,x / 16 + dx, Z / 16, true);
             for (int dx = 0; dx < 32; dx++) for (int dz = 0; dz < 16; dz++) {
                 level.setBlockAndUpdate(new BlockPos(x + dx, 64, Z + dz), Blocks.STONE.defaultBlockState());
                 for (int y = 65; y < 70; y++) level.setBlockAndUpdate(new BlockPos(x + dx, y, Z + dz), Blocks.AIR.defaultBlockState());
@@ -293,6 +293,6 @@ public final class IntegrationEventGameTests {
         clearActors(); threat.discard();
         if (resident != null) resident.discard();
         if (bedHead != null) level.getPoiManager().remove(bedHead);
-        for (int i = 0; i < SLOTS; i++) for (int dx = 0; dx < 2; dx++) level.setChunkForced((X + i * STRIDE) / 16 + dx, Z / 16, false);
+        for (int i = 0; i < SLOTS; i++) for (int dx = 0; dx < 2; dx++) GameTestChunks.setForced(level,(X + i * STRIDE) / 16 + dx, Z / 16, false);
     }
 }

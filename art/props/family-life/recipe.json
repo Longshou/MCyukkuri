@@ -38,10 +38,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 19.345,
+      "hang_clearance_height": 17.845,
       "hanging_anchor": [
         1.6,
-        19.28,
+        17.78,
         1.635
       ]
     },
@@ -70,10 +70,10 @@
       "crown_height": 9.6,
       "depth_clearance": 3.6,
       "clearance_rise": 1.0,
-      "hang_clearance_height": 11.25,
+      "hang_clearance_height": 11.1661,
       "hanging_anchor": [
         0,
-        11.21,
+        11.1261,
         1.0
       ]
     },
@@ -143,5 +143,6 @@
     }
   },
   "note": "Use the approved single forward arched stalk topology. Count spacing fits the selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because child birth size stays 0.30. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. No source character or approval record is replaced.",
-  "rounded_source": "art/source/rounded-runtime/attachments.json"
+  "rounded_source": "art/source/rounded-runtime/attachments.json",
+  "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the unchanged band centre."
 }

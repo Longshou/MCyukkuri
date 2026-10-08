@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -40,6 +41,7 @@ public final class FamilyGameTests {
     private net.minecraft.gametest.framework.GameTestSequence sequence;
     private YukkuriEntity a,b,child;
     private FamilyData.Brood pregnancy;
+    private long naturalStartTick;
     private UUID savedId,token;
     private int growthBirthFlags;
     private float growthStartWidth,growthStartHeight;
@@ -65,7 +67,7 @@ public final class FamilyGameTests {
         });
     }
     private void setup() {
-        for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)level.setChunkForced(x,z,true);
+        for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());
         level.setDayTime(6000);level.setWeatherParameters(6000,0,false,false);
@@ -138,6 +140,19 @@ public final class FamilyGameTests {
             int small=0,big=0;for(int seed=0;seed<1000;seed++){small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);}
             check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
         });
+        later(1,"recorded bean-body birth",()-> {
+            pair();var data=FamilyData.get(level);var brood=conceive(1);
+            // Exercise the rare congenital branch deterministically, without changing production odds.
+            brood.children.getFirst().subspeciesFlags=3<<4;
+            brood.elapsed=brood.duration+40;
+            var baby=data.birth(brood,0,level,new Vec3(176.5,65,27.5));
+            check("recorded bean newborn retains ancestry and narrower juvenile bounds",baby!=null
+                    &&baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
+                    &&io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
+                    &&baby.family().stage()==FamilyLife.Stage.JUVENILE
+                    &&Math.abs(baby.growthScale()-.3)<.001&&Math.abs(baby.getBbWidth()-.1845)<.001,
+                    baby==null?"birth failed":baby.subspecies().save()+" width="+baby.getBbWidth());
+        });
         for(int wanted=1;wanted<=5;wanted++) {
             int count=wanted;
             later(1,"birth count "+count,()-> {
@@ -153,8 +168,12 @@ public final class FamilyGameTests {
                 for(int i=0;i<count;i++) {
                     var baby=data.birth(brood,i,level,new Vec3(176.5+i,65,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
                     baby.setNoAi(true);
+                    // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
+                    float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
+                            ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*.3f:.24f;
                     check(count+" child "+i+" has actual parents and juvenile bounds",baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
-                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-.24)<.001&&Math.abs(baby.growthScale()-.3)<.001,baby.family().save());
+                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-expectedWidth)<.001&&Math.abs(baby.growthScale()-.3)<.001,
+                            java.util.Map.of("family",baby.family().save(),"model",baby.subspecies().assetId(),"width",baby.getBbWidth(),"expectedWidth",expectedWidth));
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;
                 }
@@ -209,18 +228,34 @@ public final class FamilyGameTests {
     }
     private void natural() {
         later(1,"natural court setup",()-> {
-            pair();if(a.getUUID().compareTo(b.getUUID())>0){var swap=a;a=b;b=swap;}
+            pair();pregnancy=null;child=null;
+            if(a.getUUID().compareTo(b.getUUID())>0){var swap=a;a=b;b=swap;}
             a.setNoAi(false);b.setNoAi(false);a.family().introduce(b);
         });
-        later(220,"natural court",()-> {
+        // Courtship includes real navigation. Observe conception instead of assuming
+        // it always finishes exactly 220 ticks after both goals become available.
+        // The unchanged overall 6000-tick GameTest deadline still catches failure.
+        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null,
+                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()));
+        later(1,"natural court",()-> {
             pregnancy=a.family().brood();check("actual family goal conceives after courtship",pregnancy!=null,a.getBehaviorId()+" / "+a.family().save());
             if(pregnancy==null)return;batches.add(pregnancy);pregnancy.duration=200;pregnancy.elapsed=20;
+            naturalStartTick=helper.getTick();
             life(a,t->t.putFloat("Nutrition",90));life(b,t->t.putFloat("Nutrition",90));
         });
-        later(800,"natural delivery",()-> {
-            check("actual gestation gives birth without a spawn command",pregnancy!=null&&pregnancy.complete(),pregnancy==null?"no brood":pregnancy.unborn()+" elapsed="+pregnancy.elapsed+" behavior="+a.getBehaviorId()+" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save());
+        // Gestation counts eligible ticks, not wall ticks: LIVE delivery pauses for
+        // movement or an occupied outlet and each sibling has its own birthTick.
+        // Observe real completion within the same overall 6000-tick deadline.
+        sequence.thenIdle(800).thenWaitUntil(()->helper.assertTrue(pregnancy!=null&&pregnancy.complete(),
+                "Waiting for actual gestation: "+pregnancyDetails()));
+        later(1,"natural delivery",()-> {
+            check("actual gestation gives birth without a spawn command",pregnancy!=null&&pregnancy.complete(),pregnancyDetails());
             if(pregnancy==null||!pregnancy.complete())return;
             child=(YukkuriEntity)level.getEntity(pregnancy.children.getFirst().id);
+        });
+        sequence.thenWaitUntil(()->helper.assertTrue(child!=null&&!child.family().awaitingLanding(),
+                "Waiting for newborn to land before following: "+(child==null?"missing":child.position())));
+        later(1,"natural newborn landing",()-> {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
             child.moveTo(a.getX()+5,65,a.getZ(),0,0);
             life(child,t->t.putFloat("Nutrition",85));
@@ -228,6 +263,20 @@ public final class FamilyGameTests {
         later(180,"family following",()-> {
             check("child approaches a real parent",child!=null&&Math.min(child.distanceToSqr(a),child.distanceToSqr(b))<9,child==null?"missing":child.position());
         });
+    }
+    private String pregnancyDetails() {
+        if(pregnancy==null)return "no brood";
+        int last=pregnancy.children.size()-1;
+        int next=0;while(next<pregnancy.children.size()&&pregnancy.children.get(next).born)next++;
+        String nextAt=next==pregnancy.children.size()?"complete":String.valueOf(pregnancy.duration
+                +(pregnancy.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.birthTick(next):next*8));
+        int completeAt=pregnancy.duration+(pregnancy.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.birthTick(last):last*8);
+        String outletClear=pregnancy.kind==FamilyData.BirthKind.LIVE&&next<pregnancy.children.size()
+                ?String.valueOf(LiveBirthGeometry.clear(a,pregnancy.children.get(next),next)):"not pending";
+        return "kind="+pregnancy.kind+" observedTicks="+(helper.getTick()-naturalStartTick)+" mother="+a.getVariant()+" children="+pregnancy.children.size()+" unborn="+pregnancy.unborn()
+                +" elapsed="+pregnancy.elapsed+" nextAt="+nextAt+" completeAt="+completeAt
+                +" ready="+a.family().readyForDelivery()+" outletClear="+outletClear+" motion="+a.getDeltaMovement()+" behavior="+a.getBehaviorId()
+                +" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save();
     }
     private void persistence() {
         later(1,"pregnant capture setup",()-> {

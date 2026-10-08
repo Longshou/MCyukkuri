@@ -34,7 +34,7 @@ public final class HumanExpansionGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=3400,batch="human_expansion")
     public static void productionAndBadges(GameTestHelper h){
         var t=new HumanExpansionGameTests();var level=h.getLevel();
-        for(int x=74;x<=86;x++)for(int z=-1;z<=3;z++)level.setChunkForced(x,z,true);
+        for(int x=74;x<=86;x++)for(int z=-1;z<=3;z++)GameTestChunks.setForced(level,x,z,true);
         h.onEachTick(()->{
             if(t.pipelineChild!=null&&level.getEntity(t.pipelineChild) instanceof YukkuriEntity y){t.seenStages.add(FactoryPipeline.stage(y));t.carried|=y.getVehicle() instanceof FactoryTray;
                 if(level.getGameTime()%200==0){P0Control.write("factory-pipeline-progress",Map.of("child",y.position().toString(),"stage",FactoryPipeline.stage(y),"passenger",y.isPassenger(),"tag",HumanCommerce.data(y).toString(),"worker",level.getEntity(t.pipelineWorker).position().toString(),"trays",level.getEntitiesOfClass(FactoryTray.class,AREA).stream().map(c->Map.of("pos",c.position().toString(),"blocked",c.blocked(),"path",c.getNavigation().isDone())).toList()));
@@ -66,7 +66,7 @@ public final class HumanExpansionGameTests {
                 t.check("Live production visits receiving, nursery, grading, washing and packing",t.carried&&t.seenStages.containsAll(Set.of("receive","nursery_transfer","grade","wash","pack")));
             }
             level.getEntitiesOfClass(Entity.class,AREA,e->!(e instanceof net.minecraft.world.entity.player.Player)).forEach(Entity::discard);
-            for(int x=74;x<=86;x++)for(int z=-1;z<=3;z++)level.setChunkForced(x,z,false);
+            for(int x=74;x<=86;x++)for(int z=-1;z<=3;z++)GameTestChunks.setForced(level,x,z,false);
             P0Control.write("human-expansion-checks",t.checks);var failed=t.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())h.succeed();else h.fail(failed.toString());
         });
     }

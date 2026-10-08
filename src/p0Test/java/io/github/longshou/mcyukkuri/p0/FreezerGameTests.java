@@ -60,20 +60,20 @@ public final class FreezerGameTests {
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=1200, batch="freezer")
     public static void rules(GameTestHelper helper) {
         var t = new FreezerGameTests(); t.level = helper.getLevel(); t.setup();
-        helper.startSequence().thenWaitUntil(() -> helper.assertTrue(t.level.isPositionEntityTicking(new BlockPos(X+8,65,8)), "waiting for freezer chunk"))
+        helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper,X/16,X/16+1,0,0))
             .thenExecute(() -> t.run(t::inventoryRules)).thenExecute(() -> t.run(t::pregnancyStart))
             .thenIdle(80).thenExecute(() -> t.run(t::pregnancyResume))
             .thenExecute(() -> {
                 P0Control.write("freezer-checks", t.checks);
                 t.level.getEntitiesOfClass(YukkuriEntity.class, new AABB(X,64,0,X+32,76,16)).forEach(Entity::discard);
-                t.level.setChunkForced(X/16,0,false); t.level.setChunkForced(X/16+1,0,false);
+                GameTestChunks.setForced(t.level,X/16,0,false); GameTestChunks.setForced(t.level,X/16+1,0,false);
                 var failed = t.checks.stream().filter(c -> !c.pass()).toList();
                 if (failed.isEmpty()) helper.succeed(); else helper.fail(failed.toString());
             });
     }
     private void run(Runnable action) { try { action.run(); } catch (Throwable error) { check("unexpected: " + error, false); } }
     private void setup() {
-        level.setChunkForced(X/16,0,true); level.setChunkForced(X/16+1,0,true);
+        GameTestChunks.setForced(level,X/16,0,true); GameTestChunks.setForced(level,X/16+1,0,true);
         for (int x=X; x<X+32; x++) for (int z=0; z<16; z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z), Blocks.STONE.defaultBlockState());
             for (int y=65; y<76; y++) level.setBlockAndUpdate(new BlockPos(x,y,z), Blocks.AIR.defaultBlockState());

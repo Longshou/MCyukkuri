@@ -28,6 +28,8 @@ final class RoundedPreview {
         if(id.startsWith("reimu_wasa"))e.subspecies().set(SubspeciesLife.Kind.WASA_REIMU,SubspeciesLife.Congenital.NORMAL);
         if(id.equals("marisa_tsumuri"))e.subspecies().set(SubspeciesLife.Kind.SHELL_MARISA,SubspeciesLife.Congenital.NORMAL);
         if(id.endsWith("_bean"))e.subspecies().set(SubspeciesLife.Kind.NORMAL,SubspeciesLife.Congenital.BEAN_BODY);
+        if(id.endsWith("_sparse"))e.subspecies().set(SubspeciesLife.Kind.NORMAL,SubspeciesLife.Congenital.SPARSE_HAIR);
+        if(id.endsWith("_face"))e.subspecies().set(SubspeciesLife.Kind.NORMAL,SubspeciesLife.Congenital.FACE_ASYMMETRY);
         var form=e.subspecies().save();form.putBoolean("Deibu",id.endsWith("deibu"));e.subspecies().load(form);
         var family=e.family().save();family.putBoolean("Initialized",true);family.putFloat("Scale",1);family.putFloat("AdultScale",1);family.putLong("Nourishment",72000);family.putLong("Age",48001);family.putLong("Maturity",48000);family.putLong("Lifespan",2208000);e.family().load(family);
         var life=e.life().save();life.putFloat("Nutrition",100);life.putFloat("Energy",100);life.putFloat("Hygiene",100);e.life().load(life);

@@ -63,7 +63,7 @@ public final class LivingGameTests {
     private final List<Check> checks = new ArrayList<>();
     private GameTestHelper helper;
     private ServerLevel level;
-    private long scheduled = 1;
+    private net.minecraft.gametest.framework.GameTestSequence sequence;
     private YukkuriEntity a, b;
     private FakePlayer alice, bob;
     private ItemEntity item;
@@ -75,13 +75,19 @@ public final class LivingGameTests {
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=14000, batch="living")
     public static void livingAcceptance(GameTestHelper helper) {
         LivingGameTests test=new LivingGameTests(); test.helper=helper; test.level=helper.getLevel(); test.setup();
+        test.sequence=helper.startSequence().thenWaitUntil(() -> {
+            for (int x=5;x<=8;x++) for(int z=0;z<=3;z++) helper.assertTrue(
+                    test.level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)),
+                    "Waiting for living fixture chunk " + x + "," + z + "; forced="
+                            + test.level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(x,z)));
+        }).thenIdle(1);
         test.resources(); test.meals(); test.facilities(); test.environment(); test.transport(); test.social();
         test.later(1,"finish",()-> {
             test.clear();
             test.level.setWeatherParameters(6000,0,false,false);
             test.level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,test.level.getServer());
         });
-        helper.runAtTickTime(test.scheduled+1,()-> {
+        test.sequence.thenIdle(1).thenExecute(()-> {
             P0Control.write("living-checks",test.checks);
             var failures=test.checks.stream().filter(check->!check.pass).toList();
             if (failures.isEmpty()) helper.succeed();
@@ -89,8 +95,7 @@ public final class LivingGameTests {
         });
     }
     private void later(int delay,String name,Runnable step) {
-        scheduled+=delay;
-        helper.runAtTickTime(scheduled,()-> {
+        sequence.thenIdle(delay).thenExecute(()-> {
             try { step.run(); } catch (Throwable error) { check(name,false,error.toString()); }
             P0Control.write("living-checks",checks);
         });
@@ -98,7 +103,7 @@ public final class LivingGameTests {
     private void check(String name,boolean success,Object detail) { checks.add(new Check(name,success,String.valueOf(detail))); }
     private String state() { return a==null?"no subject":a.life().save()+"; behavior="+a.getBehaviorId()+"; position="+a.position(); }
     private void setup() {
-        for (int x=5;x<=8;x++) for(int z=0;z<=3;z++) level.setChunkForced(x,z,true);
+        for (int x=5;x<=8;x++) for(int z=0;z<=3;z++) GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_RANDOMTICKING).set(0,level.getServer());
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
@@ -169,9 +174,16 @@ public final class LivingGameTests {
         });
         later(25,"spawn cap",()-> {
             clear();BlockPos spot=new BlockPos(82,65,3);
-            check("ordinary spawn predicate accepts dry daylight",SpawnPlacements.checkSpawnRules(ModEntities.REIMU.get(),level,MobSpawnType.NATURAL,spot,level.random),spot);
+            AABB populationArea=new AABB(spot).inflate(32);
+            int cap=YukkuriConfig.LOCAL_SPAWN_CAP.get();
+            int emptyCount=level.getEntitiesOfClass(YukkuriEntity.class,populationArea).size();
+            check("spawn cap fixture starts empty",emptyCount==0,"expected=0; observed="+emptyCount+"; spot="+spot);
+            check("ordinary spawn predicate accepts dry daylight",SpawnPlacements.checkSpawnRules(ModEntities.REIMU.get(),level,MobSpawnType.NATURAL,spot,level.random),"observed="+emptyCount+"; spot="+spot);
             for(int i=0;i<YukkuriConfig.LOCAL_SPAWN_CAP.get();i++)spawn(ModEntities.REIMU.get(),83+i,65,4).setNoAi(true);
-            check("local population cap rejects another spawn",!SpawnPlacements.checkSpawnRules(ModEntities.REIMU.get(),level,MobSpawnType.NATURAL,spot,level.random),YukkuriConfig.LOCAL_SPAWN_CAP.get());
+            int population=level.getEntitiesOfClass(YukkuriEntity.class,populationArea).size();
+            String detail="cap="+cap+"; observed="+population+"; entityTicking="+level.isPositionEntityTicking(spot)+"; tick="+helper.getTick();
+            check("spawn cap fixture population is query-visible",population==cap,detail);
+            check("local population cap rejects another spawn",!SpawnPlacements.checkSpawnRules(ModEntities.REIMU.get(),level,MobSpawnType.NATURAL,spot,level.random),detail);
         });
     }
     private void meals() {

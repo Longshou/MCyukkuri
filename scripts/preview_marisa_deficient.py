@@ -1,4 +1,5 @@
 """Render and verify the two current deficient Marisa exports, without a game process."""
+from runtime_model_fingerprint import matches_model_fingerprint
 import base64
 import copy
 import gzip
@@ -40,7 +41,7 @@ def main(species='marisa'):
             assert m['vertices'][p['start']*8:(p['start']+p['count'])*8]==donor['vertices'][d['start']*8:(d['start']+d['count'])*8]
             assert m['weights'][p['start']:p['start']+p['count']]==donor['weights'][d['start']:d['start']+d['count']]
         surface=json.loads(gzip.decompress((ASSETS/'yukkuri_wounds'/f'{ident}.json.gz').read_bytes()))
-        assert surface['runtimeSourceHash']==sha(path) and surface['skinCount']>0
+        assert matches_model_fingerprint(path.read_bytes(),surface['runtimeSourceHash']) and surface['skinCount']>0
         assert len(surface['points'])==len(surface['weights'])*5
         assert all(abs(sum(w for b,w in row)-1)<.00003 for row in surface['weights'])
         checks.append(dict(id=ident,runtime_sha256=sha(path),source_and_export_match=True,rounded_skin_and_weights_match=True,wound_surface_matches=True))

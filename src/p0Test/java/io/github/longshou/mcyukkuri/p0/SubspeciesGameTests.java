@@ -36,12 +36,12 @@ public final class SubspeciesGameTests {
             .thenExecute(()->{
                 P0Control.write("subspecies-checks",t.checks);
                 t.level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,80,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity).forEach(Entity::discard);
-                t.level.setChunkForced(X/16,0,false);
+                GameTestChunks.setForced(t.level,X/16,0,false);
                 var failed=t.checks.stream().filter(c->!c.pass()).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
             });
     }
     private void setup(){
-        level.setChunkForced(X/16,0,true);
+        GameTestChunks.setForced(level,X/16,0,true);
         for(var p:BlockPos.betweenClosed(X,64,0,X+15,69,15))level.setBlockAndUpdate(p,p.getY()==64?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
         for(var p:BlockPos.betweenClosed(X,65,0,X+15,65,15))level.setBlockAndUpdate(p,Blocks.GRASS_BLOCK.defaultBlockState());
         for(var p:BlockPos.betweenClosed(X+5,65,5,X+11,65,9))level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState());
@@ -104,8 +104,8 @@ public final class SubspeciesGameTests {
         for(var id:io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS){
             var mesh=io.github.longshou.mcyukkuri.body.WoundSurface.get(id);
             try(var in=io.github.longshou.mcyukkuri.body.WoundSurface.class.getResourceAsStream("/assets/mcyukkuri/yukkuri/"+id+".json")){
-                var hash=java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(in.readAllBytes()));
-                check(id+" wound surface matches model",hash.equals(mesh.runtimeSourceHash));
+                var hash=io.github.longshou.mcyukkuri.body.ModelFingerprint.of(in.readAllBytes());
+                check(id+" wound surface matches model",hash.matches(mesh.runtimeSourceHash));
             }catch(Exception ex){throw new IllegalStateException(ex);}
             float low=Float.MAX_VALUE,high=-Float.MAX_VALUE;
             for(int i=0;i<mesh.skinCount;i++){low=Math.min(low,mesh.points[i*5+1]);high=Math.max(high,mesh.points[i*5+1]);}

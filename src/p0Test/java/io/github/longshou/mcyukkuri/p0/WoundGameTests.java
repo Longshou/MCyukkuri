@@ -20,11 +20,11 @@ public final class WoundGameTests {
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1600,batch="wounds")
     public static void wounds(GameTestHelper helper){var test=new WoundGameTests();var level=helper.getLevel();
-        for(int x=56;x<=59;x++)level.setChunkForced(x,0,true);
+        for(int x=56;x<=59;x++)GameTestChunks.setForced(level,x,0,true);
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new net.minecraft.core.BlockPos(908,65,6)),"Wound area is ticking"))
             .thenExecute(()->{try{test.run(level);}catch(Throwable error){error.printStackTrace();test.check("Unexpected: "+error,false);}finally{
                 level.getEntitiesOfClass(Entity.class,new AABB(896,60,0,944,80,16),e->e.getTags().contains("wound_test")||e instanceof ItemEntity).forEach(Entity::discard);
-                for(int x=56;x<=59;x++)level.setChunkForced(x,0,false);
+                for(int x=56;x<=59;x++)GameTestChunks.setForced(level,x,0,false);
             }P0Control.write("wound-checks",test.checks);var failures=test.checks.stream().filter(c->!c.pass).toList();if(failures.isEmpty())helper.succeed();else helper.fail(failures.toString());});
     }
     static BodyWound at(YukkuriEntity e,String kind,Vector3f origin,Vector3f direction,int severity){var mesh=WoundSurface.get(e.getVariant().assetId());var hit=mesh.ray(origin,direction,null,List.of());if(hit==null)throw new IllegalStateException("No surface at "+origin+" for "+e.getVariant());return new BodyWound(UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),severity,e.getVariant().isHouse()?.35f:1,0,0);}

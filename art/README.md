@@ -1,5 +1,11 @@
 # 当前实体接入素材
 
+2026-10-07：[头饰与头发位置适配](source/placement-fit/README.md)已接入19种游戏形态与素材检查室，待用户复查：12种形态的头发顶部顺着圆润头顶收圆，魔理沙帽子戴低、灵梦系蝴蝶结贴住后脑、橙帽和爱丽丝发箍随发面；其余七种检查后不改。基础模型与指纹不变，鼓腮、帽子交互和果实悬挂点已按新网格重导。
+
+鼓腮表情、头部挂接、侧弯与跳动的[本轮动作修订](source/motion-corrections/README.md)已接入当前19种游戏形态及素材检查室，待用户复查；鼓腮为第七版（圆鼓双颊、噘嘴，侧发不穿模）。基础造型快照与旧批准记录保持为基线。
+
+集中检查当前19种游戏形态、动作、表情与290段声音，使用项目根目录的 `打开素材检查.cmd`。操作和范围见[素材检查室](../preview/review/README.md)；意见可按动作或声音记录并导出。
+
 稀毛与歪脸灵梦也已完成[圆润体态接入](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)，源、游戏资源及本轮实机记录均已同步。
 
 稀毛与歪脸魔理沙已选用[本轮圆润体态修复](../standards/yukkuri-library/subspecies/deficient/rounded-marisa/README.md)。五种魔理沙帽子的独立脱戴与小幼油帽托见[帽子交互包](source/hat-interactions/README.md)，包含当前预览和有范围的验收记录。

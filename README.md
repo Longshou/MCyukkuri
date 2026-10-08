@@ -25,6 +25,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 - [项目地图与文件归类](PROJECT_MAP.md)
 - [项目开发规则](AGENTS.md)
 - [开发指南与运行验收](docs/DEVELOPMENT.md)
+- [完善计划（后续开发顺序）](docs/DEVELOPMENT_PLAN.md)
 - [开发路线与里程碑](docs/ROADMAP.md)
 - [八景 U 内容梳理与 MC 移植计划](docs/HAKKEI_U_PORT_PLAN.md)
 - [本轮移植交付、范围与开发 Jar](docs/PORT_REMAINDER.md)

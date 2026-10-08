@@ -25,7 +25,7 @@ public final class RemainsGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="remains")
     public static void remains(GameTestHelper helper){
         var level=helper.getLevel();var soil=new BlockPos(968,64,8);var area=new AABB(960,60,0,976,80,16);
-        checks.clear();level.setChunkForced(60,0,true);
+        checks.clear();GameTestChunks.setForced(level,60,0,true);
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(soil.above()),"Remains area is ticking"))
             .thenExecute(()->{try{
                 var player=net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,new com.mojang.authlib.GameProfile(UUID.fromString("9abcdee1-5473-44f7-8ddd-08abc0000021"),"RemainsCare"));
@@ -102,7 +102,7 @@ public final class RemainsGameTests {
                 check("persistent scorch produces pain expression after startle",burned.body().burns()>0&&io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(burned,"neutral").equals("cry"));
             }catch(Throwable error){error.printStackTrace();check("Unexpected: "+error,false);}finally{
                 level.getEntitiesOfClass(Entity.class,area,e->e instanceof YukkuriEntity||e instanceof RemainsEntity||e instanceof ItemEntity).forEach(Entity::discard);
-                level.setChunkForced(60,0,false);P0Control.write("remains-checks",checks);
+                GameTestChunks.setForced(level,60,0,false);P0Control.write("remains-checks",checks);
             }
             var failed=checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());});
     }

@@ -1,0 +1,984 @@
+{
+ "revision": "placement-fit-20261007-v1",
+ "status": "pending_user_review",
+ "models": {
+  "reimu": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "parts": "rear_side_hair_(left|right)|side_hair_-?1",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03
+    },
+    {
+     "op": "follow",
+     "note": "the whole bow moves with the rounded back hair under its knot",
+     "parts": "bow_(inner|middle|outer|hem|edge|frill_[0-9]+|frill_top|frill_bottom|fold_[0-9]+)_-?1|bow_knot|bow_knot_fold|bow_tail_(top|mid|end|hem)_-?1",
+     "anchor": [
+      0,
+      10.23,
+      5.76
+     ],
+     "box_from": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "bones": "bow_(left|right|knot)",
+     "rebind": false
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03
+    },
+    {
+     "op": "conform",
+     "note": "bow tails lie on the rounded back hair below the knot",
+     "parts": "bow_tail_(top|mid|end|hem)_-?1",
+     "target": "hair_cap|crown|back_hair|back_hair_lower|back_lock_[0-9]+",
+     "direction": [
+      0,
+      0,
+      1
+     ],
+     "gap": 0.05,
+     "refine": 0.03
+    },
+    {
+     "op": "drape",
+     "note": "lock tops tuck just under the crown edge without moving inward",
+     "parts": "side_hair_-?1",
+     "knots": [
+      [
+       5.5,
+       0.53
+      ],
+      [
+       6.25,
+       0.53
+      ],
+      [
+       6.5,
+       0.68
+      ],
+      [
+       6.75,
+       0.93
+      ],
+      [
+       7,
+       1.2
+      ]
+     ],
+     "y0": 6.5,
+     "y1": 9.33,
+     "refine": 0.03
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "reimu_face": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "parts": "rear_side_hair_(left|right)|side_hair_-?1",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03
+    },
+    {
+     "op": "follow",
+     "note": "the whole bow moves with the rounded back hair under its knot",
+     "parts": "bow_(inner|middle|outer|hem|edge|frill_[0-9]+|frill_top|frill_bottom|fold_[0-9]+)_-?1|bow_knot|bow_knot_fold|bow_tail_(top|mid|end|hem)_-?1",
+     "anchor": [
+      0,
+      10.23,
+      5.76
+     ],
+     "box_from": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "bones": "bow_(left|right|knot)",
+     "rebind": false
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03
+    },
+    {
+     "op": "conform",
+     "note": "bow tails lie on the rounded back hair below the knot",
+     "parts": "bow_tail_(top|mid|end|hem)_-?1",
+     "target": "hair_cap|crown|back_hair|back_hair_lower|back_lock_[0-9]+",
+     "direction": [
+      0,
+      0,
+      1
+     ],
+     "gap": 0.05,
+     "refine": 0.03
+    },
+    {
+     "op": "drape",
+     "note": "lock tops tuck just under the crown edge without moving inward",
+     "parts": "side_hair_-?1",
+     "knots": [
+      [
+       5.5,
+       0.53
+      ],
+      [
+       6.25,
+       0.53
+      ],
+      [
+       6.5,
+       0.68
+      ],
+      [
+       6.75,
+       0.93
+      ],
+      [
+       7,
+       1.2
+      ]
+     ],
+     "y0": 6.5,
+     "y1": 9.33,
+     "refine": 0.03
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "reimu_sparse": {
+   "steps": [
+    {
+     "op": "conform",
+     "note": "bow tails lie over the sparse scalp and its strands instead of sinking into them",
+     "parts": "bow_tail_(top|mid|end|hem)_-?1",
+     "target": "rounded_body_surface|back_lock_[0-9]+|bang_[0-9]+|tied_lock_-?1",
+     "direction": [
+      0,
+      0,
+      1
+     ],
+     "gap": 0.05,
+     "refine": 0.03
+    },
+    {
+     "op": "bind",
+     "note": "bow tails squash with the scalp they lie on",
+     "parts": "bow_tail_(top|mid|end|hem)_-?1",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "reimu_wasa": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03,
+     "parts": "rear_side_hair_(left|right)"
+    },
+    {
+     "op": "dome",
+     "note": "bow tails lie on the rounded back hair; loops and knot ride with the knot",
+     "parts": "bow_tail_(top|mid|end|hem)_-?1",
+     "box_from": "back_hair|back_hair_lower|back_lock_[0-9]+|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)|wasa_scalp_[0-9]+|wasa_crown_spray_[0-9]+_[0-9]+|wasa_rear_spray_-?1_[0-9]+_[0-9]+|wasa_fringe_layer_-?1_[0-9]+_[0-9]+",
+     "box": [
+      -7.25,
+      7.25,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "rebind": false,
+     "rigid": [
+      {
+       "parts": "bow_(inner|middle|outer|hem|edge|frill_[0-9]+|frill_top|frill_bottom|fold_[0-9]+)_-?1|bow_knot|bow_knot_fold",
+       "anchor": [
+        0,
+        10.23,
+        5.76
+       ],
+       "bones": "bow_(left|right|knot)"
+      }
+     ]
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "box": [
+      -7.25,
+      7.25,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "parts": "back_hair|back_hair_lower|back_lock_[0-9]+|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)|wasa_scalp_[0-9]+|wasa_crown_spray_[0-9]+_[0-9]+|wasa_rear_spray_-?1_[0-9]+_[0-9]+|wasa_fringe_layer_-?1_[0-9]+_[0-9]+"
+    }
+   ]
+  },
+  "reimu_deibu": {
+   "steps": [
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "box": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 4.5,
+      "y": 3,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "parts": "back_hair_taper_[0-9]+|bang_[0-9]+|back_hair_lower_taper_[0-9]+|back_lock_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)_taper_[0-9]+|side_hair_-?1_taper_[0-9]+|hair_deibu_pointed_scalp_[0-9]+"
+    },
+    {
+     "op": "seat",
+     "note": "bow leans onto the rounded back of the head",
+     "parts": "bow_.*",
+     "contact": "bow_knot|bow_knot_fold|bow_tail_.*",
+     "target": "back_hair_taper_[0-9]+|back_hair_lower_taper_[0-9]+|back_lock_[0-9]+|hair_deibu_pointed_scalp_[0-9]+",
+     "pivot": [
+      0,
+      5.3,
+      6.1
+     ],
+     "rotate_x": -6,
+     "direction": [
+      0,
+      -0.3,
+      -1
+     ],
+     "overlap": 0.08,
+     "bones": "bow_(left|right|knot)",
+     "rebind": false
+    }
+   ]
+  },
+  "reimu_wasa_deibu": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03,
+     "parts": "rear_side_hair_(left|right)"
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "box": [
+      -7.25,
+      7.25,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "parts": "back_hair|back_hair_lower|back_lock_[0-9]+|bang_[0-9]+|bang_tip_[0-9]+|centre_bang_tip|rear_side_hair_(left|right)|wasa_scalp_[0-9]+|wasa_crown_spray_[0-9]+_[0-9]+|wasa_rear_spray_-?1_[0-9]+_[0-9]+|wasa_fringe_layer_-?1_[0-9]+_[0-9]+"
+    },
+    {
+     "op": "seat",
+     "note": "bow leans onto the rounded back of the head",
+     "parts": "bow_.*",
+     "contact": "bow_knot|bow_knot_fold|bow_tail_.*",
+     "target": "back_hair|back_hair_lower|back_lock_[0-9]+|wasa_scalp_[0-9]+|wasa_rear_spray_-?1_[0-9]+_[0-9]+",
+     "pivot": [
+      0,
+      5.3,
+      6.1
+     ],
+     "rotate_x": -6,
+     "direction": [
+      0,
+      -0.3,
+      -1
+     ],
+     "overlap": 0.08,
+     "bones": "bow_(left|right|knot)",
+     "rebind": false
+    }
+   ]
+  },
+  "reimu_bean": {
+   "note": "Bow straddles the back edge of the bean hair cap and touches it.",
+   "steps": []
+  },
+  "house_reimu": {
+   "note": "House hair already wraps the small rounded head; the bow sits on the back of the crown.",
+   "steps": []
+  },
+  "marisa": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 2,
+      "back": 3
+     },
+     "refine": 0.03
+    },
+    {
+     "op": "drape",
+     "note": "lock tops tuck just under the crown edge without moving inward",
+     "parts": "side_lock_-?1",
+     "knots": [
+      [
+       5.5,
+       0.53
+      ],
+      [
+       6.25,
+       0.53
+      ],
+      [
+       6.5,
+       0.68
+      ],
+      [
+       6.75,
+       0.93
+      ],
+      [
+       7,
+       1.2
+      ]
+     ],
+     "y0": 6.5,
+     "y1": 9.33,
+     "refine": 0.03
+    },
+    {
+     "op": "affine",
+     "note": "lock tip sits clear of the rear side hair while it swings",
+     "parts": "side_tip_-?1|side_ribbon_-?1",
+     "translate": [
+      0,
+      0,
+      -0.05
+     ],
+     "bones": "hand_(left|right)_(tip|ribbon)",
+     "rebind": false
+    },
+    {
+     "op": "affine",
+     "note": "hat worn lower",
+     "parts": "brim_.*|hat_.*|bow_.*",
+     "translate": [
+      0,
+      -1.5,
+      0
+     ],
+     "bones": "hat_follow|hat|bow",
+     "rebind": false
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "marisa_face": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|rear_side_hair_(left|right)",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 2,
+      "back": 3
+     },
+     "refine": 0.03
+    },
+    {
+     "op": "drape",
+     "note": "lock tops tuck just under the crown edge without moving inward",
+     "parts": "side_lock_-?1",
+     "knots": [
+      [
+       5.5,
+       0.53
+      ],
+      [
+       6.25,
+       0.53
+      ],
+      [
+       6.5,
+       0.68
+      ],
+      [
+       6.75,
+       0.93
+      ],
+      [
+       7,
+       1.2
+      ]
+     ],
+     "y0": 6.5,
+     "y1": 9.33,
+     "refine": 0.03
+    },
+    {
+     "op": "affine",
+     "note": "lock tip sits clear of the rear side hair while it swings",
+     "parts": "side_tip_-?1|side_ribbon_-?1",
+     "translate": [
+      0,
+      0,
+      -0.05
+     ],
+     "bones": "hand_(left|right)_(tip|ribbon)",
+     "rebind": false
+    },
+    {
+     "op": "affine",
+     "note": "hat worn lower",
+     "parts": "brim_.*|hat_.*|bow_.*",
+     "translate": [
+      0,
+      -1.5,
+      0
+     ],
+     "bones": "hat_follow|hat|bow",
+     "rebind": false
+    }
+   ]
+  },
+  "marisa_sparse": {
+   "steps": [
+    {
+     "op": "affine",
+     "note": "hat worn as low as the standard form",
+     "parts": "brim_.*|hat_.*|bow_.*",
+     "translate": [
+      0,
+      -0.5,
+      0
+     ],
+     "bones": "hat_follow|hat|bow",
+     "rebind": false
+    }
+   ]
+  },
+  "marisa_tsumuri": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|rear_side_hair_(left|right)|side_lock_-?1",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 2,
+      "back": 3
+     },
+     "refine": 0.03
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "marisa_bean": {
+   "note": "Hat was lowered 0.62 onto the bean hair top in the bean-braid revision and validated in game.",
+   "steps": []
+  },
+  "house_marisa": {
+   "note": "Hat brim already sits on the wrapped hair top; hat-carry limits were validated on this geometry.",
+   "steps": []
+  },
+  "chen": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "refine": 0.03,
+     "parts": "chen_side_(left|right)|chen_side_lock_(left|right)"
+    },
+    {
+     "op": "affine",
+     "note": "crown tuft stays inside the cap footprint",
+     "parts": "chen_crown",
+     "pivot": [
+      0,
+      10.34,
+      0.37
+     ],
+     "scale": [
+      0.94,
+      1,
+      0.9
+     ],
+     "rebind": false
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "parts": "chen_cap|chen_crown|chen_back|chen_back_lock_[0-9]+|chen_back_point_[0-9]+|chen_back_point_tip_[0-9]+|chen_bang_[0-9]+|chen_bang_tip_[0-9]+|chen_bang_point_[0-9]+|chen_side_(left|right)|chen_ragged_side_(left|right)[0-9]|chen_crown_tuft_(left|right)|chen_side_lock_(left|right)|chen_tuft_(left|right)[0-9]",
+     "rigid": [
+      {
+       "parts": "chen_ear_[a-z_]*left[0-9]?",
+       "anchor": [
+        -6,
+        9.96,
+        -3
+       ],
+       "bones": "chen_ear_left",
+       "axes": [
+        0,
+        1,
+        0
+       ]
+      },
+      {
+       "parts": "chen_ear_[a-z_]*right[0-9]?|chen_earring_[0-9]+",
+       "anchor": [
+        6,
+        9.96,
+        -3
+       ],
+       "bones": "chen_ear_right",
+       "axes": [
+        0,
+        1,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "op": "seat",
+     "note": "cap rests on the rounded hair",
+     "parts": "chen_hat_.*",
+     "contact": "chen_hat_rim|chen_hat_scallop_[0-9]+",
+     "contact_bottom": true,
+     "target": "chen_cap|chen_crown|chen_back|chen_back_lock_[0-9]+|chen_back_point_[0-9]+|chen_back_point_tip_[0-9]+|chen_bang_[0-9]+|chen_bang_tip_[0-9]+|chen_bang_point_[0-9]+|chen_side_(left|right)|chen_ragged_side_(left|right)[0-9]|chen_crown_tuft_(left|right)|chen_side_lock_(left|right)|chen_tuft_(left|right)[0-9]",
+     "direction": [
+      0,
+      -1,
+      0
+     ],
+     "overlap": 0.06,
+     "bones": "chen_hat",
+     "rebind": false,
+     "target_exclude": "chen_crown",
+     "contact_edge": true
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "chen_crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "alice": {
+   "steps": [
+    {
+     "op": "taper",
+     "note": "side walls tuck under the crown",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "parts": "alice_side_(left|right)|alice_bob_front_(left|right)",
+     "refine": 0.03
+    },
+    {
+     "op": "taper",
+     "note": "headband sides follow the tucked walls",
+     "center": [
+      0,
+      1.5
+     ],
+     "knots": [
+      [
+       6.5,
+       0,
+       1,
+       1
+      ],
+      [
+       9.4,
+       0,
+       0.9,
+       1
+      ]
+     ],
+     "bones": "alice_headband",
+     "parts": "alice_band_side_-?1"
+    },
+    {
+     "op": "dome",
+     "note": "hair top follows the rounded head",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "refine": 0.03,
+     "parts": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]",
+     "box_from": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]"
+    },
+    {
+     "op": "dome",
+     "note": "headband follows the same head curve",
+     "box": [
+      -7,
+      7,
+      null,
+      null,
+      null
+     ],
+     "radii": {
+      "x": 5.5,
+      "y": 3.2,
+      "front": 1.2,
+      "back": 3
+     },
+     "bones": "alice_headband",
+     "parts": "alice_band_(red|white)_[0-9]+|alice_lace_[0-9]+|alice_band_side_-?1",
+     "box_from": "alice_cap|alice_crown|alice_back|alice_back_lock_[0-9]+|alice_bob_hem_[0-9]+|alice_bob_hem_tip_[0-9]+|alice_bang_[0-9]+|alice_bang_tip_[0-9]+|alice_bang_point_[0-9]+|alice_side_(left|right)|alice_bob_side_curve_(left|right)[0-9]|alice_bob_front_(left|right)|alice_bob_inward_tip_(left|right)[0-9]"
+    },
+    {
+     "op": "bind",
+     "note": "scalp block squashes with the hair cap",
+     "parts": "alice_crown",
+     "family": "soft_head_slice"
+    }
+   ]
+  },
+  "patchouli": {
+   "note": "Bonnet rim sits on the fringe top; lowering it hides the fringe and lets hair show through the frill.",
+   "steps": []
+  },
+  "remilia": {
+   "note": "Rounded hair crown with the mob cap ruffle resting on it.",
+   "steps": []
+  },
+  "flandre": {
+   "note": "Rounded hair crown with the mob cap ruffle resting on it.",
+   "steps": []
+  }
+ }
+}

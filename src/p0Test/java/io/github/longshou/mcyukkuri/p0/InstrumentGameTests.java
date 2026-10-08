@@ -36,7 +36,7 @@ public final class InstrumentGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=500,batch="instruments")
     public static void instrumentAcceptance(GameTestHelper helper){
         var test=new InstrumentGameTests();var level=helper.getLevel();
-        for(int x=75;x<=76;x++)level.setChunkForced(x,0,true);
+        for(int x=75;x<=76;x++)GameTestChunks.setForced(level,x,0,true);
         for(int x=1200;x<1232;x++)for(int z=0;z<12;z++){
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());
             for(int y=65;y<72;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -46,7 +46,7 @@ public final class InstrumentGameTests {
             try{test.run(level);}catch(Throwable error){test.check("Unexpected exception: "+error,false);}
             finally{
                 level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
-                for(int x=75;x<=76;x++)level.setChunkForced(x,0,false);
+                for(int x=75;x<=76;x++)GameTestChunks.setForced(level,x,0,false);
             }
             P0Control.write("instrument-checks",test.checks);
             var failed=test.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());

@@ -1,4 +1,5 @@
 """Read-only checks of current selections, geometry, textures, wounds and attachment fingerprints."""
+from runtime_model_fingerprint import matches_model_fingerprint
 import argparse,gzip,hashlib,json,math
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -28,7 +29,7 @@ def main(output='docs/validation/personality-deibu/current'):
             assert clip['duration']>0,ident
             for track in clip['tracks']:assert 0<=track['bone']<len(bones)and all(all(math.isfinite(v)for v in key)for key in track['keys']),ident
         with gzip.open(ASSETS/'yukkuri_wounds'/f'{ident}.json.gz','rt')as f:surface=json.load(f)
-        assert surface['runtimeSourceHash']==sha(file),ident
+        assert matches_model_fingerprint(file.read_bytes(),surface['runtimeSourceHash']),ident
         assert len(surface['points'])==len(surface['weights'])*5 and surface['skinCount']%3==0,ident
         assert all(math.isfinite(v)for v in surface['points']),ident
         assert all(abs(sum(w for b,w in row)-1)<.00003 and all(0<=b<len(bones)and w>=0 for b,w in row)for row in surface['weights']),ident

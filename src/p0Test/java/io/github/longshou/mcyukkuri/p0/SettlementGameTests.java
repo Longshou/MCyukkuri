@@ -39,7 +39,7 @@ public final class SettlementGameTests {
     public static void settlementAcceptance(GameTestHelper helper) {
         var test = new SettlementGameTests(); var level = helper.getLevel();
         ShelterGameTests.daylightFixture(level);
-        for (int x = 39; x <= 42; x++) for(int z=-2;z<=2;z++) level.setChunkForced(x, z, true);
+        for (int x = 39; x <= 42; x++) for(int z=-2;z<=2;z++) GameTestChunks.setForced(level,x, z, true);
         for (int x = 624; x < 688; x++) for (int z = -32; z < 48; z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z), Blocks.GRASS_BLOCK.defaultBlockState());
             for (int y = 65; y <= 71; y++) level.setBlockAndUpdate(new BlockPos(x,y,z), Blocks.AIR.defaultBlockState());
@@ -52,7 +52,7 @@ public final class SettlementGameTests {
             catch (Throwable error) { test.check("Unexpected exception: " + error, false); }
             finally {
                 clear(level);
-                for (int x = 39; x <= 42; x++) for(int z=-2;z<=2;z++) level.setChunkForced(x,z,false);
+                for (int x = 39; x <= 42; x++) for(int z=-2;z<=2;z++) GameTestChunks.setForced(level,x,z,false);
             }
             P0Control.write("settlement-checks", test.checks);
             var failed = test.checks.stream().filter(c -> !c.pass).toList();
@@ -235,7 +235,7 @@ public final class SettlementGameTests {
         ServerLevel level = helper.getLevel(); BlockPos origin = new BlockPos(816,65,8);
         ShelterGameTests.daylightFixture(level);
         AABB area = new AABB(767,62,-49,865,73,65);
-        for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) level.setChunkForced(x,z,true);
+        for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) GameTestChunks.setForced(level,x,z,true);
         for (int x=768; x<864; x++) for (int z=-48; z<64; z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z), Blocks.GRASS_BLOCK.defaultBlockState());
             for (int y=65; y<=71; y++) level.setBlockAndUpdate(new BlockPos(x,y,z), Blocks.AIR.defaultBlockState());
@@ -244,7 +244,10 @@ public final class SettlementGameTests {
         YukkuriEntity[] subject = new YukkuriEntity[1];
         double[] initial = new double[1];
         helper.startSequence().thenWaitUntil(() -> {
-            for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) helper.assertTrue(level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)), "Waiting for movement chunks");
+            for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) helper.assertTrue(
+                    level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)),
+                    "Waiting for movement chunk " + x + "," + z + "; forced="
+                            + level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(x,z)));
         })
                 .thenExecute(() -> {
                     clearArea(level,area);
@@ -273,7 +276,7 @@ public final class SettlementGameTests {
                     P0Control.write("settlement-movement-checks", List.of(new Check("loaded server AI returns distant member without teleport", true),
                             new Check("return traverses more than fourteen blocks", initial[0] > 196)));
                     clearArea(level,area);
-                    for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) level.setChunkForced(x,z,false);
+                    for (int x=48; x<=53; x++) for(int z=-3;z<=3;z++) GameTestChunks.setForced(level,x,z,false);
                 }).thenSucceed();
     }
 }

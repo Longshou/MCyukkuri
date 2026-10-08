@@ -1,4 +1,5 @@
 """Wound-only GameTests / isolated client, using the installed JDK and generated arguments."""
+from runtime_model_fingerprint import matches_model_fingerprint
 import argparse,json,os,shutil,subprocess,sys,time,gzip,hashlib,zipfile
 from pathlib import Path
 from run_p0 import ROOT,java_path
@@ -21,7 +22,7 @@ def launch(target,snapshot=None):
         for variant in ['reimu','marisa','chen','alice','patchouli','house_reimu','house_marisa']:
             body=packed.read('assets/mcyukkuri/yukkuri/'+variant+'.json')
             wound=json.loads(gzip.decompress(packed.read('assets/mcyukkuri/yukkuri_wounds/'+variant+'.json.gz')))
-            if hashlib.sha256(body).hexdigest()!=wound['runtimeSourceHash']:raise RuntimeError('Re-export wounds and rebuild: incompatible packaged '+variant)
+            if not matches_model_fingerprint(body,wound['runtimeSourceHash']):raise RuntimeError('Re-export wounds and rebuild: incompatible packaged '+variant)
     fixture=runtime/'p0'
     if snapshot:shutil.copytree(Path(snapshot)/'p0',fixture,dirs_exist_ok=True)
     else:shutil.copytree(ROOT/'build/classes/java/p0Test',fixture,dirs_exist_ok=True);shutil.copytree(ROOT/'build/resources/p0Test',fixture,dirs_exist_ok=True)

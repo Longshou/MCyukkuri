@@ -13,7 +13,7 @@ public enum YukkuriAction {
     BRACE("brace", 2.4, true),
     STARTLE("startle", 0.6, false),
     TURN("turn", 0.4, false),
-    HOP("hop", 0.2617993877991494, true),
+    HOP("hop", 0.8, true),
     STRETCH("stretch", 2.8, true),
     EXERCISE_VERTICAL("exercise_vertical", 2.62, true),
     EXERCISE_SIDES("exercise_sides", 2.36, true),

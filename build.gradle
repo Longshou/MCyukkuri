@@ -41,6 +41,8 @@ neoForge {
         configureEach { loadedMods = [mods.mcyukkuri] }
         p0GameTest {
             type = 'gameTestServer'
+            jvmArgument '-Xmx4G'
+            systemProperty 'mcyukkuri.p0.suite', 'integration'
             gameDirectory = file('.local/p0/gametest')
             loadedMods = [mods.mcyukkuri, mods.mcyukkuri_p0]
             sourceSet = sourceSets.p0Test
@@ -90,6 +92,16 @@ neoForge {
 }
 
 tasks.named('check') { dependsOn tasks.named('compileP0TestJava') }
+
+sourceSets { fingerprintTest }
+dependencies { fingerprintTestImplementation sourceSets.main.output }
+def verifyModelFingerprint = tasks.register('verifyModelFingerprint', JavaExec) {
+    dependsOn tasks.named('fingerprintTestClasses')
+    classpath = sourceSets.fingerprintTest.runtimeClasspath
+    mainClass = 'io.github.longshou.mcyukkuri.body.ModelFingerprintTest'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn verifyModelFingerprint }
 
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [

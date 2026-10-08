@@ -1,5 +1,5 @@
 name: 功能任务
-description: 将一个生态、美术或工程目标拆成可验收任务
+description: 记录一个生态、美术或工程目标
 title: '[Feature] '
 labels: [enhancement]
 body:
@@ -17,7 +17,5 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: 验收条件
-      description: 描述可操作的验证步骤，包括存档或多人同步要求。
-    validations:
-      required: true
+      label: 完成标准（可选）
+      description: 怎样算做完，例如进游戏能看到什么。

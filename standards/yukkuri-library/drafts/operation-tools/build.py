@@ -19,6 +19,88 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 SNAPSHOT = ROOT / 'art/props/operation-tools'
 PALETTE = ['#a46d39','#d9a85d','#353941','#818994','#d5dce0','#ee809b','#b74651','#f0e4c7','#614c37','#f38b35','#473126','#cbe9f3','#689cb5']
 
+
+def fingerprint(path, data, previous=None):
+    """Keep a recorded text fingerprint only for the same LF/CRLF content."""
+    candidates = [data]
+    if path.suffix in ('.py', '.json', '.bbmodel'):
+        lf = data.replace(b'\r\n', b'\n')
+        candidates.extend((lf, lf.replace(b'\n', b'\r\n')))
+    if previous in [hashlib.sha256(value).hexdigest() for value in candidates]:
+        return previous
+    return hashlib.sha256(data).hexdigest()
+
+
+def png_pixels(data):
+    """Compare rendered palette pixels, not Pillow/zlib compression choices."""
+    with Image.open(io.BytesIO(data)) as image:
+        if image.format != 'PNG' or getattr(image, 'n_frames', 1) != 1:
+            raise ValueError('Expected a static PNG texture')
+        return image.size, image.convert('RGBA').tobytes()
+
+
+def json_value(data, blockbench=False):
+    def reject_constant(value):
+        raise ValueError(f'Non-finite JSON number: {value}')
+    def finite_float(value):
+        number = float(value)
+        if not math.isfinite(number):
+            reject_constant(value)
+        return number
+    value = json.loads(data, parse_constant=reject_constant, parse_float=finite_float)
+    if blockbench:
+        for texture in value.get('textures', []):
+            source = texture.get('source', '')
+            prefix = 'data:image/png;base64,'
+            if source.startswith(prefix):
+                texture['source'] = png_pixels(base64.b64decode(source[len(prefix):], validate=True))
+    return value
+
+
+def same_value(actual, expected, blockbench=False, location=()):
+    if isinstance(actual, bool) or isinstance(expected, bool):
+        return type(actual) is type(expected) and actual == expected
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            same_value(actual[key], expected[key], blockbench, location + (key,))
+            for key in actual)
+    if isinstance(actual, (list, tuple)) and isinstance(expected, (list, tuple)):
+        return len(actual) == len(expected) and all(
+            same_value(a, b, blockbench, location + (index,))
+            for index, (a, b) in enumerate(zip(actual, expected)))
+    # Windows and Linux libm differ in the final bit of sin/cos. Only the
+    # unrounded authoring positions have this allowance: one ULP at a minimum
+    # scale of one model unit. Runtime vertices, UVs, faces and bounds are exact.
+    if (blockbench and len(location) == 5 and location[0] == 'elements'
+            and location[2] == 'vertices' and location[4] in (0, 1, 2)
+            and isinstance(actual, (int, float)) and isinstance(expected, (int, float))):
+        return abs(actual - expected) <= math.ulp(max(1.0, abs(actual), abs(expected)))
+    return actual == expected
+
+
+def equivalent(path, actual, expected):
+    """Ignore encoding and authoring-only libm noise, never runtime mesh drift."""
+    if actual == expected:
+        return True
+    try:
+        if path.suffix == '.png':
+            return png_pixels(actual) == png_pixels(expected)
+        if path.suffix in ('.json', '.bbmodel'):
+            blockbench = path.suffix == '.bbmodel'
+            return same_value(json_value(actual, blockbench), json_value(expected, blockbench), blockbench)
+    except (OSError, ValueError, TypeError, KeyError, OverflowError):
+        return False
+    return False
+
+
+def preserve_representation(path, expected):
+    """Do not churn verified selected assets just to change their encoding."""
+    if path.is_file():
+        actual = path.read_bytes()
+        if equivalent(path, actual, expected):
+            return actual
+    return expected
+
 def box(a,b,c): return {'box':[a,b], 'color':c}
 def rod(a,b,r,c,end=None): return {'rod':[a,b,r,r if end is None else end], 'color':c}
 def ball(center,r,c): return {'ball':[center,r], 'color':c}
@@ -103,7 +185,8 @@ def hull(points):
             out.append(point)
     return low[:-1]+high[:-1]
 
-def fitted(bare=False):
+def fitted(bare=False, previous_sources=None):
+    previous_sources = previous_sources or {}
     recipes={};sockets={};sources={};lifts={}
     presentations=json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']
     presentations.update(json.loads((ASSETS/'yukkuri_presentation/subspecies.json').read_text(encoding='utf-8')))
@@ -154,7 +237,8 @@ def fitted(bare=False):
             shapes.append(band(aa,bb,7,1.1))
         shapes += [box([body_left,-.12,-2],[body_right,-.02,2],7),ring([0,top+2.45,0],.45,.12,8)]
         recipes['wrap_sling_'+name]=shapes;sockets['wrap_sling_'+name]=[0,top+2.45,0]
-        sources[path.relative_to(ROOT).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
+        relative=path.relative_to(ROOT).as_posix()
+        sources[relative]=fingerprint(path,path.read_bytes(),previous_sources.get(relative))
         if not bare:
             lo=[min(p[i] for p in points)-.6 for i in range(3)];hi=[max(p[i] for p in points)+.6 for i in range(3)]
             left,right,front,back,top=lo[0],hi[0],lo[2],hi[2],hi[1]
@@ -162,15 +246,18 @@ def fitted(bare=False):
     return recipes,sockets,sources,lifts
 
 def outputs():
+    manifest_path=SNAPSHOT/'manifest.json'
+    previous=json.loads(manifest_path.read_bytes()) if manifest_path.is_file() else {}
     image=Image.new('RGBA',(16,16),'#ffffff')
     for x,color in enumerate(PALETTE):
         for y in range(16):image.putpixel((x,y),tuple(bytes.fromhex(color[1:]))+((50 if x==11 else 150 if x==12 else 255),))
-    stream=io.BytesIO();image.save(stream,format='PNG');texture=stream.getvalue()
+    stream=io.BytesIO();image.save(stream,format='PNG')
+    texture=preserve_representation(SNAPSHOT/'selected/pin_tool/texture.png',stream.getvalue())
     result={};index={}
     def emit(path,data): result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
     emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'palette':PALETTE,'props':RECIPE})
-    fitting,sockets,sources,lifts=fitted()
-    bare,bare_sockets,bare_sources,bare_lifts=fitted(True);fitting.update(bare);sockets.update(bare_sockets);sources.update(bare_sources);lifts.update(bare_lifts)
+    fitting,sockets,sources,lifts=fitted(previous_sources=previous.get('body_sources'))
+    bare,bare_sockets,bare_sources,bare_lifts=fitted(True,previous.get('body_sources'));fitting.update(bare);sockets.update(bare_sockets);sources.update(bare_sources);lifts.update(bare_lifts)
     for name,shapes in {**RECIPE,**fitting}.items():
         vertices,parts,elements=[],[],[]
         for part_id,shape in enumerate(shapes):
@@ -207,14 +294,20 @@ def outputs():
         emit(ASSETS/f'models/block/{name}.json',{'textures':{'particle':'mcyukkuri:props/brood_bottle'},'elements':[]})
     for name,items in ingredients.items():
         emit(ROOT/f'src/main/resources/data/mcyukkuri/recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'equipment','ingredients':[{'item':'minecraft:'+x} for x in items],'result':{'id':'mcyukkuri:'+name,'count':4 if name=='pin_tool' else 1}})
-    emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':'standards/yukkuri-library/drafts/operation-tools/build.py','source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'body_sources':sources,'reference':'provenance.json','files':{p.relative_to(ROOT).as_posix():hashlib.sha256(data).hexdigest() for p,data in result.items()}})
+    result={path:preserve_representation(path,data) for path,data in result.items()}
+    emit(manifest_path,{'status':'pending-review-game-adaptation','source':'standards/yukkuri-library/drafts/operation-tools/build.py','source_sha256':fingerprint(Path(__file__),Path(__file__).read_bytes(),previous.get('source_sha256')),'body_sources':sources,'reference':'provenance.json','files':{p.relative_to(ROOT).as_posix():fingerprint(p,data,previous.get('files',{}).get(p.relative_to(ROOT).as_posix())) for p,data in result.items()}})
     return result
 
-if __name__=='__main__':
+
+def main():
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args();changed=[]
     for path,data in outputs().items():
-        if not path.exists() or path.read_bytes()!=data:
+        if not path.is_file() or not equivalent(path,path.read_bytes(),data):
             changed.append(path.relative_to(ROOT).as_posix())
             if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))
     print(f'Operation props: {len(RECIPE)}; '+('exports match' if args.check else f'{len(changed)} files written'))
+
+
+if __name__=='__main__':
+    main()

@@ -1,0 +1,573 @@
+{
+  "createdAt": "2026-10-07T16:37:40.162Z",
+  "scope": "Offline mesh and morph regression with offline renders; no live game or browser acceptance",
+  "runtimeSha256": "5a1e79e5d9ddc2f7cddb35e81b723967844088b6d4c40ae2bc40bd9e479b74c0",
+  "manifestRuntimeSha256": "5a1e79e5d9ddc2f7cddb35e81b723967844088b6d4c40ae2bc40bd9e479b74c0",
+  "poseSha256": "e9d35033ec04075caec8db1841941eae304b1b6710f39cd7be396eb1994bdad8",
+  "javaModelSha256": "e782a06bf9054d537166d34a911ea0af884aed78a06da511e8d80668e3274f80",
+  "scriptSha256": "15ff97ff13d3fa13eeff67e2fb8a3500795beec3bbe63e384ebac72387c0d555",
+  "models": [
+    {
+      "id": "alice",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 1839600,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.300426025039487,
+      "widthRatio": 1,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "45d642d9436d05ead7107d7fb8b5091828d6c6f476cf5adeb0178f90db214ffb"
+    },
+    {
+      "id": "chen",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 1945080,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0.25,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.300426025039487,
+      "widthRatio": 1,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "77b1f923adbb1d4b1c0d522ddbb0d047e38d77d8e9ef391bd0e7b2299e7eeb3c"
+    },
+    {
+      "id": "flandre",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 261000,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93355,
+            9.328,
+            -1.824
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93355,
+            9.328,
+            -1.824
+          ]
+        }
+      },
+      "maxOffset": 1.5025028325430874,
+      "widthRatio": 1.0597192818911938,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4"
+    },
+    {
+      "id": "house_marisa",
+      "refinedEdges": 10377,
+      "restSurfaceDeviation": 0.000006649564352506632,
+      "stableValues": 243540,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            1.51328,
+            3.4352,
+            -1.346
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -1.51328,
+            3.4352,
+            -1.346
+          ]
+        }
+      },
+      "maxOffset": 0.41797609130188296,
+      "widthRatio": 1,
+      "forwardGain": 0.39798293796499906,
+      "baseSha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e"
+    },
+    {
+      "id": "house_reimu",
+      "refinedEdges": 10377,
+      "restSurfaceDeviation": 0.000006649564352506632,
+      "stableValues": 363420,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            1.51328,
+            3.4352,
+            -1.49
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -1.51328,
+            3.4352,
+            -1.49
+          ]
+        }
+      },
+      "maxOffset": 0.4032072477027168,
+      "widthRatio": 1.0608276951535442,
+      "forwardGain": 0.37250003798230624,
+      "baseSha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d"
+    },
+    {
+      "id": "marisa",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 1425060,
+      "rigidChecks": 1530,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 11.5,
+          "free_degrees": 11.5,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -2.52
+          ]
+        },
+        "hand_left": {
+          "degrees": 11.5,
+          "free_degrees": 11.5,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -2.52
+          ]
+        }
+      },
+      "maxOffset": 1.6412452777388271,
+      "widthRatio": 1.141495349038018,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "2d4d114098260245bc4c84d60d00e47c45eec47acd6f8d64d92e7f1e79eed46d"
+    },
+    {
+      "id": "marisa_bean",
+      "refinedEdges": 20520,
+      "restSurfaceDeviation": 0.00000686939804847575,
+      "stableValues": 468000,
+      "rigidChecks": 0,
+      "cheekSize": 0.9313,
+      "locks": {},
+      "maxOffset": 0.5791563814722237,
+      "widthRatio": 1,
+      "forwardGain": 0.5441545879431247,
+      "baseSha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931"
+    },
+    {
+      "id": "marisa_face",
+      "refinedEdges": 10839,
+      "restSurfaceDeviation": 0.000005611598915600258,
+      "stableValues": 1291140,
+      "rigidChecks": 1530,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 14,
+          "free_degrees": 14,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -2.52
+          ]
+        },
+        "hand_left": {
+          "degrees": 14,
+          "free_degrees": 14,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -2.52
+          ]
+        }
+      },
+      "maxOffset": 1.6980915140827955,
+      "widthRatio": 1.165242325316765,
+      "forwardGain": 1.2657526044422056,
+      "baseSha256": "c5ab0dc852c81e3b0c714c4bf9d2e5619c10755211749520c72273fc54baa707"
+    },
+    {
+      "id": "marisa_sparse",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 153540,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {},
+      "maxOffset": 1.6412452777388271,
+      "widthRatio": 1.141495349038018,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "d1d2a6eb11242a81d8a0e554f249cd92cfa6df856fcde06551d6a39ec62ef0b7"
+    },
+    {
+      "id": "marisa_tsumuri",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 2762100,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -2.52
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -2.52
+          ]
+        }
+      },
+      "maxOffset": 1.300426025039487,
+      "widthRatio": 1,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "08f6dce56a4a107936cdd359496e496521bd074310b0891a856518d39e21e892"
+    },
+    {
+      "id": "patchouli",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 2735820,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.2887047133071254,
+      "widthRatio": 1,
+      "forwardGain": 1.2067198492965403,
+      "baseSha256": "41838e58ab83b00bde8bef5c1c8de0024da8df3ee001d4acaef8f4180f1deba7"
+    },
+    {
+      "id": "reimu",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 1906560,
+      "rigidChecks": 1738,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 10.75,
+          "free_degrees": 10.75,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 10.75,
+          "free_degrees": 11,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.6369761033686472,
+      "widthRatio": 1.1407356819949483,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "fc30d62ec7ba2c399074b4912b992f975c6fdac35a9a3530bff22747b0f159cc"
+    },
+    {
+      "id": "reimu_bean",
+      "refinedEdges": 20520,
+      "restSurfaceDeviation": 0.00000686939804847575,
+      "stableValues": 527400,
+      "rigidChecks": 0,
+      "cheekSize": 0.9313,
+      "locks": {},
+      "maxOffset": 0.5791563814722237,
+      "widthRatio": 1,
+      "forwardGain": 0.5441545879431247,
+      "baseSha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069"
+    },
+    {
+      "id": "reimu_deibu",
+      "refinedEdges": 9774,
+      "restSurfaceDeviation": 0.000005611598915600258,
+      "stableValues": 2264400,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            5.66222,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -5.66222,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.7977849561682842,
+      "widthRatio": 1.0458234434477112,
+      "forwardGain": 1.691383108235951,
+      "baseSha256": "fc5656930c17d6bcc1cb2e1ec86b3fd971897a0ad95ae53b5306d0c62a3cee19"
+    },
+    {
+      "id": "reimu_face",
+      "refinedEdges": 10839,
+      "restSurfaceDeviation": 0.000005611598915600258,
+      "stableValues": 1906560,
+      "rigidChecks": 1738,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 14,
+          "free_degrees": 14,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93333,
+            9.328,
+            -3.15
+          ]
+        },
+        "hand_left": {
+          "degrees": 14,
+          "free_degrees": 14,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93333,
+            9.328,
+            -3.15
+          ]
+        }
+      },
+      "maxOffset": 1.6974604851365467,
+      "widthRatio": 1.1644672492058845,
+      "forwardGain": 1.2657526044422056,
+      "baseSha256": "e7b8937855d75fdf02a91bb2e567a39db5accbfc04552b7917f20e0bdeb66932"
+    },
+    {
+      "id": "reimu_sparse",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 767160,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {},
+      "maxOffset": 1.6412452777388271,
+      "widthRatio": 1.141495349038018,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "532999e5b05ac34cd42472347e3277fd61c93df28a1e38e2f5ffb6a72d1362a4"
+    },
+    {
+      "id": "reimu_wasa",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 2428200,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "sideburn_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.56,
+            7.81,
+            -2.31
+          ]
+        },
+        "sideburn_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.56,
+            7.81,
+            -2.31
+          ]
+        }
+      },
+      "maxOffset": 1.300426025039487,
+      "widthRatio": 1,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "c8e8610937e0334e081c199c5ca6f2b742837db5193680db7a1f25c45fb4a2e7"
+    },
+    {
+      "id": "reimu_wasa_deibu",
+      "refinedEdges": 11076,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 2423160,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "sideburn_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.56,
+            7.81,
+            -2.31
+          ]
+        },
+        "sideburn_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.56,
+            7.81,
+            -2.31
+          ]
+        }
+      },
+      "maxOffset": 1.9882856018502473,
+      "widthRatio": 1,
+      "forwardGain": 1.8454491318348767,
+      "baseSha256": "3dcd05b9b64a4459be2f76e68b8075e0ee73c94c0d4f0aa04c24cbec8e3b3e41"
+    },
+    {
+      "id": "remilia",
+      "refinedEdges": 11037,
+      "restSurfaceDeviation": 0.0000068438681064837,
+      "stableValues": 262080,
+      "rigidChecks": 0,
+      "cheekSize": 1,
+      "locks": {
+        "hand_right": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            6.93355,
+            9.328,
+            -1.824
+          ]
+        },
+        "hand_left": {
+          "degrees": 0,
+          "free_degrees": 0,
+          "pivot_kind": "bone",
+          "pivot": [
+            -6.93355,
+            9.328,
+            -1.824
+          ]
+        }
+      },
+      "maxOffset": 1.5025028325430874,
+      "widthRatio": 1.0597192818911938,
+      "forwardGain": 1.2302994212232505,
+      "baseSha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023"
+    }
+  ]
+}

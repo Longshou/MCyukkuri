@@ -1,6 +1,9 @@
-"""Derive removable-hat motion scales and real brim support from current game geometry."""
+"""Derive removable-hat motion scales and real brim support from current game geometry.
+
+Hats and child footprints are measured on the placement-fitted meshes the game shows."""
 from pathlib import Path
 import hashlib,json
+import placement_fit
 
 ROOT=Path(__file__).resolve().parents[1]
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
@@ -12,10 +15,11 @@ def bounds(m,p):
     return [min(v[k::8]) for k in range(3)]+[max(v[k::8]) for k in range(3)]
 def main():
     result={'version':1,'variants':{},'children':{}}
-    fingerprints={}
+    fingerprints={};fits=placement_fit.load()
     for path in (ASSETS/'yukkuri').glob('*.json'):
         m=read(path)
         if 'vertices' not in m:continue
+        m=placement_fit.fitted(path,fits)
         ident=path.stem
         skin=next((p for p in m['parts'] if p['name'] in ('rounded_body_surface','deficient_body_surface','house_body_surface','predator_body_surface')),None)
         if skin:
@@ -43,6 +47,7 @@ def main():
         'carry':'One small young entity on the right brim; foot margin and full model part bounds must fit without intersecting the hat or bow.',
         'exporter':'scripts/export_hat_interactions.py','exporter_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'runtime':target.relative_to(ROOT).as_posix(),'runtime_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
-        'sources':fingerprints},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        'sources':fingerprints,'placement_fit':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),
+        'placement_fit_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('Exported five hat roots, motion scales and supported seats;',len(result['children']),'child footprints.')
 if __name__=='__main__':main()

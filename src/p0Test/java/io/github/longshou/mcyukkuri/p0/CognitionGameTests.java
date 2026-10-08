@@ -51,7 +51,7 @@ public final class CognitionGameTests {
     }
     private void floor() {
         level.setDayTime(6000); level.setWeatherParameters(24000,0,false,false);
-        for(int chunk=X/16;chunk<X/16+8;chunk++)level.setChunkForced(chunk,0,true);
+        for(int chunk=X/16;chunk<X/16+8;chunk++)GameTestChunks.setForced(level,chunk,0,true);
         for(int x=X;x<X+128;x++)for(int z=0;z<14;z++) {
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.SMOOTH_STONE.defaultBlockState());
             for(int y=65;y<72;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -59,7 +59,7 @@ public final class CognitionGameTests {
     }
     private void clean() {
         level.getEntitiesOfClass(Entity.class,new AABB(X,63,0,X+128,76,16),e -> e instanceof YukkuriEntity).forEach(Entity::discard);
-        for(int chunk=X/16;chunk<X/16+8;chunk++)level.setChunkForced(chunk,0,false);
+        for(int chunk=X/16;chunk<X/16+8;chunk++)GameTestChunks.setForced(level,chunk,0,false);
     }
     private YukkuriEntity spawn(int offset, int innate, int learned, boolean young) {
         var e=ModEntities.REIMU.get().create(level);e.moveTo(X+offset+.5,65,6.5,0,0);e.setOnGround(true);e.setPersistenceRequired();

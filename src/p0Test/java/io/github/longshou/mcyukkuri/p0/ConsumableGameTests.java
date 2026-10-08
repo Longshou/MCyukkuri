@@ -32,7 +32,7 @@ public final class ConsumableGameTests {
         for(int chunk=118;chunk<=123;chunk++)helper.assertTrue(helper.getLevel().isPositionEntityTicking(new BlockPos(chunk*16+8,65,8)),"waiting for every consumable actor and drop chunk");
     }
     private static void floor(ServerLevel level){
-        for(int c=118;c<=123;c++)level.setChunkForced(c,0,true);
+        for(int c=118;c<=123;c++)GameTestChunks.setForced(level,c,0,true);
         level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
         for(int x=1900;x<1980;x++)for(int z=0;z<16;z++){
             for(int y=65;y<75;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -54,7 +54,7 @@ public final class ConsumableGameTests {
     private static int drops(ServerLevel level,net.minecraft.world.item.Item item){return level.getEntitiesOfClass(ItemEntity.class,AREA,e->e.getItem().is(item)).stream().mapToInt(e->e.getItem().getCount()).sum();}
     private void finish(GameTestHelper helper,String name){
         P0Control.write(name,checks);helper.getLevel().getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
-        for(int c=118;c<=123;c++)helper.getLevel().setChunkForced(c,0,false);
+        for(int c=118;c<=123;c++)GameTestChunks.setForced(helper.getLevel(),c,0,false);
         var failed=checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="consumable_rules")
@@ -352,13 +352,15 @@ public final class ConsumableGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=800,batch="consumable_live")
     public static void naturalDrinking(GameTestHelper helper){
         var test=new ConsumableGameTests();var level=helper.getLevel();floor(level);var actor=new YukkuriEntity[1];
+        long[] readyTick={-1};
         helper.startSequence().thenWaitUntil(()->chunksReady(helper))
         .thenExecute(()->{
+            readyTick[0]=helper.getTick();P0Control.write("consumable-drink-readiness",java.util.Map.of("readyTick",readyTick[0]));
             var e=spawn(level,1904.5);var state=e.life().save();state.putFloat("Dryness",85);state.putFloat("Bladder",80);e.life().load(state);actor[0]=e;
             level.setBlockAndUpdate(new BlockPos(1908,64,8),Blocks.WATER.defaultBlockState());
             test.check("thirst plans a real water route",e.life().plan()&&e.life().activity().equals("seek_water"));
         }).thenExecuteFor(300,()->{}).thenExecute(()->{
-            var e=actor[0];P0Control.write("consumable-drink-debug",e.position()+" "+e.life().activity()+" dryness="+e.life().dryness());test.check("natural AI approaches water and drinks",e.life().dryness()<70&&!e.life().constipated());
+            var e=actor[0];P0Control.write("consumable-drink-debug",e.position()+" "+e.life().activity()+" dryness="+e.life().dryness()+"; readyTick="+readyTick[0]+"; endTick="+helper.getTick()+"; entityTicks="+e.tickCount);test.check("natural AI approaches water and drinks",e.life().dryness()<70&&!e.life().constipated());
             test.check("natural drinking stays on dry ground",!e.isInWater()&&e.getHealth()==e.getMaxHealth());
             test.check("natural water provides no nutrition",e.life().nutrition()<=100);
             test.finish(helper,"consumable-live-checks");
