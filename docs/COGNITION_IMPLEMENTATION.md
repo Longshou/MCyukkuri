@@ -1,6 +1,6 @@
 # 认知能力、教学提交与出生继承
 
-本模块新增独立认知能力，服务端以 `cognition/CognitionData` 的世界存档为权威。`Cognition` 提供当前能力、教学资格、课堂提交和出生接口；个性六维、等待指令、感官和饰品识别继续使用各自原存储。专题验收见[认知检查](validation/cognition/README.md)。
+本模块新增独立认知能力，服务端以 `cognition/CognitionData` 的世界存档为权威。`Cognition` 提供当前能力、教学资格、课堂提交和出生接口；个性倾向（现为四项，旧六项已映射）、等待指令、感官和饰品识别继续使用各自原存储。专题验收见[认知检查](validation/cognition/README.md)。
 
 ## 来源核读
 

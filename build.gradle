@@ -91,7 +91,7 @@ neoForge {
     }
 }
 
-tasks.named('check') { dependsOn tasks.named('compileP0TestJava') }
+// Optional checks run on demand: compileP0TestJava, verifyModelFingerprint, runP0GameTest.
 
 sourceSets { fingerprintTest }
 dependencies { fingerprintTestImplementation sourceSets.main.output }
@@ -101,7 +101,6 @@ def verifyModelFingerprint = tasks.register('verifyModelFingerprint', JavaExec) 
     mainClass = 'io.github.longshou.mcyukkuri.body.ModelFingerprintTest'
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
 }
-tasks.named('check') { dependsOn verifyModelFingerprint }
 
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def properties = [

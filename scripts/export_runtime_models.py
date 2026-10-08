@@ -214,7 +214,7 @@ def main():
         'standard_authoring_library': 'standards/yukkuri-library',
         'purpose': 'Seven selected entity models and retargeted numeric animation rigs',
         'models': {**old.get('models', {}), **records}, 'legacy_models': old.get('legacy_models', old.get('models', {})),
-        'legacy_status': 'Preserved earlier M1 files; no longer referenced by the entity renderer',
+        'legacy_status': old.get('legacy_status', 'Preserved earlier M1 files; no longer referenced by the entity renderer'),
         'preview': relative(OUT / 'preview.html'), 'exporter': relative(Path(__file__))}, pretty=True)
     (OUT / 'preview-data.js').write_text('const MODELS=' + json.dumps(catalog, separators=(',', ':')) + ';', encoding='utf-8')
 

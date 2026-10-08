@@ -52,6 +52,6 @@ public final class MCYukkuri {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Yukkuri World initialized with five standard species and two house variants.");
+        LOGGER.info("Yukkuri World initialized with nine Yukkuri entity types.");
     }
 }

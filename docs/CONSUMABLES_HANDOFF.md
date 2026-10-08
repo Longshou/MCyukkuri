@@ -14,7 +14,7 @@
 
 ## 当前编译阻塞与半成品
 
-`FamilyData` 刚增加 `BirthKind.LIVE`、`canAssist`、`assist` 及父方为空的保存和出生保护，但 `FamilyLife.readyForAssistance()`、`assisted(UUID)` 还未实现。这是本任务遗留，先补齐真实逻辑；不要给生产路径添加恒定返回值来伪装完成。
+`FamilyData` 刚增加 `BirthKind.LIVE`、`canAssist`、`assist` 及父方为空的保存和出生保护，`FamilyLife.readyForAssistance()`、`assisted(UUID)` 后来已补齐真实逻辑。
 
 `assist` 已保存真实母体、胎次和孩子 UUID，父方为空；已做营养与区域人口预留，不能重抽孩子、指定附近个体作父亲或重复结算。当前 `newborn` 还把所有非茎生设为家油出生尺寸，普通胎生需要正确区分。当前 `FamilyLife.tick` 只推进茎生，LIVE 完整孕育和实际出生仍未接线。
 
