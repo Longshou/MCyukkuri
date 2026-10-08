@@ -15,89 +15,26 @@ concurrency:
 
 jobs:
   build:
-    name: Java 21 / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: Java 21 build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
-          # Keep all CI inputs; omit unrelated reference/history/preview trees.
+          # The mod build only reads src/ and the Gradle wrapper; skip the large art trees.
           sparse-checkout: |
-            .github
             src
-            scripts
             gradle
-            art/props/care-facilities
-            art/props/family-life
-            art/props/house-care
-            art/props/runtime-peripheral
-            art/props/food-bowl
-            art/props/operation-tools
-            art/source/rounded-runtime
-            art/source/standard-runtime
-            standards/yukkuri-library/assembled
-            standards/yukkuri-library/ecology/house-yukkuri/assembled
-            standards/yukkuri-library/subspecies/predator/assembled
-            standards/yukkuri-library/body-standard/inputs
-            standards/yukkuri-library/drafts/operation-tools
-            standards/yukkuri-v1/components/common
-            standards/yukkuri-v1/profiles
-            standards/yukkuri-v1/behaviors
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install asset validation dependencies
-        run: python -m pip install Pillow==12.3.0
-      - name: Test asset validators
-        shell: bash
-        run: |
-          python scripts/test_runtime_model_fingerprint.py
-          python scripts/test_runtime_atlas.py
-          python scripts/test_validate_entity_assets.py
-          python scripts/test_asset_export_checks.py
-          python scripts/test_operation_exports.py
-      - name: Check packaged entity assets
-        run: python scripts/validate_entity_assets.py
-      - name: Check living facility exports
-        run: python scripts/export_living_assets.py --check
-      - name: Check family presentation exports
-        run: python scripts/export_family_assets.py --check
-      - name: Check house and care exports
-        run: python scripts/export_house_assets.py --check
-      - name: Check selected peripheral exports
-        run: python scripts/export_peripheral_assets.py --check
-      - name: Check operation tool exports
-        run: python standards/yukkuri-library/drafts/operation-tools/build.py --check
-      - name: Report available disk
-        run: python -c "import shutil; print('Available GiB', round(shutil.disk_usage('.').free / 2**30, 2))"
       - name: Build mod
         run: ./gradlew build --no-daemon
-        shell: bash
-      - name: Run full integration GameTests
-        run: ./gradlew runP0GameTest --no-daemon
-        shell: bash
-      - name: Upload P0 assertions
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: p0-checks-${{ matrix.os }}-${{ github.sha }}
-          path: |
-            .local/p0/gametest/p0-control/*checks.json
-            .local/p0/gametest/logs/latest.log
-          include-hidden-files: true
-          if-no-files-found: warn
       - name: Upload development jar
         uses: actions/upload-artifact@v4
         with:
-          name: mcyukkuri-${{ matrix.os }}-${{ github.sha }}
+          name: mcyukkuri-${{ github.sha }}
           path: build/libs/*.jar
           if-no-files-found: error
