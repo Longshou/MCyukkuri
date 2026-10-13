@@ -7,6 +7,7 @@
 - [帕秋莉简化预览](current/patchouli.html)：当前已确认刘海和侧发的对话预览内容，可在支持该片段的对话中展示。
 - [帕秋莉完整独立预览](../assembled/patchouli/index.html)：包含当前模型及素材库原有动作、表情查看功能，由用户打开观察。
 - [角色对照](../species.html)：查看标准种族的当前导出。
+- [魔理沙单辫对照网页](current/marisa-braid.html)：单个静态文件，直接双击打开，不需要服务器。同屏旋转、缩放七种魔理沙和灵梦对照；渲染代码与素材库预览相同。[静态图](current/marisa-braid.png)依次为正面、右前、右侧（辫子侧）、左侧、背面与灵梦正面。单辫造型待确认。
 - [当前表情核对](../drafts/expression-review/batch-16-40.html)：第六轮已确认[N033 棕灰配色](current/n033-variants.png)。[N020 闭眼泪花适配](current/n020-variants.png)已确认右栏的第五轮版本；[N024/N025 蓄泪与流泪](current/n024-n025-tears.png)已确认第四轮图示版本。
 
 - [表情核对收尾](../drafts/expression-review/next-batch.html)：N077/N078 的[正面总览](current/pending-batch.png)和[斜侧面总览](current/pending-batch-oblique.png)，三项均已暂缓，当前无待审项。

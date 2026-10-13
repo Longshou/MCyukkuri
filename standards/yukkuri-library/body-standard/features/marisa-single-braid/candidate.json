@@ -1,0 +1,100 @@
+{
+  "created_at": "2026-10-13T12:54:29+00:00",
+  "status": "pending_confirmation",
+  "scope": [
+    "Marisa side hair: one thick braid on her own left (+X, hand_right), a short loose lock on the right (-X, hand_left)",
+    "Applied to every Marisa form: standard, tsumuri, sparse, uneven face, bean, house and DOS",
+    "Derived game data: wounds, badges, attachments, placement fit, motion corrections, hat seats, restraint frames, house grip points"
+  ],
+  "preserved": [
+    "Rounded body, face, hat and expression textures",
+    "Reimu and other species exports",
+    "Approved standard-body and tsumuri records as baselines",
+    "Seven braid interactions v1 (two-braid, re-choreography pending)"
+  ],
+  "hair_loss": "braid_lock_* and side_hair_loose* follow the per-side hair-loss rule like other hair parts",
+  "baseline_approval": "standards/yukkuri-library/provenance/standard-body.json",
+  "changed_parts": [
+    "braid_lock_bow_knot",
+    "braid_lock_bow_loop_in",
+    "braid_lock_bow_loop_out",
+    "braid_lock_bow_tail_in",
+    "braid_lock_bow_tail_out",
+    "braid_lock_core",
+    "braid_lock_lobe_0",
+    "braid_lock_lobe_1",
+    "braid_lock_lobe_2",
+    "braid_lock_lobe_3",
+    "braid_lock_lobe_4",
+    "braid_lock_lobe_5",
+    "braid_lock_ribbon_band",
+    "braid_lock_root",
+    "braid_lock_root_outer",
+    "braid_lock_tuft_0",
+    "braid_lock_tuft_1",
+    "braid_lock_tuft_point_in",
+    "braid_lock_tuft_point_out",
+    "side_hair_loose",
+    "side_hair_loose_tip_0",
+    "side_hair_loose_tip_1"
+  ],
+  "sources": {
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/author.py": "2b2793c45f5c724da34cf5bec1c6761e957c9021abd8a6c4f0915a45545ab0a9",
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/sync_inputs.py": "ae9483371a6e32d5a1cf6d58ec08ab32b68c19a6b0227d76011ed6518b9c03a9",
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/export_house_runtime.py": "910851c7543dec6e928c0d99a5f8c41e30b3dcd97d3ca1f62838ae69c688b4c8",
+    "standards/yukkuri-library/components/marisa/hand-left.json": "14bfaf38ab8fbba422a8936260fbf9252d2a97f0e65c230ff70dbbfa0a82be8d",
+    "standards/yukkuri-library/components/marisa/hand-right.json": "ecbaf0992ef5e0985b8b5786e259abf8a638ea8f411a409c722754e7eae6d9e2",
+    "standards/yukkuri-library/rigs/marisa.json": "6c2ec265d24fd93cb1d647b1f5eec518fc7ef647a88f8c00daf289ebc42b1c4b",
+    "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json": "5ea97ff5bfd1ba7475ab5ada8c0c7966058e5e0ad821bdd7c9e5db05caa80503",
+    "standards/yukkuri-library/subspecies/deficient/recipes.json": "19e354d399e742502e442987da524bfb0dcd23354868b09002d43669c6cde764",
+    "standards/yukkuri-library/subspecies/deficient/bean_hair.py": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
+    "scripts/export_marisa_deficient_rounded.py": "7104a14f779f7f57c75fcb8e9a80624a7ccb95b9930705f90401ad2de84ce84c",
+    "scripts/runtime_house_interactions.py": "c6844e0a76f7950a5aa44fb168207f25cce8e26cc579096d091b4633a15fcdc3",
+    "standards/yukkuri-library/subspecies/reimu-dos/build.py": "948d8c24f1015160c739df8ccd2490d7111de79a9d847f935f682d66140503fb",
+    "standards/yukkuri-library/presentation/placement-fit/recipe.json": "035e8ce0b0e77c322ed9d076f0030cab28653d063e7f64528f526cc0d669534f"
+  },
+  "frozen_inputs_manifest_sha256": "16ff3851b03392caa93ba88b66cf1e8ff2b4a3620354a6d8f3a312069f83b8a8",
+  "models": {
+    "marisa": {
+      "model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
+      "model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+      "runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a"
+    },
+    "marisa_tsumuri": {
+      "model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
+      "model_sha256": "c09860e0d9d387ad84ea84715509eec79e2fbebcb1f5b2907c9c10ac7be1e372",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
+      "runtime_sha256": "705f678556663aeb6dd56dbcd8a28ef6bc5afe048f3b4345e3ceed0fef952f05"
+    },
+    "marisa_sparse": {
+      "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
+      "model_sha256": "ebd0d101bf63503602dcedc45e0b435d464e4720a7f049143e3ba9051208ba84",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
+      "runtime_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb"
+    },
+    "marisa_face": {
+      "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
+      "model_sha256": "8fe872e73fa23214e1bef3bddd38abb8e9d2a005692b0312f0b7796d0c36b1e8",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
+      "runtime_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e"
+    },
+    "marisa_bean": {
+      "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
+      "model_sha256": "cfc68ff8d53099ebbbbeac5c5e51f362ef3e1377e76afcc07748e18e5b7b06fa",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
+      "runtime_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe"
+    },
+    "house_marisa": {
+      "model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
+      "model_sha256": "93323e7bed258ff8ef9673d95b9f70b6139a751b9a7105af4ca8182e627f68f4",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+      "runtime_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77"
+    },
+    "marisa_dos": {
+      "model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/marisa_dos/marisa_dos.bbmodel",
+      "model_sha256": "d31832121bacfb1714cd17f3529c7efd8016f73240726361ccabcdc4a1020a92"
+    }
+  },
+  "game_acceptance": "not_performed"
+}

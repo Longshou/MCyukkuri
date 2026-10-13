@@ -6,5 +6,16 @@
   "feature_recipe": "../recipes.json",
   "author": "../../../../../scripts/export_marisa_deficient_rounded.py",
   "body_policy": "Preserve rounded donor skin, rump and their continuous weights exactly; retain each congenital feature recipe.",
-  "scope": "Explicit user correction on 2026-09-13 supersedes the former exclusion only for sparse and uneven-face Marisa. Reimu variants and bean shapes remain unchanged."
+  "scope": "Explicit user correction on 2026-09-13 supersedes the former exclusion only for sparse and uneven-face Marisa. Reimu variants and bean shapes remain unchanged.",
+  "sparse_side_hair": {
+    "note": "Single braid on +X (hand_right) and a loose lock on -X. Sparse hair keeps one braid strand, its tie and tip, and a short loose strand; other braid cubes are omitted. Values are top, bottom and width on the scalp profile.",
+    "braid_lock_core": [8.55, 6.05, 0.56],
+    "braid_lock_ribbon_band": [6.3, 6.08, 0.66],
+    "braid_lock_tuft_0": [6.06, 5.58, 0.48],
+    "side_hair_loose": [8.55, 6.6, 0.32]
+  },
+  "sparse_hat_seat": {
+    "note": "Sparse hair leaves the scalp bare. The hat is fitted as a separate accessory: hat, brim, bow and their bones move down until the brim underside sits brow_clearance above the brow tops, so the crown of the head goes into the hat. Replaces the former fixed 1.0 drop plus the runtime -0.5 placement offset.",
+    "brow_clearance": 0.3
+  }
 }

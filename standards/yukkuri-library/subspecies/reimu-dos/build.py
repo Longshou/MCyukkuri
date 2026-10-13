@@ -56,7 +56,7 @@ class Shape:
                 offset[1] = 8.48*(r['body_scale'][1]-scale[1])-r['hat_sink']
             elif any(k in name for k in ['hair', 'bang', 'lock', 'side_tip', 'side_ribbon', 'hand_']):
                 scale[0] = .87
-                if any(k in name for k in ['back_hair','back_lock','rear_side_hair','side_lock','side_tip','side_ribbon','hand_']):
+                if any(k in name for k in ['back_hair','back_lock','rear_side_hair','side_lock','side_tip','side_ribbon','hand_','braid_lock','side_hair_loose']):
                     scale[0] = r['body_scale'][0]*oval
                 if any(k in name for k in ['back_hair','back_lock','rear_side_hair']):
                     scale[2] *= oval
@@ -264,7 +264,7 @@ def export(name, recipe):
                     u,v,U,V=e['faces'][side]['uv'];part['faces'][side]['uv']=[u,v+(V-v)*(1-(i+1)/14),U,v+(V-v)*(1-i/14)]
                 inputs.append((part,g))
             continue
-        if recipe['shape']=='dos' and e['name'].startswith(('back_hair','back_lock','rear_side_hair','side_lock')):
+        if recipe['shape']=='dos' and (e['name'].startswith(('back_hair','back_lock','rear_side_hair','side_lock')) or e['name'] in ('braid_lock_core','side_hair_loose')):
             # Slice long hair so it follows the ellipse instead of boxing it in.
             for i in range(12):
                 part=copy.deepcopy(e);lo,hi=e['from'][1],e['to'][1]
@@ -320,7 +320,8 @@ def export(name, recipe):
         data['motions']['fur_sway'] = dict(id='fur_sway',label='鬓毛轻摆',kind='variant',duration=2.4,dependencies=[])
     for part in data.get('anatomy', {}).get('parts', []):
         part['offset'] = shape.displacement(part['offset'])
-    retained = {k:v for k,v in data['expressions'].items() if v['status']=='retained'}
+    # The original 13 expressions are now saved as 'accepted' standards; keep the same set.
+    retained = {k:v for k,v in data['expressions'].items() if v['status']=='retained' or (v.get('origin')=='original' and v['status']=='accepted')}
     data['expressions'] = retained
     data['textures'] = {k:v for k,v in data['textures'].items() if k in retained}
     signature_texture(data,recipe,elements)

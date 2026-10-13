@@ -1306,39 +1306,21 @@
       ]
     },
     {
-      "name": "hand_left_tip",
-      "parent": "hand_left",
-      "pivot": [
-        -6.5,
-        3.18,
-        0
-      ]
-    },
-    {
-      "name": "hand_left_ribbon",
-      "parent": "hand_left",
-      "pivot": [
-        -6.5,
-        3.286,
-        0
-      ]
-    },
-    {
       "name": "hand_right_tip",
       "parent": "hand_right",
       "pivot": [
-        6.5,
-        3.18,
-        0
+        7.05,
+        2.02,
+        -3.15
       ]
     },
     {
       "name": "hand_right_ribbon",
       "parent": "hand_right",
       "pivot": [
-        6.5,
-        3.286,
-        0
+        7.05,
+        2.34,
+        -3.15
       ]
     },
     {

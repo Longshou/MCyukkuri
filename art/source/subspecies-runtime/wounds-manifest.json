@@ -33,8 +33,8 @@
       "face_vertices": 9342
     },
     "marisa_bean": {
-      "runtime_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
-      "surface_sha256": "d46e4e683ca2433a16055ae903f3df7a4ca8c46acdb5ac39355ce8838779ceb1",
+      "runtime_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
+      "surface_sha256": "db60b4a0380c61fda9ec32f0aa25a0ca524f6d308ecc066ff7e78bae88a25a3d",
       "skin_vertices": 96786,
       "face_vertices": 3306
     }

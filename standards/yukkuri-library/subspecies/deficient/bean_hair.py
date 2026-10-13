@@ -1,6 +1,9 @@
 """Fit bean hair to the authored skin cross sections, in model units."""
+import copy
+import json
 import math
 import uuid
+from pathlib import Path
 from mesh_geometry import mesh
 
 
@@ -12,6 +15,30 @@ def profile(y, r):
     back=4.075*r['depth']*(.76+.24*math.sin(math.pi*q))
     if q>.94:front*=max(.35,1-(q-.94)*9);back*=max(.35,1-(q-.94)*9)
     return 6*r['lower_width']*radius,back,front
+
+
+def standard_braid(base, r, cfg, spec):
+    """Marisa's shared side hair (one braid, one loose lock) at bean head scale.
+
+    Uses the same head transform as the other bean head parts, then moves each
+    piece so its lock axis follows the bean side contour at that height.
+    """
+    lib=Path(__file__).resolve().parents[2];s=r['head_scale'];out=[]
+    for side in ('left','right'):
+        for src in json.loads((lib/spec['source']/f'hand-{side}.json').read_text(encoding='utf-8'))['elements']:
+            e=copy.deepcopy(src);e.pop('bone',None)
+            for key in ('from','to','origin'):
+                e[key]=[e[key][0]*s,e[key][1]*s+r['head_raise'],e[key][2]*r['depth']]
+            braid=e['name'].startswith('braid_lock_')
+            sign=1 if e['from'][0]+e['to'][0]>0 else -1
+            y=(e['from'][1]+e['to'][1])/2;x=profile(y-cfg['surface_lift'],r)[0]+cfg['clearance']
+            axis=(spec['braid_axis'] if braid else spec['loose_axis'])*s
+            dx=sign*(x+(spec['axis_offset'] if braid else spec['loose_offset']))-sign*axis
+            for key in ('from','to','origin'):e[key][0]+=dx
+            if not any(e.get('rotation',[0,0,0])):e['origin']=[0.0,0.0,0.0]
+            e['uuid']=str(uuid.uuid5(uuid.NAMESPACE_URL,base+'/'+e['name']))
+            out.append((e,'body_stretch'))
+    return out
 
 
 def author(pairs, rig, base, r):
@@ -72,7 +99,10 @@ def author(pairs, rig, base, r):
             z=-f-cfg['clearance']-.045
             rows.append([[xl,y,z],[xr,y,z],[xr,y,z+.16],[xl,y,z+.16]])
         new.append((surface('bean_bang_'+str(i),rows,closed=True),'body_stretch'))
-    for sign in [-1,1]:
+    # Marisa shares the standard single braid; Reimu keeps the twisted pair with cuffs.
+    spec=cfg.get('marisa_braid') if base=='marisa' else None
+    if spec:new.extend(standard_braid(base,r,cfg,spec))
+    for sign in ([] if spec else [-1,1]):
         # Two closed intertwined strands expose a real round silhouette from the side.
         for strand in [0,1]:
             rows=[]

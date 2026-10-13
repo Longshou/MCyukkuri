@@ -2,7 +2,7 @@
   "revision": "placement-fit-20261007-v1",
   "status": "pending_user_review",
   "recipe": "standards/yukkuri-library/presentation/placement-fit/recipe.json",
-  "recipe_sha256": "4907214ae343326f74f86f1394563523899612aad97d967c77e13e07db878942",
+  "recipe_sha256": "035e8ce0b0e77c322ed9d076f0030cab28653d063e7f64528f526cc0d669534f",
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
   "author_sha256": "fd45ae79844f5b3033206e096eac00c2e0ad1e299f71acde07553e5f1fb55981",
   "exporter": "scripts/export_placement_fit.cjs",
@@ -792,7 +792,7 @@
     },
     "marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "base_sha256": "2d4d114098260245bc4c84d60d00e47c45eec47acd6f8d64d92e7f1e79eed46d",
+      "base_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "parts": [
         "crown",
         "back_hair",
@@ -808,12 +808,23 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_tip_-1",
-        "side_ribbon_-1",
-        "side_lock_1",
-        "side_tip_1",
-        "side_ribbon_1",
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1",
+        "braid_lock_lobe_2",
+        "braid_lock_ribbon_band",
+        "braid_lock_bow_knot",
+        "braid_lock_bow_loop_out",
+        "braid_lock_bow_loop_in",
+        "braid_lock_bow_tail_out",
+        "braid_lock_bow_tail_in",
+        "braid_lock_tuft_0",
+        "braid_lock_tuft_1",
+        "braid_lock_tuft_point_out",
+        "braid_lock_tuft_point_in",
         "brim_center",
         "brim_sides",
         "brim_front",
@@ -849,15 +860,17 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_lock_1"
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1"
       ],
       "bone_pivots": [
         "hat_follow",
         "hat",
         "bow",
-        "hand_left_tip",
-        "hand_left_ribbon",
         "hand_right_tip",
         "hand_right_ribbon"
       ],
@@ -876,7 +889,7 @@
     },
     "marisa_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "base_sha256": "c5ab0dc852c81e3b0c714c4bf9d2e5619c10755211749520c72273fc54baa707",
+      "base_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
       "parts": [
         "back_hair",
         "bang_0",
@@ -891,12 +904,23 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_tip_-1",
-        "side_ribbon_-1",
-        "side_lock_1",
-        "side_tip_1",
-        "side_ribbon_1",
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1",
+        "braid_lock_lobe_2",
+        "braid_lock_ribbon_band",
+        "braid_lock_bow_knot",
+        "braid_lock_bow_loop_out",
+        "braid_lock_bow_loop_in",
+        "braid_lock_bow_tail_out",
+        "braid_lock_bow_tail_in",
+        "braid_lock_tuft_0",
+        "braid_lock_tuft_1",
+        "braid_lock_tuft_point_out",
+        "braid_lock_tuft_point_in",
         "brim_center",
         "brim_sides",
         "brim_front",
@@ -931,15 +955,17 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_lock_1"
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1"
       ],
       "bone_pivots": [
         "hat_follow",
         "hat",
         "bow",
-        "hand_left_tip",
-        "hand_left_ribbon",
         "hand_right_tip",
         "hand_right_ribbon"
       ],
@@ -958,41 +984,12 @@
     },
     "marisa_sparse": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "base_sha256": "d1d2a6eb11242a81d8a0e554f249cd92cfa6df856fcde06551d6a39ec62ef0b7",
-      "parts": [
-        "brim_center",
-        "brim_sides",
-        "brim_front",
-        "brim_back",
-        "hat_base",
-        "hat_band",
-        "hat_taper_1",
-        "hat_taper_2",
-        "hat_taper_3",
-        "hat_tip_bend",
-        "hat_tip",
-        "hat_tip_end",
-        "bow_left_outer",
-        "bow_left_inner",
-        "bow_right_inner",
-        "bow_right_outer",
-        "bow_left_fold",
-        "bow_right_fold",
-        "bow_knot",
-        "bow_left_tail",
-        "bow_right_tail"
-      ],
-      "refined": [],
-      "bone_pivots": [
-        "hat_follow",
-        "hat",
-        "bow"
-      ],
-      "log": []
+      "base_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
+      "unchanged": "The exporter seats the hat onto the bare head (brim just above the brows; rounded-marisa recipe sparse_hat_seat), so no runtime hat offset is added."
     },
     "marisa_tsumuri": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "base_sha256": "08f6dce56a4a107936cdd359496e496521bd074310b0891a856518d39e21e892",
+      "base_sha256": "705f678556663aeb6dd56dbcd8a28ef6bc5afe048f3b4345e3ceed0fef952f05",
       "parts": [
         "crown",
         "back_hair",
@@ -1008,8 +1005,13 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_lock_1"
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1",
+        "braid_lock_lobe_2"
       ],
       "refined": [
         "crown",
@@ -1024,8 +1026,12 @@
         "bang_6",
         "rear_side_hair_left",
         "rear_side_hair_right",
-        "side_lock_-1",
-        "side_lock_1"
+        "side_hair_loose",
+        "braid_lock_root",
+        "braid_lock_root_outer",
+        "braid_lock_core",
+        "braid_lock_lobe_0",
+        "braid_lock_lobe_1"
       ],
       "bone_pivots": [],
       "log": [
@@ -1043,12 +1049,12 @@
     },
     "marisa_bean": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "base_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+      "base_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
       "unchanged": "Hat was lowered 0.62 onto the bean hair top in the bean-braid revision and validated in game."
     },
     "house_marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "base_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+      "base_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
       "unchanged": "Hat brim already sits on the wrapped hair top; hat-carry limits were validated on this geometry."
     },
     "chen": {
@@ -1327,5 +1333,5 @@
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     }
   },
-  "runtime_sha256": "1d2fc4f182188b8087f53252237f1794fa6c4b5a1ad38fa77f1e0bbf8edd983d"
+  "runtime_sha256": "9fa8cbc57c0df764eefbd4fd661a8bb547bc523b06861ee903246e21f2d62f3c"
 }

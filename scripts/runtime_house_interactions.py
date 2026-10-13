@@ -35,8 +35,9 @@ def add_house_interactions(rig, species):
         'art/source/standard-runtime/carry-motion/recipe.json').read_text(encoding='utf-8'))
     bones = {b['name']: b for b in rig['bones']}
     # Endpoint centres taken from the fitted short locks, not the adult rig pivots.
-    tips = [[sign*1.985, 1.515 if species == 'reimu' else 1.629,
-             -1.57 if species == 'reimu' else -1.256] for sign in (-1, 1)]
+    # Marisa's are asymmetric: a short loose lock on the left, the single braid on the right.
+    tips = ([[-2.042, 1.927, -1.524], [2.116, 1.474, -1.54]] if species == 'marisa' else
+            [[sign*1.985, 1.515, -1.57] for sign in (-1, 1)])
     grip = {'bones': ['hand_left', 'hand_right'], 'points': tips,
             'contact_seconds': .65, 'release_seconds': .65}
     rig['grip'] = grip

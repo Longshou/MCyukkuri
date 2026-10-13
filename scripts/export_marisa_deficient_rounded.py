@@ -67,6 +67,9 @@ def transform(e, fn):
             e[key] = fn(e[key])
 
 
+HAT_DROPS = {}
+
+
 def author(ident):
     body.CFG = read(PACKAGE/'inputs/standards/yukkuri-library/body-standard/recipe.json')
     body.PROFILE = read(PACKAGE/'inputs/standards/yukkuri-library/body-standard/profile.json')['body_profile']
@@ -102,11 +105,20 @@ def author(ident):
                 if n.startswith('cuff_hem_'):top,bottom,width=3.36,3.18,.72
                 e=hair_author.ribbon(e,body,bb['resolution']['width'],top,bottom,lane,side=True,width=width)
                 group='body_stretch';pairs.append((e,group,True));continue
-            hair = bool(bang) or n.startswith(('back_lock_', 'side_lock_', 'side_tip_', 'side_ribbon_'))
+            hair = bool(bang) or n.startswith(('back_lock_', 'side_lock_', 'side_tip_', 'side_ribbon_', 'braid_lock_', 'side_hair_loose'))
             if hair:
                 if bang:
                     lane={1:-.52,3:0,5:.52}[int(bang[1])]
                     e=hair_author.ribbon(e,body,bb['resolution']['width'],9.15,7.05 if lane else 6.75,lane)
+                    group='body_stretch';pairs.append((e,group,True));continue
+                if n.startswith(('braid_lock_','side_hair_loose')):
+                    # Single-braid Marisa: only the recipe's strand, tie, tip and loose strand stay.
+                    rule=read(PACKAGE/'recipe.json').get('sparse_side_hair',{}).get(n)
+                    if not rule:continue
+                    points=list(e['vertices'].values()) if e.get('type')=='mesh' else [e['from'],e['to']]
+                    lane=1 if sum(q[0] for q in points)>0 else -1
+                    top,bottom,width=rule
+                    e=hair_author.ribbon(e,body,bb['resolution']['width'],top,bottom,lane,side=True,width=width)
                     group='body_stretch';pairs.append((e,group,True));continue
                 if n.startswith(('side_lock_','side_tip_','side_ribbon_')):
                     lane=-1 if n.endswith('_-1') else 1
@@ -169,7 +181,14 @@ def author(ident):
                     patches.setdefault(expression, []).append({'index':len(pairs),'vertices':values})
             changed = True
         pairs.append((e, group, changed))
-    hat_drop=-1.0 if SPECIES=='marisa' and ident.endswith('_sparse') else 0
+    # Sparse hair leaves the scalp bare: seat the hat down onto the head as a separate
+    # accessory, its brim just above the brows, instead of resting on the crown.
+    seat=read(PACKAGE/'recipe.json').get('sparse_hat_seat') if SPECIES=='marisa' and ident.endswith('_sparse') else None
+    hat_drop=0
+    if seat:
+        heights=lambda prefix:[y for e,_,_ in pairs if e['name'].startswith(prefix) for y in body.vertices(e,bb['resolution']['width'])[1::8]]
+        hat_drop=round(max(heights('face_brow_'))+seat['brow_clearance']-min(heights('brim_')),4)
+    HAT_DROPS[ident]=hat_drop
     if hat_drop:
         for index,(e,group,changed) in enumerate(pairs):
             if e['name'].startswith(('hat_','brim_','bow_')):
@@ -299,7 +318,7 @@ def main():
         save(ASSETS/'yukkuri_props'/f'accessory_{ident}.json',prop)
         index[f'accessory_{ident}']={'source_model':ident}
         mount=copy.deepcopy(base_mount)
-        if SPECIES=='marisa' and ident.endswith('_sparse'):mount['point'][1]-=1.0
+        mount['point'][1]+=HAT_DROPS.get(ident,0)
         if SPECIES=='reimu' and ident.endswith('_sparse'):
             offset=read(PACKAGE/'recipe.json')['sparse_bow_offset']
             mount['point']=[mount['point'][k]+offset[k] for k in range(3)]

@@ -199,10 +199,10 @@
       "geometry_identifier": "marisa",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "selected_model_sha256": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
+      "selected_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
       "selected_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "selected_rig_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
-      "selected_runtime_sha256": "66397cbe90c124472e662c4118c4111f52e6529ac0ede69a4c7ff31b47a82c2b",
+      "selected_rig_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
+      "selected_runtime_sha256": "5a1a4451a756d1a1d6e3f3b75ee8942ddb312d011242cd27c4ea297728f1cf1d",
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
@@ -210,12 +210,12 @@
         "missing_actions_filled_from": "marisa"
       },
       "shape_status": "selected_rounded_standard",
-      "runtime_acceptance": "current_checks_passed",
+      "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "runtime_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "rig": "art/source/rounded-runtime/marisa/animation-rig.json",
-      "bone_count": 266,
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -382,8 +382,7 @@
           "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "chen": {
       "geometry_identifier": "chen",
@@ -960,10 +959,10 @@
       "geometry_identifier": "marisa_tsumuri",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-      "selected_model_sha256": "5d4c959f59f7e5b27af355e244b1ff116303cf1ad06d92233bdc830e26e8bec2",
+      "selected_model_sha256": "c09860e0d9d387ad84ea84715509eec79e2fbebcb1f5b2907c9c10ac7be1e372",
       "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-      "selected_rig_sha256": "4ffad33360aad3d39b1e234fbdab0ddd567d2d9768057d2dc34832e090d2ad60",
-      "selected_runtime_sha256": "9ef6d3c58df934a12037f518d954605ba66bd27ad196b04945c97a5ce1ad3773",
+      "selected_rig_sha256": "2373ed679a99aa56f7499abed8a112619b3fccd143ebad879be783630c5e9aa4",
+      "selected_runtime_sha256": "ce7362046096032ca04f88a3fc179db95f3e6012fe14f29420a98a661b54f3d3",
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
@@ -972,12 +971,12 @@
         "shell_motion": "slow walk and five-degree whole-body side lean"
       },
       "shape_status": "selected_rounded_standard",
-      "runtime_acceptance": "current_checks_passed",
+      "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "7200059184289a47d9ad436ca3466708da48f4fa92ca87fa6b86e7da41a67dc2",
+      "runtime_sha256": "705f678556663aeb6dd56dbcd8a28ef6bc5afe048f3b4345e3ceed0fef952f05",
       "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
-      "bone_count": 267,
+      "bone_count": 265,
       "clips": [
         "idle",
         "still",
@@ -1147,8 +1146,7 @@
           "sha256": "cedfba7e57b00454899d19e183f23270bf681cdb3d20224bbd5c0dad26558838",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "reimu_wasa": {
       "geometry_identifier": "reimu_wasa",

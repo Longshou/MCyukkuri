@@ -1,5 +1,7 @@
 # 圆润标准体型
 
+2026-10-13 魔理沙单辫：普通与螺壳魔理沙的辫子改为自身左侧一条粗辫，另一侧为短侧发；冻结输入建立新修订，其他亚种与游戏资源同步。造型待确认，原批准记录保留为基线。见 [marisa-single-braid](features/marisa-single-braid/README.md)。
+
 2026-09-13 后续纠正：[稀毛与歪脸魔理沙](../subspecies/deficient/rounded-marisa/README.md)按用户新要求另行采用圆润身体，并同步游戏资源。此项仅覆盖下方原排除范围中的这两种；其余不足形态、家油与 DOS 继续保留各自体型。
 
 2026-09-13 头发修复：八种圆润模型的后发按身体截面增加遮盖余量，并与身体使用相同的分段权重；灵胖补齐上部刘海发根与头顶头发的连接。身体、面容和蝴蝶结尺寸保留。修订配方见 [hair-contact](features/hair-contact/recipe.json)，源与导出指纹见[本轮候选](features/hair-contact/candidate.json)。本轮头发修订待确认，原批准记录保留为基线。
