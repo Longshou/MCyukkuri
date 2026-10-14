@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "id": "action.marisa.braid_interactions.v2",
+  "label": "普通魔理沙 · 七项单辫互动 v2",
+  "status": "user_approved_saved",
+  "approved_on": "2026-10-14",
+  "instruction": "动作也保存",
+  "character": "marisa",
+  "revision": "单辫完成七项动作；辫身绷直、绕帽檐外沿、帽子单点抓握并在头顶前上方转向、子油向前抬出；穿模治理后残留帽檐下沿约 0.41 像素轻擦",
+  "minecraft_integration": false,
+  "base_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
+  "base_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+  "commit": "c64e43c5e68d93317f9e7064fbfd5784b8fd821e",
+  "clips": [
+    {
+      "id": "animation.marisa.pick_stone",
+      "label": "捡拾石头",
+      "duration": 6.4,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.swing_sword",
+      "label": "挥舞宝剑",
+      "duration": 6.8,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.pull_grass",
+      "label": "拔草",
+      "duration": 6.6,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.remove_hat",
+      "label": "取下帽子",
+      "duration": 10.0,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.care_hat",
+      "label": "护理帽子",
+      "duration": 20.4,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.wave_goodbye",
+      "label": "挥“手”道别",
+      "duration": 5.2,
+      "loop": false
+    },
+    {
+      "id": "animation.marisa.lift_child",
+      "label": "托子油上帽子",
+      "duration": 8.4,
+      "loop": false
+    }
+  ],
+  "files": {
+    "build.py": "57686222877264453d39b9067b06f4f7257704cbfec42cbf3f1859a4d5940d51",
+    "recipes.json": "1c74d48b9ec36aeabbca79dcb1f28e959475f48cbbc734eb7262db73b82b179d",
+    "viewer.html": "c2d51b3f9c715daa7c11a8273950e02f62363a725b3915dfd413bdea6afc7281",
+    "index.html": "531a9209b2cb246262caffd1a044026e5addcf328114241f2d1c31541fca7b0b",
+    "check_motion.py": "e6245e22d5f9f407c6a8f91a26c0ea5c809d6b16bed894dcdc2bf2924322484c",
+    "clearance.py": "1dd933305b0e88054970ef32e6c6f59e536f04af948abd718152eba72912ab6d",
+    "render_checks.py": "0e043ebbc7203921aecb7fb82afb7fbecf8907e07e18ef019d2b2697a5cddc65",
+    "assembled/marisa-braids.bbmodel": "42898cb617412fee46a8282fa7bddcfdc509e3d91d4dacc4ca4cc4e19cf1a241",
+    "assembled/marisa-braids.geo.json": "78dc1b56825dbee82aa1936b14d3829a53d2212a25ca091b50b5e2afb1eade08",
+    "assembled/marisa-braids.animation.json": "b6759440b236dc88e7b141692aad86020adbfffd4cb75c28d6b15106b2f4ccb6",
+    "assembled/animation-rig.json": "09fa601201033c91272497ece2c7b7f51aad6f7a6bd6f807ed99c820cc66b4cd",
+    "assembled/marisa-braids.png": "43985353972634c37381261700a5e9bdf0c6976c109345678a69f826cd322127",
+    "assembled/provenance.json": "7f4a2053f5e97f9b31025853af8547481ebee4071508cfc18c4001a2fe0a53dc",
+    "checks/motion-checks.json": "d45ef15a6b0000c287ed0c641275f8cbb2e1f5e2e918ec9a4d1e337523009383",
+    "checks/clearance.json": "19cc37863c2ec3d1dab99be377ad562fdad13a2e3ade4a165868b990d6556188"
+  },
+  "note": "版本以本记录的文件指纹与提交为准，Git 历史保存原始字节；v1 的 ZIP 快照见 approved-snapshots.json。"
+}

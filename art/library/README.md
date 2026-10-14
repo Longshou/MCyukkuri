@@ -1,6 +1,8 @@
 # 美术与动作资料库
 
-新增保存：[普通魔理沙七项辫子互动 v1](../../standards/yukkuri-library/interactions/marisa-braids/README.md)，包含绷直辫身、脸侧避让及转向自己后放低护理帽子的确认版本。[独立快照索引](../../standards/yukkuri-library/interactions/marisa-braids/approved-snapshots.json)；不计入下方历史 variants 统计。
+新增保存：[普通魔理沙七项单辫互动 v2](../../standards/yukkuri-library/interactions/marisa-braids/saved-action-v2.json)（2026-10-14），取代下述 v1 作为当前标准。
+
+此前保存：[普通魔理沙七项辫子互动 v1](../../standards/yukkuri-library/interactions/marisa-braids/README.md)，包含绷直辫身、脸侧避让及转向自己后放低护理帽子的确认版本。[独立快照索引](../../standards/yukkuri-library/interactions/marisa-braids/approved-snapshots.json)；不计入下方历史 variants 统计。
 
 当前可编辑复用标准：[去重素材库](../../standards/yukkuri-library/index.html)。本页压缩包是历史制作与候选快照，不按记录条数计算当前独立动作，也不再从中复制已有标准动作。
 
