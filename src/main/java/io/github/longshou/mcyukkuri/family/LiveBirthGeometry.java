@@ -27,12 +27,16 @@ public final class LiveBirthGeometry {
     public static int birthTick(int index){return index*INTERVAL+EMERGENCE;}
     public static float smooth(float value){float q=Math.clamp(value,0,1);return q*q*(3-2*q);}
     public static float belly(float progress,int born,int count){return smooth(progress)*(1-.78f*born/Math.max(1,count));}
-    /** Model units, before the entity's scale and yaw. Upper face and accessories rise together. */
+    /** Whole-body growth of a full belly; the lower body also fills out, most at the front under the mouth. */
+    public static final float SWELL=.26f, LOW_WIDE=.16f, LOW_DEEP=.06f, LOW_FRONT=.28f;
+    /** Model units, before the entity's scale and yaw. The body grows from the floor and its lower front rounds out
+     *  below the mouth (CADあき: the lower body swells); the face and the upper body are moved, not stretched.
+     *  Accessories and Marisa's braid do not take this: they ride the swollen head rigidly (YukkuriModel). */
     public static void deform(Vector3f point,float belly,float contraction){
         if(belly<=0)return;
-        float blend=smooth(point.y/4.2f),lower=1-blend;
-        point.set(point.x*(1+.22f*belly*lower)*(1+.035f*contraction),
-                (point.y+2.5f*belly*blend)*(1-.04f*contraction),point.z*(1+.24f*belly*lower));
+        float s=1+SWELL*belly,low=smooth(point.y/1.5f)*(1-smooth((point.y-1.5f)/4.5f)),front=point.z<0?smooth(-point.z/4):0;
+        float squeeze=1+.035f*contraction;
+        point.set(point.x*s*(1+LOW_WIDE*belly*low)*squeeze,point.y*s*(1-.04f*contraction),point.z*s*(1+(LOW_DEEP+LOW_FRONT*front)*belly*low)*squeeze);
     }
     public static boolean bean(int flags){return ((flags>>4)&15)==3;}
     private static net.minecraft.world.entity.EntityDimensions selectedDimensions(io.github.longshou.mcyukkuri.entity.YukkuriVariant variant,int flags){
@@ -47,7 +51,7 @@ public final class LiveBirthGeometry {
     }
     public static net.minecraft.world.entity.EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
-        return size.scale(growth*(1+.22f*belly),growth*(1+2.5f/modelHeight(entity.subspecies().assetId())*belly));
+        return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
     public static net.minecraft.world.entity.EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
         return selectedDimensions(child.variant,child.subspeciesFlags).scale(BABY_SCALE*globalScale);
@@ -83,6 +87,11 @@ public final class LiveBirthGeometry {
         var position=position(mother,index);
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);
+        // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
+        var brood=mother.family().brood();
+        var floated=level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
+                &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
+        if(floated!=null)return floated.hasRoomForYoung()&&level.noCollision(mother,box);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.

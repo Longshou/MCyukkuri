@@ -4,7 +4,7 @@ Poses src/main/resources/assets/mcyukkuri/yukkuri/<id>.json with its two-bone we
 idle clip at t=0 under the clip from the motion corrections (as the game layers them),
 and draws flat-shaded, textured triangles with a numpy depth buffer. Faces follow each
 clip's expression timeline. A clip is shown only on the forms it applies to; the aquatic
-Marisa is drawn without her hat, sitting in the hat boat prop. No game, browser or build
+Marisa is drawn without her hat, sitting on the rim of her own larger hat afloat (marisa_hat_vessel). No game, browser or build
 runs; this is a visual aid, not motion acceptance. Needs numpy and Pillow.
 
   python preview.py [--corrections motion_corrections.json] [--out dir] [--clips a,b]
@@ -29,6 +29,7 @@ BACK = (234, 231, 222)
 
 
 def shown(mode, clip):
+    if clip.endswith('_aq'): return False  # the larger aquatic hat floated at a bank: shown in births.html
     if mode == 'aquatic': return clip in BOAT_CLIPS
     if mode == 'young': return clip == 'hat_cradle'
     return clip not in BOAT_CLIPS and clip != 'hat_cradle'
@@ -62,12 +63,14 @@ class Posed:
         self.a, self.b, self.q = W[keep, 0].astype(int), W[keep, 1].astype(int), W[keep, 2:3]
         self.ident, self.aquatic, self.boat = ident, aquatic, 0
         if aquatic:
-            # The hat boat prop, static under the rider (HatBoatEntity seats her .055 block above it), in a
-            # square combined atlas: the model texture top-left, the boat texture top-right.
-            prop = json.loads((ASSETS/'yukkuri_props/hat_boat.json').read_text(encoding='utf-8'))
-            B = np.array(prop['vertices']).reshape(-1, 8); B[:, 1] -= .055*16
-            self.uv = self.uv*.5; boat_uv = np.c_[.5+B[:, 3]*.5, B[:, 4]*.5]
-            self.v = np.r_[self.v, B[:, :3]]; self.uv = np.r_[self.uv, boat_uv]; self.n = np.r_[self.n, B[:, 5:8]]
+            # Her own hat as the boat (marisa_hat_vessel at the aquatic size, hat_vessel.json): static, its rim a freeboard
+            # over the water line, with the rider on the rim at the stern as HatBoatEntity seats her. Same atlas as the model.
+            vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8')); k = vessel['aquatic_scale']
+            prop = json.loads((ASSETS/'yukkuri_props/marisa_hat_vessel.json').read_text(encoding='utf-8'))
+            B = np.array(prop['vertices']).reshape(-1, 8)
+            seat = np.array([0, (vessel['boat']['freeboard']-vessel['boat']['owner_sink'])*k, vessel['opening'][3]*k-5.9])
+            B[:, :3] = B[:, :3]*k+[0, vessel['boat']['freeboard']*k, 0]-seat  # drawn under the rider, who stays at the origin
+            self.v = np.r_[self.v, B[:, :3]]; self.uv = np.r_[self.uv, B[:, 3:5]]; self.n = np.r_[self.n, B[:, 5:8]]
             zero = np.zeros(len(B), int)
             self.a, self.b, self.q = np.r_[self.a, zero], np.r_[self.b, zero], np.r_[self.q, np.zeros((len(B), 1))]
             self.boat = len(B)
@@ -97,11 +100,7 @@ class Posed:
 
     def texture(self, face):
         folder = ASSETS/'textures/entity'/self.ident; path = folder/f'{face}.png'
-        img = Image.open(path if path.exists() else folder/'neutral.png').convert('RGBA')
-        if not self.aquatic: return np.array(img)
-        size = img.width; atlas = Image.new('RGBA', (size*2, size*2), (0, 0, 0, 0)); atlas.paste(img, (0, 0))
-        atlas.paste(Image.open(ASSETS/'textures/props/hat_boat.png').convert('RGBA').resize((size, size), Image.NEAREST), (size, 0))
-        return np.array(atlas)
+        return np.array(Image.open(path if path.exists() else folder/'neutral.png').convert('RGBA'))
 
 
 def raster(pos, uv, nrm, tex, size, yaw, pitch, scale, center_y, K=8):
@@ -169,6 +168,7 @@ def main():
     for name in clips:
         c = recipe['clips'][name]; n = max(2, round(c['duration']*args.fps)); frames = []
         use = [(i, label, p) for i, (label, p, mode) in enumerate(panels) if shown(mode, name) and name in p.clips]
+        if not use: continue  # e.g. the aquatic hat clips, shown in births.html
         for k in range(n+(0 if c['loop'] else 1)):
             t = c['duration']*k/n; row = []
             for i, _, p in use:

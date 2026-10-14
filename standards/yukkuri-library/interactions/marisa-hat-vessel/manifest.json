@@ -1,0 +1,10 @@
+{
+  "note": "Runtime outputs of build.py",
+  "recipe_sha256": "82cb0404719a8d57c7af821a89348ab159a483bcb990395f9bf806bae657f5a9",
+  "build_sha256": "e4f87c8c5fe7d938d3de3fc96961fe93ef95d7d3ddd62d10f3209bbb880e335f",
+  "outputs": {
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_vessel.json": "e1f3cd70d23ef1b0c592b5825a5db8ce3e3e67cfc361d5a086b869811d90ea84",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "410a5727f5c77c3c4d72bd90efad2e42d285e0e3129e0bcd3eab0df736083b33",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "20eae653006a467726751c72a6fee143f3872c98e8dac7a7c52da2e0fd5df4f1"
+  }
+}

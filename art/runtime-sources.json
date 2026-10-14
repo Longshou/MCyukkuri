@@ -3638,7 +3638,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "contact-safe-20261014-v9",
+    "revision": "contact-safe-20261014-v10",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3668,7 +3668,9 @@
     "runtime_morph_geometry_modified": true,
     "current_previews": "art/source/motion-corrections/previews/current",
     "current_reports": "art/source/motion-corrections/reports/current",
-    "history": "preview/review/puff-v6"
+    "history": "preview/review/puff-v6",
+    "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
+    "births_preview": "art/source/motion-corrections/previews/current/lore/births.html"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",
@@ -3710,5 +3712,19 @@
     ],
     "current_previews": "art/source/placement-fit/previews/current",
     "current_reports": "art/source/placement-fit/reports/current"
+  },
+  "hat_vessel": {
+    "source": "standards/yukkuri-library/interactions/marisa-hat-vessel",
+    "recipe": "standards/yukkuri-library/interactions/marisa-hat-vessel/recipe.json",
+    "builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
+    "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_vessel.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json"
+    ],
+    "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
+    "manifest": "standards/yukkuri-library/interactions/marisa-hat-vessel/manifest.json",
+    "status": "pending_user_review",
+    "scope": "Marisa's own worn hat, hollowed: the aquatic hat boat (larger), the hat laid on its side to catch young on land, and the hat floated at a bank to catch them; braid placements read by the lore hat clips and the game"
   }
 }

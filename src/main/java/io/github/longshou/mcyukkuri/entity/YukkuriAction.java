@@ -43,7 +43,6 @@ public enum YukkuriAction {
     BROOD("brood", 4.0, true),
     LABOR("labor", 2.4, true),
     MIDWIFE("midwife", 2.4, true),
-    DOFF_HAT("doff_hat", 1.2, false),
     BEREAVED("bereaved", 5.0, false),
     POSTPARTUM("postpartum", 3.0, false),
     FIRST_WAKE("first_wake", 2.0, false),
@@ -53,6 +52,17 @@ public enum YukkuriAction {
     BOAT_BROOD("boat_brood", 4.0, true),
     BOAT_LABOR("boat_labor", 2.4, true),
     HAT_CRADLE("hat_cradle", 3.0, true),
+    // Marisa's braid takes off, sets down, holds and puts back her own hat (lore hat.py); _AQ: the aquatic Marisa's larger hat floated at a bank.
+    HAT_OFF("hat_off", 1.6, false),
+    HAT_HOLD("hat_hold", 2.4, true),
+    HAT_ON("hat_on", 1.6, false),
+    HAT_OFF_SELF("hat_off_self", 1.8, false),
+    HAT_ON_SELF("hat_on_self", 1.8, false),
+    HAT_OFF_AQ("hat_off_aq", 1.6, false),
+    HAT_HOLD_AQ("hat_hold_aq", 2.4, true),
+    HAT_ON_AQ("hat_on_aq", 1.6, false),
+    HAT_OFF_SELF_AQ("hat_off_self_aq", 1.8, false),
+    HAT_ON_SELF_AQ("hat_on_self_aq", 1.8, false),
     /** Shell Marisa only; other models fall back to idle. */
     SHELL_RETRACT("shell_retract", 6.0, true);
 

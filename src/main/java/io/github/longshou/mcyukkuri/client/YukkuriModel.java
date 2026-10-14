@@ -42,6 +42,12 @@ public final class YukkuriModel {
     private int woundTriangle=-1;
     private boolean drawingWoundedBody;
     private float pregnancyBelly,pregnancyContraction;
+    /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
+    private float hatScale=1;
+    /** Per vertex: 1 accessory, 2 Marisa's braid. On a swollen body they ride rigidly instead of stretching (lazy). */
+    private byte[] rigidGroups;
+    private int hatFollowBone=-2,braidBone=-2;
+    private final Vector3f crownLift=new Vector3f(),braidLift=new Vector3f();
     private LiveBirthRenderer.Delivery delivery;
     public void setPregnancy(float belly,float contraction){pregnancyBelly=belly;pregnancyContraction=contraction;}
     public void setDelivery(LiveBirthRenderer.Delivery value){delivery=value;}
@@ -591,7 +597,9 @@ public final class YukkuriModel {
             matrix.translate(bone.x + v[0], bone.y + v[1], bone.z + v[2])
                     .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
                     .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
+            if(hatScale!=1&&i==hatFollowBone()){var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());}
         }
+        if(pregnancyBelly>.001f)rigidLifts();
         PoseStack.Pose transform = stack.last();
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
@@ -679,9 +687,10 @@ public final class YukkuriModel {
         setExpression(expressionFor(action,elapsed,entity.getExpressionId()));
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
+        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)?io.github.longshou.mcyukkuri.subspecies.HatVessel.AQUATIC_SCALE:1;
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){
@@ -733,7 +742,37 @@ public final class YukkuriModel {
     }
     private void skin(int index, Vector3f target) {
         skinBase(index,target);
-        io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
+        if(pregnancyBelly<=0)return;
+        int group=rigidGroups==null?0:rigidGroups[index];
+        if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);
+        else io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
+    }
+    private int hatFollowBone(){
+        if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;if(bones[i].name().equals("hand_right"))braidBone=i;}}
+        return hatFollowBone;
+    }
+    /** The hat and the braid ride the swollen head rigidly, the crown's and the braid root's own lift, fading out as a hat
+     *  clip lifts the hat away or a braid clip swings the braid off its rest (so they reach where the clip puts them). */
+    private void rigidLifts(){
+        int hat=hatFollowBone(),braid=braidBone;
+        if(rigidGroups==null){
+            rigidGroups=new byte[bindings.length];var prefixes=LivingPresentation.variants.get(id).accessoryPrefixes();
+            for(var part:parts){
+                byte group=prefixes.stream().anyMatch(part.name::startsWith)?(byte)1:part.name.startsWith("braid_lock")&&braid>=0
+                        &&(bindings[part.start].first==braid||bones[bindings[part.start].first].parent==braid)?(byte)2:0;
+                for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
+            }
+        }
+        float s=1+io.github.longshou.mcyukkuri.family.LiveBirthGeometry.SWELL*pregnancyBelly;
+        float hatWeight=1;
+        if(hat>=0){var v=pose[hat];hatWeight=Math.max(0,1-(float)Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])/3-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);}
+        crownLift.set(0,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.modelHeight(id)*(s-1)*hatWeight,0);
+        braidLift.zero();
+        if(braid>=0){
+            var v=pose[braid];float weight=Math.max(0,1-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);
+            var root=new Vector3f(bones[braid].x(),bones[braid].y(),bones[braid].z());var moved=new Vector3f(root);
+            io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(moved,pregnancyBelly,0);braidLift.set(moved.sub(root).mul(weight));
+        }
     }
     private void skinBase(int index, Vector3f target) {
         int offset = index * 8;

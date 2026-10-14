@@ -455,9 +455,10 @@ public final class YukkuriEntity extends PathfinderMob {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
         } else {
             setAnimation(action, false);
-            // Labor and midwife clips follow the 48-tick contraction, a birth every cycle (LiveBirthGeometry.INTERVAL).
+            // Labor, midwife and hat-holding clips follow the 48-tick contraction, a birth every cycle (LiveBirthGeometry.INTERVAL).
             int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? liveDeliveryTicks()
-                    : action == YukkuriAction.MIDWIFE && family.midwifeTarget() != null ? family.midwifeTarget().liveDeliveryTicks() : -1;
+                    : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
+                    && family.midwifeTarget() != null ? family.midwifeTarget().liveDeliveryTicks() : -1;
             if (phase >= 0) {
                 long start = level().getGameTime() - phase % 48;
                 if (getAnimationStartTick() != start) entityData.set(ANIMATION_START, start);

@@ -22,7 +22,8 @@ public final class EcologyPresentation {
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
             case "midwife" -> YukkuriAction.MIDWIFE;
-            case "doff_hat" -> YukkuriAction.DOFF_HAT;
+            case "hat_off", "hat_on", "hat_hold", "hat_off_self", "hat_on_self",
+                 "hat_off_aq", "hat_on_aq", "hat_hold_aq", "hat_off_self_aq", "hat_on_self_aq" -> YukkuriAction.byId(behavior).orElse(YukkuriAction.IDLE);
             default -> YukkuriAction.IDLE;
         };
     }
@@ -34,9 +35,10 @@ public final class EcologyPresentation {
             default -> YukkuriAction.PUFF;
         };
     }
-    /** Aquatic Marisa in her hat boat: labor and expecting first, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
+    /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
     public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
+        if (owner.life().isSleeping()) return YukkuriAction.SLEEP;  // on the rim over her young asleep in the well
         var brood = owner.family().brood();
         if (brood != null && !brood.cancelled && !brood.complete()) return YukkuriAction.BOAT_BROOD;
         if (behavior.equals("event_river")) return YukkuriAction.BOAT_CALL;

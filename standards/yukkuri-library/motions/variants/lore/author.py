@@ -5,13 +5,13 @@ Each clip is a whole-body root transform sampled every `sample_seconds`: scale, 
 both in model units. The caller lands every sample on the lowest visible point, so a lean
 pivots on the floor instead of sinking into it. Forward is -Z (the face side); a negative
 X rotation leans the head forward. Flourishes add rotation tracks to hand bones that carry
-hair: Marisa's braid waves, Reimu's sideburns flick, locks tremble in labor. Each clip
+hair; the hat clips (hat.py) move Marisa's braid and hat as well: Marisa's braid waves, Reimu's sideburns flick, locks tremble in labor. Each clip
 carries an expression timeline, resolved per model against its textures, and is compiled
 only into the models its `applies` group names. See README.md and recipe.json.
 """
 from fnmatch import fnmatch
 from pathlib import Path
-import math
+import math, runpy
 
 ROOT = Path(__file__).resolve().parents[5]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
@@ -195,10 +195,6 @@ def state(action, t, c, height):
         else:
             # Gather the newborn into the hat: turn toward it, lean in, come back.
             e = bump((t-1.8)/.6); s = base; r = [c['tuck_lean']*e, c['tuck_turn']*e, 0.]
-    elif action == 'doff_hat':
-        # A deep bow: the hat comes off (or goes back on) at the bottom, then she straightens.
-        a = smooth(t/.5) if t < .5 else 1. if t < .7 else 1-smooth((t-.7)/.5)
-        r[0] = c['bow']*a; s = [1+.02*a, 1-.04*a, 1+.02*a]
     elif action == 'bereaved':
         if t < 1.6:  # frozen, sinking a little: the blank stare
             a = smooth(t/.4); s = [1+c['sink']*.5*a, 1-c['sink']*a, 1+c['sink']*.5*a]
@@ -301,9 +297,16 @@ def faces(cfg, c, ident):
 def compile_clips(model, cfg, root, ground, height):
     """ground(scale, rotation) -> y offset that keeps the lowest visible point on the floor."""
     out = {}; ident = model['id']
+    hat = runpy.run_path(str(Path(__file__).resolve().parent/'hat.py'))
     for name, base in cfg['clips'].items():
         if not applies(cfg, base['applies'], ident): continue
         c = variant(base, ident)
+        if 'hat' in c:  # the braid works the hat (hat.py): its own root, hat and braid tracks
+            tracks, _ = (hat['compile_hold'](model, cfg, root, ground, height, c) if 'phases' not in c or not c['phases']
+                         else hat['compile_hat'](model, cfg, root, ground, height, name, c))
+            out[name] = {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks,
+                         'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
+            continue
         d = c['duration']; n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:

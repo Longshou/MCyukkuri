@@ -1,0 +1,330 @@
+{
+  "note": "Marisa's own hat as a vessel: the worn hat hollowed, turned over, as a cradle on land and a boat.",
+  "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+  "source_model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
+  "prop": "marisa_hat_vessel",
+  "anchor_worn": [
+    0.0,
+    10.3774,
+    0.23066
+  ],
+  "aquatic_scale": 1.5,
+  "opening": [
+    -4.3683,
+    4.3683,
+    -6.01,
+    6.01
+  ],
+  "well": [
+    -3.7223,
+    3.1586,
+    -4.7833,
+    4.7833
+  ],
+  "brim_x": [
+    -6.5143,
+    7.2132
+  ],
+  "ledge": -2.2484,
+  "floor": -4.8136,
+  "keel": -10.9021,
+  "braid": {
+    "root": [
+      6.9333,
+      9.328,
+      -2.52
+    ],
+    "tip": [
+      7.52,
+      2.222,
+      -3.3075
+    ],
+    "length": 7.1735
+  },
+  "grip_worn": {
+    "land": {
+      "helper": [
+        10.13,
+        10.9,
+        3.0
+      ],
+      "self": [
+        7.79,
+        10.9,
+        -6.9
+      ]
+    },
+    "aquatic": {
+      "helper": [
+        6.4,
+        10.8,
+        1.8
+      ],
+      "self": [
+        5.5,
+        10.8,
+        -5.0
+      ]
+    }
+  },
+  "grip_vessel": {
+    "land": {
+      "helper": [
+        -2.7693,
+        -0.5226,
+        -10.13
+      ],
+      "self": [
+        7.1307,
+        -0.5226,
+        -7.79
+      ]
+    },
+    "aquatic": {
+      "helper": [
+        -1.5693,
+        -0.4226,
+        -6.4
+      ],
+      "self": [
+        5.2307,
+        -0.4226,
+        -5.5
+      ]
+    }
+  },
+  "cradle": {
+    "back": {
+      "tilt": 67.85,
+      "lift": 6.3565,
+      "lip_z": -1.7002,
+      "seats": [
+        [
+          -0.0,
+          3.3229,
+          -0.1552
+        ],
+        [
+          3.2,
+          3.3229,
+          -0.1552
+        ],
+        [
+          -3.2,
+          3.3229,
+          -0.1552
+        ],
+        [
+          6.0,
+          3.3229,
+          -0.1552
+        ],
+        [
+          -6.0,
+          3.3229,
+          -0.1552
+        ]
+      ]
+    },
+    "bow": {
+      "tilt": 75.25,
+      "lift": 7.1873,
+      "lip_z": -1.1036,
+      "seats": [
+        [
+          0.0,
+          4.1589,
+          0.2368
+        ],
+        [
+          -3.2,
+          4.1589,
+          0.2368
+        ],
+        [
+          3.2,
+          4.1589,
+          0.2368
+        ],
+        [
+          -6.0,
+          4.1589,
+          0.2368
+        ],
+        [
+          6.0,
+          4.1589,
+          0.2368
+        ]
+      ]
+    }
+  },
+  "boat": {
+    "freeboard": 1.6,
+    "owner_sink": 0.4,
+    "young_day": [
+      [
+        0.0,
+        -3.0
+      ],
+      [
+        -2.2,
+        -3.4
+      ],
+      [
+        2.2,
+        -3.4
+      ],
+      [
+        -1.1,
+        -1.0
+      ],
+      [
+        1.1,
+        -1.0
+      ]
+    ],
+    "young_night": [
+      [
+        0.0,
+        2.8
+      ],
+      [
+        -2.2,
+        2.4
+      ],
+      [
+        2.2,
+        2.4
+      ],
+      [
+        -1.1,
+        0.6
+      ],
+      [
+        1.1,
+        0.6
+      ]
+    ]
+  },
+  "float": {
+    "bank_drop": 1.8,
+    "under_bank": 2.0,
+    "helper_back": 3.0,
+    "reach_max": 1.45,
+    "lore": "at a bank the aquatic Marisa catches in her hat floated at the water's edge before the outlet, its near brim slipped under the bank; a newborn pushed too hard flies past it into the river (user, 2026-10-14). bank_drop: water surface below the bank top (a full water block under a dry one)"
+  },
+  "lip_before_exit": 1.2,
+  "placements": {
+    "land": {
+      "scale": 1.0,
+      "helper": {
+        "offset": [
+          4.3039,
+          0.0,
+          -17.6922
+        ],
+        "yaw": 95,
+        "reach": 1.1404,
+        "look": 30.54,
+        "at_mother": [
+          -18.0,
+          0.0,
+          -15.0
+        ],
+        "angle": 275,
+        "hat_in_mother": {
+          "origin": [
+            0.0,
+            0.0,
+            -12.2544
+          ],
+          "yaw": 180
+        },
+        "mode": "back",
+        "grip_worn": [
+          10.13,
+          10.9,
+          3.0
+        ]
+      },
+      "self": {
+        "offset": [
+          0.0,
+          0.0,
+          -11.6578
+        ],
+        "yaw": 180,
+        "mode": "bow",
+        "reach": 1.231,
+        "grip_worn": [
+          7.79,
+          10.9,
+          -6.9
+        ],
+        "bow": -20
+      },
+      "lip_from_mother": -10.5542
+    },
+    "aquatic": {
+      "scale": 1.5,
+      "helper": {
+        "offset": [
+          17.2628,
+          -1.8,
+          -18.2753
+        ],
+        "yaw": 170,
+        "reach": 1.4153,
+        "look": 19.25,
+        "at_mother": [
+          15.0,
+          0.0,
+          2.0
+        ],
+        "angle": 80,
+        "hat_in_mother": {
+          "origin": [
+            0.0,
+            -1.8,
+            -18.174
+          ],
+          "yaw": 90
+        },
+        "mode": "float",
+        "grip_worn": [
+          7.5,
+          10.85,
+          -6.5
+        ]
+      },
+      "self": {
+        "offset": [
+          0.0,
+          -1.8,
+          -18.174
+        ],
+        "yaw": 90,
+        "mode": "float",
+        "reach": 1.1544,
+        "grip_worn": [
+          6.0,
+          10.85,
+          -6.5
+        ],
+        "bow": -20
+      },
+      "lip_from_mother": -10.5542
+    }
+  },
+  "pregnancy": {
+    "swell": 0.26,
+    "low_wide": 0.16,
+    "low_front": 0.28,
+    "low_back": 0.06,
+    "low_peak": 1.5,
+    "low_fade": 4.5,
+    "front_ramp": 4.0,
+    "lore": "LiveBirthGeometry.deform: the whole body grows larger and the lower front fills out (CADあき 图001: the lower body swells while hair and bow keep their place); the face is moved, not stretched. Used here for the live exit (body half width at a full belly)"
+  }
+}
