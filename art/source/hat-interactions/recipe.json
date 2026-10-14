@@ -12,14 +12,14 @@
   "exporter": "scripts/export_hat_interactions.py",
   "exporter_sha256": "48fef729387ce12c8f2634ab20f93b783bf2e6702dd43b2783f5e9cb2e546daa",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "c6aebfe9456ba2a18bb76a6b92a0c6224b458044c82793cac482bed89e02d8c3",
+  "runtime_sha256": "8244559b474bcb584747019774bc24302f3189b7c90afe295eb9cc1b40e16e47",
   "sources": {
-    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "2d4d114098260245bc4c84d60d00e47c45eec47acd6f8d64d92e7f1e79eed46d",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "c5ab0dc852c81e3b0c714c4bf9d2e5619c10755211749520c72273fc54baa707",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "d1d2a6eb11242a81d8a0e554f249cd92cfa6df856fcde06551d6a39ec62ef0b7"
+    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a"
   },
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "1d2fc4f182188b8087f53252237f1794fa6c4b5a1ad38fa77f1e0bbf8edd983d"
+  "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879"
 }

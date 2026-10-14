@@ -2,17 +2,17 @@
   "id": "marisa.hand-left",
   "elements": [
     {
-      "name": "side_lock_-1",
+      "name": "side_hair_loose",
       "type": "cube",
       "from": [
-        -7.1,
-        2.12,
-        -3.515625
+        -7.01,
+        3.42,
+        -3.65
       ],
       "to": [
-        -5.9,
+        -5.95,
         8.48,
-        -1.1
+        -2.55
       ],
       "origin": [
         0.0,
@@ -86,27 +86,27 @@
       "bone": "hand_left"
     },
     {
-      "name": "side_tip_-1",
+      "name": "side_hair_loose_tip_0",
       "type": "cube",
       "from": [
-        -6.95,
-        0.954,
-        -3.1089844
+        -6.93,
+        2.69,
+        -3.61
       ],
       "to": [
-        -6.1,
-        3.18,
-        -0.9402344
+        -6.07,
+        3.47,
+        -2.63
       ],
       "origin": [
-        0.0,
-        0.0,
-        0.0
+        -6.5,
+        3.08,
+        -3.12
       ],
       "rotation": [
         0,
         0,
-        0
+        -6
       ],
       "box_uv": false,
       "rescale": false,
@@ -167,30 +167,30 @@
           "texture": 0
         }
       },
-      "bone": "hand_left_tip"
+      "bone": "hand_left"
     },
     {
-      "name": "side_ribbon_-1",
+      "name": "side_hair_loose_tip_1",
       "type": "cube",
       "from": [
-        -7.18,
-        2.544,
-        -3.6240625
+        -6.81,
+        2.19,
+        -3.54
       ],
       "to": [
-        -5.82,
-        3.286,
-        -1.2113281
+        -6.31,
+        2.75,
+        -2.74
       ],
       "origin": [
-        0.0,
-        0.0,
-        0.0
+        -6.56,
+        2.47,
+        -3.14
       ],
       "rotation": [
         0,
         0,
-        0
+        -10
       ],
       "box_uv": false,
       "rescale": false,
@@ -198,66 +198,64 @@
       "faces": {
         "north": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         },
         "east": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         },
         "south": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         },
         "west": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         },
         "up": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         },
         "down": {
           "uv": [
-            112.0,
+            16.0,
             48.0,
-            128.0,
+            32.0,
             64.0
           ],
           "texture": 0
         }
       },
-      "bone": "hand_left_ribbon"
+      "bone": "hand_left"
     }
   ],
   "owned_bones": [
-    "hand_left",
-    "hand_left_ribbon",
-    "hand_left_tip"
+    "hand_left"
   ],
   "attachment": "see skeleton attachments; independent hands are not bound to skin slices"
 }

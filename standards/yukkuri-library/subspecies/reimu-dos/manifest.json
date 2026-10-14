@@ -38,9 +38,9 @@
   },
   "marisa_dos": {
     "base": "marisa",
-    "cube_count": 339,
-    "bones": 202,
-    "source_sha256": "9c5056ab31fcc7d03fa34c8056e2f35f68d37c614a3c6c4db474fb5201ceb08f",
+    "cube_count": 355,
+    "bones": 200,
+    "source_sha256": "59c7f77fd10b6b0aabf5a1aad397f4fdf52d65ad0223c604a795bb2e568ace30",
     "base_scale": 6.032293178519594,
     "world_scale": 0.28872180451127816,
     "units_per_meter": 16,

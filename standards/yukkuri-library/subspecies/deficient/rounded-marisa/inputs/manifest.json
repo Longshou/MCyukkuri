@@ -1,9 +1,9 @@
 {
   "purpose": "Immutable rounded donor and pre-fix wound migration inputs",
   "files": {
-    "standards/yukkuri-library/assembled/marisa/marisa.bbmodel": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
-    "standards/yukkuri-library/assembled/marisa/animation-rig.json": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
-    "standards/yukkuri-library/assembled/marisa/runtime.model.json": "66397cbe90c124472e662c4118c4111f52e6529ac0ede69a4c7ff31b47a82c2b",
+    "standards/yukkuri-library/assembled/marisa/marisa.bbmodel": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+    "standards/yukkuri-library/assembled/marisa/animation-rig.json": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
+    "standards/yukkuri-library/assembled/marisa/runtime.model.json": "5a1a4451a756d1a1d6e3f3b75ee8942ddb312d011242cd27c4ea297728f1cf1d",
     "standards/yukkuri-library/body-standard/recipe.json": "7811e9942eb613030f896ae15b7249d31d435577e2b42fafcf2f7d0b82934ccf",
     "standards/yukkuri-library/body-standard/profile.json": "c5c39412f968008b13a46da81192cc1742c7277cc7f173fccef1196e92f8cf04",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "226593bf3418f3e931dce4ea1cb17b8c1dd77ba4c9f01efbfa60b0b21b10f5d3",

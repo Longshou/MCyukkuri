@@ -128,9 +128,9 @@
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json"
     },
     "house_marisa": {
-      "input_runtime_sha256": "993d71e26d4cfbe925d0d5a813af98955d26e8de02c2c3c579012195aab9d560",
-      "runtime_sha256": "37096acdd138e00e0dc780d28fa2d0b63b86fb54531c4920d7805420433a4396",
-      "rig_sha256": "63be673a2127bb0e2fc6f2eab80d6101f520f05c8112dd3ccb135edc2fabb80f",
+      "input_runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "rig_sha256": "e3cb0cb36cdffeb3f53e7aa26e33d300911a08bc2e298b9088e29b5b41a86ea4",
       "anchors": [
         {
           "part": "face_eye_left",

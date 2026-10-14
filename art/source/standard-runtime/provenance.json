@@ -703,7 +703,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -738,17 +738,17 @@
     },
     "house_marisa": {
       "selected_model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
-      "selected_model_sha256": "8910bae7af38dce4e4763da9f89176ea60ae6a7917bc3a8f9ddd383621115afd",
+      "selected_model_sha256": "93323e7bed258ff8ef9673d95b9f70b6139a751b9a7105af4ca8182e627f68f4",
       "selected_rig": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.rig.json",
-      "selected_rig_sha256": "bf7c25600fe184908b1feab2ec98194d18fea4a7c1f92c2682bbd589c33822b5",
-      "standard_motion_source": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "standard_motion_sha256": "b5623c732f1649f13d0bce4396635638ecbc36c5bd2a437bdfd75be86a222ffd",
+      "selected_rig_sha256": "5d35dd470cb944c74b9684694940cbd6b2a871b5a58c6dd117194a5c56ab0eea",
+      "standard_motion_source": "standards/yukkuri-library/body-standard/inputs/marisa/animation-rig.json",
+      "standard_motion_sha256": "55f9573cca28eb38a5969cfce7785718f272f9c3b9811724232013723142c555",
       "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
       "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "geometry_identifier": "house_marisa",
-      "bone_count": 202,
+      "bone_count": 200,
       "clips": [
         "idle",
         "stretch_shape",
@@ -828,7 +828,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "current_house_surface_targeted_pass",
+      "game_acceptance": "current_face_motion_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -839,23 +839,39 @@
         ],
         "grip": {
           "bones": [
-            "hand_left",
+            "hand_right",
             "hand_right"
           ],
           "points": [
             [
-              -1.985,
-              1.629,
-              -1.256
+              2.116,
+              1.474,
+              -1.54
             ],
             [
-              1.985,
-              1.629,
-              -1.256
+              2.116,
+              1.474,
+              -1.54
             ]
           ],
           "contact_seconds": 0.65,
           "release_seconds": 0.65
+        },
+        "carry_pose": {
+          "status": "runtime_motion_adaptation",
+          "method": "rigid_short_locks_hold_above_forehead",
+          "half_grip_width": 0.28,
+          "contact_height": 0.45,
+          "lift_height": 4.6,
+          "vertical_reach_share": 0.92,
+          "units": "model_units_16_per_block",
+          "preserves": [
+            "rest_shape",
+            "lock_length",
+            "floor_contact",
+            "pickup_and_deposit_timing",
+            "waddle_face_anchors"
+          ]
         },
         "crawl": {
           "method": "bowed_abdominal_drag",
@@ -908,7 +924,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -938,8 +954,7 @@
           }
         }
       },
-      "game_acceptance_report": "docs/validation/house-surface/current/README.md",
-      "previous_game_acceptance_report": "docs/validation/house-face-carry/current/README.md"
+      "previous_game_acceptance_report": "docs/validation/house-surface/current/README.md"
     }
   }
 }

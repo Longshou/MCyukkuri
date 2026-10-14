@@ -36,6 +36,8 @@ for id in cfg['characters']:
     if id in ['reimu','marisa']:
         approved=read(L/'drafts/rounded-standard-body/assembled'/id/'runtime.model.json')
         changed={e['name'] for e in component['elements'] if e.get('body_follow')}
+        revision=P/'features/marisa-single-braid/candidate.json'
+        if id=='marisa' and revision.exists():changed|=set(read(revision)['changed_parts'])
         old_parts={p['name']:p for p in approved['parts']}
         for p in m['parts']:
             if p['name'] in changed:continue

@@ -473,7 +473,7 @@
     {
      "op": "taper",
      "note": "side walls tuck under the crown",
-     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "center": [
       0,
       1.5
@@ -516,7 +516,7 @@
     {
      "op": "drape",
      "note": "lock tops tuck just under the crown edge without moving inward",
-     "parts": "side_lock_-?1",
+     "parts": "side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "knots": [
       [
        5.5,
@@ -546,7 +546,7 @@
     {
      "op": "affine",
      "note": "lock tip sits clear of the rear side hair while it swings",
-     "parts": "side_tip_-?1|side_ribbon_-?1",
+     "parts": "side_tip_-?1|side_ribbon_-?1|braid_lock_(?:ribbon_band|bow_.*|tuft_.*)",
      "translate": [
       0,
       0,
@@ -580,7 +580,7 @@
     {
      "op": "taper",
      "note": "side walls tuck under the crown",
-     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "center": [
       0,
       1.5
@@ -623,7 +623,7 @@
     {
      "op": "drape",
      "note": "lock tops tuck just under the crown edge without moving inward",
-     "parts": "side_lock_-?1",
+     "parts": "side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "knots": [
       [
        5.5,
@@ -653,7 +653,7 @@
     {
      "op": "affine",
      "note": "lock tip sits clear of the rear side hair while it swings",
-     "parts": "side_tip_-?1|side_ribbon_-?1",
+     "parts": "side_tip_-?1|side_ribbon_-?1|braid_lock_(?:ribbon_band|bow_.*|tuft_.*)",
      "translate": [
       0,
       0,
@@ -677,27 +677,15 @@
    ]
   },
   "marisa_sparse": {
-   "steps": [
-    {
-     "op": "affine",
-     "note": "hat worn as low as the standard form",
-     "parts": "brim_.*|hat_.*|bow_.*",
-     "translate": [
-      0,
-      -0.5,
-      0
-     ],
-     "bones": "hat_follow|hat|bow",
-     "rebind": false
-    }
-   ]
+   "note": "The exporter seats the hat onto the bare head (brim just above the brows; rounded-marisa recipe sparse_hat_seat), so no runtime hat offset is added.",
+   "steps": []
   },
   "marisa_tsumuri": {
    "steps": [
     {
      "op": "taper",
      "note": "side walls tuck under the crown",
-     "parts": "rear_side_hair_(left|right)|side_lock_-?1",
+     "parts": "rear_side_hair_(left|right)|side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "center": [
       0,
       1.5
@@ -721,7 +709,7 @@
     {
      "op": "dome",
      "note": "hair top follows the rounded head",
-     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|rear_side_hair_(left|right)|side_lock_-?1",
+     "parts": "hair_cap|crown|back_hair|back_hair_lower|bang_[0-9]+|bang_tip_[0-9]+|rear_side_hair_(left|right)|side_lock_-?1|braid_lock_(?:root|root_outer|core|lobe_[0-9]+)|side_hair_loose.*",
      "box": [
       -7,
       7,

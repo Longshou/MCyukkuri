@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "status": "pending_user_review",
   "sample_seconds": 0.04,
   "hop_seconds": 0.8,
@@ -65,5 +65,23 @@
     "stretch_shape",
     "exercise_vertical",
     "taiso"
-  ]
+  ],
+  "braid_follow": {
+    "note": "Marisa's single braid follows the body twist and splays outward just enough to stay out of the skin and above the floor in these clips.",
+    "actions": [
+      "waddle",
+      "brace",
+      "press",
+      "side_bend",
+      "exercise_sides",
+      "taiso"
+    ],
+    "sample_seconds": 0.04,
+    "max_splay_degrees": 30,
+    "step_degrees": 1.0,
+    "skin_tolerance": 0.02,
+    "floor_clearance": 0.03,
+    "near": 1.2,
+    "smooth_seconds": 0.12
+  }
 }

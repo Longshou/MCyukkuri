@@ -22,6 +22,8 @@
 
 ## 编辑与重建
 
+2026-10-13：DOS 魔理沙随标准改为单侧粗辫，辫身与短侧发按椭圆身体贴合。原 13 项表情已保存为标准，状态由 retained 改为 accepted，`build.py` 改按“原有且已确认”筛选，表情范围不变。
+
 多毛灵梦和灵胖由 `../../body-standard/recipe.json` 与其构建器负责。此处 `recipes.json` 保留毛团和旧体型的制作参数；本目录 `build.py` 仅重新派生 DOS，另从已生成的新标准文件读取多毛种和灵胖。DOS 的基础来源已固定为 `../../body-standard/inputs/`，避免以后重建时跟随普通种换体型。
 
 ```powershell

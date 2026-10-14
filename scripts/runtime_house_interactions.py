@@ -35,9 +35,14 @@ def add_house_interactions(rig, species):
         'art/source/standard-runtime/carry-motion/recipe.json').read_text(encoding='utf-8'))
     bones = {b['name']: b for b in rig['bones']}
     # Endpoint centres taken from the fitted short locks, not the adult rig pivots.
-    tips = [[sign*1.985, 1.515 if species == 'reimu' else 1.629,
-             -1.57 if species == 'reimu' else -1.256] for sign in (-1, 1)]
-    grip = {'bones': ['hand_left', 'hand_right'], 'points': tips,
+    # Marisa's are asymmetric: a short loose lock on the left, the single braid on the right.
+    tips = ([[-2.042, 1.927, -1.524], [2.116, 1.474, -1.54]] if species == 'marisa' else
+            [[sign*1.985, 1.515, -1.57] for sign in (-1, 1)])
+    # Marisa carries with her single braid alone: both grip entries name its tip, so
+    # the item (held at the midpoint of the two grip points) follows the braid.
+    single = species == 'marisa'
+    grip = {'bones': ['hand_right', 'hand_right'] if single else ['hand_left', 'hand_right'],
+            'points': [tips[1], tips[1]] if single else tips,
             'contact_seconds': .65, 'release_seconds': .65}
     rig['grip'] = grip
     rig['behavior_clips'] = {}
@@ -64,6 +69,8 @@ def add_house_interactions(rig, species):
             elif name.endswith('_skin_anchor'):
                 affine(name)
         for side, tip in zip(('left', 'right'), tips):
+            if single and side == 'left':
+                continue  # the loose lock stays with the head
             name = 'hand_'+side; root = bones[name]['pivot']
             root_world = transform(root, angle, origin, shift)
             tip_world = transform(tip, angle, origin, shift)
@@ -72,7 +79,7 @@ def add_house_interactions(rig, species):
             length2 = sum(v*v for v in source)
             # Carry above the forehead: a centre grip at eye height occludes
             # expressions when walking overrides the small upper-body bow.
-            destination = [sign*carry_recipe['half_grip_width'],
+            destination = [0 if single else sign*carry_recipe['half_grip_width'],
                            carry_recipe['contact_height']+carry_recipe['lift_height']*(1-bow), 0]
             vertical_reach = math.sqrt(length2-(destination[0]-root_world[0])**2)
             reach = carry_recipe['vertical_reach_share']*vertical_reach

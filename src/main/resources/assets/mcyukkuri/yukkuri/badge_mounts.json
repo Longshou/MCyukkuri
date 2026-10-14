@@ -23,9 +23,9 @@
       "diameter": 0.084375
     },
     "marisa": {
-      "model_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "part": "hat_band",
-      "triangle": 13338,
+      "triangle": 13914,
       "weights": [
         0.20326503650638766,
         0.5005549389567133,
@@ -128,9 +128,9 @@
       "diameter": 0.02025
     },
     "house_marisa": {
-      "model_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+      "model_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "part": "hat_band",
-      "triangle": 8136,
+      "triangle": 8856,
       "weights": [
         0.20326502372467026,
         0.5098039215686277,
@@ -275,7 +275,7 @@
       "diameter": 0.084375
     },
     "marisa_bean": {
-      "model_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+      "model_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
       "part": "hat_band",
       "triangle": 3648,
       "weights": [
@@ -296,17 +296,17 @@
       "diameter": 0.084375
     },
     "marisa_sparse": {
-      "model_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+      "model_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
       "part": "hat_band",
-      "triangle": 5214,
+      "triangle": 4422,
       "weights": [
-        0.20326503650638766,
-        0.5005549389567133,
-        0.296180024536899
+        0.2032650365063876,
+        0.5005549389567142,
+        0.2961800245368982
       ],
       "rest_point": [
         6.6346667,
-        11.155000000000001,
+        10.0912,
         -2.76658070542082
       ],
       "rest_normal": [
@@ -317,9 +317,9 @@
       "diameter": 0.084375
     },
     "marisa_face": {
-      "model_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+      "model_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
       "part": "hat_band",
-      "triangle": 13302,
+      "triangle": 13878,
       "weights": [
         0.20326503650638766,
         0.5005549389567133,

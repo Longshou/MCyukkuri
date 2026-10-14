@@ -14,7 +14,7 @@
 | [标准帕秋莉模型](assembled/patchouli/patchouli.bbmodel) · [独立预览](assembled/patchouli/index.html) | 已确认的五撮宽厚刘海、完整包脸侧发、贴地小束尾与浅粉新月软帽 |
 | [标准种族对照](species.html) · [造型与来源](STANDARD-SPECIES.md) | 橙、爱丽丝、帕秋莉的专属造型与共用边界 |
 | [螺壳魔理沙](TSUMURI.md) | 已确认的居中壳形与互斥伸缩控制 |
-| [普通魔理沙七项互动](interactions/marisa-braids/README.md) | 拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油；[批准记录](interactions/marisa-braids/saved-action.json)与[快照索引](interactions/marisa-braids/approved-snapshots.json) |
+| [普通魔理沙七项互动](interactions/marisa-braids/README.md) | 拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油；当前为单辫 v2（待确认），双辫 v1 的[批准记录](interactions/marisa-braids/saved-action.json)与[快照索引](interactions/marisa-braids/approved-snapshots.json)保留 |
 | [家油场景](ecology/house-yukkuri/README.md) | 两种微小成体、棉絮巢、卵、破壳幼体与生活片段；未接入 Minecraft |
 | [多毛灵梦、灵胖、DOS](subspecies/reimu-dos/README.md) | 派生造型与[来源说明](subspecies/reimu-dos/REFERENCES.md) |
 | [当前预览](previews/README.md) · [待确认草稿](drafts/README.md) · [历史归档](archive/README.md) | 区分当前展示、候选方案与旧记录 |
@@ -26,7 +26,7 @@
 - 9 个基础动作、6 个骨架复合动作配方、2 个已确认的多角色复合动作包。
 - 105 个表情配方：89 项已确认并保存为[标准表情](STANDARD-EXPRESSIONS.md)，13 项仅作历史对照，3 项暂缓；另有 2 个独立叠加效果。本次标准确认以[集合与指纹](provenance/standard-expressions.json)为准。
 - 八种角色通过 `body-standard/recipe.json` 生成同一身体截面与贴合五官，保留各自专属部件；旧共用方块组件保留供历史输入及排除种类使用。
-- 辫子、后发与饰物分别建模；左右辫子可独立活动。
+- 辫子、后发与饰物分别建模，左右侧发可独立活动。魔理沙为单侧粗辫：辫子在自身左侧（`hand_right`，正面看在画面右侧），另一侧为不编的短侧发；七种魔理沙形态均已同步，造型待确认。见[单辫修订](body-standard/features/marisa-single-braid/README.md)与[对照网页](previews/current/marisa-braid.html)。
 - 两角色共用麻姆麻姆、佩尼佩尼及伸缩控制；默认缩回，通过按钮伸出或缩回，切换时保持互斥。见 [标准伸缩部件](ANATOMY.md)。
 
 魔理沙原先已有 happy 素材，但未完整接入共用登记与选择器。本库已统一提供睁眼笑、闭眼大笑、闭口微笑、含泪笑等表情。

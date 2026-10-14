@@ -24,6 +24,7 @@
 
 - 先读取目标角色登记和对应来源说明，明确目标组件与参考组件。调整帕秋莉专属造型时，不覆盖其他角色或共用身体。
 - 当前圆润标准体型的制作入口为 `body-standard/recipe.json`、`profile.json` 与 `build.py`，角色登记指向生成的组件和合并骨架。`author_standard_species.py` 保留推广前的方块制作逻辑，不得覆盖当前登记。专属造型修改应建立输入修订，并同步组件与导出。
+- 魔理沙侧发由 `body-standard/features/marisa-single-braid/author.py` 生成方块组件，再用同目录 `sync_inputs.py` 重建冻结输入；七种魔理沙的后续导出顺序见该目录 README。
 - 仅修改帕秋莉头发时，只修订对应专属输入，再通过 `body-standard/build.py` 同步当前合并模型。旧 `tools/sync_patchouli_geometry.py` 只支持推广前结构，不适用于当前分段权重。
 - 按改动范围选择局部或完整素材构建，保留 `assembled/` 与派生包之间的读取关系。
 - `.bbmodel` 可用于人工编辑；编辑结果须同步回组件及制作源，不能只保留导出文件中的变化。

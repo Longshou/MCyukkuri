@@ -1,19 +1,19 @@
 {
   "status": "pending_user_confirmation",
   "exporter": "scripts/export_marisa_deficient_rounded.py",
-  "exporter_sha256": "dd281348c83c512e9d260d87475a3e203ba4f0adc3c90ddfaf7eceb60eca065b",
+  "exporter_sha256": "7104a14f779f7f57c75fcb8e9a80624a7ccb95b9930705f90401ad2de84ce84c",
   "models": {
     "marisa_sparse": {
       "geometry_identifier": "marisa_sparse",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
-      "selected_model_sha256": "23b662e6f9a196ded879d5a844f0c98a5581f6f5ed2b5507b9faee8c760545ba",
+      "selected_model_sha256": "ebd0d101bf63503602dcedc45e0b435d464e4720a7f049143e3ba9051208ba84",
       "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/animation-rig.json",
-      "selected_rig_sha256": "9674797e89607fbdb5b9e342436ebb316f4022adcfc79e3633f9ebfd72e09b0d",
+      "selected_rig_sha256": "ae145d5db141093361250e3dfd8a4d87742fc177898ec18b6c7f54783fa11324",
       "snapshot": "art/source/subspecies-runtime/marisa_sparse/marisa_sparse.bbmodel",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "runtime_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
-      "bone_count": 266,
+      "runtime_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -200,7 +200,7 @@
         }
       },
       "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "motion_source_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
       "shape_status": "pending_user_confirmation",
       "approval_note": "",
       "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
@@ -214,13 +214,13 @@
       "geometry_identifier": "marisa_face",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
-      "selected_model_sha256": "cc6504660f3d89d38d8db1aa34eb8fd62277f95cb70387b7361fdea6d00f8305",
+      "selected_model_sha256": "8fe872e73fa23214e1bef3bddd38abb8e9d2a005692b0312f0b7796d0c36b1e8",
       "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/animation-rig.json",
-      "selected_rig_sha256": "8433beece65418360ea82b25ff7d726a2736d62cc4230fbbec6444966d6aa6f3",
+      "selected_rig_sha256": "242654809ab69432d0f0ed4cf1f81b64dfb309db9079c5f36721c921585fa0e7",
       "snapshot": "art/source/subspecies-runtime/marisa_face/marisa_face.bbmodel",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "runtime_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
-      "bone_count": 266,
+      "runtime_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -407,7 +407,7 @@
         }
       },
       "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "motion_source_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
       "shape_status": "pending_user_confirmation",
       "approval_note": "",
       "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
@@ -419,7 +419,7 @@
     }
   },
   "wounds": {
-    "marisa_sparse": "d4981b6783ad34d2486b2a65fed6fd1e2b2a3d70d75b1ce7d64a5a26d12dcdb5",
-    "marisa_face": "93a2ea4b984ec1ddaf9a64909471f1c0778e5e68c4adc40cf95f806c0841b9db"
+    "marisa_sparse": "a642521dacee63a46b384123c0e0a5cd326fcc0accf63fbed4a331a4cccd39cc",
+    "marisa_face": "cfbbcc9fa257e9e11ff1d476afa8d71f884e657612e004abf53fb4d737b8f4a3"
   }
 }

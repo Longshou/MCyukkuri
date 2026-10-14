@@ -5,8 +5,8 @@
     "group": "本轮头发修复"
   },
   "marisa": {
-    "source": "standards\\yukkuri-library\\assembled\\marisa\\marisa.bbmodel",
-    "sha256": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
+    "source": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
+    "sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
     "group": "本轮头发修复"
   },
   "chen": {
@@ -25,8 +25,8 @@
     "group": "本轮头发修复"
   },
   "marisa_tsumuri": {
-    "source": "standards\\yukkuri-library\\assembled\\marisa_tsumuri\\marisa_tsumuri.bbmodel",
-    "sha256": "5d4c959f59f7e5b27af355e244b1ff116303cf1ad06d92233bdc830e26e8bec2",
+    "source": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
+    "sha256": "c09860e0d9d387ad84ea84715509eec79e2fbebcb1f5b2907c9c10ac7be1e372",
     "group": "本轮头发修复"
   },
   "reimu_wasa": {
@@ -45,8 +45,8 @@
     "group": "保留现有造型"
   },
   "house_marisa": {
-    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\house_marisa.json",
-    "sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+    "source": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
+    "sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
     "group": "保留现有造型"
   },
   "remilia": {
@@ -65,8 +65,8 @@
     "group": "保留现有造型"
   },
   "marisa_sparse": {
-    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_sparse.json",
-    "sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
+    "source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
+    "sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
     "group": "稀毛／歪脸魔理沙圆润体态修复"
   },
   "reimu_face": {
@@ -75,8 +75,8 @@
     "group": "保留现有造型"
   },
   "marisa_face": {
-    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_face.json",
-    "sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
+    "source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
+    "sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
     "group": "稀毛／歪脸魔理沙圆润体态修复"
   },
   "reimu_bean": {
@@ -85,13 +85,13 @@
     "group": "豆油头发贴合修订"
   },
   "marisa_bean": {
-    "source": "src\\main\\resources\\assets\\mcyukkuri\\yukkuri\\marisa_bean.json",
-    "sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+    "source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
+    "sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
     "group": "豆油头发贴合修订"
   },
   "marisa_dos": {
-    "source": "standards\\yukkuri-library\\subspecies\\reimu-dos\\assembled\\marisa_dos\\marisa_dos.bbmodel",
-    "sha256": "baa0a00e4d7a3e725233ad0910b04e2c159736b7c1eb5ed5660a3231719ab4ed",
+    "source": "standards/yukkuri-library/subspecies/reimu-dos/assembled/marisa_dos/marisa_dos.bbmodel",
+    "sha256": "d31832121bacfb1714cd17f3529c7efd8016f73240726361ccabcdc4a1020a92",
     "group": "保留现有造型"
   },
   "reimu_wasa_deibu": {

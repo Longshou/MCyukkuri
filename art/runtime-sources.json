@@ -205,23 +205,23 @@
       "geometry_identifier": "marisa",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "selected_model_sha256": "71cce6689f7727ab59fec9029dc8e0382877617bc76db4968d7011c4ee4deef7",
+      "selected_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
       "selected_rig": "standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "selected_rig_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
-      "selected_runtime_sha256": "66397cbe90c124472e662c4118c4111f52e6529ac0ede69a4c7ff31b47a82c2b",
+      "selected_rig_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
+      "selected_runtime_sha256": "5a1a4451a756d1a1d6e3f3b75ee8942ddb312d011242cd27c4ea297728f1cf1d",
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1,
+        "runtime_scale_normalization": 1.0,
         "missing_actions_filled_from": "marisa"
       },
       "shape_status": "selected_rounded_standard",
-      "runtime_acceptance": "current_checks_passed",
+      "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "runtime_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "rig": "art/source/rounded-runtime/marisa/animation-rig.json",
-      "bone_count": 266,
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -388,8 +388,7 @@
           "sha256": "8bf52bf67dbfc85fa896beb8271d70007afee377fe78e2f8321905a5a4c65e6b",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "chen": {
       "geometry_identifier": "chen",
@@ -1134,7 +1133,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -1169,17 +1168,17 @@
     },
     "house_marisa": {
       "selected_model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
-      "selected_model_sha256": "8910bae7af38dce4e4763da9f89176ea60ae6a7917bc3a8f9ddd383621115afd",
+      "selected_model_sha256": "93323e7bed258ff8ef9673d95b9f70b6139a751b9a7105af4ca8182e627f68f4",
       "selected_rig": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.rig.json",
-      "selected_rig_sha256": "bf7c25600fe184908b1feab2ec98194d18fea4a7c1f92c2682bbd589c33822b5",
+      "selected_rig_sha256": "5d35dd470cb944c74b9684694940cbd6b2a871b5a58c6dd117194a5c56ab0eea",
       "standard_motion_source": "standards/yukkuri-library/body-standard/inputs/marisa/animation-rig.json",
-      "standard_motion_sha256": "b5623c732f1649f13d0bce4396635638ecbc36c5bd2a437bdfd75be86a222ffd",
+      "standard_motion_sha256": "55f9573cca28eb38a5969cfce7785718f272f9c3b9811724232013723142c555",
       "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
       "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "5acd0279294940904c3244c7793d901fc33d6a6da777637788b03a684d5a847e",
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "geometry_identifier": "house_marisa",
-      "bone_count": 202,
+      "bone_count": 200,
       "clips": [
         "idle",
         "stretch_shape",
@@ -1259,7 +1258,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "current_house_surface_targeted_pass",
+      "game_acceptance": "current_face_motion_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -1270,23 +1269,39 @@
         ],
         "grip": {
           "bones": [
-            "hand_left",
+            "hand_right",
             "hand_right"
           ],
           "points": [
             [
-              -1.985,
-              1.629,
-              -1.256
+              2.116,
+              1.474,
+              -1.54
             ],
             [
-              1.985,
-              1.629,
-              -1.256
+              2.116,
+              1.474,
+              -1.54
             ]
           ],
           "contact_seconds": 0.65,
           "release_seconds": 0.65
+        },
+        "carry_pose": {
+          "status": "runtime_motion_adaptation",
+          "method": "rigid_short_locks_hold_above_forehead",
+          "half_grip_width": 0.28,
+          "contact_height": 0.45,
+          "lift_height": 4.6,
+          "vertical_reach_share": 0.92,
+          "units": "model_units_16_per_block",
+          "preserves": [
+            "rest_shape",
+            "lock_length",
+            "floor_contact",
+            "pickup_and_deposit_timing",
+            "waddle_face_anchors"
+          ]
         },
         "crawl": {
           "method": "bowed_abdominal_drag",
@@ -1339,7 +1354,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "00b2496b8fde8a4ef1a4895fb8b9e97ad97694120f01ba460ff4bcf589e2cba2",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -1369,8 +1384,7 @@
           }
         }
       },
-      "game_acceptance_report": "docs/validation/house-surface/current/README.md",
-      "previous_game_acceptance_report": "docs/validation/house-face-carry/current/README.md"
+      "previous_game_acceptance_report": "docs/validation/house-surface/current/README.md"
     },
     "remilia": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
@@ -1594,24 +1608,24 @@
       "geometry_identifier": "marisa_tsumuri",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-      "selected_model_sha256": "5d4c959f59f7e5b27af355e244b1ff116303cf1ad06d92233bdc830e26e8bec2",
+      "selected_model_sha256": "816dc612d3db5548e8022e31f76db5d4e6b95b4871c913590c2c47bd6756b989",
       "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-      "selected_rig_sha256": "4ffad33360aad3d39b1e234fbdab0ddd567d2d9768057d2dc34832e090d2ad60",
-      "selected_runtime_sha256": "9ef6d3c58df934a12037f518d954605ba66bd27ad196b04945c97a5ce1ad3773",
+      "selected_rig_sha256": "cdecea3836918f1a431d86dd9cf62718d20e3628417c4fdcbf8bd0c10216b091",
+      "selected_runtime_sha256": "35d7d86ced7d8dc97c05b10d3b6ffb621b4f8e8e0d07770627258d41ac6581e8",
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1,
+        "runtime_scale_normalization": 1.0,
         "missing_actions_filled_from": "marisa",
         "shell_motion": "slow walk and five-degree whole-body side lean"
       },
       "shape_status": "selected_rounded_standard",
-      "runtime_acceptance": "current_checks_passed",
+      "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "7200059184289a47d9ad436ca3466708da48f4fa92ca87fa6b86e7da41a67dc2",
+      "runtime_sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
       "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
-      "bone_count": 267,
+      "bone_count": 265,
       "clips": [
         "idle",
         "still",
@@ -1781,8 +1795,7 @@
           "sha256": "cedfba7e57b00454899d19e183f23270bf681cdb3d20224bbd5c0dad26558838",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "reimu_wasa": {
       "geometry_identifier": "reimu_wasa",
@@ -2525,7 +2538,7 @@
       "rig": "art/source/subspecies-runtime/reimu_bean/animation-rig.json",
       "hair_revision": "bean-profile-fit",
       "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
-      "author_sha256": "d245e7ade6ed7d5ec6cde21d374926b45ec07e5d21d11fd66e29e4e0692c6c3b",
+      "author_sha256": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
       "face_revision": "bean-skin-anchor-motion",
       "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
       "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
@@ -2534,12 +2547,12 @@
       "geometry_identifier": "marisa_bean",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
-      "selected_model_sha256": "5d2a9ba4818bc594c355e92c61ac83c645d6e76dd14ab9dc77072304f46d037a",
+      "selected_model_sha256": "cfc68ff8d53099ebbbbeac5c5e51f362ef3e1377e76afcc07748e18e5b7b06fa",
       "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/animation-rig.json",
-      "selected_rig_sha256": "659b74142c070eeae788ac8a3f8687dafa17249c196b80f3ecaa743d860cc64e",
+      "selected_rig_sha256": "78b0035d6b6786e6ebea90b73501d960799176c20afed5e358c6afcabf4a9828",
       "snapshot": "art/source/subspecies-runtime/marisa_bean/marisa_bean.bbmodel",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "runtime_sha256": "bd0ece16af18375f16f1c1d7aee153974f0f947306d8d9929a41b877a45d9931",
+      "runtime_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
       "bone_count": 202,
       "clips": [
         "idle",
@@ -2693,14 +2706,14 @@
         }
       },
       "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "motion_source_sha256": "08e853dc4a0e3f98f2808e886b509b2b4684ff4c215d89041c56f315e2df58ec",
+      "motion_source_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
       "shape_status": "pending_user_confirmation",
       "approval_note": "",
       "runtime_acceptance": "not_executed",
       "rig": "art/source/subspecies-runtime/marisa_bean/animation-rig.json",
       "hair_revision": "bean-profile-fit",
       "author": "standards/yukkuri-library/subspecies/deficient/bean_hair.py",
-      "author_sha256": "d245e7ade6ed7d5ec6cde21d374926b45ec07e5d21d11fd66e29e4e0692c6c3b",
+      "author_sha256": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
       "face_revision": "bean-skin-anchor-motion",
       "face_author": "standards/yukkuri-library/subspecies/deficient/bean_face.py",
       "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
@@ -2709,13 +2722,13 @@
       "geometry_identifier": "marisa_sparse",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
-      "selected_model_sha256": "23b662e6f9a196ded879d5a844f0c98a5581f6f5ed2b5507b9faee8c760545ba",
+      "selected_model_sha256": "ebd0d101bf63503602dcedc45e0b435d464e4720a7f049143e3ba9051208ba84",
       "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/animation-rig.json",
-      "selected_rig_sha256": "9674797e89607fbdb5b9e342436ebb316f4022adcfc79e3633f9ebfd72e09b0d",
+      "selected_rig_sha256": "ae145d5db141093361250e3dfd8a4d87742fc177898ec18b6c7f54783fa11324",
       "snapshot": "art/source/subspecies-runtime/marisa_sparse/marisa_sparse.bbmodel",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "runtime_sha256": "6f8ae3b2f47b04867d4946ab5aa0f8ad43d3bf092e15f500c3024a27ba874398",
-      "bone_count": 266,
+      "runtime_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -2902,7 +2915,7 @@
         }
       },
       "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "motion_source_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
       "shape_status": "pending_user_confirmation",
       "approval_note": "",
       "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
@@ -2916,13 +2929,13 @@
       "geometry_identifier": "marisa_face",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
-      "selected_model_sha256": "cc6504660f3d89d38d8db1aa34eb8fd62277f95cb70387b7361fdea6d00f8305",
+      "selected_model_sha256": "8fe872e73fa23214e1bef3bddd38abb8e9d2a005692b0312f0b7796d0c36b1e8",
       "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/animation-rig.json",
-      "selected_rig_sha256": "8433beece65418360ea82b25ff7d726a2736d62cc4230fbbec6444966d6aa6f3",
+      "selected_rig_sha256": "242654809ab69432d0f0ed4cf1f81b64dfb309db9079c5f36721c921585fa0e7",
       "snapshot": "art/source/subspecies-runtime/marisa_face/marisa_face.bbmodel",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "runtime_sha256": "3326786808c32d1c5282090fb0e13de4f3005d34ef052131c564e83ba465d2a4",
-      "bone_count": 266,
+      "runtime_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
+      "bone_count": 264,
       "clips": [
         "idle",
         "stretch_shape",
@@ -3109,7 +3122,7 @@
         }
       },
       "motion_source": "standards/yukkuri-library/subspecies/deficient/rounded-marisa/inputs/standards/yukkuri-library/assembled/marisa/animation-rig.json",
-      "motion_source_sha256": "0552094ec69760e022c522ef2d180d065c915a614100ec4c649be3a3acec25eb",
+      "motion_source_sha256": "2b35e875a918b50e3605b4318d25c641a2e59a29c2fceb21bea1b39e797bd4cd",
       "shape_status": "pending_user_confirmation",
       "approval_note": "",
       "runtime_acceptance": "current offline verification; Minecraft acceptance pending",
