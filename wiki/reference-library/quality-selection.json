@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-15",
+  "scope": "沿用前轮原文件质量细审，按本轮游戏用途与范围过滤；本轮另开 12 张原文件补审，具体图片见各条 review。主分类为实体、情景、情绪，质量标签只作辅助。",
+  "criteria": [
+    "线条和主体在原尺寸可辨；尺寸数值不能代替目视检查。",
+    "造型轮廓、比例与画面层次清楚，配色或黑白关系统一。",
+    "指定画格确有用途，遮挡与分辨率限制明确。",
+    "保留不同风格和用途；画风判断为本轮编辑选择，不是作者排名。"
+  ],
+  "items": [
+    {
+      "id": "M01-001",
+      "sha256": "64c30369cdc9479573f01f5d4acc4e3ecf0babed199c8964994d057fa8c13dd2",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "细腻灰阶",
+      "reason": "房间透视、家具层次和地面小窝交代完整，灰阶能区分木板、布面与头发。",
+      "viewing_note": "优先看上半页室内构图；幼体细节需打开原文件。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M01-002",
+      "sha256": "8bf3bd3e8186de161ea95f77f62c040ddf57b047e68c34abb7fa5ddc3db75467",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "细腻灰阶",
+      "reason": "书架后的空间位置、棉絮边缘与成幼同窝关系清楚。",
+      "viewing_note": "重点看中右格；左侧地面污物与底部圆卵分开辨认。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M04-001",
+      "sha256": "1303d65dc27cd5ed244e9014b533ad3b3706e6e05e17b1b607e8f5331c76b4d2",
+      "status": "selected",
+      "primary_topic": "growth",
+      "style": "细腻灰阶",
+      "reason": "草叶编织层次、圆润体积、侧毛和亲子大小同时可读，表情完成度高。",
+      "viewing_note": "上格看巢材与比例，中格看快乐表情；不是完整成长阶段表。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M04-002",
+      "sha256": "1e3d3a014b9df50a734be3c2160a601ae3ec9d37b31d6e7ac64d5f055ecdd387",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "细腻灰阶",
+      "reason": "滚动方向、摆动侧毛和侧辫悬食的姿势明确，发丝与面部有清楚层次。",
+      "viewing_note": "动作重点在中格和下格；文字密集，宜按格查看。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M05-001",
+      "sha256": "a9239bbd613f57fccdeb8b585ea3ce7e53be6515a386e96513f17897662f8b1f",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "柔和彩色",
+      "reason": "红被褥、白边、棕桌板与金发分色明确，软物包住身体的轮廓完整。",
+      "viewing_note": "450×742 小图，适合原尺寸看整体和配色，不宜放大追求材质细节。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M09-001",
+      "sha256": "558386279a26d3743bf7f52e634b3132a75a58256d081698832bfea6a967131a",
+      "status": "selected",
+      "primary_topic": "appearance",
+      "style": "细腻灰阶",
+      "reason": "帽型与壳型的剪影差异明显，树根和低矮草叶有清楚前后关系。",
+      "viewing_note": "下半页看形态，上格看林地；标题占据部分空间。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M09-002",
+      "sha256": "03f717b95d9e9eb20ea865fff7e13130ff42c93827f9531573d0b7a16e7ab4fb",
+      "status": "selected",
+      "primary_topic": "growth",
+      "style": "细腻灰阶",
+      "reason": "亲代和两类幼体同框，壳的凸点、高光与发辫连接清楚。",
+      "viewing_note": "上格看大小对比，下格看壳型正面；仅为该作品版本。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M11-002",
+      "sha256": "a114c228dd0a542a114d6029af68dd2dff1c0ae8f9d518a9c1b071728a727427",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "细腻灰阶",
+      "reason": "洞口、竖枝、树皮和家庭睡姿刻画细致，空间结构与材质分得开。",
+      "viewing_note": "重点看左列三格；衣服与发丝排线需打开原文件查看。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M13-001",
+      "sha256": "f5a4acf78fbaf1a8f401f324003ec79ed6e6171f2fc0967679fa74259ddd71eb",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "简洁灰阶",
+      "reason": "纸箱、泡沫箱、塑料袋和衣架用独立轮廓表现，物件辨识直接。",
+      "viewing_note": "适合简化道具形状，不是写实材质或制作尺寸图。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH02-003",
+      "sha256": "ff73017f12acc3034edec1cd42a382e78576de737e055dc97e707a6713691a5c",
+      "status": "selected",
+      "primary_topic": "appearance",
+      "style": "鲜明彩色",
+      "reason": "两类翅翼与头部大轮廓清楚，细发线和蝙蝠翼的黑白对比鲜明。",
+      "viewing_note": "左侧角色与挂饰有出画部分，不能作为完整展开翼图。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH03-004",
+      "sha256": "1495c18d2ec52c1799cee7e91c0e80daf38fa3dd8392d8cf3c7bd15ee769254b",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "柔和彩色",
+      "reason": "小轮子、家具底部与家油群体的尺度关系明确，室内色调统一。",
+      "viewing_note": "用于场景与尺度；远景个体太小，不适合提取脸部细节。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH07-003",
+      "sha256": "880d6b3131e458f45dae705911b62ba93088c1cf308b37043b1cf6bb4306bcbd",
+      "status": "selected",
+      "primary_topic": "appearance",
+      "style": "细腻灰阶",
+      "reason": "卷发、辫子和瓶盖纹路刻画细，亲子体量与临时饰物一目了然。",
+      "viewing_note": "重点看左侧亲子；污迹、破损和失饰属于个体情境。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH15-002",
+      "sha256": "5c9f85e8e89b73073be02746ad61baa7b8e494676c058fae093553a617d7dfbc",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "干净线稿",
+      "reason": "餐饮摊、凳子与人油尺度交代完整，近景面部和食物轮廓清楚。",
+      "viewing_note": "场景看上格，进食侧脸看下格；摊位细部是简化线稿。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH15-003",
+      "sha256": "8d43240e6aada8439d9546ccfe65c360194a67bf9b8e61f23e6625c9db1becb7",
+      "status": "selected",
+      "primary_topic": "feeding",
+      "style": "干净线稿",
+      "reason": "仰头接食、张口和咀嚼使用大幅近景，动作接触点可辨。",
+      "viewing_note": "看口部与食物的接触；不把夸张吞咽画法当身体结构标准。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH17-002",
+      "sha256": "6943015fb1d961df26b940276e54c6a97023773d4f974e92f211e5e02427e433",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "干净线稿",
+      "reason": "粗细线与黑白块区分明确，期待、尴尬和颤抖的表情变化鲜明。",
+      "viewing_note": "优先看前三格；末格是受损后的夸张变形，不作正常造型。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH19-002",
+      "sha256": "bd638ed4ed04dd04275e3dd319c24215c8cc9965bf29d8e1cff5b07c2131a5be",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "鲜明彩色",
+      "reason": "张嘴、泪光、蝴蝶结与糖包形成清楚配色，表情主体独立。",
+      "viewing_note": "主体尺寸有限，适合原尺寸看表情；地面污迹不是花纹。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH19-003",
+      "sha256": "c08a2cc28b1f42dcbb128c3341a36d7644e74218840d3205df0ca855ef8be028",
+      "status": "selected",
+      "primary_topic": "feeding",
+      "style": "鲜明彩色",
+      "reason": "亲代侧脸、幼体拒食表情及叶盘分层清楚，暖色主体与绿色食物有区分。",
+      "viewing_note": "对照前后两张脸；前景与后景不能直接量亲子比例。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH19-004",
+      "sha256": "10f24125dac30e44075b28b9a7c47d1844d506bbff7c6c56fb4cc978555b0d52",
+      "status": "selected",
+      "primary_topic": "feeding",
+      "style": "鲜明彩色",
+      "reason": "口咬草叶、身体后倾和草茎方向明确，动作主体大。",
+      "viewing_note": "看接触点与用力姿态；画面右侧文字遮挡少量草叶。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH19-005",
+      "sha256": "f042366fc35564e78e3f875fc31c35cad8993494c996da1edd4b8859987e02ae",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "鲜明彩色",
+      "reason": "草编圆窝、绿色铺叶和盛食叶片颜色分明，窝沿厚度与承托关系清楚。",
+      "viewing_note": "巢材与食物看上半页；下半页是虚弱与哭泣表情。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH22-001",
+      "sha256": "1f7d6fe8ef8b80d6e41dc08146f3d38974214ac034be43d659cb6a0807f7c103",
+      "status": "selected",
+      "primary_topic": "environment",
+      "style": "干净线稿",
+      "reason": "帽船、船沿、侧辫与桨的接触关系清楚，水波和箱体易辨。",
+      "viewing_note": "上格看划桨造型，下格看水箱；原页明确属于独自设定。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH22-005",
+      "sha256": "87915b31a4e86719ea75805b6edf931637db6f7b63a5d3db1fab2adda86f8cee",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "干净线稿",
+      "reason": "辫端持枝划水、帽船浮在水面和饲料袋都用完整轮廓表达。",
+      "viewing_note": "中右格看划桨；手中小物不擅自补成确定材质。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH25-002",
+      "sha256": "f49c83bb81e35de4b4a3d0e2a97ed1eae5610db12766de77ad9be076311b411a",
+      "status": "selected",
+      "primary_topic": "cognition",
+      "style": "粉色平涂",
+      "reason": "数字卡、徽章、食具和表情分格清楚，粗轮廓适合简化造型。",
+      "viewing_note": "中右格看学习道具；粉色为本篇限色表达。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH25-006",
+      "sha256": "117d9c2ec0104b94279a4cd067232b99b602c2addc4016367b2bfb731b56931b",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "粉色平涂",
+      "reason": "野餐篮、杯子、保温瓶、毛衣与围领有统一形状语言。",
+      "viewing_note": "上格看整套道具，中下格看照料姿态；不当写实材质图。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH26-001",
+      "sha256": "7666219b199438052bb2c0edfd3cccdd7ff37658f6022f4424f9cf3545d76b7e",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "简洁灰阶",
+      "reason": "公园入口、长椅、道路和竖枝窝空间关系清晰，黑白灰层次明确。",
+      "viewing_note": "上格用于布局，下格用于窝外观；远景脸部只作位置标记。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH26-002",
+      "sha256": "c83f94f6958e72ab0851c6b57e5b2e93cae6c64e9480ca707a6ccbec5a0552b2",
+      "status": "selected",
+      "primary_topic": "growth",
+      "style": "简洁灰阶",
+      "reason": "多类亲子同框且轮廓分离，帽顶载幼与地面同行均可辨。",
+      "viewing_note": "左下大格看体量和家庭组合；不按透视图给统一比例。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH26-003",
+      "sha256": "3579ffba1f9579968ef60179962b881cd3f34206acd3ee9052268e0baa577496",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "简洁灰阶",
+      "reason": "队列背面、门牌、垃圾房和路缘形状清楚，适合场景道具拆解。",
+      "viewing_note": "看门与个体尺度、设施标识；角色误认不能当适居结论。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH26-004",
+      "sha256": "9d7a931f2cd72d6f0ff1fe9c29491178949faaef04869a142a82dbd370cca9fa",
+      "status": "selected",
+      "primary_topic": "appearance",
+      "style": "简洁灰阶",
+      "reason": "魔理沙与帕秋莉正背面帽发都出现，侧辫和后发剪影易读。",
+      "viewing_note": "中排看背面，下排看侧面；非严格同角度转面表。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH26-005",
+      "sha256": "328333bfd6dc12e321faa502fc030e5d0721719fd3fea92791215f59de39d03a",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "简洁灰阶",
+      "reason": "门洞、台阶、架子和袋装物体分层清楚，承载空间有完整关系。",
+      "viewing_note": "中间大格看空间与物件；这是垃圾房，不是推荐住处。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH27-001",
+      "sha256": "efeaea59ca5c146d678898243e8d446538054311637de93d3324393d9ea880d4",
+      "status": "selected",
+      "primary_topic": "appearance",
+      "style": "简洁灰阶",
+      "reason": "魔理沙正背面留白充分，帽沿与后发轮廓清楚，形状简洁。",
+      "viewing_note": "细线不宜缩成小缩略图；污迹是处境表现，不作常规配色。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "EH28-004",
+      "sha256": "8bd12b30d51977a6376d35c020ad344fd6c382dada3981858ee0cf4509918a89",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "干净线稿",
+      "reason": "家庭队列、帽上载幼和草间路线的动势明确，轮廓区分清楚。",
+      "viewing_note": "645×860，仅原尺寸看队列与姿态；远处脸部细节有限。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
+    },
+    {
+      "id": "M04-004",
+      "sha256": "a8235902a2831e5caecd0cc9fc8be161e9f762a72d0c54c6d94db15e17cd1871",
+      "status": "supplement",
+      "style": "细腻灰阶",
+      "reason": "画面本身清楚，但本轮同用途已有 M04-001／002，优先减少重复的同作表情页。",
+      "viewing_note": "完整资料库仍可查找。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读",
+      "primary_topic": "growth"
+    },
+    {
+      "id": "M14-001",
+      "sha256": "f0eca5c4b94d1889e3e1756c947111897eac7fa1110002f040a3bba6dd0ad990",
+      "status": "supplement",
+      "style": "细腻灰阶",
+      "reason": "冬日巷道和纸箱构图好，但 JPEG 细线偏软、暗部脸部小，保留为氛围补充。",
+      "viewing_note": "完整资料库仍可查找。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读",
+      "primary_topic": "environment"
+    },
+    {
+      "id": "M14-002",
+      "sha256": "9c7291f8822ec1528b4047e481d604db4ed9997a30d25862482d0d3bf55b51b7",
+      "status": "supplement",
+      "style": "细腻灰阶",
+      "reason": "分格小、缩放后的细线偏软，主体细节弱于本轮精选；保留街巷叙事用途。",
+      "viewing_note": "完整资料库仍可查找。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读",
+      "primary_topic": "environment"
+    },
+    {
+      "id": "EH09-003",
+      "sha256": "8fb14b0d0d8e561e38cd63db7b660ae1784c585db95427a8fa4e2b66af29ac62",
+      "status": "supplement",
+      "style": "简洁灰阶",
+      "reason": "表情可爱，但 595 像素宽页中主体占比小、灰线偏淡，原尺寸仅宜看整体表情。",
+      "viewing_note": "完整资料库仍可查找。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读",
+      "primary_topic": "human"
+    },
+    {
+      "id": "EH27-008",
+      "sha256": "928ea3876e1bd52d7b29f8fdfb9f465588eb3b446b628e56a742e20d4d6bd4a3",
+      "status": "supplement",
+      "style": "简洁灰阶",
+      "reason": "覆布住所关系明确，但主体偏小、细节少，保留构图补充，造型优先看 EH27-001。",
+      "viewing_note": "完整资料库仍可查找。",
+      "review": "逐张查看本地原文件；评估画面，不代表全文核读",
+      "primary_topic": "habitat"
+    },
+    {
+      "id": "M08-006",
+      "sha256": "31237dee6ecd7b6f9463583eb40a0afd4a37afc73cb03e35f394b239eefdf45a",
+      "status": "supplement",
+      "primary_topic": "appearance",
+      "style": "简洁线稿",
+      "reason": "原尺寸 800×500 的耳、帽缘、侧毛和眼口清楚；线条稀疏，适合轮廓补充。",
+      "viewing_note": "看橙的头像；缺背面与完整尾部，不作全向模型依据。",
+      "review": "2026-10-15 逐张打开本地原文件复核"
+    },
+    {
+      "id": "M15-009",
+      "sha256": "97ddaa7c404f036574a6020a99f5cabc16f5bd74f914839f08d0dfc64bb97786",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "黑白细线",
+      "reason": "原尺寸中部桶口、木板和填土层次清楚，下部亲子轮廓完整。",
+      "viewing_note": "看中格拱形入口及下格亲子占位；先取结构，细密文字另查作品范围。",
+      "review": "2026-10-15 逐张打开本地原文件复核"
+    },
+    {
+      "id": "EH01-007",
+      "sha256": "d3ec1a97973ab593c819543f070d7bac58d9ac2f19ed5207e8517a48a4816476",
+      "status": "selected",
+      "primary_topic": "habitat",
+      "style": "黑白细线",
+      "reason": "右栏洞口枝条与前景两只头部轮廓清楚，细线与灰阶区分前后层次。",
+      "viewing_note": "只取右栏前两格中指定对象；背景同框角色不扩展实体范围。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH03-005",
+      "sha256": "295665c408be2aec3ce136cff6ae4f6d49ce387c1446a12e60bfc582737460ef",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "柔和彩色",
+      "reason": "上半前后视的家油帽发边界完整，淡色明暗保留圆润体积与室内空间。",
+      "viewing_note": "以普通小个体为目标，不取左下大个体；近大远小不能作为真实尺寸比。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH08-004",
+      "sha256": "2b83b37ed1d9ee9e050833f0cbe252ad59a4e0b59c88ecfb670409aec6ebeaa8",
+      "status": "selected",
+      "primary_topic": "human",
+      "style": "黑白细线",
+      "reason": "1280×1810 原图中眼口、侧毛和毛巾接触边缘清楚，清洁前后表情有连续对照。",
+      "viewing_note": "看右列与下排；本页只提供擦拭动作，不据开篇旁白制定饲养制度。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH10-007",
+      "sha256": "a7a045a48475da71843dea96544414e29e338768f8efd51eb95c035c907d651b",
+      "status": "selected",
+      "primary_topic": "growth",
+      "style": "清爽彩色",
+      "reason": "帽缘与幼体轮廓明确，平涂配色干净，亲代、幼体和水盆层次易读。",
+      "viewing_note": "幼体细节看下方近景；上排主要用于帽面占位，不照抄比例数值。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH10-008",
+      "sha256": "4625e4ad63a84d37eb9ddcc8c8c27930ab4d664853a81bf792c6b656981bc6a3",
+      "status": "selected",
+      "primary_topic": "motion",
+      "style": "清爽彩色",
+      "reason": "起跳的侧面轮廓与倾斜帽子清楚，两格运动方向连续，背景干净。",
+      "viewing_note": "只取起跳与落点失败的姿态，不采用图中文字的高度作为游戏数值。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH15-005",
+      "sha256": "d91624cee4bae2595d4e76cb1dd34e05ce4f2fdc9210a82320e7939e6003b53e",
+      "status": "selected",
+      "primary_topic": "society",
+      "style": "黑白细线",
+      "reason": "大幅正面帽缘、卷发、辫子和眉眼均清楚，线条完整且层次集中。",
+      "viewing_note": "看下半脸部；上半是作品背景告示，不据此改动项目规则。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH15-006",
+      "sha256": "1a3a07dd966014dded80643d015ab2f5b09e01137e84d93049974112f67dc680",
+      "status": "selected",
+      "primary_topic": "society",
+      "style": "黑白细线",
+      "reason": "爱丽丝正面发带、齐发尾与眯眼笑清楚，右下提供另一角色侧脸对照。",
+      "viewing_note": "只作为局部轮廓和表情参考；笑脸不等于角色真实动机。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH28-007",
+      "sha256": "138e22332797a75bccfd56c4b59b37525fece86fd8c7f0dd3d7ea8162a6b40bd",
+      "status": "supplement",
+      "primary_topic": "environment",
+      "style": "黑白细线",
+      "reason": "645×860 画面中草缘和帽子轮廓可读，转向过程清楚。",
+      "viewing_note": "单格角色较小，适合动作与遮挡布局；精细五官优先选其他近景。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "M12-012",
+      "sha256": "42f1155564e08953ac506027860a7e4d4cd250c204fb4663ae3b078f3b7fc569",
+      "status": "supplement",
+      "primary_topic": "habitat",
+      "style": "简洁线稿",
+      "reason": "连接口、分叉管和角型／圆型房间能辨认，适合结构草案。",
+      "viewing_note": "原尺寸仅 480×640；不用于精细纹理或尺寸测量。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    },
+    {
+      "id": "EH29-007",
+      "sha256": "dacd6d0f0f893647de3102823ba41279c703f991ed1c660fe11669ca28e3e047",
+      "status": "supplement",
+      "primary_topic": "cognition",
+      "style": "简洁线稿",
+      "reason": "侧发与教棒接触点可辨，能补足持物方式。",
+      "viewing_note": "原尺寸仅 400×600；只取上右局部动作，精细造型另找大图。",
+      "review": "2026-10-15 逐张打开本地原文件，核对指定部位与清晰度"
+    }
+  ]
+}

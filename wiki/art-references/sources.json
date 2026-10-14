@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "M01",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/29583875.html",
+      "tags": [
+        "家油",
+        "巢穴",
+        "卵",
+        "尺度"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M02",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/59886268.html",
+      "tags": [
+        "徽章",
+        "饰品",
+        "教育",
+        "表情"
+      ],
+      "limit": 8
+    },
+    {
+      "id": "M03",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/59677837.html",
+      "tags": [
+        "群落",
+        "家庭",
+        "季节",
+        "比例"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M04",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/29582969.html",
+      "tags": [
+        "多毛灵梦",
+        "亲子",
+        "进食",
+        "动作"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M05",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/30919135.html",
+      "tags": [
+        "被炉魔理沙",
+        "饰物结构",
+        "表情"
+      ],
+      "limit": 8
+    },
+    {
+      "id": "M06",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html",
+      "tags": [
+        "爱丽丝",
+        "玩偶",
+        "睡眠",
+        "情感"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M07",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html",
+      "tags": [
+        "帕秋莉",
+        "书本",
+        "移动",
+        "进食"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M08",
+      "url": "http://blog.livedoor.jp/yukkuriplace_anko/archives/43838612.html",
+      "tags": [
+        "橙",
+        "猫耳",
+        "表情"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M09",
+      "url": "http://blog.livedoor.jp/yukkuriplace_anko/archives/6522195.html",
+      "tags": [
+        "螺壳魔理沙",
+        "帽子",
+        "幼成比例"
+      ],
+      "limit": 12,
+      "attribution_override": "キリライターあき（转载页作者分类）"
+    },
+    {
+      "id": "M10",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
+      "tags": [
+        "工厂",
+        "收容",
+        "人类",
+        "设施"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M11",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/47444382.html",
+      "tags": [
+        "人类",
+        "莫西干",
+        "教学",
+        "道具"
+      ],
+      "limit": 8
+    },
+    {
+      "id": "M12",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/38763129.html",
+      "tags": [
+        "观察屋",
+        "房间",
+        "剖面",
+        "生活设施"
+      ],
+      "limit": 12,
+      "attribution_override": "無声あき（转载页作者分类）"
+    },
+    {
+      "id": "M13",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/59285412.html",
+      "tags": [
+        "筑巢",
+        "街道",
+        "材料",
+        "玩具车"
+      ],
+      "limit": 8
+    },
+    {
+      "id": "M14",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/29625081.html",
+      "tags": [
+        "越冬",
+        "家庭",
+        "住所",
+        "寒冷"
+      ],
+      "limit": 12
+    },
+    {
+      "id": "M15",
+      "url": "http://blog.livedoor.jp/yukkuri_anko/archives/36411281.html",
+      "tags": [
+        "宠物",
+        "庭院",
+        "人类共处",
+        "亲子"
+      ],
+      "limit": 12,
+      "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名"
+    }
+  ]
+}

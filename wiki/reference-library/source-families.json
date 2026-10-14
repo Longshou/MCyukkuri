@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-14",
+  "rule": "不同网站、译本、阅读卡或图集入口不能自动增加独立作者／作品数量。下面只登记已见关系；未列项保持未知，不表示已证明独立。",
+  "families": [
+    {"id":"hatboat-ss-author","members":["N09","N13","L25"],"relation":"同作者；N09 与 L25 是同一书目","basis":"N13 正文后记写其他作品为波乗りまりさ；两篇只是同作者不同情节。","source_url":"https://w.atwiki.jp/yukkuri_gyakutai/pages/1468.html"},
+    {"id":"shell-adaptation","members":["M09","L24"],"relation":"漫画改编同名 SS","basis":"M09 首页注明原作 SS；可分别引用文字与画面，但不重复计故事见证。"},
+    {"id":"chiruno-reading","members":["N18","L13"],"relation":"同一篇补读","basis":"相同页面 https://w.atwiki.jp/futabayukkuriss/pages/663.html，署名 D.O。"},
+    {"id":"range-pool-author","members":["N21","N22"],"relation":"同作者不同短篇","basis":"小说图书馆两页均归入レンジプールあき，标为博客原创；不是两个独立作者。"},
+    {"id":"kiri-author","members":["M01","M04","M05","M09","M14"],"relation":"转载署名／分类同为キリライターあき","basis":"M09 另有 SS 改编关系；作者同一不表示这些作品的所有规则完全相同。"},
+    {"id":"gattai-author","members":["M02","M03"],"relation":"转载署名同为合体あき","basis":"两篇可作不同例子，不按独立作者累加。"},
+    {"id":"bocky-author","members":["EH02","EH05","EH15"],"relation":"封面同署ぼっキー","basis":"封面署名已看；译者 shku 是翻译贡献，不能作为另一原作者。"},
+    {"id":"mons-author","members":["EH06","EH10","EH30"],"relation":"标题／图片同署もんs","basis":"同作者的住所、成长和服饰情节；分别保留版本语境。"},
+    {"id":"ayazo-author","members":["EH12","EH16"],"relation":"封面同署綾蔵","basis":"人工豆油品种与茎果发育图解，不当成两个独立生理学来源。"},
+    {"id":"ballman-author","members":["N03","N05"],"relation":"同署ゆっくりボールマン","basis":"原阅读卡已核对两篇正文署名。"},
+    {"id":"m15-original","members":["M15"],"relation":"漫画据 anko0467 飼いゆっくりれいむ改编","basis":"M15 第二张标原作 SS D.O；漫画作者未确认，不能将 D.O 误登记为漫画作者。"},
+    {"id":"eh22-name-variant","members":["EH22"],"relation":"署名差异待解决","basis":"图集标题こんぽ；所存首页こんぱ；不自行合并其他笔名。"},
+    {"id":"mohawk-translation-candidate","members":["M11","gallery:3391228"],"relation":"疑似同作译版，未确认","basis":"题名接近，待逐页比较；候选图集未加入独立计数。"}
+  ],
+  "limitations": ["没有完成全库首发追溯。", "作者未知的材料可以并列观察，但不能把未知 ID 数作为独立作者数。", "同作者作品也可能互相矛盾，来源族不代表统一正史。", "文件 SHA-256 只能检出字节重复，不能识别重新压缩、翻译或改绘的同一页。"]
+}

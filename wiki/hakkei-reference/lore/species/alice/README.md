@@ -22,16 +22,18 @@
 
 **REF09 · 爱丽丝进食、依偎与睡眠**。只参考左侧圆身爱丽丝；右侧长发有身体者是故事中的人偶，不是爱丽丝身体种素材。
 
-![爱丽丝：爱丽丝进食、依偎与睡眠](https://livedoor.blogimg.jp/yukkuri_anko/imgs/d/6/d67730ef.jpg)
+![爱丽丝：爱丽丝进食、依偎与睡眠](../../../../art-references/images/M06/002-d67730ef.jpg)
 
-出处：[ありしゅとおにんぎょうさんのお話](http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html)，转载页署名：おねにーあき。图片仅作外部参考。
+出处：[ありしゅとおにんぎょうさんのお話](http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html)，转载页署名：おねにーあき。原图已保存到本库，仅作作品研究参考。
 
 **REF10 · 爱丽丝侧背、低落与流泪**。参考短发、发箍、侧背和表情；首格另有普通灵梦、魔理沙及幼体的群像。
 
-![爱丽丝：爱丽丝侧背、低落与流泪](https://livedoor.blogimg.jp/yukkuri_anko/imgs/5/1/51eb7775.jpg)
+![爱丽丝：爱丽丝侧背、低落与流泪](../../../../art-references/images/M06/003-51eb7775.jpg)
 
-出处：[ありしゅとおにんぎょうさんのお話](http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html)，转载页署名：おねにーあき。图片仅作外部参考。
+出处：[ありしゅとおにんぎょうさんのお話](http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html)，转载页署名：おねにーあき。原图已保存到本库，仅作作品研究参考。
 
 ## 相关资料
 
 [形态与生态类别](../forms.md) · [共通生态](../../ecology.md) · [口吻与发音](../../../dialogue/species-variants.md) · [作品来源](../../../sources-lore.md)
+
+本地图片的出处、核对范围与用途见[美术参考索引](../../../../art-references/visual-guide.md)。

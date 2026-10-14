@@ -20,16 +20,18 @@
 
 **REF07 · 帕秋莉全貌与持书姿态**。观察紫色长发、软帽、新月和小缎带；持书方式是该作者的画法，不新增身体或能力规则。
 
-![帕秋莉：帕秋莉全貌与持书姿态](https://livedoor.blogimg.jp/yukkuri_anko/imgs/5/9/5960f723.jpg)
+![帕秋莉：帕秋莉全貌与持书姿态](../../../../art-references/images/M07/001-5960f723.jpg)
 
-出处：[ぱちゅりーの冒険](http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html)，转载页署名：適当あき。图片仅作外部参考。
+出处：[ぱちゅりーの冒険](http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html)，转载页署名：適当あき。原图已保存到本库，仅作作品研究参考。
 
 **REF08 · 帕秋莉张嘴进食**。观察闭眼笑、口部、前发与帽缘遮挡。
 
-![帕秋莉：帕秋莉张嘴进食](https://livedoor.blogimg.jp/yukkuri_anko/imgs/a/1/a13d6c10.jpg)
+![帕秋莉：帕秋莉张嘴进食](../../../../art-references/images/M07/002-a13d6c10.jpg)
 
-出处：[ぱちゅりーの冒険](http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html)，转载页署名：適当あき。图片仅作外部参考。
+出处：[ぱちゅりーの冒険](http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html)，转载页署名：適当あき。原图已保存到本库，仅作作品研究参考。
 
 ## 相关资料
 
 [形态与生态类别](../forms.md) · [共通生态](../../ecology.md) · [口吻与发音](../../../dialogue/species-variants.md) · [作品来源](../../../sources-lore.md)
+
+本地图片的出处、核对范围与用途见[美术参考索引](../../../../art-references/visual-guide.md)。

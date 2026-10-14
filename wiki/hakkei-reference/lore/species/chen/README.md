@@ -22,10 +22,12 @@
 
 **REF11 · 橙的正面、猫耳与表情**。参考圆身、猫耳、鬓发和笑脸；头上物件与脸部记号属于该故事，不直接转为种族标准。
 
-![橙：橙的正面、猫耳与表情](https://livedoor.blogimg.jp/yukkuriplace_anko/imgs/4/4/44038834-s.png)
+![橙：橙的正面、猫耳与表情](../../../../art-references/images/M08/003-44038834.png)
 
-出处：[ちぇん！ ちぇん！！ ちぇん！！！](http://blog.livedoor.jp/yukkuriplace_anko/archives/43838612.html)，转载页署名：和菓子あき。图片仅作外部参考。
+出处：[ちぇん！ ちぇん！！ ちぇん！！！](http://blog.livedoor.jp/yukkuriplace_anko/archives/43838612.html)，转载页署名：和菓子あき。原图已保存到本库，仅作作品研究参考。
 
 ## 相关资料
 
 [形态与生态类别](../forms.md) · [共通生态](../../ecology.md) · [口吻与发音](../../../dialogue/species-variants.md) · [作品来源](../../../sources-lore.md)
+
+本地图片的出处、核对范围与用途见[美术参考索引](../../../../art-references/visual-guide.md)。

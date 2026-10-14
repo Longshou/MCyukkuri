@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "note": "阅读卡按已读范围摘要；评论不计证据。不同卡和不同网站不自动等于独立作者或作品。",
+  "cards": [
+    {
+      "id": "N01",
+      "title": "はじめてのひとりぐらし",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1626.html",
+      "bibliography": "N01／S03",
+      "author_and_scope": "ツェ；“巣立ちの日”、三次建屋至正文 end 和作者署名",
+      "summary": "离巢有家庭送别；屋顶、泥屋、横穴分别表现施工与风雨风险；末段明确离巢者尚未达到生殖成熟",
+      "limits": "不能据此推出：离巢等于成年；所有窝都有相同结构；结局是所有离巢者的宿命。",
+      "topics": [
+        "habitat",
+        "growth",
+        "environment"
+      ],
+      "source_group": "author:ツェ",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N02",
+      "title": "ゆっくりの一年春編",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2736.html",
+      "bibliography": "N02／E08",
+      "author_and_scope": "署名未确认；“季節は春”至亲代备床、准备幼体家具段，未读完整后半",
+      "summary": "越冬后各家余粮不同；部分饥饿者连保温材料也消耗，出巢时体力不一；该篇有亲代备软床和石木家具的描写",
+      "limits": "不能据此推出：睡眠免除饥饿；所有家庭越冬结局相同；该篇繁殖时长是共同数值。",
+      "topics": [
+        "habitat",
+        "feeding",
+        "growth",
+        "environment"
+      ],
+      "source_group": "unknown:N02",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N03",
+      "title": "まりさのおうち",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2312.html",
+      "bibliography": "N03／L21",
+      "author_and_scope": "ゆっくりボールマン；商品说明、组装、独占至认错及后记",
+      "summary": "人造组装巢与野外天然巢不同。合作造屋后发生独占，随后恢复共享；它是幼体共同活动的故事",
+      "limits": "不能据此推出：共同造屋就是成年分家；人造材料代表野外巢材；封闭惩罚是统一教育规范。",
+      "topics": [
+        "habitat",
+        "cognition",
+        "society"
+      ],
+      "source_group": "author:ゆっくりボールマン",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N04",
+      "title": "ゆっくりマンション",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/1558.html",
+      "bibliography": "N04／S06",
+      "author_and_scope": "署名未确认；正文开头至末尾原住者回归，止于感想区之前",
+      "summary": "人口增长推动出走；掘出的多层巢穴后来在长雨、扩挖和扰动下坍塌；作品还写了对原住群体的侵占",
+      "limits": "不能据此推出：群居必然崩塌；“好地段”保证结构安全；角色自称正当就拥有该地。",
+      "topics": [
+        "habitat",
+        "society",
+        "environment"
+      ],
+      "source_group": "unknown:N04",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N05",
+      "title": "ぱんちゅりー",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3183.html",
+      "bibliography": "N05／L17",
+      "author_and_scope": "ゆっくりボールマン；失帽开场至作者后记",
+      "summary": "群体认人受饰物影响；归还变形旧帽可恢复辨认，但气味和标签让排斥延续。找回饰物与恢复信任不是一步",
+      "limits": "不能据此推出：失饰一定抹除亲缘；金章识别例外由此篇证明；后记后的编辑转载是正文续篇。",
+      "topics": [
+        "appearance",
+        "cognition",
+        "society"
+      ],
+      "source_group": "author:ゆっくりボールマン",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N06",
+      "title": "赤い眼のみょん",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2826.html",
+      "bibliography": "N06／L05",
+      "author_and_scope": "署名未确认；采食介绍、备冬、访客、传闻与弃巢强行军段",
+      "summary": "觅食技能与地位可以不匹配。领袖曾有贡献仍可能因恐惧误判；匆忙迁徙使储备、住处和弱者照料互相冲突",
+      "limits": "不能据此推出：红眼实际招灾；所有帕秋莉决策正确；逃亡者后续全部死亡。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "environment"
+      ],
+      "source_group": "unknown:N06",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N07",
+      "title": "ある群れと、１匹のぱちゅりーの記録（前編）",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/5369.html",
+      "bibliography": "N07／L27",
+      "author_and_scope": "白兎；开头独自设定声明、冬季家庭至春天广告图阅读段",
+      "summary": "食物充足也可能受寒；幼体质疑亲代把广告中的糖果外形当真实建筑的解释，体现观察与判断的差别",
+      "limits": "不能据此推出：同种配对规则、馅料保温机制和月龄可以移植；角色推测的亲代死因已获证实；全系列已读。",
+      "topics": [
+        "habitat",
+        "feeding",
+        "cognition",
+        "environment"
+      ],
+      "source_group": "author:白兎",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N08",
+      "title": "ゆっくりちぇんを飼ってみた",
+      "url": "https://w.atwiki.jp/slowlove/pages/400.html",
+      "bibliography": "N08／L03",
+      "author_and_scope": "署名未确认；归家、有限词汇、尾部动作至点心失踪后追问段",
+      "summary": "词汇有限仍可用视线、动作和语气传达意图；叙述者的归因与可见行为应分开",
+      "limits": "不能据此推出：橙全族只能说固定两句话；能表达就一定诚实；所有交流都是温和的。",
+      "topics": [
+        "motion",
+        "cognition",
+        "human"
+      ],
+      "source_group": "unknown:N08",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N09",
+      "title": "波乗りまりさ（平穏編）",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/602.html",
+      "bibliography": "N09／L25",
+      "author_and_scope": "署名未确认；帽船登乘、划行至本篇结束／后记",
+      "summary": "魔理沙小心避免落水和帽内进水，口衔木棒移动；有船不保证有安全落脚处",
+      "limits": "不能据此推出：整个种族生来会游泳；作品已经定义“水生亚种”；后记计划的续作已经发生。",
+      "topics": [
+        "motion",
+        "human",
+        "environment"
+      ],
+      "source_group": "author:波乗りまりさ筆者",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N10",
+      "title": "こたつむり愛で完全版",
+      "url": "https://yukkuriss-library.blog.jp/archives/1009388170.html",
+      "bibliography": "N10／L23＝E14",
+      "author_and_scope": "转载归类ウサミミ薬局あき；本轮复核避热、借住冷凉巢穴至结尾段",
+      "summary": "被炉型可在凉处与同伴度过暖季，群体接纳要经过沟通；本项目从该版本取冬活夏眠方向",
+      "limits": "不能据此推出：螺壳型有同样季节习性；所有 DOS 必定聪明；转载插图署名“○○あき”是可识别作者。",
+      "topics": [
+        "appearance",
+        "habitat",
+        "society",
+        "environment"
+      ],
+      "source_group": "author:ウサミミ薬局あき",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N11",
+      "title": "ゆっくり解体新書",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
+      "bibliography": "N11／L06＝E07",
+      "author_and_scope": "署名未确认；本轮复核开篇私设声明和“構造”段，季节条目沿用既有书目核读",
+      "summary": "作者明确不强制他人接受其数值；关于身体、饰物及离体后变化的说明属于该文体系",
+      "limits": "不能据此推出：形式像研究报告就是真实自然定律；不明机理可作为项目物理系统。",
+      "topics": [
+        "appearance",
+        "body",
+        "society"
+      ],
+      "source_group": "unknown:N11",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N12",
+      "title": "金バッジの価値 前編",
+      "url": "https://w.atwiki.jp/hutaba_ranking/pages/185.html",
+      "bibliography": "N12／徽章专题小说",
+      "author_and_scope": "署名未确认；开头金章灵梦至进入商店、自制饲料介绍段",
+      "summary": "徽章佩于饰物；持金章也可能遭人拒绝。材质、资格和实际评价需要分别理解",
+      "limits": "不能据此推出：金章等于所有人的喜爱；叙述者怀疑的经历就是已经发生的事实；该系列等级全部已核读。",
+      "topics": [
+        "society",
+        "human",
+        "feeding"
+      ],
+      "source_group": "unknown:N12",
+      "reviewed_on": "2026-10-14",
+      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+    },
+    {
+      "id": "N13",
+      "title": "漂流帽子",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1468.html",
+      "bibliography": "L25 相关篇；新阅读卡",
+      "author_and_scope": "署名未确认；后记自称另写《波乗りまりさ》；正文开头至「おわれ」及作者后记；不含评论",
+      "summary": "亲代先用木棒固定帽船再登乘；载幼体和拖带另只帽子的安排不同。遇险后的顾此失彼使拖带中断，载具、操纵和照料需要分别考虑。",
+      "limits": "不能推出油库里身体会游泳、帽船必定安全或统一载重。后记说明与 N09 同一作者，不作第二个独立作者见证。",
+      "anchor": "木の棒を使って",
+      "topics": [
+        "motion",
+        "growth",
+        "human",
+        "environment"
+      ],
+      "source_group": "author:波乗りまりさ筆者",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N13",
+        "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/1468.html",
+        "page_title": "ゆっくりいじめ系857 漂流帽子 - ゆっくり虐め専用Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T13:59:24.020304+00:00",
+        "html_sha256": "f6ed6c98e12a6041be258dbb0bac13ecf4acbee8a0dce576d93bfb4ba76b99a6",
+        "extracted_text_sha256": "cd8b4840bd7f58b6fd909f802490c2c79957b50c2cc7d2cb0062a41d547e6567",
+        "characters": 4448,
+        "cache_path": ".local/reference/wiki-text-round2/N13.html"
+      }
+    },
+    {
+      "id": "N14",
+      "title": "水上まりさのお帽子は",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4822.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "お題の人（正文末署名）；开头水上饲育来历至长女夺壳后果；另核对文末署名",
+      "summary": "本作让幼体学习划桨，群体共享水域而不各建房屋；螺壳型能沿河底通过，普通魔理沙夺得壳却不获得其耐水性。帽的耐水性与身体能力在文中被分开。",
+      "limits": "“完全潜水”和水上育成帽的机制是本篇版本，与项目相对耐水口径分列；尚未核读后段人类产业情节，不能概括全篇。",
+      "anchor": "川の底を通って",
+      "topics": [
+        "appearance",
+        "motion",
+        "cognition",
+        "society",
+        "environment"
+      ],
+      "source_group": "author:お題の人",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N14",
+        "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4822.html",
+        "page_title": "ゆっくりいじめ系2947 水上まりさのお帽子は - ゆっくり虐め専用Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:00:56.102658+00:00",
+        "html_sha256": "448bcd2a3770f93b6a83890b1665c1480a62bc6c5c8de27710660c10521fb6db",
+        "extracted_text_sha256": "937c9ae0cb6c2e1bb365edc9ec7fedce4fca2e148bed183c597636225deaccd2",
+        "characters": 5459,
+        "cache_path": ".local/reference/wiki-text-round2/N14.html"
+      }
+    },
+    {
+      "id": "N15",
+      "title": "いつもより長い冬",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3449.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "キノコ馬（文末署名）；正文至结束与作者后记",
+      "summary": "异常延长的冬季使日历判断和储备失配。作品同时设定只要馅料未被破坏，寒冷本身不会杀死油库里，与会冻死的作品构成明确异说。",
+      "limits": "飞行灵梦、东方事件背景和低温不死都不是项目通则；不能把不同冬季作品拼成同一物理机制。",
+      "anchor": "寒さで死ぬことはない",
+      "topics": [
+        "feeding",
+        "environment",
+        "body"
+      ],
+      "source_group": "author:キノコ馬",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N15",
+        "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3449.html",
+        "page_title": "ゆっくりいじめ系2103 いつもより長い冬 - ゆっくり虐め専用Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:00:57.837616+00:00",
+        "html_sha256": "a5abe757824e4cdf2971b75dae920a86fdf8b9a20dfe073da95e32b2402cdd56",
+        "extracted_text_sha256": "52cbe701dae59104cc270cce5ed00d5c96878f1718cfacfc375c34858feb10a5",
+        "characters": 3643,
+        "cache_path": ".local/reference/wiki-text-round2/N15.html"
+      }
+    },
+    {
+      "id": "N16",
+      "title": "まりさのいだいなゆっくりさくせん（※燃料的なもの）",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/270.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "セイン（文末署名）；开头救助至偷菜计划揭示及作者后记",
+      "summary": "农家起初把来客看成懂礼貌、值得信任的魔理沙。后段揭示其伪装和偷取冬季蔬菜的计划，因此“教不会所有权”不能脱离叙事转折解释为认知上限。",
+      "limits": "本篇铜银章能力划分、教师反应等仅属作者版本；礼貌措辞、真实理解、服从和信任不能互相替代。",
+      "anchor": "セイン",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "human"
+      ],
+      "source_group": "author:セイン",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N16",
+        "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/270.html",
+        "page_title": "まりさのいだいなゆっくりさくせん（※燃料的なもの） - ゆっくり虐め専用Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:01:00.495361+00:00",
+        "html_sha256": "eabf9a764744efdbaa4b5cd2d5579b3a20ab36c9a15e2d9357711186712d32f1",
+        "extracted_text_sha256": "84762705810e4127cc0ad0d49ae184251413606d967735b372f0e0bc1fb426bb",
+        "characters": 4330,
+        "cache_path": ".local/reference/wiki-text-round2/N16.html"
+      }
+    },
+    {
+      "id": "N17",
+      "title": "ゆっくりさなえの居る生活",
+      "url": "https://w.atwiki.jp/slowlove/pages/558.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "已读部分未确认署名；开头旧宠物与新早苗，至伤痕回忆和友人说明后的接触困境；未读全文",
+      "summary": "早苗起初的安静顺从被叙述者视为优点；后续回忆与伤痕改变了这一解释。可作为表达能力、恐惧、熟悉程度和接近意愿需要分别观察的叙事材料。",
+      "limits": "不能把所有早苗设为胆怯，也不能据旧帕秋莉的十年经历定全种寿命；后续康复与结局未核读。",
+      "anchor": "早苗",
+      "topics": [
+        "motion",
+        "cognition",
+        "human"
+      ],
+      "source_group": "unknown:N17",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N17",
+        "url": "https://w.atwiki.jp/slowlove/pages/558.html",
+        "page_title": "ゆっくりさなえの居る生活 - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:01:01.928279+00:00",
+        "html_sha256": "ae3e3a09d2912d7744631669227191132ab9d310c9e0483fd33a6e55f8ae6779",
+        "extracted_text_sha256": "7095453867ebaaa0d5fffdbb15a220b211a7727e605e71a399a17c723bc8cd76",
+        "characters": 13929,
+        "cache_path": ".local/reference/wiki-text-round2/N17.html"
+      }
+    },
+    {
+      "id": "N18",
+      "title": "ゆっくりちるのの生態",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/663.html",
+      "bibliography": "L13（补读）",
+      "author_and_scope": "D.O（正文署名）；开篇设定、春季卵与照料、夏季树巢至秋季开头；未读完后段",
+      "summary": "这版琪露诺使用水草上的卵和树叉巢，巢基可以是取来的魔理沙帽，并夹用枝条和饰物。作品的物候、捕食关系与普通地栖种不同。",
+      "limits": "这是既有 L13 的补读，不能算新增独立作品；水冰能力、年周期和取得巢材的情节均属本篇。",
+      "anchor": "Ｄ．Ｏ",
+      "topics": [
+        "appearance",
+        "habitat",
+        "growth",
+        "environment"
+      ],
+      "source_group": "author:D.O",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N18",
+        "url": "https://w.atwiki.jp/futabayukkuriss/pages/663.html",
+        "page_title": "ふたば系ゆっくりいじめ 305 ゆっくりちるのの生態 - ふたば系ゆっくりいじめＳＳ@ ＷＩＫＩ - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:01:04.886569+00:00",
+        "html_sha256": "a9ac0e90f559d52949ad07fb580cde702ecba3b01c0b02e5031cf5c202c6a133",
+        "extracted_text_sha256": "abb378ae405342e5f990007e12286b0014e8813fcdb64d7832526d5af18f3216",
+        "characters": 8241,
+        "cache_path": ".local/reference/wiki-text-round2/N18.html"
+      }
+    },
+    {
+      "id": "N19",
+      "title": "私のみょんはプラチナバッチ",
+      "url": "https://yukkuriss-library.blog.jp/archives/1084488920.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "转载分类为お嬢あき；未确认为首发；开头当前家庭至回忆第一只银章妖梦、宠物店和咲夜见面；未读后半",
+      "summary": "标题和开场的现任妖梦为第二代；随后回忆的是早先购买的银章妖梦。可观察家庭劳动、问候、商店展示和不同徽章称谓，不能把两代角色合成一只。",
+      "limits": "尚未读到白金资格形成过程；不能据标题补出通用白金制度、售价或所有妖梦的劳动能力。",
+      "anchor": "2代目",
+      "topics": [
+        "cognition",
+        "society",
+        "human"
+      ],
+      "source_group": "author:お嬢あき",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N19",
+        "url": "https://yukkuriss-library.blog.jp/archives/1084488920.html",
+        "page_title": "私のみょんはプラチナバッチ : ゆっくり！ゆんやーの書庫",
+        "retrieved_at": "2026-10-14T14:01:05.973421+00:00",
+        "html_sha256": "ea3d2109072c81d170a9ffd1845a90ce452cf17e231b7042dcce33293900b9e4",
+        "extracted_text_sha256": "8ec962182c841ab9cbd593fdd81472732e93969bcb0b93b6a5b653de252f56be",
+        "characters": 10558,
+        "cache_path": ".local/reference/wiki-text-round2/N19.html"
+      }
+    },
+    {
+      "id": "N20",
+      "title": "まりさのまいほーむ♪（网页题名 myhome）",
+      "url": "https://yukkuriss-library.blog.jp/archives/1082223784.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；正文开头至【おわり】；摘要只提取住所和占有标记段",
+      "summary": "庭院纸箱外覆篷布，枯草作床，纸巾盒作收纳；枝条、气味和名牌分别参与“这是我的家”的表达。角色认可标记不等于现实所有权。",
+      "limits": "情节后段具有成人语境，不将其作为日常居住规范；纸箱结构只是可参考描写，不能自动视为安全住所。",
+      "anchor": "ティッシュの空き箱",
+      "topics": [
+        "habitat",
+        "cognition",
+        "society",
+        "human"
+      ],
+      "source_group": "unknown:N20",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N20",
+        "url": "https://yukkuriss-library.blog.jp/archives/1082223784.html",
+        "page_title": "myhome : ゆっくり！ゆんやーの書庫",
+        "retrieved_at": "2026-10-14T14:01:07.612652+00:00",
+        "html_sha256": "27e2032d1a2fafbae191e6019d54e54f51758fae0195c21b82ed30cfbe5e9cb7",
+        "extracted_text_sha256": "ca1ccfe5b747102955b3a605368cea65af44811a04d0a7663cdc4acac54d2d0b",
+        "characters": 2753,
+        "cache_path": ".local/reference/wiki-text-round2/N20.html"
+      }
+    },
+    {
+      "id": "N21",
+      "title": "頭のいいれいむ",
+      "url": "https://yukkuriss-library.blog.jp/archives/1082218926.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "レンジプールあき（转载分类与原创标记）；全部短篇正文；不含推荐链接及评论",
+      "summary": "受教育后使用正式人类语言的灵梦与其他个体沟通困难，作品把能力差异写成孤立体验。它是个体悲剧叙事，可补充交流对象与语言习惯的关系。",
+      "limits": "文中 IQ 数字和群体贬称属于叙述者私设；不能推出教育必然导致孤立或所有普通个体都无法理解。",
+      "anchor": "丁寧な言葉使い",
+      "topics": [
+        "cognition",
+        "society",
+        "human"
+      ],
+      "source_group": "author:レンジプールあき",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N21",
+        "url": "https://yukkuriss-library.blog.jp/archives/1082218926.html",
+        "page_title": "頭のいいれいむ : ゆっくり！ゆんやーの書庫",
+        "retrieved_at": "2026-10-14T14:01:08.642960+00:00",
+        "html_sha256": "fd4457a683d07e663404dda348e859c5b13be06c74839485cf5b3f96a98346f7",
+        "extracted_text_sha256": "61c21cd7eb07edf7fc3bcda8d16cfb4b65f4dc8394f752a21c57a7e8caaa0413",
+        "characters": 673,
+        "cache_path": ".local/reference/wiki-text-round2/N21.html"
+      }
+    },
+    {
+      "id": "N22",
+      "title": "ゆっくりって何？",
+      "url": "https://yukkuriss-library.blog.jp/archives/1082217050.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "レンジプールあき（转载分类与原创标记）；全部短篇正文；不含推荐链接及评论",
+      "summary": "失去亲代的橙独自流浪并追问“悠闲”意味着什么，语言和内心活动明显超过固定口头禅。可参考迷惘、记忆和个体目标。",
+      "limits": "不能推出所有橙都有相同经历或固定寿命；与 N21 同作者，不累加作者独立性。",
+      "anchor": "ゆっくりってどうゆうこと",
+      "topics": [
+        "cognition",
+        "growth",
+        "environment"
+      ],
+      "source_group": "author:レンジプールあき",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N22",
+        "url": "https://yukkuriss-library.blog.jp/archives/1082217050.html",
+        "page_title": "ゆっくりって何？ : ゆっくり！ゆんやーの書庫",
+        "retrieved_at": "2026-10-14T14:01:09.699825+00:00",
+        "html_sha256": "aa4b297ee34c348720b4bf15a5da050199a28e7a87b620f3152f9ca745f31a15",
+        "extracted_text_sha256": "4fd3d6ee9ec339486ca5f530505076cdd10958d8aff893d3f747935b3a650936",
+        "characters": 497,
+        "cache_path": ".local/reference/wiki-text-round2/N22.html"
+      }
+    },
+    {
+      "id": "N23",
+      "title": "森のゆっくり",
+      "url": "https://w.atwiki.jp/slowlove/pages/15.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；开头拜访住所至气球破裂和相互安慰；另核读结尾同宿至 Fin",
+      "summary": "树根、岩石和坡面之间的住所、苔藓铺层以及书籍被赋予具体用途。帕秋莉能读一些字却未必懂全部意义；伙伴带气球玩耍，破裂后安慰并同宿。",
+      "limits": "未逐句核读中间所有段落；不能据本作把识字等同全知，也不能把苔藓恒温当作物理保证。",
+      "anchor": "苔",
+      "topics": [
+        "habitat",
+        "motion",
+        "cognition",
+        "society"
+      ],
+      "source_group": "unknown:N23",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N23",
+        "url": "https://w.atwiki.jp/slowlove/pages/15.html",
+        "page_title": "森のゆっくり - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:03:10.660897+00:00",
+        "html_sha256": "76aa63921931f647f88613ddb47a588236dc6229aa5e6702c6a93aca4331f024",
+        "extracted_text_sha256": "a172806c9cac0d84b0aee9bc55e46fdda5932d08dbe963256dc6de07822ca011",
+        "characters": 4220,
+        "cache_path": ".local/reference/wiki-text-round2/N23.html"
+      }
+    },
+    {
+      "id": "N24",
+      "title": "ゆっくりを飼うときに気をつけること",
+      "url": "https://w.atwiki.jp/slowlove/pages/230.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "動物の人（作者后记）；开头、选购、体型与环境、家具风险、教学段和后记；按条目核读",
+      "summary": "伪装成饲养小册子的设定文强调住所应考虑体型、笼体、雨水、家具棱角和台阶，也讨论人类规则与沟通；提供设施需求的不同写法。",
+      "limits": "血统、配对相性、大型化和体质是作者世界观，不能当成项目基因规则或现实动物护理指南；惩罚性内容不转成教学流程。",
+      "anchor": "飼育環境",
+      "topics": [
+        "appearance",
+        "habitat",
+        "cognition",
+        "human",
+        "body"
+      ],
+      "source_group": "author:動物の人",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N24",
+        "url": "https://w.atwiki.jp/slowlove/pages/230.html",
+        "page_title": "ゆっくりを飼うときに気をつけること - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:03:11.876491+00:00",
+        "html_sha256": "51291256ce093b500952b48a1483b301c0c47589f7f227a8e9c93fef90d28789",
+        "extracted_text_sha256": "0440596ba5730a09e5ae988af1c516bbf185e592daed1015ad05656852411cf7",
+        "characters": 5049,
+        "cache_path": ".local/reference/wiki-text-round2/N24.html"
+      }
+    },
+    {
+      "id": "N25",
+      "title": "ゆっくりパークの春夏秋冬 part 1",
+      "url": "https://w.atwiki.jp/slowlove/pages/288.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "已读部分未确认署名；序章、四月建园、五月入住至母灵梦分配番茄段；只读第一篇开头",
+      "summary": "草原、森林、小溪、浅滩、木桥和人工仿自然洞穴组合成生活空间；不同群体在其中选择居处。母体给幼体分配食物，可与队列、亲子尺度和资源布点图对照。",
+      "limits": "未核读全文及其他 part；“人不能过、油库里能过”的围栏、体型比喻和幻想乡位置仅属此作，不能推出完整全年规律。",
+      "anchor": "コンクリートの洞穴",
+      "topics": [
+        "habitat",
+        "feeding",
+        "growth",
+        "environment",
+        "human"
+      ],
+      "source_group": "unknown:N25",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N25",
+        "url": "https://w.atwiki.jp/slowlove/pages/288.html",
+        "page_title": "ゆっくりパークの春夏秋冬part1 - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:03:13.053977+00:00",
+        "html_sha256": "e9010dd3e756790b3061e66f41000beeb09e7feb6104f5a1ac3d6830e71d8f23",
+        "extracted_text_sha256": "b5e91572f947d896d850f20d674fcea835f5d4ae0df36a5fe9106a256a1c6a9a",
+        "characters": 11635,
+        "cache_path": ".local/reference/wiki-text-round2/N25.html"
+      }
+    },
+    {
+      "id": "N26",
+      "title": "ぱちぇの冬",
+      "url": "https://w.atwiki.jp/slowlove/pages/496.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；正文开头、召唤与备冬至尾声；不含分隔线后的评论",
+      "summary": "帕秋莉独自备冬困难，协作者分担采食和暖房材料收集，储备充足后有了读书与交流时间。可补充合作、资源需求和关系变化的叙事。",
+      "limits": "魔法召唤、契约和小恶魔能力是本篇私设；后段亲密情节不作为生态机制，不以一周工期设置游戏参数。",
+      "anchor": "暖房資材",
+      "topics": [
+        "feeding",
+        "habitat",
+        "cognition",
+        "society",
+        "environment"
+      ],
+      "source_group": "unknown:N26",
+      "reviewed_on": "2026-10-14",
+      "metadata": {
+        "id": "N26",
+        "url": "https://w.atwiki.jp/slowlove/pages/496.html",
+        "page_title": "ぱちぇの冬 - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
+        "retrieved_at": "2026-10-14T14:03:14.410093+00:00",
+        "html_sha256": "fea3c2db4c4ca825c8e5215010db03823b4f0fdbac08b6f4492304d4627fd025",
+        "extracted_text_sha256": "57a3ce4f59b327c1f333990806b3074d843a20c1a8c4e98afa3728d13f43ff57",
+        "characters": 2881,
+        "cache_path": ".local/reference/wiki-text-round2/N26.html"
+      }
+    }
+  ]
+}

@@ -24,7 +24,7 @@
 | 原版对白整理 | `art/dialogue/` | 八景 U 原版角色台词检索、Mod 对照、选用原句与译文；仅选中的台词进入游戏 |
 | 旧版兼容素材 | `standards/yukkuri-v1/` | 生命周期、亚种等既有原型依赖；当前共用素材仍在 `yukkuri-library/` 制作 |
 | 历史打包工具 | `tools/project-library/` | 保存与恢复旧素材包，保留原有相对路径依赖；遵守本机执行边界 |
-| 设定与作品来源 | `wiki/` | 设定、出处与核读资料；不作为运行代码或素材导出目录 |
+| 设定与作品来源 | `wiki/` | 设定、出处与核读资料；`reference-library/` 按实体、情景、情绪和制作目标索引游戏图文参考，`art-references/` 保存图像原文件与出处，`novel-reading/` 保存阅读卡；不作为运行资源或素材导出目录 |
 | 开发文档 | `docs/` | 环境说明、阶段计划、实现边界和验收说明 |
 | 游戏验收证据 | `docs/validation/` 下的 `species/`、`predators/`、`badges/`、`factory-pipeline/`、`cold-storage/`、`house-motion/`、`house-interactions/`、`walking/`、`p0/`、`p1p2/`、`core/`、`dialogue/`、`port-remainder/`、`settlements/` 等专题目录 | 分阶段断言、文件指纹和精选实机截图；完整临时日志与帧序列放 `.local/` 的对应任务目录 |
 | 项目脚本 | `scripts/` | 跨目录的资源处理与验证入口；每个脚本注明用途和执行边界 |

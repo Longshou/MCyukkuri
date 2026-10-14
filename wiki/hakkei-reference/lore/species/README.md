@@ -2,9 +2,9 @@
 
 按名称查阅外形、习性、作品差异和图片出处。此处的分类是资料整理方式，不代表所有创作者采用相同设定。
 
-| 种族 | 亚种／亚型 |
+| 种族 | 亚种／亚型／饰物变体 |
 | --- | --- |
-| [魔理沙](marisa/README.md) | [螺壳魔理沙](marisa/tsumuri.md)、[被炉魔理沙](marisa/kotatsu-marisa.md)、[DOS 魔理沙](marisa/dos-marisa.md) |
+| [魔理沙](marisa/README.md) | [螺壳魔理沙](marisa/tsumuri.md)、[被炉饰物变体](marisa/kotatsu-marisa.md)、[DOS 魔理沙](marisa/dos-marisa.md) |
 | [灵梦](reimu/README.md) | [多毛灵梦](reimu/wasa-reimu.md) |
 | [爱丽丝](alice/README.md) | — |
 | [橙](chen/README.md) | — |
