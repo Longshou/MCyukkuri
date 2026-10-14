@@ -24,7 +24,8 @@ public enum YukkuriAction {
     ANATOMY_MAMU_RETRACT("anatomy_mamu_retract", 0.65, false),
     ANATOMY_PENI_EXTEND("anatomy_peni_extend", 0.24, false),
     ANATOMY_PENI_RETRACT("anatomy_peni_retract", 0.65, false),
-    // World-setting motions from motions/variants/lore/recipe.json, shipped in the motion corrections.
+    // World-setting motions from motions/variants/lore/recipe.json, shipped in the motion corrections;
+    // models outside a clip's `applies` group fall back to idle.
     EAT("eat", 1.2, true),
     SHIAWASE("shiawase", 2.0, false),
     DRINK("drink", 1.6, true),
@@ -39,7 +40,17 @@ public enum YukkuriAction {
     DROOP("droop", 4.0, true),
     LOOK_AROUND("look_around", 4.0, true),
     SHAKE("shake", 1.2, false),
-    BOAT_BALANCE("boat_balance", 3.0, true),
+    BROOD("brood", 4.0, true),
+    LABOR("labor", 2.4, true),
+    MIDWIFE("midwife", 2.4, true),
+    POSTPARTUM("postpartum", 3.0, false),
+    FIRST_WAKE("first_wake", 2.0, false),
+    BOAT_DRIFT("boat_drift", 4.0, true),
+    BOAT_STEADY("boat_steady", 1.5, true),
+    BOAT_CALL("boat_call", 2.0, true),
+    BOAT_BROOD("boat_brood", 4.0, true),
+    BOAT_LABOR("boat_labor", 2.4, true),
+    HAT_CRADLE("hat_cradle", 3.0, true),
     /** Shell Marisa only; other models fall back to idle. */
     SHELL_RETRACT("shell_retract", 6.0, true);
 

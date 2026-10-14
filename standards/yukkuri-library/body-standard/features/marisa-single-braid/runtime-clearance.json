@@ -214,6 +214,356 @@
           "below_floor": 0.0,
           "floor_at": 0.0
         }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brood": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "labor": {
+        "braid": {
+          "extra_depth": 0.076,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "midwife": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "postpartum": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "boat_drift": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "boat_steady": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "boat_call": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "boat_brood": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "boat_labor": {
+        "braid": {
+          "extra_depth": 0.078,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hat_cradle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
       }
     }
   },
@@ -474,6 +824,286 @@
           "below_floor": 0.0,
           "floor_at": 0.0
         }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brood": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "labor": {
+        "braid": {
+          "extra_depth": 0.076,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "midwife": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "postpartum": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hat_cradle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
       }
     }
   },
@@ -692,6 +1322,230 @@
           "below_floor": 0.0,
           "floor_at": 0.0
         }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 1.6,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hat_cradle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 3.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 3.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
       }
     }
   },
@@ -901,6 +1755,230 @@
         "braid": {
           "extra_depth": 0.0,
           "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hat_cradle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.4,
           "below_floor": 0.0,
           "floor_at": 0.0
         },
@@ -1125,6 +2203,230 @@
         "loose": {
           "extra_depth": 0.0,
           "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 1.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.005,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.01,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.008,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.002,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.006,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.005,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.006,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.005,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.004,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.009,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.008,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.008,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.007,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.002,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.002,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.009,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.007,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hat_cradle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 3.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 3.0,
           "below_floor": 0.0,
           "floor_at": 0.0
         }
@@ -1393,6 +2695,216 @@
         "braid": {
           "extra_depth": 0.0,
           "at": 0.6,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "eat": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 1.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shiawase": {
+        "braid": {
+          "extra_depth": 0.007,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "drink": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 1.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sleep": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "wake": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "nuzzle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sing": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "push": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "greet": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "tremble": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "droop": {
+        "braid": {
+          "extra_depth": 0.006,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "look_around": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shake": {
+        "braid": {
+          "extra_depth": 0.002,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "first_wake": {
+        "braid": {
+          "extra_depth": 0.007,
+          "at": 0.0,
           "below_floor": 0.0,
           "floor_at": 0.0
         },

@@ -245,10 +245,13 @@ public final class FamilyData extends SavedData {
         }
         if(brood.detachedHolder!=null){entity.setYRot(180);entity.yRotO=180;entity.yBodyRot=entity.yBodyRotO=180;entity.setYHeadRot(180);entity.yHeadRotO=180;}
         entity.setPersistenceRequired();
-        if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return null;
+        // An aquatic mother afloat gives birth into her hat boat: the newborn boards it instead of landing.
+        var boat=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity afloat?afloat.family().boatHome():null;
+        if(boat!=null?!boat.hasRoomForYoung():!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return null;
         spawning.add(child.id);boolean added;
         try { added=level.addFreshEntity(entity); } finally { spawning.remove(child.id); }
         if(!added)return null;
+        if(boat!=null)boat.boardYoung(entity);
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);

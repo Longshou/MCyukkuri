@@ -64,6 +64,8 @@ public final class YukkuriModel {
     private final Map<String, Clip> clips = new HashMap<>();
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
+    /** Server faces that win over a clip's timeline, such as the injury cry. */
+    private final Map<String, java.util.Set<String>> expressionYields = new HashMap<>();
     private final Map<String, float[]> puffEnvelopes = new HashMap<>();
     /** One rest-space morph target: refined skin, blush carriers and swung side locks. */
     private float[] puffOffsets;
@@ -88,7 +90,7 @@ public final class YukkuriModel {
 
     public String expressionFor(String action, float elapsed, String fallback) {
         Clip clip = clips.get(action);
-        if (clip == null) return fallback;
+        if (clip == null || expressionYields.getOrDefault(action, java.util.Set.of()).contains(fallback)) return fallback;
         float time = clip.loop ? elapsed % clip.duration : Math.min(elapsed, clip.duration);
         for (ExpressionSpan span : actionExpressions.getOrDefault(action, List.of()))
             if (time >= span.start && time < span.end) return span.expression;
@@ -127,6 +129,14 @@ public final class YukkuriModel {
     private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
+    private int rootBone = -1;
+    private int rootBone() {
+        if (rootBone < 0) { rootBone = 0; for (int i = 0; i < bones.length; i++) if (bones[i].name().equals("root")) { rootBone = i; break; } }
+        return rootBone;
+    }
+    /** Root bone transform of the last posed render, in model units (16 per block). Attachments drawn
+     *  outside the skinned mesh (held food, stem, delivery) follow it so whole-body motion does not detach them. */
+    public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
         float depth=0;
@@ -487,6 +497,11 @@ public final class YukkuriModel {
                 }
                 actionExpressions.put(entry.getKey(),List.copyOf(spans));
             }
+            if (clip.has("expression_yield")) {
+                var yields = new java.util.HashSet<String>();
+                for (var raw : clip.getAsJsonArray("expression_yield")) yields.add(raw.getAsString());
+                expressionYields.put(entry.getKey(), java.util.Set.copyOf(yields));
+            }
         }
         if (!clips.containsKey("idle")) throw new IllegalArgumentException("Missing idle defaults");
         houseNormals=id.startsWith("house_")?new HouseNormals(restVertices,parts):null;
@@ -578,6 +593,7 @@ public final class YukkuriModel {
                     .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
         }
         PoseStack.Pose transform = stack.last();
+        if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(new Matrix4f(world[bones[bone].parent]).invert());});
         if(puffNormals!=null&&puffAmount>0&&!drawingWoundedBody){
             for(var n:puffNormals.normals)n.zero();

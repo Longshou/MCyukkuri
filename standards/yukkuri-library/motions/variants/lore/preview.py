@@ -2,11 +2,12 @@
 
 Poses src/main/resources/assets/mcyukkuri/yukkuri/<id>.json with its two-bone weights, the
 idle clip at t=0 under the clip from the motion corrections (as the game layers them),
-and draws flat-shaded, textured triangles with a numpy depth buffer. Each clip uses the
-expression texture the game shows during its behavior. No game, browser or build runs;
-this is a visual aid, not motion acceptance. Needs numpy and Pillow.
+and draws flat-shaded, textured triangles with a numpy depth buffer. Faces follow each
+clip's expression timeline. A clip is shown only on the forms it applies to; the aquatic
+Marisa is drawn without her hat, sitting in the hat boat prop. No game, browser or build
+runs; this is a visual aid, not motion acceptance. Needs numpy and Pillow.
 
-  python preview.py [--corrections motion_corrections.json] [--out dir] [--models a,b] [--clips a,b]
+  python preview.py [--corrections motion_corrections.json] [--out dir] [--clips a,b]
 """
 from pathlib import Path
 import argparse, json, math
@@ -17,11 +18,20 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUT = ROOT/'art/source/motion-corrections/previews/current/lore'
-MODELS = ['marisa', 'reimu', 'house_marisa', 'marisa_bean', 'remilia', 'marisa_tsumuri']
-FACE = {'eat': 'chewing', 'shiawase': 'satisfied', 'drink': 'chewing_closed', 'sleep': 'sleep', 'wake': 'yawn',
-        'nuzzle': 'closed_smile', 'sing': 'open_smile', 'sway': 'closed_smile', 'push': 'angry', 'greet': 'happy',
-        'tremble': 'surprise', 'droop': 'teary', 'look_around': 'neutral', 'shake': 'happy', 'boat_balance': 'neutral'}
+BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor')
+# Panels: (label, model id, mode). Land forms never show the boat set; the aquatic Marisa shows only it;
+# the young panel shows a baby sitting on its mother's brim.
+PANELS = [('魔理沙', 'marisa', 'land'), ('水生魔理沙', 'marisa', 'aquatic'), ('帽中幼体', 'marisa', 'young'), ('灵梦', 'reimu', 'land'),
+          ('家油魔理沙', 'house_marisa', 'land'), ('豆形魔理沙', 'marisa_bean', 'land'), ('蕾米莉亚', 'remilia', 'land'),
+          ('螺壳魔理沙', 'marisa_tsumuri', 'land')]
+FALLBACK_FACE = {'hop': 'happy', 'shell_retract': 'surprise'}
 BACK = (234, 231, 222)
+
+
+def shown(mode, clip):
+    if mode == 'aquatic': return clip in BOAT_CLIPS
+    if mode == 'young': return clip == 'hat_cradle'
+    return clip not in BOAT_CLIPS and clip != 'hat_cradle'
 
 
 def euler(r):
@@ -40,16 +50,27 @@ def sample(keys, t):
 
 
 class Posed:
-    def __init__(self, ident, corrections):
+    def __init__(self, ident, corrections, aquatic=False):
         self.model = m = json.loads((ASSETS/'yukkuri'/f'{ident}.json').read_text(encoding='utf-8'))
         rev = corrections['models'].get(ident, {}); index = {b['name']: i for i, b in enumerate(m['bones'])}
         remap = lambda clip: dict(clip, tracks=[dict(tr, bone=index[rev['bone_names'][tr['bone']]]) for tr in clip['tracks']])
         self.clips = {**m['clips'], **m.get('behavior_clips', {}), **{k: remap(v) for k, v in rev.get('clips', {}).items()}}
         V = np.array(m['vertices']).reshape(-1, 8); W = np.array(m['weights'])
-        keep = [i for p in m['parts'] if not p.get('anatomy') for i in range(p['start'], p['start']+p['count'])]
+        hidden = tuple(json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants'][ident]['accessory_prefixes']) if aquatic else ()
+        keep = [i for p in m['parts'] if not p.get('anatomy') and not (hidden and p['name'].startswith(hidden)) for i in range(p['start'], p['start']+p['count'])]
         self.v, self.uv, self.n = V[keep, :3], V[keep, 3:5], V[keep, 5:8]
         self.a, self.b, self.q = W[keep, 0].astype(int), W[keep, 1].astype(int), W[keep, 2:3]
-        self.ident = ident
+        self.ident, self.aquatic, self.boat = ident, aquatic, 0
+        if aquatic:
+            # The hat boat prop, static under the rider (HatBoatEntity seats her .055 block above it), in a
+            # square combined atlas: the model texture top-left, the boat texture top-right.
+            prop = json.loads((ASSETS/'yukkuri_props/hat_boat.json').read_text(encoding='utf-8'))
+            B = np.array(prop['vertices']).reshape(-1, 8); B[:, 1] -= .055*16
+            self.uv = self.uv*.5; boat_uv = np.c_[.5+B[:, 3]*.5, B[:, 4]*.5]
+            self.v = np.r_[self.v, B[:, :3]]; self.uv = np.r_[self.uv, boat_uv]; self.n = np.r_[self.n, B[:, 5:8]]
+            zero = np.zeros(len(B), int)
+            self.a, self.b, self.q = np.r_[self.a, zero], np.r_[self.b, zero], np.r_[self.q, np.zeros((len(B), 1))]
+            self.boat = len(B)
 
     def frame(self, name, t):
         pose = {}
@@ -65,7 +86,22 @@ class Posed:
         M = np.array(mats); hv = np.c_[self.v, np.ones(len(self.v))]
         pos = np.einsum('nij,nj->ni', M[self.a], hv)[:, :3]*(1-self.q)+np.einsum('nij,nj->ni', M[self.b], hv)[:, :3]*self.q
         nrm = np.einsum('nij,nj->ni', M[self.a][:, :3, :3], self.n)
+        if self.boat: pos[-self.boat:], nrm[-self.boat:] = self.v[-self.boat:], self.n[-self.boat:]
         return pos.reshape(-1, 3, 3), self.uv.reshape(-1, 3, 2), nrm.reshape(-1, 3, 3)[:, 0]
+
+    def face(self, name, t):
+        clip = self.clips[name]; d = clip['duration']; at = t % d if clip['loop'] else min(t, d)
+        for start, end, face in clip.get('expression_spans', []):
+            if start <= at < end: return face
+        return FALLBACK_FACE.get(name, 'neutral')
+
+    def texture(self, face):
+        folder = ASSETS/'textures/entity'/self.ident; path = folder/f'{face}.png'
+        img = Image.open(path if path.exists() else folder/'neutral.png').convert('RGBA')
+        if not self.aquatic: return np.array(img)
+        size = img.width; atlas = Image.new('RGBA', (size*2, size*2), (0, 0, 0, 0)); atlas.paste(img, (0, 0))
+        atlas.paste(Image.open(ASSETS/'textures/props/hat_boat.png').convert('RGBA').resize((size, size), Image.NEAREST), (size, 0))
+        return np.array(atlas)
 
 
 def raster(pos, uv, nrm, tex, size, yaw, pitch, scale, center_y, K=8):
@@ -113,48 +149,44 @@ def raster(pos, uv, nrm, tex, size, yaw, pitch, scale, center_y, K=8):
     return img
 
 
-def texture(ident, expression):
-    folder = ASSETS/'textures/entity'/ident
-    path = folder/f'{expression}.png'
-    return np.array(Image.open(path if path.exists() else folder/'neutral.png').convert('RGBA'))
-
-
 def view_for(posed):
-    pos = posed.frame('idle', 0)[0].reshape(-1, 3); h = pos[:, 1].max(); w = np.abs(pos[:, [0, 2]]).max()
-    return dict(scale=min(150/(h*1.55), 150/(w*2.4)), center_y=h*.45)
+    pos = posed.frame('idle', 0)[0].reshape(-1, 3); h = pos[:, 1].max()-min(0, pos[:, 1].min()); w = np.abs(pos[:, [0, 2]]).max()
+    return dict(scale=min(150/(h*1.55), 150/(w*2.4)), center_y=pos[:, 1].min()+h*.45)
 
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--corrections', default=str(ASSETS/'yukkuri_presentation/motion_corrections.json'))
-    ap.add_argument('--out', default=str(OUT)); ap.add_argument('--models', default=','.join(MODELS)); ap.add_argument('--clips')
-    ap.add_argument('--fps', type=float, default=10)
+    ap.add_argument('--out', default=str(OUT)); ap.add_argument('--clips'); ap.add_argument('--fps', type=float, default=10)
     args = ap.parse_args()
     recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8')); corrections = json.loads(Path(args.corrections).read_text(encoding='utf-8'))
     clips = args.clips.split(',') if args.clips else list(recipe['clips'])
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
-    posed = [Posed(m, corrections) for m in args.models.split(',')]
-    views = [view_for(p) for p in posed]
-    size = (190, 200); font = ImageFont.load_default()
+    if not args.clips:
+        for old in out.glob('*.gif'): old.unlink()
+    panels = [(label, Posed(ident, corrections, mode == 'aquatic'), mode) for label, ident, mode in PANELS]
+    views = [view_for(p) for _, p, _ in panels]
+    size = (190, 200); font = ImageFont.load_default(); rows = []
     for name in clips:
         c = recipe['clips'][name]; n = max(2, round(c['duration']*args.fps)); frames = []
-        textures = [texture(p.ident, FACE[name]) for p in posed]
+        use = [(i, label, p) for i, (label, p, mode) in enumerate(panels) if shown(mode, name) and name in p.clips]
         for k in range(n+(0 if c['loop'] else 1)):
             t = c['duration']*k/n; row = []
-            for p, v, tex in zip(posed, views, textures):
+            for i, _, p in use:
                 pos, uv, nrm = p.frame(name, t)
-                row.append(raster(pos, uv, nrm, tex, size, 28, -12, v['scale'], v['center_y']))
+                row.append(raster(pos, uv, nrm, p.texture(p.face(name, t)), size, 28, -12, views[i]['scale'], views[i]['center_y']))
             img = Image.fromarray(np.concatenate(row, 1)); ImageDraw.Draw(img).text((6, 4), f"{name}  {t:.1f}s", fill=(60, 55, 50), font=font)
             frames.append(img)
         if not c['loop']: frames += [frames[-1]]*int(args.fps*.6)  # hold the end pose before restarting
         frames[0].save(out/f'{name}.gif', save_all=True, append_images=frames[1:], duration=int(1000/args.fps), loop=0, optimize=True)
-        # Key frames for the sheet: five evenly spaced samples of the first model pair.
-        print('wrote', name, len(frames), 'frames')
-    labels = ' / '.join(p.ident for p in posed)
-    rows = ''.join(f"<section><h2>{name} · {recipe['clips'][name]['label']}</h2><p>{recipe['clips'][name]['lore']} — 触发：{'、'.join(recipe['clips'][name]['triggers'])}"
-                   f" — {recipe['clips'][name]['duration']} 秒{'循环' if recipe['clips'][name]['loop'] else '单次'}</p><img src='{name}.gif' alt='{name}'></section>" for name in recipe['clips'])
+        rows.append((name, [label for _, label, _ in use]))
+        print('wrote', name, len(frames), 'frames,', len(use), 'forms')
+    if args.clips: return
+    body = ''.join(f"<section><h2>{name} · {recipe['clips'][name]['label']}</h2><p>{recipe['clips'][name]['lore']} — 触发：{'、'.join(recipe['clips'][name]['triggers'])}"
+                   f" — {recipe['clips'][name]['duration']} 秒{'循环' if recipe['clips'][name]['loop'] else '单次'} — 从左到右：{'、'.join(labels)}</p><img src='{name}.gif' alt='{name}'></section>"
+                   for name, labels in rows)
     (out/'index.html').write_text(f"""<!doctype html><meta charset="utf-8"><title>世界观动作预览</title>
 <style>body{{font:14px system-ui,sans-serif;background:#f3f1ec;color:#333;margin:24px}}section{{margin:0 0 28px}}h2{{font-size:16px;margin:0 0 4px}}p{{margin:0 0 6px;color:#666}}img{{image-rendering:pixelated;border:1px solid #d8d2c6}}</style>
-<h1>世界观动作预览（第一批，待复查）</h1><p><a href='motions.html'>交互预览</a>：可选动作、旋转、缩放、调速。</p><p>每张动图从左到右：{labels}。离线渲染，使用游戏模型与动作修正资源，表情为该行为在游戏中的表情；不代表实机效果。直接双击打开，不需要服务器。</p>{rows}
+<h1>世界观动作预览（待复查）</h1><p><a href='motions.html'>交互预览</a>：可选动作、旋转、缩放、调速。</p><p>每个动作只显示适用的形态；表情按动作的表情编排切换。离线渲染，使用游戏模型与动作修正资源；孕肚、茎和新生儿由游戏另行绘制，未包含。直接双击打开，不需要服务器。</p>{body}
 """, encoding='utf-8')
     print('wrote', out/'index.html')
 

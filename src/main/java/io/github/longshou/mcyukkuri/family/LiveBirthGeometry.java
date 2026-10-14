@@ -77,6 +77,9 @@ public final class LiveBirthGeometry {
     public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,localExit(mother,index));}
     public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){
         if(!(mother.level() instanceof ServerLevel level))return false;
+        // Afloat in her own hat boat the young are born into the hat: only a free seat is needed.
+        var boat=mother.family().boatHome();
+        if(boat!=null)return boat.hasRoomForYoung();
         var position=position(mother,index);
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);

@@ -8,8 +8,9 @@ page opens from disk without a server. Writing it does not start a browser or th
   python page.py [--out art/source/motion-corrections/previews/current/lore/motions.html]
 """
 from pathlib import Path
-import argparse, base64, datetime, json, struct, sys
+import argparse, base64, datetime, io, json, struct, sys
 import numpy as np
+from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -17,15 +18,13 @@ import preview as P
 
 LIB = HERE.parents[2]
 EXTRA = {'hop': ('跳动', '玩具反应'), 'shell_retract': ('缩壳', '螺壳魔理沙受惊、受伤（仅螺壳）')}
-LABELS = {'marisa': '魔理沙', 'reimu': '灵梦', 'house_marisa': '家油魔理沙', 'marisa_bean': '豆形魔理沙',
-          'remilia': '蕾米莉亚', 'marisa_tsumuri': '螺壳魔理沙'}
 
 
 def b64(fmt, values): return base64.b64encode(struct.pack(f'<{len(values)}{fmt}', *values)).decode()
 
 
-def panel(ident, corrections, clip_names):
-    p = P.Posed(ident, corrections); m = p.model
+def panel(label, ident, mode, corrections, clip_names):
+    p = P.Posed(ident, corrections, mode == 'aquatic'); m = p.model
     # Drop triangles that idle hides (zero-scale puff and contact parts) to keep the page small.
     rest = p.frame('idle', 0)[0]
     area = np.linalg.norm(np.cross(rest[:, 1]-rest[:, 0], rest[:, 2]-rest[:, 0]), axis=1)
@@ -40,19 +39,20 @@ def panel(ident, corrections, clip_names):
     for i, b in enumerate(m['bones']):
         q = base.get(i, {})
         bones.append([b['parent']]+[round(x, 4) for x in b['pivot']+q.get('position', [0, 0, 0])+q.get('rotation', [0, 0, 0])+q.get('scale', [1, 1, 1])])
-    clips = {}
+    clips = {}; faces = {'neutral'}
     for name in clip_names:
-        if name not in p.clips: continue
+        if name not in p.clips or not P.shown(mode, name): continue
         c = p.clips[name]
-        clips[name] = dict(d=c['duration'], loop=c['loop'], tracks=[[tr['bone'], {'position': 0, 'rotation': 3, 'scale': 6}[tr['channel']],
-                                                                      [round(x, 4) for k in tr['keys'] for x in k]] for tr in c['tracks']])
+        clips[name] = dict(d=c['duration'], loop=c['loop'], faces=c.get('expression_spans', []),
+                           tracks=[[tr['bone'], {'position': 0, 'rotation': 3, 'scale': 6}[tr['channel']],
+                                    [round(x, 4) for k in tr['keys'] for x in k]] for tr in c['tracks']])
+        faces |= {f for _, _, f in c.get('expression_spans', [])} | {P.FALLBACK_FACE.get(name, 'neutral')}
     textures = {}
-    for face in sorted(set(P.FACE.values())):
-        path = P.ASSETS/'textures/entity'/ident/f'{face}.png'
-        if path.exists(): textures[face] = 'data:image/png;base64,'+base64.b64encode(path.read_bytes()).decode()
-    size = struct.unpack('>I', (P.ASSETS/'textures/entity'/ident/'neutral.png').read_bytes()[16:20])[0]
-    return dict(id=ident, label=LABELS.get(ident, ident), vertices=b64('h', packed), weights=b64('H', weights), blend=b64('B', blend),
-                bones=bones, clips=clips, textures=textures, textureSize=size, triangles=int(keep.sum()//3))
+    for face in sorted(faces):
+        buffer = io.BytesIO(); image = p.texture(face); Image.fromarray(image).save(buffer, 'PNG', optimize=True)
+        textures[face] = 'data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode()
+    return dict(id=ident, label=label, mode=mode, vertices=b64('h', packed), weights=b64('H', weights), blend=b64('B', blend),
+                bones=bones, clips=clips, textures=textures, textureSize=int(image.shape[1]), triangles=int(keep.sum()//3))
 
 
 PAGE = r'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -71,7 +71,7 @@ footer{margin-top:14px;font-size:12.5px;color:#7b6f60}input[type=range]{vertical
 </style>
 <main>
 <h1>世界观动作 · 交互预览（第一批，待复查）</h1>
-<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，表情为该行为在游戏中显示的表情。拖动画面旋转，滚轮缩放。直接双击打开，不需要服务器。</p>
+<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，只显示有这个动作的形态；表情按动作的表情编排切换。水生魔理沙坐在帽船里；“帽中幼体”是坐在母亲帽檐上的幼体。孕肚、茎和新生儿由游戏另行绘制，这里未包含。拖动画面旋转，滚轮缩放。直接双击打开，不需要服务器。</p>
 <div class="sticky">
 <div class="bar" id="actions" role="toolbar" aria-label="动作"></div>
 <div class="bar"><button type="button" id="play" aria-pressed="true">暂停</button>
@@ -96,7 +96,7 @@ const state=PANELS.map(p=>{
   for(let i=0;i<n;i++){const o=i*8;for(let k=0;k<3;k++){rest[o+k]=raw[o+k]/1024;rest[o+5+k]=raw[o+5+k]/1024;}rest[o+3]=raw[o+3]/16384;rest[o+4]=raw[o+4]/16384;}
   const fig=document.createElement('figure');fig.innerHTML=`<figcaption><span>${p.label}</span><small></small></figcaption><canvas role="img" aria-label="${p.label}"></canvas>`;grid.append(fig);
   let y0=Infinity,y1=-Infinity,r=0;for(let i=0;i<n;i++){const o=i*8;y0=Math.min(y0,rest[o+1]);y1=Math.max(y1,rest[o+1]);r=Math.max(r,Math.hypot(rest[o],rest[o+2]));}
-  return {p,rest,out:new Float32Array(rest),w:decode(p.weights,Uint16Array),q:decode(p.blend,Uint8Array),fig,canvas:fig.querySelector('canvas'),small:fig.querySelector('small'),
+  return {p,rest,out:new Float32Array(rest),w:decode(p.weights,Uint16Array),q:decode(p.blend,Uint8Array),fig,canvas:fig.querySelector('canvas'),small:fig.querySelector('small'),enabled:true,
     az:.5,el:.18,frame:{centerY:(y0+y1)/2,half:(y1-y0)/2+1.5,r:r+1},textures:{},mats:p.bones.map(()=>new Float64Array(12))};
 });
 function sample(keys,t){const n=keys.length/4;if(t<=keys[0])return [keys[1],keys[2],keys[3]];
@@ -119,19 +119,23 @@ function pose(s,name,t){
 }
 function texture(s,face){const key=s.p.textures[face]?face:'neutral';if(s.textures[key]!==undefined)return s.textures[key];s.textures[key]=null;
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=s.p.textureSize;const x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);s.textures[key]=x.getImageData(0,0,c.width,c.height).data;};img.src=s.p.textures[key];return null;}
+function faceAt(s,name,t){const clip=s.p.clips[name];if(!clip)return 'neutral';const local=clip.loop?t%clip.d:Math.min(t,clip.d);
+  for(const [a,b,f] of clip.faces)if(local>=a&&local<b)return f;return FACE[name]||'neutral';}
 function draw(s){
-  if(s.fig.hidden)return;const has=!!s.p.clips[action];s.small.textContent=has?'':'无此动作，显示待机';
-  pose(s,has?action:'idle',time);const tex=texture(s,FACE[action]||'neutral');if(!tex)return;
+  if(s.fig.hidden)return;s.small.textContent=faceAt(s,action,time);
+  pose(s,action,time);const tex=texture(s,faceAt(s,action,time));if(!tex)return;
   const c=s.canvas,w=Math.max(1,Math.round(c.clientWidth)),h=Math.max(1,Math.round(c.clientHeight));if(c.width!==w)c.width=w;if(c.height!==h)c.height=h;
   const span=Math.max(s.frame.half,s.frame.r*h/w)*1.1*100/Number($('zoom').value);
   c.getContext('2d').putImageData(new ImageData(renderModel(s.out,tex,w,h,s.az,s.el,span,{centerY:s.frame.centerY,textureSize:s.p.textureSize}),w,h),0,0);
 }
-function duration(){const r=RECIPE[action];return r?r.duration:Math.max(...state.map(s=>s.p.clips[action]?.d||0),1);}
-function info(){const r=RECIPE[action];$('info').textContent=r?`${r.label} · ${r.duration} 秒${r.loop?'循环':'单次'} · 依据：${r.lore} · 触发：${r.triggers.join('、')}`:`${EXTRA[action][0]} · 已有动作 · 触发：${EXTRA[action][1]}`;}
+function duration(){const r=RECIPE[action];return r?r.duration:Math.max(...state.map(s=>s.p.clips[action]?.d||0),.1);}
+function visible(){state.forEach(s=>{s.fig.hidden=!s.enabled||!s.p.clips[action];});}
+function info(){const r=RECIPE[action],forms=state.filter(s=>s.p.clips[action]).map(s=>s.p.label).join('、');
+  $('info').textContent=(r?`${r.label} · ${r.duration} 秒${r.loop?'循环':'单次'} · 依据：${r.lore} · 触发：${r.triggers.join('、')}`:`${EXTRA[action][0]} · 已有动作 · 触发：${EXTRA[action][1]}`)+` · 适用：${forms}`;visible();}
 const EXTRA=__EXTRA__;
 for(const name of ORDER){const b=document.createElement('button');b.type='button';b.textContent=(RECIPE[name]?.label||EXTRA[name][0]);b.dataset.action=name;
   b.onclick=()=>{action=name;time=0;document.querySelectorAll('[data-action]').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));$('time').max=duration();info();};$('actions').append(b);}
-state.forEach(s=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" checked> ${s.p.label}`;l.firstChild.onchange=e=>{s.fig.hidden=!e.target.checked;};$('models').append(l);});
+state.forEach(s=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" checked> ${s.p.label}`;l.firstChild.onchange=e=>{s.enabled=e.target.checked;visible();};$('models').append(l);});
 document.querySelector(`[data-action="${action}"]`).click();
 $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'暂停':'播放';$('play').setAttribute('aria-pressed',String(playing));};
 $('time').oninput=()=>{time=Number($('time').value);playing=false;$('play').textContent='播放';$('play').setAttribute('aria-pressed','false');};
@@ -154,13 +158,13 @@ VIEWS = [('正面', 0, .12), ('右前', .5, .18), ('右侧', 1.5707963, .05), ('
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('--out', default=str(P.OUT/'motions.html')); ap.add_argument('--models', default=','.join(P.MODELS))
+    ap.add_argument('--out', default=str(P.OUT/'motions.html'))
     a = ap.parse_args()
     recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
     corrections = json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
     order = list(recipe['clips'])+list(EXTRA)
-    panels = [panel(m, corrections, order) for m in a.models.split(',')]
-    face = dict(P.FACE, hop='happy', shell_retract='surprise')
+    panels = [panel(label, ident, mode, corrections, order) for label, ident, mode in P.PANELS]
+    face = P.FALLBACK_FACE
     buttons = ''.join(f'<button type="button" data-az="{az}" data-el="{el}">{n}</button>' for n, az, el in VIEWS)
     html = (PAGE.replace('__REVISION__', corrections['revision']).replace('__DATE__', datetime.date.today().isoformat())
             .replace('__VIEW_BUTTONS__', buttons)

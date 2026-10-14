@@ -48,10 +48,12 @@
 | 其他表现 | `puff`、`brace`、`startle`、`turn`、`hop`、`press` |
 | 部件控制 | `anatomy_mamu_extend`、`anatomy_mamu_retract`、`anatomy_peni_extend`、`anatomy_peni_retract` |
 | 世界观动作（生活） | `eat`、`shiawase`、`drink`、`sleep`、`wake` |
-| 世界观动作（社交与情绪） | `nuzzle`、`sing`、`sway`、`push`、`greet`、`tremble`、`droop`、`look_around`、`shake`、`boat_balance` |
+| 世界观动作（社交与情绪） | `nuzzle`、`sing`、`sway`、`push`、`greet`、`tremble`、`droop`、`look_around`、`shake` |
+| 世界观动作（分娩） | `brood`、`labor`、`midwife`、`postpartum`、`first_wake` |
+| 水生魔理沙帽船 | `boat_drift`、`boat_steady`、`boat_call`、`boat_brood`、`boat_labor`、`hat_cradle` |
 | 螺壳魔理沙专用 | `shell_retract`（其他形态显示待机） |
 
-世界观动作随动作修正资源下发，设计、依据与触发方式见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)。除命令外，服务器会按行为自动选择这些动作：进食、饮水、睡眠、擦脸、唱歌、听歌、相扑、寻找家人等行为各有对应动作；问候、害怕、失饰、被擦洗、玩具等短反应在空闲时播放；没有饰品时空闲即低落；乘帽船时保持平衡。螺壳魔理沙受惊时原地缩壳、不逃跑，缩壳期间受到的伤害减半。
+世界观动作随动作修正资源下发，设计、依据与触发方式见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)。除命令外，服务器会按行为自动选择这些动作：进食、饮水、睡眠、擦脸、唱歌、听歌、相扑、寻找家人等行为各有对应动作；问候、害怕、失饰、被擦洗、玩具等短反应在空闲时播放；没有饰品时空闲即低落。孕期母体安胎，胎生时随收缩用力，伴侣到前方接生，产后休息，新生儿初醒。帽船只属于水生魔理沙：漂流、稳船、向岸呼唤，在船上安胎和分娩，帽中幼体轻摇。螺壳魔理沙受惊时原地缩壳、不逃跑，缩壳期间受到的伤害减半。片段只编入适用的形态，其他形态播放待机。
 
 动作时长与循环标记取标准库原值。循环演示持续到显式 `idle`、切换或受伤；`stretch_shape`、`startle`、`turn` 为单次动作，结束后恢复 AI。伸出动作保持末帧，收回结束回到常态。两个部件互斥，默认不显示；已经收回时再次执行收回命令不会闪现伸出首帧。伸出途中执行对应收回命令，会按当前进度回拨收回时间。
 

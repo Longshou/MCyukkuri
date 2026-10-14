@@ -19,6 +19,9 @@ public final class EcologyPresentation {
             case "sing" -> YukkuriAction.SING;
             case "listen_song", "exercise_watch" -> YukkuriAction.SWAY;
             case "search_family", "wait_child" -> YukkuriAction.LOOK_AROUND;
+            case "tend_brood" -> YukkuriAction.BROOD;
+            case "labor" -> YukkuriAction.LABOR;
+            case "midwife" -> YukkuriAction.MIDWIFE;
             default -> YukkuriAction.IDLE;
         };
     }
@@ -30,6 +33,15 @@ public final class EcologyPresentation {
             default -> YukkuriAction.PUFF;
         };
     }
+    /** Aquatic Marisa in her hat boat: labor and expecting first, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
+    public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
+        if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
+        var brood = owner.family().brood();
+        if (brood != null && !brood.cancelled && !brood.complete()) return YukkuriAction.BOAT_BROOD;
+        if (behavior.equals("event_river")) return YukkuriAction.BOAT_CALL;
+        if (boat.flooding() > 0 || boat.towed() || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
+        return YukkuriAction.BOAT_DRIFT;
+    }
     /** Short body reaction to the dialogue event of showReaction, used while otherwise idle. */
     public static YukkuriAction reaction(String event) {
         return switch (event) {
@@ -38,6 +50,9 @@ public final class EcologyPresentation {
             case "lost_accessory", "family_died", "lost_parent", "cold" -> YukkuriAction.DROOP;
             case "washed" -> YukkuriAction.SHAKE;
             case "toy" -> YukkuriAction.HOP;
+            case "newborn", "hatched" -> YukkuriAction.FIRST_WAKE;
+            case "birth" -> YukkuriAction.POSTPARTUM;
+            case "returned_accessory" -> YukkuriAction.SHIAWASE;
             default -> YukkuriAction.IDLE;
         };
     }

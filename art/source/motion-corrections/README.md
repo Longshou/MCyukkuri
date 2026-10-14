@@ -1,6 +1,12 @@
 # 当前动作适配
 
-2026-10-14，第 9 版：同一资源新增 15 段[世界观动作](../../../standards/yukkuri-library/motions/variants/lore/README.md)，包括进食、しあわせー、饮水、睡眠、醒来、擦脸、唱歌、跟着摇摆、推挤、问候、发抖、低落、张望、甩水和帽船平衡，作为新的片段名合并进 19 种形态。已有片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。[交互预览](previews/current/lore/motions.html)与[离线动图](previews/current/lore/index.html)直接双击打开，[关键帧一](previews/current/lore/keyframes-1.png)、[关键帧二](previews/current/lore/keyframes-2.png)为魔理沙和灵梦。状态为待复查。第 8 版加入的魔理沙单辫跟随已随单辫动作保存。
+2026-10-14，第 9 版：同一资源新增 25 段[世界观动作](../../../standards/yukkuri-library/motions/variants/lore/README.md)，作为新的片段名合并进 19 种形态。
+
+- 日常、社交与情绪 15 段。
+- 分娩与接生 5 段。
+- 水生魔理沙的帽船 6 段。
+
+每段按种族门控，只编入适用的形态，并带表情编排。已有片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。[交互预览](previews/current/lore/motions.html)与[离线动图](previews/current/lore/index.html)直接双击打开，[问候与分娩关键帧](previews/current/lore/keyframes-greet-birth.png)、[水生帽船关键帧](previews/current/lore/keyframes-aquatic.png)。状态为待复查。第 8 版加入的魔理沙单辫跟随已随单辫动作保存。
 
 2026-10-07 追加：接入[头饰与头发位置适配](../placement-fit/README.md)后，本修订按拼接后的网格重新导出，脸颊让位和侧发外摆以新的头发、帽子为障碍。灵梦、歪脸灵梦外摆角度与压脸量和之前相同（10.75°、14°）；魔理沙、歪脸魔理沙的侧发由固定改为外摆（11.5°、14°），脸颊不再被侧发压扁；其余形态的鼓腮结果不变。检查与预览已按新导出重跑，结果见[本轮验收](reports/current/README.md)。
 

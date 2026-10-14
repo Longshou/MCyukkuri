@@ -376,7 +376,7 @@
   "badge.mcyukkuri.action.13": "巣に戻る",
   "badge.mcyukkuri.help.13": "バッジと教育が必要。帰巣には登録した巣が必要。",
   "notebook.mcyukkuri.chapter.form_entry": "%s\n%s\n\n亜種または先天的な形態の記録です。種族・形態・後天的な乗船を分けて保存します。\n外見や毛量だけで知能は決まりません。",
-  "notebook.mcyukkuri.chapter.form": "個体の形態\n\n亜種：%s\n先天形態：%s\n帽子船：%s\n乗船歴：%s\n\n帽子船は後天的な移動手段です。螺殻種へ変わることはありません。",
+  "notebook.mcyukkuri.chapter.form": "個体の形態\n\n亜種：%s\n先天形態：%s\n帽子船：%s\n乗船歴：%s\n\n帽子を船にするのは水上まりさだけです。体は水に弱いままで、螺殻種とは別の亜種です。",
   "notebook.mcyukkuri.chapter.no_boat": "現在の帽子船なし",
   "predator.mcyukkuri.control_state": "捕食指示：%s · %s",
   "predator.mcyukkuri.order.0": "性格に従う",

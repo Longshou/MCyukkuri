@@ -11,7 +11,8 @@ import java.util.UUID;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
 public final class SubspeciesLife {
-    public enum Kind { NORMAL, SHELL_MARISA, WASA_REIMU }
+    /** AQUATIC_MARISA looks like an ordinary Marisa and sails her hat as a boat (wiki aquatic_marisa; Hakkei U sprite 7899 水上まりさ用). Ordinals are saved: append only. */
+    public enum Kind { NORMAL, SHELL_MARISA, WASA_REIMU, AQUATIC_MARISA }
     public enum Congenital { NORMAL, SPARSE_HAIR, FACE_ASYMMETRY, BEAN_BODY }
     private final YukkuriEntity entity;
     private Kind kind = Kind.NORMAL;
@@ -24,7 +25,7 @@ public final class SubspeciesLife {
     private boolean deibu;
     private int deibuExposure, susceptibility=-1;
     public SubspeciesLife(YukkuriEntity entity) { this.entity = entity; }
-    public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(2, entity.subspeciesFlags() & 15)] : kind; }
+    public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(Kind.values().length-1, entity.subspeciesFlags() & 15)] : kind; }
     public Congenital congenital() { return entity.level().isClientSide ? Congenital.values()[Math.min(3, (entity.subspeciesFlags() >> 4) & 15)] : congenital; }
     public UUID boatId() { return boat; }
     public void boatId(UUID id) { boat = id; if (id != null) boatExperienced = true; }
@@ -62,7 +63,7 @@ public final class SubspeciesLife {
     }
     public boolean set(Kind value, Congenital shape) {
         if (entity.level().isClientSide) return false;
-        if (value == Kind.SHELL_MARISA && entity.getVariant() != YukkuriVariant.MARISA
+        if ((value == Kind.SHELL_MARISA || value == Kind.AQUATIC_MARISA) && entity.getVariant() != YukkuriVariant.MARISA
                 || value == Kind.WASA_REIMU && entity.getVariant() != YukkuriVariant.REIMU) return false;
         if (entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) return false;
         if (value != Kind.NORMAL && shape != Congenital.NORMAL) return false;
@@ -72,6 +73,16 @@ public final class SubspeciesLife {
     public void onNaturalSpawn(MobSpawnType reason) {
         if (initialized || reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return;
         roll(null, null);
+        // Marisa that appear by open water are often the aquatic kind [original rate].
+        if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()
+                && new java.util.Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
+            set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
+    }
+    private boolean nearOpenWater() {
+        var origin = entity.blockPosition();
+        for (var p : net.minecraft.core.BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
+            if (entity.level().getFluidState(p).is(net.minecraft.tags.FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
+        return false;
     }
     private void roll(YukkuriEntity a, YukkuriEntity b) {
         if (initialized) return;
@@ -83,6 +94,8 @@ public final class SubspeciesLife {
         var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;
         Kind selected=Kind.NORMAL;int shape=0;
         if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?4:160)==0)selected=candidate;
+        // The aquatic kind passes to half of a Marisa's young when a parent is aquatic [original rate]; shell is decided first.
+        if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&(parentA==Kind.AQUATIC_MARISA||parentB==Kind.AQUATIC_MARISA)&&random.nextInt(2)==0)selected=Kind.AQUATIC_MARISA;
         if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU||variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);
         return selected.ordinal() | shape<<4;
     }
@@ -105,10 +118,10 @@ public final class SubspeciesLife {
             if (kind == Kind.SHELL_MARISA && !speed.hasModifier(id)) speed.addTransientModifier(new AttributeModifier(id, -.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             else if (kind != Kind.SHELL_MARISA) speed.removeModifier(id);
         }
-        // Boats are acquired from an existing personal hat on a dry bank, never on falling into water.
-        if (entity.tickCount % 400 == 0 && kind == Kind.NORMAL && entity.getVariant() == YukkuriVariant.MARISA
+        // Only the aquatic Marisa launches her hat from a dry bank; never on falling into water.
+        if (entity.tickCount % 400 == 0 && kind == Kind.AQUATIC_MARISA && entity.getVariant() == YukkuriVariant.MARISA
                 && !entity.isNoAi() && entity.life().hasAccessory() && !entity.isInWaterOrBubble()
-                && entity.onGround() && !entity.isPassenger() && entity.getRandom().nextInt(8) == 0)
+                && entity.onGround() && !entity.isPassenger() && entity.getRandom().nextInt(4) == 0)
             HatBoatEntity.tryLaunchNearby(entity);
     }
     public CompoundTag save() {
@@ -121,7 +134,7 @@ public final class SubspeciesLife {
     public void load(CompoundTag tag) {
         try { kind = Kind.valueOf(tag.getString("Kind")); } catch (IllegalArgumentException ex) { kind = Kind.NORMAL; }
         try { congenital = Congenital.valueOf(tag.getString("Congenital")); } catch (IllegalArgumentException ex) { congenital = Congenital.NORMAL; }
-        if (kind == Kind.SHELL_MARISA && entity.getVariant() != YukkuriVariant.MARISA || kind == Kind.WASA_REIMU && entity.getVariant() != YukkuriVariant.REIMU) kind = Kind.NORMAL;
+        if ((kind == Kind.SHELL_MARISA || kind == Kind.AQUATIC_MARISA) && entity.getVariant() != YukkuriVariant.MARISA || kind == Kind.WASA_REIMU && entity.getVariant() != YukkuriVariant.REIMU) kind = Kind.NORMAL;
         if (kind != Kind.NORMAL || entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
         lessonAttempts = Math.max(0, tag.getInt("LessonAttempts")); lessonCooldown = Math.clamp(tag.getInt("LessonCooldown"), 0, 240);

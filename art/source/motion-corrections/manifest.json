@@ -8,15 +8,15 @@
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
   "author_sha256": "c9ac11ea2a3144924d69fbc37497197062711315b39b45675df1915f2e292872",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "10b33256c4b31690a1851a167397d03e836b03441c66ea32b73fb5b2522aa9b6",
+  "lore_recipe_sha256": "f133fbf9427c0a6c2e4ca7f750335213c11be25bc9befe96b8b24556518d1898",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "2824af3d69e71e0b27c02031f3f5ce2b5819d82ca6ac99e9b4eb10a44e6d443e",
+  "lore_author_sha256": "45f990ee5e80273ff4e68fd3ab790fa2687649c6adab341ded969ea9d427827c",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "4442b5494507f23477d21ea8ac2f40808bdc2f9344306399a8eaa6398747732a",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "a8ae24ebdbd164a6c1f16dba2e846553cc7869b6db5e649fbd305bb9ecbfbc36",
+  "runtime_sha256": "ecf284ae03d2d990b8ae4658b65edc0a64675ed3c02cef216943a24c2f663ea9",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

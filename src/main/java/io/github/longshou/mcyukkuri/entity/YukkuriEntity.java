@@ -444,13 +444,22 @@ public final class YukkuriEntity extends PathfinderMob {
                 : groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         YukkuriAction action = requestedAction != null ? requestedAction
                 : travelledX * travelledX + travelledZ * travelledZ > 0.000001 && onGround() && !life.isSleeping()
-                ? YukkuriAction.WADDLE : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity ? YukkuriAction.BOAT_BALANCE
+                ? YukkuriAction.WADDLE : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : groupInteraction.active()?io.github.longshou.mcyukkuri.social.EcologyPresentation.group(groupInteraction.activity())
                 : stationaryAction(behavior);
         String flightAnimation = requestedAction == null ? predator.animation() : null;
         if (flightAnimation != null) {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
-        } else setAnimation(action, false);
+        } else {
+            setAnimation(action, false);
+            // Labor and midwife clips follow the 48-tick contraction, a birth every cycle (LiveBirthGeometry.INTERVAL).
+            int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? liveDeliveryTicks()
+                    : action == YukkuriAction.MIDWIFE && family.midwifeTarget() != null ? family.midwifeTarget().liveDeliveryTicks() : -1;
+            if (phase >= 0) {
+                long start = level().getGameTime() - phase % 48;
+                if (getAnimationStartTick() != start) entityData.set(ANIMATION_START, start);
+            }
+        }
         setBehavior(behavior);
         entityData.set(EXPRESSION, "predator_bite".equals(flightAnimation) ? "biting" : io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,
                 reactionTicks > 0 ? reactionExpression : life.hasAccessory() ? "neutral" : "surprise"));
@@ -462,7 +471,16 @@ public final class YukkuriEntity extends PathfinderMob {
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith("house_") || predator.active() || isPassenger()) return action;
         if (reactionTicks > 0) action = io.github.longshou.mcyukkuri.social.EcologyPresentation.reaction(reactionEvent);
+        // Back ashore with her hat, the aquatic Marisa shakes off the water.
+        if (action == YukkuriAction.SHIAWASE && reactionEvent.equals("returned_accessory")
+                && subspecies.kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA) action = YukkuriAction.SHAKE;
         return action == YukkuriAction.IDLE && !life.hasAccessory() ? YukkuriAction.DROOP : action;
+    }
+    /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
+    private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
+        if (getUUID().equals(boat.ownerYukkuri()))
+            return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
+        return reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
