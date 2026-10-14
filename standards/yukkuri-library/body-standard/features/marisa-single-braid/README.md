@@ -17,18 +17,28 @@
 命令从项目根目录运行，`author.py`、`sync_inputs.py`、`export_house_runtime.py` 与 `record.py` 位于本目录。本节命令只生成静态美术和游戏数据。Pillow 与 numpy 在项目内的 `.local/venv` 中提供，不需要编译和启动游戏。
 
 1. `python author.py`：写 `components/marisa/hand-left.json`、`hand-right.json` 和 `rigs/marisa.json` 的辫梢骨骼。粗细、位置参数在脚本顶部。
-2. `python sync_inputs.py`：按方块时期的装配方式重建 `inputs/marisa`、`inputs/marisa_tsumuri` 的冻结输入及 `inputs/manifest.json`。
+2. `python sync_inputs.py`：按方块时期的装配方式重建 `inputs/marisa`、`inputs/marisa_tsumuri` 的冻结输入及 `inputs/manifest.json`。角色登记 `extra_motions` 所列的专属动作（螺壳的静止、轻摆、缩入）同时从 `motions/variants/` 重新编入；动作源未变时输出与原文件逐字节相同。
 3. `body-standard/build.py --character marisa`、`--character marisa_tsumuri`，再依次运行 `scripts/README.md` 所列圆润运行包导出。
 4. 运行稀毛与歪脸 `scripts/export_marisa_deficient_rounded.py`（先用新圆润魔理沙替换包内冻结的 donor 三个文件）和豆形 `scripts/export_bean_assets.py`。
 5. 家油依次运行 `ecology/house-yukkuri/build.py --characters-only`、`export_house_runtime.py marisa`（以 `inputs/<种族>` 为标准源调用正式导出函数，与原接入一致）、`scripts/export_house_carry_motion.py`、`scripts/export_house_face_motion.py --publish` 和 `node scripts/export_wound_surfaces.cjs --ids=house_marisa`。
 6. DOS 运行 `subspecies/reimu-dos/build.py`。
 7. 运行 `export_placement_fit.cjs`、`export_motion_corrections.py`、`export_hat_interactions.py`、`export_badges.py --mounts-only` 及束具 `drafts/operation-tools/build.py`。
-8. `python record.py`：更新 `candidate.json`。
+8. `python check_runtime_clearance.py --out runtime-clearance.json`：复核游戏动作中的辫子穿插（需要 numpy）。
+9. `python record.py`：更新 `candidate.json`。
 
 本次在 macOS 上导出。PNG 编码、浮点末位和 LF／CRLF 指纹差异已按内容核对后还原，只保留魔理沙相关变化；游戏的模型指纹检查同时接受 LF 与 CRLF。
 
 动作编排：七项辫子互动已改为单辫 v2（[互动包](../../../interactions/marisa-braids/README.md)），双辫 v1 保留为快照。家油魔理沙的夹取、搬运、放下只用辫子：两个夹取点都指向辫梢，物品跟随辫梢，短侧发留在头侧；家油灵梦仍用两束短发。
 
+## 穿插治理
+
+2026-10-14 按“可接受少量穿模，但尽量调整得更自然”处理，状态待复查。
+
+- 游戏动作：摇摆、撑住、压低和侧弯类动作由动作修正第8版的辫子跟随处理（[说明](../../../motions/variants/contact-safe/README.md#魔理沙单辫跟随)）。螺壳缩入时两侧头发改为后仰并略向外张开，不再内收穿过压扁的身体。
+- 复核：`check_runtime_clearance.py` 按游戏的两骨骼权重摆出六种运行模型，叠加已发布的动作修正，以 10 Hz 采样每个动作，测量辫子与短侧发比静止时多进入身体皮肤的深度和低于地面的距离，结果写入 [runtime-clearance.json](runtime-clearance.json)。DOS 魔理沙不在游戏运行包中，未复核。
+- 结果（单位为模型像素，1 格 = 16）：螺壳缩入从辫子 1.19、短侧发 1.02 降至 0；家油搬运 0.085、放下 0.054，其余动作均不超过 0.04，没有低于地面。静止时贴住皮肤的深度作为基线扣除。
+- 七项互动：辫身避开帽檐、子油绕行后，最大残留为辫子扫过帽檐下沿时约 0.41，按可接受的轻擦保留；详见[互动包](../../../interactions/marisa-braids/README.md#穿插)。
+
 ## 未完成
 
-- 本机未执行 GameTest 和实机查看；运行模型的验收状态已标为待复查。动作仅做了离线数值检查和关键帧渲染。
+- 本机未执行 GameTest 和实机查看；运行模型的验收状态已标为待复查。动作仅做了离线数值检查和关键帧渲染，穿插数值不代替游戏内观察。

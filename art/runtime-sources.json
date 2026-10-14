@@ -212,7 +212,7 @@
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1,
+        "runtime_scale_normalization": 1.0,
         "missing_actions_filled_from": "marisa"
       },
       "shape_status": "selected_rounded_standard",
@@ -1608,14 +1608,14 @@
       "geometry_identifier": "marisa_tsumuri",
       "base_species": "marisa",
       "selected_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-      "selected_model_sha256": "c09860e0d9d387ad84ea84715509eec79e2fbebcb1f5b2907c9c10ac7be1e372",
+      "selected_model_sha256": "816dc612d3db5548e8022e31f76db5d4e6b95b4871c913590c2c47bd6756b989",
       "selected_rig": "standards/yukkuri-library/assembled/marisa_tsumuri/animation-rig.json",
-      "selected_rig_sha256": "2373ed679a99aa56f7499abed8a112619b3fccd143ebad879be783630c5e9aa4",
-      "selected_runtime_sha256": "ce7362046096032ca04f88a3fc179db95f3e6012fe14f29420a98a661b54f3d3",
+      "selected_rig_sha256": "cdecea3836918f1a431d86dd9cf62718d20e3628417c4fdcbf8bd0c10216b091",
+      "selected_runtime_sha256": "35d7d86ced7d8dc97c05b10d3b6ffb621b4f8e8e0d07770627258d41ac6581e8",
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1,
+        "runtime_scale_normalization": 1.0,
         "missing_actions_filled_from": "marisa",
         "shell_motion": "slow walk and five-degree whole-body side lean"
       },
@@ -1623,7 +1623,7 @@
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "705f678556663aeb6dd56dbcd8a28ef6bc5afe048f3b4345e3ceed0fef952f05",
+      "runtime_sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
       "rig": "art/source/rounded-runtime/marisa_tsumuri/animation-rig.json",
       "bone_count": 265,
       "clips": [

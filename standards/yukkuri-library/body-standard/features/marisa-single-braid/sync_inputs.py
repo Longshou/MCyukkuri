@@ -53,6 +53,15 @@ def sync(name):
     rig = read(f'{out}/animation-rig.json'); old_elements = read(f'{out}/{name}.bbmodel')['elements']
     rig['bones'], rig['groups'] = bones, groups
     for clip in rig['clips'].values(): clip['tracks'] = {n: t for n, t in clip['tracks'].items() if n in names}
+    # Character-only motions are compiled straight from their variant sources, as the
+    # cube-era build.py did, so edits to e.g. the tsumuri shell motions reach the inputs.
+    hidden = read(c['rig'])['default_hidden']; extra = {}
+    for cid, ref in c.get('extra_motions', {}).items():
+        clip = read(ref); clip['tracks'] = {n: t for n, t in clip['tracks'].items() if n in names}
+        for n in ['puff_eye_left', 'puff_eye_right', 'puff_mouth']:
+            if n in names: clip['tracks'][n] = {'scale': {'0': [.000001]*3}}
+        for n in hidden: clip['tracks'].setdefault(n, {}).setdefault('scale', {'0': [.000001]*3})
+        rig['clips'][cid] = extra[cid] = clip
 
     bb = read(f'{out}/{name}.bbmodel')
     nodes = {b['name']: dict(name=b['name'], uuid=uid('bone/'+b['name']), origin=b['pivot'], children=[]) for b in bones}
@@ -65,6 +74,21 @@ def sync(name):
 
     anim = read(f'{out}/{name}.animation.json')
     for a in anim['animations'].values(): a['bones'] = {n: v for n, v in a['bones'].items() if n in names}
+    for cid, clip in extra.items():
+        animators, channels = {}, {}
+        for n, chs in clip['tracks'].items():
+            kfs = []; channels[n] = {}
+            for ch, keys in chs.items():
+                channels[n][ch] = {}
+                for t, v in keys.items():
+                    val = [-v[0], -v[1], v[2]] if ch == 'rotation' else [-v[0], v[1], v[2]] if ch == 'position' else v
+                    channels[n][ch][t] = val
+                    kfs.append(dict(channel=ch, time=float(t), interpolation='linear', data_points=[dict(zip('xyz', [format(x, '.8f') for x in val]))], uuid=uid(cid+n+ch+t)))
+            animators[uid('bone/'+n)] = dict(name=n, type='bone', keyframes=kfs)
+        an = 'animation.'+name+'.'+cid
+        entry = dict(name=an, uuid=uid(an), loop='loop' if clip['loop'] else 'once', length=clip['duration'], snapping=100, animators=animators)
+        bb['animations'] = [entry if a['name'] == an else a for a in bb['animations']]
+        anim['animations'][an] = dict(loop=clip['loop'], animation_length=clip['duration'], bones=channels)
 
     geo = read(f'{out}/{name}.geo.json'); geo_bones = []
     for b in bones:

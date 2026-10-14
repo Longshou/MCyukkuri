@@ -1,0 +1,193 @@
+{
+  "pick_stone": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0,
+      "at": null
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "swing_sword": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0,
+      "at": null
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "pull_grass": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0,
+      "at": null
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "remove_hat": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0.406,
+      "at": [
+        8.3,
+        "braid_lock_lobe_2",
+        "brim_center"
+      ]
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "care_hat": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0.406,
+      "at": [
+        18.7,
+        "braid_lock_lobe_2",
+        "brim_center"
+      ]
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "wave_goodbye": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0.408,
+      "at": [
+        2.1,
+        "braid_lock_lobe_0",
+        "brim_center"
+      ]
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  },
+  "lift_child": {
+    "braid_body": {
+      "depth": 0.012,
+      "at": [
+        0.0,
+        "braid_lock_lobe_4"
+      ]
+    },
+    "braid_hat": {
+      "depth": 0.406,
+      "at": [
+        5.2,
+        "braid_lock_lobe_0",
+        "brim_center"
+      ]
+    },
+    "hat_head": {
+      "depth": 0,
+      "at": null
+    },
+    "child": {
+      "depth": 0,
+      "at": null
+    },
+    "prop_body": {
+      "depth": 0,
+      "at": null
+    }
+  }
+}

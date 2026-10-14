@@ -65,6 +65,7 @@ brim_lo,brim_hi=bounds(lambda n:n=='brim_center'); front_lo,front_hi=bounds(lamb
 band_hat_lo,band_hat_hi=bounds(lambda n:n=='hat_band'); knot_lo,knot_hi=bounds(lambda n:n=='bow_knot')
 HAT_BOTTOM=bounds(lambda n:n.startswith('brim_'))[0][1]; HAT_TOP=brim_hi[1]
 HAT_CENTER=[0,HAT_TOP,(brim_lo[2]+brim_hi[2])/2]; HAT_PIVOT=[0,HAT_TOP,-3]
+BRIM_RECTS=[(lo[0],hi[0],lo[2],hi[2]) for lo,hi in (bounds(lambda n,m=m:n==m) for m in ('brim_center','brim_sides','brim_front','brim_back'))]
 GRIP_LOCAL=[front_hi[0]*.70,(front_lo[1]+front_hi[1])/2,(front_lo[2]+front_hi[2])/2]
 GROUND_GRIP_Y=GRIP_LOCAL[1]-HAT_BOTTOM+.03
 S=[1.08,1.1,1.05]  # v1 prop paths were authored on the pre-rounded body
@@ -125,8 +126,9 @@ bone('grass_root',(0,0,0),'grass');box('grass_roots',[-.5,-.94,-.44],[.5,-.55,.4
 for i in range(5):
     bone(f'dirt_{i}');box(f'dirt_{i}',[-.13]*3,[.13]*3,9,f'dirt_{i}')
 # Dust flecks sit on the front of the hat band and travel with the hat.
+bow_right=bounds(lambda n:n.startswith('bow_'))[1][0]
 for i in range(4):
-    x=-3.4+i*1.9;y=band_hat_lo[1]+.3+.25*(i%2);z=band_hat_lo[2]-.02
+    x=bow_right+.5+i*(band_hat_hi[0]-bow_right-1)/3;y=band_hat_lo[1]+.3+.25*(i%2);z=band_hat_lo[2]-.02
     bone(f'hat_dust_{i}',[x,y,z],'hat');box(f'hat_dust_{i}',[x-.26,y-.12,z-.05],[x+.26,y+.12,z+.02],9,f'hat_dust_{i}')
 bone('child')
 for e,g in source:
@@ -136,15 +138,50 @@ bone('floor');box('ground',[-18,-.23,-22],[18,-.05,13],11,'floor')
 for i in range(6):
     box(f'ground_line_{i}',[-16+i*6.4,-.049,-22],[-15.98+i*6.4,-.04,13],12,'floor')
 
-def reach(target):
-    """Taut braid with a shallow outward bow; it stretches axially, never loops."""
+def brim_depth(local,margin=.25):
+    """Depth of a hat-local point inside the brim slab grown by `margin` (negative outside)."""
+    vertical=min(local[1]-(HAT_BOTTOM-margin),HAT_TOP+margin-local[1])
+    across=max(min(local[0]-x0+margin,x1+margin-local[0],local[2]-z0+margin,z1+margin-local[2]) for x0,x1,z0,z1 in BRIM_RECTS)
+    return min(vertical,across)
+
+def brim_detour(start,target,hat):
+    """Control point that leads the braid out under the brim edge before it rises.
+
+    Weighted by how deep the straight path would cut into the worn brim, so the path
+    bends in continuously instead of switching between frames."""
+    pos,rot=hat;inverse=lambda p:add(rotate(sub(sub(p,pos),HAT_PIVOT),[0,-rot[1],0]),HAT_PIVOT)
+    line=[inverse(mix(start,target,i/40)) for i in range(41)]
+    depth,q=max((brim_depth(p),p) for p in line)
+    # No detour while the tip holds the brim itself; it fades in as the tip moves away.
+    weight=smooth(depth/.6)*smooth((-brim_depth(line[-1],0)-.2)/.8)
+    if weight<=0:return None
+    d=[q[0]-HAT_CENTER[0],q[2]-HAT_CENTER[2]];n=math.hypot(*d) or 1;d=[d[0]/n,d[1]/n]
+    r=0
+    while brim_depth([HAT_CENTER[0]+d[0]*r,(HAT_BOTTOM+HAT_TOP)/2,HAT_CENTER[2]+d[1]*r],0)>0:r+=.1
+    r+=1.2;local=[HAT_CENTER[0]+d[0]*r,HAT_BOTTOM-.5,HAT_CENTER[2]+d[1]*r]
+    return mix(mix(start,target,.5),hat_point(local,pos,rot),weight)
+
+def reach(target,hat=None):
+    """Taut braid with a shallow outward bow; it stretches axially, never loops.
+
+    `hat` is the pose of a worn hat to pass around: the braid then curves out
+    under the brim edge (a quadratic path, spaced by arc length)."""
     # When reaching inward in front of the face, the root slides forward along the
     # side hair and the braid narrows slightly, so it does not cut into the cheek.
-    clearance=smooth((AXIS_X-target[0]-.3)/2)*smooth((AXIS_Z-target[2]-.5)/2)
+    clearance=smooth((AXIS_X-target[0]-.3)/4)*smooth((AXIS_Z-target[2]-.5)/4)
     start=add(ROOT,[.2*clearance,0,-2.6*clearance])
     dist=length(sub(target,start));width=1-.1*clearance
     bow=min(.09,dist*.0125)*smooth(length(sub(target,REST_END))/2)
-    def at(u):return add(mix(start,target,u),[bow*4*u*(1-u),0,0])
+    via=brim_detour(start,target,hat) if hat else None
+    if via is None:
+        def at(u):return add(mix(start,target,u),[bow*4*u*(1-u),0,0])
+    else:
+        bezier=lambda s:add(add(mul(start,(1-s)**2),mul(via,2*s*(1-s))),mul(target,s*s))
+        table=[bezier(i/64) for i in range(65)];acc=[0]
+        for a,b in zip(table,table[1:]):acc.append(acc[-1]+length(sub(b,a)))
+        def at(u):
+            goal=u*acc[-1];k=next((i for i in range(1,65) if acc[i]>=goal),64)
+            f=(goal-acc[k-1])/max(acc[k]-acc[k-1],1e-9);return mix(table[k-1],table[k],f)
     result={}
     for i in range(SEGMENTS):
         a,b=at(i*SEG/LENGTH),at((i+1)*SEG/LENGTH)
@@ -162,6 +199,9 @@ def reach_blend(target,weight):
     angle=math.acos(max(-1,min(1,-direction[1])))
     if angle<1e-6:return mix(REST_END,target,weight)
     axis=[direction[0],0,direction[2]];axis=mul(axis,1/max(length(axis),1e-8))
+    # Leave and return by the outside: the azimuth starts outward (+X) and turns toward
+    # the target while the braid rises, so the sweep clears the cheek.
+    axis=mix([1,0,0],axis,weight);axis=mul(axis,1/max(length(axis),1e-8))
     heading=add(mul([0,-1,0],math.cos(angle*weight)),mul(axis,math.sin(angle*weight)))
     return add(ROOT,mul(heading,LENGTH*(1-weight)+distance*weight))
 
@@ -179,8 +219,11 @@ CARE_GROUND=[6.9,GROUND_GRIP_Y,-8.8]
 CARE_GRIP=[(0,GRIP_LOCAL),(1.7,GRIP_LOCAL),(2.8,add(GRIP_LOCAL,[.4,3.0,-1.6])),(4.6,CARE_HIGH),(7.4,CARE_HIGH),(8.6,CARE_GROUND),
            (12.2,CARE_GROUND),(13.2,CARE_HIGH),(15.6,CARE_HIGH),(16.6,G_UP),(17.6,G_UP),(18.6,GRIP_LOCAL)]
 CARE_TURN=[(0,[0,0,0]),(4.6,[0,0,0]),(7.4,[0,-180,0]),(13.2,[0,-180,0]),(15.6,[0,0,0])]
-WIPE=[[-3.6,(band_hat_lo[1]+band_hat_hi[1])/2,band_hat_lo[2]-.12],[3.6,(band_hat_lo[1]+band_hat_hi[1])/2,band_hat_lo[2]-.12]]
-KNOT=[(knot_lo[0]+knot_hi[0])/2,(knot_lo[1]+knot_hi[1])/2,knot_lo[2]-.12]
+# The tuft touches the band and knot from outside; the tip itself is about 1 unit thick.
+# The bow covers most of the band front; wipe the exposed band beside it.
+bow_lo,bow_hi=bounds(lambda n:n.startswith('bow_'))
+WIPE=[[bow_hi[0]+.9,(band_hat_lo[1]+band_hat_hi[1])/2,band_hat_lo[2]-.75],[band_hat_hi[0]-.6,(band_hat_lo[1]+band_hat_hi[1])/2,band_hat_lo[2]-.75]]
+KNOT=[(knot_lo[0]+knot_hi[0])/2,(knot_lo[1]+knot_hi[1])/2,knot_lo[2]-.7]
 
 def hat_pose(action,t):
     keys,turn=(REMOVE_GRIP,REMOVE_TURN) if action=='remove_hat' else (CARE_GRIP,CARE_TURN)
@@ -210,7 +253,7 @@ def ordinary_state(action,t):
     elif action=='remove_hat':
         pos,rot=hat_pose(action,t);o['hat']={'position':pos,'rotation':rot}
         end=recipes['actions'][action]['release_time']
-        target=reach_blend(hat_point(GRIP_LOCAL,pos,rot),smooth((t-.4)/1.3)*(1-smooth((t-end)/1.0)))
+        target=reach_blend(hat_point(GRIP_LOCAL,pos,rot),smooth((t-.25)/1.45)*(1-smooth((t-end)/1.8)))
         contact='hat' if 1.7<=t<=end else None
     elif action=='care_hat':
         pos,rot=hat_pose(action,t);o['hat']={'position':pos,'rotation':rot}
@@ -220,7 +263,7 @@ def ordinary_state(action,t):
         wipe=curve([(8.6,GRIP_LOCAL),(9.3,WIPE[0]),(9.9,WIPE[1]),(10.3,WIPE[0]),(10.6,WIPE[1]),(11.2,KNOT),(11.8,KNOT),(12.2,GRIP_LOCAL)],t) if 8.6<t<12.2 else GRIP_LOCAL
         work=hat_point(wipe,pos,rot) if 8.6<t<12.2 else grip
         end=recipes['actions'][action]['release_time']
-        target=reach_blend(work,smooth((t-.4)/1.3)*(1-smooth((t-end)/1.0)))
+        target=reach_blend(work,smooth((t-.25)/1.45)*(1-smooth((t-end)/1.8)))
         contact='hat' if 1.7<=t<=8.6 or 12.2<=t<=end else 'wipe' if t<12.2 and t>8.6 else None
         coil=1 if contact=='hat' else .000001
         o['floor']={'scale':[1,1,1],'position':[0,0,0]}
@@ -233,9 +276,13 @@ def ordinary_state(action,t):
     elif action=='wave_goodbye':
         # Raise and lower by sweeping about the root; a straight path from the hanging
         # tip would pass the root and flip the braid within a frame.
-        wave=curve([(1.4,scaled([11.2,10,-3.5])),(1.8,scaled([9.7,12,-3.5])),(2.2,scaled([12,10,-3.5])),(2.6,scaled([9.7,12,-3.5])),(3,scaled([12,10,-3.5])),(3.4,scaled([9.7,12,-3.5])),(3.8,scaled([11.2,10,-3.5]))],t)
+        # Wave outside the brim edge, so the braid never stands straight up.
+        low,high=[13.6,10.9,-3.7],[12.4,12.6,-3.7]
+        wave=curve([(1.4,[13.0,10.9,-3.7]),(1.8,high),(2.2,low),(2.6,high),(3,low),(3.4,high),(3.8,[13.0,10.9,-3.7])],t)
         target=reach_blend(wave,smooth((t-.6)/.8)*(1-smooth((t-3.8)/1.0)))
-    o.update(reach(target))
+    # A worn or resting hat that the braid is not holding is passed around, not through.
+    worn=hat_pose(action,t) if action in ('remove_hat','care_hat') else ([0,0,0],[0,0,0])
+    o.update(reach(target,None if contact=='hat' else worn))
     o['coil']={'scale':[1 if contact and coil==1 else .000001]*3}
     if action=='wave_goodbye':
         nod=smooth((t-3.8)/.25)*(1-smooth((t-4.15)/.35))
@@ -246,16 +293,17 @@ def ordinary_state(action,t):
 # lifts it over the brim and sets it on the extended front brim. The target override
 # below is shared by exports and preview, so scrubbing cannot detach the child.
 SHELF_Y=front_hi[1]+.16
-CHILD=[(0,[5.4,0,-9.6]),(2,[5.4,0,-9.6]),(3.8,[5.6,6.4,-9.9]),(5.1,[3.8,SHELF_Y+1.6,-8.6]),(6.2,[3.4,SHELF_Y,-8.1])]
+# Rise in front of the brim, clear its top, then settle onto the brim as it extends.
+CHILD=[(0,[5.4,0,-9.6]),(2,[5.4,0,-9.6]),(3.6,[5.8,6.6,-11.2]),(4.6,[4.6,SHELF_Y+1.9,-10.8]),(5.6,[3.6,SHELF_Y+.35,-8.6]),(6.2,[3.4,SHELF_Y,-8.1])]
 def state(action,t):
     if action!='lift_child':return ordinary_state(action,t)
     o,meta=ordinary_state('wave_goodbye',0)
     p=curve(CHILD,t);s=recipes['child_scale']
-    shelf=smooth((t-3.5)/1.5)
+    shelf=smooth((t-4.5)/.9)
     o['hat_front']={'scale':[1,1,1+3.65*shelf],'position':[0,.16*shelf,0]}
     o['child']={'position':p,'scale':[s]*3}
-    hold=add(p,[0,1.45,0]);w=smooth((t-.5)/1.5)*(1-smooth((t-6.2)/1))
-    target=reach_blend(hold,w);o.update(reach(target));meta.update(target=target,contact='child' if 2<=t<=6.2 else None)
+    hold=add(p,[0,1.45,0]);w=smooth((t-.5)/1.5)*(1-smooth((t-6.2)/2.0))
+    target=reach_blend(hold,w);o.update(reach(target,([0,0,0],[0,0,0])));meta.update(target=target,contact='child' if 2<=t<=6.2 else None)
     o['coil']={'scale':[1.7]*3 if 2<=t<=6.2 else [.000001]*3}
     return o,meta
 

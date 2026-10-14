@@ -125,12 +125,12 @@
         "1.5": [
           -20,
           0,
-          12
+          -6
         ],
         "3.5": [
           -20,
           0,
-          12
+          -6
         ],
         "5.5": [
           0,
@@ -154,12 +154,12 @@
         "1.5": [
           -20,
           0,
-          -12
+          6
         ],
         "3.5": [
           -20,
           0,
-          -12
+          6
         ],
         "5.5": [
           0,
@@ -176,5 +176,6 @@
   },
   "id": "shell_retract",
   "label": "缩入 / 探出",
-  "kind": "variant"
+  "kind": "variant",
+  "note": "Side hair tilts back and splays slightly outward while the body withdraws: the single braid is long and thick, so turning it inward would push it through the compressed body."
 }

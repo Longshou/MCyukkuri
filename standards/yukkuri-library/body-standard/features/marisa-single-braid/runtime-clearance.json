@@ -1,0 +1,1408 @@
+{
+  "marisa": {
+    "rest_contact": {
+      "braid": 0.013,
+      "loose": 0.0
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.13,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.13,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 7.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  },
+  "marisa_tsumuri": {
+    "rest_contact": {
+      "braid": 0.013,
+      "loose": 0.0
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "still": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shell_sway": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "shell_retract": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.23,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.23,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 7.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  },
+  "marisa_sparse": {
+    "rest_contact": {
+      "braid": 0.1,
+      "loose": 0.051
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.016,
+          "at": 0.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.01,
+          "at": 0.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.002,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 1.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.003,
+          "at": 1.01,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 1.11,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.002,
+          "at": 3.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 4.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.005,
+          "at": 9.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  },
+  "marisa_face": {
+    "rest_contact": {
+      "braid": 0.013,
+      "loose": 0.0
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.03,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 1.03,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 4.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 7.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  },
+  "marisa_bean": {
+    "rest_contact": {
+      "braid": 0.223,
+      "loose": 0.165
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.15,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 1.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.001,
+          "at": 0.8,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.01,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.008,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.6,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.001,
+          "at": 0.6,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 2.15,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.004,
+          "at": 3.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 3.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.01,
+          "at": 7.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.008,
+          "at": 9.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  },
+  "house_marisa": {
+    "rest_contact": {
+      "braid": 0.139,
+      "loose": 0.0
+    },
+    "clips": {
+      "idle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch_shape": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "side_bend": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "waddle": {
+        "braid": {
+          "extra_depth": 0.017,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.037,
+          "at": 0.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "puff": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "brace": {
+        "braid": {
+          "extra_depth": 0.039,
+          "at": 1.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.04,
+          "at": 1.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "startle": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.5,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "turn": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.4,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "hop": {
+        "braid": {
+          "extra_depth": 0.007,
+          "at": 0.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "stretch": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_vertical": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "exercise_sides": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 2.26,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "press": {
+        "braid": {
+          "extra_depth": 0.039,
+          "at": 1.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.04,
+          "at": 3.9,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "taiso": {
+        "braid": {
+          "extra_depth": 0.007,
+          "at": 9.7,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "flee": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 5.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "house_pickup": {
+        "braid": {
+          "extra_depth": 0.085,
+          "at": 0.3,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 1.1,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "house_carry": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "house_deposit": {
+        "braid": {
+          "extra_depth": 0.054,
+          "at": 1.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.003,
+          "at": 0.2,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      },
+      "house_crawl": {
+        "braid": {
+          "extra_depth": 0.0,
+          "at": 0.6,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        },
+        "loose": {
+          "extra_depth": 0.0,
+          "at": 0.0,
+          "below_floor": 0.0,
+          "floor_at": 0.0
+        }
+      }
+    }
+  }
+}

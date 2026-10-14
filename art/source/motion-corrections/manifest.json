@@ -4,15 +4,15 @@
   "runtime_morph_geometry_modified": true,
   "geometry_note": "Base selected models and their fingerprints are unchanged; the refined puff skin, blush carriers, side-lock swing and mouth patch live in the motion resource.",
   "recipe": "standards/yukkuri-library/motions/variants/contact-safe/recipe.json",
-  "recipe_sha256": "755e3d21188801228209b59959a12ad022b7617296b6122f32c5cd9ff253d33b",
+  "recipe_sha256": "3d7ceccc9654a146f5a60bb3eb7e410f85ece8968a00ee1d9811e372a35cbfd2",
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
-  "author_sha256": "ee16d6ca5bcafe515dc3503e303f440eb6947fe2ff6e131ba80ebe401cd1177c",
+  "author_sha256": "a4223bd8f4f9c4a44801281828e7f03e416f6623f5a58a8096c4e3f27c46f011",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6bee6f1f7dceee03886f9cdf238900eddf0e928aaff7153122ad3825a796ddb2",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "9fa8cbc57c0df764eefbd4fd661a8bb547bc523b06861ee903246e21f2d62f3c",
+  "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "c3f611f9e84560cbacb02c4473670b8fd219795f21797d7379026bb1f9c45654",
+  "runtime_sha256": "0c31ba50be74385331c1322792916a88755ba54d7ba5509c4cfc21a3b69a2ca5",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -312,7 +312,7 @@
     },
     "marisa_tsumuri": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "sha256": "705f678556663aeb6dd56dbcd8a28ef6bc5afe048f3b4345e3ceed0fef952f05",
+      "sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/neutral.png",
