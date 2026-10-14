@@ -95,9 +95,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 behavior = "house_crawl";
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
-            if (behavior.equals("sleep_enter")) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
-            else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
-            else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
+            // Models with the world-setting sleep clips breathe and wake in the clip itself.
+            if (!model.hasClip("sleep")) {
+                if (behavior.equals("sleep_enter")) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
+                else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
+                else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
+            }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
@@ -150,6 +153,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);
         float wave=(float)Math.sin(phaseTicks*Math.PI/20);
+        // The nuzzle, sing and sway clips carry the rubbing and swaying; only the approach stays here.
+        if(YukkuriModel.get(entity.subspecies().assetId()).hasClip(entity.getAnimationId())&&!contact.equals("RUB"))wave=0;
         if(!operated&&behavior.equals("nuzzle")||contact.equals("RUB")) {
             float lean=0;
             if(behavior.equals("nuzzle")&&entity.level().getEntity(entity.nuzzlePartnerId()) instanceof YukkuriEntity peer

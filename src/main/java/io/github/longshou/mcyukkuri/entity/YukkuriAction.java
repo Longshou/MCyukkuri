@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import java.util.Arrays;
 import java.util.Optional;
 
-/** Durations from the selected standard animation-rig.json, at 20 game ticks/second. */
+/** Durations from the selected standard animation-rig.json and the lore recipe, at 20 game ticks/second. */
 public enum YukkuriAction {
     IDLE("idle", 1.0, true),
     STRETCH_SHAPE("stretch_shape", 1.0, false),
@@ -23,7 +23,25 @@ public enum YukkuriAction {
     ANATOMY_MAMU_EXTEND("anatomy_mamu_extend", 0.24, false),
     ANATOMY_MAMU_RETRACT("anatomy_mamu_retract", 0.65, false),
     ANATOMY_PENI_EXTEND("anatomy_peni_extend", 0.24, false),
-    ANATOMY_PENI_RETRACT("anatomy_peni_retract", 0.65, false);
+    ANATOMY_PENI_RETRACT("anatomy_peni_retract", 0.65, false),
+    // World-setting motions from motions/variants/lore/recipe.json, shipped in the motion corrections.
+    EAT("eat", 1.2, true),
+    SHIAWASE("shiawase", 2.0, false),
+    DRINK("drink", 1.6, true),
+    SLEEP("sleep", 4.0, true),
+    WAKE("wake", 1.6, false),
+    NUZZLE("nuzzle", 0.8, true),
+    SING("sing", 2.0, true),
+    SWAY("sway", 2.4, true),
+    PUSH("push", 1.2, true),
+    GREET("greet", 1.4, false),
+    TREMBLE("tremble", 0.5, true),
+    DROOP("droop", 4.0, true),
+    LOOK_AROUND("look_around", 4.0, true),
+    SHAKE("shake", 1.2, false),
+    BOAT_BALANCE("boat_balance", 3.0, true),
+    /** Shell Marisa only; other models fall back to idle. */
+    SHELL_RETRACT("shell_retract", 6.0, true);
 
     private final String id;
     private final double duration;

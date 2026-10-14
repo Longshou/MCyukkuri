@@ -125,6 +125,8 @@ public final class YukkuriModel {
         }
     }
     private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
+    /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
+    public boolean hasClip(String name) { return clips.containsKey(name); }
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
         float depth=0;

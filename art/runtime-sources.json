@@ -3635,9 +3635,11 @@
   "motion_corrections": {
     "manifest": "art/source/motion-corrections/manifest.json",
     "source": "standards/yukkuri-library/motions/variants/contact-safe",
+    "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "contact-safe-20261007-v7",
+    "revision": "contact-safe-20261014-v9",
+    "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
     "models": [

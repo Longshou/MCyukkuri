@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-14T06:17:02+00:00",
+  "created_at": "2026-10-14T06:59:41+00:00",
   "status": "pending_confirmation",
   "scope": [
     "Marisa side hair: one thick braid on her own left (+X, hand_right), a short loose lock on the right (-X, hand_left)",
@@ -102,11 +102,11 @@
     "house_carry": "both grip points on the braid tip",
     "interactions": "interactions/marisa-braids v2",
     "sources": {
-      "standards/yukkuri-library/motions/variants/contact-safe/recipe.json": "3d7ceccc9654a146f5a60bb3eb7e410f85ece8968a00ee1d9811e372a35cbfd2",
-      "standards/yukkuri-library/motions/variants/contact-safe/author.py": "a4223bd8f4f9c4a44801281828e7f03e416f6623f5a58a8096c4e3f27c46f011",
+      "standards/yukkuri-library/motions/variants/contact-safe/recipe.json": "3dea4eb7da86a3de0a5aceae6f261bd0adf9aa8eeb1b4e385e1ec4b2dc4b829e",
+      "standards/yukkuri-library/motions/variants/contact-safe/author.py": "c9ac11ea2a3144924d69fbc37497197062711315b39b45675df1915f2e292872",
       "standards/yukkuri-library/motions/variants/marisa-tsumuri/shell_retract.json": "71887902e5252520a10633b0a1f0fcce39388651f4150d1fb8f232a8e2161e0e",
       "scripts/runtime_house_interactions.py": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "0c31ba50be74385331c1322792916a88755ba54d7ba5509c4cfc21a3b69a2ca5"
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "a8ae24ebdbd164a6c1f16dba2e846553cc7869b6db5e649fbd305bb9ecbfbc36"
     }
   },
   "game_acceptance": "not_performed"

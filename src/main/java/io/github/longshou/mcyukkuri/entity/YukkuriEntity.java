@@ -110,6 +110,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final SpeechTiming speechTiming = new SpeechTiming();
     private final net.minecraft.util.RandomSource speechRandom = net.minecraft.util.RandomSource.create();
     private String reactionExpression = "neutral";
+    private String reactionEvent = "";
 
     public YukkuriEntity(EntityType<? extends YukkuriEntity> type, Level level, YukkuriVariant variant) {
         super(type, level);
@@ -427,28 +428,60 @@ public final class YukkuriEntity extends PathfinderMob {
             life.interrupt(); social.stop();
         }
         if (panicTicks > 0) {
-            setAnimation(panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
+            boolean shell = shellRetracts();
+            if (shell) { if (!getAnimationId().equals(YukkuriAction.SHELL_RETRACT.id())) withdrawIntoShell(); }
+            else setAnimation(panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
             panicTicks--;
             entityData.set(EXPRESSION, "surprise");
-            setBehavior(isInWaterOrBubble() ? "escape_water" : "flee");
+            setBehavior(isInWaterOrBubble() ? "escape_water" : shell ? "shell_retract" : "flee");
             return;
         }
         if (requestedAction != null && !requestedAction.loops() && !requestedAction.holdsEndPose()
                 && level().getGameTime() - getAnimationStartTick() >= requestedAction.durationTicks()) {
             requestedAction = null;
         }
+        String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
+                : groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         YukkuriAction action = requestedAction != null ? requestedAction
                 : travelledX * travelledX + travelledZ * travelledZ > 0.000001 && onGround() && !life.isSleeping()
-                ? YukkuriAction.WADDLE : groupInteraction.active()?YukkuriAction.PUFF
-                : io.github.longshou.mcyukkuri.social.EcologyPresentation.action(!life.activity().equals("idle") ? life.activity() : dailyLife.activity());
+                ? YukkuriAction.WADDLE : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity ? YukkuriAction.BOAT_BALANCE
+                : groupInteraction.active()?io.github.longshou.mcyukkuri.social.EcologyPresentation.group(groupInteraction.activity())
+                : stationaryAction(behavior);
         String flightAnimation = requestedAction == null ? predator.animation() : null;
         if (flightAnimation != null) {
             if (!getAnimationId().equals(flightAnimation)) { entityData.set(ANIMATION, flightAnimation); entityData.set(ANIMATION_START, level().getGameTime()); }
         } else setAnimation(action, false);
-        setBehavior(predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity());
+        setBehavior(behavior);
         entityData.set(EXPRESSION, "predator_bite".equals(flightAnimation) ? "biting" : io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,
                 reactionTicks > 0 ? reactionExpression : life.hasAccessory() ? "neutral" : "surprise"));
+    }
+
+    /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
+    private YukkuriAction stationaryAction(String behavior) {
+        YukkuriAction action = io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
+        // House behaviors and predator hunts own their body clips on the client.
+        if (action != YukkuriAction.IDLE || behavior.startsWith("house_") || predator.active() || isPassenger()) return action;
+        if (reactionTicks > 0) action = io.github.longshou.mcyukkuri.social.EcologyPresentation.reaction(reactionEvent);
+        return action == YukkuriAction.IDLE && !life.hasAccessory() ? YukkuriAction.DROOP : action;
+    }
+
+    /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
+    private boolean shellRetracts() {
+        return subspecies.assetId().equals("marisa_tsumuri") && !isInWaterOrBubble() && !isOnFire();
+    }
+    /** Seconds into the shell_retract clip (in 1.8, hold to 3.2, out by 5.5), or -1. */
+    private float shellSeconds() {
+        return getAnimationId().equals(YukkuriAction.SHELL_RETRACT.id()) ? (level().getGameTime() - getAnimationStartTick()) / 20f : -1;
+    }
+    private void withdrawIntoShell() {
+        float seconds = shellSeconds();
+        if (seconds >= 1.2f && seconds <= 3.2f) {
+            // Already inside: hold the withdrawn pose again and come out as the fright ends.
+            entityData.set(ANIMATION_START, level().getGameTime() - 36); panicTicks = 74;
+        } else if (seconds < 0 || seconds > 3.2f) {
+            setAnimation(YukkuriAction.SHELL_RETRACT, true); panicTicks = Math.max(panicTicks, 112);
+        }
+        navigation.stop();
     }
 
     private void setBehavior(String behavior) {
@@ -459,7 +492,7 @@ public final class YukkuriEntity extends PathfinderMob {
 
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression;
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(dialogue);
     }
 
@@ -500,6 +533,8 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        float shellSeconds = shellSeconds();
+        if (panicTicks > 0 && shellSeconds >= 1.2f && shellSeconds <= 3.8f) amount *= .5f; // Withdrawn shell takes half a blow [original]
         float before=getHealth();
         float previousHit=pendingHitHealth;
         pendingHitHealth=before;
@@ -516,7 +551,8 @@ public final class YukkuriEntity extends PathfinderMob {
             if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
             panicTicks = 112;
             navigation.stop();
-            setAnimation(YukkuriAction.STARTLE, true);
+            if (shellRetracts()) withdrawIntoShell();
+            else setAnimation(YukkuriAction.STARTLE, true);
         }
         return damaged;
     }
@@ -637,7 +673,7 @@ public final class YukkuriEntity extends PathfinderMob {
 
     private final class FleeGoal extends Goal {
         FleeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return panicTicks > 0; }
+        @Override public boolean canUse() { return panicTicks > 0 && !shellRetracts(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (panicTicks > 100) { navigation.stop(); return; }

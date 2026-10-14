@@ -98,6 +98,9 @@ def validate_textures(ident, record, model):
             require(sha(ROOT / texture['snapshot']) == texture['sha256'], f'{expression}: snapshot texture drift')
 
 
+SPECIES_ONLY = {'shell_retract': 'marisa_tsumuri'}
+
+
 def validate(ident, record, actions):
     path = ASSETS / 'yukkuri' / (ident + '.json')
     model = read(path)
@@ -131,7 +134,9 @@ def validate(ident, record, actions):
             require(shared.setdefault(point, weights[i]) == weights[i], 'shared body vertex has inconsistent binding')
         require(len(shared) == 96, 'house shared vertex count changed')
         require(any(0 < w[2] < 1 for w in weights), 'house lost blended body binding')
-    require(set(model['clips']) == set(actions), 'server action names differ from packaged clips')
+    # Species-only actions fall back to idle elsewhere; the world-setting clips arrive with the corrections.
+    expected = {name for name in actions if SPECIES_ONLY.get(name, ident) == ident}
+    require(set(model['clips']) == expected, 'server action names differ from packaged clips')
     behavior_actions = {'house_pickup': (1.3, False), 'house_carry': (1, True),
                         'house_deposit': (1.3, False), 'house_crawl': (.6, True)} if model['house'] else {}
     predator=ident in ('remilia','flandre')
@@ -196,7 +201,7 @@ def main():
     source = (ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java').read_text()
     actions = {name: (float(duration), loop == 'true') for name, duration, loop in
                re.findall(r'\("([a-z_]+)",\s*([\d.]+),\s*(true|false)\)', source)}
-    require(len(actions) == 19, 'expected 19 server actions')
+    require(len(actions) == 35, 'expected 35 server actions (19 standard, 15 world-setting, shell retract)')
     living = read(ASSETS / 'yukkuri_presentation/living.json')['variants']
     for ident, bone_name in (('chen', 'chen_hat'), ('alice', 'alice_headband'), ('patchouli', 'patchouli_bonnet')):
         model = read(ASSETS / 'yukkuri' / (ident + '.json'))
@@ -214,7 +219,7 @@ def main():
     if errors:
         print('\n'.join(errors), file=sys.stderr)
         return 1
-    print('Nine packaged models, bindings, 19 actions plus behavior clips, textures and source fingerprints are consistent.')
+    print('Nine packaged models, bindings, 34 shared actions plus behavior clips, textures and source fingerprints are consistent.')
     return 0
 
 
