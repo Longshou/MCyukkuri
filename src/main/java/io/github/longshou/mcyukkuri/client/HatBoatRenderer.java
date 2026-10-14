@@ -44,7 +44,10 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         if(boat.state()==HatBoatEntity.State.CAPSIZED)pose.mulPose(Axis.ZP.rotationDegrees(150));
-        float scale=boat.hullScale();pose.scale(scale,scale,scale);
+        float scale=boat.hullScale();
+        // On dry ground the turned-over hat rests on its crown (4.05 model units deep) instead of sinking into the ground.
+        if(boat.isCradle())pose.translate(0,4.05f/16*scale,0);
+        pose.scale(scale,scale,scale);
         PropModels.render("hat_boat",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         if(boat.isAfloat()){
             var mask=buffers.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());var matrix=pose.last().pose();

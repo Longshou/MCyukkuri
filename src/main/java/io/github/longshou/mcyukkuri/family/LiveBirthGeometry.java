@@ -86,7 +86,9 @@ public final class LiveBirthGeometry {
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.
-        if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()).isEmpty())return false;
+        // Siblings already caught in a hat cradle at the outlet do not block the next one.
+        if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()
+                &&!(other.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)).isEmpty())return false;
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=net.minecraft.core.Direction.UP)return false;
         double y=ground.getLocation().y;

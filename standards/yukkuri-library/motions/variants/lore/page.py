@@ -71,7 +71,7 @@ footer{margin-top:14px;font-size:12.5px;color:#7b6f60}input[type=range]{vertical
 </style>
 <main>
 <h1>世界观动作 · 交互预览（第一批，待复查）</h1>
-<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，只显示有这个动作的形态；表情按动作的表情编排切换。水生魔理沙坐在帽船里；“帽中幼体”是坐在母亲帽檐上的幼体。孕肚、茎和新生儿由游戏另行绘制，这里未包含。拖动画面旋转，滚轮缩放。直接双击打开，不需要服务器。</p>
+<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，只显示有这个动作的形态；表情按动作的表情编排切换。水生魔理沙坐在帽船里；“帽中幼体”是坐在母亲帽檐上的幼体。孕肚、茎和新生儿由游戏另行绘制，这里未包含。拖动画面旋转，滚轮缩放。直接双击打开，不需要服务器。<a href="births.html">出生与接生场景</a>演示夫妻、接生与出生的子油。</p>
 <div class="sticky">
 <div class="bar" id="actions" role="toolbar" aria-label="动作"></div>
 <div class="bar"><button type="button" id="play" aria-pressed="true">暂停</button>

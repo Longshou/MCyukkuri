@@ -43,6 +43,8 @@ public enum YukkuriAction {
     BROOD("brood", 4.0, true),
     LABOR("labor", 2.4, true),
     MIDWIFE("midwife", 2.4, true),
+    DOFF_HAT("doff_hat", 1.2, false),
+    BEREAVED("bereaved", 5.0, false),
     POSTPARTUM("postpartum", 3.0, false),
     FIRST_WAKE("first_wake", 2.0, false),
     BOAT_DRIFT("boat_drift", 4.0, true),

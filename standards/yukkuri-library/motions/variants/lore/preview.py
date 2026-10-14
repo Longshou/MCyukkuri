@@ -186,7 +186,7 @@ def main():
                    for name, labels in rows)
     (out/'index.html').write_text(f"""<!doctype html><meta charset="utf-8"><title>世界观动作预览</title>
 <style>body{{font:14px system-ui,sans-serif;background:#f3f1ec;color:#333;margin:24px}}section{{margin:0 0 28px}}h2{{font-size:16px;margin:0 0 4px}}p{{margin:0 0 6px;color:#666}}img{{image-rendering:pixelated;border:1px solid #d8d2c6}}</style>
-<h1>世界观动作预览（待复查）</h1><p><a href='motions.html'>交互预览</a>：可选动作、旋转、缩放、调速。</p><p>每个动作只显示适用的形态；表情按动作的表情编排切换。离线渲染，使用游戏模型与动作修正资源；孕肚、茎和新生儿由游戏另行绘制，未包含。直接双击打开，不需要服务器。</p>{body}
+<h1>世界观动作预览（待复查）</h1><p><a href='motions.html'>交互预览</a>：可选动作、旋转、缩放、调速。<a href='births.html'>出生与接生场景</a>：夫妻、接生与出生的子油。</p><p>每个动作只显示适用的形态；表情按动作的表情编排切换。离线渲染，使用游戏模型与动作修正资源；孕肚、茎和新生儿由游戏另行绘制，未包含。直接双击打开，不需要服务器。</p>{body}
 """, encoding='utf-8')
     print('wrote', out/'index.html')
 

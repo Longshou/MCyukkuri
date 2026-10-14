@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -7,13 +7,16 @@
   "face_fallback": {
     "open_smile": ["happy"], "closed_smile": ["happy"], "satisfied": ["closed_smile", "happy"], "smug": ["open_smile", "happy"],
     "chewing": ["drool", "neutral"], "chewing_closed": ["neutral"], "puff": ["chewing_closed", "cry", "angry"],
-    "yawn": ["sleepy", "sleep"], "sleepy": ["sleep"], "teary": ["cry"], "confused": ["neutral"], "drool": ["chewing", "neutral"]
+    "yawn": ["sleepy", "sleep"], "sleepy": ["sleep"], "teary": ["cry"], "confused": ["neutral"], "drool": ["chewing", "neutral"],
+    "dazed": ["surprise"], "blank_cry": ["cry"]
   },
   "groups": {
     "all": ["*"],
     "breeding": {"only": ["*"], "except": ["house_*", "*_sparse", "*_face", "*_bean"]},
     "live_birth": {"only": ["*"], "except": ["house_*", "remilia", "flandre", "*_sparse", "*_face", "*_bean"]},
     "not_house": {"only": ["*"], "except": ["house_*"]},
+    "marisa_midwife": ["marisa", "marisa_tsumuri"],
+    "marisa_hat": ["marisa"],
     "aquatic_marisa": ["marisa"]
   },
   "clips": {
@@ -65,9 +68,15 @@
     "labor": {"label": "分娩", "duration": 2.4, "loop": true, "applies": "live_birth", "brace": 0.06, "lean_back": 3, "shiver_ratio": 0.006, "push_lean": -4,
               "faces": [[0, 0.3, "teary"], [0.3, 1.3, "puff"], [1.3, 1.8, "cry"], [1.8, 2.4, "satisfied"]],
               "lore": "straining, eyes squeezed, mouth open, one baby per push (CADあき, 無声あき, AVあき in viviparous-comics); phase-locked to the 48-tick contraction, rest at the 36-tick birth", "triggers": ["labor (live delivery)"]},
-    "midwife": {"label": "接生", "duration": 2.4, "loop": true, "applies": "breeding", "crouch": 0.07, "lean": -8, "nod": -4, "rub": 5,
+    "midwife": {"label": "接生", "duration": 2.4, "loop": true, "applies": "marisa_midwife", "crouch": 0.07, "lean": -8, "nod": -4, "rub": 5,
                 "faces": [[0, 0.3, "neutral"], [0.3, 1.4, "open_smile"], [1.4, 1.8, "teary"], [1.8, 2.0, "happy"], [2.0, 2.4, "closed_smile"]],
-                "lore": "project design (the wiki is silent on helpers): the partner crouches beside the outlet, cheers with each contraction and nuzzles the newborn (すーりすーり, E06)", "triggers": ["midwife (partner of a mother in live delivery, on land)"]},
+                "lore": "project design confirmed by the user: only Marisa midwifes; hatless beside her upturned hat, she cheers with each contraction and greets the newborn (すーりすーり, E06)", "triggers": ["midwife: a Marisa father, or a single Marisa mother catching her own young, live and stem births"]},
+    "doff_hat": {"label": "摘帽／戴帽", "duration": 1.2, "loop": false, "applies": "marisa_hat", "bow": -28,
+                 "faces": [[0, 0.5, "neutral"], [0.5, 61.2, "closed_smile"]],
+                 "lore": "the Marisa midwife takes her hat off and turns it over to catch the young, then puts it back on (user design; L06 the hat carries young)", "triggers": ["placing or taking back the hat cradle"]},
+    "bereaved": {"label": "呆滞后哭泣", "duration": 5.0, "loop": false, "applies": "breeding", "sink": 0.04, "wail_rise": 0.03, "wail_chin": 6, "sob": 0.02, "sob_hz": 3, "head_down": -6,
+                 "faces": [[0, 1.6, "dazed"], [1.6, 2.4, "blank_cry"], [2.4, 65, "cry"]],
+                 "lore": "a missed catch kills the newborn; the parents stare blankly, then cry (user design); line ゆっくり……ゆっくりぃ！ (family_died)", "triggers": ["reaction birth_lost (parents)"]},
     "postpartum": {"label": "产后", "duration": 3.0, "loop": false, "applies": "breeding", "slump": 0.9, "head_down": -6, "look_up": 4,
                    "faces": [[0, 1.4, "sleepy"], [1.4, 63, "satisfied"]],
                    "lore": "the mother recovers after the births (viviparous-comics; joy soon meets hunger, TM09)", "triggers": ["reaction birth after delivery"]},
@@ -102,5 +111,5 @@
     "lock_tremble": {"clips": ["labor", "boat_labor"], "degrees": 2.5, "hz": 9,
                      "lore": "side hair trembles while straining", "applies": "models whose hand bones carry hair"}
   },
-  "braid_follow": ["eat", "drink", "sleep", "nuzzle", "sing", "sway", "push", "tremble", "droop", "shiawase", "wake", "brood", "midwife", "postpartum", "first_wake", "hat_cradle"]
+  "braid_follow": ["eat", "drink", "sleep", "nuzzle", "sing", "sway", "push", "tremble", "droop", "shiawase", "wake", "brood", "midwife", "postpartum", "first_wake", "hat_cradle", "doff_hat", "bereaved"]
 }

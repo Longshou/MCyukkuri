@@ -195,6 +195,21 @@ def state(action, t, c, height):
         else:
             # Gather the newborn into the hat: turn toward it, lean in, come back.
             e = bump((t-1.8)/.6); s = base; r = [c['tuck_lean']*e, c['tuck_turn']*e, 0.]
+    elif action == 'doff_hat':
+        # A deep bow: the hat comes off (or goes back on) at the bottom, then she straightens.
+        a = smooth(t/.5) if t < .5 else 1. if t < .7 else 1-smooth((t-.7)/.5)
+        r[0] = c['bow']*a; s = [1+.02*a, 1-.04*a, 1+.02*a]
+    elif action == 'bereaved':
+        if t < 1.6:  # frozen, sinking a little: the blank stare
+            a = smooth(t/.4); s = [1+c['sink']*.5*a, 1-c['sink']*a, 1+c['sink']*.5*a]
+        elif t < 2.4:  # the wail rises
+            a = smooth((t-1.6)/.4); s = [lerp(1+c['sink']*.5, 1-.01, a), lerp(1-c['sink'], 1+c['wail_rise'], a), lerp(1+c['sink']*.5, 1-.01, a)]
+            r[0] = c['wail_chin']*a
+        else:  # sobbing, head down, settling back to rest at the end
+            fade = 1-smooth((t-4.3)/.7); u = smooth((t-2.4)/.5)
+            w = math.sin(2*math.pi*c['sob_hz']*(t-2.4))
+            s = [1-.01*fade, 1+(c['wail_rise']*(1-u)-c['sob']*abs(w)*u)*fade, 1-.01*fade]
+            r[0] = (c['wail_chin']*(1-u)+c['head_down']*u)*fade; r[2] = 1.5*w*u*fade
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
     else:

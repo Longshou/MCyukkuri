@@ -251,7 +251,18 @@ public final class FamilyData extends SavedData {
         spawning.add(child.id);boolean added;
         try { added=level.addFreshEntity(entity); } finally { spawning.remove(child.id); }
         if(!added)return null;
-        if(boat!=null)boat.boardYoung(entity);
+        // Born into a hat: the mother's boat, or a Marisa's hat cradle at the outlet. An overstrained push can miss it [original 12%].
+        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(.9),
+                cradle->cradle.isCradle()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().findFirst().orElse(null):null;
+        if(hat!=null) {
+            if(level.random.nextFloat()<.12f) {
+                entity.family().doom();var forward=Vec3.directionFromRotation(0,entity.yBodyRot);entity.setDeltaMovement(forward.x*.32,.12,forward.z*.32);
+            } else hat.boardYoung(entity);
+        } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
+                entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.isCradle()&&cradle.young(entity)).isEmpty()) {
+            // A fruit that comes away awkwardly misses the hat held under the stem.
+            entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
+        }
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);

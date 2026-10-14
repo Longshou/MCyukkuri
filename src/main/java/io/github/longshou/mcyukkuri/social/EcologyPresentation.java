@@ -22,6 +22,7 @@ public final class EcologyPresentation {
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
             case "midwife" -> YukkuriAction.MIDWIFE;
+            case "doff_hat" -> YukkuriAction.DOFF_HAT;
             default -> YukkuriAction.IDLE;
         };
     }
@@ -52,6 +53,7 @@ public final class EcologyPresentation {
             case "toy" -> YukkuriAction.HOP;
             case "newborn", "hatched" -> YukkuriAction.FIRST_WAKE;
             case "birth" -> YukkuriAction.POSTPARTUM;
+            case "birth_lost" -> YukkuriAction.BEREAVED;
             case "returned_accessory" -> YukkuriAction.SHIAWASE;
             default -> YukkuriAction.IDLE;
         };

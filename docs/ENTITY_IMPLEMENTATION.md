@@ -49,7 +49,7 @@
 | 部件控制 | `anatomy_mamu_extend`、`anatomy_mamu_retract`、`anatomy_peni_extend`、`anatomy_peni_retract` |
 | 世界观动作（生活） | `eat`、`shiawase`、`drink`、`sleep`、`wake` |
 | 世界观动作（社交与情绪） | `nuzzle`、`sing`、`sway`、`push`、`greet`、`tremble`、`droop`、`look_around`、`shake` |
-| 世界观动作（分娩） | `brood`、`labor`、`midwife`、`postpartum`、`first_wake` |
+| 世界观动作（分娩） | `brood`、`labor`、`midwife`（魔理沙）、`doff_hat`（魔理沙）、`postpartum`、`first_wake`、`bereaved` |
 | 水生魔理沙帽船 | `boat_drift`、`boat_steady`、`boat_call`、`boat_brood`、`boat_labor`、`hat_cradle` |
 | 螺壳魔理沙专用 | `shell_retract`（其他形态显示待机） |
 

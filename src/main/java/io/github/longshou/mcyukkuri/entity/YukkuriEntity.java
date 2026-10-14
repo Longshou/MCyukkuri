@@ -111,6 +111,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private final net.minecraft.util.RandomSource speechRandom = net.minecraft.util.RandomSource.create();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
+    private String pendingSpeech = "";
+    private int pendingSpeechTicks;
 
     public YukkuriEntity(EntityType<? extends YukkuriEntity> type, Level level, YukkuriVariant variant) {
         super(type, level);
@@ -413,6 +415,7 @@ public final class YukkuriEntity extends PathfinderMob {
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide || !isAlive()) return;
         if (reactionTicks > 0) reactionTicks--;
+        if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
         subspecies.tick();life.tick(); badges.tick(); social.tick();operations.tick(); family.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
         entityData.set(CARRYING,(variant.isHouse()?house.carrying():habitat.carrying()).copy());
@@ -467,6 +470,7 @@ public final class YukkuriEntity extends PathfinderMob {
 
     /** Behavior motion, else a short reaction, else the withdrawn droop of a yukkuri without its accessory. */
     private YukkuriAction stationaryAction(String behavior) {
+        if (reactionTicks > 0 && reactionEvent.equals("birth_lost")) return YukkuriAction.BEREAVED;
         YukkuriAction action = io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith("house_") || predator.active() || isPassenger()) return action;
@@ -480,7 +484,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
-        return reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;
+        // Young in a hat (boat or cradle): just born, asleep at night, else rocked in it.
+        return reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : level().isNight() ? YukkuriAction.SLEEP : YukkuriAction.HAT_CRADLE;
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
@@ -506,6 +511,13 @@ public final class YukkuriEntity extends PathfinderMob {
         if (!getBehaviorId().equals(behavior)) {
             entityData.set(BEHAVIOR, behavior); entityData.set(BEHAVIOR_START, level().getGameTime());
         }
+    }
+
+    /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
+    public void bereave() {
+        if (level().isClientSide) return;
+        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost";
+        pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
     public void showReaction(String expression, String dialogue, int ticks) {

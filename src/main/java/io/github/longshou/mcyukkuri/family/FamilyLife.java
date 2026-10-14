@@ -31,6 +31,12 @@ public final class FamilyLife {
     private boolean babyTalk;
     private int liveRecovery;
     private Vec3 deliveryLast;
+    /** Hat bow while the hat comes off or goes back on; ticks the hat cradle stays after the births. */
+    private int doffTicks, cradleLinger;
+    /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
+    private boolean doomed;
+    /** Afloat and heading for a bank to give birth there (decided every 40 ticks, needs a bank in reach). */
+    private boolean shoreBound;
     public float liveBelly(){
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE)
@@ -72,8 +78,9 @@ public final class FamilyLife {
                 &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
     }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
-    public boolean active() { return task!=Task.NONE||laboring(); }
+    public boolean active() { return task!=Task.NONE||laboring()||doffTicks>0; }
     public String activity() {
+        if(doffTicks>0)return "doff_hat";
         if(laboring())return "labor";
         return switch(task) {
             case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
@@ -91,6 +98,70 @@ public final class FamilyLife {
     public io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boatHome() {
         return entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat && boat.isAfloat()
                 && entity.getUUID().equals(boat.ownerYukkuri()) ? boat : null;
+    }
+    private static boolean hatted(YukkuriEntity y) {
+        return y.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&y.life().hasAccessory()&&!y.isPassenger()
+                &&y.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA;
+    }
+    /** Only Marisa midwife with her hat: a hatted Marisa father close by, else a hatted Marisa mother catches her own young. */
+    public static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood) {
+        if(brood.father!=null&&mother.level() instanceof ServerLevel level&&level.getEntity(brood.father) instanceof YukkuriEntity father
+                &&father.isAlive()&&hatted(father)&&father.distanceToSqr(mother)<256&&father.life().canRecognize(mother))return father;
+        return hatted(mother)?mother:null;
+    }
+    /** Where the hat is set: in front of the live outlet's exit, or under the stem's fruit, its near brim clear of the mother. */
+    public static Vec3 catchSpot(YukkuriEntity mother,FamilyData.Brood brood) {
+        var forward=Vec3.directionFromRotation(0,mother.yBodyRot);
+        // The turned-over hat reaches .54 of its owner's size toward the mother (hat_boat prop, short side).
+        double clear=mother.getBbWidth()*.5+.6*mother.growthScale();
+        if(brood.kind==FamilyData.BirthKind.LIVE){
+            int next=0;while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
+            var exit=LiveBirthGeometry.position(mother,next);
+            return exit.add(forward.scale(.6*mother.growthScale()));
+        }
+        Vec3 sum=Vec3.ZERO;int count=brood.children.size();
+        for(int i=0;i<count;i++)sum=sum.add(FamilyGeometry.toWorld(mother,FamilyGeometry.childBase(count,i,1,mother.growthScale(),brood.variation,mother.getVariant(),brood.children.get(i).variant)));
+        var centre=sum.scale(1d/Math.max(1,count));
+        double ahead=Math.max(clear,centre.subtract(mother.position()).dot(forward));
+        var spot=mother.position().add(forward.scale(ahead));return new Vec3(spot.x,mother.getY(),spot.z);
+    }
+    /** This Marisa's hat, turned over on the ground nearby. */
+    public io.github.longshou.mcyukkuri.subspecies.HatBoatEntity cradleEntity() {
+        if(entity.level().isClientSide)return null;
+        return level().getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(16),b->b.isCradle()&&entity.getUUID().equals(b.ownerYukkuri()))
+                .stream().findFirst().orElse(null);
+    }
+    /** The cradle stays while the young are coming, a little after, and on aquatic nights with young around. */
+    public boolean keepsCradle() {
+        if(cradleLinger>0||task==Task.MIDWIFE)return true;
+        var pending=brood();if(pending!=null&&!pending.cancelled&&!pending.complete())return true;
+        return nightCradle();
+    }
+    /** An aquatic parent's young sleep in her hat at night (user design). */
+    private boolean nightCradle() {
+        return adult()&&entity.subspecies().kind()==io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA&&level().isNight()
+                &&!level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),y->!y.family().adult()
+                        &&(entity.getUUID().equals(y.family().mother)||entity.getUUID().equals(y.family().father))).isEmpty();
+    }
+    /** Turn the hat over at the spot, its long brim pointing away from the mother (or from this Marisa at night). */
+    private void placeHat(Vec3 spot,float mothersYaw){
+        if(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.placeCradle(entity,spot,mothersYaw+180)!=null){doffTicks=24;entity.getNavigation().stop();}
+    }
+    /** Called by the cradle when it is time to put the hat back on. */
+    public void hatBack(){doffTicks=24;}
+    public void doom(){doomed=true;}
+    public boolean doomed(){return doomed;}
+    /** Aquatic mothers may give birth on a riverbank, which serves as a temporary nest. */
+    private boolean bankNest(){
+        if(entity.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)return false;
+        for(var p:BlockPos.betweenClosed(entity.blockPosition().offset(-4,-2,-4),entity.blockPosition().offset(4,1,4)))
+            if(level().getFluidState(p).is(net.minecraft.tags.FluidTags.WATER))return true;
+        return false;
+    }
+    /** An aquatic mother afloat comes ashore to give birth when the father can catch, or by her own choice [original 1/2]. */
+    private boolean wantsShore(FamilyData.Brood brood){
+        if(brood.father!=null&&level().getEntity(brood.father) instanceof YukkuriEntity father&&father.isAlive()&&father.distanceToSqr(entity)<1024)return true;
+        return new java.util.Random(brood.id.getLeastSignificantBits()^0x53484f5245L).nextBoolean();
     }
     public FamilyData.Brood brood() {
         var result=gestation==null||entity.level().isClientSide?null:FamilyData.get(level()).brood(gestation);
@@ -120,7 +191,37 @@ public final class FamilyLife {
         if(recovery>0)recovery--;if(wait>0)wait--;if(stimulation>0)stimulation--;if(liveRecovery>0)liveRecovery--;
         if(sexDrive>0){sexDrive--;if(sexDrive%200==0)entity.life().spendNutrition(1);}
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
-        if(awaitingLanding&&(entity.onGround()||entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)) { awaitingLanding=false;entity.showReaction("happy","newborn",100); }
+        if(doffTicks>0)doffTicks--;if(cradleLinger>0)cradleLinger--;
+        if(awaitingLanding&&(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)) {
+            awaitingLanding=false;
+            if(doomed){
+                // Pushed past the hat: drowned in the water, or killed by the hard landing.
+                doomed=false;entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return;
+            }
+            if(!entity.isPassenger()){
+                var hat=level().getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(.9),b->b.isCradle()&&b.young(entity)&&b.hasRoomForYoung()).stream().findFirst().orElse(null);
+                if(hat!=null)hat.boardYoung(entity);
+            }
+            entity.showReaction("happy","newborn",100);
+        }
+        if(!adult()&&!entity.isPassenger()&&level().isNight()&&entity.tickCount%10==0) {
+            // At night the young of an aquatic parent climb into the parent's hat to sleep.
+            var hat=level().getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(1.4),b->b.isCradle()&&b.young(entity)&&b.hasRoomForYoung()).stream().findFirst().orElse(null);
+            if(hat!=null)hat.boardYoung(entity);
+        }
+        if(entity.tickCount%20==0&&entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&!entity.life().hasAccessory()&&!entity.isPassenger()&&!keepsCradle()) {
+            // Go back for the hat once the young no longer need it; the cradle hands it over when close.
+            var hat=cradleEntity();if(hat!=null&&entity.distanceToSqr(hat)>9)entity.life().navigate(hat.blockPosition(),.9,false);
+        }
+        if(entity.tickCount%40==0&&nightCradle()&&hatted(entity)&&entity.onGround()&&brood()==null&&!active())
+            placeHat(entity.position().add(Vec3.directionFromRotation(0,entity.yBodyRot).scale(entity.getBbWidth()*.5+.6*entity.growthScale())),entity.yBodyRot);
+        var pendingBrood=brood();var afloat=boatHome();
+        if(afloat==null)shoreBound=false;
+        else if(pendingBrood!=null&&!pendingBrood.cancelled&&!pendingBrood.complete()&&entity.tickCount%40==0
+                &&pendingBrood.elapsed>=pendingBrood.duration-(pendingBrood.kind==FamilyData.BirthKind.LIVE?200:400)){
+            var bank=wantsShore(pendingBrood)?afloat.nearestBank():null;shoreBound=bank!=null;
+            if(bank!=null)afloat.towTo(Vec3.atBottomCenterOf(bank),60);
+        }
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
         var brood=brood();
@@ -209,6 +310,9 @@ public final class FamilyLife {
         if(other==entity||entity.dailyLife().active()||other.dailyLife().active()||entity.level()!=other.level()||!ready()||!other.family().ready()||entity.distanceToSqr(other)>9
                 ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||!entity.life().canRecognize(other)||!other.life().canRecognize(entity))return false;
         if(partner!=null&&!partner.equals(other.getUUID())||other.family().partner!=null&&!other.family().partner.equals(entity.getUUID()))return false;
+        // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
+        var aquatic=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA;
+        if((entity.subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
         var data=FamilyData.get(level());var relations=YukkuriWorldData.get(level());
         if(data.related(entity.getUUID(),other.getUUID())||relations.affinity(entity.getUUID(),other.getUUID())<12||relations.affinity(other.getUUID(),entity.getUUID())<12)return false;
         var a=entity.life().homeStand();var b=other.life().homeStand();
@@ -218,12 +322,15 @@ public final class FamilyLife {
         if(entity.operations().active())return;
         if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().wound()>0||entity.body().infection()>0)return;
         var boat=boatHome();
-        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
-        else {
+        if(boat!=null){ if(shoreBound&&brood.elapsed>=brood.duration-400||!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
+        else if(bankNest()&&(entity.life().homeStand()==null||entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand()))>4)) {
+            if(!FamilyData.get(level()).relocate(brood,level(),entity.blockPosition()))return;
+        } else {
             BlockPos home=entity.life().homeStand();
             if(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4||!FamilyData.get(level()).relocate(brood,level(),home))return;
         }
         if(entity.life().mealTicks()>0||entity.life().isSleeping())return;
+        if(boat==null&&brood.elapsed>=brood.duration-200&&catcher(entity,brood)==entity&&cradleEntity()==null)placeHat(catchSpot(entity,brood),entity.yBodyRot);
         if(brood.elapsed<brood.duration+40)brood.elapsed++;
         if(brood.elapsed%200==0)entity.life().spendNutrition(1);
         FamilyData.get(level()).setDirty();
@@ -233,9 +340,10 @@ public final class FamilyLife {
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
-            if(child!=null) { if(boat==null)child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
+            if(child!=null) { if(boat==null&&!child.family().doomed())child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
         }
         if(brood.complete()) {
+            if(cradleEntity()!=null)cradleLinger=120;
             spentStemCount=brood.children.size();spentStemVariation=brood.variation;
             recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());gestation=null;stop();
         }
@@ -261,15 +369,18 @@ public final class FamilyLife {
         Vec3 before=deliveryLast;deliveryLast=entity.position();
         if(!readyForDelivery())return;
         var boat=boatHome();
-        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
+        if(boat!=null){ if(shoreBound&&brood.elapsed>=brood.duration-200||!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
         else {
             var home=entity.life().homeStand();
-            if(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4||!FamilyData.get(level()).relocate(brood,level(),home))return;
+            boolean bank=bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4);
+            if(!bank&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4)||!FamilyData.get(level()).relocate(brood,level(),bank?entity.blockPosition():home))return;
             // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
             if(brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004))return;
         }
         int next=0;while(next<brood.children.size()&&brood.children.get(next).born)next++;
         if(next==brood.children.size())return;
+        if(boat==null&&brood.elapsed>=brood.duration-2&&catcher(entity,brood)==entity&&cradleEntity()==null){placeHat(catchSpot(entity,brood),entity.yBodyRot);return;}
+        if(doffTicks>0)return;
         if(brood.elapsed>=brood.duration){
             entity.getNavigation().stop();
             if(!LiveBirthGeometry.clear(entity,brood.children.get(next),next))return;
@@ -284,12 +395,12 @@ public final class FamilyLife {
                 var child=FamilyData.get(level()).birth(brood,next,level(),LiveBirthGeometry.position(entity,next));
                 if(child!=null){
                     // A soft physical release lets the landed sibling clear the next child's outlet.
-                    if(boat==null)child.setDeltaMovement(new Vec3(0,-.015,-.075).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
+                    if(boat==null&&!child.isPassenger()&&!child.family().doomed())child.setDeltaMovement(new Vec3(0,-.015,-.075).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
                     entity.showReaction("happy","birth",60);
                 }
             }
         }
-        if(brood.complete()){gestation=null;liveRecovery=70;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;stop();}
+        if(brood.complete()){if(cradleEntity()!=null)cradleLinger=120;gestation=null;liveRecovery=70;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());deliveryLast=null;stop();}
     }
     public boolean canUse() {
         if(entity.dailyLife().active())return false;
@@ -332,12 +443,14 @@ public final class FamilyLife {
         }
         return false;
     }
-    /** The partner of a mother in a live delivery on land comes to her front as midwife (project design). */
+    /** A Marisa father comes to the mother when her young are about to come, on land, live or stem birth (user design). */
     private YukkuriEntity mateInLabor() {
-        if(partner==null||entity.isPassenger()||!(level().getEntity(partner) instanceof YukkuriEntity mate)||!mate.isAlive()
-                ||!mate.family().laboring()||mate.family().boatHome()!=null||!entity.getUUID().equals(mate.family().partner())
+        if(entity.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA||partner==null||entity.isPassenger()
+                ||!(level().getEntity(partner) instanceof YukkuriEntity mate)||!mate.isAlive()||mate.family().boatHome()!=null
                 ||entity.distanceToSqr(mate)>256||!entity.life().canRecognize(mate))return null;
-        return mate;
+        var b=mate.family().brood();
+        if(b==null||b.cancelled||b.complete()||b.kind==FamilyData.BirthKind.EGG||!entity.getUUID().equals(b.father))return null;
+        return b.elapsed>=b.duration-(b.kind==FamilyData.BirthKind.LIVE?40:300)?mate:null;
     }
     /** Beside the outlet, clear of the exit box, on whichever side is free. */
     private Vec3 midwifeSpot(YukkuriEntity mate) {
@@ -374,8 +487,11 @@ public final class FamilyLife {
                 entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)>2.25) { if(taskTicks%10==1)entity.life().navigate(target.blockPosition(),.8,false); }
                 else if(taskTicks>=(sexDrive>0?60:120)) {
-                    var brood=FamilyData.get(level()).conceive(entity,target,naturalBirthKind(target),GlobalPos.of(level().dimension(),entity.life().homeStand()));
-                    if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();entity.showReaction("happy","expecting",100); }
+                    // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
+                    YukkuriEntity mother=entity,father=target;
+                    if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
+                    var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.life().homeStand()));
+                    if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();mother.showReaction("happy","expecting",100); }
                     stop();wait=200;
                 } else entity.getNavigation().stop();
             }
@@ -392,11 +508,16 @@ public final class FamilyLife {
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
             }
             case MIDWIFE -> {
-                if(!target.family().laboring()||target.family().boatHome()!=null){stop();return;}
-                var spot=midwifeSpot(target);
+                var b=target.family().brood();
+                if(b==null||b.cancelled||b.complete()||target.family().boatHome()!=null){ if(cradleEntity()!=null)cradleLinger=120; stop();return; }
+                var spot=midwifeSpot(target);var catchAt=catchSpot(target,b);
                 if(entity.distanceToSqr(spot)>.3) { if(taskTicks%10==1)entity.life().navigate(BlockPos.containing(spot),.9,false); }
-                else { entity.getNavigation().stop(); }
-                var outlet=LiveBirthGeometry.position(target,0);entity.getLookControl().setLookAt(outlet.x,outlet.y+.1,outlet.z,20,20);
+                else {
+                    entity.getNavigation().stop();
+                    // Take the hat off and set it, turned over, where the young will come down.
+                    if(doffTicks==0&&catcher(target,b)==entity&&cradleEntity()==null)placeHat(catchAt,target.yBodyRot);
+                }
+                entity.getLookControl().setLookAt(catchAt.x,catchAt.y+.1,catchAt.z,20,20);
             }
             case SEARCH -> {
                 if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}
@@ -408,8 +529,11 @@ public final class FamilyLife {
     public void stop() { task=Task.NONE;target=null;searchAt=null;taskTicks=0;wait=Math.max(wait,40); }
     public void died() {
         var data=FamilyData.get(level());data.died(entity);stop();
-        for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->other!=entity&&other.isAlive()))
-            if(data.related(entity.getUUID(),other.getUUID())&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
+        for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
+            if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
+                // A newborn lost at birth: the parents stare blankly, then cry.
+                other.life().personality().experienced(Trait.BOLDNESS,-3);other.bereave();
+            } else if(data.related(entity.getUUID(),other.getUUID())&&entity.distanceToSqr(other)<100&&other.life().canRecognize(entity)&&other.hasLineOfSight(entity)) {
                 other.life().personality().experienced(Trait.BOLDNESS,-3);other.showReaction("surprise","family_died",120);
             }
     }
