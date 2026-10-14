@@ -1,6 +1,6 @@
 # 家油 · 魔理沙与灵梦
 
-2026-10-13：家油魔理沙随标准改为单侧粗辫，另一侧为短侧发；家油身体与灵梦不变。两侧夹取点改用实际发端，辫侧更低、短侧发更高，并同步游戏模型、伤口表面和夹取曲线。造型和夹取待复查，见[单辫修订](../../body-standard/features/marisa-single-braid/README.md)。
+2026-10-13：家油魔理沙随标准改为单侧粗辫，另一侧为短侧发；家油身体与灵梦不变。夹取、搬运、放下改由辫子单独完成：两个夹取点都指向辫梢，短侧发留在头侧；同步游戏模型、伤口表面和夹取曲线。家油灵梦仍用两束短发夹取。造型和夹取待复查，见[单辫修订](../../body-standard/features/marisa-single-braid/README.md)。
 
 [打开当前预览](previews/current/index.html) · [多角度图片](previews/current/turnaround.png) · [参考核读](REFERENCES.md) · [设计参数](config.json)
 

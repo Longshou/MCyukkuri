@@ -12,9 +12,9 @@
   "exporter": "scripts/export_hat_interactions.py",
   "exporter_sha256": "48fef729387ce12c8f2634ab20f93b783bf2e6702dd43b2783f5e9cb2e546daa",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "e09be648c7c1b85ea7e9ce21317d05e68bde27da088e9fc18601f9d49f0ce439",
+  "runtime_sha256": "8244559b474bcb584747019774bc24302f3189b7c90afe295eb9cc1b40e16e47",
   "sources": {
-    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
+    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",

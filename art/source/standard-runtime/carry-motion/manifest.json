@@ -1,6 +1,6 @@
 {
   "author": "scripts/runtime_house_interactions.py",
-  "author_sha256": "c6844e0a76f7950a5aa44fb168207f25cce8e26cc579096d091b4633a15fcdc3",
+  "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
   "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
   "exporter": "scripts/export_house_carry_motion.py",
   "exporter_sha256": "b691f847afc8418e3702d60e1977c17247febe3b795e3d308c676eb199c470d5",
@@ -23,9 +23,9 @@
       "idempotence": "passed"
     },
     "house_marisa": {
-      "input_runtime_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
-      "runtime_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
-      "rig_sha256": "d459583382cfaaef56ebac34de3fcc946e02f18efffa2e46f6ad37761f00d43f",
+      "input_runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "rig_sha256": "e3cb0cb36cdffeb3f53e7aa26e33d300911a08bc2e298b9088e29b5b41a86ea4",
       "unchanged": [
         "rest_geometry",
         "UV",

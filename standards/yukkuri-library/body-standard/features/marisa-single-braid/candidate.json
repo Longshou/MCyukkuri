@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-13T12:54:29+00:00",
+  "created_at": "2026-10-14T02:55:05+00:00",
   "status": "pending_confirmation",
   "scope": [
     "Marisa side hair: one thick braid on her own left (+X, hand_right), a short loose lock on the right (-X, hand_left)",
@@ -49,7 +49,7 @@
     "standards/yukkuri-library/subspecies/deficient/recipes.json": "19e354d399e742502e442987da524bfb0dcd23354868b09002d43669c6cde764",
     "standards/yukkuri-library/subspecies/deficient/bean_hair.py": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
     "scripts/export_marisa_deficient_rounded.py": "7104a14f779f7f57c75fcb8e9a80624a7ccb95b9930705f90401ad2de84ce84c",
-    "scripts/runtime_house_interactions.py": "c6844e0a76f7950a5aa44fb168207f25cce8e26cc579096d091b4633a15fcdc3",
+    "scripts/runtime_house_interactions.py": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
     "standards/yukkuri-library/subspecies/reimu-dos/build.py": "948d8c24f1015160c739df8ccd2490d7111de79a9d847f935f682d66140503fb",
     "standards/yukkuri-library/presentation/placement-fit/recipe.json": "035e8ce0b0e77c322ed9d076f0030cab28653d063e7f64528f526cc0d669534f"
   },
@@ -89,7 +89,7 @@
       "model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
       "model_sha256": "93323e7bed258ff8ef9673d95b9f70b6139a751b9a7105af4ca8182e627f68f4",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77"
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92"
     },
     "marisa_dos": {
       "model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/marisa_dos/marisa_dos.bbmodel",

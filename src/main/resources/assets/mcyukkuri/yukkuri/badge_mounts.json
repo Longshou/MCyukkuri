@@ -128,7 +128,7 @@
       "diameter": 0.02025
     },
     "house_marisa": {
-      "model_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
+      "model_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "part": "hat_band",
       "triangle": 8856,
       "weights": [

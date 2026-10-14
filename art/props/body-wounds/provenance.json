@@ -38,7 +38,7 @@
     "house_marisa": {
       "geometry_identifier": "house_marisa",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "source_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
+      "source_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "bones": 200,
       "animations": [
         "idle",
@@ -63,7 +63,7 @@
       ],
       "texture": "textures/entity/house_marisa/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz",
-      "output_sha256": "ea608582d64297adbff72cba49bf3f3cf968d410b3b91401564c9b9e0e29dd76",
+      "output_sha256": "a7db3faf5297c763fe7fd6da01bd60de97dce606c73ea3696c5aa136af6d0ed4",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },

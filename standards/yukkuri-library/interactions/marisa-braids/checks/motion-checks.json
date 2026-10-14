@@ -1,0 +1,87 @@
+{
+  "created_at": "2026-10-14T02:55:06+00:00",
+  "environment": "offline Python sampling; no browser or game",
+  "sources": {
+    "build.py": "c9ce6a402da2a3b0ba22b5e4835d3a710e654bb475626a159a8efa5eb98874a8",
+    "recipes.json": "05b5ca5e69d988de2d443d531b008bfce962fa35ef82ccfb7cc0422e310e42a0"
+  },
+  "base_model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+  "head_top": 10.611,
+  "status": "passed",
+  "failures": [],
+  "actions": {
+    "pick_stone": {
+      "duration": 6.4,
+      "samples": 129,
+      "stretch_min": 0.547,
+      "stretch_max": 1.008,
+      "max_rotation_step_degrees": 2.7,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0
+    },
+    "swing_sword": {
+      "duration": 6.8,
+      "samples": 137,
+      "stretch_min": 0.456,
+      "stretch_max": 1.008,
+      "max_rotation_step_degrees": 4.2,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0
+    },
+    "pull_grass": {
+      "duration": 6.6,
+      "samples": 133,
+      "stretch_min": 0.676,
+      "stretch_max": 1.072,
+      "max_rotation_step_degrees": 3.46,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0
+    },
+    "remove_hat": {
+      "duration": 9.2,
+      "samples": 185,
+      "stretch_min": 0.296,
+      "stretch_max": 1.0,
+      "max_rotation_step_degrees": 10.98,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0,
+      "hat_end_offset": 0.0,
+      "min_brim_clearance_over_head": 1.982
+    },
+    "care_hat": {
+      "duration": 19.6,
+      "samples": 393,
+      "stretch_min": 0.296,
+      "stretch_max": 1.492,
+      "max_rotation_step_degrees": 12.38,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0,
+      "hat_end_offset": 0.0,
+      "min_brim_clearance_over_head": 2.167,
+      "dust_cleared": true
+    },
+    "wave_goodbye": {
+      "duration": 5.2,
+      "samples": 105,
+      "stretch_min": 0.509,
+      "stretch_max": 1.0,
+      "max_rotation_step_degrees": 10.61,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0
+    },
+    "lift_child": {
+      "duration": 8.4,
+      "samples": 169,
+      "stretch_min": 0.479,
+      "stretch_max": 1.042,
+      "max_rotation_step_degrees": 10.87,
+      "max_grip_target_error": 0,
+      "braid_end_from_rest": 0.0,
+      "child_end": [
+        3.4,
+        11.295,
+        -8.1
+      ]
+    }
+  }
+}

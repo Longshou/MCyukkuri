@@ -1054,7 +1054,7 @@
     },
     "house_marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "base_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
+      "base_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "unchanged": "Hat brim already sits on the wrapped hair top; hat-carry limits were validated on this geometry."
     },
     "chen": {

@@ -144,7 +144,8 @@ def validate(ident, record, actions):
             match = re.search(r'\b'+key.upper()+r'\s*=\s*([.\d]+)\s*;', crawl_source)
             require(match is not None and math.isclose(float(match[1]), crawl[key]), 'crawl clock or stroke differs between server and model')
         grip = model['grip']
-        require([bones[i]['name'] for i in grip['bones']] == ['hand_left', 'hand_right'], 'invalid grip bones')
+        # Two short locks, or Marisa's single braid named twice (the item follows its tip).
+        require([bones[i]['name'] for i in grip['bones']] in (['hand_left', 'hand_right'], ['hand_right', 'hand_right']), 'invalid grip bones')
         require(len(grip['points']) == 2 and all(len(p) == 3 for p in grip['points']), 'invalid grip points')
         require(grip['contact_seconds'] == grip['release_seconds'] == .65, 'contact timing drift')
     for name, clip in {**model['clips'], **model.get('behavior_clips', {})}.items():

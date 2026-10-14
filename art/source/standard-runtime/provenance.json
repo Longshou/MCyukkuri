@@ -703,7 +703,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "c6844e0a76f7950a5aa44fb168207f25cce8e26cc579096d091b4633a15fcdc3",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [
@@ -746,7 +746,7 @@
       "snapshot": "art/source/standard-runtime/house_marisa/house_marisa.bbmodel",
       "rig": "art/source/standard-runtime/house_marisa/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "d63e9ac232dac32e2607f253fabb9b51db94cec9c3b1c61ab96ef3eadd979c77",
+      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
       "geometry_identifier": "house_marisa",
       "bone_count": 200,
       "clips": [
@@ -839,14 +839,14 @@
         ],
         "grip": {
           "bones": [
-            "hand_left",
+            "hand_right",
             "hand_right"
           ],
           "points": [
             [
-              -2.042,
-              1.927,
-              -1.524
+              2.116,
+              1.474,
+              -1.54
             ],
             [
               2.116,
@@ -924,7 +924,7 @@
           "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
           "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
           "author": "scripts/runtime_house_interactions.py",
-          "author_sha256": "c6844e0a76f7950a5aa44fb168207f25cce8e26cc579096d091b4633a15fcdc3",
+          "author_sha256": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
           "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
           "shape_changed": false,
           "affected_bones": [

@@ -14,7 +14,7 @@
 | [标准帕秋莉模型](assembled/patchouli/patchouli.bbmodel) · [独立预览](assembled/patchouli/index.html) | 已确认的五撮宽厚刘海、完整包脸侧发、贴地小束尾与浅粉新月软帽 |
 | [标准种族对照](species.html) · [造型与来源](STANDARD-SPECIES.md) | 橙、爱丽丝、帕秋莉的专属造型与共用边界 |
 | [螺壳魔理沙](TSUMURI.md) | 已确认的居中壳形与互斥伸缩控制 |
-| [普通魔理沙七项互动](interactions/marisa-braids/README.md) | 拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油；[批准记录](interactions/marisa-braids/saved-action.json)与[快照索引](interactions/marisa-braids/approved-snapshots.json) |
+| [普通魔理沙七项互动](interactions/marisa-braids/README.md) | 拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油；当前为单辫 v2（待确认），双辫 v1 的[批准记录](interactions/marisa-braids/saved-action.json)与[快照索引](interactions/marisa-braids/approved-snapshots.json)保留 |
 | [家油场景](ecology/house-yukkuri/README.md) | 两种微小成体、棉絮巢、卵、破壳幼体与生活片段；未接入 Minecraft |
 | [多毛灵梦、灵胖、DOS](subspecies/reimu-dos/README.md) | 派生造型与[来源说明](subspecies/reimu-dos/REFERENCES.md) |
 | [当前预览](previews/README.md) · [待确认草稿](drafts/README.md) · [历史归档](archive/README.md) | 区分当前展示、候选方案与旧记录 |
