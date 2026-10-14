@@ -154,7 +154,7 @@ def main():
                    f" — {recipe['clips'][name]['duration']} 秒{'循环' if recipe['clips'][name]['loop'] else '单次'}</p><img src='{name}.gif' alt='{name}'></section>" for name in recipe['clips'])
     (out/'index.html').write_text(f"""<!doctype html><meta charset="utf-8"><title>世界观动作预览</title>
 <style>body{{font:14px system-ui,sans-serif;background:#f3f1ec;color:#333;margin:24px}}section{{margin:0 0 28px}}h2{{font-size:16px;margin:0 0 4px}}p{{margin:0 0 6px;color:#666}}img{{image-rendering:pixelated;border:1px solid #d8d2c6}}</style>
-<h1>世界观动作预览（第一批，待复查）</h1><p>每张动图从左到右：{labels}。离线渲染，使用游戏模型与动作修正资源，表情为该行为在游戏中的表情；不代表实机效果。直接双击打开，不需要服务器。</p>{rows}
+<h1>世界观动作预览（第一批，待复查）</h1><p><a href='motions.html'>交互预览</a>：可选动作、旋转、缩放、调速。</p><p>每张动图从左到右：{labels}。离线渲染，使用游戏模型与动作修正资源，表情为该行为在游戏中的表情；不代表实机效果。直接双击打开，不需要服务器。</p>{rows}
 """, encoding='utf-8')
     print('wrote', out/'index.html')
 

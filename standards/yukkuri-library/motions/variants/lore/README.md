@@ -2,7 +2,7 @@
 
 2026-10-14 新增，待复查。依据 Wiki 中有作品或社区资料支持的身体动作，为已有的生态行为补上对应动作。之前这些行为大多只是待机加少量客户端摆动。设定出处见 [Wiki 总入口](../../../../../wiki/README.md)；编号 L、E、TM、N、W 与 Wiki 一致。
 
-[离线动图预览](../../../../../art/source/motion-corrections/previews/current/lore/index.html)：直接双击打开，每张动图从左到右依次为魔理沙、灵梦、家油魔理沙、豆形魔理沙、蕾米莉亚、螺壳魔理沙。也可以在素材检查室的模型页选择这些动作。
+[交互预览](../../../../../art/source/motion-corrections/previews/current/lore/motions.html)：单个静态网页，直接双击打开。可以选择动作，旋转、缩放，调速或拖动时间，也可以隐藏某种形态；共六种形态：魔理沙、灵梦、家油魔理沙、豆形魔理沙、蕾米莉亚、螺壳魔理沙。另有[离线动图](../../../../../art/source/motion-corrections/previews/current/lore/index.html)，素材检查室的模型页也能选择这些动作。
 
 ## 动作与触发
 
@@ -44,9 +44,10 @@
 ```powershell
 python scripts/export_motion_corrections.py
 python standards/yukkuri-library/motions/variants/lore/preview.py
+python standards/yukkuri-library/motions/variants/lore/page.py
 ```
 
-导出需要 numpy 与 Pillow，19 种形态约 7 分钟；`preview.py` 输出离线动图和预览页。
+导出需要 numpy 与 Pillow，19 种形态约 7 分钟；`preview.py` 输出离线动图，`page.py` 输出交互预览。交互预览内嵌游戏运行模型的三角面、权重、骨骼、动作和表情贴图，绘制使用素材库的 `runtime/render.js`。
 
 ## 限制
 
