@@ -1249,5 +1249,6 @@
   "activity.mcyukkuri.seek_warmth": "Seeking warmth",
   "activity.mcyukkuri.warm_up": "Warming up",
   "activity.mcyukkuri.seek_shade": "Seeking shade",
-  "activity.mcyukkuri.shade_rest": "Resting in shade"
+  "activity.mcyukkuri.shade_rest": "Resting in shade",
+  "item.mcyukkuri.yukkuri_stem": "Yukkuri Stem"
 }

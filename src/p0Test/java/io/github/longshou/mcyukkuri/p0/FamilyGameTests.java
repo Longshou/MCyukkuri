@@ -41,6 +41,7 @@ public final class FamilyGameTests {
     private net.minecraft.gametest.framework.GameTestSequence sequence;
     private YukkuriEntity a,b,child;
     private FamilyData.Brood pregnancy;
+    private FamilyData.Brood pendingStem;
     private long naturalStartTick;
     private UUID savedId,token;
     private int growthBirthFlags;
@@ -198,8 +199,19 @@ public final class FamilyGameTests {
                         &&java.util.Arrays.equals(loaded.children.getFirst().traits,brood.children.getFirst().traits),serialized.getInt("Version"));
                 brood.elapsed=brood.duration+40;
                 for(int i=0;i<count;i++) {
-                    var baby=data.birth(brood,i,level,new Vec3(176.5+i,65,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
-                    baby.setNoAi(true);
+                    if(i==count-1) {
+                        UUID last=brood.children.get(i).id;
+                        java.util.function.Consumer<net.neoforged.neoforge.event.entity.EntityJoinLevelEvent> reject=event->{if(event.getEntity().getUUID().equals(last))event.setCanceled(true);};
+                        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(reject);
+                        try {
+                            check(count+" rejected last birth cannot complete the brood",data.birth(brood,i,level,new Vec3(176.5+i,65,27.5))==null&&!brood.complete(),brood.unborn());
+                            a.family().tick();
+                            check(count+" rejected birth grants no empty stem",!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).pending(brood.id)
+                                    &&!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).delivered(brood.id),brood.id);
+                        } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.removeListener(reject); }
+                    }
+                    var baby=data.birth(brood,i,level,new Vec3(176.5+i,66.5,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
+                    WaddleGameTests.clearGoals(baby); // Keep real gravity and landing ticks, isolate random movement.
                     // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
                     float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
                             ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM:.8f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM;
@@ -209,8 +221,28 @@ public final class FamilyGameTests {
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;
                 }
+                a.family().tick();
+                var stems=io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level);
+                a.syncFamily();
+                check(count+" successful last spawn retains mother stem until actual landing",a.family().brood()==brood&&a.broodCount()==count&&child.family().awaitingLanding()&&stems.pending(brood.id)&&!stems.ready(brood.id),a.family().save());
+                stems.deliver(level.getServer());
+                check(count+" airborne children cannot produce a stem item",level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id))==null,brood.id);
+                pendingStem=brood;
                 check(count+" complete brood leaves the same population",brood.complete()&&data.population(level,HOME_A)==population,data.population(level,HOME_A));
                 check(count+" genealogy survives appearance loss",data.related(a.getUUID(),child.getUUID()),child.getUUID());
+            });
+            later(35,"natural stem waits for actual ground landing "+count,()-> {
+                var brood=pendingStem;var stems=io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level);
+                check(count+" all children physically landed",brood.children.stream().allMatch(c->c.landed
+                        &&level.getEntity(c.id) instanceof YukkuriEntity baby&&!baby.family().awaitingLanding()&&baby.onGround()),brood.id);
+                a.family().tick();stems.deliver(level.getServer());
+                check(count+" landing removes the maternal empty stem",a.family().brood()==null&&a.broodCount()==0&&!a.hasSpentStem(),a.family().save());
+                var dropped=level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id));
+                check(count+" natural completion creates one real empty stem",dropped instanceof net.minecraft.world.entity.item.ItemEntity item
+                        &&item.getItem().is(io.github.longshou.mcyukkuri.registry.ModItems.YUKKURI_STEM.get())&&item.getItem().getCount()==1,dropped);
+                a.family().load(a.family().save());a.family().tick();stems.deliver(level.getServer());
+                check(count+" mother reload cannot duplicate a completed stem",stems.delivered(brood.id)
+                        &&level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id))==dropped,brood.id);
             });
         }
         later(1,"capacity and qualification",()-> {

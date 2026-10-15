@@ -32,6 +32,7 @@ public final class ModItems {
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
     public static final DeferredItem<Item> WASTE = ITEMS.registerSimpleItem("yukkuri_waste", new Item.Properties());
     public static final DeferredItem<Item> FOOD_SCRAP=ITEMS.registerSimpleItem("food_scrap",new Item.Properties());
+    public static final DeferredItem<Item> YUKKURI_STEM=ITEMS.registerSimpleItem("yukkuri_stem",new Item.Properties());
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.FillingItem> FILLING=ITEMS.register("leaked_filling",()->new io.github.longshou.mcyukkuri.item.FillingItem(new Item.Properties()));
     public static final DeferredItem<Item> GRAIN_BUDGET=ITEMS.registerSimpleItem("oil_grain_budget",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_REGULAR=ITEMS.registerSimpleItem("oil_grain_regular",new Item.Properties());

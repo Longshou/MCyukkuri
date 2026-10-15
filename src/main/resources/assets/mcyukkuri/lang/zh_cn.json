@@ -1249,5 +1249,6 @@
   "activity.mcyukkuri.seek_warmth": "寻找暖处",
   "activity.mcyukkuri.warm_up": "停下取暖",
   "activity.mcyukkuri.seek_shade": "寻找阴凉",
-  "activity.mcyukkuri.shade_rest": "阴凉处休息"
+  "activity.mcyukkuri.shade_rest": "阴凉处休息",
+  "item.mcyukkuri.yukkuri_stem": "油库里的茎"
 }

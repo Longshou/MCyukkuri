@@ -561,5 +561,6 @@
   "activity.mcyukkuri.seek_warmth": "暖かい場所を探す",
   "activity.mcyukkuri.warm_up": "体を温める",
   "activity.mcyukkuri.seek_shade": "日陰を探す",
-  "activity.mcyukkuri.shade_rest": "日陰で休む"
+  "activity.mcyukkuri.shade_rest": "日陰で休む",
+  "item.mcyukkuri.yukkuri_stem": "ゆっくりの茎"
 }

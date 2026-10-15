@@ -347,13 +347,20 @@ public final class FamilyLife {
     public void detached(){gestation=null;spentStemCount=0;recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());stop();entity.syncFamily();}
     public void tick() {
         if(entity.level().isClientSide||!entity.isAlive())return;
+        var finished=brood();
+        if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.STEM&&finished.complete())finishStem(finished);
         if(!entity.subspecies().canReproduce()) {
             // Retire invalid legacy maternal gestation while retaining born children and ancestry records.
             var pending=brood();
             if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending);
             gestation=null;stimulation=sexDrive=0;
         }
-        if(entity.isNoAi())return;
+        if(entity.isNoAi()) {
+            // Physics still lands a NoAI body. Confirm contact without advancing growth, flights or hat care.
+            handleLanding(false);
+            if(birthId!=null)FamilyData.get(level()).landed(entity);
+            return;
+        }
         if(!initialized) {
             initialized=true;double variation=.95+new java.util.Random(entity.getUUID().getLeastSignificantBits()).nextDouble()*.1;
             maturity=Math.round(FamilyConfig.MATURITY.get()*variation);
@@ -368,19 +375,8 @@ public final class FamilyLife {
         tickHat();
         if(tickFlight())return;
         if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
-        if(awaitingLanding&&(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity)) {
-            awaitingLanding=false;
-            if(doomed){
-                // Pushed past the hat: drowned in the water, or killed by the hard landing.
-                doomed=false;entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return;
-            }
-            if(!entity.isPassenger()){
-                // Landed beside the hat (a fruit off its end, or in the water by it): it hops in.
-                var hat=nearHat(2.5);
-                if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
-            }
-            entity.showReaction("happy","newborn",100);
-        }
+        if(handleLanding(true))return;
+        if(birthId!=null)FamilyData.get(level()).landed(entity);
         // AquaticLife owns life afloat, boarding flights, real sleep and short shore visits.
         var pendingBrood=brood();var afloat=boatHome();
         if(afloat==null)shoreBound=false;
@@ -395,7 +391,21 @@ public final class FamilyLife {
         var brood=brood();
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) advanceStem(brood);
         else if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE)advanceLive(brood);
-        else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()))gestation=null;
+        else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
+    }
+    /** Pure contact confirmation also runs with AI disabled; optional hat seeking remains an AI behavior. */
+    private boolean handleLanding(boolean hopIntoHat) {
+        if(!awaitingLanding||flight!=null||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
+        awaitingLanding=false;
+        if(doomed){
+            // Pushed past the hat: drowned in the water, or killed by the hard landing.
+            doomed=false;entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return true;
+        }
+        if(hopIntoHat&&!entity.isPassenger()){
+            var hat=nearHat(2.5);
+            if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
+        }
+        entity.showReaction("happy","newborn",100);return false;
     }
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
@@ -510,11 +520,15 @@ public final class FamilyLife {
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
             if(child!=null) { if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
         }
-        if(brood.complete()) {
-            if(cradleEntity()!=null)cradleLinger=120;
-            spentStemCount=brood.children.size();spentStemVariation=brood.variation;
-            recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());gestation=null;stop();
-        }
+        if(brood.complete())finishStem(brood);
+    }
+    private void finishStem(FamilyData.Brood brood) {
+        var drops=ShedStemDrops.get(level());drops.queue(entity,brood);
+        recovery=Math.max(recovery,FamilyConfig.RECOVERY.get());
+        if(!drops.resolve(level(),brood.id))return;
+        if(cradleEntity()!=null)cradleLinger=120;
+        spentStemCount=0;
+        gestation=null;stop();entity.syncFamily();
     }
     public FamilyData.BirthKind naturalBirthKind(YukkuriEntity other){
         if(entity.getVariant().isHouse())return FamilyData.BirthKind.EGG;
@@ -768,7 +782,8 @@ public final class FamilyLife {
                 flightTick=Math.clamp(f.getInt("Elapsed"),0,ticks-1);
             }
         }
-        spentStemCount=Math.clamp(tag.getInt("SpentStemCount"),0,5);spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
+        // Legacy permanent dry stems disappear; they do not mint retrospective items.
+        spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
         stop();entity.syncFamily();

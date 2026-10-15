@@ -2,6 +2,15 @@
   "schema_version": 2,
   "path_base": "repository_root",
   "automatic_promotion": false,
+  "shed_stem": {
+    "source": "art/props/family-life/shed-stem.json",
+    "exporter": "art/props/family-life/export_shed_stem.py",
+    "manifest": "art/props/family-life/shed-stem-provenance.json",
+    "geometry": "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json",
+    "item_model": "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json",
+    "texture": "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png",
+    "status": "pending_user_review"
+  },
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",
