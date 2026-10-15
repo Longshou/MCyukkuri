@@ -38,6 +38,8 @@
 
 ## 相关资料
 
+游戏接入：2026-10-16 按以上资料补上持枝划行、收粮、照料与帽内夜宿，详见[水边生活实现](../../../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md)。库存容量、采集规则、路线范围与时长为项目原创平衡，不作为作品通用设定。
+
 新增可观察材料：[EH22](../../../../art-references/ehentai/works/EH22.md)第 1、5、6 页有帽船外形、辫端持桨和帽内收物，第 7 页明确把耐水与会游泳分开；[N13](../../../../novel-reading/cards/N13.md)补固定帽船与拖带，但与 L25 同作者。[N14](../../../../novel-reading/cards/N14.md)另有水上育成与螺壳潜水的私设，作为异说登记。上述材料补充动作与版本比较，不改动本页已有用户采用决定；按[季节、水域与迁徙](../../../../reference-library/topics/environment.md)查图文材料。
 
 [形态与生态类别](../forms.md) · [共通生态](../../ecology.md) · [口吻与发音](../../../dialogue/species-variants.md) · [作品来源](../../../sources-lore.md)

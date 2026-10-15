@@ -3590,7 +3590,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "contact-safe-20261014-v10",
+    "revision": "aquatic-life-20261016-v11",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3622,7 +3622,8 @@
     "current_reports": "art/source/motion-corrections/reports/current",
     "history": "preview/review/puff-v6",
     "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
-    "births_preview": "art/source/motion-corrections/previews/current/lore/index.html"
+    "births_preview": "art/source/motion-corrections/previews/current/lore/index.html",
+    "aquatic_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_preview.py"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",

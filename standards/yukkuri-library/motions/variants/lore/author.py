@@ -56,7 +56,26 @@ def curled(c):
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action == 'eat':
+    if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board'):
+        s = curled(c)
+        phase = 2*math.pi*t/d
+        if action == 'boat_paddle':
+            r = [-2-3*math.sin(phase), 3*math.sin(phase), -2+1.5*math.cos(phase)]
+            s[1] -= .015*(1-math.cos(phase))
+        elif action == 'boat_gather':
+            reach = bump(t/d); r = [-7*reach, -9*reach, -3*reach]
+            s[1] -= .025*reach
+        elif action == 'boat_eat':
+            chew = bump((t % .4)/.4); r[0] = -5-2*chew; s[1] -= .025*chew
+        elif action == 'boat_drink':
+            sip = bump(t/d); r[0] = -9*sip; r[2] = -2*sip
+        elif action == 'boat_sleep':
+            s[1] += .012*(1-math.cos(phase))/2; r = [-3, 0, 2]
+        elif action == 'boat_wake':
+            a = bump(t/d); s[1] = .91+.09*a+.04*smooth(t/d); r[0] = 4*a
+        else:
+            s = [1.03, .94, 1.03]  # physical flight supplies lift; never double the arc
+    elif action == 'eat':
         q = bump((t % c['chew_seconds'])/c['chew_seconds'])
         r[0] = c['lean']+c['chew_nod']*q
         k = c['chew_squash']; s = [1+.6*k*q, 1-k*q, 1+.6*k*q]
@@ -231,6 +250,14 @@ def braid_length(model, hand, parts):
 
 def flourish_tracks(model, action, samples, cfg, c):
     tracks = []
+    if action in ('boat_paddle', 'boat_gather', 'boat_drink'):
+        hand, parts = carried(model, 'hand_right')
+        if parts:
+            def rowing(t):
+                phase = 2*math.pi*t/c['duration']
+                if action == 'boat_paddle': return [18*math.sin(phase), 0, 24+6*math.cos(phase)]
+                a = bump(t/c['duration']); return [-18*a, -8*a, 12+12*a]
+            tracks.append({'bone': hand, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in rowing(t)]] for t in samples]})
     wave = cfg['flourishes']['braid_wave']
     if action in wave['clips'] and c.get('style') == 'genki':
         hand, parts = carried(model, 'hand_right')

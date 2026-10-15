@@ -51,7 +51,7 @@
 | 世界观动作（社交与情绪） | `nuzzle`、`sing`、`sway`、`push`、`greet`、`tremble`、`droop`、`look_around`、`shake` |
 | 世界观动作（分娩） | `brood`、`labor`、`midwife`（魔理沙）、`postpartum`、`first_wake`、`bereaved` |
 | 魔理沙用辫子摆弄帽子 | `hat_off`、`hat_hold`、`hat_on`、`hat_off_self`、`hat_on_self`，水生大帽版本加后缀 `_aq` |
-| 水生魔理沙帽船 | `boat_drift`、`boat_steady`、`boat_call`、`boat_brood`、`boat_labor`、`hat_cradle` |
+| 水生魔理沙帽船 | `boat_drift`、`boat_steady`、`boat_call`、`boat_brood`、`boat_labor`、`hat_cradle`；新增 `boat_paddle`、`boat_gather`、`boat_eat`、`boat_drink`、`boat_sleep`、`boat_wake`、`boat_board`，触发见[水边生活](AQUATIC_MARISA_IMPLEMENTATION.md) |
 | 螺壳魔理沙专用 | `shell_retract`（其他形态显示待机） |
 
 世界观动作随动作修正资源下发，设计、依据与触发方式见 [世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)。除命令外，服务器会按行为自动选择这些动作：进食、饮水、睡眠、擦脸、唱歌、听歌、相扑、寻找家人等行为各有对应动作；问候、害怕、失饰、被擦洗、玩具等短反应在空闲时播放；没有饰品时空闲即低落。孕期母体安胎，胎生时随收缩用力，魔理沙用辫子摘下自己的帽子翻过来放在出口前接生、扶着帽檐打气，之后再用辫子戴回，产后休息，新生儿初醒。帽船只属于水生魔理沙：漂流、稳船、向岸呼唤，在船上安胎、分娩和睡觉，帽中幼体轻摇。螺壳魔理沙受惊时原地缩壳、不逃跑，缩壳期间受到的伤害减半。片段只编入适用的形态，其他形态播放待机。

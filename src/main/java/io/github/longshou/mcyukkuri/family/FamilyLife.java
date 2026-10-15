@@ -111,6 +111,7 @@ public final class FamilyLife {
         if(entity.level().isClientSide)return false;
         var b=brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration;
     }
+    public boolean wantsBoatLanding() { return shoreBound; }
     /** The mate this partner is helping deliver, while acting as midwife. */
     public YukkuriEntity midwifeTarget() { return task==Task.MIDWIFE?target:null; }
     /** An aquatic mother afloat in her own hat boat nests in it: her young are born into the hat (water birth). */
@@ -264,17 +265,24 @@ public final class FamilyLife {
         entity.setPos(from.x,from.y,from.z);
         flight=new Flight(null,from,null,to,HatVessel.solve(from,to,hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));flightTick=0;
     }
+    /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
+    public void embark(HatBoatEntity hat) {
+        var seat = hat.ownerSeat(entity);
+        flight = new Flight(hat.getUUID(), entity.position(), seat, null,
+                HatVessel.solve(entity.position(), hat.toWorld(seat), hat, HatVessel.radius(entity.getBbWidth()), HatVessel.HOP_TMIN));
+        flightTick = 0; entity.getNavigation().stop();
+    }
     /** One tick along the flight; at its end a young bound for a hat boards it. */
     private boolean tickFlight(){
         if(flight==null)return false;
         var hat=flight.hat()!=null&&level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
-        if(flight.seat()!=null&&hat==null){flight=null;return false;}  // the hat is gone: it falls as anything does
+        if(flight.seat()!=null&&(hat==null||!hat.isAfloat()&&!hat.catches())){flight=null;return false;}  // no dry landing on a capsized hat
         var f=flight;var to=hat!=null?hat.toWorld(f.seat()):f.to();flightTick++;
         var at=HatVessel.arc(f.from(),to,f.ticks(),flightTick);
         entity.setPos(at.x,at.y,at.z);entity.fallDistance=0;entity.getNavigation().stop();entity.hasImpulse=true;
         if(flightTick<f.ticks()){entity.setDeltaMovement(HatVessel.arc(f.from(),to,f.ticks(),flightTick+1).subtract(at));return true;}
         flight=null;entity.setDeltaMovement(Vec3.ZERO);
-        if(hat!=null)hat.boardYoung(entity);
+        if(hat!=null) { if (entity.getUUID().equals(hat.ownerYukkuri())) hat.board(entity); else hat.boardYoung(entity); }
         return true;
     }
     /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
@@ -363,24 +371,14 @@ public final class FamilyLife {
             }
             entity.showReaction("happy","newborn",100);
         }
-        // Aquatic families spend the night afloat: a parent launches her hat and the young sleep in its dry well under her
-        // (user, 2026-10-14); by day a boat carrying young makes for the bank, where they land together.
-        if(HatVessel.aquatic(entity)&&entity.tickCount%40==0){
-            if(adult()&&level().isNight()&&!entity.isPassenger()&&hatted(entity)&&brood()==null&&!active()&&!youngAround(6).isEmpty())
-                HatBoatEntity.tryLaunchNearby(entity);
-            var home=boatHome();
-            if(home!=null&&!level().isNight()&&brood()==null&&home.getPassengers().size()>1&&!home.towed()){var bank=home.nearestBank();if(bank!=null)home.towTo(Vec3.atBottomCenterOf(bank),100);}
-        }
-        if(!adult()&&!entity.isPassenger()&&level().isNight()&&entity.tickCount%10==0) {
-            var boat=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(5),b->b.isAfloat()&&b.young(entity)&&b.hasRoomForYoung()).stream().findFirst().orElse(null);
-            if(boat!=null)boat.boardYoung(entity);
-        }
+        // AquaticLife owns dusk departures, boarding flights, real sleep and dawn landings.
         var pendingBrood=brood();var afloat=boatHome();
         if(afloat==null)shoreBound=false;
         else if(pendingBrood!=null&&!pendingBrood.cancelled&&!pendingBrood.complete()&&entity.tickCount%40==0
                 &&pendingBrood.elapsed>=pendingBrood.duration-(pendingBrood.kind==FamilyData.BirthKind.LIVE?200:400)){
-            var bank=wantsShore(pendingBrood)?afloat.nearestBank():null;shoreBound=bank!=null;
-            if(bank!=null)afloat.towTo(Vec3.atBottomCenterOf(bank),60);
+            var bank=wantsShore(pendingBrood)?afloat.nearestBank():null;
+            shoreBound=bank!=null && (afloat.distanceToSqr(Vec3.atBottomCenterOf(bank))<=3.25
+                    || afloat.cargo().paddle() && !io.github.longshou.mcyukkuri.subspecies.HatBoatRoute.find(afloat,Vec3.atBottomCenterOf(bank)).isEmpty());
         }
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
@@ -450,6 +448,7 @@ public final class FamilyLife {
     }
     public boolean introduce(YukkuriEntity other) {
         if(other==entity||!adult()||!other.family().adult()||entity.getVariant().isHouse()!=other.getVariant().isHouse()
+                ||HatVessel.aquatic(entity)!=HatVessel.aquatic(other)
                 ||entity.getVariant().isPredator()!=other.getVariant().isPredator()
                 ||entity.level()!=other.level()||entity.distanceToSqr(other)>64)return false;
         var data=FamilyData.get(level());data.register(entity);data.register(other);
@@ -723,6 +722,11 @@ public final class FamilyLife {
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
         tag.putInt("LiveRecovery",liveRecovery);
+        if (flight != null) {
+            var f = new CompoundTag(); if (flight.hat()!=null) f.putUUID("Hat",flight.hat());
+            putVector(f,"From",flight.from()); putVector(f,"Seat",flight.seat()); putVector(f,"To",flight.to());
+            f.putInt("Ticks",flight.ticks()); f.putInt("Elapsed",flightTick); tag.put("HatFlight",f);
+        }
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
@@ -743,9 +747,26 @@ public final class FamilyLife {
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,1200);
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,70);deliveryLast=null;
+        flight = null;
+        if (tag.contains("HatFlight")) {
+            var f=tag.getCompound("HatFlight"); var from=vector(f,"From"); var seat=vector(f,"Seat"); var to=vector(f,"To");
+            int ticks=Math.clamp(f.getInt("Ticks"),1,HatVessel.TMAX);
+            if (from!=null && (f.hasUUID("Hat")&&seat!=null || to!=null)) {
+                flight=new Flight(f.hasUUID("Hat")?f.getUUID("Hat"):null,from,seat,to,ticks);
+                flightTick=Math.clamp(f.getInt("Elapsed"),0,ticks-1);
+            }
+        }
         spentStemCount=Math.clamp(tag.getInt("SpentStemCount"),0,5);spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
         stop();entity.syncFamily();
+    }
+    private static void putVector(CompoundTag tag,String key,Vec3 value) {
+        if(value==null)return; var v=new CompoundTag();v.putDouble("X",value.x);v.putDouble("Y",value.y);v.putDouble("Z",value.z);tag.put(key,v);
+    }
+    private static Vec3 vector(CompoundTag tag,String key) {
+        if(!tag.contains(key))return null;var v=tag.getCompound(key);
+        double x=v.getDouble("X"),y=v.getDouble("Y"),z=v.getDouble("Z");
+        return Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)?new Vec3(x,y,z):null;
     }
 }

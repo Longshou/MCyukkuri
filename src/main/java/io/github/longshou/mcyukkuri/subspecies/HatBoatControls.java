@@ -13,11 +13,24 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @EventBusSubscriber(modid=MCYukkuri.MOD_ID)
 public final class HatBoatControls {
     @SubscribeEvent public static void launch(PlayerInteractEvent.EntityInteract event) {
-        if(event.getHand()!=InteractionHand.MAIN_HAND || !event.getEntity().isShiftKeyDown()
+        if(event.getHand()!=InteractionHand.MAIN_HAND
                 || !event.getItemStack().is(Items.STICK) || !(event.getTarget() instanceof YukkuriEntity y))return;
+        if (!event.getEntity().isShiftKeyDown()) {
+            if (!HatVessel.aquatic(y)) return;
+            if (!event.getLevel().isClientSide) {
+                boolean accepted = y.getVehicle() instanceof HatBoatEntity boat
+                        ? boat.cargo().givePaddle(event.getItemStack(),event.getEntity().getAbilities().instabuild)
+                        : y.aquaticLife().giveStick(event.getItemStack(),event.getEntity().getAbilities().instabuild);
+                if (!accepted) return;
+            }
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide)); event.setCanceled(true); return;
+        }
         if(y.getVehicle() instanceof HatBoatEntity boat) {
             if(!event.getLevel().isClientSide)boat.capsize();
-        } else if(!event.getLevel().isClientSide && HatBoatEntity.tryLaunchNearby(y)==null)return;
+        } else if(!event.getLevel().isClientSide) {
+            var boat = HatBoatEntity.tryLaunchNearby(y); if (boat == null) return;
+            boat.cargo().givePaddle(event.getItemStack(), event.getEntity().getAbilities().instabuild);
+        }
         event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));event.setCanceled(true);
     }
     private HatBoatControls(){}

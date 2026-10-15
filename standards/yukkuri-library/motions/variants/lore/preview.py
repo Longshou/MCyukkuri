@@ -15,7 +15,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUT = ROOT/'.local/previews/lore'  # the preview page (index.html) stays local, not committed
-BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor')
+BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor',
+              'boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board')
 # Panels: (label, model id, mode). Land forms never show the boat set; the aquatic Marisa shows only it;
 # the young panel shows a baby sitting on its mother's brim.
 PANELS = [('魔理沙', 'marisa', 'land'), ('水生魔理沙', 'marisa', 'aquatic'), ('帽中幼体', 'marisa', 'young'), ('灵梦', 'reimu', 'land'),
@@ -83,7 +84,7 @@ class Posed:
             m[:3, :3] = euler(p.get('rotation', [0, 0, 0]))*np.array(p.get('scale', [1, 1, 1]))
             pv = np.array(b['pivot']); m[:3, 3] = pv+np.array(p.get('position', [0, 0, 0]))-m[:3, :3]@pv
             mats.append(mats[b['parent']]@m if b['parent'] >= 0 else m)
-        M = np.array(mats); hv = np.c_[self.v, np.ones(len(self.v))]
+        M = np.array(mats); self.last_matrices = M; hv = np.c_[self.v, np.ones(len(self.v))]
         pos = np.einsum('nij,nj->ni', M[self.a], hv)[:, :3]*(1-self.q)+np.einsum('nij,nj->ni', M[self.b], hv)[:, :3]*self.q
         nrm = np.einsum('nij,nj->ni', M[self.a][:, :3, :3], self.n)
         if self.boat: pos[-self.boat:], nrm[-self.boat:] = self.v[-self.boat:], self.n[-self.boat:]

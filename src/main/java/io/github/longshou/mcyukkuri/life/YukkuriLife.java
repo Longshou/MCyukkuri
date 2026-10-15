@@ -114,13 +114,33 @@ public final class YukkuriLife {
     public void setMedal(int tier) { goldMedal = tier == 2; silverMedal = tier == 1; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
-    public boolean canRecognize(YukkuriEntity target) { return goldMedal || target.life().hasAccessory(); }
+    public boolean canRecognize(YukkuriEntity target) { return goldMedal || target.life().hasAccessory()
+            || target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+            && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
     private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
     public boolean canEat() { return needsFood() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620; }
+    /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
+    public void restInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
+        if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
+                || boat.flooding() > 0 || level().isRainingAt(entity.blockPosition())) { wakeInHat(); return; }
+        if (!level().isNight() && energy > 20 && task != Task.SLEEP) return;
+        if (task != Task.SLEEP) { task = Task.SLEEP; sleepTicks = 0; targetBlock = null; targetFood = null; }
+        sleepTicks = Math.min(600, sleepTicks+1);
+        if (sleepTicks == 20) entity.speak("sleep");
+        if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
+        if (drugSleep > 0) drugSleep--;
+        if (drugSleep == 0 && (nutrition < 15 || !level().isNight() && sleepTicks >= 220 && energy >= 95)) wakeInHat();
+    }
+    public void wakeInHat() {
+        if (task != Task.SLEEP) return;
+        boolean rested = sleepTicks >= 220;
+        task = Task.NONE; sleepTicks = 0; restWait = 1200;
+        if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
+    }
     public boolean wantsCrawl() {
         return task == Task.FOOD && mealTicks == 0 && targetFood != null && targetFood.isAlive()
                 && entity.distanceToSqr(targetFood) < 1;
@@ -246,6 +266,11 @@ public final class YukkuriLife {
     public UUID takeAccessory(UUID player) {
         return takeAccessory(player,UUID.randomUUID());
     }
+    /** Voluntarily using one's own hat as a vessel is not an accessory theft. */
+    public UUID stowAccessory() {
+        if (!accessory) return null;
+        accessory = false; accessoryToken = UUID.randomUUID(); return accessoryToken;
+    }
     public UUID takeAccessory(UUID player,UUID token) {
         if (!accessory) return null;
         accessory = false; accessoryToken = token; personality.accessoryTaken(player);
@@ -259,6 +284,7 @@ public final class YukkuriLife {
     public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}
 
     public boolean plan() {
+        if (entity.shelteredInHat()) return false;
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks > 0) return true;
@@ -623,6 +649,7 @@ public final class YukkuriLife {
         tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
+        if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
@@ -654,5 +681,6 @@ public final class YukkuriLife {
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null; goldMedal=tag.getBoolean("GoldMedal"); silverMedal=tag.getBoolean("SilverMedal");
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
+        if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
     }
 }

@@ -51,6 +51,13 @@ public enum YukkuriAction {
     BOAT_CALL("boat_call", 2.0, true),
     BOAT_BROOD("boat_brood", 4.0, true),
     BOAT_LABOR("boat_labor", 2.4, true),
+    BOAT_PADDLE("boat_paddle", 1.6, true),
+    BOAT_GATHER("boat_gather", 1.6, false),
+    BOAT_EAT("boat_eat", 1.2, true),
+    BOAT_DRINK("boat_drink", 1.6, true),
+    BOAT_SLEEP("boat_sleep", 4.0, true),
+    BOAT_WAKE("boat_wake", 1.6, false),
+    BOAT_BOARD("boat_board", .8, true),
     HAT_CRADLE("hat_cradle", 3.0, true),
     // Marisa's braid takes off, sets down, holds and puts back her own hat (lore hat.py); _AQ: the aquatic Marisa's larger hat floated at a bank.
     HAT_OFF("hat_off", 1.6, false),

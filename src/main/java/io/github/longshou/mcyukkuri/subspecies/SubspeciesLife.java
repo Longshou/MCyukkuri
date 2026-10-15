@@ -118,17 +118,14 @@ public final class SubspeciesLife {
             if (kind == Kind.SHELL_MARISA && !speed.hasModifier(id)) speed.addTransientModifier(new AttributeModifier(id, -.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             else if (kind != Kind.SHELL_MARISA) speed.removeModifier(id);
         }
-        // Only the aquatic Marisa launches her hat from a dry bank; never on falling into water.
-        if (entity.tickCount % 400 == 0 && kind == Kind.AQUATIC_MARISA && entity.getVariant() == YukkuriVariant.MARISA
-                && !entity.isNoAi() && entity.life().hasAccessory() && !entity.isInWaterOrBubble()
-                && entity.onGround() && !entity.isPassenger() && entity.getRandom().nextInt(4) == 0)
-            HatBoatEntity.tryLaunchNearby(entity);
+        // Shore selection and departures belong to AquaticLife's exclusive server goal.
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Kind", kind.name()); tag.putString("Congenital", congenital.name());
         tag.putBoolean("Initialized", initialized); tag.putBoolean("BoatExperienced", boatExperienced);
         tag.putInt("LessonAttempts", lessonAttempts); tag.putInt("LessonCooldown", lessonCooldown);
         tag.putBoolean("Deibu",deibu);tag.putInt("DeibuExposure",deibuExposure);tag.putInt("Susceptibility",susceptibility());
+        tag.put("AquaticLife", entity.aquaticLife().save());
         if (boat != null) tag.putUUID("Boat", boat); return tag;
     }
     public void load(CompoundTag tag) {
@@ -139,6 +136,7 @@ public final class SubspeciesLife {
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
         lessonAttempts = Math.max(0, tag.getInt("LessonAttempts")); lessonCooldown = Math.clamp(tag.getInt("LessonCooldown"), 0, 240);
         boat = tag.hasUUID("Boat") ? tag.getUUID("Boat") : null; sync();
+        entity.aquaticLife().load(tag.getCompound("AquaticLife"));
         deibu=tag.getBoolean("Deibu")&&entity.getVariant()==YukkuriVariant.REIMU&&congenital==Congenital.NORMAL;
         deibuExposure=Math.clamp(tag.getInt("DeibuExposure"),0,1728000);
         susceptibility=tag.contains("Susceptibility")?Math.clamp(tag.getInt("Susceptibility"),0,99):-1;

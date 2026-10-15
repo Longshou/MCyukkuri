@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -20,6 +20,20 @@
     "aquatic_marisa": ["marisa"]
   },
   "clips": {
+    "boat_paddle": {"label": "辫端持枝划船", "duration": 1.6, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.65, "chewing_closed"], [0.65, 1.6, "closed_smile"]], "lore": "EH22-005 braid-held twig; N09 mouth-held stick is a documented alternative. Stroke timing is project design.", "triggers": ["server surface route has a real stick and a waypoint"]},
+    "boat_gather": {"label": "收食入帽", "duration": 1.6, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.6, "drool"], [0.6, 1.05, "chewing_closed"], [1.05, 61.6, "happy"]], "lore": "EH22-006 collecting objects inside the hat; finite food storage adopted by user 2026-10-14", "triggers": ["real floating food transferred to hat cargo"]},
+    "boat_eat": {"label": "帽内低头进食", "duration": 1.2, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.2, "chewing"], [0.2, 0.4, "chewing_closed"], [0.4, 0.6, "chewing"], [0.6, 0.8, "chewing_closed"], [0.8, 1, "chewing"], [1, 1.2, "chewing_closed"]], "lore": "food in the dry hat; conservative seated movement, avoiding EH22-008 dangerous overreaching", "triggers": ["actual meal while aboard"]},
+    "boat_drink": {"label": "扶稳帽沿饮水", "duration": 1.6, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.6, "chewing_closed"], [0.6, 1.1, "chewing"], [1.1, 1.6, "closed_smile"]], "lore": "project shoreward drinking pose; body stays in the dry hat, N09 forbids treating the body as waterproof", "triggers": ["dryness while afloat"]},
+    "boat_sleep": {"label": "护着幼体帽中睡", "duration": 4, "loop": true, "applies": "aquatic_marisa", "height": 0.91, "width": 1.04,
+      "faces": [[0, 4, "sleep"]], "lore": "user-adopted night nesting: young below, parent above, hat still afloat; real server sleep", "triggers": ["hat sleep"]},
+    "boat_wake": {"label": "帽中醒来", "duration": 1.6, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.3, "sleepy"], [0.3, 0.9, "yawn"], [0.9, 61.6, "neutral"]], "lore": "project seated wake after a completed physiological sleep", "triggers": ["reaction awake aboard"]},
+    "boat_board": {"label": "跃入帽船收身", "duration": 0.8, "loop": true, "applies": "aquatic_marisa", "height": 0.94, "width": 1.03,
+      "faces": [[0, 0.4, "chewing_closed"], [0.4, 0.8, "happy"]], "lore": "N13 fixed hat before boarding; translation follows the server gravity arc, this clip only tucks the body", "triggers": ["owner boarding flight"]},
     "eat": {"label": "进食", "duration": 1.2, "loop": true, "applies": "all", "lean": -10, "chew_seconds": 0.4, "chew_nod": -3, "chew_squash": 0.05,
             "faces": [[0, 0.1, "chewing"], [0.1, 0.3, "chewing_closed"], [0.3, 0.5, "chewing"], [0.5, 0.7, "chewing_closed"], [0.7, 0.9, "chewing"], [0.9, 1.1, "chewing_closed"], [1.1, 1.2, "chewing"]],
             "lore": "むーしゃむーしゃ (L03 word form; chewing faces from the project's eating stages)", "triggers": ["take_food", "chew", "swallow"]},

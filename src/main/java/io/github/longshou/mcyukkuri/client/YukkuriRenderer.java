@@ -109,6 +109,17 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             var root=model.rootPose();
+            if (action.equals("boat_paddle") && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+                    && boat.cargo().paddle() && entity.getUUID().equals(boat.ownerYukkuri())) {
+                var grip = model.paddlePose();
+                if (grip != null) {
+                    pose.pushPose(); pose.mulPose(grip); pose.translate(0,-.22,0);
+                    pose.mulPose(Axis.ZP.rotationDegrees(45)); pose.scale(.85f,.85f,.85f);
+                    Minecraft.getInstance().getItemRenderer().renderStatic(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STICK),
+                            ItemDisplayContext.FIXED,packedLight,overlay,pose,buffers,entity.level(),entity.getId());
+                    pose.popPose();
+                }
+            }
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){

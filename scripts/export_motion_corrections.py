@@ -164,7 +164,7 @@ def main():
               'pressed', models[ident]['cheek']['pressed_vertices'], 'depth', models[ident]['cheek']['press_depth'],
               'locks', {k: v['degrees'] for k, v in models[ident]['cheek']['locks'].items()})
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
-    payload = json.dumps({'format': 2, 'revision': 'contact-safe-20261014-v10', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
+    payload = json.dumps({'format': 2, 'revision': 'aquatic-life-20261016-v11', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:
         trial = Path(args.trial); (trial/'textures').mkdir(parents=True, exist_ok=True)
         (trial/'motion_corrections.json').write_text(payload, encoding='utf-8', newline='\n')

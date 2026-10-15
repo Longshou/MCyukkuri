@@ -14,7 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 public final class NotebookGuide {
     public static List<Component> pages(ItemStack notebook) {
         List<Component> pages = new ArrayList<>();
-        for (String chapter : List.of("start", "route", "discovery", "care", "water", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community"))
+        for (String chapter : List.of("start", "route", "discovery", "care", "water", "aquatic", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community"))
             pages.add(Component.translatable("notebook.mcyukkuri.chapter." + chapter));
         CompoundTag seen = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedSpecies");
         for (YukkuriVariant variant : YukkuriVariant.values()) {
@@ -55,6 +55,15 @@ public final class NotebookGuide {
                 Component.translatable("notebook.mcyukkuri.chapter.birth_" + brood.kind.name().toLowerCase(java.util.Locale.ROOT)),
                 Math.round(brood.progress() * 100), brood.unborn(),
                 brood.father == null ? Component.translatable("family.mcyukkuri.unknown") : Component.literal(brood.father.toString().substring(0, 8)));
+    }
+    public static Component aquatic(YukkuriEntity entity) {
+        var boat=io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.find(entity);
+        if(boat==null)return Component.translatable("notebook.mcyukkuri.chapter.aquatic");
+        return Component.translatable("notebook.mcyukkuri.aquatic_status",
+                Component.translatable("subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(java.util.Locale.ROOT)),
+                boat.cargo().paddle()?"✓":"—",boat.cargo().count(),io.github.longshou.mcyukkuri.subspecies.HatBoatCargo.CAPACITY,
+                boat.youngAboard(),io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG,
+                Component.translatable("activity.mcyukkuri."+entity.getBehaviorId()));
     }
     private NotebookGuide() {}
 }

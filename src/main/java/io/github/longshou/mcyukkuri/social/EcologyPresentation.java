@@ -22,6 +22,8 @@ public final class EcologyPresentation {
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
             case "midwife" -> YukkuriAction.MIDWIFE;
+            case "boat_launch" -> YukkuriAction.HAT_OFF_SELF_AQ;
+            case "boat_wait_young", "boat_find_paddle", "boat_seek_bank" -> YukkuriAction.LOOK_AROUND;
             case "hat_off", "hat_on", "hat_hold", "hat_off_self", "hat_on_self",
                  "hat_off_aq", "hat_on_aq", "hat_hold_aq", "hat_off_self_aq", "hat_on_self_aq" -> YukkuriAction.byId(behavior).orElse(YukkuriAction.IDLE);
             default -> YukkuriAction.IDLE;
@@ -38,7 +40,14 @@ public final class EcologyPresentation {
     /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
     public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
-        if (owner.life().isSleeping()) return YukkuriAction.SLEEP;  // on the rim over her young asleep in the well
+        if (boat.flooding() > 0 || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
+        if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
+        if (reaction.equals("awake")) return YukkuriAction.BOAT_WAKE;
+        if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
+        if (behavior.equals("boat_drink")) return YukkuriAction.BOAT_DRINK;
+        if (behavior.equals("boat_gather")) return YukkuriAction.BOAT_GATHER;
+        if (behavior.equals("boat_call") || behavior.equals("boat_wait_young")) return YukkuriAction.BOAT_CALL;
+        if (boat.paddling()) return YukkuriAction.BOAT_PADDLE;
         var brood = owner.family().brood();
         if (brood != null && !brood.cancelled && !brood.complete()) return YukkuriAction.BOAT_BROOD;
         if (behavior.equals("event_river")) return YukkuriAction.BOAT_CALL;
@@ -76,6 +85,11 @@ public final class EcologyPresentation {
             case "toilet_accident" -> "teary";
             case "seek_toilet" -> e.life().bladder() >= 90 ? "teary" : "neutral";
             case "take_food", "seek_food" -> "drool";
+            case "boat_paddle", "boat_drift" -> "closed_smile";
+            case "boat_gather", "boat_eat" -> "chewing";
+            case "boat_drink" -> "chewing_closed";
+            case "boat_call", "boat_wait_young" -> "teary";
+            case "boat_steady" -> "surprise";
             case "chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case "swallow", "drink" -> "chewing_closed";
             case "bully_peer", "protect_peer", "sumo_push" -> "angry";

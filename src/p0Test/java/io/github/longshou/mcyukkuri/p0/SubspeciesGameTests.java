@@ -35,7 +35,7 @@ public final class SubspeciesGameTests {
             .thenExecute(t::rules).thenExecute(t::surfaces).thenIdle(100).thenExecute(t::afloat).thenIdle(40).thenExecute(t::rescue)
             .thenExecute(()->{
                 P0Control.write("subspecies-checks",t.checks);
-                t.level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,80,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity).forEach(Entity::discard);
+                t.level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,80,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
                 GameTestChunks.setForced(t.level,X/16,0,false);
                 var failed=t.checks.stream().filter(c->!c.pass()).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
             });
@@ -91,16 +91,26 @@ public final class SubspeciesGameTests {
         check("duplicate launch rejected",HatBoatEntity.createFor(owner,new BlockPos(X+6,65,7))==null);
         check("foreign passenger rejected",!boat.board(ordinary));
         check("shell cannot get hat boat",HatBoatEntity.createFor(shell,new BlockPos(X+5,65,5))==null);
+        var provisions=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.APPLE,12);
+        check("hat storage transfers only its finite capacity",boat.cargo().store(provisions,12,false)==8
+                && provisions.getCount()==4 && boat.cargo().count()==8);
+        check("full hat cannot consume more food",boat.cargo().store(provisions,1,false)==0 && provisions.getCount()==4);
+        var sticks=new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STICK,2);
+        check("paddle is one real stick",boat.cargo().givePaddle(sticks,false)&&sticks.getCount()==1);
+        check("second paddle is rejected without consuming it",!boat.cargo().givePaddle(sticks,false)&&sticks.getCount()==1);
         var boatTag=new CompoundTag();boat.saveWithoutId(boatTag);var clone=ModEntities.HAT_BOAT.get().create(level);clone.load(boatTag);
         check("boat identity state saved",clone.ownerYukkuri().equals(owner.getUUID())&&clone.state()==HatBoatEntity.State.AFLOAT);
+        check("food and paddle survive a boat reload",clone.cargo().count()==8&&clone.cargo().paddle());
         owner.life().applyEnvironment(-100,0,0);
     }
     private void afloat(){
         check("water surface remains stable",Math.abs(boat.getY()-boatStartY)<.15);
         check("passenger stays aboard",owner.getVehicle()==boat&&boat.isAfloat());
         check("hat flotation keeps body dry",owner.life().wetness()<20);
+        check("dry protection requires a real passenger",boat.protects(owner)&&!boat.protects(ordinary));
         check("distant rescue rejected",!boat.rescue(new BlockPos(X+15,66,15),UUID.randomUUID()));
         boat.capsize();check("capsize ejects real passenger",owner.getVehicle()==null&&boat.state()==HatBoatEntity.State.CAPSIZED);
+        check("capsize clears dry protection and cargo",!boat.protects(owner)&&boat.cargo().count()==0&&!boat.cargo().paddle());
     }
     private void surfaces(){
         for(var id:io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS){
