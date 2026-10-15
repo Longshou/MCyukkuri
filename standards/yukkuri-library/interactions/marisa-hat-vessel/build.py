@@ -348,7 +348,7 @@ def main():
         'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy']}
     texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
     index = json.loads(INDEX.read_text(encoding='utf-8'))
-    for name in ('marisa_hat_vessel', 'marisa_hat_nest'): index.pop(name, None)
+    for name in ('marisa_hat_vessel', 'marisa_hat_nest', 'hat_boat'): index.pop(name, None)  # earlier props, deleted
     index.setdefault('marisa_hat_turned', {}); texts[INDEX] = json.dumps(index, separators=(',', ':'))
     manifest = {'note': 'Runtime outputs of build.py', 'recipe_sha256': sha((HERE/'recipe.json').read_bytes()), 'build_sha256': sha(Path(__file__).read_bytes()),
                 'growth_sha256': sha(json.dumps(GROWTH, sort_keys=True).encode()),

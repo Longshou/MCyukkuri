@@ -261,23 +261,6 @@ def export(ident, base, selection, stage, preserve_textures=False):
         'runtime_acceptance':'not_executed'}
     return model,record
 
-def boat(stage):
-    original=LIB.parent/'yukkuri-v1/subspecies/aquatic'
-    source=read(original/'accessory-components.json'); flat=[]; parts=[]
-    for e in source['elements']:
-        vv=vertices(e,256); start=len(flat)//8
-        flat.extend(vv); parts.append({'name':e['name'],'start':start,'count':len(vv)//8,'unit':0,'texture':'mcyukkuri:textures/props/hat_boat.png'})
-    bounds=[[min(flat[k::8]),max(flat[k::8])] for k in range(3)]
-    data={'format':1,'units_per_block':16,'vertices':flat,'parts':parts,'bounds':bounds}
-    out=OUT/'hat_boat';save(out/'source-components.json',source);save(out/'runtime.model.json',data)
-    out.mkdir(parents=True,exist_ok=True);shutil.copyfile(original/'marisa.png',out/'hat_boat.png')
-    if not stage:
-        save(ASSETS/'yukkuri_props/hat_boat.json',data);save(ASSETS/'yukkuri_props/subspecies-index.json',{'hat_boat':{},'marisa_shell':{}})
-        shutil.copyfile(original/'marisa.png',ASSETS/'textures/props/hat_boat.png')
-    return {'source':rel(original/'accessory-components.json'),'source_sha256':sha(original/'accessory-components.json'),
-        'runtime':rel(ASSETS/'yukkuri_props/hat_boat.json'),'runtime_sha256':sha(out/'runtime.model.json'),
-        'shape_status':'selected_existing_prototype_pending_confirmation','bounds':bounds,'part_count':len(parts)}
-
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--stage',action='store_true')
     mode=parser.add_mutually_exclusive_group()
@@ -310,7 +293,7 @@ def main():
     for base in ('reimu','marisa'):
         for shape in ('sparse','face','bean'):
             ident=base+'_'+shape;models[ident],records[ident]=export(ident,base,author(base,shape),args.stage)
-    manifest={'version':1,'exporter':rel(Path(__file__)),'exporter_sha256':sha(Path(__file__)),'models':records,'hat_boat':boat(args.stage)}
+    manifest={'version':1,'exporter':rel(Path(__file__)),'exporter_sha256':sha(Path(__file__)),'models':records}
     shell=models['marisa_tsumuri'];flat=[];parts=[]
     for p in shell['parts']:
         if not p['name'].startswith('shell'):continue
