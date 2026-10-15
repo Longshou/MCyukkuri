@@ -27,6 +27,8 @@ public final class YukkuriCommands {
         event.getDispatcher().register(Commands.literal("yukkuri")
                 .requires(source -> source.hasPermission(2))
                 .then(io.github.longshou.mcyukkuri.settlement.SettlementCommands.command())
+                .then(io.github.longshou.mcyukkuri.event.HomeClaimCommands.command())
+                .then(io.github.longshou.mcyukkuri.settlement.SeasonCommands.command())
                 .then(Commands.literal("say")
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .then(Commands.argument("event", StringArgumentType.word())

@@ -49,7 +49,7 @@ public final class WildEvents {
                 && e.body().wound()==0 && e.body().infection()==0 && e.life().wetness()<50;
     }
     public static boolean available(YukkuriEntity e) {
-        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.getVariant().isHouse() && !e.getVariant().isPredator()
+        return e.level() instanceof ServerLevel level && safe(e) && WildEventData.get(level).forMember(e.getUUID())==null && e.onGround() && !e.getVariant().isHouse() && !e.getVariant().isPredator() && !HomeClaim.holds(e)
                 && !e.dailyLife().active() && !e.social().active() && !e.groupInteraction().active() && !e.playLife().active()
                 && !e.family().active() && !e.house().active() && !e.habitat().active() && e.life().mealTicks()==0;
     }
@@ -89,7 +89,7 @@ public final class WildEvents {
     public static boolean inhabited(YukkuriEntity e) {
         return ((ServerLevel)e.level()).isCloseToVillage(e.blockPosition(),2) || e.habitat().shelter()!=null;
     }
-    private static boolean unowned(YukkuriEntity e) {
+    public static boolean unowned(YukkuriEntity e) {
         var data=HumanCommerce.data(e);
         return !data.hasUUID("Owner") && !data.contains("PendingRole");
     }
@@ -142,6 +142,7 @@ public final class WildEvents {
         var data=WildEventData.get(level);
         if(!data.canStart(GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),level.getGameTime()))return;
         if(RiverEncounter.discover(e))return;
+        if(HomeClaim.discover(e))return;
         List<YukkuriEntity> peers=nearby(e);if(peers.isEmpty())return;
         Player player=level.getNearestPlayer(e,8);
         for(var peer:peers) {
@@ -263,7 +264,7 @@ public final class WildEvents {
         HumanCommerce.assign(e,player.getUUID(),"companion");
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
-        e.showReaction("happy","caregiver",80);return true;
+        e.showReaction("happy","caregiver",80);HomeClaim.adopted(e,player);return true;
     }
     public static boolean abandon(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
@@ -278,6 +279,7 @@ public final class WildEvents {
     }
     public static boolean decline(YukkuriEntity e, Player player) {
         if(!(e.level() instanceof ServerLevel level)||!playerNear(e,player)||e.distanceToSqr(player)>16)return false;
+        if(HomeClaim.declined(e,player))return true;
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s==null||!player.getUUID().equals(s.player)||s.kind==Kind.ABANDONMENT)return false;
         finish(level,s,Phase.REFUSED,"player_declined");return true;

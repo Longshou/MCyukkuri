@@ -47,6 +47,9 @@ public final class ShelterBlockEntity extends BlockEntity {
     public int lining() { return lining; }
     public int dirt() { return dirt; }
     public int occupants() { return residents.size(); }
+    public List<UUID> residentIds() { return List.copyOf(residents.keySet()); }
+    /** Autumn regions let households pile up more than the usual 32 portions. */
+    public int foodLimit() { return level != null && Seasons.on(level, worldPosition, Season.AUTUMN) ? 48 : 32; }
     public int capacity() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds.size():kind().capacity; }
     public int food() { return level!=null&&level.isClientSide ? displayFood : stock.stream().mapToInt(ItemStack::getCount).sum(); }
     public Direction facing() { return getBlockState().getValue(ShelterBlock.FACING); }
@@ -110,14 +113,14 @@ public final class ShelterBlockEntity extends BlockEntity {
     public static boolean bedding(ItemStack stack) { return stack.is(net.minecraft.tags.ItemTags.LEAVES)||stack.is(Items.PAPER)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT); }
     public boolean repairMaterial(ItemStack stack) { return kind()==ShelterBlock.Kind.BURROW&&stack.is(Items.STICK); }
     public boolean needsMaterial(ItemStack stack) { return (branches<3||condition<95)&&repairMaterial(stack)||(lining<4||dirt>=30||moisture>=60)&&bedding(stack); }
-    public boolean accepts(ItemStack stack) { return needsMaterial(stack)||stack.is(YukkuriEntity.FOOD)&&food()<32; }
+    public boolean accepts(ItemStack stack) { return needsMaterial(stack)||stack.is(YukkuriEntity.FOOD)&&food()<foodLimit(); }
     public boolean deposit(ItemStack stack) {
         if(stack.getCount()!=1)return false;
         if((branches<3||condition<95)&&repairMaterial(stack)){branches=Math.min(3,branches+1);condition=Math.min(100,condition+15);changed();return true;}
         if((lining<4||dirt>=30||moisture>=60)&&bedding(stack)){
             if(lining<4)lining++;dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
         }
-        if(!stack.is(YukkuriEntity.FOOD)||food()>=32)return false;
+        if(!stack.is(YukkuriEntity.FOOD)||food()>=foodLimit())return false;
         for(int i=0;i<stock.size();i++)if(stock.get(i).isEmpty()||ItemStack.isSameItemSameComponents(stock.get(i),stack)&&stock.get(i).getCount()<16){
             if(stock.get(i).isEmpty())stock.set(i,stack.copy());else stock.get(i).grow(1);changed();return true;
         }
@@ -166,7 +169,13 @@ public final class ShelterBlockEntity extends BlockEntity {
         else if(ticks%400==0&&residents.size()>0)dirt=Math.min(100,dirt+1);
         if(moisture>=60&&ticks%400==0)condition=Math.max(0,condition-(kind()==ShelterBlock.Kind.CARDBOARD?3:1));
         if(moisture>=75&&lining>0&&ticks%1200==0)lining--;
-        if(ticks%(moisture>=60?1200:6000)==0) {
+        // Stores keep longer in autumn and winter air and spoil faster in summer heat. [original]
+        int rot=moisture>=60?1200:6000;
+        if(level instanceof ServerLevel&&Seasons.enabled()) {
+            var season=Seasons.at(level,worldPosition);
+            if(season==Season.AUTUMN||season==Season.WINTER)rot=rot*3/2;else if(season==Season.SUMMER)rot=rot/2;
+        }
+        if(ticks%rot==0) {
             for(var stack:stock)if(!stack.isEmpty()){stack.shrink(1);dirt=Math.min(100,dirt+3);break;}
         }
         changed();

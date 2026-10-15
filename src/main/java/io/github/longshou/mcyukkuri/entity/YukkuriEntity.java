@@ -350,6 +350,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.badge.BadgeLife.SessionGoal(this));
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
         goalSelector.addGoal(3, new LifeGoal());
+        goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.event.HomeClaimGoal(this));
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.human.FactoryWorkGoal(this));
         goalSelector.addGoal(4, new TemptGoal(this, 1.15, Ingredient.of(FOOD), false) {
             @Override public boolean canUse() { return life.needsFood() && super.canUse() && life.personality().fear(player.getUUID()) < 30; }
@@ -577,6 +578,7 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();playLife.stop();
             if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
             operations.damaged(source);
+            if(source.getEntity() instanceof Player attackerPlayer)io.github.longshou.mcyukkuri.event.HomeClaim.attacked(this,attackerPlayer);
             requestedAction = null;
             life.interrupt(); social.stop();
             if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
@@ -731,8 +733,8 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     private final class HabitatGoal extends Goal {
         HabitatGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return habitat.canUse(); }
-        @Override public boolean canContinueToUse() { return habitat.canContinue(); }
+        @Override public boolean canUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && habitat.canUse(); }
+        @Override public boolean canContinueToUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && habitat.canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { habitat.tickGoal(); }
         @Override public void stop() { habitat.stop(); }
@@ -740,8 +742,8 @@ public final class YukkuriEntity extends PathfinderMob {
 
     private final class SettlementGoal extends Goal {
         SettlementGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return settlement.canUse(); }
-        @Override public boolean canContinueToUse() { return settlement.canContinue(); }
+        @Override public boolean canUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.canUse(); }
+        @Override public boolean canContinueToUse() { return !io.github.longshou.mcyukkuri.event.HomeClaim.holds(YukkuriEntity.this) && settlement.canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { settlement.tickGoal(); }
         @Override public void stop() { settlement.stop(); }

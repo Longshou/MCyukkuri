@@ -26,7 +26,8 @@ public final class ForageGoal extends Goal {
         if (entity.getVariant().isHouse() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         if (cooldown-- > 0) return false;
-        cooldown = 40;
+        cooldown = Seasons.is(entity, Season.AUTUMN) ? 20 : 40; // autumn foragers are keener
+        if (Seasons.forageBlocked(entity)) return false;
         double nearest = Double.MAX_VALUE; target = null;
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6), entity.blockPosition().offset(6,2,6))) {
             double distance = entity.distanceToSqr(Vec3.atCenterOf(pos));

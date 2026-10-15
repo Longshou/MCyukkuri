@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ public final class SettlementLife {
     private boolean pendingNatural;
     private BlockPos target;
     private int wait, elapsed;
+    private long greeted = -1;
     public SettlementLife(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public UUID groupId() { return groupId; }
@@ -45,7 +47,22 @@ public final class SettlementLife {
             SettlementSpawner.discover(entity);
         }
         var group = group();
-        if (group != null && entity.tickCount % 100 == 0) SettlementData.get(level()).refreshLeader(level(), group);
+        if (group != null && entity.tickCount % 100 == 0) {
+            SettlementData.get(level()).refreshLeader(level(), group);
+            seasonal(group);
+        }
+    }
+    /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
+    private void seasonal(SettlementData.Group group) {
+        if (!Seasons.enabled()) return;
+        var season = Seasons.of(level(), group);
+        long time = level().getDayTime() % 24000, now = level().getGameTime();
+        if (season == Season.WINTER) {
+            if (level().isRaining()) group.snowing = true;
+            else if (group.snowing && level().isDay()) { group.snowing = false; group.gatherUntil = now + YukkuriConfig.ASSEMBLY_TICKS.get(); }
+        } else if (season == Season.SPRING && time < 1500 && group.gatherDay != level().getDayTime() / 24000) {
+            group.gatherDay = level().getDayTime() / 24000; group.gatherUntil = now + YukkuriConfig.ASSEMBLY_TICKS.get();
+        }
     }
     public boolean canUse() {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
@@ -58,7 +75,17 @@ public final class SettlementLife {
         double distance = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
         // Transporting a member never causes cross-world or long-distance forced navigation.
         if (distance > 48 * 48) return false;
+        if (Seasons.confined(entity)) return false;
+        if (Seasons.assembling(level(), group)) {
+            if (distance <= 6 * 6) {
+                if (greeted != group.gatherUntil) { greeted = group.gatherUntil; entity.showReaction("happy", "hello", 60); }
+                return false;
+            }
+            if (!navigateToward(group.center)) return false;
+            target = group.center; elapsed = 0; return true;
+        }
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
+        if (Seasons.is(entity, Season.WINTER)) radius = radius / 2; // [original] winter keeps closer to the centre
         boolean gathering = level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
         if (distance <= radius * radius && !(gathering && group.leader != null)) return false;
         BlockPos destination = entity.life().homeStand();
@@ -87,7 +114,7 @@ public final class SettlementLife {
         return false;
     }
     public boolean canContinue() {
-        return active() && elapsed < 400 && !entity.isPanicking()
+        return active() && elapsed < 400 && !entity.isPanicking() && !Seasons.confined(entity)
                 && !entity.isCommandPlaying() && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;

@@ -14,7 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 public final class NotebookGuide {
     public static List<Component> pages(ItemStack notebook) {
         List<Component> pages = new ArrayList<>();
-        for (String chapter : List.of("start", "route", "discovery", "care", "water", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community"))
+        for (String chapter : List.of("start", "route", "discovery", "care", "water", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community", "season"))
             pages.add(Component.translatable("notebook.mcyukkuri.chapter." + chapter));
         CompoundTag seen = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedSpecies");
         for (YukkuriVariant variant : YukkuriVariant.values()) {

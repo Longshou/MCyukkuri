@@ -89,6 +89,19 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 - 临时构建、日志、测试世界和控制文件使用 `.local/wild-events/`，不入库；本任务不清理其他任务产物。
 - 中文事实与文风人工审校；当前未运行不存在的 `tech-doc-style-chinese` 或 `tech-doc-lint`。
 
+## 认屋（家园宣言）
+
+依据 L16、L21（一家人认领人类农田，被围起来吃光后瓦解）与 E10 的传统套路。场景太长、且要经过饥饿，不适合 `WildEventData` 的短场景，因此独立成 `event/HomeClaim`（逻辑）、`HomeClaimData`（`SavedData`，键 `mcyukkuri_home_claims`）、`HomeClaimGoal`（行为）、`HomeClaimCommands`（管理员命令）。
+
+- 触发：`WildEvents.discover` 在 `RiverEncounter` 之后调用 `HomeClaim.discover`。野生（无主人）成年个体、`WildEvents.available`，8 格内至少 1 个互相认得的亲属或伴侣（家庭至多 6 只），24 格内有玩家，10 格内（不在村庄）有人类农田（农田上的成熟或未成熟作物）或房屋（床、门、工作台、箱子、熔炉，旁边有顶且可站立处）。每次检查按配置 1/N 概率；每个个体 6000 tick、每个 64×64 区域按配置冷却；被驱赶的区域冷却为三倍。
+- 流程：全家走到地点（GATHER）；第一只成年个体到达后 `angry`/`mine`，其余 `happy`，并向 24 格内玩家发无配音文字（`home_claim.mcyukkuri.declare`）；之后占住（HOLD）。成员离地点太远时 `HomeClaimGoal`（优先级 3）让其走回；饿了会吃认领范围内的真实作物（方块消失，对应物品经 `beginMeal` 入口，只吃 `acceptsFood` 为真者），短草仍由 `ForageGoal` 处理。占住期间 `HabitatGoal`、`SettlementGoal` 让位（`HomeClaim.holds`），`WildEvents.available` 对认屋成员返回 false。
+- 围起来：占住期间每 200 tick 从地点出发在可站立格（高度差 ≤1，农田可行走）上做 BFS，上限 512 格、半径 15；穷尽则进入 ENCLOSED 并记录包围盒（作物只在盒内取）。圈内没有作物和短草、且有成员 nutrition < 30 时进入 COLLAPSING：每 400 tick 争吵一次（`angry`/`mine`，互相降好感 6 [original]，幼体 `teary`/`hungry`），5 次后结局 `family_collapsed`，解除对全家的约束。玩家喂食照常；围栏被打开则回到 HOLD。饥饿致死沿用 `YukkuriLife` 已有的饿伤。
+- 结局（`Claim.result`）：`driven_off`（攻击成员，经 `YukkuriEntity.hurt` 通知；或对成员用“拒绝事件”操作，经 `WildEvents.decline`；全家对该玩家信任降、恐惧升，`afraid`，沿远离玩家方向逃出 16 格以上）；`adopted`（`WildEvents.adopt` 成功后，其余仍满足收养条件的成员一并收养，门槛仍是信任 ≥10、恐惧 <25）；`settled`（HOLD 满配置时长无人应对，各成员尝试 `habitat().findHome()`）；`family_collapsed`；`never_arrived`（1200 tick 仍未到达）；`perished`。成员被收纳、未加载或跨维度时整体暂停，不算死亡。已结束记录保留最近 64 条。
+- 配置（`home_claims` 段）：`enabled`、`checkOneIn`（默认 20）、`regionCooldownTicks`（24000）、`settleAfterTicks`（72000，约 3 个游戏日）、`enclosureCollapse`。
+- 管理员命令：`/yukkuri homeclaim start` 以命令位置为中心，让最近的符合条件的野生家庭立即认屋（跳过概率和冷却，其余条件照常，附近需有人类房屋或农田）；`/yukkuri homeclaim status` 列出进行中的认屋。观察笔记在认屋期间多一页（`HomeClaim.page`）。
+- 手动检查：在野外家族附近种一小块麦田或放床，等待宣言；用木栅栏把全家围住，等其吃光作物后观察争吵与瓦解；分别试攻击、拒绝事件、喂食后收养、置之不理。
+- 未做：成员脱离聚落（`settlement` 未提供离开接口，只在 `HomeClaimData` 记录并停止约束）；伴侣关系解除（`FamilyLife` 无现成接口，瓦解后不改伴侣）；亲代拒绝分食只靠好感下降；宣言时未另写 `WildEventData` 记录；未做实机验证。
+
 ## 文件与接线范围
 
 本任务新建 `event/WildEventData`、`WildEvents`、`WildEventGoal`、`WildCards`、`RiverEncounter`、`Expedition`；专测与实景夹具为 `WildEventGameTests`、`WildEventPreview`。本任务不拥有独立认知、家谱、帽船、日常歌唱或出生渲染模块。

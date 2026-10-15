@@ -16,6 +16,10 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
+    public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
+    public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT, SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
+    public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
+    public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -47,6 +51,21 @@ public final class YukkuriConfig {
                 .defineInRange("communitySpawnCap", 96, 1, 256);
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
+        builder.pop().push("seasons");
+        BIOME_SEASONS = builder.comment("Biomes act as seasons (snowy = winter, plains = spring...); false restores the season-free behaviour.").define("biomeSeasons", true);
+        AUTUMN_STOCK_PER_RESIDENT = builder.comment("Autumn regions: stored food each resident aims for (other regions aim for 3).").defineInRange("autumnStockPerResident", 6, 3, 12);
+        WINTER_COURT_STOCK = builder.comment("Winter regions: courtship starts only when stored food >= (residents + 2) * this.").defineInRange("winterCourtStockPerHead", 2, 0, 8);
+        SHARE_SURPLUS_PER_RESIDENT = builder.comment("A household with stored food above residents * this hands out one portion at a gathering.").defineInRange("shareSurplusPerResident", 4, 2, 12);
+        SHARE_NEED_PER_RESIDENT = builder.comment("A household with stored food below residents * this receives portions.").defineInRange("shareNeedPerResident", 2, 1, 6);
+        SHARE_COOLDOWN = builder.comment("Loaded ticks between two portions carried by the same resident.").defineInRange("shareCooldown", 1200, 100, 24000);
+        ASSEMBLY_TICKS = builder.comment("How long the gathering after snowfall or on a spring morning lasts.").defineInRange("assemblyTicks", 1200, 200, 6000);
+        WINTER_QUARREL_PENALTY = builder.comment("Affinity lost by each side when two starving housemates quarrel over empty stores.").defineInRange("winterQuarrelPenalty", 6, 0, 30);
+        builder.pop().push("home_claims");
+        HOME_CLAIMS = builder.comment("A wild family near a player's house or crops may claim it as its own home (home declaration).").define("enabled", true);
+        HOME_CLAIM_CHANCE = builder.comment("Each eligibility check (about every 5 seconds per wild adult) starts a claim with chance 1/N.").defineInRange("checkOneIn", 20, 1, 10000);
+        HOME_CLAIM_REGION_COOLDOWN = builder.comment("Loaded ticks before the same 64x64 area can see another claim.").defineInRange("regionCooldownTicks", 24000, 200, 1728000);
+        HOME_CLAIM_SETTLE_TICKS = builder.comment("A claim nobody answers settles into a real shelter after this many loaded ticks (3 days by default).").defineInRange("settleAfterTicks", 72000, 1200, 1728000);
+        HOME_CLAIM_ENCLOSURE = builder.comment("Walled-in claimants can starve and fall out; false keeps them holding the site without the collapse.").define("enclosureCollapse", true);
         builder.pop();
         SPEC = builder.build();
     }

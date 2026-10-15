@@ -23,6 +23,9 @@ public final class SettlementData extends SavedData {
         public final Kind kind;
         public final BlockPos center;
         public UUID leader;
+        /** Transient seasonal state, rebuilt after a restart: snow seen, gathering deadline and the day of the last spring gathering. */
+        public boolean snowing;
+        public long gatherUntil, gatherDay = -1;
         public Group(UUID id, Kind kind, BlockPos center, UUID leader) {
             this.id = id; this.kind = kind; this.center = center.immutable(); this.leader = leader;
         }

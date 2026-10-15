@@ -80,7 +80,7 @@ public final class NotebookItem extends Item {
         var life = entity.life(); var personality = life.personality();
         Component home = life.home() == null ? Component.translatable("notebook.mcyukkuri.homeless") : Component.literal(
                 life.home().dimension().location() + "\n" + life.home().pos().toShortString());
-        return List.of(
+        var pages = new java.util.ArrayList<Component>(List.of(
                 io.github.longshou.mcyukkuri.notebook.NotebookGuide.form(entity),
                 io.github.longshou.mcyukkuri.settlement.SettlementObservation.page(entity),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
@@ -104,7 +104,10 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
-                io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity));
+                io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity)));
+        Component claim = io.github.longshou.mcyukkuri.event.HomeClaim.page(entity);
+        if (claim != null) pages.add(claim);
+        return pages;
     }
     private static Component identity(java.util.UUID id) {
         return id==null?Component.translatable("family.mcyukkuri.unknown"):Component.literal(id.toString().substring(0,8));
