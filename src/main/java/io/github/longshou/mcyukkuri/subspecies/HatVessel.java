@@ -51,8 +51,10 @@ public final class HatVessel {
     /** The opening at the water line (x, z pairs), where the water is hidden. */
     public static float[][] mask(){return MASK;}
     public static boolean aquatic(YukkuriEntity y){return y.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;}
+    /** Ancestry determines hat size in life and in saved remains; water and boat state never change it. */
+    public static float hatMultiplier(int subspeciesFlags){return (subspeciesFlags&15)==SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?AQUATIC_SCALE:1;}
     /** The size of this Marisa's hat relative to the worn standard. */
-    public static float hatScale(YukkuriEntity y){return y.growthScale()*(aquatic(y)?AQUATIC_SCALE:1);}
+    public static float hatScale(YukkuriEntity y){return y.growthScale()*hatMultiplier(y.subspeciesFlags());}
     /** Where a catcher's braid clips set the hat, relative to the catcher, and where it lies before the mother; on land
      *  also how far beyond the live exit its near brim lies (gap, model units) and how far that brim reaches from it. */
     public record Placement(Mode mode,Vec3 offset,float yaw,Vec3 hatInMother,float hatYawInMother,double gap,double nearBrim){}

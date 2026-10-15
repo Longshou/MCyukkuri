@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.p0;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -27,6 +29,7 @@ public final class SubspeciesGameTests {
     private YukkuriEntity owner, shell, ordinary;
     private HatBoatEntity boat;
     private double boatStartY;
+    private float healthBeforeCapsize;
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="subspecies")
     public static void behavior(GameTestHelper helper){
@@ -38,6 +41,53 @@ public final class SubspeciesGameTests {
                 t.level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,80,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
                 GameTestChunks.setForced(t.level,X/16,0,false);
                 var failed=t.checks.stream().filter(c->!c.pass()).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
+            });
+    }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=300,batch="subspecies")
+    public static void waterHurtsEveryForm(GameTestHelper helper){
+        var level=helper.getLevel();int x=X+32;
+        GameTestChunks.setForced(level,x/16,0,true);
+        for(var p:BlockPos.betweenClosed(x,64,0,x+15,69,15))
+            level.setBlockAndUpdate(p,p.getY()==64?Blocks.STONE.defaultBlockState():p.getY()==65?Blocks.WATER.defaultBlockState():Blocks.AIR.defaultBlockState());
+        var swimmers=new ArrayList<YukkuriEntity>();
+        for(var variant:YukkuriVariant.values())swimmers.add(ModEntities.forVariant(variant).create(level));
+        for(var kind:List.of(SubspeciesLife.Kind.SHELL_MARISA,SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Kind.WASA_REIMU)){
+            var y=(kind==SubspeciesLife.Kind.WASA_REIMU?ModEntities.REIMU:ModEntities.MARISA).get().create(level);
+            y.subspecies().set(kind,SubspeciesLife.Congenital.NORMAL);swimmers.add(y);
+        }
+        for(var type:List.of(ModEntities.REIMU,ModEntities.MARISA))for(var shape:SubspeciesLife.Congenital.values()){
+            if(shape==SubspeciesLife.Congenital.NORMAL)continue;
+            var y=type.get().create(level);y.subspecies().set(SubspeciesLife.Kind.NORMAL,shape);swimmers.add(y);
+        }
+        for(var kind:List.of(SubspeciesLife.Kind.NORMAL,SubspeciesLife.Kind.WASA_REIMU)){
+            var y=ModEntities.REIMU.get().create(level);y.subspecies().set(kind,SubspeciesLife.Congenital.NORMAL);
+            var data=y.subspecies().save();data.putBoolean("Deibu",true);y.subspecies().load(data);swimmers.add(y);
+        }
+        var dryHealth=new float[swimmers.size()];
+        helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(new BlockPos(x+7,66,7)),"waiting for water arena"))
+            .thenExecute(()->{
+                for(int i=0;i<swimmers.size();i++){
+                    var y=swimmers.get(i);y.setNoAi(true);y.setNoGravity(true);y.setPersistenceRequired();
+                    y.moveTo(x+2.5+i%4*3,65.2,2.5+i/4*3,0,0);level.addFreshEntity(y);
+                }
+            }).thenIdle(25).thenExecute(()->{
+                for(var y:swimmers){
+                    helper.assertTrue(y.isInWaterOrBubble(),"body touches water: "+y.getVariant()+"/"+y.subspeciesFlags());
+                    helper.assertTrue(y.getHealth()==y.getMaxHealth()-1,"first water damage without wetness or AI: "+y.getVariant()+"/"+y.subspeciesFlags());
+                }
+            }).thenIdle(20).thenExecute(()->{
+                for(int i=0;i<swimmers.size();i++){
+                    var y=swimmers.get(i);
+                    helper.assertTrue(y.getHealth()==y.getMaxHealth()-2,"water damage repeats: "+y.getVariant()+"/"+y.subspeciesFlags());
+                    dryHealth[i]=y.getHealth();y.teleportTo(y.getX(),67,y.getZ());y.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+                }
+            }).thenIdle(25).thenExecute(()->{
+                for(int i=0;i<swimmers.size();i++){
+                    var y=swimmers.get(i);
+                    helper.assertTrue(!y.isInWaterOrBubble()&&y.getHealth()==dryHealth[i],"immersion damage stops out of water: "+y.getVariant()+"/"+y.subspeciesFlags());
+                    y.discard();
+                }
+                GameTestChunks.setForced(level,x/16,0,false);helper.succeed();
             });
     }
     private void setup(){
@@ -82,6 +132,10 @@ public final class SubspeciesGameTests {
         first.subspecies().onNaturalSpawn(MobSpawnType.NATURAL);check("natural hook cannot reroll birth",birth.equals(first.subspecies().save()));
         check("land Marisa never launches a hat boat",HatBoatEntity.createFor(owner,new BlockPos(X+5,65,7))==null);
         owner.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
+        var remains=io.github.longshou.mcyukkuri.entity.RemainsEntity.snapshot(owner,level.damageSources().drown());
+        var remainsData=remains.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();
+        check("drowned remains preserve aquatic ancestry and large hat",remainsData.getInt("SubspeciesFlags")==owner.subspeciesFlags()
+                &&HatVessel.hatMultiplier(remainsData.getInt("SubspeciesFlags"))==HatVessel.AQUATIC_SCALE);
         boat=HatBoatEntity.createFor(owner,new BlockPos(X+5,65,7));
         check("launch creates a real boat",boat!=null);
         if(boat==null)throw new IllegalStateException("Boat launch failed");
@@ -107,9 +161,12 @@ public final class SubspeciesGameTests {
         check("water surface remains stable",Math.abs(boat.getY()-boatStartY)<.15);
         check("passenger stays aboard",owner.getVehicle()==boat&&boat.isAfloat());
         check("hat flotation keeps body dry",owner.life().wetness()<20);
+        check("dry hat passenger takes no immersion damage",owner.getHealth()==owner.getMaxHealth());
         check("dry protection requires a real passenger",boat.protects(owner)&&!boat.protects(ordinary));
         check("distant rescue rejected",!boat.rescue(new BlockPos(X+15,66,15),UUID.randomUUID()));
+        healthBeforeCapsize=owner.getHealth();
         boat.capsize();check("capsize ejects real passenger",owner.getVehicle()==null&&boat.state()==HatBoatEntity.State.CAPSIZED);
+        check("capsize never changes aquatic ancestry or hat size",HatVessel.aquatic(owner)&&HatVessel.hatMultiplier(owner.subspeciesFlags())==HatVessel.AQUATIC_SCALE);
         check("capsize clears dry protection and cargo",!boat.protects(owner)&&boat.cargo().count()==0&&!boat.cargo().paddle());
     }
     private void surfaces(){
@@ -132,6 +189,9 @@ public final class SubspeciesGameTests {
     }
     private void rescue(){
         check("capsized body still receives water",owner.life().wetness()>0);
+        check("capsized body takes damage before soaking threshold",owner.getHealth()<healthBeforeCapsize);
+        var saved=new CompoundTag();owner.saveWithoutId(saved);var restored=ModEntities.MARISA.get().create(level);restored.load(saved);
+        check("immersed aquatic identity and hat size survive reload",HatVessel.aquatic(restored)&&HatVessel.hatScale(restored)==HatVessel.hatScale(owner));
         check("capsized boat can be rescued from bank",boat.rescue(new BlockPos(X+4,66,7),UUID.randomUUID()));
         check("rescue returns same hat and clears boat",owner.life().hasAccessory()&&owner.subspecies().boatId()==null&&boat.state()==HatBoatEntity.State.RESCUED);
         check("rescue is single-use",!boat.rescue(new BlockPos(X+4,66,7),UUID.randomUUID()));

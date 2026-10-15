@@ -25,7 +25,7 @@ public final class YukkuriConfig {
                 .defineInRange("hungerInterval", 240, 20, 24000);
         ENERGY_INTERVAL = builder.defineInRange("energyInterval", 160, 20, 24000);
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
-        WET_DAMAGE_THRESHOLD = builder.comment("Brief washing stays below this prolonged exposure threshold.")
+        WET_DAMAGE_THRESHOLD = builder.comment("Wetness damage outside water. Immersion always deals one health point per second, regardless of this threshold.")
                 .defineInRange("wetDamageThreshold", 60, 20, 100);
         builder.pop().push("development");
         DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);

@@ -37,6 +37,7 @@ public final class YukkuriLife {
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     private long ageTicks;
     private int metabolismTicks, energyTicks, hygieneTicks;
+    private int immersionTicks;
     private ItemStack mouth = ItemStack.EMPTY;
     private int mealTicks;
     private UUID feeder;
@@ -155,7 +156,14 @@ public final class YukkuriLife {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
 
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        if (entity.level().isClientSide || !entity.isAlive()) return;
+        // Body contact with water hurts every species, even with AI disabled. A dry hat is not immersion.
+        if (!entity.isInWaterOrBubble()) immersionTicks = 0;
+        else if (++immersionTicks >= 20) {
+            immersionTicks = 0;
+            entity.hurt(level().damageSources().drown(), 1);
+        }
+        if (!entity.isAlive() || entity.isNoAi()) return;
         ageTicks++;
         personality.tick();
         if(exerciseReliefTicks>0)exerciseReliefTicks--;
@@ -174,7 +182,7 @@ public final class YukkuriLife {
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
             else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + entity.subspecies().waterGain(2));
             else wetness = Math.max(0, wetness - 3);
-            if (wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
+            if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
                 entity.hurt(level().damageSources().drown(), 1);
         }
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
@@ -645,6 +653,7 @@ public final class YukkuriLife {
         CompoundTag tag = new CompoundTag(); tag.putInt("Version", 1);
         tag.putFloat("Nutrition", nutrition); tag.putFloat("Energy", energy); tag.putFloat("Hygiene", hygiene);
         tag.putFloat("Bladder", bladder); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
+        tag.putInt("ImmersionTicks", immersionTicks);
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
         tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
@@ -663,6 +672,7 @@ public final class YukkuriLife {
     public void load(CompoundTag tag) {
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
+        immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
         dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,400);returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
