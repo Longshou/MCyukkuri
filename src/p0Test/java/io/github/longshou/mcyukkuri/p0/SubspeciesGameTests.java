@@ -31,6 +31,8 @@ public final class SubspeciesGameTests {
     private double boatStartY;
     private float healthBeforeCapsize;
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=600,batch="shell_weather")
+    public static void shellWeather(GameTestHelper helper){ShellWeatherChecks.run(helper);}
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=700,batch="subspecies")
     public static void behavior(GameTestHelper helper){
         var t=new SubspeciesGameTests();t.level=helper.getLevel();t.setup();

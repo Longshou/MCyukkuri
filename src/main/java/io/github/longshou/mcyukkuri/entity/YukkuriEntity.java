@@ -106,6 +106,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private boolean deathRecorded;
     private YukkuriAction requestedAction;
     private int panicTicks;
+    private final io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction = new io.github.longshou.mcyukkuri.subspecies.ShellRetraction(this);
     private int foodCooldown;
     // Retained only to migrate pre-P1 saves; nutrition and loaded-time physiology live in YukkuriLife.
     private int restDelay = 600;
@@ -208,6 +209,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public int visibleMedal() { return entityData.get(MEDAL); }
     public boolean hasVisibleAccessory() { return entityData.get(ACCESSORY); }
     public boolean isPanicking() { return panicTicks > 0; }
+    public io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction() { return shellRetraction; }
     public boolean isCommandPlaying() { return requestedAction != null; }
     public YukkuriLife life() { return life; }
     public io.github.longshou.mcyukkuri.badge.BadgeLife badges() { return badges; }
@@ -364,6 +366,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
         goalSelector.addGoal(1, new FleeGoal());
+        goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.badge.BadgeLife.SessionGoal(this));
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
@@ -396,10 +399,13 @@ public final class YukkuriEntity extends PathfinderMob {
         if (level().isClientSide || !isAlive()) return false;
         var action = YukkuriAction.byId(id);
         if (action.isEmpty()) return false;
+        if (action.get()==YukkuriAction.SHELL_RETRACT
+                &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))return false;
+        shellRetraction.reset();
         operations.end();groupInteraction.stop();dailyLife.stop();playLife.stop();life.interrupt(); social.stop();
         YukkuriAction next = action.get();
         long elapsedRetractionTicks = 0;
-        if (id.endsWith("_retract")) {
+        if (id.startsWith("anatomy_")&&id.endsWith("_retract")) {
             String extension = id.replace("_retract", "_extend");
             if (requestedAction == null || !requestedAction.id().equals(extension)) {
                 // Retracting an already hidden part must not reveal its fully extended first frame.
@@ -428,6 +434,13 @@ public final class YukkuriEntity extends PathfinderMob {
         }
     }
 
+    /** The shell controller samples one existing clip; holding does not restart its inward movement. */
+    public void poseShellRetraction(int frame) {
+        if(level().isClientSide||!shellRetraction.hasShell()||frame<0)return;
+        setAnimation(YukkuriAction.SHELL_RETRACT,false);
+        entityData.set(ANIMATION_START,level().getGameTime()-frame);
+    }
+
     @Override
     public void aiStep() {
         if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
@@ -454,14 +467,21 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
             life.interrupt(); social.stop();
         }
-        if (panicTicks > 0) {
-            boolean shell = shellRetracts();
-            if (shell) { if (!getAnimationId().equals(YukkuriAction.SHELL_RETRACT.id())) withdrawIntoShell(); }
+        if(requestedAction==YukkuriAction.SHELL_RETRACT
+                &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))requestedAction=null;
+        shellRetraction.tick(panicTicks);
+        if (panicTicks > 0&&!isCommandPlaying()&&!operations.active()) {
+            boolean shell = shellRetraction.active();
+            if (shell) { navigation.stop(); }
             else setAnimation(shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
             panicTicks--;
             entityData.set(EXPRESSION, "surprise");
             setBehavior(isInWaterOrBubble() ? "escape_water" : shelteredInHat() ? "boat_steady" : shell ? "shell_retract" : "flee");
             return;
+        }
+        if(panicTicks>0)panicTicks--;
+        if(shellRetraction.active()) {
+            entityData.set(EXPRESSION,"neutral");setBehavior("shell_retract");return;
         }
         if (requestedAction != null && !requestedAction.loops() && !requestedAction.holdsEndPose()
                 && level().getGameTime() - getAnimationStartTick() >= requestedAction.durationTicks()) {
@@ -524,21 +544,7 @@ public final class YukkuriEntity extends PathfinderMob {
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */
     private boolean shellRetracts() {
-        return subspecies.assetId().equals("marisa_tsumuri") && !isInWaterOrBubble() && !isOnFire();
-    }
-    /** Seconds into the shell_retract clip (in 1.8, hold to 3.2, out by 5.5), or -1. */
-    private float shellSeconds() {
-        return getAnimationId().equals(YukkuriAction.SHELL_RETRACT.id()) ? (level().getGameTime() - getAnimationStartTick()) / 20f : -1;
-    }
-    private void withdrawIntoShell() {
-        float seconds = shellSeconds();
-        if (seconds >= 1.2f && seconds <= 3.2f) {
-            // Already inside: hold the withdrawn pose again and come out as the fright ends.
-            entityData.set(ANIMATION_START, level().getGameTime() - 36); panicTicks = 74;
-        } else if (seconds < 0 || seconds > 3.2f) {
-            setAnimation(YukkuriAction.SHELL_RETRACT, true); panicTicks = Math.max(panicTicks, 112);
-        }
-        navigation.stop();
+        return shellRetraction.available();
     }
 
     private void setBehavior(String behavior) {
@@ -597,8 +603,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        float shellSeconds = shellSeconds();
-        if (panicTicks > 0 && shellSeconds >= 1.2f && shellSeconds <= 3.8f) amount *= .5f; // Withdrawn shell takes half a blow [original]
+        if (shellRetraction.protects(source)) amount *= .5f; // Actual withdrawn shell takes half a blow [original]
         float before=getHealth();
         float previousHit=pendingHitHealth;
         pendingHitHealth=before;
@@ -615,7 +620,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if(!boutDamage)life.personality().attacked(source.getEntity()==null?null:source.getEntity().getUUID(),source.getEntity() instanceof Player);
             panicTicks = 112;
             navigation.stop();
-            if (shellRetracts()) withdrawIntoShell();
+            if (shellRetracts()) shellRetraction.tick(panicTicks);
             else setAnimation(YukkuriAction.STARTLE, true);
         }
         return damaged;
@@ -699,6 +704,7 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         requestedAction = null;
         panicTicks = reactionTicks = 0;
+        shellRetraction.reset();
         badges.load(tag.getCompound("YukkuriBadges"));
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
@@ -733,6 +739,14 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { navigation.stop(); }
         @Override public void tick() { navigation.stop(); }
+    }
+
+    private final class ShellGoal extends Goal {
+        ShellGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
+        @Override public boolean canUse(){return shellRetraction.controlsMovement();}
+        @Override public boolean canContinueToUse(){return shellRetraction.controlsMovement();}
+        @Override public boolean requiresUpdateEveryTick(){return true;}
+        @Override public void tick(){navigation.stop();}
     }
 
     private final class FleeGoal extends Goal {
