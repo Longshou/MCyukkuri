@@ -90,6 +90,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
     private final FamilyLife family;
     private io.github.longshou.mcyukkuri.family.IndependenceLife independence;
+    private io.github.longshou.mcyukkuri.season.WinteringLife wintering;
     private final io.github.longshou.mcyukkuri.settlement.SettlementLife settlement;
     private final io.github.longshou.mcyukkuri.settlement.HabitatLife habitat;
     private final io.github.longshou.mcyukkuri.house.HouseLife house;
@@ -126,6 +127,7 @@ public final class YukkuriEntity extends PathfinderMob {
         this.social = new YukkuriSocial(this);
         this.family = new FamilyLife(this);
         if (independence == null) independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
+        if (wintering == null) wintering = new io.github.longshou.mcyukkuri.season.WinteringLife(this);
         if (aquaticLife == null) aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
         this.settlement = new io.github.longshou.mcyukkuri.settlement.SettlementLife(this);
         this.habitat = new io.github.longshou.mcyukkuri.settlement.HabitatLife(this);
@@ -235,6 +237,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public FamilyLife family() { return family; }
     public io.github.longshou.mcyukkuri.family.IndependenceLife independence() { return independence; }
+    public io.github.longshou.mcyukkuri.season.WinteringLife wintering() { return wintering; }
     public io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies() { return subspecies; }
     public int subspeciesFlags() { return entityData.get(SUBSPECIES); }
     public void syncSubspecies(int flags) { if (!level().isClientSide) entityData.set(SUBSPECIES, flags); }
@@ -394,6 +397,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(6, new SocialGoal());
         goalSelector.addGoal(5, new GroupGoal());
         goalSelector.addGoal(6,new PlaygroundGoal());
+        wintering = new io.github.longshou.mcyukkuri.season.WinteringLife(this);
+        goalSelector.addGoal(7, wintering);
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));

@@ -42,6 +42,7 @@ public final class TemperatureLife {
     public boolean cold() { return tooCold(current.felt()); }
     public boolean hot() { return current.felt() >= hotLimit(); }
     public boolean unsafeSleep() { return cold() || hot(); }
+    public boolean comfortableAt(BlockPos pos) { return pos != null && level().hasChunkAt(pos) && comfortable(sample(pos).felt()); }
     public boolean active() { return target != null; }
     public String activity() { return restTicks > 0 ? seekingWarmth ? "warm_up" : "shade_rest" : seekingWarmth ? "seek_warmth" : "seek_shade"; }
 

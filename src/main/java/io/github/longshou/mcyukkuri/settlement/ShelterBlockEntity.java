@@ -136,6 +136,27 @@ public final class ShelterBlockEntity extends BlockEntity {
         for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&entity.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
         return ItemStack.EMPTY;
     }
+    /** Preview never reserves or transfers stock; the caller cannot mutate the stored stack. */
+    public ItemStack foodFor(YukkuriEntity entity) {
+        if(!owns(entity.getUUID()))return ItemStack.EMPTY;
+        for(var stack:stock)if(!stack.isEmpty()&&entity.life().acceptsFood(stack))return stack.copyWithCount(1);
+        return ItemStack.EMPTY;
+    }
+    public boolean hasFoodFor(YukkuriEntity entity) { return !foodFor(entity).isEmpty(); }
+    /** One synchronous ownership transfer, only at the resident's actual reachable sleeping place. */
+    public boolean beginStoredMeal(YukkuriEntity entity) {
+        var bed=bed(entity.getUUID());
+        if(level==null||level.isClientSide||entity.level()!=level||!usable(entity)||bed==null
+                ||entity.isNoAi()||entity.isPassenger()||entity.operations().active()||entity.life().isSleeping()
+                ||entity.isOnFire()||entity.isInWaterOrBubble()||entity.life().drugSleep()>0
+                ||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed))>=.64
+                ||!entity.life().dryStand(entity.blockPosition()))return false;
+        for(var stack:stock)if(!stack.isEmpty()&&entity.life().acceptsFood(stack)) {
+            if(!entity.life().beginMeal(stack.copyWithCount(1),null,false))return false;
+            stack.shrink(1);changed();return true;
+        }
+        return false;
+    }
     /** Transfer by copy, returning any unaccepted remainder to the caller; never overfill or drop it remotely. */
     public ItemStack returnFood(ItemStack stack) {
         var remaining=stack.copy();

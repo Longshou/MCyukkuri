@@ -1432,5 +1432,11 @@
   "settlement.mcyukkuri.leader": "Leader %s",
   "settlement.mcyukkuri.no_office": "No leader office",
   "settlement.mcyukkuri.vacant": "Vacant office; local succession %s / %s seconds",
-  "settlement.mcyukkuri.unresolved_office": "Former leader record unresolved"
+  "settlement.mcyukkuri.unresolved_office": "Former leader record unresolved",
+  "notebook.mcyukkuri.winter": "Winter life: %s\nFood stored at home: %s\nResting at home does not stop hunger. A housemate may get a short turn first.",
+  "winter.mcyukkuri.inactive": "Ordinary activity",
+  "winter.mcyukkuri.meal": "Returning for food, with a short wait if needed",
+  "winter.mcyukkuri.staying": "Resting in the warm nest",
+  "winter.mcyukkuri.returning": "Walking home",
+  "winter.mcyukkuri.available": "Following ordinary needs; a stocked warm nest permits a stay"
 }

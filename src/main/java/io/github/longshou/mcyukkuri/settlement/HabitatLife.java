@@ -94,7 +94,7 @@ public final class HabitatLife {
         if(active())return true;
         if(wait>0)return false;wait=60;
         var value=shelter();if(value==null||!value.usable(entity))return false;
-        if(entity.life().canEat()&&value.food()>0){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
+        if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
         boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
         if(!carrying.isEmpty()) {

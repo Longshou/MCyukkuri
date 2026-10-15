@@ -1432,5 +1432,11 @@
   "settlement.mcyukkuri.leader": "族长 %s",
   "settlement.mcyukkuri.no_office": "不设族长职位",
   "settlement.mcyukkuri.vacant": "族长空缺；现场推举 %s / %s 秒",
-  "settlement.mcyukkuri.unresolved_office": "旧族长记录待确认"
+  "settlement.mcyukkuri.unresolved_office": "旧族长记录待确认",
+  "notebook.mcyukkuri.winter": "冬季生活：%s\n本窝存粮：%s 份\n回暖巢歇息，饿了照常吃饭；也会短暂等候更需要食物的同窝成员。",
+  "winter.mcyukkuri.inactive": "照常活动",
+  "winter.mcyukkuri.meal": "回本窝取食，必要时短暂让食",
+  "winter.mcyukkuri.staying": "在暖巢里歇息",
+  "winter.mcyukkuri.returning": "正在归窝",
+  "winter.mcyukkuri.available": "按自身需要活动，有合适暖巢与存粮时可停留"
 }

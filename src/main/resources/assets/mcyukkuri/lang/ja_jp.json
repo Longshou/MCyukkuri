@@ -1432,5 +1432,11 @@
   "settlement.mcyukkuri.leader": "族長 %s",
   "settlement.mcyukkuri.no_office": "族長職を置かない群れ",
   "settlement.mcyukkuri.vacant": "族長不在・その場での後任確認 %s / %s 秒",
-  "settlement.mcyukkuri.unresolved_office": "旧族長の記録を確認待ち"
+  "settlement.mcyukkuri.unresolved_office": "旧族長の記録を確認待ち",
+  "notebook.mcyukkuri.winter": "冬の暮らし：%s\nこの巣の備蓄食料：%s 個\n暖かい巣で休んでもお腹はすきます。食事を必要とする仲間に少し待って譲ることもあります。",
+  "winter.mcyukkuri.inactive": "普段どおりに行動",
+  "winter.mcyukkuri.meal": "巣に戻って食事、必要なら少し待つ",
+  "winter.mcyukkuri.staying": "暖かい巣でひと休み",
+  "winter.mcyukkuri.returning": "歩いて巣に戻る",
+  "winter.mcyukkuri.available": "普段の必要に応じて行動。暖かい巣と食料があれば滞在できる"
 }

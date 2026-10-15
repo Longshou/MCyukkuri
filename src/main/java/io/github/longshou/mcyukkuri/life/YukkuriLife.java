@@ -31,7 +31,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
+    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
     private final YukkuriEntity entity;
     private final TemperatureLife temperature;
     private YukkuriPersonality personality;
@@ -50,7 +50,7 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
-    private int pursuitTicks, queueTicks;
+    private int pursuitTicks, queueTicks, winterNeedCheckAt;
     private boolean accessory = true;
     private UUID accessoryToken;
     private boolean goldMedal;
@@ -153,7 +153,7 @@ public final class YukkuriLife {
     public String activity() {
         if (mealTicks > 0) return mealTicks < 10 ? "take_food" : mealTicks < 45 ? "chew" : mealTicks < 53 ? "swallow" : "meal_finish";
         if (task == Task.SLEEP) return sleepTicks < 20 ? "sleep_enter" : sleepTicks >= 620 ? "wake" : "sleep";
-        return switch (task) { case FOOD -> "seek_food"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
+        return switch (task) { case FOOD -> "seek_food"; case WINTER_FOOD -> "shelter_stock"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? "toilet_accident" : "ground_toilet" : "seek_toilet";
             case DRINK -> drinkTicks>0?"drink":"seek_water"; case TEMPERATURE -> temperature.activity(); default -> "idle"; };
     }
@@ -305,6 +305,17 @@ public final class YukkuriLife {
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks > 0) return true;
+        if (task == Task.WINTER_FOOD) {
+            if (entity.wintering().continueMeal()) {
+                if (pursuitTicks >= winterNeedCheckAt) {
+                    winterNeedCheckAt = pursuitTicks + 20;
+                    if (planWinterPriority()) return true;
+                }
+                if (!hasUrgentNeed() && entity.family().canUse()) { stopGoal(); return false; }
+                return true;
+            }
+            stopGoal(); planWait = 0;
+        }
         if (task == Task.SLEEP && temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) {
             stopGoal(); return false;
         }
@@ -327,6 +338,12 @@ public final class YukkuriLife {
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
+        if (needsFood() && entity.wintering().stockedHome() != null) {
+            if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
+            // Activate pending care before this new food route could monopolize the higher-priority life goal.
+            if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
+            if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
+        }
         if (needsFood() && EventHooks.canEntityGrief(level(), entity)) {
             targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
@@ -342,6 +359,21 @@ public final class YukkuriLife {
             targetBlock = homeStand();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10) { task = Task.SLEEP; sleepTicks = 0; return true; }
+        }
+        return false;
+    }
+    /** Unmet needs are not prohibitions on food: only an executable higher-priority plan takes over. */
+    private boolean planWinterPriority() {
+        if (dryness >= 40 || spicyTicks > 0) {
+            var water = nearestDrink();
+            if (water != null) {
+                entity.wintering().stopMeal(); targetBlock = water; task = Task.DRINK;
+                drinkTicks = pursuitTicks = 0; return true;
+            }
+        }
+        if (bladder >= 70 && planToilet()) { entity.wintering().stopMeal(); return true; }
+        if (temperature.unsafeSleep() && temperature.plan()) {
+            entity.wintering().stopMeal(); task = Task.TEMPERATURE; pursuitTicks = 0; return true;
         }
         return false;
     }
@@ -391,6 +423,7 @@ public final class YukkuriLife {
                 }else if(pursuitTicks%10==1){var stand=drinkStand(targetBlock);if(stand==null||!navigate(stand,1,false))stopGoal();}
             }
             case FOOD -> seekFood();
+            case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
                 if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 240 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) < .16 && restable(entity.blockPosition())) {
@@ -493,6 +526,7 @@ public final class YukkuriLife {
     }
     public void stopGoal() {
         temperature.stop();
+        entity.wintering().stopMeal();
         task = Task.NONE; targetFood = null; targetBlock = null; sleepTicks = toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
@@ -685,6 +719,7 @@ public final class YukkuriLife {
         tag.putFloat("Bladder", bladder); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
         tag.putInt("ImmersionTicks", immersionTicks);
         tag.put("Temperature", temperature.save());
+        tag.put("Wintering", entity.wintering().save());
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
         tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
@@ -705,6 +740,7 @@ public final class YukkuriLife {
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
         immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);
         temperature.load(tag.getCompound("Temperature"));
+        entity.wintering().load(tag.getCompound("Wintering"));
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
         dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,400);returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
