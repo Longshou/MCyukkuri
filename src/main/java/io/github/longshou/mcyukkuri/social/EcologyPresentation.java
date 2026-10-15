@@ -68,7 +68,7 @@ public final class EcologyPresentation {
         return switch (event) {
             case "hello", "peer", "known_peer", "caregiver", "introduced", "gentle" -> YukkuriAction.GREET;
             case "afraid", "wounded" -> YukkuriAction.TREMBLE;
-            case "lost_accessory", "family_died", "lost_parent", "cold" -> YukkuriAction.DROOP;
+            case "lost_accessory", "family_died", "lost_parent", "cold", "settlement_hurt", "settlement_submit" -> YukkuriAction.DROOP;
             case "washed" -> YukkuriAction.SHAKE;
             case "toy" -> YukkuriAction.HOP;
             case "newborn", "hatched" -> YukkuriAction.FIRST_WAKE;

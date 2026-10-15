@@ -3732,5 +3732,605 @@
     ],
     "ticks": 64,
     "sound": "voice.original.patchouli.young.o_want_nuzzle"
+  },
+  {
+    "id": "reimu.adult.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_settlement_shun",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_settlement_drive",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 59,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_settlement_assign",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_settlement_submit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_settlement_shun",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_settlement_drive",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_settlement_assign",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_settlement_submit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_settlement_shun",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_settlement_drive",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_settlement_assign",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_settlement_submit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_settlement_shun",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_settlement_drive",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_settlement_assign",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_settlement_submit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_settlement_shun",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_settlement_drive",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_settlement_assign",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_settlement_submit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_settlement_shun",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_settlement_drive",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_settlement_assign",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_settlement_submit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_settlement_shun",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_settlement_drive",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_settlement_assign",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_settlement_submit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_settlement_shun",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_settlement_drive",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_settlement_assign",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_settlement_submit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_settlement_shun",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_settlement_drive",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_settlement_assign",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_settlement_submit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_settlement_shun",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_settlement_shun",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "settlement_shun"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_settlement_drive",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_settlement_drive",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "settlement_drive"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_settlement_assign",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_settlement_assign",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "settlement_assign"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_settlement_submit",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_settlement_submit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "settlement_submit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_settlement_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_settlement_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "settlement_hurt"
+    ],
+    "ticks": 99,
+    "sound": ""
   }
 ]

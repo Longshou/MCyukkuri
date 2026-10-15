@@ -12,12 +12,18 @@ import net.minecraft.world.phys.Vec3;
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
     private final YukkuriEntity entity;
+    private final SettlementSociety society;
+    private final SettlementDuties duties;
     private UUID groupId;
     private GlobalPos origin;
     private boolean pendingNatural;
     private BlockPos target;
     private int wait, elapsed;
-    public SettlementLife(YukkuriEntity entity) { this.entity = entity; }
+    public SettlementLife(YukkuriEntity entity) {
+        this.entity = entity; society = new SettlementSociety(entity); duties = new SettlementDuties(entity);
+    }
+    public SettlementSociety society() { return society; }
+    public SettlementDuties duties() { return duties; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public UUID groupId() { return groupId; }
     public SettlementData.Group group() {
@@ -27,6 +33,7 @@ public final class SettlementLife {
     public void join(SettlementData.Group group) {
         groupId = group.id; origin = GlobalPos.of(entity.level().dimension(), group.center);
         pendingNatural = false; entity.setPersistenceRequired();
+        if (!entity.level().isClientSide) SettlementData.get(level()).member(group, entity.getUUID());
     }
     public boolean inherit(YukkuriEntity parent) {
         var group = parent.settlement().group();
@@ -46,9 +53,10 @@ public final class SettlementLife {
         }
         var group = group();
         if (group != null && entity.tickCount % 100 == 0) SettlementData.get(level()).refreshLeader(level(), group);
+        society.tick(); duties.clock();
     }
     public boolean canUse() {
-        if (entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
+        if (society.role() == SettlementData.Role.OUTCAST || entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
                 || entity.life().mealTicks() > 0 || entity.life().isSleeping() || entity.isInWaterOrBubble()) return false;
         if (active()) return true;
         if (wait > 0) return false;
@@ -59,13 +67,14 @@ public final class SettlementLife {
         // Transporting a member never causes cross-world or long-distance forced navigation.
         if (distance > 48 * 48) return false;
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
-        boolean gathering = level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
-        if (distance <= radius * radius && !(gathering && group.leader != null)) return false;
+        UUID leaderId = SettlementData.get(level()).activeLeader(group);
+        boolean gathering = SettlementSociety.accepted(entity) && level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
+        if (distance <= radius * radius && !(gathering && leaderId != null)) return false;
         BlockPos destination = entity.life().homeStand();
-        if (gathering && group.leader != null && !group.leader.equals(entity.getUUID())) {
-            var leader = level().getEntity(group.leader);
+        if (gathering && leaderId != null && !leaderId.equals(entity.getUUID())) {
+            var leader = level().getEntity(leaderId);
             if (!(leader instanceof YukkuriEntity y) || !y.isAlive() || y.isPanicking() || !entity.life().canRecognize(y)
-                    || !entity.hasLineOfSight(y) || !group.id.equals(y.settlement().groupId())) return false;
+                    || !entity.hasLineOfSight(y) || !SettlementSociety.sameGroup(entity, y)) return false;
             destination = y.blockPosition();
         }
         if (destination == null || entity.distanceToSqr(Vec3.atBottomCenterOf(destination)) < 4) return false;
@@ -87,7 +96,7 @@ public final class SettlementLife {
         return false;
     }
     public boolean canContinue() {
-        return active() && elapsed < 400 && !entity.isPanicking()
+        return active() && society.role() != SettlementData.Role.OUTCAST && elapsed < 400 && !entity.isPanicking()
                 && !entity.isCommandPlaying() && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;
@@ -101,6 +110,7 @@ public final class SettlementLife {
         CompoundTag tag = new CompoundTag();
         if (groupId != null) tag.putUUID("Group", groupId);
         FamilyData.putPosition(tag, "Origin", origin); tag.putBoolean("PendingNatural", pendingNatural);
+        tag.put("Duties", duties.save());
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -109,5 +119,6 @@ public final class SettlementLife {
         if (origin == null) groupId = null;
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
         target = null; wait = elapsed = 0;
+        duties.load(tag.getCompound("Duties"));
     }
 }

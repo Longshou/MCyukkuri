@@ -287,6 +287,7 @@ public final class YukkuriLife {
     public boolean returnAccessory(UUID owner, UUID token, UUID player) {
         if(!matchesAccessory(owner,token))return false;
         accessory = true; accessoryToken = null; personality.accessoryReturned(player);
+        entity.settlement().society().restored();
         entity.showReaction("happy", "returned_accessory", 100); return true;
     }
     public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}

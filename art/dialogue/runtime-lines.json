@@ -5391,6 +5391,806 @@
         "id": "patchouli.young.o_want_nuzzle"
       },
       "source_sha256": "8a999837f77d081774af6d43b53f6576b0a0f56093e3c9fb1113103f30e824a3"
+    },
+    {
+      "id": "reimu.adult.o_settlement_shun",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "だれなの？ちかくにこないでね！",
+      "chinese": "你是谁？别靠过来哦！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_settlement_shun"
+      },
+      "source_sha256": "475787cca65eb3fdadc050c017549bcf82b1e0b87da23fca81806ef43c7d0834"
+    },
+    {
+      "id": "reimu.adult.o_settlement_drive",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ここからでていってね！",
+      "chinese": "从这里出去吧！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_settlement_drive"
+      },
+      "source_sha256": "37f581a217b0ce2900bb27046bb740c1fea0e4a0feb0ea5be60c1190e7dea3a2"
+    },
+    {
+      "id": "reimu.adult.o_settlement_assign",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うんうんどれいは、おといれをおそうじしてね！",
+      "chinese": "嗯嗯奴隶，去把厕所清理干净！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_settlement_assign"
+      },
+      "source_sha256": "c52adf6fd8657ea9d6eddb6a6dccfad9049db16202776ffe44617cd7bb88aec3"
+    },
+    {
+      "id": "reimu.adult.o_settlement_submit",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おそうじするから、ここにいさせてね…。",
+      "chinese": "我会打扫的，让我留在这里吧……。",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_settlement_submit"
+      },
+      "source_sha256": "2698544aad8873842bdcdc46975f1787674040855b9a752292d476d815f9e8d2"
+    },
+    {
+      "id": "reimu.adult.o_settlement_hurt",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりがないれいむは、だめなの…？",
+      "chinese": "没有饰物的灵梦，就不行了吗……？",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_settlement_hurt"
+      },
+      "source_sha256": "925cbe6ef55d48fcaab4045ae120089a42edbd9b59591330a994bfd0c119d0dc"
+    },
+    {
+      "id": "reimu.young.o_settlement_shun",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "だれなの？こないでねっ！",
+      "chinese": "系谁呀？别过来惹哟！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_settlement_shun"
+      },
+      "source_sha256": "297e475fffb9ffff78bea89cb08290ccb9e22cfd06d2ae64c6659f0055310f1b"
+    },
+    {
+      "id": "reimu.young.o_settlement_drive",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ここ、だめなの！あっちいってねっ！",
+      "chinese": "介里不行！去那边惹哟！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_settlement_drive"
+      },
+      "source_sha256": "15e9b8aee85d97db13367ba869641b42bb3a99c28e501b0961fbd3b2284d6390"
+    },
+    {
+      "id": "reimu.young.o_settlement_assign",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うんうん、ここからどけてねっ！",
+      "chinese": "介个嗯嗯，搬走惹哟！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_settlement_assign"
+      },
+      "source_sha256": "44d398b92181a06822d497eb76d37a00fcb4a09cd94470fb609d21b67788953f"
+    },
+    {
+      "id": "reimu.young.o_settlement_submit",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おそうじしゅるから、ここにいしゃせてね……",
+      "chinese": "窝会扫扫，别赶窝惹哟……",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_settlement_submit"
+      },
+      "source_sha256": "8f4c5a07033d019119b402d87a93ded2f170b8fe7440f489692f91bf9470078f"
+    },
+    {
+      "id": "reimu.young.o_settlement_hurt",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おりぼん、ないの……ひとりはいやなの……",
+      "chinese": "蝴蝶结没惹……窝不要一只惹哟……",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_settlement_hurt"
+      },
+      "source_sha256": "52c501dc70ba193b8dd339ccc812cdb4b448b914e056e48bc74013be9cfe21f8"
+    },
+    {
+      "id": "marisa.adult.o_settlement_shun",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "しらないゆっくりは、ちかづくななのぜ！",
+      "chinese": "不认识的油库里，别靠近贼！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_settlement_shun"
+      },
+      "source_sha256": "3fb78850b429a5ce9e172add8a3f23aef298d4a6a2759a3b0b1fa27a55ec6f25"
+    },
+    {
+      "id": "marisa.adult.o_settlement_drive",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここはおまえのおうちじゃないのぜ！",
+      "chinese": "这里不是你的家贼！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_settlement_drive"
+      },
+      "source_sha256": "2306f632c9fc79113954be50a8b49c2bf1178f95718bbe6e53aba37e2255d83b"
+    },
+    {
+      "id": "marisa.adult.o_settlement_assign",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うんうんどれい、おといれをかたづけるのぜ！",
+      "chinese": "嗯嗯奴隶，去收拾厕所贼！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_settlement_assign"
+      },
+      "source_sha256": "4c12ec6c259f84b2dce390d81a3b635c5800c1c6152cc373996c46fa24fe8c83"
+    },
+    {
+      "id": "marisa.adult.o_settlement_submit",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かたづけるから、おいださないでほしいのぜ…。",
+      "chinese": "我会收拾的，不要赶我走贼……。",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_settlement_submit"
+      },
+      "source_sha256": "26b6f529b756e8f3c6ea4c17168b67e7f60f02521f94f6cf449ebd0af5af4b07"
+    },
+    {
+      "id": "marisa.adult.o_settlement_hurt",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぼうしがないまりさは、だめなのぜ…？",
+      "chinese": "没有帽子的魔理沙，就不行了吗贼……？",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_settlement_hurt"
+      },
+      "source_sha256": "ea88156f9822f10c4782429e60ab5e2c353d4811099746ae94413d3b1527211f"
+    },
+    {
+      "id": "marisa.young.o_settlement_shun",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "だれなのじぇ？こないでなのじぇ！",
+      "chinese": "系谁惹杰？不要过来惹杰！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_settlement_shun"
+      },
+      "source_sha256": "bb67dc1e5826ab9f73f1c7007567edf66e09723c6d87487938d94f21806dc721"
+    },
+    {
+      "id": "marisa.young.o_settlement_drive",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここはだめなのじぇ！",
+      "chinese": "介里不行惹杰！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_settlement_drive"
+      },
+      "source_sha256": "48a517d9fc4efffc8d5292cf63976ea9fba51d62c51b42feee0fe9e3e63015fe"
+    },
+    {
+      "id": "marisa.young.o_settlement_assign",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うんうん、あっちにしてなのじぇ！",
+      "chinese": "介个嗯嗯，搬那边惹杰！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_settlement_assign"
+      },
+      "source_sha256": "e3ecbbbb9ee92c417190411dbb70d6a4bf48873f5374b6c42c2c4d24f5147152"
+    },
+    {
+      "id": "marisa.young.o_settlement_submit",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おそうじしゅるなのじぇ！ひとりはいやなのじぇ……",
+      "chinese": "窝会扫扫惹杰！别丢下窝……",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_settlement_submit"
+      },
+      "source_sha256": "df7eedcde5ae0b324d327f75a59d36e8fd91b6f35c2ceb5c10bbf071004c6e6c"
+    },
+    {
+      "id": "marisa.young.o_settlement_hurt",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうし、ない……ひとりはいやなのじぇ……",
+      "chinese": "帽帽没惹……陪着窝惹杰……",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_settlement_hurt"
+      },
+      "source_sha256": "15669d02c64c6f79ec141f0a07d5fe4b565da9fdaa30e21257ab79b708da44e5"
+    },
+    {
+      "id": "alice.adult.o_settlement_shun",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あなた、だれなの？すこしはなれてちょうだい。",
+      "chinese": "你是谁？请离远一点。",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_settlement_shun"
+      },
+      "source_sha256": "6699d7ea9ae0666306c83e421bab60d3a29528b8a9081327281946600af22502"
+    },
+    {
+      "id": "alice.adult.o_settlement_drive",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここにはいてほしくないわ。でていって！",
+      "chinese": "不想让你待在这里。出去！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_settlement_drive"
+      },
+      "source_sha256": "549edb86560c6215064f974e2edef1e6c03426ecebc8b1ba3c0b11e74d0b53ae"
+    },
+    {
+      "id": "alice.adult.o_settlement_assign",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うんうんどれい、おといれのおそうじをしなさい！",
+      "chinese": "嗯嗯奴隶，去打扫厕所！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_settlement_assign"
+      },
+      "source_sha256": "49a7d56a330274fb4016fe8c3af18d11629564e4bcf0a5a5d2b9906893de1fba"
+    },
+    {
+      "id": "alice.adult.o_settlement_submit",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おそうじするわ。ここにいさせて…。",
+      "chinese": "我会打扫的。让我留在这里……。",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_settlement_submit"
+      },
+      "source_sha256": "453b3ceda85bad3e56271681334ebbed7e610287e5562f6fbc1ba50b7b3ab7db"
+    },
+    {
+      "id": "alice.adult.o_settlement_hurt",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりがないと、ありすはだめなの…？",
+      "chinese": "没有发饰，爱丽丝就不行了吗……？",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_settlement_hurt"
+      },
+      "source_sha256": "f359337ff78b3631b30c438977111b469b1f6ac0f530a5fe59e86c131ff6fc1b"
+    },
+    {
+      "id": "alice.young.o_settlement_shun",
+      "species": "alice",
+      "age": "young",
+      "japanese": "だれ？ちかぢゅかないでねっ！",
+      "chinese": "系谁呀？别靠近窝哇！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_settlement_shun"
+      },
+      "source_sha256": "8523a6378a6bbb44565995512e11f4865574d8cdd0c620ce96d22d6844caac1e"
+    },
+    {
+      "id": "alice.young.o_settlement_drive",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ここ、だめー！あっちいってねっ！",
+      "chinese": "介里不行哇！去那边呀！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_settlement_drive"
+      },
+      "source_sha256": "68dea4b42d63e22b4fb8dfd4f125436d99136f56287b0add0e0a1799f3a65a1a"
+    },
+    {
+      "id": "alice.young.o_settlement_assign",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うんうん、どけてほちいわ！",
+      "chinese": "把介个嗯嗯搬走哇！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_settlement_assign"
+      },
+      "source_sha256": "3bbeec18dbc101a03a4ff9abcdc668fb73e0ff5b8d508529346a33d5d9db7f68"
+    },
+    {
+      "id": "alice.young.o_settlement_submit",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おそうじしゅるわ！ここにいたいの……",
+      "chinese": "窝会扫扫哇！窝想待介里……",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_settlement_submit"
+      },
+      "source_sha256": "f9959f9f0be290906d203e64a80bd586b3f5d109b72b5e9c95c6b543a0c994f5"
+    },
+    {
+      "id": "alice.young.o_settlement_hurt",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かみかざり、どこ……？ひとりはいや……",
+      "chinese": "发饰在哪里哇……别丢下窝……",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_settlement_hurt"
+      },
+      "source_sha256": "03427731f48a768e78f70744e8302dd72b4f0c9a60e00ac0a8fc2969a73cca78"
+    },
+    {
+      "id": "chen.adult.o_settlement_shun",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "だれかわからないよー。はなれてねー。",
+      "chinese": "不知道你是谁哟——。离远一点吧——。",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_settlement_shun"
+      },
+      "source_sha256": "3473a4f75bf246b95374fc2e3bbc278a823981a81a15ced009639e9e909fee51"
+    },
+    {
+      "id": "chen.adult.o_settlement_drive",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここからでていってねー！",
+      "chinese": "从这里出去吧——！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_settlement_drive"
+      },
+      "source_sha256": "304cbb50663ffe3a5408d845ab463d42a0a182a2c56cbc339368f31c7b5fa625"
+    },
+    {
+      "id": "chen.adult.o_settlement_assign",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うんうんどれい、おといれをきれいにしてねー！",
+      "chinese": "嗯嗯奴隶，把厕所清理干净哟——！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_settlement_assign"
+      },
+      "source_sha256": "4fb52403a73fe4430466595e4adc7646a3f7af85e0fe884d32ce9c23fc90f98d"
+    },
+    {
+      "id": "chen.adult.o_settlement_submit",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おそうじするよー。ここにいたいよー…。",
+      "chinese": "会打扫的哟——。想留在这里哟——……。",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_settlement_submit"
+      },
+      "source_sha256": "145d7d0362e80964fe3f2a3ca77872cf2a09bdf28502d4e026ec3329c6bed560"
+    },
+    {
+      "id": "chen.adult.o_settlement_hurt",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おぼうしがないちぇんは、だめなのー…？",
+      "chinese": "没有帽子的橙，就不行了吗——……？",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_settlement_hurt"
+      },
+      "source_sha256": "dfd32d5cd7e11270a60d9dd795907da3984c1341d7d637b1732f41ba157c98a8"
+    },
+    {
+      "id": "chen.young.o_settlement_shun",
+      "species": "chen",
+      "age": "young",
+      "japanese": "だれ？わかにゃいよー！こないでー！",
+      "chinese": "系谁？瓦卡呐奈哟！别过来呀！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_settlement_shun"
+      },
+      "source_sha256": "ade1a557b30e164a37ba461b62c5a5f14648a86b99fd36390fc9e6942c216d52"
+    },
+    {
+      "id": "chen.young.o_settlement_drive",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここはだめー！わかうよー！",
+      "chinese": "介里不行！瓦卡呜哟！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_settlement_drive"
+      },
+      "source_sha256": "4da1ba24d16279126a41c93906bf872fa240cc64b7adb44c7d2fd85c6b268de1"
+    },
+    {
+      "id": "chen.young.o_settlement_assign",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うんうん、どけてー！わかうよー！",
+      "chinese": "把介个嗯嗯搬走！瓦卡呜哟！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_settlement_assign"
+      },
+      "source_sha256": "27cc97bc6c12a608bc4bd9abb2435d56c96c2614b0344a93aced2a5284ef2c19"
+    },
+    {
+      "id": "chen.young.o_settlement_submit",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おそうじしゅるー！わかうよー！いっしょにいてー……",
+      "chinese": "窝会扫扫，瓦卡呜哟！陪着窝呀……",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_settlement_submit"
+      },
+      "source_sha256": "5652585eac27009ce2c90da4ada2f740f792509f2f99a53ab46075a134e96760"
+    },
+    {
+      "id": "chen.young.o_settlement_hurt",
+      "species": "chen",
+      "age": "young",
+      "japanese": "どうちてひとり？わかにゃいよー……",
+      "chinese": "为啥不陪窝？瓦卡呐奈哟……",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_settlement_hurt"
+      },
+      "source_sha256": "b56a353296c0c86918e6a0fa3ba0379993239f1db47db28793d89a30c7b9d16f"
+    },
+    {
+      "id": "patchouli.adult.o_settlement_shun",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あなたをしらないわ。はなれてね。",
+      "chinese": "姆Q，不认识你呀。离远一点吧。",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_settlement_shun"
+      },
+      "source_sha256": "5678bed7a9235614c9c8ea3bc3f82bda9127a6339d2fabf2da66d7599c5b9368"
+    },
+    {
+      "id": "patchouli.adult.o_settlement_drive",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ここからでていってちょうだい！",
+      "chinese": "姆Q，请从这里出去！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_settlement_drive"
+      },
+      "source_sha256": "65ff199a7f20781e315165d1bc1c06e247079ee185425daf26882984413d4198"
+    },
+    {
+      "id": "patchouli.adult.o_settlement_assign",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "うんうんどれい、おといれのおそうじをするのよ！",
+      "chinese": "嗯嗯奴隶，去打扫厕所！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_settlement_assign"
+      },
+      "source_sha256": "1c3e252f4a66e818063b183151486c1ebc1abde787a5c03ffbb88b9a67243cf6"
+    },
+    {
+      "id": "patchouli.adult.o_settlement_submit",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、おそうじするわ。ひとりにしないで…。",
+      "chinese": "姆Q，我会打扫的。不要留下我独自一只……。",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_settlement_submit"
+      },
+      "source_sha256": "84ade74ba45b59e2fb48ed8c21dfda4c48ec78cac067941d42a07b2050a97277"
+    },
+    {
+      "id": "patchouli.adult.o_settlement_hurt",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "おぼうしがないぱちゅりーは、だめなの…？",
+      "chinese": "没有帽子的帕秋莉，就不行了吗……？",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_settlement_hurt"
+      },
+      "source_sha256": "8a90050e20be5ada6faf8855660f3c3cc52d6653b4ed293ca592c44b943acc1f"
+    },
+    {
+      "id": "patchouli.young.o_settlement_shun",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……だれ？こないでっ！",
+      "chinese": "姆啾……系谁？别过来呀！",
+      "events": [
+        "settlement_shun"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_settlement_shun"
+      },
+      "source_sha256": "fe1e36d52ef30ab9517f3ae17d485ccc8878048b7671b7d6ceb5b33620a6d04f"
+    },
+    {
+      "id": "patchouli.young.o_settlement_drive",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅっ！ここ、だめー！",
+      "chinese": "姆啾！介里不行呀！",
+      "events": [
+        "settlement_drive"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_settlement_drive"
+      },
+      "source_sha256": "754407bb70bafe52ff4c2085ffe82dd5b8cc171749a67625caff98e61691bc6c"
+    },
+    {
+      "id": "patchouli.young.o_settlement_assign",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ここのうんうん、どけてっ！",
+      "chinese": "姆啾，把介个嗯嗯搬走呀！",
+      "events": [
+        "settlement_assign"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_settlement_assign"
+      },
+      "source_sha256": "41b007fcdb6196d400d702892c31f81ac822d9435df9eab1017c18b5f143539a"
+    },
+    {
+      "id": "patchouli.young.o_settlement_submit",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、おそうじしゅる……いっしょにいて……",
+      "chinese": "姆啾，窝会扫扫……陪着窝呀……",
+      "events": [
+        "settlement_submit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_settlement_submit"
+      },
+      "source_sha256": "b7c52a52bea7519aa2183cfba92b8d909686e658faa8ed360949e933ec62366d"
+    },
+    {
+      "id": "patchouli.young.o_settlement_hurt",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おぼうし、どこ？ひとりはいや……",
+      "chinese": "姆啾……帽帽在哪里？窝不要一只……",
+      "events": [
+        "settlement_hurt"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_settlement_hurt"
+      },
+      "source_sha256": "1bb536d5f4b2c87ec956dbcad6eb3ca84cae786cd8cf102d467bcbee20a8250a"
     }
   ]
 }

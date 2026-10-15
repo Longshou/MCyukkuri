@@ -90,6 +90,7 @@ public final class HabitatLife {
         if(wait>0)return false;wait=60;
         var value=shelter();if(value==null||!value.usable(entity))return false;
         if(entity.life().canEat()&&value.food()>0){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
+        if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
         if(!EventHooks.canEntityGrief(level(),entity)||entity.life().nutrition()<40||entity.life().energy()<35)return false;
         if(!carrying.isEmpty()){task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;}
         targetItem=value.wasteInside().stream().filter(item->!item.hasPickUpDelay()).findFirst().orElse(null);
@@ -106,7 +107,8 @@ public final class HabitatLife {
         return false;
     }
     public boolean canContinue() {
-        return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity));
+        return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity))
+                &&(task==Task.FOOD||!carrying.isEmpty()||!entity.settlement().society().dejected());
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}ticks++;

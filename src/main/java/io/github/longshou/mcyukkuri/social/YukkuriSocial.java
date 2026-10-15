@@ -92,7 +92,8 @@ public final class YukkuriSocial {
         if (entity.getRandom().nextInt(100) < personality().trait(Trait.SOCIABILITY)) {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
                     && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
-                    && !peer.dailyLife().active() && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(peer) && entity.hasLineOfSight(peer)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                    && !peer.dailyLife().active() && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(peer)
+                    && !io.github.longshou.mcyukkuri.settlement.SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { task = Task.PEER; duration = 80; elapsed = 0; greeted = false; return true; }
         }
         target = level.getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(6), player -> player.isAlive() && !player.isSpectator())
