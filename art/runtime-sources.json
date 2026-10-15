@@ -2,6 +2,14 @@
   "schema_version": 2,
   "path_base": "repository_root",
   "automatic_promotion": false,
+  "badge_attachments": {
+    "source": "art/props/badges/mounts.json",
+    "rounded_selection": "art/source/rounded-runtime/attachments.json",
+    "exporters": ["scripts/export_rounded_attachments.py", "scripts/export_badges.py"],
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/badge_mounts.json",
+    "offline_preview": "art/props/badges/preview.py",
+    "status": "pending_visual_approval"
+  },
   "ecology_expressions": {
     "selection": "art/source/ecology/expressions.json",
     "exporter": "scripts/export_ecology_expressions.py",

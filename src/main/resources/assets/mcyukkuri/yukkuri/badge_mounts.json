@@ -378,6 +378,27 @@
         -1.0
       ],
       "diameter": 0.084375
+    },
+    "marisa_tsumuri": {
+      "model_sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
+      "part": "shell_coil_0_3_0_1",
+      "triangle": 21258,
+      "weights": [
+        0.7849096993231605,
+        0,
+        0.2150903006768395
+      ],
+      "rest_point": [
+        5.3,
+        12.8256872,
+        -6.248311
+      ],
+      "rest_normal": [
+        0.0,
+        0.42261819853681926,
+        -0.9063078165091005
+      ],
+      "diameter": 0.05625
     }
   },
   "detached": {
@@ -863,6 +884,27 @@
         -1.0
       ],
       "diameter": 0.084375
+    },
+    "accessory_marisa_tsumuri": {
+      "model_sha256": "3fbb56494511241dfa38bfe2b5bd9d0a6bd03c0a2ff1de704ea795b3301a5967",
+      "part": "shell_coil_0_3_0_1",
+      "triangle": 6948,
+      "weights": [
+        0.7849096993231605,
+        0,
+        0.2150903006768395
+      ],
+      "rest_point": [
+        5.3,
+        12.8256872,
+        -6.248311
+      ],
+      "rest_normal": [
+        0.0,
+        0.42261819853681926,
+        -0.9063078165091005
+      ],
+      "diameter": 0.05625
     }
   }
 }
