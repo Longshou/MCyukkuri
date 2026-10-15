@@ -42,7 +42,7 @@ macOS / Linux 使用 `./gradlew build` 和 `./gradlew runClient`。IntelliJ IDEA
 
 以下工具保留，排查问题或大改后再用，不作为合并门槛：
 
-- GitHub Actions 的 `Optional P0 GameTest`：手动选择测试组后，在远端 Java 21 无窗口服务器运行。默认 `core`；`growth` 包含家庭与成长，`shed_stem` 检查空茎投放，`independence` 检查独立建窝与返访，`settlements` 包含住所与温度，`subspecies` 包含缩壳，`dialogue` 检查对白，`integration` 使用原有整合组。失败日志保留七天，不作为合并门槛。
+- GitHub Actions 的 `Optional P0 GameTest`：手动选择测试组后，在远端 Java 21 无窗口服务器运行。默认 `core`；`growth` 包含家庭与成长，`shed_stem` 检查空茎投放，`independence` 检查独立建窝与返访，`seasons` 检查日历与季节体感，`settlements` 包含住所与温度，`subspecies` 包含缩壳，`dialogue` 检查对白，`integration` 使用原有整合组。失败日志保留七天，不作为合并门槛。
 - `./gradlew runP0GameTest -Pp0Suite=core`：远端命令行选择同一测试组；不传 `p0Suite` 时仍运行原有 `integration` 组。普通 `build` 不编译或执行 P0，测试服务器会单独编译 `src/p0Test/`。本机不执行这些命令。
 - `./gradlew verifyModelFingerprint`：模型指纹换行兼容检查。
 - `python scripts/validate_entity_assets.py` 及 `scripts/export_*_assets.py --check`：素材导出与运行资源一致性检查，说明见 [项目脚本](../scripts/README.md)。

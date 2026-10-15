@@ -574,5 +574,13 @@
   "activity.mcyukkuri.independence_carry": "巣材を運ぶ",
   "activity.mcyukkuri.independence_build": "寝床と住まいを整える",
   "activity.mcyukkuri.independence_visit": "親族を訪ねる",
-  "activity.mcyukkuri.independence_return": "自分の新居へ帰る"
+  "activity.mcyukkuri.independence_return": "自分の新居へ帰る",
+  "notebook.mcyukkuri.season": "世界の暦\n%s · %s / %s 日目\nこの次元の温度差（MC）：%s\n%s\n\n実際の寒暖は日陰、敷き材、近くの熱源にも左右されます。",
+  "season.mcyukkuri.spring": "春",
+  "season.mcyukkuri.summer": "夏",
+  "season.mcyukkuri.autumn": "秋",
+  "season.mcyukkuri.winter": "冬",
+  "season.mcyukkuri.calendar_only": "暦の表示のみ",
+  "season.mcyukkuri.running": "主世界の昼夜とともに進む",
+  "season.mcyukkuri.paused": "昼夜と暦は停止中"
 }

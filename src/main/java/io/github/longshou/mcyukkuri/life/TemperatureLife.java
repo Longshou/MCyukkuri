@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.season.SeasonClimate;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -101,13 +102,8 @@ public final class TemperatureLife {
         if (!level().hasChunkAt(pos)) return new Conditions(.8, false, false, 0);
         boolean shade = shaded(pos), insulated = insulated(pos, shade);
         double biome = level().getBiome(pos).value().getBaseTemperature();
-        double felt = biome;
-        if (level().dimensionType().hasSkyLight()) {
-            if (level().isNight()) felt -= shade ? .15 : .35;
-            // Shade removes excess daytime heat; an ordinary plains tree must not create cold.
-            else if (biome >= .8) felt += shade ? -Math.min(.65, biome - .8) : .35;
-            if (!shade && level().isRaining() && biome < .2) felt -= .2;
-        }
+        double felt = SeasonClimate.ambient(biome, SeasonClimate.offset(level()), level().dimensionType().hasSkyLight(),
+                level().isNight(), shade, level().isRaining());
         felt -= entity.life().wetness() / 100.0 * .35;
         if (insulated && tooCold(felt)) felt += YukkuriConfig.NEST_INSULATION.get();
         double warmth = 0;

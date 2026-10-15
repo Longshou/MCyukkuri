@@ -1262,5 +1262,13 @@
   "activity.mcyukkuri.independence_carry": "搬运筑居材料",
   "activity.mcyukkuri.independence_build": "铺床筑居",
   "activity.mcyukkuri.independence_visit": "回访亲属",
-  "activity.mcyukkuri.independence_return": "返回自己的新居"
+  "activity.mcyukkuri.independence_return": "返回自己的新居",
+  "notebook.mcyukkuri.season": "世界日历\n%s · 第 %s / %s 日\n本维度温差（MC）：%s\n%s\n\n实际冷暖仍受遮蔽、铺垫和附近热源影响。",
+  "season.mcyukkuri.spring": "春季",
+  "season.mcyukkuri.summer": "夏季",
+  "season.mcyukkuri.autumn": "秋季",
+  "season.mcyukkuri.winter": "冬季",
+  "season.mcyukkuri.calendar_only": "仅查看日历",
+  "season.mcyukkuri.running": "随主世界昼夜推进",
+  "season.mcyukkuri.paused": "昼夜暂停，日历暂停"
 }

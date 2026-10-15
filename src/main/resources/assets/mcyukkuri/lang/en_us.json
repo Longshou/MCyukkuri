@@ -1262,5 +1262,13 @@
   "activity.mcyukkuri.independence_carry": "Carrying building materials",
   "activity.mcyukkuri.independence_build": "Preparing bedding and shelter",
   "activity.mcyukkuri.independence_visit": "Visiting relatives",
-  "activity.mcyukkuri.independence_return": "Returning to the new home"
+  "activity.mcyukkuri.independence_return": "Returning to the new home",
+  "notebook.mcyukkuri.season": "World calendar\n%s · Day %s/%s\nLocal shift (MC): %s\n%s\n\nShade, bedding and nearby heat still matter.",
+  "season.mcyukkuri.spring": "Spring",
+  "season.mcyukkuri.summer": "Summer",
+  "season.mcyukkuri.autumn": "Autumn",
+  "season.mcyukkuri.winter": "Winter",
+  "season.mcyukkuri.calendar_only": "Calendar only",
+  "season.mcyukkuri.running": "Follows overworld daytime",
+  "season.mcyukkuri.paused": "Daylight cycle paused"
 }

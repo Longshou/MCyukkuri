@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/** Rates advance only while the entity is loaded and ticking. */
+/** Server-side life rates and environment settings; physiology never catches up offline. */
 public final class YukkuriConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.IntValue HUNGER_INTERVAL;
@@ -19,6 +19,8 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
+    public static final ModConfigSpec.IntValue SEASON_DAYS;
+    public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
@@ -42,6 +44,14 @@ public final class YukkuriConfig {
                 .defineInRange("coldExposureTicks", 2400, 20, 1728000);
         FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
         HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);
+        builder.pop().push("seasons");
+        SEASON_DAYS = builder.comment("Original adaptation: overworld daytime days per season. Changing this preserves the current season and its progress fraction.")
+                .defineInRange("daysPerSeason", 7, 1, 365);
+        SPRING_TEMPERATURE = builder.comment("MC biome-temperature offsets, only in dimensions with skylight and a moving sun. Not Celsius.")
+                .defineInRange("springTemperature", 0.0, -2.0, 2.0);
+        SUMMER_TEMPERATURE = builder.defineInRange("summerTemperature", .45, -2.0, 2.0);
+        AUTUMN_TEMPERATURE = builder.defineInRange("autumnTemperature", -.25, -2.0, 2.0);
+        WINTER_TEMPERATURE = builder.defineInRange("winterTemperature", -.8, -2.0, 2.0);
         builder.pop().push("development");
         DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
         DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);
