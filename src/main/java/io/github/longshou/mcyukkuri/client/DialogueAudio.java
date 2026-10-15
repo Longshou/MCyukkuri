@@ -3,11 +3,11 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.registry.ModSounds;
 import java.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -52,7 +52,7 @@ public final class DialogueAudio {
         private final YukkuriEntity owner;
         private final int sequence;
         Voice(YukkuriEntity owner, String sound) {
-            super(SoundEvent.createVariableRangeEvent(MCYukkuri.id(sound)), SoundSource.NEUTRAL, .75f, 1,
+            super(ModSounds.event(sound), SoundSource.NEUTRAL, .75f, 1,
                     owner, owner.getRandom().nextLong());
             this.owner = owner; this.sequence = owner.speechSequence();
         }

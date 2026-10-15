@@ -10,6 +10,20 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 @PrefixGameTestTemplate(false)
 public final class DialogueGameTests {
+    @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=20, batch="dialogue")
+    public static void registeredSounds(GameTestHelper helper) {
+        var registry = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT;
+        for (String path : io.github.longshou.mcyukkuri.registry.ModSounds.paths()) {
+            var id = io.github.longshou.mcyukkuri.MCYukkuri.id(path);
+            helper.assertTrue(registry.containsKey(id), "Sound registered on the server: " + id);
+            helper.assertTrue(registry.get(id) == io.github.longshou.mcyukkuri.registry.ModSounds.event(path), "Client uses registered singleton: " + id);
+        }
+        for (var line : NativeDialogue.lines()) if (!line.sound().isEmpty()) {
+            helper.assertTrue(io.github.longshou.mcyukkuri.registry.ModSounds.paths().contains(line.sound()), "Dialogue sound registered: " + line.id());
+        }
+        helper.succeed();
+    }
+
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=240, batch="dialogue_species")
     public static void speciesSpeech(GameTestHelper helper) {
         var level=helper.getLevel();var speakers=new java.util.ArrayList<io.github.longshou.mcyukkuri.entity.YukkuriEntity>();
