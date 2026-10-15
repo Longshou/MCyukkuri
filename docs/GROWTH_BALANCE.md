@@ -55,7 +55,7 @@
 
 茎长随之按子油数量拟合，见[家庭生长与茎生](../art/props/family-life/README.md)。
 
-单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照见[世界观动作预览](../art/source/motion-corrections/previews/current/lore/index.html)的“体型规范”场景。旧 v1 胎生预览（`standards/yukkuri-v1/behaviors/viviparous-birth.json` 及其派生的 `assembled/*/birth.json`）仍按 0.18 绘制，未随本次更新。
+单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照见世界观动作预览（由 `standards/yukkuri-library/motions/variants/lore/births.py` 在本机生成，不入库）的“体型规范”场景。旧 v1 胎生原型（`standards/yukkuri-v1/behaviors/viviparous-birth.json`）仍按 0.18 绘制，未随本次更新。
 
 ## 配置与旧档
 
@@ -73,6 +73,6 @@
 
 ## 验证
 
-运行 `scripts/growth_checks.init.gradle` 和 `scripts/run_growth_checks.py`，输出隔离在 `.local/deibu-life-design/`。包含新版成长／迁移、既有家庭行为、消耗品与胎生七项 GameTest。构建和具体结果见[本轮验收](validation/growth/current/README.md)。
+运行 `scripts/growth_checks.init.gradle` 和 `scripts/run_growth_checks.py`，输出隔离在 `.local/deibu-life-design/`。包含新版成长／迁移、既有家庭行为、消耗品与胎生七项 GameTest。
 
 没有连续挂机30小时，也没有执行新版客户端、多人或用户世界升级验收；边界时刻通过受控设置年龄后调用真实游戏逻辑检查，睡眠、成长和出生另由实际引擎 tick 验证。

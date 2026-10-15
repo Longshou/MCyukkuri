@@ -15,8 +15,6 @@
     "src/main/resources/assets/mcyukkuri/models/item/cold_storage.json": "8e3214d53051b6cb915bce7a90c524903e603b8f75717958f2f00b21b10eb15b",
     "src/main/resources/assets/mcyukkuri/blockstates/cold_storage.json": "2cb2c70ea62c760ee89ac1f2e04c8ebfdead53cc22630e0b203ebaa93bf5a02c",
     "src/main/resources/data/mcyukkuri/recipe/cold_storage.json": "f7030c1c4efa97371f193e7c47f02d5ce0107e8c7b5905f9172b169b9e4e9861",
-    "src/main/resources/data/mcyukkuri/loot_table/blocks/cold_storage.json": "c752c7438070f41d0a990c6c9391a6875b09bbc3c97d924f0c56870e7cc8d63b",
-    "art/props/cold-storage/previews/current/model-sheet.png": "486191b8e6ee6fef97bee5f67403259f2e3801c631fd9da6d5c4e36eb32a26ee",
-    "standards/yukkuri-library/drafts/cold-storage/previews/current/model-sheet.png": "486191b8e6ee6fef97bee5f67403259f2e3801c631fd9da6d5c4e36eb32a26ee"
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/cold_storage.json": "c752c7438070f41d0a990c6c9391a6875b09bbc3c97d924f0c56870e7cc8d63b"
   }
 }

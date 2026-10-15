@@ -14,7 +14,7 @@
 | 灵胖 | 成熟、营养与环境共同作用的后天转变已经接入 | [成长规则](reimu-deibu-development.md)、[性格实装](../docs/PERSONALITY_DESIGN.md) |
 | 徽章 | 训练、考核、佩戴已接入；金章观察者识别失饰者是项目规则 | [金银章](../docs/BADGES.md)、[作品参考](badges.md) |
 | 失饰的社会后果 | 识别已有；完整聚落降职、驱逐与恢复仍是计划 | [步骤 1.1](../docs/DEVELOPMENT_PLAN.md) |
-| 商店、工厂与 NPC | 已接入；Wiki 中 2026-09-13 的原创建议属于历史设计 | [人类世界](../docs/HUMAN_WORLD.md)、[生产线](../docs/validation/factory-pipeline/README.md) |
+| 商店、工厂与 NPC | 已接入；Wiki 中 2026-09-13 的原创建议属于历史设计 | [人类世界](../docs/HUMAN_WORLD.md) |
 | 捕食种 | 蕾米莉亚、弗兰的实体、飞行捕食、枝巢与销售已经接入 | [捕食种实现](../docs/PREDATOR_IMPLEMENTATION.md) |
 | 群落与天然住所 | 有当前实现；不等于季节迁徙和群落职位已完整 | [群落实现](../docs/SETTLEMENTS.md) |
 | 季节、越冬、被炉与 DOS | 已有采用方向与资料条目，仍按开发计划逐步实现 | [步骤 3、4 与附录 A](../docs/DEVELOPMENT_PLAN.md) |

@@ -1,8 +1,0 @@
-{
-  "revision": "lowered-facing-hat-care",
-  "metric": "Count of braid cube sample points inside the inset core body, sampled at 10 Hz. Not a count of physical collisions.",
-  "sampling": "27 points per braid cuboid; |x| < 5.6, 0.05 < y < 8.2, -4.55 < z < 4.0. Excludes shallow side attachment overlap.",
-  "before": {"pick_stone":0,"swing_sword":0,"pull_grass":0,"remove_hat":0,"wave_goodbye":0,"lift_child":5114},
-  "after": {"pick_stone":0,"swing_sword":0,"pull_grass":0,"remove_hat":0,"wave_goodbye":0,"lift_child":1332},
-  "limitations": "This comparison covers braid/core-body penetration. It does not certify zero overlap for hair, hat, sword or child meshes. Hat care is excluded from the before/after count because its choreography was replaced."
-}

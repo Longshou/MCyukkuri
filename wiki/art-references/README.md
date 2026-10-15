@@ -19,7 +19,7 @@
 
 ## 出处索引
 
-[博客出处](blog-sources.md) · [当前范围内图集出处](ehentai/README.md) · [24 张文字卡](../novel-reading/README.md) · [早期画面观察](visual-guide.md)
+[博客出处](blog-sources.md) · [当前范围内图集出处](ehentai/README.md) · [24 张文字卡](../novel-reading/README.md) · [早期画面观察](visual-guide.md) · [建模调研素材](game/README.md)
 
 原始存档共 45 个图片来源入口、368 个文件，80,221,110 字节（约 76.5 MiB）、366 个不同哈希。它包含未选与撤出的材料，不等于有效参考数量；三个入口共用同一告知页。旧文件保留用于出处和历史链接追溯，撤出的种类不建新内容卡。来源 URL、原页序、尺寸与哈希见两个图片 manifest。
 

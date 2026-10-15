@@ -94,8 +94,8 @@ for view,(azimuth,title) in enumerate([(0,'FRONT'),(40,'FRONT / SIDE'),(90,'SIDE
     draw.text((cx-125,cy+200),title,fill='#38566b',font=font)
 draw.text((28,18),'COLD STORAGE  /  ORIGINAL DRAFT  /  16 px = 1 block',fill='#38566b',font=font)
 out=io.BytesIO();sheet.save(out,format='PNG')
-outputs[ROOT/'art/props/cold-storage/previews/current/model-sheet.png']=out.getvalue()
-outputs[HERE/'previews/current/model-sheet.png']=out.getvalue()
+if '--sheet' in sys.argv:  # a local look at the props; not an export
+    sheet_path=ROOT/'.local/previews/cold-storage-model-sheet.png';sheet_path.parent.mkdir(parents=True,exist_ok=True);sheet_path.write_bytes(out.getvalue())
 manifest={'status':'pending_user_confirmation','source':str((HERE/'recipe.json').relative_to(ROOT)).replace('\\','/'),
           'source_sha256':hashlib.sha256((HERE/'recipe.json').read_bytes()).hexdigest(),
           'geometry':'26 static opaque cuboids; no bone or animation; vanilla Java block model',

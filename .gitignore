@@ -1,16 +1,27 @@
 # Project-local scratch work and optional isolated worktrees.
-# Authored assets, current exports and curated archives are versioned normally.
+# Authored assets and current exports are versioned normally.
 /.local/
 /.worktrees/
-/archives/*
-!/archives/README.md
-/art/library/**/*.partial*
 node_modules/
 /preview/chrome-profile/
 /tools/npm-cache/
 /tools/temp/node-compile-cache/
 __pycache__/
 *.pyc
+
+# Previews, screenshots, reports and review records stay on the local machine.
+previews/
+screenshots/
+reports/
+/docs/validation/
+/preview/review/puff-v*/
+/preview/review/motion-fix/
+/standards/yukkuri-library/index.html
+/standards/yukkuri-library/compare.html
+/standards/yukkuri-library/species.html
+/standards/yukkuri-library/standard-expressions.html
+/standards/yukkuri-library/interactions/marisa-braids/index.html
+/art/audio/aquestalk/index.html
 
 # Build outputs, local worlds, IDE state and machine-specific settings.
 .gradle/

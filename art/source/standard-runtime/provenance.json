@@ -732,9 +732,7 @@
             ]
           }
         }
-      },
-      "game_acceptance_report": "docs/validation/house-surface/current/README.md",
-      "previous_game_acceptance_report": "docs/validation/house-face-carry/current/README.md"
+      }
     },
     "house_marisa": {
       "selected_model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
@@ -953,8 +951,7 @@
             ]
           }
         }
-      },
-      "previous_game_acceptance_report": "docs/validation/house-surface/current/README.md"
+      }
     }
   }
 }

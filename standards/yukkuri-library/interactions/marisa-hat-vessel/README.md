@@ -89,4 +89,4 @@
 
 1. 本目录的 `build.py`
 2. `scripts/export_motion_corrections.py`（重新生成辫子动作）
-3. `motions/variants/lore/births.py`（重写唯一的预览文件）
+3. `motions/variants/lore/births.py`（在本机生成出生场景预览，输出到 `.local/previews/lore/`，不入库）

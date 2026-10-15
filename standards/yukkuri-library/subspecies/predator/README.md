@@ -2,17 +2,17 @@
 
 本轮游戏选用模型为 `assembled/remilia/` 与 `assembled/flandre/`，制作入口是 [species.json](species.json)、[author_species.py](author_species.py) 与 [species_geometry.py](species_geometry.py)。模型、骨架、贴图和动作同源导出；两种造型均待用户确认。
 
-[当前交互预览](../../../../art/source/predator-runtime/preview.html) · [蕾米莉亚八视图](previews/current/remilia-views.png) · [弗兰八视图](previews/current/flandre-views.png) · [本轮参考核读](REFERENCES-RUNTIME.md) · [游戏实现](../../../../docs/PREDATOR_IMPLEMENTATION.md)
+[当前交互预览](../../../../art/source/predator-runtime/preview.html) · [本轮参考核读](REFERENCES-RUNTIME.md) · [游戏实现](../../../../docs/PREDATOR_IMPLEMENTATION.md)
 
 本轮使用连续身体网格、蓝发／金发、软帽、后置／侧置蝴蝶结；蕾米莉亚使用完整蝙蝠翼膜，弗兰每翼挂四枚彩色晶体。每侧整翼围绕一个翅根摆动，晶体另有悬挂关节。图集为 256×256，含 11 个基础表情与咬取表情；保留 19 个通用动作并增加飞行、俯冲、降落、咬取四段动作。运行导出为 `scripts/export_predator_assets.py`，不重导现有七种角色。
 
-2026-09-13 尖牙返工：此前低分辨率嘴区中的牙齿形状不清楚，现为嘴部使用 112×96 像素独立绘图区，在暗色口腔内绘制成对白色三角尖牙、细轮廓与浅阴影。普通表情改为小开口笑，咬取表情也使用同一套牙齿绘制。参数见 `species.json` 的 `fangs`；嘴部正面 UV 移至 `[128,0,240,96]`，三维位置、法线、骨架、权重与动作保持不变。已同步标准模型内嵌贴图、配套图集、游戏选用快照及 12 张运行表情。[最新四模型展示](../../body-standard/previews/current/all-models/bean-fangs.png) · [牙齿三表情对照](previews/current/fang-expressions.png) · [检查记录](reports/current/fangs.json)。当前两种共 1,150 个动作采样及 24 次浏览器表情切换通过；该指纹版本的普通、开心、咬取表情已通过正面与斜前方实机复验，见[实机记录](../../../../docs/validation/bean-braid-fangs/current/README.md)。此修订仍待用户确认。
+2026-09-13 尖牙返工：此前低分辨率嘴区中的牙齿形状不清楚，现为嘴部使用 112×96 像素独立绘图区，在暗色口腔内绘制成对白色三角尖牙、细轮廓与浅阴影。普通表情改为小开口笑，咬取表情也使用同一套牙齿绘制。参数见 `species.json` 的 `fangs`；嘴部正面 UV 移至 `[128,0,240,96]`，三维位置、法线、骨架、权重与动作保持不变。已同步标准模型内嵌贴图、配套图集、游戏选用快照及 12 张运行表情。当前两种共 1,150 个动作采样及 24 次浏览器表情切换通过；该指纹版本的普通、开心、咬取表情已通过正面与斜前方实机复验。此修订仍待用户确认。
 
 ## 旧稿保留说明
 
 下面的 `predator_remilia`、`recipes.json`、旧转台及验证报告属于此前原型，不是本轮游戏选用的模型；原型的“尚未接入”描述仅适用于该旧稿。当前选用与指纹以 [species-manifest.json](species-manifest.json) 和项目运行来源登记为准。
 
-**[转台预览（可拖动自由旋转）](previews/current/turntable.html)** · [三维预览](assembled/predator_remilia/index.html) · [参考核读](REFERENCES.md) · [当前检查结果](reports/current/verification.json)
+[三维预览](assembled/predator_remilia/index.html) · [参考核读](REFERENCES.md)
 
 在标准素材库的魔理沙基座上，按用户提供的三张参考图重做的捕食种（蕾米莉亚系）：一对**小型下垂蝙蝠翼**贴在体侧，粉红软帽配帽后红色荷叶边蝴蝶结，淡蓝紫发。**状态为待确认设计稿**，尚未接入 Minecraft 实体、物品或行为逻辑。
 
@@ -22,11 +22,11 @@
 
 ## 怎么转着看
 
-[`previews/current/turntable.html`](previews/current/turntable.html) 是单文件转台页：在图上按住拖动就能任意转视角（左右转方位、上下调俯仰），另有方位滑杆、正面／右侧／背面／左侧按钮、双击复位和自转开关，并可切换「静止／振翅中／张口露牙」三个状态。文件自包含，直接双击用浏览器打开即可，不需要联网或本地服务。
+`render-turntable.cjs` 在本机生成单文件转台页（`previews/current/turntable.html`，不入库）：在图上按住拖动就能任意转视角（左右转方位、上下调俯仰），另有方位滑杆、正面／右侧／背面／左侧按钮、双击复位和自转开关，并可切换「静止／振翅中／张口露牙」三个状态。文件自包含，用浏览器打开即可，不需要联网或本地服务。
 
 它预先渲染了 24 个方位 × 4 个俯仰 × 3 个状态共 288 帧，用素材库自身的 `runtime/render.js` 对导出后的几何、骨架与图集渲染。**这是绕开本机浏览器限制的做法**：Node 的 `spawn` 与 Chrome 的调试端口握手都被沙箱拒绝，起不了无头浏览器，所以没有直接驱动交互式 `index.html`。转台页看到的是真实导出几何，但交互逻辑是页面自己写的，不等于 `index.html` 那个查看器的行为。
 
-不想开浏览器时，`previews/current/` 里另有离线拼图：[方位一圈](previews/current/predator_remilia-orbit-azimuth.png)（3 个俯仰 × 6 个方位）、[俯仰变化](previews/current/predator_remilia-orbit-elevation.png)、[静止与振翅对照](previews/current/predator_remilia-orbit-flap.png)。
+不想开浏览器时，`verify-turntable.cjs` 另在本机写出离线拼图：方位一圈（3 个俯仰 × 6 个方位）、俯仰变化、静止与振翅对照。
 
 ## 交付内容
 
@@ -42,7 +42,6 @@
 | 动作导出 | [predator_remilia.animation.json](assembled/predator_remilia/predator_remilia.animation.json) |
 | 骨架与动作源 | [animation-rig.json](assembled/predator_remilia/animation-rig.json) |
 | 贴图（256×256 图集，106 张表情） | `assembled/predator_remilia/textures/` |
-| 多视角预览与基座对照 | `previews/current/` |
 | 尺寸标定 | [physical-scale.json](physical-scale.json) |
 
 ## 本稿做了什么
@@ -91,7 +90,7 @@ node standards/yukkuri-library/subspecies/predator/render-turntable.cjs
 node standards/yukkuri-library/subspecies/predator/verify-turntable.cjs
 ```
 
-倒数第三条用同一相机与画幅渲染未改动的基座魔理沙，`previews/current/` 里的 `marisa-*` 与 `predator_remilia-*` 可以直接对照体型、发色、头饰与翼的差异。传 `--asset` 时不会输出翼或张口相关的额外视图。最后两条生成并检查转台页；`verify-turntable.cjs` 会重渲哨兵角度，断言转动确实改变画面（而不只是页面看起来能转），并顺手写出三张离线拼图。
+倒数第三条用同一相机与画幅渲染未改动的基座魔理沙，本机输出（`previews/current/`，不入库）中的 `marisa-*` 与 `predator_remilia-*` 可以直接对照体型、发色、头饰与翼的差异。传 `--asset` 时不会输出翼或张口相关的额外视图。最后两条生成并检查转台页；`verify-turntable.cjs` 会重渲哨兵角度，断言转动确实改变画面（而不只是页面看起来能转），并顺手写出三张离线拼图。
 
 本机浏览器不可用（Node 的 `spawn` 与 Chrome 的调试端口握手都被沙箱拒绝），因此 `render-views.cjs` 直接用素材库的 `runtime/motion.js` 与 `runtime/render.js` 对**导出后的** `geo.json`、`animation-rig.json` 与表情贴图做离线渲染，不经过浏览器。这条路径能核对几何、挂接与骨架，但不能替代用户在浏览器里看 [index.html](assembled/predator_remilia/index.html) 的交互结果。
 
@@ -101,12 +100,12 @@ node standards/yukkuri-library/subspecies/predator/verify-turntable.cjs
 node standards/yukkuri-library/subspecies/predator/verify.cjs
 ```
 
-2026-09-12（UTC）在 Python 3.13.1 + Pillow 12.3.0、Node v24.21.0 环境下执行。25 项结构检查全部通过，结果与文件指纹见 [reports/current/verification.json](reports/current/verification.json)。
+2026-09-12（UTC）在 Python 3.13.1 + Pillow 12.3.0、Node v24.21.0 环境下执行。25 项结构检查全部通过。
 **已覆盖**：三份导出（bbmodel／geo／animation）的元素与骨骼计数一致、uuid 唯一、几何尺寸与 bbmodel 逐块对应；女巫帽 12 个方块确实移除；图集实际尺寸与声明的 `texture_size` 一致；翼根落在侧腹范围内、翼体在躯干前方；獠牙数量与配方一致（本稿为 0）；12 个动作各取 5 个时间点求解均为有限值；运行时的「每元素 36 顶点」假设成立、重建顶点缓冲区长度与方块数相符、动作轨道没有指向不存在的骨骼；`wing_sway` 确实让翼尖产生可测位移（0.3 秒与 0.9 秒两个相位之间 Y 向最大位移大于 0.15 模型单位）。
 
-**未覆盖**：造型好不好看、翼形是否像参考图、脸的比例是否合适——这些只能由用户判断；未在浏览器中打开 `assembled/predator_remilia/index.html` 验证那个查看器的交互、控制器与缓存表现（本机浏览器被沙箱拒绝），只能靠 `previews/current/turntable.html` 代替；未接入 Minecraft 实体，未做实机渲染；未在 Blockbench 中人工打开 `.bbmodel` 复核。
+**未覆盖**：造型好不好看、翼形是否像参考图、脸的比例是否合适——这些只能由用户判断；未在浏览器中打开 `assembled/predator_remilia/index.html` 验证那个查看器的交互、控制器与缓存表现（本机浏览器被沙箱拒绝），只能靠转台页代替；未接入 Minecraft 实体，未做实机渲染；未在 Blockbench 中人工打开 `.bbmodel` 复核。
 
-转台页另有 11 项检查（见 [reports/current/turntable-verification.json](reports/current/turntable-verification.json)）：方位转动、俯仰变化、振翅状态都确实改变渲染像素；页面内嵌图集＋静帧数量与状态数相符（状态数从模型推导，不写死）；带指针拖动处理器；**内嵌 PNG 的 IHDR 完整**（早先版本漏写位深与颜色类型，Node 能解码但 Chrome 会拒绝整张图，页面会全白）；**页面自身脚本能解析**（语法错误同样只会得到一片空白），且拖动能请求到的帧坐标全都落在内嵌图集范围内。
+转台页另有 11 项检查：方位转动、俯仰变化、振翅状态都确实改变渲染像素；页面内嵌图集＋静帧数量与状态数相符（状态数从模型推导，不写死）；带指针拖动处理器；**内嵌 PNG 的 IHDR 完整**（早先版本漏写位深与颜色类型，Node 能解码但 Chrome 会拒绝整张图，页面会全白）；**页面自身脚本能解析**（语法错误同样只会得到一片空白），且拖动能请求到的帧坐标全都落在内嵌图集范围内。
 
 ## 本轮之后仍待处理
 
@@ -117,4 +116,4 @@ node standards/yukkuri-library/subspecies/predator/verify.cjs
 
 造型、配色与翼形均为待确认设计稿，`provenance/` 未登记本稿。**本轮没有查到任何原作或社区配图**，参考缺口见 [REFERENCES.md](REFERENCES.md) 第二节。用户确认前不改动批准指纹。
 
-后续接入复验已完成：接入任务检查了两豆油与两捕食种的实际 Minecraft 四方向及尖牙表情，本任务也已核看实机拼图。相关报告与图片指纹补录在本页链接的检查 JSON 中；用户造型确认仍为待确认。
+后续接入复验已完成：接入任务检查了两豆油与两捕食种的实际 Minecraft 四方向及尖牙表情；用户造型确认仍为待确认。

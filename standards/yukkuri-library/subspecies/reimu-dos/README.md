@@ -8,7 +8,7 @@
 
 2026-09-13：多毛灵梦和灵胖已换用[圆润标准体型](../../body-standard/README.md)，包括多毛种。保留各自专属头发与表情；灵胖原有的高胖比例已被替代。DOS 保持高瘦椭圆形及原有尺寸。
 
-当前多毛种、灵胖预览请进入[圆润标准预览](../../body-standard/previews/current/index.html)或下列独立模型。原总览的同尺度区保留推广前对照，不作为当前体型展示。
+当前多毛种、灵胖预览请进入下列独立模型。原总览的同尺度区保留推广前对照，不作为当前体型展示。
 
 | 模型 | 造型 | 可编辑文件 |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ python standards/yukkuri-library/build.py
 
 模型构建需要基础库、Python 与 Pillow。`verify.cjs` 保留历史浏览器检查方式，供人工在允许的环境中使用；依赖 Playwright 与 Chrome，路径通过 `PLAYWRIGHT_MODULE` 和 `CHROME_PATH` 指定。
 
-`manifest.json` 记录基础模型哈希和几何数量；根目录 `verification.json` 是导入时的历史验证记录，不证明后续版本通过。旧 `checks/` 截图已清理；新结果写入本包 `reports/current/verification.json`，截图写入 `reports/current/checks/`。交付验证结果时需同时记录版本、环境和时间。
+`manifest.json` 记录基础模型哈希和几何数量。历史验证记录和旧 `checks/` 截图已清理；新结果与截图在本机写入本包 `reports/current/`，不入库。交付验证结果时需同时记录版本、环境和时间。
 
 这些亚种尚未接入 Minecraft 实体或生成物品。原作和网络图片仅用于参考，未进入正式素材；新增临时参考放项目内 `.local/reference/`，出处保存在 `REFERENCES.md`。基础表情沿用项目既有像素；两种专用表情基于既有像素与调色板局部创作，未修改基础库。
 

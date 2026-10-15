@@ -12,4 +12,4 @@
 
 运行本目录的 `python build.py` 重建；当前验证命令见 [圆润标准体型](body-standard/README.md)。原 `validate.py` 与旧螺壳断言面向推广前方块结构，不能证明新版通过。
 
-本目录是后续编辑和复用源，`yukkuri-v1/subspecies` 保留制作过程中的三种外形对照。当前交付为标准模型资产，尚未接入 Minecraft 生物实体。
+本目录是后续编辑和复用源。当前交付为标准模型资产，尚未接入 Minecraft 生物实体。

@@ -14,7 +14,7 @@ from PIL import Image
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
-OUT = ROOT/'art/source/motion-corrections/previews/current/lore'  # the one preview page: index.html
+OUT = ROOT/'.local/previews/lore'  # the preview page (index.html) stays local, not committed
 BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor')
 # Panels: (label, model id, mode). Land forms never show the boat set; the aquatic Marisa shows only it;
 # the young panel shows a baby sitting on its mother's brim.

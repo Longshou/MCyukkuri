@@ -1,1 +1,0 @@
-{"base":"assembled/marisa/marisa.bbmodel","sha256":"e0a05645243f091f7891fa7ad35c1f45a1df9db98bda9adc1bcec58de5d54c41","recipes":"../recipes.json","references":"../REFERENCES.md","sample_rate":20,"actions":["pick_stone","swing_sword","pull_grass","remove_hat","care_hat","wave_goodbye","lift_child"]}

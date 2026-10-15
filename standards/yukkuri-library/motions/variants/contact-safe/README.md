@@ -1,12 +1,12 @@
 # 鼓腮与体操动作修订
 
-2026-10-07，第七版鼓腮修订，状态为待用户复查。当前入口：[常态与满腮五视图](../../../../../art/source/motion-corrections/previews/current/review.png)、[19种形态特写](../../../../../art/source/motion-corrections/previews/current/close-ups.png)、[19种形态斜侧面](../../../../../art/source/motion-corrections/previews/current/all-models.png)、[连续动作](../../../../../art/source/motion-corrections/previews/current/face-stability.gif)。
+2026-10-07，第七版鼓腮修订，状态为待用户复查。
 
 ## 造型依据
 
-漫画表现以项目保存的[八景U噗咕参考](../../../../../variants/marisa-puff/reference/README.md)为准：两颊是独立的圆鼓球体，中间留出嘴部缺口，腮红在脸颊外上侧，嘴为小小的“ハ”形；八景第二组脸为睁眼。用户此前的意见也作为约束：只鼓腮帮、不横向拉长全身，身体底部不脱离，眼睛贴图不被带动，鼓腮要有明显的夸张效果，并且不穿模。
+漫画表现以八景U的噗咕画法为准：两颊是独立的圆鼓球体，中间留出嘴部缺口，腮红在脸颊外上侧，嘴为小小的“ハ”形；八景第二组脸为睁眼。用户此前的意见也作为约束：只鼓腮帮、不横向拉长全身，身体底部不脱离，眼睛贴图不被带动，鼓腮要有明显的夸张效果，并且不穿模。
 
-第六版把下半脸横向摊开，侧发被顶成翅膀状，表情为猫嘴，已由本版替代；其预览、检查和源文件见 [puff-v6](../../../../../preview/review/puff-v6/README.md)。
+第六版把下半脸横向摊开，侧发被顶成翅膀状，表情为猫嘴，已由本版替代。
 
 ## 造型做法
 

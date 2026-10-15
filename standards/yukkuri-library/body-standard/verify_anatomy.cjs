@@ -46,5 +46,5 @@ for(const id of Object.keys(models).filter(id=>!process.argv[2]||id===process.ar
 }
 const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const report={createdAt:new Date().toISOString(),status:failures.length?'failed':'passed',previewDataSha256:sha(path.join(out,'preview-data.json')),poseSha256:sha(path.join(out,'pose.js')),checks,failures};
-fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'anatomy.json'),JSON.stringify(report,null,2));
+fs.mkdirSync(path.join(here,'reports/current'),{recursive:true});fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'anatomy.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({checks:checks.length,failures},null,2));if(failures.length)process.exitCode=1;

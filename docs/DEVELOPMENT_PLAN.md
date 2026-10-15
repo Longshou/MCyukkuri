@@ -79,14 +79,14 @@
   - `GROWTH_BALANCE.md` 说性格与灵胖“仍在设计阶段”，实际已实现。
   - `COGNITION_IMPLEMENTATION.md` 仍写“六维性格”，实际是四项倾向。
   - `SPECIES_IMPLEMENTATION.md` 说对白“尚未接入”，实际已接入。
-  - `CONSUMABLES_HANDOFF.md` 说助产“未实现”，实际已在 `FamilyLife` 中实现。
+  - `CONSUMABLES_HANDOFF.md` 说助产“未实现”，实际已在 `FamilyLife` 中实现（该交接记录现已删除）。
   - README 首页的状态段按 0.1 之后的情况重写。
 - **完成标准**：文档描述与游戏行为一致。
 
 ### 0.4 清理无用资源和占位物品（S）——旧资源部分 2026-10-08 已完成
 
 - **改动**：
-  - 删除不再引用的旧 M1 资源：`assets/mcyukkuri/geo/entity/`、`animations/entity/`、`textures/entity/reimu.png`、`textures/entity/marisa.png`。已完成：几何与贴图在 `art/source/reimu/`、`art/source/marisa/` 中有同指纹的原件；唯一的动画文件移到了同一目录，`art/runtime-sources.json` 已同步。
+  - 删除不再引用的旧 M1 资源：`assets/mcyukkuri/geo/entity/`、`animations/entity/`、`textures/entity/reimu.png`、`textures/entity/marisa.png`。已完成；当时留在 `art/source/reimu/`、`art/source/marisa/` 的同指纹原件和动画文件现也已删除，`art/runtime-sources.json` 已同步。
   - `bandage` 的配方已禁用，但商店仍在出售（`human/HumanMenu` 第 9 项），所以保留，只按 [周边美术清单](PROP_ART_INVENTORY.md) 替换借用的原版贴图。`herbal_medicine` 已无获取途径，留到 6.6 美术替换时一并决定去留。
 - **完成标准**：构建通过；进入旧存档没有缺失物品报错。
 
@@ -95,12 +95,10 @@
 - **改动**：`src/p0Test/.../P0Client.java` 第 355、368 行的图集尺寸断言已过期。当前实际尺寸为：普通种和圆润形态 256，家油和豆形 128，捕食种 256，螺壳 512。按这些尺寸改正后，`runP0GameTest` 和客户端采集可以作为排查工具继续使用。
 - **完成标准**：本地 `./gradlew runP0GameTest` 能跑完。它不作为合并门槛。
 
-### 0.6 资料瘦身（M，可选）
+### 0.6 资料瘦身（M，可选）——2026-10-15 已完成
 
 - **目标**：仓库变轻，克隆和检出更快。
-- **改动**：
-  - `docs/validation/` 约 133 MB，大多是截图和断言 JSON，且引用的 `.local/`、`E:/yukkuri/` 路径已经无法复核。每个专题只留一页结论摘要，原始证据从 Git 历史中可追溯。
-  - 评估 `variants/`（4.4 GB）中冻结和历史方案的去留。用户冻结的 `variants/basic-interactions/` 不动。
+- **结果**：`docs/validation/`、`variants/`（含 `variants/basic-interactions/`）和 `archives/` 已整体删除，原始内容可从 Git 历史找回。预览、截图、报告和验收记录改为只在本机 `.local/` 生成，不入库。
 - **完成标准**：检出体积明显下降，文档入口链接都有效。
 
 ## 阶段 1：核心体验做扎实
@@ -418,7 +416,7 @@
 
 ## 推荐的近期顺序
 
-1. 0.2 进游戏确认伤口和徽章，并补螺壳挂点（0.1、0.3、0.4 的旧资源清理和 0.5 已完成）
+1. 0.2 进游戏确认伤口和徽章，并补螺壳挂点（0.1、0.3、0.4 的旧资源清理、0.5 和 0.6 已完成）
 2. 1.1 失饰的社会后果（最有特色、改动集中）
 3. 1.3 温度 → 1.2 水
 4. 2.1 茎脱落物品 → 2.3 离巢独立
@@ -452,5 +450,4 @@
   - 徽章：[badges.md](../wiki/badges.md)
   - 日常生态：[ecology-daily-life.md](../wiki/ecology-daily-life.md)
 - 书目与核读范围：[sources-lore.md](../wiki/hakkei-reference/sources-lore.md)、[sources-events.md](../wiki/hakkei-reference/sources-events.md)
-- 八景 U 系统梳理与早期分期：[HAKKEI_U_PORT_PLAN.md](HAKKEI_U_PORT_PLAN.md)
 - 已交付范围：[PORT_REMAINDER.md](PORT_REMAINDER.md)、[ROADMAP.md](ROADMAP.md)

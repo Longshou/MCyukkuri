@@ -15,7 +15,7 @@ and bounce in from the brim or the ground; the young hop out over the brim when 
 A small shared-depth rasterizer draws every actor in one frame. The page opens from
 disk; writing it does not start a browser or the game. Needs numpy and Pillow.
 
-  python births.py [--out art/source/motion-corrections/previews/current/lore/index.html]
+  python births.py [--out .local/previews/lore/index.html]
 """
 from pathlib import Path
 import argparse, base64, datetime, io, json, math, struct, sys

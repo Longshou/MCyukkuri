@@ -2,7 +2,7 @@
 
 2026-10-13：家油魔理沙随标准改为单侧粗辫，另一侧为短侧发；家油身体与灵梦不变。夹取、搬运、放下改由辫子单独完成：两个夹取点都指向辫梢，短侧发留在头侧；同步游戏模型、伤口表面和夹取曲线。家油灵梦仍用两束短发夹取。单辫造型与夹取动作 2026-10-14 已保存，游戏内效果待复查，见[单辫修订](../../body-standard/features/marisa-single-braid/README.md)。
 
-[打开当前预览](previews/current/index.html) · [多角度图片](previews/current/turnaround.png) · [参考核读](REFERENCES.md) · [设计参数](config.json)
+[参考核读](REFERENCES.md) · [设计参数](config.json)
 
 当前造型为 v9，预览状态修正为 v9.1，**造型待确认**。佩尼佩尼按当前身体宽度与标准身体宽度之比 4.32 / 12 缩放为 0.36，并重算伸出行程，使粗根露出且仍嵌在腹面。麻姆麻姆采用独立挂点、后腹斜率与 0.10 单位行程，收回时藏入身体，伸出后仅露贴面标记。
 
@@ -31,7 +31,7 @@ python standards/yukkuri-library/ecology/house-yukkuri/build.py --characters-onl
 python standards/yukkuri-library/ecology/house-yukkuri/render_review.py --label v9
 ```
 
-`render_review.py` 使用已有 Node.js、Pillow 和本库 `runtime/render.js`、`runtime/motion.js`，输出两角色的正面、斜面、侧面、背面、缺陷近景、走动采样及图片指纹清单。标准角色源发生变化时，先更新基础库，再按需要重新导出完整场景和运行对应验证：
+`render_review.py` 使用已有 Node.js、Pillow 和本库 `runtime/render.js`、`runtime/motion.js`，在本机输出两角色的正面、斜面、侧面、背面、缺陷近景、走动采样及图片指纹清单（不入库）。标准角色源发生变化时，先更新基础库，再按需要重新导出完整场景和运行对应验证：
 
 ```powershell
 python standards/yukkuri-library/ecology/house-yukkuri/build.py
@@ -44,7 +44,7 @@ node standards/yukkuri-library/ecology/house-yukkuri/verify-default-view.cjs
 
 `mesh_geometry.py` 负责连续网格与多边形导出；`reference_design.py` 管理身体截面、组件装配和动作适配；`config.json` 登记尺寸与 11 个统一表情 ID；`build.py` 从标准导出读取全部饰品和表情纹理，生成模型与道具。`lifecycle.js` 管理显式时间状态，`viewer.js` 管理预览交互。修改源文件后重新构建，生成的 `assembled/` 和 `index.html` 用于导出与查看。
 
-[伸缩状态预览](previews/current/anatomy-review.png)按收回、半伸、全伸排列。[挂接检查](reports/current/anatomy-consistency.json)核对收回埋入、前部根部相交、后部贴面间隙及控制器与导出终点的一致性。后部全伸标记距腹面约 0.004～0.012 单位；这些数值为制作参数。
+`render_review.py` 的伸缩状态图按收回、半伸、全伸排列。`verify-anatomy.cjs` 核对收回埋入、前部根部相交、后部贴面间隙及控制器与导出终点的一致性。后部全伸标记距腹面约 0.004～0.012 单位；这些数值为制作参数。
 
 ## 导出
 
@@ -54,6 +54,6 @@ node standards/yukkuri-library/ecology/house-yukkuri/verify-default-view.cjs
 - [棉絮巢](assembled/lint_nest.bbmodel)、[卵](assembled/house_egg.bbmodel)、[壳片](assembled/house_eggshell.bbmodel)与另外三种道具：同目录提供 PNG、BBModel、几何与绑定骨架。
 - 生活片段的多对象路线与孵化事件由 JavaScript 驱动，未烘焙为单体动画；导入游戏需移植服务端状态和场景协调。单体模型动画已经导出。
 
-坐标每格 16 单位、+Y 向上、−Z 为正面。v9 的导出一致性核对见 [静态一致性记录](reports/current/static-consistency.json)，本轮多角度目视结果见 [造型审查](reports/current/shape-review.json)。[动画数据检查](reports/current/motion-consistency.json)对所有导出动作做了三个时刻的采样对照。造型审查只覆盖所列视角，标准造型仍待用户确认；[常态浏览器检查](reports/current/default-browser.json)已验证六种观察对象的常态画面，以及伸出后切换对象、生活片段、重播和恢复场景的立即收回。其他浏览器交互、Blockbench 导入、性能与 Minecraft 运行未验收。
+坐标每格 16 单位、+Y 向上、−Z 为正面。动画数据检查对所有导出动作做了三个时刻的采样对照。标准造型仍待用户确认；常态浏览器检查已验证六种观察对象的常态画面，以及伸出后切换对象、生活片段、重播和恢复场景的立即收回。其他浏览器交互、Blockbench 导入、性能与 Minecraft 运行未验收。
 
-当前造型以 `previews/current/`、`index.html` 和 `assembled/` 为准；本目录根部 PNG、`verification.json` 与 `browser-verification.json` 属于 v3 历史证据。人工查看可直接打开当前预览，观察下宽轮廓、脸身连续性和帽沿贴合；再切换惊讶表情及走动片段查看其他遮挡与挂接表现。
+当前造型以 `index.html` 和 `assembled/` 为准；本目录根部 PNG、`verification.json` 与 `browser-verification.json` 属于 v3 历史证据。人工查看可打开 `index.html`，观察下宽轮廓、脸身连续性和帽沿贴合；再切换惊讶表情及走动片段查看其他遮挡与挂接表现。

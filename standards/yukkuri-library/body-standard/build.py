@@ -424,7 +424,8 @@ def export(ident):
 def main():
     selected=sys.argv[sys.argv.index('--character')+1] if '--character' in sys.argv else None
     if selected and selected not in CFG['characters']:raise ValueError('Unknown character: '+selected)
-    catalog=read(HERE/'previews/current/preview-data.json') if selected else {}
+    preview_cache=HERE/'previews/current/preview-data.json'
+    catalog=read(preview_cache) if selected and preview_cache.exists() else {}
     records=read(HERE/'manifest.json')['characters'] if selected else {}
     for ident in ([selected] if selected else CFG['characters']):
         entry,records[ident]=export(ident)
@@ -447,7 +448,7 @@ def main():
    if(!channels||!Object.values(channels).flat().some(v=>Math.abs(v)>1e-9))continue;
   }""")
     (preview/'pose.js').write_text(core,encoding='utf-8')
-    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'previews/current/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
+    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
     for spec in CFG['sources'].values():
         if spec.get('face_style'):
             style=HERE/spec['face_style'];inputs.extend([style,style.parent/'author.py'])

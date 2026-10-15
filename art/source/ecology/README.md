@@ -11,4 +11,4 @@ python scripts/export_ecology_expressions.py
 python scripts/export_ecology_expressions.py --check
 ```
 
-当前实机动作、表情和验证范围见[日常生态记录](../../../docs/ECOLOGY_DAILY_LIFE.md)；[本轮实机图集](previews/current/index.html)提供 22 个场景、428 帧和原创哼唱试听。标准表情已确认，运行组合与原创动作适配仍须按实际游戏画面判断，不把标准批准当成新的交互演出已获用户确认。
+当前实机动作、表情和验证范围见[日常生态记录](../../../docs/ECOLOGY_DAILY_LIFE.md)。标准表情已确认，运行组合与原创动作适配仍须按实际游戏画面判断，不把标准批准当成新的交互演出已获用户确认。

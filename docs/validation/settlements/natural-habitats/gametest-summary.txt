@@ -1,2 +1,0 @@
-[04:10:59] [Server thread/INFO] [minecraft/GameTestServer]: ========= 4 GAME TESTS COMPLETE IN 4.913 s ======================
-[04:10:59] [Server thread/INFO] [minecraft/GameTestServer]: All 4 required tests passed :)

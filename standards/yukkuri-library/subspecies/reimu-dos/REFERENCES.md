@@ -34,7 +34,7 @@
 
 ## 本地证据位置
 
-原作与网络缓存位于仓库忽略目录 `reference/reimu-dos-variants/`：`fields.json` 记录字段／下标／file ID／Sprite ID，`hakkei/sprite-index.json` 记录原始 Sprite 的画布、pivot、pixels/unit 与裁剪偏移，`fullness-same-scale.png` 保存同尺度饱腹轮廓对照。网页缓存与实际原图链接列表同目录保存，均未放入发行模型包。
+原作与网络缓存位于 `wiki/art-references/game/reimu-dos-variants/`：`fields.json` 记录字段／下标／file ID／Sprite ID，`hakkei/sprite-index.json` 记录原始 Sprite 的画布、pivot、pixels/unit 与裁剪偏移，`fullness-same-scale.png` 保存同尺度饱腹轮廓对照。网页缓存与实际原图链接列表同目录保存，均未放入发行模型包。
 
 ## 本轮专用表情
 
@@ -42,6 +42,6 @@
 
 ## 本轮核读与造型修订
 
-重新打开八景U多毛鬓角正面 5068、动作姿态 6489、侧向 6152、后方 4950；正常灵梦对照 5051、5869、5418。图中可见毛束直接连接头侧、宽根部和外张尖毛束，未见普通种的长袖套收束。本机常态头发槽位仍共用 7629；头顶额外毛束是用户指定的三维适配，不声称原图存在独立多毛头发图层。完整字段和元数据保存在 `reference/reimu-dos-variants/wasa-detail/`。
+重新打开八景U多毛鬓角正面 5068、动作姿态 6489、侧向 6152、后方 4950；正常灵梦对照 5051、5869、5418。图中可见毛束直接连接头侧、宽根部和外张尖毛束，未见普通种的长袖套收束。本机常态头发槽位仍共用 7629；头顶额外毛束是用户指定的三维适配，不声称原图存在独立多毛头发图层。完整字段和元数据保存在 `wiki/art-references/game/reimu-dos-variants/wasa-detail/`。
 
 灵胖按后续反馈保留上窄下宽和略尖发顶，将直斜侧边改成圆润脸颊弧线，收圆下腹底角，以缓和过强的梯形感。尺寸按用户“普通成体篮球大小、DOS约一米八”设定：普通主体宽暂定约24cm，DOS暂按主体高1.8m、帽子另算。不是对网络作品的测量值。

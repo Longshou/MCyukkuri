@@ -132,6 +132,7 @@ def main():
             .replace('__DATE__', datetime.date.today().isoformat())
             .replace('__PANELS__', json.dumps(panels, ensure_ascii=False, separators=(',', ':')))
             .replace('__RUNTIME__', runtime))
+    (R/a.out).parent.mkdir(parents=True, exist_ok=True)
     (R/a.out).write_text(html, encoding='utf-8')
     print('wrote', a.out, f'{len(html)/1e6:.2f} MB', len(panels), 'panels')
 

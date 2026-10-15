@@ -192,8 +192,7 @@
           "sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "marisa": {
       "geometry_identifier": "marisa",
@@ -571,8 +570,7 @@
           "sha256": "b814628123ea7a3408a214359141887e909baa93081f615bf93dc4c33bad2097",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "alice": {
       "geometry_identifier": "alice",
@@ -761,8 +759,7 @@
           "sha256": "c8a2cbbe5cce7aa4104f6a375df0a68e18d307d00b9849f96f901496a912047d",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "patchouli": {
       "geometry_identifier": "patchouli",
@@ -952,8 +949,7 @@
           "sha256": "632daa5ea981d26aba4c416cfd745b04a9b2a69dffb9727458e4f55b5249752c",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "marisa_tsumuri": {
       "geometry_identifier": "marisa_tsumuri",
@@ -1336,8 +1332,7 @@
           "sha256": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f",
           "mature_face": false
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "reimu_deibu": {
       "geometry_identifier": "reimu_deibu",
@@ -1526,8 +1521,7 @@
           "sha256": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186",
           "mature_face": true
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     },
     "reimu_wasa_deibu": {
       "geometry_identifier": "reimu_wasa_deibu",
@@ -1716,13 +1710,11 @@
           "sha256": "7c1172ca1c12b906f362ff86ce4335113689077697eb7739b3425402829e5186",
           "mature_face": true
         }
-      },
-      "verification_report": "docs/validation/personality-deibu/current/README.md"
+      }
     }
   },
   "verification": {
     "status": "current_checks_passed",
-    "report": "docs/validation/personality-deibu/current/README.md",
     "game_tests": 40,
     "report_checks": 2114,
     "asset_records": 28,

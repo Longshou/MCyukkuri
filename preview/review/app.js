@@ -125,4 +125,4 @@ function switchTab(id){for(const panel of document.querySelectorAll('.panel'))pa
 for(const tab of document.querySelectorAll('[data-tab]'))tab.onclick=()=>switchTab(tab.dataset.tab);
 $('export').onclick=()=>{const entries=Object.values(notes).filter(n=>n.status!=='unreviewed'||n.text||n.view);const report={project:'MCyukkuri',exportedAt:new Date().toISOString(),scope:'User review notes only; does not change approved asset records.',entries};const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='油库里检查意见-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast(`已导出 ${entries.length} 条检查记录`);};
 try{initRenderer();buildModelList();selectModel(catalog.models[0]);requestAnimationFrame(animate);}catch(error){$('loading').textContent='三维预览初始化失败：'+error.message;}
-const initialTab=location.hash.slice(1);if(['audio','extras'].includes(initialTab))switchTab(initialTab);
+const initialTab=location.hash.slice(1);if(initialTab==='audio')switchTab(initialTab);

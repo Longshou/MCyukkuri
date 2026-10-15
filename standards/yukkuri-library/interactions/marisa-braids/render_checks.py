@@ -1,4 +1,4 @@
-"""Render phase key frames of each interaction to checks/<action>.png without a browser.
+"""Render phase key frames of each interaction to reports/current/<action>.png (local, not committed) without a browser.
 
 Poses come straight from build.state(), composed with the same bone convention as
 runtime/motion.js (Rz*Ry*Rx about the pivot, scale before rotation, parent first), and
@@ -59,7 +59,7 @@ def sheet(action, yaw=32, pitch=-16, scale=11, span=(32, 26), center_y=8.5, suff
         draw(rows, i*W, (W, H), triangles(action, t), texture, yaw, pitch, scale, center_y)
         if i:
             for py in range(H): rows[py][i*W] = (205, 199, 188)
-    out = HERE/'checks'/f'{action}{suffix}.png'; out.parent.mkdir(exist_ok=True); write_png(out, rows)
+    out = HERE/'reports/current'/f'{action}{suffix}.png'; out.parent.mkdir(parents=True, exist_ok=True); write_png(out, rows)
     print('wrote', out.relative_to(HERE), [round(t, 2) for t in times])
 
 if __name__ == '__main__':

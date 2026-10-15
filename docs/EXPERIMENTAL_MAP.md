@@ -1,18 +1,18 @@
 # 油库里实验地图
 
-2026-09-14 当前启动包为 `.local/reimu-deficient-rounded/runtime-20260913-171128/`，补齐稀毛、歪脸灵梦的圆润体态、表情、蝴蝶结和伤口适配。完整隔离构建、715 条专项检查及两种形态实机四视图通过；[本轮验收](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/reports/current/README.md)。双击入口已切换，玩家存档保持原样，重新启动生效。
+2026-09-14 当前启动包为 `.local/reimu-deficient-rounded/runtime-20260913-171128/`，补齐稀毛、歪脸灵梦的圆润体态、表情、蝴蝶结和伤口适配。完整隔离构建、715 条专项检查及两种形态实机四视图通过。双击入口已切换，玩家存档保持原样，重新启动生效。
 
 本地图用于人工测试当前实装内容。入口为项目根目录的 `启动实验地图.cmd`，它使用独立固定运行产物，直接进入 `run/saves/MCyukkuri-Lab/`。地图已启用命令、创造模式、固定白天和晴天；中庭可切换生存模式、昼夜与天气。
 
-已完成实际生成、样本与容器落盘检查以及普通客户端进入检查，证据和限制见[本轮地图交付](validation/experimental-map/current/README.md)。原始地图备份为 `.local/experimental-map/release/MCyukkuri-Lab.zip`；需要另开一轮时，将其中的世界文件夹解压到游戏 `saves` 下并改成新名称。
+已完成实际生成、样本与容器落盘检查以及普通客户端进入检查。原始地图备份为 `.local/experimental-map/release/MCyukkuri-Lab.zip`；需要另开一轮时，将其中的世界文件夹解压到游戏 `saves` 下并改成新名称。
 
-2026-09-14 此前全量更新包为 `.local/playtest-update/runtime-20260913-170243/`，已按“全部改动更新到试玩版”的要求重新完整构建。当前源码与上一轮冻结清单无差异；新包的 256 个主程序类、1,483 个运行资源及测试夹具均与上一轮逐文件相同，Jar 与实际启动类、资源一致。构建和启动路径隔离检查通过，切换前后 146 个存档文件指纹一致；见[全量更新核对](validation/experimental-map/current/all-changes-runtime-update.json)、[构建日志](validation/experimental-map/current/all-changes-build.log)及[输出隔离](validation/experimental-map/current/all-changes-isolation.json)。本次没有重新运行游戏验收。
+2026-09-14 此前全量更新包为 `.local/playtest-update/runtime-20260913-170243/`，已按“全部改动更新到试玩版”的要求重新完整构建。当前源码与上一轮冻结清单无差异；新包的 256 个主程序类、1,483 个运行资源及测试夹具均与上一轮逐文件相同，Jar 与实际启动类、资源一致。构建和启动路径隔离检查通过，切换前后 146 个存档文件指纹一致。本次没有重新运行游戏验收。
 
-当前包包含击打处淤伤、空手右键拾取遗体，以及创造模式放下遗体后移除手持副本的修复。相同程序与资源的 19 种形态及实际客户端搬运验收见[亚种伤势与遗体](validation/injury-remains/subspecies/README.md)。重开游戏即可使用。
+当前包包含击打处淤伤、空手右键拾取遗体，以及创造模式放下遗体后移除手持副本的修复。相同程序与资源已通过 19 种形态及实际客户端搬运验收。重开游戏即可使用。
 
-此前帽子包的稀毛／歪脸魔理沙圆润体态、五种魔理沙独立取戴帽子与帽托小幼油交互均保留。造型仍为待用户确认的试用版；来源与验证见[帽子交互验收](../art/source/hat-interactions/reports/current/verification.md)，历史切换核对见[接收记录](validation/experimental-map/current/hat-runtime-update.json)。
+此前帽子包的稀毛／歪脸魔理沙圆润体态、五种魔理沙独立取戴帽子与帽托小幼油交互均保留。造型仍为待用户确认的试用版。
 
-此前接入的[受伤与遗体修复](validation/injury-remains/current/README.md)及“宠物油”用语修正继续保留。该次接收记录见[遗体包切换](validation/experimental-map/current/runtime-update.json)，其中527条检查适用于当时固定包，不作为本次帽子包的全量回归结果。
+此前接入的受伤与遗体修复及“宠物油”用语修正继续保留。该次切换时的527条检查适用于当时固定包，不作为本次帽子包的全量回归结果。
 
 ## 开始测试
 

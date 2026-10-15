@@ -1,7 +1,7 @@
 const fs=require('fs'),path=require('path');
 const {chromium}=require(path.resolve('tools/browser-check/node_modules/playwright-core'));
 (async()=>{
- const out=path.resolve('docs/validation/personality-deibu/current');fs.mkdirSync(out,{recursive:true});
+ const out=path.resolve('.local/validation/personality-deibu/current');fs.mkdirSync(out,{recursive:true});
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],checks=[];

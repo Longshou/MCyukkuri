@@ -10,6 +10,6 @@
 
 玻璃弹珠、橡胶球、两种布偶、漂亮石子与透明骰子使用独立原创网格。球类会被推动并追近，其他物件以近距离探看和轻触为主；每次有效接触消耗体力，同一物品只能由一个玩耍过程占用。
 
-[当前实机预览](previews/current/index.html)含设施多角度、相扑与玩球完整帧序列。真实掉落玩具按网格底面接地，不使用原版悬浮偏移；展示台中的物件采用固定展示。透明骰子对面点数为 1/6、2/5、3/4。造型未获标准确认，运行审查与来源指纹见[本批验证清单](../../../docs/validation/port-remainder/group-manifest.json)。
+真实掉落玩具按网格底面接地，不使用原版悬浮偏移；展示台中的物件采用固定展示。透明骰子对面点数为 1/6、2/5、3/4。造型未获标准确认。
 
 原生核读入口：`E:/yukkuri/Eight景U-ModLab/wiki/game/native-operation-audit.md`、`wiki/game/environment-interactions.md`。只参考物件含义和行为关系，没有复制原生游戏像素。当前运行与视觉证据见[剩余实施记录](../../../docs/PORT_REMAINDER.md)。

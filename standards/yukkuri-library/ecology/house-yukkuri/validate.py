@@ -65,5 +65,6 @@ for species in cfg['species']:
         assert Image.open(out/('house_'+species+'_'+expr+'.png')).convert('RGBA').tobytes()==Image.open(source/'textures'/(expr+'.png')).convert('RGBA').tobytes()
     report[species]=dict(cubes=sum(e.get('type')!='mesh' for e in elements),meshes=sum(e.get('type')=='mesh' for e in elements),body_vertices=len(body['vertices']),body_triangles=len(body['faces']),closed_body=True,source_export_preview_equal=True,expressions=len(cfg['expressions']),model_sha256=sha(out/('house_'+species+'.bbmodel')))
 report.update(executed_utc=datetime.now(timezone.utc).isoformat(),environment=dict(python=sys.version,platform=platform.platform()),design=cfg['design'],design_sources=prov['design_sources'],scope='Static source/export/preview data, closed-body topology and UV checks; no application import or game validation.',geometry_runtime_status='Legacy poly_mesh interchange only; Minecraft/GeckoLib adaptation required')
+(HERE/'reports/current').mkdir(parents=True,exist_ok=True)
 (HERE/'reports/current/static-consistency.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False))

@@ -10,6 +10,6 @@
 
 运行 NBT 位于 `src/main/resources/data/mcyukkuri/structure/`，同目录树的 `worldgen/` 保存结构、池和放置规则，群系标签及人类生成规则也由脚本同步。模板使用 NeoForge 实体持久数据，按岗位绑定现场库存；不包含外部漫画图片或八景 U 提取物。
 
-房间功能参考 [作品核读](../../../wiki/shops-factory-npcs.md)，建筑外形、台阶、柜台和机台为项目原创设计。当前为已接入、待用户造型确认版本；[本轮实机截图和检查](../../../docs/validation/human-world-expansion/README.md)与[玩法说明](../../../docs/HUMAN_WORLD.md)同步维护。
+房间功能参考 [作品核读](../../../wiki/shops-factory-npcs.md)，建筑外形、台阶、柜台和机台为项目原创设计。当前为已接入、待用户造型确认版本；玩法见[玩法说明](../../../docs/HUMAN_WORLD.md)。
 
-`author_pipeline.py` 制作接收检查台、分选台、清洁台、观察台和周转托盘；`pipeline_language.py` 保存对应中英文本。五种设备使用原生方块几何，托盘实体复用 `factory_transfer_tray` 方块模型，由 `FactoryTrayRenderer` 渲染，载物面高度为 4/16 格。布局将两组亲代、两栏育成、异常观察与四道出货工序分开，保留工人和托盘通道。当前源与运行路径、预览和验收见 [流水线记录](../../../docs/validation/factory-pipeline/README.md)，造型待用户确认。
+`author_pipeline.py` 制作接收检查台、分选台、清洁台、观察台和周转托盘；`pipeline_language.py` 保存对应中英文本。五种设备使用原生方块几何，托盘实体复用 `factory_transfer_tray` 方块模型，由 `FactoryTrayRenderer` 渲染，载物面高度为 4/16 格。布局将两组亲代、两栏育成、异常观察与四道出货工序分开，保留工人和托盘通道。造型待用户确认。

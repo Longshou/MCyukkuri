@@ -71,6 +71,6 @@
 
 也可先运行 `./gradlew build createP0GameTestLaunchScript`，再运行 `python scripts/run_settlement_checks.py`。该入口通过 `mcyukkuri.p0.suite=settlements` 只注册群落检查，使用独立的 `.local/settlements/gametest/` 世界和报告，避免与其他任务共用测试存档。仍需将 `JAVA_HOME` 指向 JDK 21。
 
-人口修订阶段的检查与画面见[报告与截图](validation/settlements/variable-population/README.md)。旧版 3／6／7 只固定模板的检查和截图属于历史证据。住所修订后的检查与画面另见[野外住所](WILD_SHELTERS.md)，不沿用人口阶段结果作为住所证据。
+住所修订后的检查另见[野外住所](WILD_SHELTERS.md)，不沿用人口阶段结果作为住所证据。
 
 本次不实现成套村庄建筑、公共粮仓、族长选举、领地战争和自动季节迁徙。自然地形上的长时生存、野草再生平衡与多人游玩体验仍需持续验收；受控引擎检查不等于这些项目已经通过。

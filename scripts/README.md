@@ -1,5 +1,7 @@
 # 项目脚本
 
+脚本写到 `.local/` 或各包 `previews/`、`reports/`、`screenshots/` 的预览、截图与检查报告只留在本机，不入库（见 `.gitignore`）。
+
 `python scripts/test_runtime_atlas.py` 检查原生方块／物品模型引用的模组贴图是否存在，并核对 `textures/props/` 已通过 `assets/minecraft/atlases/blocks.json` 加入方块图集；真实客户端重载后仍须检查缺图警告与实际外观。
 
 `python scripts/test_asset_export_checks.py` 检查生活、家庭、家油照料与周边四个导出器的只读检查模式，注入源／运行文件漂移并确认检查失败。JSON 仅容忍 LF／CRLF 差异，仍核对字段顺序、空格与结尾换行；PNG 按原始字节比较；草麦食盆先核对预览图集裁切像素，再复用所选原始调色板字节，避免不同 Pillow 编码器产生伪差异。生活口部数据从圆润选用网格重新推导并对照选用记录；遗体物品模型从 `art/props/house-care/yukkuri_remains.item.json` 复制当前渲染配置，不恢复旧的 bundle 占位图标。
@@ -16,13 +18,13 @@
 
 人工试玩使用[实验地图](../docs/EXPERIMENTAL_MAP.md)：`build_experimental_map.py` 在 `.local/experimental-map/` 生成全新世界的数据包和元数据，再由游戏完成16区场地落地；`launch_experimental_map.ps1` 读取固定运行清单，直接进入 `run/saves/MCyukkuri-Lab/`。根目录 `启动实验地图.cmd` 是双击入口，不重新构建，不覆盖既有存档。
 
-生育资格修正复用消耗品测试中的 `fertilityRules`，消耗品、成长与联合运行器均收集 `fertility-checks`。该次独立输出、固定副本和实际命令见[生育资格验收](../docs/validation/fertility-rules/README.md)，仅覆盖消耗品与生育专项。联合运行器当前要求 43 项 GameTest 及完整报告，已加入遗体与铲子安葬检查；此前 42 项联合结果见[金章排查](../docs/validation/gold-exam/current/README.md)。徽章专项运行器同时核对原有报告与 `badge-timing-checks`，报告缺失即失败。
+生育资格修正复用消耗品测试中的 `fertilityRules`，消耗品、成长与联合运行器均收集 `fertility-checks`。联合运行器当前要求 43 项 GameTest 及完整报告，已加入遗体与铲子安葬检查。徽章专项运行器同时核对原有报告与 `badge-timing-checks`，报告缺失即失败。
 
 圆润体型、四轴性格与灵胖发育使用 `personality_deibu_checks.init.gradle`、`run_personality_deibu_checks.py --suite integration` 隔离构建并冻结全机制GameTest；`run_rounded_preview.py` 隐藏启动本轮独立客户端。新素材依次使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only`、`export_family_assets.py` 和 `build_rounded_preview.py`；束具仍由标准库 `drafts/operation-tools/build.py` 生成。来源与后续检查见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
-成长与寿命使用 `growth_checks.init.gradle` 隔离类、资源、运行参数和 Gradle 项目缓存；`run_growth_checks.py` 冻结成功构建后的产物，在 `.local/deibu-life-design/` 运行成长迁移、家庭和胎生七项 GameTest。命令与结果见[成长验收](../docs/validation/growth/current/README.md)。
+成长与寿命使用 `growth_checks.init.gradle` 隔离类、资源、运行参数和 Gradle 项目缓存；`run_growth_checks.py` 冻结成功构建后的产物，在 `.local/deibu-life-design/` 运行成长迁移、家庭和胎生七项 GameTest。
 
-联合验收使用 `port_integration.init.gradle` 隔离每个 source set 的真实输出与运行 classpath；`run_port_integration.py` 冻结、校验并隐藏启动本任务产物，`accept_port_integration.py` 驱动真实专服双客户端流程。命令、指纹与执行边界见[联合验收记录](../docs/validation/port-integration/README.md)。
+联合验收使用 `port_integration.init.gradle` 隔离每个 source set 的真实输出与运行 classpath；`run_port_integration.py` 冻结、校验并隐藏启动本任务产物，`accept_port_integration.py` 驱动真实专服双客户端流程。
 
 消耗品与普通胎生使用 `consumable_checks.init.gradle` 显式隔离所有 source set 的编译输出，配合独立 Gradle project cache；`run_consumable_checks.py` 冻结产物、在 `.local/consumables-birth/` 新建世界并核对五份报告。构建与运行命令见 [专题实现](../docs/CONSUMABLES_AND_BIRTH.md)，不启动客户端或代为接受 EULA。
 
@@ -44,7 +46,6 @@
 | `catalogue_hakkei_dialogue.py` | 只读原版八景 U 角色 CSV 与 ModLab 翻译／新增 TSV，生成分离的对白检索与来源指纹 | 写 `art/dialogue/native-u/`，不写来源游戏和运行资源 |
 | `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，输出 288 条 WAV／OGG、发音符号及试听页；204 原版与 84 原创分别标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；不打包程序、字典或 DLL |
 | `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
-| `build_audio.py` | 首轮音频制作工具，Mei 方案已被否决；`--check` 只核对归档指纹及运行文件已撤回 | 默认生成入口已停用，不再写游戏资源；新方向见 `art/audio/DIARY_AUDIO_RESEARCH.md` |
 | `export_runtime_models.py` | 读取五个标准种族及两种家油导出；制作快照、适配骨架、运行 JSON、贴图和静态预览数据，并更新来源登记 | 只写静态美术数据；不启动游戏、页面或测试 |
 | `runtime_house_interactions.py` | 供模型导出器调用；制作家油俯身夹取、短辫持物、放下与蠕动曲线，登记辫梢挂点 | 无独立启动入口，不改标准造型 |
 | `runtime_waddle.py` | 供模型导出器调用；将家油走动适配至实际连续身体截面，增强五种普通角色的油菊摆动 | 不写文件，不改标准造型，保留 1.2 秒周期 |
@@ -63,7 +64,7 @@
 
 标准素材包的制作和局部导出脚本保留在 `standards/yukkuri-library/` 内，见其 [目录约定](../standards/yukkuri-library/AGENTS.md)。不要把有相对路径依赖的包内脚本移到这里。
 
-P0 的准备命令、控制协议及验收边界见 [P0 验收记录](../docs/P0_VALIDATION.md)。同一目标一次只能有一个实例，所有控制请求按顺序发送。
+P0 的准备命令、控制协议及验收边界见 [P0 测试夹具](../docs/P0_VALIDATION.md)。同一目标一次只能有一个实例，所有控制请求按顺序发送。
 
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
 
@@ -71,7 +72,7 @@ Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）�
 
 E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#登记与维护)。
 
-亚种与先天形态入口，详见[实现与验收](../docs/SUBSPECIES_IMPLEMENTATION.md)：
+亚种与先天形态入口，详见[实现说明](../docs/SUBSPECIES_IMPLEMENTATION.md)：
 
 | 脚本 | 用途与写入边界 |
 | --- | --- |

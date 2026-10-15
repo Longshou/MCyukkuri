@@ -1,7 +1,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto');
 const here=__dirname,lib=path.resolve(here,'..'),out=path.join(here,'previews/current'),root=path.resolve(here,'../../..');
 const box={Uint8ClampedArray,Float64Array};vm.createContext(box);
-for(const p of [path.join(lib,'runtime/render.js'),path.join(out,'pose.js'),path.join(lib,'../yukkuri-v1/runtime/growth.js'),path.join(lib,'../yukkuri-v1/runtime/viviparous-birth.js'),path.join(out,'birth.js')])vm.runInContext(fs.readFileSync(p,'utf8'),box);
+for(const p of [path.join(lib,'runtime/render.js'),path.join(out,'pose.js'),path.join(lib,'../yukkuri-v1/runtime/growth.js'),path.join(lib,'../yukkuri-v1/runtime/viviparous-birth.js'),path.join(here,'runtime/birth.js')])vm.runInContext(fs.readFileSync(p,'utf8'),box);
 const api=vm.runInContext('RoundedBirth',box),catalog=JSON.parse(fs.readFileSync(path.join(out,'preview-data.json'))),checks=[];
 const check=(name,passed,detail={})=>checks.push({name,passed:!!passed,...detail});
 const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
@@ -67,6 +67,6 @@ for(const id of Object.keys(catalog).filter(id=>!process.argv[2]||id===process.a
  console.log(id,'birth checks completed');
 }
 const failures=checks.filter(c=>!c.passed);
-const report={createdAt:new Date().toISOString(),status:failures.length?'failed':'passed',inputs:{previewData:hash(path.join(out,'preview-data.json')),birthAdapter:hash(path.join(out,'birth.js'))},checks,failures};
-fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'birth.json'),JSON.stringify(report,null,2));
+const report={createdAt:new Date().toISOString(),status:failures.length?'failed':'passed',inputs:{previewData:hash(path.join(out,'preview-data.json')),birthAdapter:hash(path.join(here,'runtime/birth.js'))},checks,failures};
+fs.mkdirSync(path.join(here,'reports/current'),{recursive:true});fs.writeFileSync(path.join(here,'reports/current/'+(process.argv[2]?process.argv[2]+'-':'')+'birth.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify({checks:checks.length,failures},null,2));if(failures.length)process.exitCode=1;

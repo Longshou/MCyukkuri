@@ -27,5 +27,5 @@ for(const model of Object.values(data.ordinaryCharacters)){
 }
 const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const report={executed_utc:new Date().toISOString(),environment:{node:process.version,platform:process.platform},mixed_element_comparisons:comparisons,legacy_cube_rigs_equal:true,scope:'All exported character clips at three sample times; per-element poses compared against fixed 36-vertex chunks.',motion_sha256:sha(path.join(__dirname,'../../runtime/motion.js')),index_sha256:sha(path.join(__dirname,'index.html'))};
-fs.writeFileSync(path.join(__dirname,'reports/current/motion-consistency.json'),JSON.stringify(report,null,2)+'\n');
+fs.mkdirSync(path.join(__dirname,'reports/current'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/current/motion-consistency.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report));

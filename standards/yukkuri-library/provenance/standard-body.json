@@ -942,7 +942,7 @@
     "standards/yukkuri-library/body-standard/approved-candidate.json": "55573ba51748bc8f2f505f2715b45337136bc719bc5d00f32a144327d8cb6543",
     "standards/yukkuri-library/body-standard/excluded-baseline.json": "13177f6df828c87da886cbf47201353b3b6614a3f9677e5b6df64fd5b58484e1",
     "standards/yukkuri-library/body-standard/previews/current/pose.js": "c4da71d3b8946710c2e4523016d6cdd8b574aaff900bcfe45b2ddcd3ca9edb72",
-    "standards/yukkuri-library/body-standard/previews/current/birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
+    "standards/yukkuri-library/body-standard/runtime/birth.js": "179034358bb029baa7a9cc34130884417661e4fca90f487fcf38b57c72dda804",
     "standards/yukkuri-library/body-standard/previews/current/viewer.js": "71219dbaac5b478c8e95be1fdc548190f67b3ca9832190047c30b402fda7d935",
     "standards/yukkuri-library/body-standard/previews/current/index.html": "06445e808688db693f7126da43ec99bb67bad8e130a95d321220f2a9d364898f",
     "standards/yukkuri-library/body-standard/render_preview.py": "2940e385d27a09a9568c5d74b4eb3d4c4463b7034fda10ee867fca4bfde8ee18",

@@ -1,4 +1,4 @@
-"""Numeric checks of the single-braid choreography; writes checks/motion-checks.json.
+"""Numeric checks of the single-braid choreography; writes reports/current/motion-checks.json (local, not committed).
 
 Samples build.state() at the recipe rate. Checks braid stretch, contact accuracy, frame
 to frame rotation steps, hat clearance above the head while carried, and the end state.
@@ -75,7 +75,7 @@ base = build.LIB/'assembled/marisa/marisa.bbmodel'
 out = dict(created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds'), environment='offline Python sampling; no browser or game',
            sources=source, base_model_sha256=hashlib.sha256(base.read_bytes()).hexdigest(), head_top=round(HEAD_TOP, 3),
            status='passed' if not failures else 'failed', failures=failures, actions=report)
-(HERE/'checks').mkdir(exist_ok=True)
-(HERE/'checks/motion-checks.json').write_text(json.dumps(out, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+(HERE/'reports/current').mkdir(parents=True, exist_ok=True)
+(HERE/'reports/current/motion-checks.json').write_text(json.dumps(out, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
 print(json.dumps(dict(status=out['status'], failures=failures), ensure_ascii=False))
 for a, r in report.items(): print(a, r)

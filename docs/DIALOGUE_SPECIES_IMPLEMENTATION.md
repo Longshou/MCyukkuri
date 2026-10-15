@@ -20,7 +20,7 @@
 
 ## 配音和游戏资源
 
-[试听页](../art/audio/aquestalk/index.html)逐句展示日文、中文、事件和来源。引擎为本机 AquesTalk1，新增角色参数及全部文件指纹见 [音频制作说明](../art/audio/aquestalk/README.md)。288 条共约 374.91 秒，WAV 母带和运行 OGG 均为 32 kHz 单声道。
+合成脚本在本机生成的试听页（不入库）逐句展示日文、中文、事件和来源。引擎为本机 AquesTalk1，新增角色参数及全部文件指纹见 [音频制作说明](../art/audio/aquestalk/README.md)。288 条共约 374.91 秒，WAV 母带和运行 OGG 均为 32 kHz 单声道。
 
 原版使用 `dialogue.mcyukkuri.native.*`／`voice.native.*`，原创使用 `dialogue.mcyukkuri.original.*`／`voice.original.*`。运行总表为 `src/main/resources/assets/mcyukkuri/dialogue/catalog.json`，文本在 `lang/`，声音在 `sounds/voice/native/` 与 `original/`。导出时保留其他任务的语言键、生态歌曲声音键，公共文件已按交接窗口合入。
 
@@ -28,12 +28,12 @@
 
 ## 验证
 
-- 288 份 WAV 与 288 份 OGG 的解码、时长、单声道、有限数值、非静音和指纹检查通过。十组角色年龄均覆盖 56 类事件，见 [覆盖表](../art/dialogue/reports/species-extension/coverage.json)。
+- 288 份 WAV 与 288 份 OGG 的解码、时长、单声道、有限数值、非静音和指纹检查通过。十组角色年龄均覆盖 56 类事件。
 - `python scripts/export_dialogue.py --check` 通过；原创与原句分别核对制作源，生成资源与选用源一致。
 - 浏览器加载全部 288 条 OGG 元数据并实际播放，单条播放时暂停前一条、来源标签和搜索检查通过。
 - 两项 Dialogue GameTest 通过：原有逻辑及新增六组角色的事件选句、种族／年龄匹配、重复抑制、紧急打断、原创来源区分、擦脸行号、到期清除。
 - GameTest 初次在空模板中到期断言失败；补齐测试区块强加载、禁止测试实体下落后重跑通过，并断言实体存活且实际收到 tick。未为这项夹具问题改动生产对白代码。
 
-引擎检查使用复制于 2026-09-12 20:46:29 UTC 的徽章任务固定运行产物，放入本任务 `.local/dialogue-species/runtime/`，逐文件比对 288 个 OGG；仅重新编译本任务的 DialogueGameTests 修正夹具设置。它证明这一固定生产副本的对白行为通过，不代表其后的整个共享工作副本已通过。客户端截图与完整证据见 [验收记录](validation/dialogue/species/README.md)。
+引擎检查使用复制于 2026-09-12 20:46:29 UTC 的徽章任务固定运行产物，放入本任务 `.local/dialogue-species/runtime/`，逐文件比对 288 个 OGG；仅重新编译本任务的 DialogueGameTests 修正夹具设置。它证明这一固定生产副本的对白行为通过，不代表其后的整个共享工作副本已通过。
 
 配音声种、音程、每句节奏、原创口吻与译文仍待用户听审。原版台词和合成工具的来源说明继续保留，未将它们登记为用户确认的最终声音。

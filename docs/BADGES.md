@@ -2,7 +2,7 @@
 
 2026-09-13。金银章已接入资格档案、训练、店员考核、佩戴和社会反应。参考依据见 [漫画与小说核读](../wiki/badges.md)，当前造型为待用户确认版本。
 
-后续[金章时序排查](validation/gold-exam/current/README.md)已修正夹具过早判断结果的问题，并新增临时减速后的实际导航回归。徽章专项 51 条与完整联合 42 项 GameTest 通过；生产费用、阈值及最长考试时限未改。
+后续金章时序排查已修正夹具过早判断结果的问题，并新增临时减速后的实际导航回归。徽章专项 51 条与完整联合 42 项 GameTest 通过；生产费用、阈值及最长考试时限未改。
 
 ## 使用
 
@@ -43,8 +43,7 @@
 ## 制作与验证入口
 
 - [挂点制作源与导出关系](../art/props/badges/README.md)
-- [当前实机预览与检查记录](validation/badges/README.md)
 - `python scripts/export_badges.py` 导出挂点、手册配方和本模块语言；`--check` 核对当前内容。
 - JDK 21 下运行 `gradlew.bat -I scripts/badge_checks.init.gradle --project-cache-dir .local/badges/gradle-cache --no-configuration-cache build createP0GameTestLaunchScript`，再运行 `python scripts/run_badge_checks.py --build-dir .local/badges/build`。测试使用独立临时世界与冻结的构建文件；缺少结果报告时即使启动器返回 0 也视为失败。
 
-补验：两种捕食种的离身帽饰已在其最新完整客户端中核对圆牌显示，图片及来源登记在[徽章验收页](validation/badges/README.md)。
+补验：两种捕食种的离身帽饰已在其最新完整客户端中核对圆牌显示。

@@ -16,5 +16,3 @@
 原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/CONSUMABLES_AND_BIRTH.md)。清水仍使用原版真实清水药水瓶；其他六件物品没有借用不相符的原版图标。
 
 重新导出使用 `python standards/yukkuri-library/drafts/consumables/build.py`；多人协作时先协调语言文件，或加 `--skip-language`。`--check --skip-language` 只核对制作源与导出一致性。
-
-最新 [实机画廊](previews/current/index.html) 包含道具、口中份量、孕体多角度和真实投药/双胎出生帧序列；[采集说明](previews/current/README.md) 记录运行快照、检查结果与待确认范围。

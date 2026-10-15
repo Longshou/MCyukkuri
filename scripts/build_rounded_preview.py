@@ -26,6 +26,7 @@ function inversePoint(m,p){
     script=script.replace("framing[id]={center:(low+high)/2,span:Math.max((high-low)*.95,radius*canvas.height/canvas.width*1.1)};","framing[id]={center:(low+high)/2*(entry.formScale||1),span:Math.max(18,(high-low)*.95,radius*canvas.height/canvas.width*1.1)};")
     script=script.replace('textureSize:128','textureSize:model.texture_size')
     html=html.replace('src="preview.js"','src="preview.js?v='+hashlib.sha256(script.encode('utf-8')).hexdigest()[:12]+'"')
+    OUT.mkdir(parents=True,exist_ok=True)
     (OUT/'index.html').write_text(html,encoding='utf-8');(OUT/'preview.js').write_text(script,encoding='utf-8')
     print('Rounded runtime preview written.')
 if __name__=='__main__':main()

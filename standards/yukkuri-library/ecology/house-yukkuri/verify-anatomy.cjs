@@ -48,5 +48,5 @@ for(const [species,model] of Object.entries(data.characters)){
 }
 const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const report={executed_utc:new Date().toISOString(),environment:{node:process.version,platform:process.platform},design:data.config.design,index_sha256:sha(path.join(__dirname,'index.html')),checks:result,rest_hidden:true,roots_embedded:true,controller_export_endpoints_equal:true,scope:'Current adult geometry in idle pose; direct exported clips and controller extension/retraction endpoints.'};
-fs.writeFileSync(path.join(__dirname,'reports/current/anatomy-consistency.json'),JSON.stringify(report,null,2)+'\n');
+fs.mkdirSync(path.join(__dirname,'reports/current'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/current/anatomy-consistency.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report));

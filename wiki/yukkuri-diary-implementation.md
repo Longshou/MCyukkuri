@@ -2,7 +2,7 @@
 
 日期：2026-09-09。目的：为当前 MC 魔理沙的眼睛、高光、刘海和神态寻找实现参考。**本页为核读结果与 MC 实施建议；未把日记资源接入 MC，也未运行日记 APK。**
 
-本页中的机器路径、`reference/`、`variants/` 及其检查结论均为历史记录，对应文件未纳入当前项目。它们不构成当前可访问入口或新版验收证据；后续工作遵循项目内目录约定与本机执行限制。
+本页中的机器路径、`variants/` 及其检查结论均为历史记录，对应文件未纳入当前项目，不构成当前可访问入口或新版验收证据；后续工作遵循项目内目录约定与本机执行限制。原 `reference/diary/` 的提取资源现存于[建模调研素材](art-references/game/README.md)的 `diary/`。
 
 ## 结论
 
@@ -18,11 +18,11 @@
 - 通用搜索工具两次连接失败，改用直接 HTTP 访问搜索页面及发布页。Google 搜索要求脚本，DuckDuckGo 返回验证页，Bing 结果相关性不足。最终通过 APK 包名核对上述发布镜像，未找到可核实的作者源代码说明。
 - 搜索出现的 Miurabo《Yukkuri My Friends》包名不同，**不是本次研究的日记**。
 
-网页本地快照位于 `reference/diary/`，仅供核读，不进入模型资源包。
+网页本地快照位于 `art-references/game/diary/`，仅供核读，不进入模型资源包。
 
 ## APK 证据
 
-原文件：`E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk`。另有汉化测试版，但本轮使用原始 APK。复用既有 `E:/yukkuri/YukkuriDiary-zhCN/original/` 的已提取文件，并实际比较其 `sharedassets0.assets` 与原 APK 对应 split 条目合并结果：**字节完全相同**。APK 和程序集资源 SHA256 见 `reference/diary/source-evidence.json`。
+原文件：`E:/yukkuri/资料/安装包/Yukkuri+Diary_2023.v2_APKPure.apk`。另有汉化测试版，但本轮使用原始 APK。复用既有 `E:/yukkuri/YukkuriDiary-zhCN/original/` 的已提取文件，并实际比较其 `sharedassets0.assets` 与原 APK 对应 split 条目合并结果：**字节完全相同**。APK 和程序集资源 SHA256 见 `art-references/game/diary/source-evidence.json`。
 
 包名：`jp.gr.java_conf.sakatasnow.YukkuriDiary`。资源记录 Unity `2021.3.26f1`，APK 包含 ARM64／ARMv7 的 `libunity.so`、`libil2cpp.so` 与 `global-metadata.dat`。本轮没有反汇编原生执行逻辑。
 
@@ -38,7 +38,7 @@
 | yukkuri01，Material 59 | 主贴图引用 152；Shader 292 的名称为 `Toon/Lit` | 有卡通材质；不将简化重建中的 Lambert 外观冒充原作画面 |
 | Hoppe，Material 35 | Shader 302 为 `Toon/Basic`，独立粉色材质 | 脸颊表现也是可分离部分 |
 
-完整索引：`reference/diary/asset-index.json`；骨骼／材质：`rig-materials.json`。
+完整索引：`art-references/game/diary/asset-index.json`；骨骼／材质：`rig-materials.json`。
 
 ## 动画与骨骼的实际对应
 
@@ -49,14 +49,14 @@
 - `YukkuriIdle`：含眼皮、眉毛、眼球、上下颚、身体和侧发绑定。
 - `YukkuriEat03`、`nemui01`：含眼皮、眼球、眉毛、上下颚、舌头、脸颊及侧发绑定。
 
-绑定映射见 `reference/diary/animation-bindings.json`。这是资源结构证据；未恢复运行状态机，也未逐帧验证各通道实际位移幅度，不把存在绑定等同于每一帧都有运动。
+绑定映射见 `art-references/game/diary/animation-bindings.json`。这是资源结构证据；未恢复运行状态机，也未逐帧验证各通道实际位移幅度，不把存在绑定等同于每一帧都有运动。
 
 ## 结构预览
 
-历史结构预览 `reference/diary/mesh-study.html` 支持切换头发和线框，文件未纳入当前项目。它组合导出的 Body 224 与 Hair04Marisa 257，应用对象旋转后使用简化材质显示。**仅默认绑定姿态，未应用游戏表情、骨骼变形、完整配饰和原 Shader，不是原作完整角色／实机截图。**
+历史结构预览 `mesh-study.html` 支持切换头发和线框，已删除。它组合导出的 Body 224 与 Hair04Marisa 257，应用对象旋转后使用简化材质显示。**仅默认绑定姿态，未应用游戏表情、骨骼变形、完整配饰和原 Shader，不是原作完整角色／实机截图。**
 
-- 默认姿态局部重建：`reference/diary/reconstructed-front.png`，未归档。
-- 身体／眼口拓扑线框：`reference/diary/body-wireframe.png`，未归档。
+- 默认姿态局部重建：`art-references/game/diary/reconstructed-front.png`。
+- 身体／眼口拓扑线框：`art-references/game/diary/body-wireframe.png`。
 
 头发观察：中央尖束和两侧有方向的斜分，比当前 MC 版本等宽直垂的刘海更容易露出眉眼；不需要增加密集发丝条纹也能读出发束。此项是本轮视觉判断。
 
@@ -69,7 +69,7 @@
 5. 刘海用少量有方向的收尖发束，露出眉眼。保持 A–D 的 B/C 这种同表情对比方式，以便区分头发与表情的贡献。
 6. 最后再做眨眼、左右看和说话试验，并在正常游戏视距核对；眼睛特写好看不代表实际角色可爱。
 
-原记录将提取资源保存在研究环境的 `reference/diary/`，本项目不包含这些文件。现有 MC 模型、贴图和资源包未引用这些原作像素或网格。
+提取资源保存在 `art-references/game/diary/`。现有 MC 模型、贴图和资源包未引用这些原作像素或网格。
 
 ## 2026-09-10：原创预览试验已实现
 

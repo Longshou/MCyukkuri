@@ -68,7 +68,7 @@
 
 每帧先恢复常态，再采样当前动作，防止稀疏曲线遗漏默认隐藏状态。三角面按原始外法线统一绕序，混合变形后重新计算面法线。P0 已检查动作切换后的常态顶点恢复，实际资源重载后模型对象更新且四实体继续显示。损坏资源导致的重载失败尚未测试。
 
-选定源、原样 `.bbmodel` 快照、适配骨架、纹理、19 个动作和目标路径均登记于 [runtime-sources.json](../art/runtime-sources.json)。快照和适配配方见 [接入素材说明](../art/source/standard-runtime/README.md)。旧 `art/source/reimu/`、`marisa/` 及旧几何、动画保留为历史基线，当前渲染器不读取。
+选定源、原样 `.bbmodel` 快照、适配骨架、纹理、19 个动作和目标路径均登记于 [runtime-sources.json](../art/runtime-sources.json)。快照和适配配方见 [接入素材说明](../art/source/standard-runtime/README.md)。旧 `art/source/reimu/`、`marisa/` 历史基线已删除。
 
 ## 指定环境验收
 

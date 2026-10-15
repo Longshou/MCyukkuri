@@ -6,7 +6,7 @@
 
 2026-09-13 头发修复：八种圆润模型的后发按身体截面增加遮盖余量，并与身体使用相同的分段权重；灵胖补齐上部刘海发根与头顶头发的连接。身体、面容和蝴蝶结尺寸保留。修订配方见 [hair-contact](features/hair-contact/recipe.json)，源与导出指纹见[本轮候选](features/hair-contact/candidate.json)。本轮头发修订待确认，原批准记录保留为基线。
 
-[全部油库里模型展示](previews/current/all-models/index.html)包含普通种、螺壳、多毛、灵胖、家油、捕食种、DOS 与不足形态；可切换角色、旋转、暂停和拖动动作时间，每种另有四视图和背面动图。各卡片独立取景，不用于尺寸比较。当前检查见[头发修复验收](reports/current/HAIR-CONTACT.md)。
+全部油库里模型展示图由 `features/hair-contact/gallery.py` 在本机生成到 `previews/current/all-models/`（不入库），包含普通种、螺壳、多毛、灵胖、家油、捕食种、DOS 与不足形态，每种有四视图和动图。各卡片独立取景，不用于尺寸比较。
 
 当前灵胖面容已按“大妈、减少可爱感”修改，半睁眼、小虹膜、浅眼袋与脸颊纹替代幼态大眼和粉红腮红。面容待确认，原圆润身体及1.5倍身体尺寸不变。制作与检查指纹见[面容候选记录](features/deibu-mature/candidate.json)；较早的面容批准和验证记录仅作为基线。
 
@@ -14,7 +14,7 @@
 
 2026-09-13，用户确认当前圆润身体，并要求推广到除家油、DOS、不足油之外的所有油库里，包括多毛种。该版本已保存为标准，确认记录与文件指纹见 [standard-body.json](../provenance/standard-body.json)。
 
-[交互预览](previews/current/index.html) · [八种角色总览](previews/current/overview.png) · [体型配方](recipe.json) · [共用身体截面](profile.json)
+[体型配方](recipe.json) · [共用身体截面](profile.json)
 
 | 适用角色 | 本次处理 |
 | --- | --- |
@@ -46,11 +46,12 @@ python standards/yukkuri-library/body-standard/verify_sources.py
 node standards/yukkuri-library/body-standard/verify.cjs
 node standards/yukkuri-library/body-standard/verify_anatomy.cjs
 node standards/yukkuri-library/body-standard/verify_birth.cjs
-node standards/yukkuri-library/body-standard/verify_browser.cjs
 ```
+
+`build.py` 把 `pose.js`、`preview-data.json` 等生成到 `previews/current/`，后面的渲染与检查脚本都读取这些文件；检查结果写入 `reports/current/`。两处都是本机产物，不入库。胎生适配脚本位于 `runtime/birth.js`。只重建单个角色时加 `--character <角色>`，此模式读取已有的 `previews/current/preview-data.json`，需先完整构建一次。
 
 主构建入口已转交本包，不自动重建独立家油或互动包。家油与 DOS 的派生制作保留对推广前输入的引用；不足油仍使用原有选定快照。历史种族方块生成脚本和帕秋莉局部导出工具不适用于本次合并网格。
 
-普通五种与多毛种保留各自骨架动作；螺壳种、灵胖的动作菜单以其实际导出为准。交互预览只提供各角色可用的常用动作，全部表情与动作可从页面中的“全部动作与标准表情”进入。静态、动作采样、部件与胎生检查的本轮结果保存在 `reports/current/`；查看 [验收说明](reports/current/README.md)。
+普通五种与多毛种保留各自骨架动作；螺壳种、灵胖的动作菜单以其实际导出为准。
 
 这次保存属于标准美术资产更新，未替换 `art/source/` 的游戏接入快照，也未修改 Minecraft 打包资源。游戏接入需要另行适配当前加载器、骨架和动画，并进行实机验收。

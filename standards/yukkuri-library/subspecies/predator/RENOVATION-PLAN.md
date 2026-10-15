@@ -16,7 +16,7 @@
 
 ## 二、方块风底板与官方原画的量化偏差
 
-官方基准：`reference/marisa-variants/hakkei-layer-reconstruction.png`、`reference/standard-species/hakkei-contact.png`（八景 U 原版图层，已核读）。
+官方基准：`wiki/art-references/game/marisa-variants/hakkei-layer-reconstruction.png`、`wiki/art-references/game/standard-species/hakkei-contact.png`（八景 U 原版图层，已核读）。
 方块风现状：`standards/yukkuri-library/textures/marisa/base.png` + `assembled/marisa`。
 
 脸部 UV 区块不透明像素统计（区块面积见括号）：

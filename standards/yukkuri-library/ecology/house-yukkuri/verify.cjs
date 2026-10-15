@@ -14,6 +14,8 @@ assert.equal(lifecycle.snapshot(18,0).young.length,0);
 assert.equal(lifecycle.snapshot(18,0).eggs.filter(e=>e.status==='lost').length,0,'Unlaid eggs cannot be lost');
 assert.deepEqual(JSON.parse(JSON.stringify(removed)),removed);
 assert.throws(()=>lifecycle.advance(removed,-1));
+// Screenshots and the report are local (previews/current is not committed).
+const OUT=path.join(__dirname,'previews/current');fs.mkdirSync(OUT,{recursive:true});
 (async()=>{
  const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe'});
  const errors=[],checks=[];
@@ -21,12 +23,12 @@ assert.throws(()=>lifecycle.advance(removed,-1));
   const p=await b.newPage({viewport:{width:1280,height:1100}});p.on('pageerror',e=>errors.push(e.message));
   await p.goto(pathToFileURL(path.join(__dirname,'index.html')).href);await p.waitForFunction(()=>window.houseDebug?.ready());
   await p.evaluate(()=>houseDebug.setTime(0));
-  await p.screenshot({path:path.join(__dirname,'overview.png'),fullPage:true});
+  await p.screenshot({path:path.join(OUT,'overview.png'),fullPage:true});
   for(const subject of ['pair','marisa','reimu','compare','nest','family']){
    await p.locator('#subject').selectOption(subject);
    for(const [view,az] of [['front','0'],['side','1.5708'],['back','3.14159']]){
     await p.locator(`[data-angle="${az}"]`).click();
-    if(subject!=='family')await p.locator('canvas').screenshot({path:path.join(__dirname,`${subject}-${view}.png`)});
+    if(subject!=='family')await p.locator('canvas').screenshot({path:path.join(OUT,`${subject}-${view}.png`)});
    }
    checks.push(subject+' front/side/back');
   }
@@ -34,7 +36,7 @@ assert.throws(()=>lifecycle.advance(removed,-1));
   for(const action of ['rest','forage','build','flee','hatch']){
    await p.locator('#action').selectOption(action);
    for(const t of [0,4,8,12,18])await p.evaluate(t=>houseDebug.setTime(t),t);
-   await p.locator('canvas').screenshot({path:path.join(__dirname,action+'.png')});
+   await p.locator('canvas').screenshot({path:path.join(OUT,action+'.png')});
    checks.push(action+' 5 times');
   }
   await p.evaluate(()=>houseDebug.setTime(8));await p.locator('#removeNest').click();await p.evaluate(()=>houseDebug.setTime(18));
@@ -52,7 +54,7 @@ assert.throws(()=>lifecycle.advance(removed,-1));
   await p.locator('#subject').selectOption('reimu');await p.locator('#resetCamera').click();
   for(const expression of JSON.parse(fs.readFileSync(path.join(__dirname,'config.json'),'utf8')).expressions){
    await p.locator('#expression').selectOption(expression);
-   await p.locator('canvas').screenshot({path:path.join(__dirname,'reimu-'+expression+'.png')});
+   await p.locator('canvas').screenshot({path:path.join(OUT,'reimu-'+expression+'.png')});
   }
   await p.locator('#expression').selectOption('auto');await p.locator('#subject').selectOption('family');await p.locator('#action').selectOption('rest');await p.evaluate(()=>houseDebug.setTime(0));await p.locator('#resetCamera').click();
   await p.locator('#subject').selectOption('reimu');
@@ -64,7 +66,7 @@ assert.throws(()=>lifecycle.advance(removed,-1));
    assert.equal((await p.evaluate(()=>houseDebug.anatomy())).part,part);
    assert.equal((await p.evaluate(()=>houseDebug.state())).playing,false);
    await p.waitForTimeout(100);
-   await p.locator('canvas').screenshot({path:path.join(__dirname,part+'-extended.png')});
+   await p.locator('canvas').screenshot({path:path.join(OUT,part+'-extended.png')});
   }
   await p.locator('#retractPart').click();
   await p.waitForFunction(()=>houseDebug.anatomy().phase==='retracted');
@@ -72,9 +74,9 @@ assert.throws(()=>lifecycle.advance(removed,-1));
   checks.push('adult anatomy extend, mutually exclusive switch and retract while paused');
   await p.locator('#subject').selectOption('family');await p.locator('#resetCamera').click();
   await p.setViewportSize({width:430,height:1100});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-  await p.screenshot({path:path.join(__dirname,'mobile.png'),fullPage:true});
+  await p.screenshot({path:path.join(OUT,'mobile.png'),fullPage:true});
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(__dirname,'browser-verification.json'),JSON.stringify({checks,frame_rate_independent_births:true,no_duplicate_births:true,young_survive_nest_removal:true,timeline_scrub:true,orbit:true,zoom:true,play_pause:true,expressions:11,mobileOverflow:false,pageErrors:errors},null,2));
+  fs.writeFileSync(path.join(OUT,'browser-verification.json'),JSON.stringify({checks,frame_rate_independent_births:true,no_duplicate_births:true,young_survive_nest_removal:true,timeline_scrub:true,orbit:true,zoom:true,play_pause:true,expressions:11,mobileOverflow:false,pageErrors:errors},null,2));
   console.log('House models, actions, hatch lifecycle, controls and mobile layout passed.');
  }finally{await b.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

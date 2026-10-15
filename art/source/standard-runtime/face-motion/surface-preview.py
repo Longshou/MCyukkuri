@@ -64,4 +64,5 @@ report.update(created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(
               previews={p.relative_to(HERE).as_posix(): sha(p) for p in files}, minecraft='pending_current_fixed_build',
               grouping='round(rest position * 100000), round(authored normal * 1000); posed triangle area weighted',
               user_confirmation='pending')
+(HERE / 'reports/current').mkdir(parents=True, exist_ok=True)
 (HERE / 'reports/current/surface-lighting.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')

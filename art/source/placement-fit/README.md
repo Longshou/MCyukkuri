@@ -2,7 +2,7 @@
 
 2026-10-07，第一版，状态为待用户复查。用户要求调整模型与组件的位置（帽子、身体等）使之更自然，并适配现有动作；范围选择为19种形态逐一检查，允许小幅改帽子尺寸。本版实际没有改动任何帽子外形，只改位置。
 
-当前入口：[灵梦系前后对比](previews/current/before-after-reimu.png)、[魔理沙系／橙／爱丽丝前后对比](previews/current/before-after-others.png)、[脱帽后的发型](previews/current/hat-off.png)、[动作抽帧](previews/current/actions.png)、[检查后未改的七种](previews/current/unchanged.png)。在[素材检查室](../../../preview/review/README.md)中选择任一形态即可看到本版效果。
+在[素材检查室](../../../preview/review/README.md)中选择任一形态即可看到本版效果。
 
 ## 本版效果
 
@@ -29,4 +29,4 @@
 
 ## 验收
 
-当前检查、构建指纹与未覆盖范围见[本轮验收](reports/current/README.md)。离线检查与渲染不代表 Minecraft 实机效果，也不代表用户的标准造型确认。
+离线检查与渲染不代表 Minecraft 实机效果，也不代表用户的标准造型确认。

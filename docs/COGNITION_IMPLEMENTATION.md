@@ -1,10 +1,10 @@
 # 认知能力、教学提交与出生继承
 
-本模块新增独立认知能力，服务端以 `cognition/CognitionData` 的世界存档为权威。`Cognition` 提供当前能力、教学资格、课堂提交和出生接口；个性倾向（现为四项，旧六项已映射）、等待指令、感官和饰品识别继续使用各自原存储。专题验收见[认知检查](validation/cognition/README.md)。
+本模块新增独立认知能力，服务端以 `cognition/CognitionData` 的世界存档为权威。`Cognition` 提供当前能力、教学资格、课堂提交和出生接口；个性倾向（现为四项，旧六项已映射）、等待指令、感官和饰品识别继续使用各自原存储。
 
 ## 来源核读
 
-2026-09-13 只读核对本机 `E:/yukkuri/Eight景U-ModLab/` 下的 Mod 源码和 `analysis/decompiled/` 原生反编译文件。下表区分原生属性、Mod 情景规则与本项目选择，不把它们混称为原游戏完整还原。文件 SHA-256 另存验收目录。
+2026-09-13 只读核对本机 `E:/yukkuri/Eight景U-ModLab/` 下的 Mod 源码和 `analysis/decompiled/` 原生反编译文件。下表区分原生属性、Mod 情景规则与本项目选择，不把它们混称为原游戏完整还原。
 
 | 来源 | 核读结果 |
 | --- | --- |
@@ -60,4 +60,4 @@ python scripts/run_cognition_checks.py gametest
 
 初始化脚本逐个修正 `main/p0Test/test` 的实际类、资源输出和运行 classpath；运行器复制成功编译产物及资源到唯一目录，记录逐文件 SHA-256，再启动独立 GameTest 世界。`CognitionGameTests` 使用真实 `mcyukkuri_p0:empty` 模板及 `PrefixGameTestTemplate(false)`，在独立 `cognition` suite 与默认集合中各显式注册一次，没有自动 Holder。
 
-本任务没有修改模型或美术导出。中文事实和文风人工核对；未虚称运行当前不可用的 `tech-doc-style-chinese` 或 `tech-doc-lint`。最新检查数量、固定产物和实际图鉴排版以[验收记录](validation/cognition/README.md)为准。
+本任务没有修改模型或美术导出。中文事实和文风人工核对；未虚称运行当前不可用的 `tech-doc-style-chinese` 或 `tech-doc-lint`。

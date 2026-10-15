@@ -16,6 +16,7 @@ for p in (r/'src/main/resources/assets/mcyukkuri/textures/entity').glob('*/neutr
  im=Image.open(p).convert('RGBA');(o/(p.parent.name+'.texture')).write_bytes(im.tobytes())
 `],{cwd:root,stdio:'inherit'});
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
+cp.execFileSync(python,[path.join(root,'scripts/build_rounded_preview.py')],{cwd:root,stdio:'inherit'});
 const legacy=fs.readFileSync(path.join(root,'art/source/rounded-runtime/previews/current/preview.js'),'utf8');const legacyFunctions=legacy.slice(legacy.indexOf('function sample('),legacy.indexOf('function groundVertices('));
 const report={models:[],links:0,audio:catalog.audio.length,referenceComparisons:[]};
 for(const item of catalog.models){
@@ -73,6 +74,5 @@ for i,row in enumerate(rows):
  im=Image.frombytes('RGBA',(320,300),(o/(row['id']+'.rgba')).read_bytes());im.save(thumbs/(row['id']+'.png'))
  x=(i%5)*320;y=(i//5)*350;sheet.paste(im,(x,y),im);d.text((x+18,y+303),row['name'],fill='#283a36',font=font);d.text((x+18,y+332),str(row['actions'])+' 段动作',fill='#728079',font=small)
 sheet.save(o/'contact-sheet.png')
-sheet.save(r/'preview/review/overview.png')
 `],{cwd:root,stdio:'inherit'});
 console.log(JSON.stringify({models:report.models.length,frames:report.models.reduce((n,m)=>n+m.frames,0),audio:report.audio,links:report.links,referenceComparisons:report.referenceComparisons.length}));

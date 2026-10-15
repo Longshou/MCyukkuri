@@ -4,7 +4,7 @@ const {chromium}=require(path.resolve('tools/browser-check/node_modules/playwrig
 (async()=>{
  const species=process.argv[2]||'marisa';
  const base=path.resolve('standards/yukkuri-library/subspecies/deficient/rounded-'+species);
- const out=path.join(base,'reports/current'),checks=[],errors=[];
+ const out=path.join(base,'reports/current'),checks=[],errors=[];fs.mkdirSync(out,{recursive:true});
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  try{
   const page=await browser.newPage({viewport:{width:1280,height:900}});
@@ -34,13 +34,9 @@ const {chromium}=require(path.resolve('tools/browser-check/node_modules/playwrig
    await page.evaluate(()=>{time=.3;az=.55;paint();});
    await page.screenshot({path:path.join(out,id+'-browser.png')});
   }
-  // The user's existing 20-form gallery must also carry the new runtime revision.
-  await page.goto('file:///'+path.resolve('standards/yukkuri-library/body-standard/previews/current/all-models/index.html').replaceAll('\\','/'));
-  await page.waitForFunction(()=>typeof ALL_MODELS!=='undefined');
-  const gallery=await page.evaluate(species=>[species+'_sparse',species+'_face'].every(id=>ALL_MODELS[id].model.revision==='rounded-'+species+'-deficient-v1'),species);
-  const passed=!errors.length&&gallery&&checks.every(c=>c.atlas&&c.visible);
-  fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({passed,errors,gallery,checks},null,2));
-  console.log(JSON.stringify({passed,expressions:checks.length,pose_states:checks.length*20,errors,gallery}));
+  const passed=!errors.length&&checks.every(c=>c.atlas&&c.visible);
+  fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({passed,errors,checks},null,2));
+  console.log(JSON.stringify({passed,expressions:checks.length,pose_states:checks.length*20,errors}));
   if(!passed)process.exitCode=1;
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

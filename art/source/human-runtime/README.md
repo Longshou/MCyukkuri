@@ -6,4 +6,4 @@
 
 角色登记见 [humans.json](../../../standards/yukkuri-library/characters/humans.json)，来源及确认状态见 [human-npcs.json](../../../standards/yukkuri-library/provenance/human-npcs.json)。角色没有下载玩家皮肤，也没有复制漫画或八景 U 的美术；当前为已接入、待用户造型确认，不能视为已确认标准。
 
-统一导出 `python scripts/export_human_world.py`；[当前实际预览](../../../docs/validation/human-world-expansion/README.md)覆盖建筑、莫西干头正侧背面、宠物徽章和交易界面。
+统一导出 `python scripts/export_human_world.py`。

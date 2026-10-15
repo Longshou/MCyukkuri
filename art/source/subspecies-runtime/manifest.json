@@ -174,7 +174,6 @@
       "approval_note": "Existing shell approval has no file hash; baseline fingerprint is recorded here without inventing a historic approved hash.",
       "runtime_acceptance": {
         "status": "rendered_in_actual_client",
-        "evidence": "docs/validation/subspecies/manifest.json",
         "runtime_sha256": "51ac9fa93bd63a1b7b00b96eea97bd0ab8085bb898b57e74567a30ba8a61677a"
       },
       "texture_acceptance": "offline_checked; current client acceptance pending"
@@ -348,7 +347,6 @@
       "approval_note": "",
       "runtime_acceptance": {
         "status": "rendered_in_actual_client",
-        "evidence": "docs/validation/subspecies/manifest.json",
         "runtime_sha256": "237ad64c19952a4cf14055a49c603b612f14540115a340348d1a1e917de344c5"
       },
       "texture_acceptance": "offline_checked; current client acceptance pending"

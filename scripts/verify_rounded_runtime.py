@@ -7,7 +7,7 @@ OUT=ROOT/'art/source/rounded-runtime'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def main(output='docs/validation/personality-deibu/current'):
+def main(output='.local/validation/personality-deibu/current'):
     selected=read(OUT/'manifest.json');checks=[]
     assert sha(ROOT/selected['exporter'])==selected['exporter_sha256']
     assert sha(ROOT/selected['standard_recipe'])==selected['standard_recipe_sha256']
@@ -42,4 +42,4 @@ def main(output='docs/validation/personality-deibu/current'):
     (target/'assets.json').write_text(json.dumps({'passed':True,'checks':checks},indent=2),encoding='utf-8')
     print(json.dumps({'passed':True,'checks':len(checks)}))
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--output',default='docs/validation/personality-deibu/current');main(parser.parse_args().output)
+    parser=argparse.ArgumentParser();parser.add_argument('--output',default='.local/validation/personality-deibu/current');main(parser.parse_args().output)

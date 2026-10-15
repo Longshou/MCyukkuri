@@ -2,7 +2,7 @@
 
 [Wiki 入口](README.md) · [商店、加工所与人类 NPC](shops-factory-npcs.md) · [当前实现](../docs/HUMAN_WORLD.md)
 
-核读日期：2026-09-13。任务是评估油虐用、捕食种饲料用活体的生产细节。本页保留实施前的来源整理和差距评估。用户随后要求实现；当前已接入内容与实测边界见 [流水线实现记录](../docs/validation/factory-pipeline/README.md)，不把作品设定全部等同于游戏规则。
+核读日期：2026-09-13。任务是评估油虐用、捕食种饲料用活体的生产细节。本页保留实施前的来源整理和差距评估。用户随后要求实现；当前已接入内容与未完成项见[人类世界实现](../docs/HUMAN_WORLD.md)，不把作品设定全部等同于游戏规则。
 
 ## 判断
 
@@ -26,7 +26,7 @@ F1 的胎内出生画面与 F2 的整茎转运是不同作品的方案，不能�
 
 ## 实施前代码与差距
 
-核对文件：[FactoryProduction.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryProduction.java)、[FactoryWorkGoal.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryWorkGoal.java)、[HumanCommerce.java](../src/main/java/io/github/longshou/mcyukkuri/human/HumanCommerce.java)。以下是 **2026-09-13 实施前的静态阅读结论**；文件链接指向当前源码，表格不随其自动更新。流水线与捕食种后来已有实现，分别查[流水线记录](../docs/validation/factory-pipeline/README.md)与[捕食种实现](../docs/PREDATOR_IMPLEMENTATION.md)。
+核对文件：[FactoryProduction.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryProduction.java)、[FactoryWorkGoal.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryWorkGoal.java)、[HumanCommerce.java](../src/main/java/io/github/longshou/mcyukkuri/human/HumanCommerce.java)。以下是 **2026-09-13 实施前的静态阅读结论**；文件链接指向当前源码，表格不随其自动更新。流水线与捕食种后来已有实现，分别查[人类世界实现](../docs/HUMAN_WORLD.md)与[捕食种实现](../docs/PREDATOR_IMPLEMENTATION.md)。
 
 | 环节 | 实施前状态（历史） | 当时建议补足的内容 |
 | --- | --- | --- |

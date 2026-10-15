@@ -2,9 +2,9 @@
 
 当前为 **v2 单辫版**，2026-10-14 用户保存，[动作登记](saved-action-v2.json)记录所用模型、源文件、导出与检查结果的指纹及提交，Git 历史保存原始字节。魔理沙标准改为自身左侧一条粗辫（见[单辫修订](../../body-standard/features/marisa-single-braid/README.md)）后，七项动作改由这条辫子单独完成，另一侧的短侧发不参与抓握。模型使用当前圆润普通魔理沙。
 
-v1（2026-09-11 确认的双辫版）保留为历史快照：[动作登记](saved-action.json) · [独立快照与 SHA-256 清单](approved-snapshots.json)。快照包含当时的模型、动画、预览、验证结果及重建所需文件，后续编辑不会改写它。`verification.json`、`clearance-comparison.json` 是 v1 的浏览器检查记录，不适用于 v2。
+v1（2026-09-11 确认的双辫版）保留[动作登记](saved-action.json)，独立快照与浏览器检查记录已删除。
 
-[打开七项互动预览](index.html)：单个静态文件，直接双击打开。可旋转、缩放、暂停、逐阶段定位、调速与重播。
+`build.py` 在本机生成七项互动预览 `index.html`（不入库），可旋转、缩放、暂停、逐阶段定位、调速与重播。
 
 | 动作 | v2 编排 |
 | --- | --- |
@@ -20,9 +20,9 @@ v1（2026-09-11 确认的双辫版）保留为历史快照：[动作登记](save
 | --- | --- |
 | `recipes.json` | 七项动作的时长、阶段与道具 |
 | `build.py` | 伸辫求解、帽子单点抓握、道具轨迹和导出；动作曲线的编辑源 |
-| `render_checks.py` | 不经浏览器渲染各阶段关键帧，输出 `checks/<动作>.png` |
-| `check_motion.py` | 数值检查辫身伸缩、抓握误差、相邻帧实际转角、帽檐离头高度与结束状态，写 `checks/motion-checks.json` |
-| `clearance.py` | 测量辫子进入身体与帽子、帽子进入头部、子油与道具进入身体的深度，写 `checks/clearance.json` |
+| `render_checks.py` | 不经浏览器渲染各阶段关键帧，输出 `reports/current/<动作>.png` |
+| `check_motion.py` | 数值检查辫身伸缩、抓握误差、相邻帧实际转角、帽檐离头高度与结束状态，写 `reports/current/motion-checks.json` |
+| `clearance.py` | 测量辫子进入身体与帽子、帽子进入头部、子油与道具进入身体的深度，写 `reports/current/clearance.json` |
 | `viewer.html` | 预览模板，使用统一库的姿态采样和渲染器 |
 | `assembled/marisa-braids.bbmodel` | 含魔理沙、道具、子油及七条动画的可编辑场景；圆润身体、五官和头发为网格 |
 | `assembled/marisa-braids.geo.json` | 同一场景的 Bedrock 几何，网格部件以 `poly_mesh` 导出 |
@@ -38,6 +38,8 @@ python standards/yukkuri-library/interactions/marisa-braids/check_motion.py
 python standards/yukkuri-library/interactions/marisa-braids/clearance.py
 python standards/yukkuri-library/interactions/marisa-braids/render_checks.py
 ```
+
+检查与渲染结果写入 `reports/current/`，只在本机，不入库。
 
 `verify.cjs` 是 v1 的浏览器验证脚本，使用 Playwright 驱动浏览器，本轮未运行。
 

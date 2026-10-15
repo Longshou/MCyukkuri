@@ -284,6 +284,7 @@ if (sizeMatch) {
 }
 
 const report = { model: NAME, at: new Date().toISOString(), checks, failures };
+fs.mkdirSync(path.join(HERE, 'reports/current'), { recursive: true });
 fs.writeFileSync(path.join(HERE, 'reports/current/turntable-verification.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify({ ok: failures.length === 0, failures, checks: Object.keys(checks).length }));
 process.exitCode = failures.length ? 1 : 0;

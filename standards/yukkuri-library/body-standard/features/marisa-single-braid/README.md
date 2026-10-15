@@ -18,7 +18,7 @@
 
 1. `python author.py`：写 `components/marisa/hand-left.json`、`hand-right.json` 和 `rigs/marisa.json` 的辫梢骨骼。粗细、位置参数在脚本顶部。
 2. `python sync_inputs.py`：按方块时期的装配方式重建 `inputs/marisa`、`inputs/marisa_tsumuri` 的冻结输入及 `inputs/manifest.json`。角色登记 `extra_motions` 所列的专属动作（螺壳的静止、轻摆、缩入）同时从 `motions/variants/` 重新编入；动作源未变时输出与原文件逐字节相同。
-3. `body-standard/build.py --character marisa`、`--character marisa_tsumuri`，再依次运行 `scripts/README.md` 所列圆润运行包导出。
+3. `body-standard/build.py --character marisa`、`--character marisa_tsumuri`（`--character` 需先完整构建一次），再依次运行 `scripts/README.md` 所列圆润运行包导出。
 4. 运行稀毛与歪脸 `scripts/export_marisa_deficient_rounded.py`（先用新圆润魔理沙替换包内冻结的 donor 三个文件）和豆形 `scripts/export_bean_assets.py`。
 5. 家油依次运行 `ecology/house-yukkuri/build.py --characters-only`、`export_house_runtime.py marisa`（以 `inputs/<种族>` 为标准源调用正式导出函数，与原接入一致）、`scripts/export_house_carry_motion.py`、`scripts/export_house_face_motion.py --publish` 和 `node scripts/export_wound_surfaces.cjs --ids=house_marisa`。
 6. DOS 运行 `subspecies/reimu-dos/build.py`。
@@ -28,7 +28,7 @@
 
 本次在 macOS 上导出。PNG 编码、浮点末位和 LF／CRLF 指纹差异已按内容核对后还原，只保留魔理沙相关变化；游戏的模型指纹检查同时接受 LF 与 CRLF。
 
-动作编排：七项辫子互动已改为单辫 v2（[互动包](../../../interactions/marisa-braids/README.md)），双辫 v1 保留为快照。家油魔理沙的夹取、搬运、放下只用辫子：两个夹取点都指向辫梢，物品跟随辫梢，短侧发留在头侧；家油灵梦仍用两束短发。
+动作编排：七项辫子互动已改为单辫 v2（[互动包](../../../interactions/marisa-braids/README.md)）。家油魔理沙的夹取、搬运、放下只用辫子：两个夹取点都指向辫梢，物品跟随辫梢，短侧发留在头侧；家油灵梦仍用两束短发。
 
 ## 穿插治理
 

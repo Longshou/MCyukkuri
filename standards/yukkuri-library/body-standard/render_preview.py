@@ -22,7 +22,7 @@ for id,entry in MODELS.items():
 
 def render_jobs(jobs,w,h):
     program="const fs=require('fs');\n"+(LIB/'runtime/render.js').read_text(encoding='utf-8')+'\n'+(OUT/'pose.js').read_text(encoding='utf-8')+'\n'
-    for file in [LIB.parent/'yukkuri-v1/runtime/growth.js',LIB.parent/'yukkuri-v1/runtime/viviparous-birth.js',OUT/'birth.js']:
+    for file in [LIB.parent/'yukkuri-v1/runtime/growth.js',LIB.parent/'yukkuri-v1/runtime/viviparous-birth.js',HERE/'runtime/birth.js']:
         program+=file.read_text(encoding='utf-8')+'\n'
     program+='const models=JSON.parse(fs.readFileSync('+json.dumps(str(OUT/'preview-data.json'))+'));\n'
     program+='const jobs='+json.dumps(jobs)+';const folder='+json.dumps(str(TMP))+';\n'
@@ -75,5 +75,5 @@ if '--actions' in __import__('sys').argv:
         for i,a in enumerate(actions):
             d.text((i*480+15,12),labels[id]+' / '+a,font=FONT,fill='#292a25')
             sheet.paste(tile(id+'-action-'+a,480,460),(i*480,50))
-        sheet.save(HERE/'reports/current'/(id+'-actions.png'))
+        (HERE/'reports/current').mkdir(parents=True,exist_ok=True);sheet.save(HERE/'reports/current'/(id+'-actions.png'))
     print('Rendered current per-character action poses.')

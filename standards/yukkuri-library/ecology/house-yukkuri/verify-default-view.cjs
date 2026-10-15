@@ -57,7 +57,7 @@ const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'
   const indexHash=sha(path.join(__dirname,'index.html'));
   assert.ok(frame.url().includes('?rev='+indexHash.slice(0,12)),'iframe must carry content revision');
   const report={executed_utc:new Date().toISOString(),environment:{node:process.version,browser:await browser.version(),platform:process.platform},initial,checks,immediate_retraction_after:resets,errors,index_sha256:indexHash,screenshot_sha256:sha(path.join(__dirname,'previews/current/reimu-default-browser.png')),scope:'Fresh browser UI; six subjects at rest compared pixel-for-pixel with anatomy removed, then extend and switch/reset interactions.'};
-  fs.writeFileSync(path.join(__dirname,'reports/current/default-browser.json'),JSON.stringify(report,null,2)+'\n');
+  fs.mkdirSync(path.join(__dirname,'reports/current'),{recursive:true});fs.writeFileSync(path.join(__dirname,'reports/current/default-browser.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

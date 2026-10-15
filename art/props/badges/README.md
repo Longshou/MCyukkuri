@@ -8,10 +8,10 @@
 
 该适配不改写角色标准模型、骨架、动画或标准确认指纹。角色当前接入源仍由 `art/source/standard-runtime/` 与家油接入记录管理；角色导出变化后，应重跑徽章导出并更新实际预览。
 
-查看[本轮实机预览和验证](../../../docs/validation/badges/README.md)及[玩法说明](../../../docs/BADGES.md)。
+玩法见[玩法说明](../../../docs/BADGES.md)。
 
 `mounts.json` 的 `detached` 部分对应七种离身饰物物品。摘取／剪断时保存徽章外观级别，物品渲染沿其自身表面挂接圆牌；该外观数据不会授予资格。剪断物品的牌面随所属半边一起变换。
 
-新增捕食种的圆牌挂在 `predator_cap_crown` 帽冠侧面；首轮帽带挂点被帽冠遮挡，已通过当前截图修正。角色模型由捕食种任务维护；其后续几何导出后运行 `python scripts/export_badges.py --mounts-only` 更新指纹及挂点，不写入共享语言文件。两种捕食种仍处于首轮造型迭代，不能将本轮徽章检查当作其整体造型通过。
+新增捕食种的圆牌挂在 `predator_cap_crown` 帽冠侧面；首轮帽带挂点被帽冠遮挡，已修正。角色模型由捕食种任务维护；其后续几何导出后运行 `python scripts/export_badges.py --mounts-only` 更新指纹及挂点，不写入共享语言文件。两种捕食种仍处于首轮造型迭代，不能将本轮徽章检查当作其整体造型通过。
 
 手册采用本模块制作的金银双色徽章书封面，源图为 `badge_handbook.png`，绘制源在 `scripts/export_badges.py`，运行贴图为 `textures/item/badge_handbook.png`。

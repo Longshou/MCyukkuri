@@ -11,4 +11,4 @@
 
 以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 负责实际床位、入口挂接、垫料及纸箱存粮，`CareRenderer` 负责便所。物品缩略模型复用相同导出。
 
-重建通过制作包的 `build.py` 同步，禁止只改本目录或打包资源。指纹见 `manifest.json`。当前[预览](../../../standards/yukkuri-library/ecology/wild-shelters/previews/current/shelters-sheet.png)来自实际导出网格；引擎验收见[生活环境说明](../../../docs/WILD_SHELTERS.md)。
+重建通过制作包的 `build.py` 同步，禁止只改本目录或打包资源。指纹见 `manifest.json`。`build.py` 同时用实际导出网格在本机生成预览，不入库；引擎验收见[生活环境说明](../../../docs/WILD_SHELTERS.md)。

@@ -30,6 +30,6 @@
 
 ## 验证与边界
 
-当前证据入口为[天然住所验收](validation/settlements/natural-habitats/README.md)。此前[覆土工事报告](validation/settlements/wild-shelters/README.md)仅供追溯被替代版本，不能证明当前实现通过。模型制作与选用见[素材包](../standards/yukkuri-library/ecology/wild-shelters/README.md)，天然洞穴叶床、细枝结界及浅坑布置已于 2026-09-13 经用户确认；纸箱和便所造型仍待确认。
+模型制作与选用见[素材包](../standards/yukkuri-library/ecology/wild-shelters/README.md)，天然洞穴叶床、细枝结界及浅坑布置已于 2026-09-13 经用户确认；纸箱和便所造型仍待确认。
 
 勘测暂限同层床位、近处岸壁和低洞顶入口，尚未覆盖大型高顶山洞、超过一格的入口高差及完整地下洞系。聚落不会整体迁址，未实现季节性落叶与材料再生。自然世界的合适地形密度、长期成群遭遇率和多人生态平衡仍需游玩验收；预置地形的引擎检查不代表这些项目已完成。

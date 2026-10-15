@@ -51,6 +51,7 @@ def read_png(path):
 def write_png(path, rows):
     raw = b''.join(b'\x00'+bytes(c for px in row for c in px) for row in rows)
     chunk = lambda t, b: struct.pack('>I', len(b))+t+b+struct.pack('>I', zlib.crc32(t+b) & 0xffffffff)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_bytes(b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR', struct.pack('>IIBBBBB', len(rows[0]), len(rows), 8, 2, 0, 0, 0))
                            + chunk(b'IDAT', zlib.compress(raw, 9))+chunk(b'IEND', b''))
 

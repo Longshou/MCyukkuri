@@ -58,11 +58,7 @@
         }
       },
       "authoring_sha256": "88bd4fa6c53c12f5b5367b7a4efe00d7c05309598c1a314a810c07929905325b",
-      "renderer_sha256": "d97a2c1e946bc1b86f885e6d27bcb311fd3575e8ad297380e2fa90006b27fc98",
-      "preview_sha256": {
-        "docs/validation/settlements/natural-habitats/natural-cave-front.png": "0b2d332cb12c85172f24c09799d74d05ad37a9521f4141688969e65902ec911e",
-        "docs/validation/settlements/natural-habitats/natural-pit.png": "63189ea9cdc01cbe86c799bcd85f0141f591def136c03966cd8c91994f5eb23b"
-      }
+      "renderer_sha256": "d97a2c1e946bc1b86f885e6d27bcb311fd3575e8ad297380e2fa90006b27fc98"
     }
   ],
   "asset_status": {

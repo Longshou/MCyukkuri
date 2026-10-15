@@ -131,11 +131,11 @@ report.exportParity=true;report.gripInterpolation=true;report.twoBraidSupport=tr
   await p.locator('#time').fill('1.23');await p.locator('#time').dispatchEvent('input');near([await p.evaluate(()=>braidDebug.state().time)],[1.23],'scrubbing');
   for(const [id,t,view] of [['pick_stone',3,'three'],['swing_sword',2.6,'front'],['pull_grass',3.5,'front'],['remove_hat',4.5,'side'],['care_hat',12.8,'side'],['wave_goodbye',2.6,'front'],['lift_child',8.4,'three']]){
     await p.evaluate(([id,t])=>{braidDebug.select(id);braidDebug.setTime(t)},[id,t]);await p.locator(`[data-view="${view}"]`).click();await p.evaluate(()=>braidDebug.draw());
-    fs.mkdirSync(path.join(__dirname,'checks'),{recursive:true});await canvas.screenshot({path:path.join(__dirname,'checks',id+'.png')});
+    fs.mkdirSync(path.join(__dirname,'reports/current'),{recursive:true});await canvas.screenshot({path:path.join(__dirname,'reports/current',id+'.png')});
   }
   await p.setViewportSize({width:430,height:1000});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);report.mobileLayout=true;
   assert.deepEqual(report.errors,[]);
-  fs.writeFileSync(path.join(__dirname,'verification.json'),JSON.stringify(report,null,2));
+  fs.writeFileSync(path.join(__dirname,'reports/current/verification.json'),JSON.stringify(report,null,2));
   console.log('PASS: seven actions; export parity; grip interpolation; child support; recovery; playback, camera, scrubbing and mobile layout.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

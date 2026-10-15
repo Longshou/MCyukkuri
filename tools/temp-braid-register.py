@@ -1,3 +1,0 @@
-from pathlib import Path
-p=Path('standards/yukkuri-library/index.html');s=p.read_text(encoding='utf-8-sig');anchor='<nav><a href="compare.html">';s=s.replace(anchor,'<nav><a href="interactions/marisa-braids/index.html">魔理沙 · 七项辫子互动</a><a href="compare.html">',1);p.write_text(s,encoding='utf-8')
-p=Path('standards/yukkuri-library/README.md');s=p.read_text(encoding='utf-8-sig');s='新增：[普通魔理沙七项辫子互动](interactions/marisa-braids/index.html) · [复用和导出](interactions/marisa-braids/README.md) · [漫画与小说参考](interactions/marisa-braids/REFERENCES.md)。包括拾石、挥剑、拔草、摘帽、护理帽子、挥辫道别、托子油到帽子上；属于模型与道具预览。\n\n'+s;p.write_text(s,encoding='utf-8')

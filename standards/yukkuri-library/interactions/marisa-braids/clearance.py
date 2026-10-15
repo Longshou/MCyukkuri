@@ -1,4 +1,4 @@
-"""Measure interpenetration in the single-braid interactions; writes checks/clearance.json.
+"""Measure interpenetration in the single-braid interactions; writes reports/current/clearance.json (local, not committed).
 
 Sampled with build.state() and the runtime/motion.js bone convention (see render_checks).
 Volumes: the rounded body from body-standard/profile.json (the same 12-sided rings the
@@ -107,5 +107,5 @@ if __name__ == '__main__':
     rest = analyse('wave_goodbye', rate=1)  # t=0 rest pose baseline included in each action
     report = {a: analyse(a) for a in (sys.argv[1:] or build.recipes['actions'])}
     for a, r in report.items(): print(a, {k: (v['depth'], v['at']) for k, v in r.items() if v['depth'] > 0})
-    (HERE/'checks').mkdir(exist_ok=True)
-    (HERE/'checks/clearance.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    (HERE/'reports/current').mkdir(parents=True, exist_ok=True)
+    (HERE/'reports/current/clearance.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
