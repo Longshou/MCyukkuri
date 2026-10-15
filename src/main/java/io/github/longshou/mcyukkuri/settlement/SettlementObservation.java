@@ -10,9 +10,12 @@ public final class SettlementObservation {
                 Component.translatable("settlement.mcyukkuri." + life.kind()),
                 life.groupId() == null ? "—" : life.groupId().toString().substring(0, 8),
                 group == null ? "—" : group.center.toShortString(),
-                group == null || group.leader == null ? Component.translatable("settlement.mcyukkuri.no_leader")
-                        : Component.translatable("settlement.mcyukkuri.patchouli", group.leader.toString().substring(0, 8)),
-                Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + Seasons.of(entity).id() : "season.mcyukkuri.off"));
+                group != null && group.vacant() ? Component.translatable("settlement.mcyukkuri.vacant")
+                        : group == null || group.leader == null ? Component.translatable("settlement.mcyukkuri.no_leader")
+                        : Component.translatable("settlement.mcyukkuri.leader", group.leader.toString().substring(0, 8)),
+                Component.translatable(Seasons.enabled() ? "season.mcyukkuri." + Seasons.of(entity).id() : "season.mcyukkuri.off"),
+                Component.translatable("settlement.mcyukkuri.role." + life.role().name().toLowerCase(java.util.Locale.ROOT)),
+                Component.translatable("settlement.mcyukkuri.order." + life.orders().kind().name().toLowerCase(java.util.Locale.ROOT)));
     }
     private SettlementObservation() {}
 }

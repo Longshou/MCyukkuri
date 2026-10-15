@@ -102,6 +102,17 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 - 手动检查：在野外家族附近种一小块麦田或放床，等待宣言；用木栅栏把全家围住，等其吃光作物后观察争吵与瓦解；分别试攻击、拒绝事件、喂食后收养、置之不理。
 - 未做：成员脱离聚落（`settlement` 未提供离开接口，只在 `HomeClaimData` 记录并停止约束）；伴侣关系解除（`FamilyLife` 无现成接口，瓦解后不改伴侣）；亲代拒绝分食只靠好感下降；宣言时未另写 `WildEventData` 记录；未做实机验证。
 
+## 补充群体事件（计划 3.6）
+
+四张卡写成 `WildEventData` 场景（`Kind.CARD` / `Kind.EXPEDITION`），代码在 `event/GroupCards.java`（前三张）与 `event/Expedition.java`。配置在 `group_events` 段。
+
+- 共同筑巢后独占（`nest-monopoly`）：条件为同一住所的成年亲属（`FamilyData.related`，同母者优先），其中一只 `selfishness >= 65`，都在住所 6 格内且 `usable`；每次检查（约 5 秒）以 `1/nestMonopolyOneIn`（默认 8）触发。过程：独占者守入口（`angry`/`mine`），被挡在外的亲属站在入口外（`teary`/`wait_turn`），其 `getPersistentData()` 写 `ShelterBarredUntil`，`ShelterBlockEntity.usable` 经 `GroupCards.barred` 在场景存活且未到期时返回 false（场景因任何原因结束都自动解除）；其余亲属每 100 tick 对独占者降好感 2 并 `shy` 背身。600–900 tick [original] 后，若家人对独占者的好感合计为负：独占者 `teary`/`gentle` 认错，好感各回升 4，被挡者 `share`，结果 `apologized_and_shared`；否则 `kept_the_nest`；住所失效为 `nest_lost`（INTERRUPTED）。
+- 流浪强盗团（`bandit-raid`）：`SettlementData.Kind.BANDITS` 群体由 `SettlementSpawner.Preset.BANDITS` 生成：3–4 只成年普通种，无住所（`HabitatLife.choose/findHome` 对该群体直接返回 false），不主动登记家庭；自然发现抽签接在森林、家庭区间之后（`banditChance`，默认 5%）；命令 `/yukkuri settlement spawn bandits`。卡：强盗团成员发现 16 格内有住户且存粮的住所（可达），以 `1/banditRaidOneIn`（默认 3）触发，2–3 只出动，首只走到入口，经 `ShelterBlockEntity.raid()` 真实取走 1 份食物，能吃则 `beginMeal`，否则丢在脚边；间隔 60 tick，最多 3 份。10 格内住户 `angry`/`mine`（护家者）或 `teary`/`afraid`，对强盗好感 -3。结果 `raided_store` / `store_empty`（空仓），超时 `raid_timed_out`。强盗不伤害个体。
+- 多层巢塌方（`burrow-collapse`）：天然洞穴住户 >= 3，湿度 >= 90 连续超过 2400 tick（`ShelterBlockEntity.soaked`，不存档），之后每 100 tick 以 `1/burrowCollapseOneIn`（默认 200）触发，且 `EventHooks.canEntityGrief` 允许。住户（已加载者）受 1–2 点伤害（血量 > 3 才扣）、`cry`/`afraid` 并走向入口；产生泥土粒子与碎砾声；记一条立即完成的 CARD 记录（至多 6 名住户），结果 `collapsed_in_long_rain`；随后 `dismantle()` 拆除（物品掉落，不放置方块），住户经 `YukkuriLife.maintainHome` 释放旧住所并另找新家。
+- 跨群系探险队（`expedition-biome`）：在 `Expedition.discover` 现有队长/队员条件通过后，以 `1/biomeExpeditionOneIn`（默认 3）改找 24–42 格外、已加载、可站立、群系与出发地不同的目的地；移动用分段导航（同 `SettlementLife.navigateToward`），队伍间距放宽到 14 格并不再要求视线，与出发地允许相距 72 格，超时 2300 tick。到达后点名、队长 `surprise`/`food_found`；返回后队长 `hello`，向 24 格内玩家发无配音文字 `event.mcyukkuri.biome_expedition`（群系名），结果 `crossed_biome_and_returned`；超时为 `biome_expedition_timed_out`。
+- 手动检查：`/yukkuri settlement spawn bandits` 后在 16 格内放置有存粮的家庭住所观察；独占需要同一住所内成年姐妹且其一自私度高（可用调试改性格）；塌方可把 `burrowCollapseOneIn` 调为 1 并在长雨中给洞穴住满 3 只；跨群系探险需森林中的魔理沙队伍，把 `biomeExpeditionOneIn` 调为 1 并在森林边缘观察。未提供强制触发卡的命令。
+- 未做 / 注意：强盗吃不下时食物只是落地；强盗群体没有专门的离开或消散逻辑，也不登记 `FamilyData`（附近统计时仍会被登记）；塌方不让住户重新选址以外的事；全部未实机验证。
+
 ## 文件与接线范围
 
 本任务新建 `event/WildEventData`、`WildEvents`、`WildEventGoal`、`WildCards`、`RiverEncounter`、`Expedition`；专测与实景夹具为 `WildEventGameTests`、`WildEventPreview`。本任务不拥有独立认知、家谱、帽船、日常歌唱或出生渲染模块。

@@ -164,6 +164,7 @@ public final class WildCards {
         return e.level().noCollision(e,e.getBoundingBox().expandTowards(0,.6,0));
     }
     public static void advance(ServerLevel level,Scene s,List<YukkuriEntity> all) {
+        if(GroupCards.handles(s.card)){GroupCards.advance(level,s,all);return;}
         var first=all.getFirst();var second=all.size()>1?all.get(1):first;
         if(all.stream().anyMatch(e -> !first.hasLineOfSight(e)||first.distanceToSqr(e)>64)) {
             WildEvents.finish(level,s,Phase.INTERRUPTED,"participants_separated");return;
@@ -285,6 +286,7 @@ public final class WildCards {
         if(s.phaseTicks>=240)WildEvents.finish(level,s,Phase.INTERRUPTED,"scene_timed_out");
     }
     public static void move(YukkuriEntity e,Scene s) {
+        if(GroupCards.handles(s.card)){GroupCards.move(e,s);return;}
         var level=(ServerLevel)e.level();Entity peer=level.getEntity(s.members.getFirst());
         if(peer==e && s.members.size()>1)peer=level.getEntity(s.members.get(1));if(peer==null)return;
         e.getLookControl().setLookAt(peer,25,25);

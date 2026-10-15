@@ -47,7 +47,7 @@ public final class HabitatLife {
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
-        if(entity.getVariant().isHouse()||entity.getVariant().isPredator()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
+        if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
         boolean owned=value.owns(entity.getUUID());
         if(!value.claim(entity))return false;
         BlockPos bed=value.bed(entity.getUUID());
@@ -59,8 +59,10 @@ public final class HabitatLife {
     }
     public boolean inherit(YukkuriEntity parent) { var value=parent.habitat().shelter();return value!=null&&choose(value); }
     public void release() { var value=shelter();if(value!=null)value.release(entity.getUUID());home=null;stop(); }
+    /** Wandering bands never settle: no burrow is claimed or dug for them. */
+    private boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
     public boolean findHome() {
-        if(entity.getVariant().isHouse()||entity.getVariant().isPredator()||unavailable())return false;
+        if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||unavailable())return false;
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-12,-2,-12),entity.blockPosition().offset(12,2,12)))
             if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value&&choose(value))return true;
         if(!EventHooks.canEntityGrief(level(),entity))return false;

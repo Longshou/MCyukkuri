@@ -1,7 +1,9 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.event.GroupCards;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ public final class ShelterBlockEntity extends BlockEntity {
     private List<BlockPos> naturalBeds=List.of();
     private BlockPos naturalEntrance;
     private int branches;
+    /** Loaded ticks a natural burrow has stayed soaked; transient, a restart resets the worry. */
+    private int soaked;
     public ShelterBlockEntity(BlockPos pos,BlockState state) { super(ModBlocks.SHELTER_ENTITY.get(),pos,state); }
     public ShelterBlock.Kind kind() { return ((ShelterBlock)getBlockState().getBlock()).kind(); }
     public int condition() { return condition; }
@@ -102,7 +106,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean usable(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());
-        return bed!=null&&sound()&&moisture<85&&dirt<90&&entity.life().dryStand(bed)&&entity.life().dryStand(entrance());
+        return bed!=null&&!GroupCards.barred(entity)&&sound()&&moisture<85&&dirt<90&&entity.life().dryStand(bed)&&entity.life().dryStand(entrance());
     }
     public boolean insulated() { return lining>=3&&moisture<55&&(kind()==ShelterBlock.Kind.BURROW||condition>=40); }
     public boolean suitableForYoung(int children) {
@@ -129,6 +133,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     public ItemStack takeFood(YukkuriEntity entity) {
         if(!owns(entity.getUUID()))return ItemStack.EMPTY;
         for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&entity.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
+        return ItemStack.EMPTY;
+    }
+    /** A raider takes one portion without being a resident; nothing is created. */
+    public ItemStack raid() {
+        for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()){var item=stock.get(i).split(1);changed();return item;}
         return ItemStack.EMPTY;
     }
     public void returnFood(ItemStack stack) {
@@ -164,6 +173,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(flooded())moisture=Math.min(100,moisture+20);
         else if(rain)moisture=Math.min(100,moisture+(kind()==ShelterBlock.Kind.CARDBOARD?7:8));
         else moisture=Math.max(0,moisture-4);
+        soaked=kind()==ShelterBlock.Kind.BURROW&&moisture>=90?soaked+100:0;
+        if(soaked>2400&&residents.size()>=3&&level instanceof ServerLevel server&&server.random.nextInt(YukkuriConfig.COLLAPSE_ONE_IN.get())==0
+                &&GroupCards.collapse(server,this))return;
         int waste=wasteInside().stream().mapToInt(item->item.getItem().getCount()).sum();
         if(waste>0)dirt=Math.min(100,dirt+Math.min(10,waste*2));
         else if(ticks%400==0&&residents.size()>0)dirt=Math.min(100,dirt+1);

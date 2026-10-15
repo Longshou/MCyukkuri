@@ -19,7 +19,14 @@ public final class SettlementLife {
     private BlockPos target;
     private int wait, elapsed;
     private long greeted = -1;
-    public SettlementLife(YukkuriEntity entity) { this.entity = entity; }
+    private final SettlementOrders orders;
+    public SettlementLife(YukkuriEntity entity) { this.entity = entity; this.orders = new SettlementOrders(entity); }
+    public SettlementOrders orders() { return orders; }
+    /** FREE without a group; otherwise the stored role (LEADER follows the group's leader field). */
+    public SettlementData.Role role() {
+        var group = group();
+        return group == null ? SettlementData.Role.FREE : group.role(entity.getUUID());
+    }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public UUID groupId() { return groupId; }
     public SettlementData.Group group() {
@@ -50,7 +57,9 @@ public final class SettlementLife {
         if (group != null && entity.tickCount % 100 == 0) {
             SettlementData.get(level()).refreshLeader(level(), group);
             seasonal(group);
+            Succession.tick(entity, group);
         }
+        if (group != null && entity.tickCount % 20 == 0) orders.tickLeader(group);
     }
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
     private void seasonal(SettlementData.Group group) {
@@ -84,6 +93,13 @@ public final class SettlementLife {
             if (!navigateToward(group.center)) return false;
             target = group.center; elapsed = 0; return true;
         }
+        if (orders.summoned() && group.leader != null && !group.leader.equals(entity.getUUID())
+                && level().getEntity(group.leader) instanceof YukkuriEntity chief && chief.isAlive() && group.id.equals(chief.settlement().groupId())) {
+            // A messenger called this member: gather around the leader for a while.
+            if (entity.distanceToSqr(chief) <= 16) return false;
+            if (!navigateToward(chief.blockPosition())) return false;
+            target = chief.blockPosition(); elapsed = 0; return true;
+        }
         int radius = group.kind == SettlementData.Kind.FAMILY ? 7 : 14;
         if (Seasons.is(entity, Season.WINTER)) radius = radius / 2; // [original] winter keeps closer to the centre
         boolean gathering = level().getDayTime() % 24000 >= 11000 && level().getDayTime() % 24000 < 12500;
@@ -99,7 +115,7 @@ public final class SettlementLife {
         if (!navigateToward(destination)) return false;
         target = destination; elapsed = 0; return true;
     }
-    private boolean navigateToward(BlockPos destination) {
+    boolean navigateToward(BlockPos destination) {
         Vec3 goal = Vec3.atBottomCenterOf(destination);
         if (entity.distanceToSqr(goal) <= 16 * 16 && entity.life().navigate(destination, 1, false)) return true;
         // Vanilla's local path search has a 16-block follow range. Walk bounded segments home.

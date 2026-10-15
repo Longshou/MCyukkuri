@@ -361,6 +361,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
         goalSelector.addGoal(6, new SettlementGoal());
+        goalSelector.addGoal(5, new OrderGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
         goalSelector.addGoal(5, new DailyGoal());
         goalSelector.addGoal(6, new SocialGoal());
@@ -747,6 +748,16 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { settlement.tickGoal(); }
         @Override public void stop() { settlement.stop(); }
+    }
+
+    /** Errands handed out by the community leader (forage, scout, message). */
+    private final class OrderGoal extends Goal {
+        OrderGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return settlement.orders().canUse(); }
+        @Override public boolean canContinueToUse() { return settlement.orders().canContinue(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { settlement.orders().tick(); }
+        @Override public void stop() { settlement.orders().stop(); }
     }
 
     private final class PlaygroundGoal extends Goal {

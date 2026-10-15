@@ -16,10 +16,12 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
+    public static final ModConfigSpec.IntValue MOURNING_TICKS, ORDER_MIN_INTERVAL, ORDER_MAX_INTERVAL, ORDER_TIMEOUT;
     public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
     public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT, SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
+    public static final ModConfigSpec.IntValue BANDIT_CHANCE, MONOPOLY_ONE_IN, BANDIT_RAID_ONE_IN, COLLAPSE_ONE_IN, BIOME_EXPEDITION_ONE_IN;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -51,6 +53,11 @@ public final class YukkuriConfig {
                 .defineInRange("communitySpawnCap", 96, 1, 256);
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
+        builder.pop().push("community");
+        MOURNING_TICKS = builder.comment("Ticks a led community waits after losing its leader before a successor may be chosen.").defineInRange("mourningTicks", 2400, 0, 240000);
+        ORDER_MIN_INTERVAL = builder.comment("Shortest loaded-tick gap between two orders from the same leader.").defineInRange("orderMinInterval", 1200, 200, 48000);
+        ORDER_MAX_INTERVAL = builder.comment("Longest loaded-tick gap between two orders from the same leader.").defineInRange("orderMaxInterval", 2400, 200, 48000);
+        ORDER_TIMEOUT = builder.comment("An order that is not finished after this many ticks is cancelled.").defineInRange("orderTimeout", 1200, 200, 12000);
         builder.pop().push("seasons");
         BIOME_SEASONS = builder.comment("Biomes act as seasons (snowy = winter, plains = spring...); false restores the season-free behaviour.").define("biomeSeasons", true);
         AUTUMN_STOCK_PER_RESIDENT = builder.comment("Autumn regions: stored food each resident aims for (other regions aim for 3).").defineInRange("autumnStockPerResident", 6, 3, 12);
@@ -66,6 +73,12 @@ public final class YukkuriConfig {
         HOME_CLAIM_REGION_COOLDOWN = builder.comment("Loaded ticks before the same 64x64 area can see another claim.").defineInRange("regionCooldownTicks", 24000, 200, 1728000);
         HOME_CLAIM_SETTLE_TICKS = builder.comment("A claim nobody answers settles into a real shelter after this many loaded ticks (3 days by default).").defineInRange("settleAfterTicks", 72000, 1200, 1728000);
         HOME_CLAIM_ENCLOSURE = builder.comment("Walled-in claimants can starve and fall out; false keeps them holding the site without the collapse.").define("enclosureCollapse", true);
+        builder.pop().push("group_events");
+        BANDIT_CHANCE = builder.comment("Percent of natural discoveries (after the forest and family ranges) that become a wandering bandit band.").defineInRange("banditChance", 5, 0, 20);
+        MONOPOLY_ONE_IN = builder.comment("Each check (about every 5 seconds per eligible selfish adult) starts the nest monopoly with chance 1/N.").defineInRange("nestMonopolyOneIn", 8, 1, 10000);
+        BANDIT_RAID_ONE_IN = builder.comment("Each check of a bandit near a stocked shelter starts a raid with chance 1/N.").defineInRange("banditRaidOneIn", 3, 1, 10000);
+        COLLAPSE_ONE_IN = builder.comment("A crowded natural burrow soaked by long rain collapses with chance 1/N per 100-tick check.").defineInRange("burrowCollapseOneIn", 200, 1, 100000);
+        BIOME_EXPEDITION_ONE_IN = builder.comment("A Marisa captain's expedition seeks a different biome with chance 1/N.").defineInRange("biomeExpeditionOneIn", 3, 1, 100);
         builder.pop();
         SPEC = builder.build();
     }

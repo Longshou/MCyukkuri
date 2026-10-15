@@ -154,6 +154,7 @@ public final class WildEvents {
             var kin=peers.stream().filter(p -> FamilyData.get(level).related(e.getUUID(),p.getUUID())&&friendly(e,p)).limit(3).toList();
             if(!kin.isEmpty()&&begin(Kind.ADOPTION,e,kin,player)!=null)return;
         }
+        if(GroupCards.discover(e,peers))return;
         if(Expedition.discover(e,peers)!=null)return;
         WildCards.discover(e,peers);
     }
@@ -198,7 +199,7 @@ public final class WildEvents {
             for(var e:loaded)e.showReaction("cry","search_family",80);
         }
         if(loaded.stream().anyMatch(e -> !safe(e))) { finish(level,s,Phase.INTERRUPTED,"danger_or_unavailable");return; }
-        if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>32*32)) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
+        if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?72*72:32*32))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
         s.ticks++;s.phaseTicks++;data.setDirty();
         if(s.phase==Phase.SEPARATED) {
             if(s.phaseTicks%60==1)for(var e:loaded)e.showReaction("teary","wait_family",60);

@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Places physical shelters on dry free ground without replacing solid blocks or loading remote chunks. */
 public final class SettlementSpawner {
-    public enum Preset { WANDERER, FAMILY, FOREST, FOREST_LED }
+    public enum Preset { WANDERER, FAMILY, FOREST, FOREST_LED, BANDITS }
     public static final TagKey<Biome> FORESTS = TagKey.create(Registries.BIOME, MCYukkuri.id("forest_settlements"));
     private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE};
     public static void discover(YukkuriEntity seed) {
@@ -33,12 +33,16 @@ public final class SettlementSpawner {
             preset = seed.getRandom().nextInt(100) < YukkuriConfig.LEADER_CHANCE.get() ? Preset.FOREST_LED : Preset.FOREST;
         else if (roll >= YukkuriConfig.FOREST_CHANCE.get() && roll < YukkuriConfig.FOREST_CHANCE.get() + YukkuriConfig.FAMILY_CHANCE.get())
             preset = Preset.FAMILY;
+        else if (roll >= YukkuriConfig.FOREST_CHANCE.get() + YukkuriConfig.FAMILY_CHANCE.get()
+                && roll < Math.min(100, YukkuriConfig.FOREST_CHANCE.get() + YukkuriConfig.FAMILY_CHANCE.get() + YukkuriConfig.BANDIT_CHANCE.get()))
+            preset = Preset.BANDITS;
         spawn(level, seed.blockPosition(), preset, seed);
     }
     public static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset) {
         return spawn(level, origin, preset, null);
     }
     private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed) {
+        if (preset == Preset.BANDITS) return spawnBandits(level, origin, seed);
         boolean forest = preset == Preset.FOREST || preset == Preset.FOREST_LED;
         var composition = SettlementComposition.sample(preset, level.random);
         int count = preset == Preset.WANDERER ? 1 : composition.size();
@@ -134,6 +138,42 @@ public final class SettlementSpawner {
             }
         }
         for(int i=0;i<homes.size();i+=2)ShelterPlacement.latrine(level,homes.get(i).shelter());
+        return List.copyOf(members);
+    }
+    /** A rare band of 3-4 adult common yukkuri with no shelter and no family records; only some groups behave this way, wanderers in general do not. */
+    private static List<YukkuriEntity> spawnBandits(ServerLevel level, BlockPos origin, YukkuriEntity seed) {
+        int count = 3 + level.random.nextInt(2);
+        int cap = Math.min(YukkuriConfig.LOCAL_SPAWN_CAP.get(), FamilyConfig.POPULATION_CAP.get());
+        if (!level.hasChunkAt(origin) || FamilyData.get(level).population(level, origin) + count - (seed == null ? 0 : 1) > cap) return List.of();
+        if (seed != null && !java.util.Arrays.asList(COMMON).contains(seed.getVariant())) return List.of();
+        YukkuriEntity probe = ModEntities.REIMU.get().create(level);
+        if (probe == null || !probe.life().dryStand(origin)) return List.of();
+        List<BlockPos> candidates = new ArrayList<>();
+        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-5, -2, -5), origin.offset(5, 2, 5)))
+            if (pos.distSqr(origin) <= 25 && probe.life().dryStand(pos)) candidates.add(pos.immutable());
+        candidates.sort(Comparator.comparingDouble(pos -> pos.distSqr(origin)));
+        List<BlockPos> sites = new ArrayList<>();
+        sites.add(origin.immutable());
+        for (BlockPos pos : candidates) {
+            if (sites.size() >= count) break;
+            if (sites.stream().allMatch(site -> site.distSqr(pos) >= 4)) sites.add(pos);
+        }
+        if (sites.size() < count) return List.of();
+        List<YukkuriEntity> members = new ArrayList<>();
+        List<YukkuriEntity> added = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(COMMON[level.random.nextInt(COMMON.length)]).create(level);
+            if (member == null) { added.forEach(YukkuriEntity::discard); return List.of(); }
+            if (member != seed) {
+                member.moveTo(Vec3.atBottomCenterOf(sites.get(i))); member.setOnGround(true);
+                if (!level.noCollision(member) || !level.addFreshEntity(member)) { added.forEach(YukkuriEntity::discard); return List.of(); }
+                added.add(member);
+            }
+            members.add(member);
+        }
+        var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.BANDITS, origin, null);
+        SettlementData.get(level).add(group);
+        for (YukkuriEntity member : members) member.settlement().join(group);
         return List.copyOf(members);
     }
     private static void rollback(ServerLevel level,List<YukkuriEntity> added,List<ShelterPlacement.Placed> homes,
