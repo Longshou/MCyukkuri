@@ -13,7 +13,9 @@ public final class EcologyPresentation {
             case "take_food", "chew", "swallow" -> YukkuriAction.EAT;
             case "meal_finish" -> YukkuriAction.SHIAWASE;
             case "drink" -> YukkuriAction.DRINK;
-            case "sleep_enter", "sleep" -> YukkuriAction.SLEEP;
+            case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
+            case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
+            case "seek_shade" -> YukkuriAction.LOOK_AROUND;
             case "wake" -> YukkuriAction.WAKE;
             case "nuzzle" -> YukkuriAction.NUZZLE;
             case "sing" -> YukkuriAction.SING;
@@ -89,6 +91,8 @@ public final class EcologyPresentation {
             case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
             case "unun_exercise" -> "happy";
             case "sleep_enter" -> "sleepy";
+            case "seek_warmth", "warm_up" -> "teary";
+            case "seek_shade", "shade_rest" -> "sleepy";
             case "wake" -> "yawn";
             case "toilet", "ground_toilet" -> "chewing_closed";
             case "toilet_accident" -> "teary";

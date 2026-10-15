@@ -83,6 +83,7 @@ public final class NotebookItem extends Item {
         var pages = new java.util.ArrayList<Component>(List.of(
                 io.github.longshou.mcyukkuri.notebook.NotebookGuide.form(entity),
                 io.github.longshou.mcyukkuri.settlement.SettlementObservation.page(entity),
+                life.temperature().observation(),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Math.round(life.nutrition()), Math.round(life.energy()),
                         Math.round(life.hygiene()), Math.round(life.wetness()), Math.round(life.bladder()),

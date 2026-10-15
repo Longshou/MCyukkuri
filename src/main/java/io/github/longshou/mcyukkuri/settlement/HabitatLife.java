@@ -72,13 +72,9 @@ public final class HabitatLife {
         if(wait>0)wait--;
         if(entity.tickCount%100!=0)return;
         var value=shelter();boolean inside=value!=null&&value.contains(entity.blockPosition());
-        boolean cold=level().getBiome(entity.blockPosition()).value().getBaseTemperature()<.2f;
         int wet=inside&&value.moisture()>=60?3:0;
         int hygiene=inside&&value.dirt()>=50?2:0;
-        int energy=cold&&!(inside&&value.insulated())?2:0;
-        entity.life().applyEnvironment(wet,hygiene,energy);
-        if(cold&&entity.life().wetness()>40&&!(inside&&value.insulated())&&entity.tickCount%400==0)
-            entity.hurt(level().damageSources().freeze(),1);
+        entity.life().applyEnvironment(wet,hygiene,0);
     }
     private boolean ready() {
         return !entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()

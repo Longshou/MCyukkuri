@@ -31,8 +31,9 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK }
+    private enum Task { NONE, FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
     private final YukkuriEntity entity;
+    private final TemperatureLife temperature;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     private long ageTicks;
@@ -61,7 +62,8 @@ public final class YukkuriLife {
     private int exerciseReliefTicks;
     private boolean toiletAccident;
 
-    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; personality = new YukkuriPersonality(entity.getUUID()); }
+    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
+    public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
     public boolean spendNutrition(float amount) {
@@ -78,6 +80,7 @@ public final class YukkuriLife {
     public float bladder() { return bladder; }
     public float wetness() { return wetness; }
     public float dryness(){return dryness;}
+    void addDryness(float amount) { if (Float.isFinite(amount) && amount > 0) dryness = Math.min(100, dryness + amount); }
     public boolean constipated(){return dryness>=70 && exerciseReliefTicks==0;}
     public int exerciseReliefTicks(){return exerciseReliefTicks;}
     /** Exercise helps the young empty their bowel; it does not hydrate or remove stored waste. */
@@ -93,6 +96,7 @@ public final class YukkuriLife {
             &&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!isSleeping()&&!entity.isInWaterOrBubble()&&Consumables.applicable(entity,dose);}
     public boolean beginDose(ItemStack one,UUID player,boolean returnBottle){
         if(one.getCount()!=1||!canTakeDose(one))return false;
+        temperature.stop();
         mouth=one.copy();feeder=player;sharedMeal=true;returnDoseBottle=returnBottle;mealTicks=1;
         sleepTicks=0;task=Task.NONE;entity.family().stop();entity.social().stop();entity.groupInteraction().stop();entity.playLife().stop();
         entity.getNavigation().stop();entity.setPersistenceRequired();return true;
@@ -151,7 +155,7 @@ public final class YukkuriLife {
         if (task == Task.SLEEP) return sleepTicks < 20 ? "sleep_enter" : sleepTicks >= 620 ? "wake" : "sleep";
         return switch (task) { case FOOD -> "seek_food"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? "toilet_accident" : "ground_toilet" : "seek_toilet";
-            case DRINK -> drinkTicks>0?"drink":"seek_water"; default -> "idle"; };
+            case DRINK -> drinkTicks>0?"drink":"seek_water"; case TEMPERATURE -> temperature.activity(); default -> "idle"; };
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
 
@@ -185,6 +189,8 @@ public final class YukkuriLife {
             if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
                 entity.hurt(level().damageSources().drown(), 1);
         }
+        temperature.tick();
+        if (!entity.isAlive()) return;
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
             if (mealTicks > 0 || task != Task.NONE || sprayDelay>0 || drugSleep>0) interrupt();
             return;
@@ -233,6 +239,7 @@ public final class YukkuriLife {
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
         if (!canEat() || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
+        temperature.stop();
         entity.dailyLife().stop();
         bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; mealTicks = 1;
         sleepTicks = 0; task = Task.NONE; entity.getNavigation().stop(); entity.setPersistenceRequired();
@@ -256,6 +263,7 @@ public final class YukkuriLife {
     }
     public void interrupt() {
         io.github.longshou.mcyukkuri.event.WildCards.mealInterrupted(entity);
+        temperature.stop();
         entity.dailyLife().stop();
         if (!mouth.isEmpty()) {
             ItemEntity dropped = entity.spawnAtLocation(mouth.copy());
@@ -297,6 +305,16 @@ public final class YukkuriLife {
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks > 0) return true;
+        if (task == Task.SLEEP && temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) {
+            stopGoal(); return false;
+        }
+        if (task == Task.TEMPERATURE) {
+            if (temperature.canContinue()) return true;
+            stopGoal(); planWait = 0;
+        }
+        if ((task == Task.SLEEP || task == Task.HOME) && drugSleep == 0 && temperature.unsafeSleep() && temperature.plan()) {
+            task = Task.TEMPERATURE; sleepTicks = 0; return true;
+        }
         if (task != Task.NONE) return true;
         if(drugSleep>0){task=Task.SLEEP;sleepTicks=20;return true;}
         if (planWait > 0) return false;
@@ -319,6 +337,7 @@ public final class YukkuriLife {
             if (targetFood != null || targetBlock != null) { task = Task.FOOD; pursuitTicks = queueTicks = 0; return true; }
         }
         if (bladder < 70 && planToilet()) return true;
+        if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if (restWait == 0 && (energy <= 35 || level().isNight())) {
             targetBlock = homeStand();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
@@ -354,6 +373,12 @@ public final class YukkuriLife {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         pursuitTicks++;
         switch (task) {
+            case TEMPERATURE -> {
+                if (!temperature.tickGoal()) stopGoal();
+                else if (restWait == 0 && (energy <= 35 || level().isNight()) && temperature.beginSleepAtRefuge()) {
+                    task = Task.SLEEP; sleepTicks = 0; targetBlock = null;
+                }
+            }
             case DRINK -> {
                 if(targetBlock==null||!level().getFluidState(targetBlock).is(net.minecraft.tags.FluidTags.WATER)||pursuitTicks>240){stopGoal();return;}
                 if(entity.distanceToSqr(Vec3.atCenterOf(targetBlock))<2.25&&seesWater(targetBlock)){
@@ -407,6 +432,7 @@ public final class YukkuriLife {
                 } else { toiletTicks=0; if(pursuitTicks%10==1&&!navigate(targetBlock,1,false))stopGoal(); }
             }
             case SLEEP -> {
+                if (temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) { stopGoal(); break; }
                 if(level().isRainingAt(entity.blockPosition())){drugSleep=0;stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
                 if(drugSleep>0){drugSleep--;sleepTicks=Math.min(sleepTicks,600);}
@@ -415,6 +441,7 @@ public final class YukkuriLife {
                 if (drugSleep==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15)) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
                     entity.badges().routineCompleted(2);
+                    temperature.stop();
                     task = Task.NONE; restWait = 1200; sleepTicks = 0;
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
@@ -465,6 +492,7 @@ public final class YukkuriLife {
                 || entity.blockPosition().distManhattan(pos) <= 1;
     }
     public void stopGoal() {
+        temperature.stop();
         task = Task.NONE; targetFood = null; targetBlock = null; sleepTicks = toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
@@ -603,6 +631,7 @@ public final class YukkuriLife {
         }
         return best;
     }
+    boolean hasReachableDrink() { return nearestDrink() != null; }
     private BlockPos nearestDrink(){
         BlockPos best=null;double distance=Double.MAX_VALUE;
         for(var water:BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6),entity.blockPosition().offset(6,1,6))){
@@ -655,6 +684,7 @@ public final class YukkuriLife {
         tag.putFloat("Nutrition", nutrition); tag.putFloat("Energy", energy); tag.putFloat("Hygiene", hygiene);
         tag.putFloat("Bladder", bladder); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
         tag.putInt("ImmersionTicks", immersionTicks);
+        tag.put("Temperature", temperature.save());
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
         tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
@@ -674,6 +704,7 @@ public final class YukkuriLife {
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
         immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);
+        temperature.load(tag.getCompound("Temperature"));
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
         dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,400);returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);

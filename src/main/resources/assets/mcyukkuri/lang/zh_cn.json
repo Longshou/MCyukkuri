@@ -1240,5 +1240,14 @@
   "dialogue.mcyukkuri.original.patchouli.young.o_settlement_hurt": "姆啾……帽帽在哪里？窝不要一只……",
   "decision.mcyukkuri.settlement_rejected": "因失饰遭同伴排斥",
   "decision.mcyukkuri.settlement_restored": "找回饰物，恢复群内身份",
-  "decision.mcyukkuri.settlement_cleaned": "搬走一份排泄物"
+  "decision.mcyukkuri.settlement_cleaned": "搬走一份排泄物",
+  "notebook.mcyukkuri.temperature": "体感与庇护\n状态：%s\n体感（MC）：%s\n冷暴露：%s／%s\n实际遮蔽：%s\n保温窝：%s\n可见热源：%s\n\n游戏数值，并非摄氏温度。",
+  "temperature.mcyukkuri.freezing": "持续受冻",
+  "temperature.mcyukkuri.cold": "偏冷",
+  "temperature.mcyukkuri.hot": "炎热",
+  "temperature.mcyukkuri.comfortable": "适宜",
+  "activity.mcyukkuri.seek_warmth": "寻找暖处",
+  "activity.mcyukkuri.warm_up": "停下取暖",
+  "activity.mcyukkuri.seek_shade": "寻找阴凉",
+  "activity.mcyukkuri.shade_rest": "阴凉处休息"
 }

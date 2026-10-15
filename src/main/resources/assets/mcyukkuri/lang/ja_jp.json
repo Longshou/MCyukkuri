@@ -552,5 +552,14 @@
   "settlement.mcyukkuri.patchouli": "ぱちゅりー（%s）",
   "decision.mcyukkuri.settlement_rejected": "おかざりを失い、仲間に拒まれた",
   "decision.mcyukkuri.settlement_restored": "おかざりを取り戻し、群れでの立場が戻った",
-  "decision.mcyukkuri.settlement_cleaned": "うんうんをひとつ運び出した"
+  "decision.mcyukkuri.settlement_cleaned": "うんうんをひとつ運び出した",
+  "notebook.mcyukkuri.temperature": "体感と避難場所\n状態：%s\n体感（MC）：%s\n寒冷暴露：%s／%s\n実際の日陰：%s\n保温できる巣：%s\n遮られない熱源：%s\n\nゲーム用の値。摂氏ではない。",
+  "temperature.mcyukkuri.freezing": "凍える寒さ",
+  "temperature.mcyukkuri.cold": "肌寒い",
+  "temperature.mcyukkuri.hot": "暑い",
+  "temperature.mcyukkuri.comfortable": "快適",
+  "activity.mcyukkuri.seek_warmth": "暖かい場所を探す",
+  "activity.mcyukkuri.warm_up": "体を温める",
+  "activity.mcyukkuri.seek_shade": "日陰を探す",
+  "activity.mcyukkuri.shade_rest": "日陰で休む"
 }

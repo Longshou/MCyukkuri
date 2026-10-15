@@ -1240,5 +1240,14 @@
   "dialogue.mcyukkuri.original.patchouli.young.o_settlement_hurt": "むきゅ……おぼうし、どこ？ひとりはいや……",
   "decision.mcyukkuri.settlement_rejected": "Rejected by a companion after losing an accessory",
   "decision.mcyukkuri.settlement_restored": "Recovered the accessory and regained group standing",
-  "decision.mcyukkuri.settlement_cleaned": "Carried away a portion of waste"
+  "decision.mcyukkuri.settlement_cleaned": "Carried away a portion of waste",
+  "notebook.mcyukkuri.temperature": "Temperature\nCondition: %s\nFelt (MC): %s\nCold exposure: %s/%s\nCover: %s\nInsulated nest: %s\nHeat reaches here: %s\n\nGame units, not Celsius.",
+  "temperature.mcyukkuri.freezing": "Freezing",
+  "temperature.mcyukkuri.cold": "Cold",
+  "temperature.mcyukkuri.hot": "Hot",
+  "temperature.mcyukkuri.comfortable": "Comfortable",
+  "activity.mcyukkuri.seek_warmth": "Seeking warmth",
+  "activity.mcyukkuri.warm_up": "Warming up",
+  "activity.mcyukkuri.seek_shade": "Seeking shade",
+  "activity.mcyukkuri.shade_rest": "Resting in shade"
 }

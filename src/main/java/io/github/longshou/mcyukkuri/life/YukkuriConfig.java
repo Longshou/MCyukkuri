@@ -17,6 +17,8 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
+    public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
+    public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
@@ -27,6 +29,19 @@ public final class YukkuriConfig {
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
         WET_DAMAGE_THRESHOLD = builder.comment("Wetness damage outside water. Immersion always deals one health point per second, regardless of this threshold.")
                 .defineInRange("wetDamageThreshold", 60, 20, 100);
+        builder.pop().push("temperature");
+        COLD_THRESHOLD = builder.comment("Original gameplay thresholds in Minecraft biome-temperature units, not Celsius.")
+                .defineInRange("coldBelow", .2, -2.0, 1.0);
+        FREEZE_THRESHOLD = builder.comment("At or below this felt temperature, cold exposure accumulates; capped at coldBelow.")
+                .defineInRange("freezeAtOrBelow", 0.0, -2.0, 1.0);
+        HOT_THRESHOLD = builder.comment("Hot weather adds dryness. Effective threshold stays at least 0.5 above coldBelow.")
+                .defineInRange("hotAtOrAbove", 1.5, .5, 4.0);
+        NEST_INSULATION = builder.comment("Warmth from a real dry, intact, supplied nest while inside it; only in cold conditions.")
+                .defineInRange("nestInsulation", 1.0, 0.0, 3.0);
+        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Adults gain 1 per tick, juveniles 1.5, babies 2; warmth removes 2.")
+                .defineInRange("coldExposureTicks", 2400, 20, 1728000);
+        FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
+        HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);
         builder.pop().push("development");
         DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
         DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);
