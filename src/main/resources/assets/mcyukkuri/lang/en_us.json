@@ -1428,5 +1428,9 @@
   "dialogue.mcyukkuri.original.flandre.young.o_grief": "うー……もうおはなちできないの？",
   "dialogue.mcyukkuri.original.flandre.young.o_nuzzle": "うー、ちゅりちゅりしていい？",
   "dialogue.mcyukkuri.original.flandre.young.o_content": "うー、たのちかった！ またいっちょ！",
-  "dialogue.mcyukkuri.original.flandre.young.o_puff": "うー！ ふりゃんもここ！"
+  "dialogue.mcyukkuri.original.flandre.young.o_puff": "うー！ ふりゃんもここ！",
+  "settlement.mcyukkuri.leader": "Leader %s",
+  "settlement.mcyukkuri.no_office": "No leader office",
+  "settlement.mcyukkuri.vacant": "Vacant office; local succession %s / %s seconds",
+  "settlement.mcyukkuri.unresolved_office": "Former leader record unresolved"
 }

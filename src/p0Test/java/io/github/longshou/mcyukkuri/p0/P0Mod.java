@@ -11,6 +11,7 @@ public final class P0Mod {
 
     public P0Mod(IEventBus modBus) {
         if (P0Control.enabled()) {
+            if("succession".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SuccessionGameTests.class));return;}
             if("autumn_stock".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(AutumnStockGameTests.class));return;}
             if("seasons".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SeasonGameTests.class));return;}
             if("independence".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(IndependenceGameTests.class));return;}

@@ -10,8 +10,11 @@ public final class SettlementObservation {
         long now = entity.level().getGameTime();
         Component role = Component.translatable("settlement.mcyukkuri.role." + (group == null && life.groupId() != null ? "away"
                 : life.society().role().name().toLowerCase(java.util.Locale.ROOT)));
-        Component leader = group == null || group.leader == null ? Component.translatable("settlement.mcyukkuri.no_leader")
-                : Component.translatable("settlement.mcyukkuri.patchouli", group.leader.toString().substring(0, 8));
+        Component leader = group == null ? Component.translatable("settlement.mcyukkuri.no_leader")
+                : group.leader != null ? Component.translatable("settlement.mcyukkuri.leader", group.leader.toString().substring(0, 8))
+                : !group.hasLeaderOffice ? Component.translatable("settlement.mcyukkuri.no_office")
+                : group.vacancyConfirmed ? Component.translatable("settlement.mcyukkuri.vacant", group.successionTicks / 20, LeaderSuccession.DELAY_TICKS / 20)
+                : Component.translatable("settlement.mcyukkuri.unresolved_office");
         if (group != null && group.leader != null && io.github.longshou.mcyukkuri.settlement.SettlementData.get((net.minecraft.server.level.ServerLevel)entity.level()).activeLeader(group) == null)
             leader = Component.translatable("settlement.mcyukkuri.suspended", leader);
         return Component.translatable("notebook.mcyukkuri.settlement",

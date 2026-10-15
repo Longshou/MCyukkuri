@@ -63,6 +63,7 @@ public final class SettlementLife {
         var group = group();
         if (group != null && entity.tickCount % 100 == 0) SettlementData.get(level()).refreshLeader(level(), group);
         society.tick(); duties.clock();
+        if (group != null) LeaderSuccession.tick(level(), SettlementData.get(level()), group);
     }
     public boolean canUse() {
         if (entity.independence().householdOuting()) return false;

@@ -1428,5 +1428,9 @@
   "dialogue.mcyukkuri.original.flandre.young.o_grief": "呜——……不能再说话话吗？",
   "dialogue.mcyukkuri.original.flandre.young.o_nuzzle": "呜——可以蹭蹭吗？",
   "dialogue.mcyukkuri.original.flandre.young.o_content": "呜——好开心！下次一起！",
-  "dialogue.mcyukkuri.original.flandre.young.o_puff": "呜——！芙呀也在介里！"
+  "dialogue.mcyukkuri.original.flandre.young.o_puff": "呜——！芙呀也在介里！",
+  "settlement.mcyukkuri.leader": "族长 %s",
+  "settlement.mcyukkuri.no_office": "不设族长职位",
+  "settlement.mcyukkuri.vacant": "族长空缺；现场推举 %s / %s 秒",
+  "settlement.mcyukkuri.unresolved_office": "旧族长记录待确认"
 }

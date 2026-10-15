@@ -32,9 +32,15 @@ public final class SettlementData extends SavedData {
         public final Kind kind;
         public final BlockPos center;
         public UUID leader;
+        public boolean hasLeaderOffice, vacancyConfirmed;
+        public UUID successor, successionWitness;
+        public int successionTicks;
+        // Runtime sampling anchor is deliberately not persisted: no offline catch-up.
+        long lastSuccessionSample = Long.MIN_VALUE;
         private final Map<UUID, Member> members = new HashMap<>();
         public Group(UUID id, Kind kind, BlockPos center, UUID leader) {
             this.id = id; this.kind = kind; this.center = center.immutable(); this.leader = leader;
+            hasLeaderOffice = kind == Kind.FOREST && leader != null;
         }
     }
     private final Map<UUID, Group> groups = new HashMap<>();
@@ -48,9 +54,40 @@ public final class SettlementData extends SavedData {
     /** A successful household move changes membership without deleting the family ledger. */
     public void leave(Group group, UUID id) {
         if (group == null) return;
+        if (id.equals(group.leader)) vacate(group);
         group.members.remove(id);
-        if (id.equals(group.leader)) group.leader = null;
+        if (id.equals(group.successor) || id.equals(group.successionWitness)) resetSuccession(group);
         setDirty();
+    }
+    /** Unlike member(), observation of a candidate cannot invent membership. */
+    public Member existingMember(Group group, UUID id) { return group.members.get(id); }
+    private void vacate(Group group) {
+        var old = group.members.get(group.leader);
+        if (old != null) {
+            if (old.role == Role.LEADER) old.role = Role.MEMBER;
+            if (old.previousRole == Role.LEADER) old.previousRole = Role.MEMBER;
+        }
+        group.leader = null;
+        group.vacancyConfirmed = group.kind == Kind.FOREST && group.hasLeaderOffice;
+        resetSuccession(group); setDirty();
+    }
+    public void resetSuccession(Group group) {
+        if (group.successor != null || group.successionWitness != null || group.successionTicks != 0) {
+            group.successor = group.successionWitness = null; group.successionTicks = 0; setDirty();
+        }
+    }
+    /** Called after real local witnesses have completed the succession interval. */
+    public boolean appoint(Group group, UUID id) {
+        var next = group.members.get(id);
+        if (group.kind != Kind.FOREST || !group.hasLeaderOffice || !group.vacancyConfirmed || group.leader != null
+                || next == null || next.role != Role.MEMBER || next.rejections != 0) return false;
+        for (var member : group.members.values()) {
+            if (member.role == Role.LEADER) member.role = Role.MEMBER;
+            if (member.previousRole == Role.LEADER) member.previousRole = Role.MEMBER;
+        }
+        group.leader = id; group.vacancyConfirmed = false;
+        next.role = next.previousRole = Role.LEADER;
+        resetSuccession(group); setDirty(); return true;
     }
     public Member member(Group group, UUID id) {
         var member = group.members.get(id);
@@ -87,7 +124,7 @@ public final class SettlementData extends SavedData {
         if (group.leader == null) return;
         var person = FamilyData.get(level).person(group.leader);
         if (person != null && (person.status == FamilyData.Status.DEAD || person.status == FamilyData.Status.REMOVED)) {
-            group.leader = null; setDirty();
+            vacate(group);
         }
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
@@ -96,6 +133,11 @@ public final class SettlementData extends SavedData {
             CompoundTag value = new CompoundTag();
             value.putUUID("Id", group.id); value.putString("Kind", group.kind.name()); value.putLong("Center", group.center.asLong());
             if (group.leader != null) value.putUUID("Leader", group.leader);
+            value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
+            value.putBoolean("VacancyConfirmed", group.vacancyConfirmed);
+            value.putInt("SuccessionTicks", group.successionTicks);
+            if (group.successor != null) value.putUUID("Successor", group.successor);
+            if (group.successionWitness != null) value.putUUID("SuccessionWitness", group.successionWitness);
             ListTag members = new ListTag();
             group.members.forEach((id, member) -> {
                 CompoundTag record = new CompoundTag(); record.putUUID("Id", id);
@@ -109,7 +151,7 @@ public final class SettlementData extends SavedData {
             value.put("Members", members);
             list.add(value);
         }
-        tag.putInt("Version", 2); tag.put("Groups", list);
+        tag.putInt("Version", 3); tag.put("Groups", list);
         tag.putLongArray("Discovered", discovered.stream().mapToLong(Long::longValue).toArray());
         return tag;
     }
@@ -122,6 +164,23 @@ public final class SettlementData extends SavedData {
             try {
                 Group group = new Group(value.getUUID("Id"), Kind.valueOf(value.getString("Kind")), BlockPos.of(value.getLong("Center")),
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
+                if (group.kind == Kind.FOREST) {
+                    if (value.contains("HasLeaderOffice", Tag.TAG_BYTE)) {
+                        group.hasLeaderOffice = group.leader != null || value.getBoolean("HasLeaderOffice");
+                        group.vacancyConfirmed = group.hasLeaderOffice && group.leader == null && value.getBoolean("VacancyConfirmed");
+                    } else if (group.leader == null) {
+                        // Version 2 kept the former LEADER role after death. Recover evidence, not a presumed death.
+                        Set<UUID> recorded = new HashSet<>();
+                        for (Tag raw : value.getList("Members", Tag.TAG_COMPOUND)) {
+                            var record = (CompoundTag)raw;
+                            if (record.hasUUID("Id") && ("LEADER".equals(record.getString("Role"))
+                                    || "LEADER".equals(record.getString("PreviousRole")))) recorded.add(record.getUUID("Id"));
+                        }
+                        group.hasLeaderOffice = !recorded.isEmpty();
+                        if (recorded.size() == 1) group.leader = recorded.iterator().next();
+                        // Conflicting old records retain an unresolved office; they do not authorize an election.
+                    }
+                }
                 for (Tag raw : value.getList("Members", Tag.TAG_COMPOUND)) {
                     CompoundTag record = (CompoundTag)raw;
                     if (!record.hasUUID("Id")) continue;
@@ -141,6 +200,13 @@ public final class SettlementData extends SavedData {
                     member.observer = record.hasUUID("Observer") ? record.getUUID("Observer") : null;
                     member.assignedBy = record.hasUUID("AssignedBy") ? record.getUUID("AssignedBy") : null;
                     group.members.put(id, member);
+                }
+                if (group.vacancyConfirmed && value.hasUUID("Successor") && value.hasUUID("SuccessionWitness")) {
+                    UUID candidate = value.getUUID("Successor"), witness = value.getUUID("SuccessionWitness");
+                    if (!candidate.equals(witness) && group.members.containsKey(candidate) && group.members.containsKey(witness)) {
+                        group.successor = candidate; group.successionWitness = witness;
+                        group.successionTicks = Math.clamp(value.getInt("SuccessionTicks"), 0, LeaderSuccession.DELAY_TICKS - 1);
+                    }
                 }
                 data.groups.put(group.id, group);
             } catch (IllegalArgumentException ignored) { /* Unknown future kinds do not invent communities. */ }
