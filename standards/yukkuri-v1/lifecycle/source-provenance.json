@@ -27,7 +27,7 @@
     "textures/reimu/neutral.png": "362e5844038f4b540abd479ab34351f1266075bc529bb21d209ecf33c20ba687",
     "profiles/growth.json": "1588dc4150eeb721bfea480f39f5a6daa9fda5c8b4b9e3a6e81b1264d05793d4",
     "behaviors/stem-birth.json": "33e61ed5dce715940eab8de7eaa041ddb641b8f5b9be1af32ca7643399511069",
-    "components/common/stem.json": "9b5384876228afd6257848f20bcb6fa33d4253f0b9756033a8a55b942e43e940",
+    "components/common/stem.json": "50b3afc5261b848b3d83abf4c0dc189d5a8a465a48a4622d5e3f6b465f05db51",
     "expressions/reimu/sleep.json": "7601637b1b47424281949b7ad8503cf94bffb2e076dce2b45259597614349e9a",
     "runtime/growth.js": "1e59240806d5502957f6472938afc3440f3c8134170977e3109384089dd2fae7",
     "runtime/stem-birth.js": "4753883b3ff05b7b7e072cd2f9170716b11aca7fd8a142ae890904a03b6b2172",

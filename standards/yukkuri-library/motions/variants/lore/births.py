@@ -271,11 +271,11 @@ def away_from(p, from_, dist):
     return [p[0]+d[0]/n*dist, p[1], p[2]+d[2]/n*dist]
 
 
-def stem_bases(count, kinds):
-    """FamilyGeometry.childBase for a Reimu mother (scale 1, variance 1, ripe) and these children, in model units."""
+def stem_bases(count, kinds, mother='reimu'):
+    """FamilyGeometry.childBase for a mother (scale 1, variance 1, ripe) and these children, in model units."""
     fam = FAMILY; stem = fam['stem']
     units = stem['reference_units_to_model']/16; origin = stem['reference_origin'][1]; length = fam['lengthScale'][count-1]
-    var = fam['variants']['reimu']; root = [x/16 for x in var['root']]
+    var = fam['variants'][mother]; root = [x/16 for x in var['root']]
     def point(z, y):
         rise = (y-origin)*units*length; clearance = var['depth_clearance']/16*min(1, max(0, rise/(var['clearance_rise']/16)))
         return [root[0], root[1]+rise, root[2]+z*units*length-clearance]
@@ -429,6 +429,20 @@ def scene_self():
                 props=[dict(kind='nest', scale=1, visible=[t_del, t_on], pos=key([0, *nest]), yaw=key([0, rot_n]))])
 
 
+def scene_stems():
+    """The stem fitted to the brood (art/props/family-life/fit_stem.py): Reimu and Marisa mothers with one to five ripe
+    fruit, mixed Reimu and Marisa young."""
+    actors = []
+    for row, mother in enumerate(('reimu', 'marisa')):
+        for count in range(1, 6):
+            kinds = [['reimu', 'marisa'][(i+row) % 2] for i in range(count)]
+            actors.append(dict(model=mother, scale=1, pos=key([0, (count-3)*34, 0, row*50-25]), yaw=key([0, 0]), clips=[[0, 'brood', 0]],
+                               stem=dict(count=count, progress=key([0, 1]), drops=[99]*count, kinds=kinds)))
+    return dict(id='stems', title='茎长随子油数量：一至五只（上排灵梦、下排魔理沙母体）', duration=8, span=60, center=10, focus=[0, 0], az=.5, el=.35,
+                captions=[[0, 8, '茎按子油数量取最短长度：每只实子挂在母体前方、直着落下碰不到母体，前后错开，先落的不会砸到还挂着的']],
+                ground='land', actors=actors, props=[])
+
+
 def scene_sizes():
     """The size standard (GrowthSize, profiles/growth.json) side by side, and a turned hat holding five live newborns."""
     G = GROWTH; st = {s['id']: s for s in G['stages']}
@@ -453,7 +467,7 @@ def scene_sizes():
                 ground='land', actors=actors, props=[dict(kind='nest', scale=1, visible=[0, 99], pos=key([0, *hat_at]), yaw=key([0, 90]))])
 
 
-SCENES = [scene_land_live, scene_land_stem, scene_boat, scene_dock_miss, scene_night_boat, scene_self, scene_sizes]  # scene_land_stem takes the packed models
+SCENES = [scene_land_live, scene_land_stem, scene_boat, scene_dock_miss, scene_night_boat, scene_self, scene_sizes, scene_stems]  # scene_land_stem takes the packed models
 
 PAGE = r'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>出生与接生 · 场景预览</title>
@@ -539,8 +553,8 @@ function tube(out,a,b,r0,r1){const ax=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],l=Math.hyp
     for(const [i0,i1,i2] of [[0,1,2],[0,2,3]])for(const k of [i0,i1,i2])out.push(...p[k],-1,0,...na);}}
 function rootApply(R,v){const out=new Float32Array(v);for(let i=0;i<v.length;i+=8){const x=v[i],y=v[i+1],z=v[i+2],nx=v[i+5],ny=v[i+6],nz=v[i+7];
   for(let r=0;r<3;r++){out[i+r]=R[r*4]*x+R[r*4+1]*y+R[r*4+2]*z+R[r*4+3];out[i+5+r]=R[r*4]*nx+R[r*4+1]*ny+R[r*4+2]*nz;}}return out;}
-function stemItems(scene,actor,t,root){
-  const st=scene.stem,F=D.family,S=F.stem,count=st.count,prog=keyAt(st.progress,t)[0],grow=smooth(Math.min(1,prog/.15)),units=S.reference_units_to_model/16,len=F.lengthScale[count-1],Vr=F.variants.reimu;
+function stemItems(st,actor,t,root){  // the stem on this mother (FamilyGeometry with her own root and clearance)
+  const F=D.family,S=F.stem,count=st.count,prog=keyAt(st.progress,t)[0],grow=smooth(Math.min(1,prog/.15)),units=S.reference_units_to_model/16,len=F.lengthScale[count-1],Vr=F.variants[actor.model];
   const rt=Vr.root.map(v=>v/16);const point=(z,y)=>{const rise=(y-S.reference_origin[1])*units*len,cl=Vr.depth_clearance/16*Math.min(1,Math.max(0,rise/(Vr.clearance_rise/16)));return [rt[0],rt[1]+rise,rt[2]+z*units*len-cl];};
   const spent=t>=st.drops[st.drops.length-1],col=spent?[157,135,79]:[66,186,57],tri=[];const arc=S.centerline.map(([z,y])=>{const p=point(z,y);return rt.map((r,k)=>(r+(p[k]-r)*grow)*16);});
   for(let i=1;i<arc.length;i++){const r0=(S.radius[0]+(S.radius[1]-S.radius[0])*(i-1)/(arc.length-1))*F.radiusScale[count-1],r1=(S.radius[0]+(S.radius[1]-S.radius[0])*i/(arc.length-1))*F.radiusScale[count-1];tube(tri,arc[i-1],arc[i],r0,r1);}
@@ -579,7 +593,7 @@ function frameItems(scene,t){
     const T=actorT(a,t);
     const v=place(src,new Float32Array(src.length),T,hat?null:(vi=>M.grp[vi]===1));
     items.push({v,tex:M.tex[faceAt(M,a,clip,local,t)]||M.tex.neutral,size:M.size});
-    if(scene.stem&&scene.stem.actor===idx)items.push(...stemItems(scene,a,t,posed.root));});
+    const st=a.stem||(scene.stem&&scene.stem.actor===idx?scene.stem:null);if(st)items.push(...stemItems(st,a,t,posed.root));});
   for(const p of scene.props){if(t<p.visible[0]||t>=p.visible[1])continue;const T=vesselT(p,t),pos0=T.pos;
     items.push({v:place(HAT.rest,new Float32Array(HAT.rest.length),T),tex:HAT.tex,size:HAT.size});
     if(p.kind==='boat'){const ring=V.bowl.mask,still=keyAt(p.pos,t),v=new Float32Array(ring.length*24);  // a fan at the water line, which does not bob
