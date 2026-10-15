@@ -27,28 +27,32 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         },io.github.longshou.mcyukkuri.registry.ModItems.MARISA_SHELL.get());
     }
     @Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }
-    /** Marisa's own hat, hollowed (marisa_hat_vessel): afloat opening up with its rim a freeboard over the water, or lying
-     *  on its side on the ground (HatVessel tilt and lift; the same pose the braid clips end in). */
+    /** Marisa's own hat turned over, soft: on the ground a nest (marisa_hat_nest), afloat a deep pleated bowl
+     *  (marisa_hat_vessel) whose rim is a freeboard over the water, the water hidden over its opening. */
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         if(boat.state()==HatBoatEntity.State.CAPSIZED)pose.mulPose(Axis.ZP.rotationDegrees(150));
-        float scale=boat.hullScale();
+        float scale=boat.hullScale(),k=scale/16;
         if(boat.isCradle()){
-            var mode=boat.mode();
-            pose.translate(0,HatVessel.lift(mode)*scale/16,0);
-            pose.mulPose(Axis.XP.rotationDegrees(-HatVessel.tilt(mode)));
-            pose.mulPose(Axis.YP.rotationDegrees(mode==HatVessel.Mode.BOW?90:-90));
-        }else pose.translate(0,HatVessel.FREEBOARD*scale/16,0);
-        pose.pushPose();pose.scale(scale,scale,scale);
-        PropModels.render("marisa_hat_vessel",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
-        pose.popPose();
-        if(boat.isAfloat()||boat.isMoored()){
-            // The well stays dry: hide the water over the opening at the water line.
-            float[] o=HatVessel.opening();float k=scale/16,y=-HatVessel.FREEBOARD*k+.03f;
-            var mask=buffers.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());var matrix=pose.last().pose();
-            for(int face=0;face<2;face++){  // both windings, seen from above or from a low angle
-                float z0=face==0?o[2]*k:o[3]*k,z1=face==0?o[3]*k:o[2]*k;
-                mask.addVertex(matrix,o[0]*k,y,z0);mask.addVertex(matrix,o[0]*k,y,z1);mask.addVertex(matrix,o[1]*k,y,z1);mask.addVertex(matrix,o[1]*k,y,z0);
+            pose.pushPose();pose.scale(scale,scale,scale);
+            PropModels.render("marisa_hat_nest",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            pose.popPose();
+        }else{
+            pose.translate(0,HatVessel.FREEBOARD*k,0);
+            pose.pushPose();pose.scale(scale,scale,scale);
+            PropModels.render("marisa_hat_vessel",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            pose.popPose();
+            if(boat.isAfloat()||boat.isMoored()){
+                // The bowl stays dry: hide the water over its opening at the water line (a fan, both windings).
+                var mask=buffers.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());var matrix=pose.last().pose();
+                float y=-HatVessel.FREEBOARD*k+.03f;var ring=HatVessel.mask();
+                for(int i=0;i<ring.length;i++){
+                    float[] a=ring[i],b=ring[(i+1)%ring.length];
+                    for(int face=0;face<2;face++){
+                        float[] p=face==0?a:b,q=face==0?b:a;
+                        mask.addVertex(matrix,0,y,0);mask.addVertex(matrix,p[0]*k,y,p[1]*k);mask.addVertex(matrix,q[0]*k,y,q[1]*k);mask.addVertex(matrix,0,y,0);
+                    }
+                }
             }
         }
         pose.popPose();

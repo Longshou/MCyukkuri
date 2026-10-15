@@ -21,14 +21,13 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.UUID;
 
-/** One real hat (the hollow hat vessel, HatVessel) and one Marisa owner. Afloat it is the aquatic Marisa's boat: she sits
- *  on the rim at the stern and her young ride in the dry well, under her at night. Unloading never means rescue or death. */
+/** One real hat (her own hat turned over, soft: HatVessel) and one Marisa owner. Afloat it is the aquatic Marisa's boat: she
+ *  sits low in the bowl at the stern and her young ride in its dry inside, under her at night. Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity {
-    /** CRADLE: a Marisa's hat lying turned over on dry ground to catch young. MOORED: an aquatic Marisa's hat floated at a
-     *  bank to catch them, held in place. Ordinals are synced: append only. */
+    /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown folded into a nest, to catch young. MOORED: an aquatic
+     *  Marisa's hat floated at a bank to catch them, held in place. Ordinals are synced: append only. */
     public enum State { AFLOAT, BEACHED, CAPSIZED, RESCUED, REMOVED, CRADLE, MOORED }
     private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> MODE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
     private UUID accessoryToken;
@@ -46,15 +45,13 @@ public final class HatBoatEntity extends Entity {
 
     public HatBoatEntity(EntityType<? extends HatBoatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f); builder.define(MODE, 0);
+        builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
     }
     public UUID ownerYukkuri() { return entityData.get(OWNER).orElse(null); }
     public State state() { return State.values()[Math.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
     public boolean isAfloat() { return state() == State.AFLOAT; }
     /** The hat's size: its owner's growth, larger for the aquatic Marisa. */
     public float hullScale() { return entityData.get(SCALE); }
-    /** How the lying cradle rests (back of the crown or bow). */
-    public HatVessel.Mode mode() { return HatVessel.Mode.values()[Math.clamp(entityData.get(MODE), 0, 1)]; }
     public HatVessel.Role role() { return role; }
     public int flooding() { return flooding; }
     private void state(State next) { entityData.set(STATE, next.ordinal()); }
@@ -106,16 +103,15 @@ public final class HatBoatEntity extends Entity {
         if (!hasPassenger(passenger)) return;
         float k = hullScale()/16, turn = (float) Math.toRadians(180 - getYRot());
         if (passenger.getUUID().equals(ownerYukkuri())) {
-            // On the rim at the stern, her back to the rear of the opening: the well before her stays open.
-            double z = HatVessel.opening()[3]*k - passenger.getBbWidth()*.5;
+            // Low in the bowl at the stern, her back to the rear of the opening: the bowl before her stays open.
+            double z = HatVessel.OPENING[1]*k - passenger.getBbWidth()*.5;
             var at = new Vec3(0, (HatVessel.FREEBOARD-HatVessel.OWNER_SINK)*k, Math.max(0, z)).yRot(turn);
             move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z); return;
         }
         int seat = 0;
         for (var p : getPassengers()) { if (p == passenger) break; if (!p.getUUID().equals(ownerYukkuri())) seat++; }
-        // Lying on land the young sit just inside the low lip; afloat they sit on the floor of the dry well,
-        // before the owner by day and under her at night.
-        var local = isCradle() ? HatVessel.cradleSeat(mode(), seat) : HatVessel.boatSeat(seat, !isMoored() && level().isNight());
+        // On the floor of the nest; afloat on the inside of the bowl, before the owner by day and under her at night.
+        var local = isCradle() ? HatVessel.nestSeat(seat) : HatVessel.boatSeat(seat, !isMoored() && level().isNight()).add(0, HatVessel.FREEBOARD, 0);
         var at = local.scale(k).yRot(turn);
         move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z);
     }
@@ -156,7 +152,7 @@ public final class HatBoatEntity extends Entity {
         }
         return null;
     }
-    /** A Marisa's braid sets her hat down, turned over, to catch young: lying on dry ground, or floated at a bank (aquatic). */
+    /** A Marisa's braid sets her hat down, turned over, to catch young: a soft nest on dry ground, or floated at a bank (aquatic). */
     public static HatBoatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatVessel.Mode mode, HatVessel.Role role) {
         if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA || !owner.isAlive()
                 || owner.isPassenger() || !owner.life().hasAccessory() || owner.subspecies().boatId() != null) return null;
@@ -178,7 +174,7 @@ public final class HatBoatEntity extends Entity {
         if (hat == null) return null;
         hat.setPos(at.x, y, at.z); hat.setYRot(yaw); hat.role = role; hat.mooring = hat.position();
         hat.entityData.set(OWNER, Optional.of(owner.getUUID())); hat.entityData.set(SCALE, HatVessel.hatScale(owner));
-        hat.entityData.set(MODE, mode == HatVessel.Mode.BOW ? 1 : 0); hat.state(mode == HatVessel.Mode.FLOAT ? State.MOORED : State.CRADLE);
+        hat.state(mode == HatVessel.Mode.FLOAT ? State.MOORED : State.CRADLE);
         if (!level.addFreshEntity(hat)) return null;
         hat.accessoryToken = owner.life().takeAccessory(null);
         if (hat.accessoryToken == null) { hat.discard(); return null; }
@@ -313,7 +309,7 @@ public final class HatBoatEntity extends Entity {
         if(ownerYukkuri()!=null)tag.putUUID("OwnerYukkuri",ownerYukkuri());
         if(accessoryToken!=null)tag.putUUID("AccessoryToken",accessoryToken);
         tag.putString("State",state().name());tag.putInt("Flooding",flooding);tag.putFloat("HullScale",hullScale());
-        tag.putString("Mode",mode().name());tag.putString("Role",role.name());if(mooring!=null){tag.putDouble("MooringX",mooring.x);tag.putDouble("MooringZ",mooring.z);}
+        tag.putString("Role",role.name());if(mooring!=null){tag.putDouble("MooringX",mooring.x);tag.putDouble("MooringZ",mooring.z);}
         var young=new net.minecraft.nbt.ListTag();for(var id:crew)young.add(net.minecraft.nbt.NbtUtils.createUUID(id));tag.put("Crew",young);
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {
@@ -321,7 +317,7 @@ public final class HatBoatEntity extends Entity {
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
         try{state(State.valueOf(tag.getString("State")));}catch(IllegalArgumentException invalid){state(State.BEACHED);}
         flooding=Math.clamp(tag.getInt("Flooding"),0,100);entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
-        entityData.set(MODE,"BOW".equals(tag.getString("Mode"))?1:0);role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
+        role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
         mooring=tag.contains("MooringX")?new Vec3(tag.getDouble("MooringX"),0,tag.getDouble("MooringZ")):null;
         crew.clear();for(var raw:tag.getList("Crew",net.minecraft.nbt.Tag.TAG_INT_ARRAY))crew.add(net.minecraft.nbt.NbtUtils.loadUUID(raw));
         while(crew.size()>MAX_YOUNG)crew.remove(crew.iterator().next());

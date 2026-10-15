@@ -123,26 +123,26 @@ public final class FamilyLife {
                 &&father.isAlive()&&hatted(father)&&father.distanceToSqr(mother)<256&&father.life().canRecognize(mother))return father;
         return hatted(mother)?mother:null;
     }
-    /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa lays it on its side,
-     *  its lip just short of the live exit (a mother on her own sets it where her own clip puts it); the aquatic Marisa
-     *  floats her larger hat at the bank's edge before the outlet, its near brim slipped under the bank. */
+    /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it into a soft
+     *  nest before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it);
+     *  the aquatic Marisa floats her larger hat at the bank's edge before the outlet, its near brim slipped under the bank. */
     public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role){
         boolean aquatic=HatVessel.aquatic(catcher);var place=HatVessel.placement(aquatic,role);
         double k=HatVessel.hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
         var forward=Vec3.directionFromRotation(0,mother.yBodyRot);float yaw=mother.yBodyRot+place.hatYawInMother();
         if(aquatic){
             var edge=mother.position().add(forward.scale(mother.getBbWidth()*.5));
-            return new HatPose(edge.add(forward.scale(HatVessel.NEAR_BRIM*k-HatVessel.UNDER_BANK*body)),yaw,HatVessel.Mode.FLOAT,role);
+            return new HatPose(edge.add(forward.scale(HatVessel.BRIM[0]*k-HatVessel.UNDER_BANK*body)),yaw,HatVessel.Mode.FLOAT,role);
         }
         if(role==HatVessel.Role.SELF){
             var at=FamilyGeometry.toWorld(mother,place.offset().scale(mother.growthScale()/16));
-            return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,place.mode(),role);
+            return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
         }
         int next=0;
         if(brood.kind==FamilyData.BirthKind.LIVE)while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
-        var lip=LiveBirthGeometry.position(mother,next).subtract(forward.scale(HatVessel.LIP_BEFORE_EXIT*body));
-        var at=lip.add(forward.scale(-HatVessel.lipZ(place.mode())*k));
-        return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,place.mode(),role);
+        // The nest's long axis lies across her; its near opening edge a little nearer to her than the exit.
+        var at=LiveBirthGeometry.position(mother,next).add(forward.scale(HatVessel.NEST_OPENING[0]*k-HatVessel.INSIDE_EXIT*body));
+        return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
     }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     public static Stand stand(HatPose pose,YukkuriEntity catcher){
@@ -151,7 +151,7 @@ public final class FamilyLife {
         var at=pose.at().subtract(offset.yRot((float)Math.toRadians(180-yaw)));
         return new Stand(new Vec3(at.x,catcher.getY(),at.z),yaw);
     }
-    private static HatPose poseOf(HatBoatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.isMoored()?HatVessel.Mode.FLOAT:hat.mode(),hat.role());}
+    private static HatPose poseOf(HatBoatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.isMoored()?HatVessel.Mode.FLOAT:HatVessel.Mode.NEST,hat.role());}
     /** The ground or water where the hat would go takes it. */
     private boolean settles(HatPose pose){
         var spot=BlockPos.containing(pose.at());

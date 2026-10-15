@@ -76,6 +76,18 @@
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/blank_cry.png",
         "sha256": "2e02dfe447332a781e7f5fd8a47ba294b9a9860640575937bb9aaa77fd6c778c"
       }
+    },
+    "reimu_wasa": {
+      "dazed": {
+        "source": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png",
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/dazed.png",
+        "sha256": "a60af5a8b9faa5f09e52b9c36be19b2b99ec43221c1465222a313a90556ee34d"
+      },
+      "blank_cry": {
+        "source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/blank_cry.png",
+        "sha256": "b8b1ee7e1d9172314998925bdc1ac78a5776378a3106c39dc0487e47f54c5b0f"
+      }
     }
   }
 }

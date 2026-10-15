@@ -117,20 +117,37 @@ class Rig:
 
 
 def target_pose(metrics, variant, role):
-    """Hat transform (unscaled worn hat -> catcher's model space) where the game puts the cradle or the floated hat."""
+    """Where the game sets the hat down (hat_vessel.json placements), in the catcher's model space.
+
+    Returns the rigid transform that turns the unscaled worn hat over and puts its anchor (the brim's
+    seat) on the set-down hat's rim, the crown squash that presses it to the nest's or bowl's depth,
+    the hat scale, the brim point the braid takes on the head, and the rim point it holds."""
     place = metrics['placements'][variant]; k = place['scale']; p = place[role]
     anchor = np.array(metrics['anchor_worn'])
     Mv = np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]], float)  # worn -> vessel (build.worn_to_vessel)
-    if p['mode'] == 'float':  # opening up on the water, the rim a freeboard above it
-        C, lift = np.eye(3), metrics['boat']['freeboard']*k
-    else:  # lying on its side on the ground
-        cr = metrics['cradle'][p['mode']]
-        C, lift = rot_x(-math.radians(cr['tilt']))@rot_y({'back': -1, 'bow': 1}[p['mode']]*math.pi/2), cr['lift']*k
     Ry = rot_y(math.radians(-p['yaw']))  # hat frame -> catcher frame
-    R = Ry@C@Mv
-    # the scaled hat's anchor (the vessel origin) sits at offset + Ry (0, lift, 0)
-    t = np.array(p['offset'])+Ry@np.array([0, lift, 0])-R@anchor
-    return affine(R, t), k, np.array(p['grip_worn'])
+    if p['mode'] == 'bowl':  # afloat: the entity at the water line, the rim a freeboard above it
+        lift = np.array([0, metrics['bowl']['freeboard']*k, 0]); rim_y = 0.
+    else:  # the nest on the ground, its rim up at the nest's height
+        lift = np.zeros(3); rim_y = metrics['nest']['rim']*k
+    R = Ry@Mv
+    t = np.array(p['offset'])+Ry@(lift+[0, rim_y, 0])-R@anchor
+    rim = np.array(p['offset'])+Ry@(np.array(p['rim'])*k+lift)
+    return affine(R, t), metrics['squash'][p['mode']], k, np.array(p['grip_worn']), rim
+
+
+def squashed(G, anchor, sigma):
+    """G after pressing the worn hat's crown toward its brim (worn Y about the anchor)."""
+    S = np.eye(4); S[1, 1] = sigma; S[1, 3] = anchor[1]*(1-sigma)
+    return G@S
+
+
+def bone_track(inv, G, pivot, sigma):
+    """Local position, rotation and scale of hat_follow so its world transform is G after a crown squash."""
+    L = inv@G; R = L[:3, :3]@np.diag([1, 1/sigma, 1])
+    # L(p) = R S p + L_t, and the bone gives R S (p - P) + P + pos
+    pos = L[:3, 3]+R@np.diag([1, sigma, 1])@pivot-pivot
+    return list(pos), to_euler(R), [1., sigma, 1.]
 
 
 def swing(g0, g1, centre, out, q):
@@ -145,131 +162,142 @@ def swing(g0, g1, centre, out, q):
     return centre+direction*(ra+(rb-ra)*q)
 
 
+def braid_to(inv, target, pv_braid, v0):
+    dl = (inv@np.r_[target, 1])[:3]-pv_braid
+    sy = math.sqrt(max(float(dl@dl)-v0[0]**2-v0[2]**2, 1e-6))/abs(v0[1])
+    return aim(np.array([v0[0], v0[1]*sy, v0[2]]), dl), sy
+
+
+class Keys:
+    NAMES = ('root_p', 'root_r', 'root_s', 'hat_p', 'hat_r', 'hat_s', 'braid_r', 'braid_s', 'tip_r', 'tip_s')
+
+    def __init__(self): self.keys = {k: [] for k in self.NAMES}; self.prev = {}
+
+    def add(self, t, **vals):
+        for key, val in vals.items():
+            val = [float(x) for x in val]
+            if key.endswith('_r') and key in self.prev:  # keep Euler angles continuous between samples
+                val = [v+360*round((p-v)/360) for v, p in zip(val, self.prev[key])]
+            self.prev[key] = val; self.keys[key].append([round(t, 8), *[round(x, 5) for x in val]])
+
+    def tracks(self, root, rig):
+        k = self.keys
+        out = [{'bone': root, 'channel': c, 'keys': k['root_'+c[0]]} for c in ('position', 'rotation', 'scale')]
+        out += [{'bone': rig.hat, 'channel': c, 'keys': k['hat_'+c[0]]} for c in ('position', 'rotation', 'scale')]
+        out += [{'bone': rig.braid, 'channel': 'rotation', 'keys': k['braid_r']}, {'bone': rig.braid, 'channel': 'scale', 'keys': k['braid_s']}]
+        for tip in rig.tips:
+            out += [{'bone': tip, 'channel': 'rotation', 'keys': k['tip_r']}, {'bone': tip, 'channel': 'scale', 'keys': k['tip_s']}]
+        return out
+
+
+def mother_clearance(metrics, variant, role, pts):
+    """How far the carried hat stays outside the swollen mother (a helper's clip only)."""
+    place = metrics['placements'][variant]
+    if role != 'helper': return 9.
+    p = place['helper']; Rinv = rot_y(math.radians(-p['angle'])); m = Rinv@(-np.array(p['at_mother']))
+    half = place['mother_half']; d = np.hypot(pts[:, 0]-m[0], pts[:, 2]-m[2])-half
+    tall = pts[:, 1] < 9.6*1.26+1
+    return float(d[tall].min()) if tall.any() else 9.
+
+
 def compile_hat(model, cfg, root, ground, height, name, c):
-    """Tracks for one hat clip: root, hat_follow (position, rotation), braid and tuft (rotation, scale)."""
+    """Tracks for one hat clip: root, hat_follow (position, rotation, crown squash), braid and tuft (rotation, scale).
+
+    The braid hooks the brim on the head, lifts the hat, swings it round its root out to its side and
+    turns it over above the place, then presses it down: the soft crown squashes to the nest's or
+    bowl's depth while the braid slides from the brim to the rim it holds (a helper) or lets go (a
+    mother on her own). `reverse` plays the same motion backwards to put the hat back on."""
     metrics = json.loads(METRICS.read_text(encoding='utf-8'))
     rig = Rig(model, root); spec = c['hat']; variant, role = spec['variant'], spec['role']
-    end, k, grip_worn = target_pose(metrics, variant, role)
+    end, sigma, k, grip_worn, rim = target_pose(metrics, variant, role)
     anchor = np.array(metrics['anchor_worn'])
     grip_local = anchor+k*(grip_worn-anchor)  # on the (scaled) hat, in rest coordinates
     pv_hat, pv_braid = rig.pivot(rig.hat), rig.pivot(rig.braid)
     v0 = rig.pivot(rig.tips[0])-pv_braid
-    d = c['duration']; reverse = spec.get('reverse', False)
-    P = c['phases']  # reach, lift, carry, release (self only), back
+    d = c['duration']; reverse = spec.get('reverse', False); P = c['phases']
     n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
+    # it comes down onto the place from above and from beyond it (away from the catcher)
+    out = (end@np.r_[anchor, 1])[:3]; out[1] = 0; out = out/(np.linalg.norm(out)+1e-9)
+    above = end.copy(); above[:3, 3] += np.array([0, c['hover'], 0])+out*c.get('hover_out', 0.)
 
     def root_motion(t):
-        s, r, lift = [1., 1., 1.], [0., 0., 0.], 0.
+        s, r = [1., 1., 1.], [0., 0., 0.]
         r[2] = c['side_lean']*bump(t/P['carry'][1]) if t < P['carry'][1] else 0.
         if role == 'self':
-            a = smooth((t-P['carry'][0])/(P['carry'][1]-P['carry'][0]))*(1-smooth((t-P['release'][0])/(d-P['release'][0])))
+            a = smooth((t-P['carry'][0])/(P['carry'][1]-P['carry'][0]))*(1-smooth((t-P['back'][0])/(P['back'][1]-P['back'][0])))
             r[0] = c['bow']*a; s = [1+.02*a, 1-.03*a, 1+.02*a]
         else:
             r[0] = c['bow']*bump((t-P['carry'][0])/(d-P['carry'][0]))
-        return s, r, lift
+        return s, r
 
     def hat_world(t, base):
-        """Unscaled hat transform in model space."""
-        on = base  # on the head, following the body
-        lifted = on.copy(); lifted[:3, 3] += [0, c['lift'], 0]
-        if t < P['lift'][0]: return on
+        """Rigid hat transform in model space and the crown squash."""
+        if t < P['lift'][0]: return base, 1.
         if t < P['lift'][1]:
-            q = smooth((t-P['lift'][0])/(P['lift'][1]-P['lift'][0])); m = on.copy(); m[:3, 3] += [0, c['lift']*q, 0]; return m
-        target = end.copy()
-        if role == 'self':
-            target[:3, 3] += [0, c['drop'], 0]  # let go just above where it comes to rest
+            q = smooth((t-P['lift'][0])/(P['lift'][1]-P['lift'][0])); m = base.copy(); m[:3, 3] += [0, c['lift']*q, 0]; return m, 1.
+        lifted = base.copy(); lifted[:3, 3] += [0, c['lift'], 0]
         if t < P['carry'][1]:
             q = smooth((t-P['carry'][0])/(P['carry'][1]-P['carry'][0]))
-            R = slerp(lifted[:3, :3], target[:3, :3], q)
-            g0 = lifted[:3, :3]@grip_local+lifted[:3, 3]; g1 = target[:3, :3]@grip_local+target[:3, 3]
-            centre = (base@np.r_[pv_braid, 1])[:3]  # swing round the braid root, out to its side, then down
-            g = swing(g0, g1, centre, np.array(c['swing_out']), q)
-            return affine(R, g-R@grip_local)
-        if role == 'self' and t < P['release'][1]:
-            q = ((t-P['release'][0])/(P['release'][1]-P['release'][0]))**2  # falls the last bit
-            m = target.copy(); m[:3, 3] = target[:3, 3]+(end[:3, 3]-target[:3, 3])*min(1, max(0, q)); return m
-        return end if role == 'self' else target
+            R = slerp(lifted[:3, :3], above[:3, :3], q)
+            g0 = lifted[:3, :3]@grip_local+lifted[:3, 3]; g1 = above[:3, :3]@grip_local+above[:3, 3]
+            centre = (base@np.r_[pv_braid, 1])[:3]  # round the braid root, out to its side, then over the place
+            return affine(R, swing(g0, g1, centre, np.array(c['swing_out']), q)-R@grip_local), 1.
+        q = smooth((t-P['settle'][0])/(P['settle'][1]-P['settle'][0]))
+        m = above.copy(); m[:3, 3] = above[:3, 3]+(end[:3, 3]-above[:3, 3])*q
+        return m, 1+(sigma-1)*q  # pressed down, the soft crown gives
 
-    def braid_weight(t):
-        w = smooth(t/P['reach'][1])
-        if role == 'self': w *= 1-smooth((t-P['release'][0])/(P['back'][1]-P['release'][0]))
-        return w
+    def braid_target(t, G, sq):
+        on_hat = (squashed(G, anchor, sq)@np.r_[grip_local, 1])[:3]
+        if t < P['settle'][0]: return on_hat, smooth(t/P['reach'][1])
+        q = smooth((t-P['settle'][0])/(P['settle'][1]-P['settle'][0]))
+        target = on_hat+(rim-on_hat)*q  # from the brim it carried by to the rim it holds
+        w = 1.
+        if role == 'self': w = 1-smooth((t-P['back'][0])/(P['back'][1]-P['back'][0]))
+        return target, w
 
-    keys = {k_: [] for k_ in ('root_p', 'root_r', 'root_s', 'hat_p', 'hat_r', 'braid_r', 'braid_s', 'tip_r', 'tip_s')}
-    times = [d-t for t in samples] if reverse else samples
-    prev = {}
-    worst = dict(stretch=[9, 0], clear=9.)
+    keys = Keys(); times = [d-t for t in samples] if reverse else samples
+    worst = dict(stretch=[9, 0], clear=9., mother=9.)
     for out_t, t in zip(samples, times):
-        s, r, lift = root_motion(t)
-        pos = [0., ground(s, r)+lift, 0.]
+        s, r = root_motion(t)
+        pos = [0., ground(s, r), 0.]
         parent = rig.chain((pos, r, s)); inv = np.linalg.inv(parent)
-        base = parent  # the hat on the head moves with its parent
-        G = hat_world(t, base)
-        L = inv@G  # hat_follow local
-        hat_rot = to_euler(L[:3, :3]); hat_pos = L[:3, :3]@pv_hat+L[:3, 3]-pv_hat
-        # braid: aim the tip joint at the grip, blend from rest
-        grip = G[:3, :3]@grip_local+G[:3, 3]
-        dl = (inv@np.r_[grip, 1])[:3]-pv_braid
-        L2 = float(dl@dl); sy = math.sqrt(max(L2-v0[0]**2-v0[2]**2, 1e-6))/abs(v0[1])
-        Ra = aim(np.array([v0[0], v0[1]*sy, v0[2]]), dl)
-        w = braid_weight(t)
+        G, sq = hat_world(t, parent)
+        Gs = squashed(G, anchor, sq)
+        hp, hr, hs = bone_track(inv, Gs, pv_hat, sq)
+        target, w = braid_target(t, G, sq)
+        Ra, sy = braid_to(inv, target, pv_braid, v0)
         Rb = slerp(np.eye(3), Ra, w); sb = 1+(sy-1)*w
-        curl = c['curl']*w
         worst['stretch'] = [min(worst['stretch'][0], sb), max(worst['stretch'][1], sb)]
-        # clearance of the hat from the head while it is off
-        if P['lift'][1] <= t:
-            pts = (G[:3, :3]@(anchor+k*(rig.hat_points-anchor)).T).T+G[:3, 3]
+        if P['lift'][1] <= t:  # the hat off the head: clear of the catcher's head and of the mother
+            pts = (Gs[:3, :3]@(anchor+k*(rig.hat_points-anchor)).T).T+Gs[:3, 3]
             local = (inv@np.c_[pts, np.ones(len(pts))].T).T[:, :3]
             lo, hi = rig.body_lo, rig.body_hi
             depth = np.minimum.reduce([local[:, 0]-lo[0], hi[0]-local[:, 0], local[:, 1]-lo[1], hi[1]-local[:, 1], local[:, 2]-lo[2], hi[2]-local[:, 2]])
             worst['clear'] = min(worst['clear'], float(-depth.max()))
-        for key, val in (('root_p', pos), ('root_r', r), ('root_s', s), ('hat_p', list(hat_pos)), ('hat_r', hat_rot),
-                         ('braid_r', to_euler(Rb)), ('braid_s', [1., sb, 1.]), ('tip_r', [0., 0., curl]), ('tip_s', [1., 1/sb, 1.])):
-            val = list(val)
-            if key.endswith('_r') and key in prev:  # keep Euler angles continuous between samples
-                val = [v+360*round((p-v)/360) for v, p in zip(val, prev[key])]
-            prev[key] = val
-            keys[key].append([round(out_t, 8), *[round(float(x), 5) for x in val]])
-    tracks = [{'bone': root, 'channel': 'position', 'keys': keys['root_p']}, {'bone': root, 'channel': 'rotation', 'keys': keys['root_r']},
-              {'bone': root, 'channel': 'scale', 'keys': keys['root_s']},
-              {'bone': rig.hat, 'channel': 'position', 'keys': keys['hat_p']}, {'bone': rig.hat, 'channel': 'rotation', 'keys': keys['hat_r']},
-              {'bone': rig.braid, 'channel': 'rotation', 'keys': keys['braid_r']}, {'bone': rig.braid, 'channel': 'scale', 'keys': keys['braid_s']}]
-    for tip in rig.tips:
-        tracks += [{'bone': tip, 'channel': 'rotation', 'keys': keys['tip_r']}, {'bone': tip, 'channel': 'scale', 'keys': keys['tip_s']}]
-    return tracks, worst
+            if t < P['settle'][0]:  # set down, the near brim tucks under the mother's belly by design
+                worst['mother'] = min(worst['mother'], mother_clearance(metrics, variant, role, pts))
+        keys.add(out_t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Rb), braid_s=[1., sb, 1.],
+                 tip_r=[0., 0., c['curl']*w], tip_s=[1., 1/sb, 1.])
+    return keys.tracks(root, rig), worst
 
 
 def compile_hold(model, cfg, root, ground, height, c):
-    """The helper holds the lying hat's rim with the braid and cheers with each contraction."""
+    """The helper holds the set-down hat's soft rim with the braid and cheers with each contraction."""
     metrics = json.loads(METRICS.read_text(encoding='utf-8'))
-    rig = Rig(model, root); spec = c['hat']; end, k, grip_worn = target_pose(metrics, spec['variant'], 'helper')
-    anchor = np.array(metrics['anchor_worn']); grip_local = anchor+k*(grip_worn-anchor)
-    grip = end[:3, :3]@grip_local+end[:3, 3]
+    rig = Rig(model, root); spec = c['hat']; end, sigma, k, _, rim = target_pose(metrics, spec['variant'], 'helper')
+    anchor = np.array(metrics['anchor_worn'])
     pv_hat, pv_braid = rig.pivot(rig.hat), rig.pivot(rig.braid); v0 = rig.pivot(rig.tips[0])-pv_braid
     d = c['duration']; n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
-    keys = {k_: [] for k_ in ('root_p', 'root_r', 'root_s', 'hat_p', 'hat_r', 'braid_r', 'braid_s', 'tip_r', 'tip_s')}
-    prev = {}; worst = dict(stretch=[9, 0], clear=9.)
+    keys = Keys(); worst = dict(stretch=[9, 0], clear=9., mother=9.); Gs = squashed(end, anchor, sigma)
     for t in samples:
         k_ = c['crouch']; s = [1+.5*k_, 1-k_, 1+.5*k_]; r = [c['lean'], 0., 0.]
         if .3 <= t < 1.4: r[0] += c['nod']*bump(((t-.3)/.55) % 1)
-        lift = 0.
-        if t >= 1.8:  # the birth: a little hop of joy
-            e = bump((t-1.8)/.6); lift = .03*height*e
+        lift = .03*height*bump((t-1.8)/.6) if t >= 1.8 else 0.  # the birth: a little hop of joy
         pos = [0., ground(s, r)+lift, 0.]
         parent = rig.chain((pos, r, s)); inv = np.linalg.inv(parent)
-        L = inv@end; hat_rot = to_euler(L[:3, :3]); hat_pos = L[:3, :3]@pv_hat+L[:3, 3]-pv_hat
-        dl = (inv@np.r_[grip, 1])[:3]-pv_braid
-        sy = math.sqrt(max(float(dl@dl)-v0[0]**2-v0[2]**2, 1e-6))/abs(v0[1]); Ra = aim(np.array([v0[0], v0[1]*sy, v0[2]]), dl)
+        hp, hr, hs = bone_track(inv, Gs, pv_hat, sigma)  # (in the game the set-down hat is its own entity)
+        Ra, sy = braid_to(inv, rim, pv_braid, v0)
         worst['stretch'] = [min(worst['stretch'][0], sy), max(worst['stretch'][1], sy)]
-        for key, val in (('root_p', pos), ('root_r', r), ('root_s', s), ('hat_p', list(hat_pos)), ('hat_r', hat_rot),
-                         ('braid_r', to_euler(Ra)), ('braid_s', [1., sy, 1.]), ('tip_r', [0., 0., c['curl']]), ('tip_s', [1., 1/sy, 1.])):
-            val = list(val)
-            if key.endswith('_r') and key in prev: val = [v+360*round((p-v)/360) for v, p in zip(val, prev[key])]
-            prev[key] = val; keys[key].append([round(t, 8), *[round(float(x), 5) for x in val]])
-    tracks = [{'bone': root, 'channel': 'position', 'keys': keys['root_p']}, {'bone': root, 'channel': 'rotation', 'keys': keys['root_r']},
-              {'bone': root, 'channel': 'scale', 'keys': keys['root_s']},
-              {'bone': rig.hat, 'channel': 'position', 'keys': keys['hat_p']}, {'bone': rig.hat, 'channel': 'rotation', 'keys': keys['hat_r']},
-              {'bone': rig.braid, 'channel': 'rotation', 'keys': keys['braid_r']}, {'bone': rig.braid, 'channel': 'scale', 'keys': keys['braid_s']}]
-    for tip in rig.tips:
-        tracks += [{'bone': tip, 'channel': 'rotation', 'keys': keys['tip_r']}, {'bone': tip, 'channel': 'scale', 'keys': keys['tip_s']}]
-    return tracks, worst
+        keys.add(t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Ra), braid_s=[1., sy, 1.],
+                 tip_r=[0., 0., c['curl']], tip_s=[1., 1/sy, 1.])
+    return keys.tracks(root, rig), worst
