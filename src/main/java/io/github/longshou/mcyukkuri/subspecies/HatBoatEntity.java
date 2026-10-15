@@ -274,6 +274,10 @@ public final class HatBoatEntity extends Entity {
         return createFor(owner, water, false);
     }
     public static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos water) {
+        if (owner.level().isClientSide || !HatBoatRoute.calmSurface(owner.level(), water)) return null;
+        var delta=HatBoatRoute.surface(owner.level(),water).subtract(owner.position());
+        float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
+        owner.setYRot(yaw); owner.yBodyRot=yaw; owner.setYHeadRot(yaw);
         return createFor(owner, water, true);
     }
     private static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated) {
@@ -291,8 +295,17 @@ public final class HatBoatEntity extends Entity {
         boat.setPos(water.getX()+.5, water.getY()+fluid.getHeight(level, water)+.025, water.getZ()+.5);
         var away=boat.position().subtract(owner.position()).multiply(1,0,1).normalize().scale(.10);
         boat.setPos(boat.position().add(away));
+        float heading=owner.yBodyRot;
+        if (animated) {
+            // Meet the authored hat-off clip exactly in X/Z and orientation before the owner's hop starts.
+            var placement=HatVessel.placement(true,HatVessel.Role.SELF);
+            var offset=placement.offset().scale(owner.growthScale()*owner.getScale()/16).yRot((float)Math.toRadians(180-owner.yBodyRot));
+            boat.setPos(owner.getX()+offset.x,boat.getY(),owner.getZ()+offset.z);
+            if (!HatBoatRoute.calmSurface(level,BlockPos.containing(boat.getX(),water.getY(),boat.getZ()))) return null;
+            heading+=placement.yaw();
+        }
         if (!level.noCollision(boat, boat.getBoundingBox())) return null;
-        boat.entityData.set(OWNER, Optional.of(owner.getUUID())); boat.entityData.set(SCALE, HatVessel.hatScale(owner)); boat.setYRot(owner.yBodyRot);
+        boat.entityData.set(OWNER, Optional.of(owner.getUUID())); boat.entityData.set(SCALE, HatVessel.hatScale(owner)); boat.setYRot(heading);
         if (!level.addFreshEntity(boat)) return null;
         boat.accessoryToken = owner.life().stowAccessory();
         if (boat.accessoryToken == null || !animated && !owner.startRiding(boat, true)) {
@@ -351,7 +364,8 @@ public final class HatBoatEntity extends Entity {
     public boolean board(YukkuriEntity owner) {
         if (level().isClientSide || !owner.getUUID().equals(ownerYukkuri()) || owner.distanceToSqr(this) > 4
                 || !isAfloat() || !owner.life().matchesAccessory(ownerYukkuri(), accessoryToken)) return false;
-        return owner.startRiding(this, true);
+        if (!owner.startRiding(this, true)) return false;
+        owner.setYRot(getYRot()); owner.yBodyRot=getYRot(); owner.setYHeadRot(getYRot()); return true;
     }
     public void capsize() {
         if (level().isClientSide || state() == State.RESCUED || state() == State.REMOVED) return;
@@ -507,7 +521,7 @@ public final class HatBoatEntity extends Entity {
                     if (!HatBoatRoute.calmSurface(level(), step) || !level().noCollision(this, getBoundingBox().move(next.subtract(position())))) stopPaddling();
                     else {
                         var forward = next.subtract(position()).multiply(1,0,1).normalize();
-                        double stroke = .004+.008*Math.max(0, Math.sin(tickCount*Math.PI/16));
+                        double stroke = .004+.008*Math.max(0, Math.sin((level().getGameTime()-captain.getAnimationStartTick())*Math.PI/16));
                         motion = motion.add(forward.scale(stroke));
                         double speed = motion.horizontalDistance(); if (speed > .08) motion = new Vec3(motion.x*.08/speed, motion.y, motion.z*.08/speed);
                         float heading = (float)(Math.toDegrees(Math.atan2(forward.z,forward.x))-90);
