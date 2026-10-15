@@ -38,7 +38,7 @@
 
 [选用清单](../art/source/subspecies-runtime/manifest.json)逐项列出模型、几何标识、骨架、贴图和运行目标。[交互预览](../art/source/subspecies-runtime/preview.html)与[多角度图](../art/source/subspecies-runtime/previews/current/)来自当前运行导出。
 
-螺壳选用标准库 `marisa_tsumuri`，多毛灵梦选用已有 `reimu_wasa` 并适配基础尺度；不足形态由[配方](../standards/yukkuri-library/subspecies/deficient/recipes.json)生成。帽船原先选用既有 aquatic 配件源（`hat_boat` 道具，扁平碟形、比帽子大，保留未用）；2026-10-15 起改为魔理沙本人的帽子倒过来、帽冠压扁（`marisa_hat_turned`，陆地与水上压扁程度不同）。独立螺壳物品由同一螺壳几何导出，拆下时不再变成普通帽子。动作复用当前基础种骨架曲线并重映射；螺壳侧弯改为整体小幅转动，避免壳与头撕裂。缩壳等预览片段尚未作为独立生存动作触发。
+螺壳选用标准库 `marisa_tsumuri`，多毛灵梦选用已有 `reimu_wasa` 并适配基础尺度；不足形态由[配方](../standards/yukkuri-library/subspecies/deficient/recipes.json)生成。帽船原先选用既有 aquatic 配件源（`hat_boat` 道具，扁平碟形、比帽子大；2026-10-15 已删除，实体名 `hat_boat` 沿用）；2026-10-15 起改为魔理沙本人的帽子倒过来、帽冠压扁（`marisa_hat_turned`，陆地与水上压扁程度不同）。独立螺壳物品由同一螺壳几何导出，拆下时不再变成普通帽子。动作复用当前基础种骨架曲线并重映射；螺壳侧弯改为整体小幅转动，避免壳与头撕裂。缩壳等预览片段尚未作为独立生存动作触发。
 
 身体受伤表面、持食口部和饰物显隐按形态资源标识选择。豆形使用连续身体表面与混合骨骼，并保留背部标记；源码快照和运行资源同步生成。螺壳延续旧造型确认，多毛、先天不足与帽船适配待用户确认。
 

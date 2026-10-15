@@ -1532,28 +1532,6 @@
       "face_author_sha256": "093d9f7b281c5f41cb0c23d3eae678ce558d6c0879bd5053d8ab320de2fdb12c"
     }
   },
-  "hat_boat": {
-    "source": "standards/yukkuri-v1/subspecies/aquatic/accessory-components.json",
-    "source_sha256": "f5ce5bae2e4d0ef388af9c8091deef61a16bc9a481c253de1f18c232216098bd",
-    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_boat.json",
-    "runtime_sha256": "7b17bd9a43e1a1d7ac462f0a9c65a93b2f548fac5ab98cb7903b96dc8239f62c",
-    "shape_status": "selected_existing_prototype_pending_confirmation",
-    "bounds": [
-      [
-        -10.978495,
-        10.978495
-      ],
-      [
-        -4.05,
-        1.5085200000000003
-      ],
-      [
-        -8.649999999999999,
-        12.95
-      ]
-    ],
-    "part_count": 195
-  },
   "marisa_shell": {
     "source_model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
     "source_model_sha256": "ec98a472bd403532bbe4bf2cf4cfe8f9e88221c139ca836cd178f691490565c8",
