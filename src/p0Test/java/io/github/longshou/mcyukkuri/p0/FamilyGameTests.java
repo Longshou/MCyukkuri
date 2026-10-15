@@ -137,8 +137,40 @@ public final class FamilyGameTests {
             });
         }
         later(1,"size distribution",()-> {
-            int small=0,big=0;for(int seed=0;seed<1000;seed++){small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);}
-            check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
+            double saved=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
+            try {
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE);
+                int small=0,big=0;boolean legacy=true,bounded=true;
+                for(int seed=0;seed<1000;seed++) {
+                    small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);
+                    for(float scale:new float[]{.5f,.8f,.9f,1,1.1f,1.2f,2}) {
+                        var random=new java.util.Random(seed);double probability=.15+.70*Math.clamp((scale-.8)/.4,0,1);
+                        int expected=1;for(int i=0;i<4;i++)if(random.nextDouble()<probability)expected++;
+                        int actual=FamilyData.offspringCount(scale,seed);
+                        legacy&=actual==expected;bounded&=actual>=1&&actual<=5;
+                    }
+                }
+                check("default offspring probability preserves legacy seeded results",legacy,"7 scales / 1000 seeds");
+                check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(0.0);
+                boolean neutral=true;
+                for(int seed=0;seed<1000;seed++) {
+                    int count=FamilyData.offspringCount(1,seed);
+                    neutral&=count==FamilyData.offspringCount(.5f,seed)&&count==FamilyData.offspringCount(2,seed);
+                    bounded&=count>=1&&count<=5;
+                }
+                check("zero offspring size influence removes size differences",neutral,"same seed, small/standard/large");
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(1.4);
+                int strongerSmall=0,strongerBig=0;
+                for(int seed=0;seed<1000;seed++) {
+                    strongerSmall+=FamilyData.offspringCount(.8f,seed);strongerBig+=FamilyData.offspringCount(1.2f,seed);
+                }
+                check("higher offspring influence strengthens the size difference",strongerSmall<small&&strongerBig>big,strongerSmall+" / "+strongerBig);
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(4.0);
+                boolean capped=true;
+                for(int seed=0;seed<1000;seed++)capped&=FamilyData.offspringCount(.5f,seed)==1&&FamilyData.offspringCount(2,seed)==5;
+                check("strong influence clamps extreme mothers to 1-5 offspring",capped&&bounded,"limits remain unchanged");
+            } finally { FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(saved); }
         });
         later(1,"recorded bean-body birth",()-> {
             pair();var data=FamilyData.get(level);var brood=conceive(1);

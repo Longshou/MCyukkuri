@@ -123,7 +123,11 @@ public final class FamilyData extends SavedData {
     }
     /** A size-dependent distribution. The random seed is fixed until a conception actually commits. */
     public static int offspringCount(float maternalScale, long seed) {
-        Random random=new Random(seed); double probability=.15+.70*Math.clamp((maternalScale-.8)/.4,0,1);
+        Random random=new Random(seed);
+        double influence=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
+        double size=Math.clamp((maternalScale-.8)/.4,0,1);
+        // Keep the old default arithmetic exact; center other settings on p=.5 (mean three).
+        double probability=Math.clamp(.15+influence*size+(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE-influence)*.5,0,1);
         int count=1; for(int i=0;i<4;i++)if(random.nextDouble()<probability)count++;
         return count;
     }
