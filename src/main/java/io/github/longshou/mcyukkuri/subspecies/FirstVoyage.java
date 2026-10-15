@@ -52,7 +52,7 @@ public final class FirstVoyage {
     }
     private boolean freeParent(YukkuriEntity y){
         return parent(y)&&y.family().adult()&&healthy(y)&&!y.isPassenger()&&y.onGround()&&familyFree(y)
-                &&!y.dailyLife().active()&&!y.aquaticLife().firstVoyage().active()&&!y.aquaticLife().active()
+                &&y.life().activity().equals("idle")&&!y.dailyLife().active()&&!y.aquaticLife().firstVoyage().active()&&!y.aquaticLife().active()
                 &&!io.github.longshou.mcyukkuri.event.WildEvents.reserved(y)&&y.life().canRecognize(child)&&child.life().canRecognize(y);
     }
     /** Called by the aquatic goal, or by giving the ready juvenile a stick while sneaking. */
@@ -60,7 +60,7 @@ public final class FirstVoyage {
         if(active())return true;
         if(!needsLesson()||!readySize()||cooldown>0||!healthy(child)||child.isPassenger()||!child.onGround()
                 ||!child.life().hasAccessory()||child.subspecies().boatId()!=null||!familyFree(child)
-                ||!child.aquaticLife().hasStick()||child.life().hasUrgentNeed()||level().isNight()
+                ||!child.aquaticLife().hasStick()||child.life().hasUrgentNeed()||!child.life().activity().equals("idle")||child.dailyLife().active()||level().isNight()
                 ||io.github.longshou.mcyukkuri.event.WildEvents.reserved(child))return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+100;
         var parents=level().getEntitiesOfClass(YukkuriEntity.class,child.getBoundingBox().inflate(8,3,8),this::freeParent)
