@@ -20,6 +20,7 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
     public static final ModConfigSpec.IntValue SEASON_DAYS;
+    public static final ModConfigSpec.IntValue AUTUMN_STOCK_BUFFER;
     public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -52,6 +53,8 @@ public final class YukkuriConfig {
         SUMMER_TEMPERATURE = builder.defineInRange("summerTemperature", .45, -2.0, 2.0);
         AUTUMN_TEMPERATURE = builder.defineInRange("autumnTemperature", -.25, -2.0, 2.0);
         WINTER_TEMPERATURE = builder.defineInRange("winterTemperature", -.8, -2.0, 2.0);
+        AUTUMN_STOCK_BUFFER = builder.comment("Autumn stock estimate: extra percent above ordinary-forage winter meals, plus dry household spoilage. A planning target, not guaranteed survival.")
+                .defineInRange("autumnStockBufferPercent", 25, 0, 200);
         builder.pop().push("development");
         DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
         DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);

@@ -110,29 +110,48 @@ public final class ShelterBlockEntity extends BlockEntity {
     public static boolean bedding(ItemStack stack) { return stack.is(net.minecraft.tags.ItemTags.LEAVES)||stack.is(Items.PAPER)||stack.is(Items.SHORT_GRASS)||stack.is(Items.WHEAT); }
     public boolean repairMaterial(ItemStack stack) { return kind()==ShelterBlock.Kind.BURROW&&stack.is(Items.STICK); }
     public boolean needsMaterial(ItemStack stack) { return (branches<3||condition<95)&&repairMaterial(stack)||(lining<4||dirt>=30||moisture>=60)&&bedding(stack); }
-    public boolean accepts(ItemStack stack) { return needsMaterial(stack)||stack.is(YukkuriEntity.FOOD)&&food()<32; }
+    /** Capacity follows the actual item/components in each occupied slot; empty slots use ordinary forage for planning. */
+    public int foodCapacity() { return stock.stream().mapToInt(stack->stack.isEmpty()?Items.SHORT_GRASS.getDefaultInstance().getMaxStackSize():stack.getMaxStackSize()).sum(); }
+    public int foodSpace(ItemStack incoming) {
+        if(incoming.isEmpty()||!incoming.is(YukkuriEntity.FOOD))return 0;
+        int space=0;
+        for(var stored:stock) {
+            if(stored.isEmpty())space+=incoming.getMaxStackSize();
+            else if(ItemStack.isSameItemSameComponents(stored,incoming))space+=Math.max(0,stored.getMaxStackSize()-stored.getCount());
+        }
+        return space;
+    }
+    public boolean accepts(ItemStack stack) { return !stack.isEmpty()&&(needsMaterial(stack)||foodSpace(stack)>0); }
     public boolean deposit(ItemStack stack) {
         if(stack.getCount()!=1)return false;
         if((branches<3||condition<95)&&repairMaterial(stack)){branches=Math.min(3,branches+1);condition=Math.min(100,condition+15);changed();return true;}
         if((lining<4||dirt>=30||moisture>=60)&&bedding(stack)){
             if(lining<4)lining++;dirt=Math.max(0,dirt-30);moisture=Math.max(0,moisture-10);changed();return true;
         }
-        if(!stack.is(YukkuriEntity.FOOD)||food()>=32)return false;
-        for(int i=0;i<stock.size();i++)if(stock.get(i).isEmpty()||ItemStack.isSameItemSameComponents(stock.get(i),stack)&&stock.get(i).getCount()<16){
-            if(stock.get(i).isEmpty())stock.set(i,stack.copy());else stock.get(i).grow(1);changed();return true;
-        }
-        return false;
+        if(foodSpace(stack)==0)return false;
+        return returnFood(stack).isEmpty();
     }
     public ItemStack takeFood(YukkuriEntity entity) {
         if(!owns(entity.getUUID()))return ItemStack.EMPTY;
         for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&entity.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
         return ItemStack.EMPTY;
     }
-    public void returnFood(ItemStack stack) {
-        for(int i=0;i<stock.size();i++)if(stock.get(i).isEmpty()||ItemStack.isSameItemSameComponents(stock.get(i),stack)){
-            if(stock.get(i).isEmpty())stock.set(i,stack.copy());else stock.get(i).grow(stack.getCount());changed();return;
+    /** Transfer by copy, returning any unaccepted remainder to the caller; never overfill or drop it remotely. */
+    public ItemStack returnFood(ItemStack stack) {
+        var remaining=stack.copy();
+        if(remaining.isEmpty()||!remaining.is(YukkuriEntity.FOOD))return remaining;
+        // Merge existing compatible stacks first, so components do not unnecessarily consume all nine slots.
+        for(int pass=0;pass<2;pass++)for(int i=0;i<stock.size()&&!remaining.isEmpty();i++) {
+            var stored=stock.get(i);
+            if(pass==0&&(stored.isEmpty()||!ItemStack.isSameItemSameComponents(stored,remaining)))continue;
+            if(pass==1&&!stored.isEmpty())continue;
+            int room=stored.isEmpty()?remaining.getMaxStackSize():Math.max(0,stored.getMaxStackSize()-stored.getCount());
+            int moved=Math.min(room,remaining.getCount());if(moved==0)continue;
+            if(stored.isEmpty())stock.set(i,remaining.copyWithCount(moved));else stored.grow(moved);
+            remaining.shrink(moved);
         }
-        Containers.dropItemStack(level,entrance().getX()+.5,entrance().getY(),entrance().getZ()+.5,stack);
+        if(remaining.getCount()!=stack.getCount())changed();
+        return remaining;
     }
     public void initializeEncounter(int count) { lining=4;branches=kind()==ShelterBlock.Kind.BURROW?2:0;stock.set(0,new ItemStack(Items.SHORT_GRASS,Math.min(12,Math.max(2,count*2))));changed(); }
     public List<ItemEntity> wasteInside() {

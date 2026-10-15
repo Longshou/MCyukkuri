@@ -91,6 +91,7 @@ public final class NotebookItem extends Item {
                 entity.independence().observation(),
                 life.temperature().observation(),
                 io.github.longshou.mcyukkuri.season.SeasonCalendar.page((ServerLevel) entity.level()),
+                io.github.longshou.mcyukkuri.season.AutumnStock.observation(entity),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Math.round(life.nutrition()), Math.round(life.energy()),
                         Math.round(life.hygiene()), Math.round(life.wetness()), Math.round(life.bladder()),
