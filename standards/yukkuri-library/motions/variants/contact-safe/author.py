@@ -14,8 +14,11 @@ All lengths derive from the blush centre (face scale), not the body height, so
 tall bean bodies and small house bodies keep the same facial proportion. All
 outputs are one rest-space morph target scaled by the clip's puff envelope.
 """
-import math
+import json, math, runpy
+from pathlib import Path
 import numpy as np
+
+LIBRARY = Path(__file__).resolve().parents[3]
 
 
 def smooth(x):
@@ -674,6 +677,18 @@ def compile_revision(model, cfg, face):
     in_place = [{'part_index': i, 'offsets': [round(float(x), digits) for x in o.reshape(-1)]}
                 for i, o in sorted(moved.items()) if np.abs(o).max() > 1e-6]
 
+    def ground(scale, rot):
+        """Root y offset that puts the lowest visible point back on the floor."""
+        ry, rz = math.radians(rot[1]), math.radians(rot[2])
+        if rot[0] == 0:  # Rz*Ry*S, the form every clip up to v8 used
+            row = [math.sin(rz)*math.cos(ry)*scale[0], math.cos(rz)*scale[1], math.sin(rz)*math.sin(ry)*scale[2]]
+        else:  # y row of Rz*Ry*Rx*S
+            rx = math.radians(rot[0]); sx, cx = math.sin(rx), math.cos(rx)
+            row = [math.sin(rz)*math.cos(ry)*scale[0], (math.sin(rz)*math.sin(ry)*sx+math.cos(rz)*cx)*scale[1],
+                   (math.sin(rz)*math.sin(ry)*cx-math.cos(rz)*sx)*scale[2]]
+        lowest = min(sum(row[k]*(v[k]-pivot[k]) for k in range(3))+pivot[1] for v in points)
+        return floor-lowest
+
     result = {}
     for action in cfg['actions']:
         duration = cfg['hop_seconds'] if action == 'hop' else model['clips'][action]['duration']
@@ -682,11 +697,7 @@ def compile_revision(model, cfg, face):
         times = [duration*i/count for i in range(count+1)]
         for t in times:
             scale, rot, lift = state(action, t, duration, cfg, height, angle)
-            # Rx is zero. With Rz*Ry*S the resulting y row is enough for contact.
-            ry, rz = math.radians(rot[1]), math.radians(rot[2])
-            row = [math.sin(rz)*math.cos(ry)*scale[0], math.cos(rz)*scale[1], math.sin(rz)*math.sin(ry)*scale[2]]
-            lowest = min(sum(row[k]*(v[k]-pivot[k]) for k in range(3))+pivot[1] for v in points)
-            pos_ = [0, floor-lowest+lift, 0]
+            pos_ = [0, ground(scale, rot)+lift, 0]
             for c, value in [('position', pos_), ('rotation', rot), ('scale', scale)]:
                 keys[c].append([round(t, 8), *[round(x, 7) for x in value]])
         clip = {'duration': duration, 'loop': model['clips'][action]['loop'],
@@ -696,6 +707,12 @@ def compile_revision(model, cfg, face):
             clip['expression_spans'] = [[span[0], span[1], 'cheek_puff']]
             clip['puff_envelope'] = [span[0], span[1], cfg['puff_ramp'], cfg['puff_tremor'], cfg['puff_tremor_hz']]
         result[action] = clip
+    # World-setting motions (v9): new clip names the game selects from everyday behaviors.
+    if cfg.get('lore'):
+        lore_cfg = json.loads((LIBRARY/cfg['lore']).read_text(encoding='utf-8'))
+        lore = runpy.run_path(str((LIBRARY/cfg['lore']).parent/'author.py'))
+        result.update(lore['compile_clips'](model, lore_cfg, root, ground, height))
+        cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=cfg['braid_follow']['actions']+lore_cfg['braid_follow']))
     result.update(braid_follow(model, cfg, result))
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'puff_surface': surface, 'puff_attachments': attachments, 'puff_offsets': in_place,

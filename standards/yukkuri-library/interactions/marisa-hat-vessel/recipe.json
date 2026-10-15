@@ -1,0 +1,116 @@
+{
+  "version": 4,
+  "status": "pending_user_review",
+  "note": "Marisa's own hat turned upside down with its soft crown pressed flat: the cradle on land and the boat afloat. Model units (16 per block) at growth 1. The hat is the worn hat copied box for box with a well opened in it; these are the opening's wall, how far the crown is pressed, the aquatic hat's size, the young's places, how a helper is placed, and the pregnant body used to find the live exit.",
+  "lore": "user 2026-10-15: turned over, the hat's soft top gives like a nest (a likeness); just turn the hat upside down and squash its bottom, without turning it into another shape",
+  "wall": 0.55,
+  "aquatic_scale": 1.5,
+  "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
+  "nest": {
+    "height": 3.2,
+    "lore": "on the ground the crown is pressed until the turned-over hat stands this high on it, low enough that a newborn pushed out of the live exit clears the near brim on a short arc"
+  },
+  "bowl": {
+    "squash": 0.75,
+    "freeboard": 1.2,
+    "lore": "afloat the crown, pressed a little, hangs under the water (EH22); the owner rests at the stern on the ledge in the opening; by day the young ride on the floor before her, at night under her (user, 2026-10-14)"
+  },
+  "rim_out": 1.2,
+  "hover": 3.0,
+  "grip_lore": "on the head the braid hooks one brim point on its own side (saved braid interactions v2 take the hat by one brim point), chosen so it is also in reach when the turned-over hat is pressed down and the hat turned so that point comes toward the braid; set down, the braid holds the brim just outside the opening",
+  "self_bow": -14,
+  "self_hover": 1.2,
+  "reach": {
+    "land": [
+      0.75,
+      1.2
+    ],
+    "aquatic": [
+      0.75,
+      1.45
+    ]
+  },
+  "float": {
+    "bank_drop": 1.8,
+    "under_bank": 2.0,
+    "helper_back": 3.0,
+    "lore": "at a bank the aquatic Marisa catches in her hat floated at the water's edge before the outlet, its near brim slipped under the bank; a newborn pushed too hard flies past it into the river (user, 2026-10-14). bank_drop: the water surface below the bank top"
+  },
+  "helper": {
+    "reach_ideal": 1.0,
+    "reach_weight": 20,
+    "look": 0.35,
+    "distance": 0.4,
+    "grip_side_min": 3.0,
+    "body_radius": 6.4,
+    "mother_clear": 2.5,
+    "hat_clear": 1.0,
+    "lore": "the helper keeps clear of the swollen mother and of the hat's brim (user 2026-10-15: the father stood too close and went through), holds the brim on her braid side and looks toward the outlet; the brim point the braid holds stays out of the newborn's path (corridor: half width beside the outlet line)",
+    "corridor": 2.6
+  },
+  "pregnancy": {
+    "swell": 0.26,
+    "low_wide": 0.16,
+    "low_front": 0.28,
+    "low_back": 0.06,
+    "low_peak": 1.5,
+    "low_fade": 4.5,
+    "front_ramp": 4.0,
+    "lore": "LiveBirthGeometry.deform; used for the live exit (the body's half width at a full belly)"
+  },
+  "delivery": {
+    "gravity": 1.28,
+    "gravity_lore": "Minecraft's 0.08 blocks per tick squared, in model units",
+    "gap": {
+      "helper": 3.0,
+      "self": [
+        3.0,
+        2.5,
+        2.0,
+        1.5,
+        1.0,
+        0.75
+      ]
+    },
+    "gap_lore": "between the live exit (the newborn's round body) and the near brim: a helper sets the hat this far out; a mother on her own sets it as far as her braid reaches (the first that fits)",
+    "self_reach": 1.5,
+    "tmin": 5,
+    "tmax": 16,
+    "max_speed": 4.0,
+    "hop_tmin": 4,
+    "clear": 0.35,
+    "overshoot": 3.0,
+    "young_radius": 0.42,
+    "overlap": 1.1,
+    "ledge_cost": 4.0,
+    "path_cost": 30.0,
+    "step": 0.25,
+    "regions": {
+      "catch": {
+        "prefer": [
+          -0.28,
+          0.0
+        ]
+      },
+      "day": {
+        "prefer": [
+          0.0,
+          -3.4
+        ],
+        "z_max": 0.5
+      },
+      "night": {
+        "prefer": [
+          0.0,
+          2.4
+        ],
+        "z_min": -1.0
+      }
+    },
+    "settle": 0.6,
+    "out_gap": 0.8,
+    "out_spread": 1.15,
+    "fall_speed": 0.24,
+    "lore": "user 2026-10-15: the young clipped into the hat on land, the stem young's fall swerved and the bank arc was wrong; newborns now fly true arcs under gravity over the brim, stem fruit drop straight and bounce in from the brim or the ground, and each young sits apart (round body, radius young_radius of its collision width)"
+  }
+}

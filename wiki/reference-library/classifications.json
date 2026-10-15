@@ -1,0 +1,3571 @@
+{
+  "schema_version": 1,
+  "topics": [
+    {
+      "id": "appearance",
+      "title": "造型、饰物与比例",
+      "scope": "帽发轮廓、翼形、已纳入实体造型、亲子及人类同场尺度；个体污迹与受损形状不作标准。",
+      "featured": [
+        "EH02-003",
+        "M01-001"
+      ]
+    },
+    {
+      "id": "motion",
+      "title": "动作、表情与持物",
+      "scope": "摇摆、滚动、跳跃、回望、衔物、划桨、贴靠和情绪变化；悬空画格不自动证明飞行。",
+      "featured": [
+        "M04-002",
+        "EH22-005"
+      ]
+    },
+    {
+      "id": "habitat",
+      "title": "住所、巢材与空间",
+      "scope": "草床、叶铺层、纸箱、家具缝隙、箱笼、模块管道和成长后的容量；设施出现不等于适居。",
+      "featured": [
+        "EH19-005",
+        "M01-001"
+      ]
+    },
+    {
+      "id": "feeding",
+      "title": "食物、采集与照料",
+      "scope": "衔草、叶盘、储粮、投喂、拒食与食源判断；角色称作食物的东西未必可食。",
+      "featured": [
+        "EH19-004",
+        "M03-001"
+      ]
+    },
+    {
+      "id": "growth",
+      "title": "成长、出生与家庭",
+      "scope": "茎果、胎生、卵、亲子大小和家庭照料；不同出生方式分别登记，不统一日龄。",
+      "featured": [
+        "M04-001",
+        "EH26-002"
+      ]
+    },
+    {
+      "id": "cognition",
+      "title": "认知、语言与教育",
+      "scope": "识字、数量、礼貌、误认、交流、习惯化和信任；叙述者判断与可见行为分开。",
+      "featured": [
+        "EH25-002",
+        "M02-001"
+      ]
+    },
+    {
+      "id": "society",
+      "title": "身份、徽章与群体关系",
+      "scope": "徽章佩戴和考试、失饰识别、领袖、排斥、共享及占有标记；有章不等于受到喜爱。",
+      "featured": [
+        "EH07-003",
+        "M02-001"
+      ]
+    },
+    {
+      "id": "human",
+      "title": "人类、器具与设施",
+      "scope": "服装、文具、包装、杯具、软物、商店和工厂；约束与捕捉物件明确情境，不当温和照料范本。",
+      "featured": [
+        "M13-001",
+        "M01-002"
+      ]
+    },
+    {
+      "id": "environment",
+      "title": "季节、水域与迁徙",
+      "scope": "风雪、街巷、资源季节性、帽船、路线、队列和自然危险；异常冬季与普通冬季分列。",
+      "featured": [
+        "EH22-001",
+        "M01-005"
+      ]
+    },
+    {
+      "id": "body",
+      "title": "身体材质、状态与版本差异",
+      "scope": "成长形变、受压、体质、耐水与受损状态；只记录具体版本，恢复机制没有图证时留缺。",
+      "featured": [
+        "M01-004",
+        "M04-011"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "M01-001",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-002",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "habitat",
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-003",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-004",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-005",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-006",
+      "source_id": "M01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-007",
+      "source_id": "M01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-008",
+      "source_id": "M01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-009",
+      "source_id": "M01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-010",
+      "source_id": "M01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-011",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M01-012",
+      "source_id": "M01",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-001",
+      "source_id": "M02",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-002",
+      "source_id": "M02",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "cognition",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-003",
+      "source_id": "M02",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-004",
+      "source_id": "M02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-005",
+      "source_id": "M02",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-006",
+      "source_id": "M02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-007",
+      "source_id": "M02",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M02-008",
+      "source_id": "M02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-001",
+      "source_id": "M03",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-002",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-003",
+      "source_id": "M03",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-004",
+      "source_id": "M03",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-005",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-006",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-007",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-008",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-009",
+      "source_id": "M03",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-010",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-011",
+      "source_id": "M03",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M03-012",
+      "source_id": "M03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-001",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "habitat",
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-002",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-003",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-004",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-005",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-006",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion",
+        "growth"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-007",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-008",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-009",
+      "source_id": "M04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-010",
+      "source_id": "M04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-011",
+      "source_id": "M04",
+      "kind": "reference",
+      "topics": [
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M04-012",
+      "source_id": "M04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-001",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-002",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-003",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-004",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-005",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-006",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-007",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-008",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M06-009",
+      "source_id": "M06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-001",
+      "source_id": "M07",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "appearance",
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-002",
+      "source_id": "M07",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-003",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-004",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-005",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-006",
+      "source_id": "M07",
+      "kind": "reference",
+      "topics": [
+        "body",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-007",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-008",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-009",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-010",
+      "source_id": "M07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M07-011",
+      "source_id": "M07",
+      "kind": "reference",
+      "topics": [
+        "society"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-001",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-002",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-003",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-004",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-005",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-006",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-007",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-008",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-009",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-010",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-011",
+      "source_id": "M09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M09-012",
+      "source_id": "M09",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-001",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-002",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-003",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-004",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-005",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-006",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-007",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-008",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-009",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-010",
+      "source_id": "M10",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-011",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M10-012",
+      "source_id": "M10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-001",
+      "source_id": "M11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-002",
+      "source_id": "M11",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-003",
+      "source_id": "M11",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "body"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-004",
+      "source_id": "M11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-005",
+      "source_id": "M11",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "society",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-006",
+      "source_id": "M11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-007",
+      "source_id": "M11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M11-008",
+      "source_id": "M11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-001",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-002",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-003",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-004",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-005",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-006",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-007",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-008",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-009",
+      "source_id": "M12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-010",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-011",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M12-012",
+      "source_id": "M12",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-001",
+      "source_id": "M13",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-002",
+      "source_id": "M13",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-003",
+      "source_id": "M13",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "feeding",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-004",
+      "source_id": "M13",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-005",
+      "source_id": "M13",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M13-006",
+      "source_id": "M13",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-001",
+      "source_id": "M14",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-002",
+      "source_id": "M14",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-003",
+      "source_id": "M14",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-004",
+      "source_id": "M14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-005",
+      "source_id": "M14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-006",
+      "source_id": "M14",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-007",
+      "source_id": "M14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M14-008",
+      "source_id": "M14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-001",
+      "source_id": "M15",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-002",
+      "source_id": "M15",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-003",
+      "source_id": "M15",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-004",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-005",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-006",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-007",
+      "source_id": "M15",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-008",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-009",
+      "source_id": "M15",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-010",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-011",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M15-012",
+      "source_id": "M15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-001",
+      "source_id": "M05",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "appearance",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-002",
+      "source_id": "M05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-003",
+      "source_id": "M05",
+      "kind": "reference",
+      "topics": [
+        "body",
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-004",
+      "source_id": "M05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-005",
+      "source_id": "M05",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M05-006",
+      "source_id": "M05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-001",
+      "source_id": "M08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-002",
+      "source_id": "M08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-003",
+      "source_id": "M08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-004",
+      "source_id": "M08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-005",
+      "source_id": "M08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "M08-006",
+      "source_id": "M08",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "cognition",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-001",
+      "source_id": "EH01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-002",
+      "source_id": "EH01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-003",
+      "source_id": "EH01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-004",
+      "source_id": "EH01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-005",
+      "source_id": "EH01",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-006",
+      "source_id": "EH01",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-007",
+      "source_id": "EH01",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH01-008",
+      "source_id": "EH01",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-001",
+      "source_id": "EH02",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-002",
+      "source_id": "EH02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-003",
+      "source_id": "EH02",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "society",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-004",
+      "source_id": "EH02",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-005",
+      "source_id": "EH02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-006",
+      "source_id": "EH02",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-007",
+      "source_id": "EH02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH02-008",
+      "source_id": "EH02",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-001",
+      "source_id": "EH03",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-002",
+      "source_id": "EH03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-003",
+      "source_id": "EH03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-004",
+      "source_id": "EH03",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-005",
+      "source_id": "EH03",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-006",
+      "source_id": "EH03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-007",
+      "source_id": "EH03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH03-008",
+      "source_id": "EH03",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH04-001",
+      "source_id": "EH04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH04-002",
+      "source_id": "EH04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH04-003",
+      "source_id": "EH04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH04-004",
+      "source_id": "EH04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH04-005",
+      "source_id": "EH04",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-001",
+      "source_id": "EH05",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-002",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-003",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-004",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-005",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-006",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-007",
+      "source_id": "EH05",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH05-008",
+      "source_id": "EH05",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-001",
+      "source_id": "EH06",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-002",
+      "source_id": "EH06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-003",
+      "source_id": "EH06",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "habitat",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-004",
+      "source_id": "EH06",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "habitat"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-005",
+      "source_id": "EH06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-006",
+      "source_id": "EH06",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-007",
+      "source_id": "EH06",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH06-008",
+      "source_id": "EH06",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-001",
+      "source_id": "EH07",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-002",
+      "source_id": "EH07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-003",
+      "source_id": "EH07",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-004",
+      "source_id": "EH07",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-005",
+      "source_id": "EH07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-006",
+      "source_id": "EH07",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-007",
+      "source_id": "EH07",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH07-008",
+      "source_id": "EH07",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-001",
+      "source_id": "EH08",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-002",
+      "source_id": "EH08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-003",
+      "source_id": "EH08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-004",
+      "source_id": "EH08",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-005",
+      "source_id": "EH08",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-006",
+      "source_id": "EH08",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-007",
+      "source_id": "EH08",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH08-008",
+      "source_id": "EH08",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-001",
+      "source_id": "EH09",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-002",
+      "source_id": "EH09",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "body"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-003",
+      "source_id": "EH09",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-004",
+      "source_id": "EH09",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-005",
+      "source_id": "EH09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-006",
+      "source_id": "EH09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-007",
+      "source_id": "EH09",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "environment",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH09-008",
+      "source_id": "EH09",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-001",
+      "source_id": "EH10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-002",
+      "source_id": "EH10",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-003",
+      "source_id": "EH10",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-004",
+      "source_id": "EH10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-005",
+      "source_id": "EH10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-006",
+      "source_id": "EH10",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-007",
+      "source_id": "EH10",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH10-008",
+      "source_id": "EH10",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-001",
+      "source_id": "EH11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-002",
+      "source_id": "EH11",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-003",
+      "source_id": "EH11",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "body"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-004",
+      "source_id": "EH11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-005",
+      "source_id": "EH11",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-006",
+      "source_id": "EH11",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-007",
+      "source_id": "EH11",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "habitat",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH11-008",
+      "source_id": "EH11",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "body"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-001",
+      "source_id": "EH12",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-002",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-003",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-004",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-005",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-006",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-007",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH12-008",
+      "source_id": "EH12",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH13-001",
+      "source_id": "EH13",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-001",
+      "source_id": "EH14",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-002",
+      "source_id": "EH14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-003",
+      "source_id": "EH14",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "motion",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-004",
+      "source_id": "EH14",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-005",
+      "source_id": "EH14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-006",
+      "source_id": "EH14",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-007",
+      "source_id": "EH14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH14-008",
+      "source_id": "EH14",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-001",
+      "source_id": "EH15",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-002",
+      "source_id": "EH15",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-003",
+      "source_id": "EH15",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-004",
+      "source_id": "EH15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-005",
+      "source_id": "EH15",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-006",
+      "source_id": "EH15",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-007",
+      "source_id": "EH15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH15-008",
+      "source_id": "EH15",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-001",
+      "source_id": "EH16",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-002",
+      "source_id": "EH16",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-003",
+      "source_id": "EH16",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-004",
+      "source_id": "EH16",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-005",
+      "source_id": "EH16",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-006",
+      "source_id": "EH16",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-007",
+      "source_id": "EH16",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-008",
+      "source_id": "EH16",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH16-009",
+      "source_id": "EH16",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH17-001",
+      "source_id": "EH17",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH17-002",
+      "source_id": "EH17",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-001",
+      "source_id": "EH18",
+      "kind": "provenance",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-002",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-003",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-004",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-005",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-006",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-007",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH18-008",
+      "source_id": "EH18",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-001",
+      "source_id": "EH19",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-002",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-003",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-004",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-005",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-006",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-007",
+      "source_id": "EH19",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH19-008",
+      "source_id": "EH19",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-001",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-002",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-003",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-004",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-005",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-006",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-007",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH21-008",
+      "source_id": "EH21",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-001",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-002",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-003",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-004",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-005",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-006",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-007",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH20-008",
+      "source_id": "EH20",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-001",
+      "source_id": "EH23",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-002",
+      "source_id": "EH23",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-003",
+      "source_id": "EH23",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-004",
+      "source_id": "EH23",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-005",
+      "source_id": "EH23",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "appearance",
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH23-006",
+      "source_id": "EH23",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "habitat",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-001",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-002",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-003",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-004",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-005",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-006",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-007",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH24-008",
+      "source_id": "EH24",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-001",
+      "source_id": "EH25",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-002",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-003",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-004",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society",
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-005",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-006",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "human",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-007",
+      "source_id": "EH25",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "motion",
+        "society",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH25-008",
+      "source_id": "EH25",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-001",
+      "source_id": "EH27",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-002",
+      "source_id": "EH27",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-003",
+      "source_id": "EH27",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-004",
+      "source_id": "EH27",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-005",
+      "source_id": "EH27",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-006",
+      "source_id": "EH27",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-007",
+      "source_id": "EH27",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH27-008",
+      "source_id": "EH27",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-001",
+      "source_id": "EH28",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-002",
+      "source_id": "EH28",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-003",
+      "source_id": "EH28",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-004",
+      "source_id": "EH28",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "growth"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-005",
+      "source_id": "EH28",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-006",
+      "source_id": "EH28",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-007",
+      "source_id": "EH28",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH28-008",
+      "source_id": "EH28",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "body"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-001",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-002",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-003",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-004",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-005",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-006",
+      "source_id": "EH29",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH29-007",
+      "source_id": "EH29",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-001",
+      "source_id": "EH30",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-002",
+      "source_id": "EH30",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-003",
+      "source_id": "EH30",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-004",
+      "source_id": "EH30",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-005",
+      "source_id": "EH30",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-006",
+      "source_id": "EH30",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-007",
+      "source_id": "EH30",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH30-008",
+      "source_id": "EH30",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-001",
+      "source_id": "EH22",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "appearance",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-002",
+      "source_id": "EH22",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-003",
+      "source_id": "EH22",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-004",
+      "source_id": "EH22",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-005",
+      "source_id": "EH22",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-006",
+      "source_id": "EH22",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-007",
+      "source_id": "EH22",
+      "kind": "reference",
+      "topics": [
+        "environment",
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH22-008",
+      "source_id": "EH22",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-001",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "society"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-002",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "society",
+        "appearance"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-003",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-004",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "appearance",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-005",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "habitat",
+        "human"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-006",
+      "source_id": "EH26",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "body",
+        "motion"
+      ],
+      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-007",
+      "source_id": "EH26",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH26-008",
+      "source_id": "EH26",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
+      "classified_on": "2026-10-14"
+    }
+  ]
+}

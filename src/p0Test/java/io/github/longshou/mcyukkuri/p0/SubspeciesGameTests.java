@@ -80,6 +80,8 @@ public final class SubspeciesGameTests {
         var birth=first.subspecies().save().copy();SubspeciesLife.onBirth(first,null,null);
         check("repeated birth hook cannot reroll",birth.equals(first.subspecies().save()));
         first.subspecies().onNaturalSpawn(MobSpawnType.NATURAL);check("natural hook cannot reroll birth",birth.equals(first.subspecies().save()));
+        check("land Marisa never launches a hat boat",HatBoatEntity.createFor(owner,new BlockPos(X+5,65,7))==null);
+        owner.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
         boat=HatBoatEntity.createFor(owner,new BlockPos(X+5,65,7));
         check("launch creates a real boat",boat!=null);
         if(boat==null)throw new IllegalStateException("Boat launch failed");
@@ -123,7 +125,7 @@ public final class SubspeciesGameTests {
         check("capsized boat can be rescued from bank",boat.rescue(new BlockPos(X+4,66,7),UUID.randomUUID()));
         check("rescue returns same hat and clears boat",owner.life().hasAccessory()&&owner.subspecies().boatId()==null&&boat.state()==HatBoatEntity.State.RESCUED);
         check("rescue is single-use",!boat.rescue(new BlockPos(X+4,66,7),UUID.randomUUID()));
-        check("experience is acquired separately",owner.subspecies().boatExperienced()&&owner.subspecies().kind()==SubspeciesLife.Kind.NORMAL);
+        check("experience is acquired separately",owner.subspecies().boatExperienced()&&owner.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA);
         owner.teleportTo(X+7.5,65.2,7.5);
         check("falling into water never creates a boat",HatBoatEntity.tryLaunchNearby(owner)==null);
     }

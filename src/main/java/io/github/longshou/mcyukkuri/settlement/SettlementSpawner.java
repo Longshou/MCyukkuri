@@ -66,8 +66,10 @@ public final class SettlementSpawner {
         if (seedLeader) members.add(seed);
         for (var household : composition.households()) {
             List<YukkuriEntity> family = new ArrayList<>();
+            // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
+            boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
-                YukkuriVariant variant = i < household.parents() ? COMMON[level.random.nextInt(COMMON.length)]
+                YukkuriVariant variant = i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
                         : family.get(level.random.nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
@@ -113,6 +115,8 @@ public final class SettlementSpawner {
         for (int i = 0; i < households.size(); i++) {
             var family = households.get(i); var plan = composition.households().get(i);
             YukkuriEntity first = family.getFirst(), second = plan.parents() == 2 ? family.get(1) : null;
+            // Generated children take the first parent as mother: a Reimu with a Marisa is always the mother.
+            if (second != null && first.getVariant() == YukkuriVariant.MARISA && second.getVariant() == YukkuriVariant.REIMU) { var swap = first; first = second; second = swap; }
             if (second != null && !first.family().introduce(second)) {
                 rollback(level,added,homes,seed,seedSnapshot);SettlementData.get(level).remove(group.id);return List.of();
             }

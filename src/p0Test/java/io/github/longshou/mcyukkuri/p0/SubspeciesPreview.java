@@ -53,7 +53,7 @@ final class SubspeciesPreview {
             for(var p:BlockPos.betweenClosed(230,63,5,237,63,10))level.setBlockAndUpdate(p,Blocks.SMOOTH_QUARTZ.defaultBlockState());
             for(var p:BlockPos.betweenClosed(230,64,5,237,64,10))level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState());
             y.teleportTo(229.5,65,7.5);
-            if(!kind.equals("bank")){var boat=HatBoatEntity.createFor(y,new BlockPos(230,64,7));
+            if(!kind.equals("bank")){y.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);var boat=HatBoatEntity.createFor(y,new BlockPos(230,64,7));
                 if(boat==null)throw new IllegalStateException("preview boat launch failed");
                 if(kind.equals("capsized"))boat.capsize();}
         }

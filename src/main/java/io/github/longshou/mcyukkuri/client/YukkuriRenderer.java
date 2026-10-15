@@ -95,15 +95,20 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 behavior = "house_crawl";
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
-            if (behavior.equals("sleep_enter")) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
-            else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
-            else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
+            // Models with the world-setting sleep clips breathe and wake in the clip itself.
+            if (!model.hasClip("sleep")) {
+                if (behavior.equals("sleep_enter")) pose.scale(1, 1 - Math.min(1, phaseTicks/20)*.04f, 1);
+                else if (behavior.equals("sleep")) pose.scale(1, .96f, 1);
+                else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
+            }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();
             model.renderLiving(operated||behavior.equals("slide_down")?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
+            // Captured before anything else poses this shared model (stem fruits reuse it).
+            var root=model.rootPose();
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){
@@ -115,6 +120,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else {
                     var mouth=new org.joml.Vector3f(presentation.x()*16,presentation.y()*16,presentation.z()*16);
                     io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(mouth,entity.livePregnancyProgress(),0);
+                    root.transformPosition(mouth);  // the food stays in the mouth while the body leans or bobs
                     pose.translate(mouth.x/16,mouth.y/16,mouth.z/16);
                 }
                 if(heldIndex==0&&io.github.longshou.mcyukkuri.life.Consumables.oral(held)){
@@ -138,7 +144,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setDelivery(null);model.setPregnancy(0,0);
             pose.popPose();
             pose.popPose();
+            // The stem grows from the forehead: carry it with the body's root motion, in this block-scaled space.
+            pose.pushPose();
+            var follow=new org.joml.Matrix4f(root);float units=entity.growthScale()/16f;
+            follow.m30(follow.m30()*units);follow.m31(follow.m31()*units);follow.m32(follow.m32()*units);
+            pose.last().pose().mul(follow);pose.last().normal().mul(new org.joml.Matrix3f(follow));
             FamilyRenderer.render(entity,pose,buffers,packedLight);
+            pose.popPose();
             pose.popPose();
         }
         super.render(entity, yaw, partialTick, pose, buffers, packedLight);
@@ -150,6 +162,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);
         float wave=(float)Math.sin(phaseTicks*Math.PI/20);
+        // The nuzzle, sing and sway clips carry the rubbing and swaying; only the approach stays here.
+        if(YukkuriModel.get(entity.subspecies().assetId()).hasClip(entity.getAnimationId())&&!contact.equals("RUB"))wave=0;
         if(!operated&&behavior.equals("nuzzle")||contact.equals("RUB")) {
             float lean=0;
             if(behavior.equals("nuzzle")&&entity.level().getEntity(entity.nuzzlePartnerId()) instanceof YukkuriEntity peer

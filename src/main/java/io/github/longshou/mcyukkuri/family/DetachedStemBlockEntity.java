@@ -73,7 +73,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         for(int i=0;i<brood.children.size();i++)for(float progress:new float[]{brood.progress(),1}){
             var child=brood.children.get(i);if(child.born)continue;
             var point=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,parent,child.variant,bottled));
-            var box=io.github.longshou.mcyukkuri.registry.ModEntities.forVariant(child.variant).getDimensions().scale(.3f).makeBoundingBox(point).inflate(.04);
+            var box=LiveBirthGeometry.childDimensions(child,1).scale(GrowthSize.STEM/LiveBirthGeometry.BABY_SCALE).makeBoundingBox(point).inflate(.04);
             if(!clearBox(level,box))return false;
         }
         return true;

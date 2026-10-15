@@ -1,5 +1,15 @@
 # 当前动作适配
 
+2026-10-14，第 10 版：在第 9 版的世界观动作上，把魔理沙的摘帽换成用辫子摆弄帽子的 10 段（`hat_off`、`hat_hold`、`hat_on`、`hat_off_self`、`hat_on_self`，以及水生大帽的 `_aq` 版本），去掉 `doff_hat`。只有 `marisa` 的片段有增减，其他 18 种形态的片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。辫子和帽子的轨迹由 [hat.py](../../../standards/yukkuri-library/motions/variants/lore/hat.py) 按[帽子翻过来](../../../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位求解；2026-10-15 起帽子倒过来放下时帽冠压扁（陆地贴地、水上略压）；同日为让新生儿沿抛物线越过帽檐落进帽里，陆上帽子改放在出口正前方，辫子动作随新站位重新求解。多毛灵梦补上呆滞与白眼哭泣两张脸（与灵梦同一张图集），其 `bereaved` 不再回落到惊讶。
+
+第 9 版：同一资源新增 27 段[世界观动作](../../../standards/yukkuri-library/motions/variants/lore/README.md)，作为新的片段名合并进 19 种形态。
+
+- 日常、社交与情绪 15 段。
+- 分娩与接生 7 段（第 10 版起摘帽改为辫子动作）。
+- 水生魔理沙的帽船 6 段。
+
+每段按种族门控，只编入适用的形态，并带表情编排。[世界观动作预览](previews/current/lore/index.html)是唯一的预览文件，直接双击打开：一页演示夫妻、接生与出生的子油，一页逐个播放动作。呆滞脸贴图来源见 [extra-faces.json](extra-faces.json)。状态为待复查。第 8 版加入的魔理沙单辫跟随已随单辫动作保存。
+
 2026-10-07 追加：接入[头饰与头发位置适配](../placement-fit/README.md)后，本修订按拼接后的网格重新导出，脸颊让位和侧发外摆以新的头发、帽子为障碍。灵梦、歪脸灵梦外摆角度与压脸量和之前相同（10.75°、14°）；魔理沙、歪脸魔理沙的侧发由固定改为外摆（11.5°、14°），脸颊不再被侧发压扁；其余形态的鼓腮结果不变。检查与预览已按新导出重跑，结果见[本轮验收](reports/current/README.md)。
 
 2026-10-07，第七版鼓腮修订，状态为待用户复查。当前入口：[常态与满腮五视图](previews/current/review.png)、[19种形态特写](previews/current/close-ups.png)、[19种形态斜侧面](previews/current/all-models.png)、[左右侧面接触视角](previews/current/contact-angles.png)、[单体动图](previews/current/puff.gif)、[四种形态连续动作](previews/current/face-stability.gif)。

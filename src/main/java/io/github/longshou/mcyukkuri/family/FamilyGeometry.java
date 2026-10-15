@@ -34,7 +34,7 @@ public final class FamilyGeometry {
         double units=STEM.get("reference_units_to_model").getAsDouble()/16;
         double origin=STEM.getAsJsonArray("reference_origin").get(1).getAsDouble();
         var variant=DATA.getAsJsonObject("variants").getAsJsonObject(mother.assetId());
-        // Children stay at 0.30 at birth, so small adults cannot compress the sockets into them.
+        // Sockets never shrink below the standard parent's, so small adults cannot compress them into their fruit.
         double extent=Math.max(1,scale),rise=(y-origin)*units*length(count,variance)*extent;
         double depth=variant.has("depth_clearance")?variant.get("depth_clearance").getAsDouble():STEM.get("depth_clearance").getAsDouble();
         double routeHeight=variant.has("clearance_rise")?variant.get("clearance_rise").getAsDouble()*scale/16:.3*units;
@@ -50,7 +50,7 @@ public final class FamilyGeometry {
         var a=STEM.getAsJsonObject("socket_layouts").getAsJsonArray(String.valueOf(count)).get(index).getAsJsonArray();
         return point(a.get(0).getAsDouble(),a.get(1).getAsDouble(),count,scale,variance,mother);
     }
-    public static float fruitScale(float progress) { return Mth.lerp(Math.clamp((progress-.15f)/.8f,0,1),.12f,.30f); }
+    public static float fruitScale(float progress) { return GrowthSize.fruit(progress); }
     public static double pendant(float motherScale) { return STEM.get("pendant_length_reference").getAsDouble()*STEM.get("reference_units_to_model").getAsDouble()/16*motherScale; }
     public static Vec3 childBase(int count,int index,float progress,float motherScale,float variance,YukkuriVariant mother,YukkuriVariant child) {
         var config=DATA.getAsJsonObject("variants").getAsJsonObject(child.assetId());

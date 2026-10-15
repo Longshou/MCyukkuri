@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -17,22 +18,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 @EventBusSubscriber(modid=MCYukkuri.MOD_ID,bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
 public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
-    private final java.util.List<float[]> waterMask=new java.util.ArrayList<>();
-    public HatBoatRenderer(EntityRendererProvider.Context context) {
-        super(context); shadowRadius=.45f;
-        // Follow the actual exported inner brim instead of guessing an ellipse.
-        try(var reader=net.minecraft.client.Minecraft.getInstance().getResourceManager().getResourceOrThrow(MCYukkuri.id("yukkuri_props/hat_boat.json")).openAsReader()){
-            var model=com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();var vertices=model.getAsJsonArray("vertices");
-            for(var raw:model.getAsJsonArray("parts")){
-                var part=raw.getAsJsonObject();String name=part.get("name").getAsString();
-                if(!name.startsWith("boat_brim_")||!name.endsWith("_-1"))continue;
-                int start=part.get("start").getAsInt(),end=start+part.get("count").getAsInt();
-                float inner=-Float.MAX_VALUE,top=-Float.MAX_VALUE,z0=Float.MAX_VALUE,z1=-Float.MAX_VALUE;
-                for(int i=start;i<end;i++){inner=Math.max(inner,vertices.get(i*8).getAsFloat());top=Math.max(top,vertices.get(i*8+1).getAsFloat());z0=Math.min(z0,vertices.get(i*8+2).getAsFloat());z1=Math.max(z1,vertices.get(i*8+2).getAsFloat());}
-                if(inner<-.001f)waterMask.add(new float[]{-inner/16,(top-.02f)/16,z0/16,z1/16});
-            }
-        }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
-    }
+    public HatBoatRenderer(EntityRendererProvider.Context context) { super(context); shadowRadius=.45f; }
     @SubscribeEvent public static void register(EntityRenderersEvent.RegisterRenderers event) { event.registerEntityRenderer(ModEntities.HAT_BOAT.get(),HatBoatRenderer::new); }
     @SubscribeEvent public static void items(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions(){
@@ -40,16 +26,25 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
             @Override public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer(){if(renderer==null)renderer=new PropItemRenderer();return renderer;}
         },io.github.longshou.mcyukkuri.registry.ModItems.MARISA_SHELL.get());
     }
-    @Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/props/hat_boat.png"); }
+    @Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }
+    /** Marisa's own hat turned upside down (marisa_hat_turned), its soft crown pressed along the hat's axis: on the ground
+     *  until the brim stands on the squashed crown, afloat a little with the brim a freeboard over the water and the water
+     *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+        if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         if(boat.state()==HatBoatEntity.State.CAPSIZED)pose.mulPose(Axis.ZP.rotationDegrees(150));
-        float scale=boat.hullScale();pose.scale(scale,scale,scale);
-        PropModels.render("hat_boat",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
-        if(boat.isAfloat()){
+        float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();
+        pose.translate(0,(ground?HatVessel.NEST_HEIGHT:HatVessel.FREEBOARD)*k,0);
+        pose.pushPose();pose.scale(scale,scale*(ground?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT),scale);
+        PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        pose.popPose();
+        if(boat.isAfloat()||boat.isMoored()){
+            // The inside stays dry: hide the water over the opening at the water line (both windings).
             var mask=buffers.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());var matrix=pose.last().pose();
-            for(var row:waterMask){float x=row[0],y=row[1],near=row[2],far=row[3];
-                mask.addVertex(matrix,-x,y,near);mask.addVertex(matrix,-x,y,far);mask.addVertex(matrix,x,y,far);mask.addVertex(matrix,x,y,near);
+            float y=-HatVessel.FREEBOARD*k+.03f;var ring=HatVessel.mask();
+            for(int face=0;face<2;face++)for(int i=0;i<4;i++){
+                float[] p=ring[face==0?i:3-i];mask.addVertex(matrix,p[0]*k,y,p[1]*k);
             }
         }
         pose.popPose();

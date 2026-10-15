@@ -33,7 +33,8 @@ for (const count of [1,2,3,4,5]) for (const motherScale of [0.8, 1, 1.2]) {
     for (const child of state.children) {
       assert(child.position.every(Number.isFinite));
       assert(child.position[1]>=0);
-      assert(child.scale>=0.12 && child.scale<=0.30);
+      const baby=data.growth.stages.find(s=>s.id==='baby');
+      assert(child.scale>=baby.min_scale && child.scale<=Math.max(baby.max_scale,data.birth.birth_scale)+1e-9);
       if(child.attached) {
         assert.equal(child.stage,'baby');
         assert(child.sleeping);
@@ -88,7 +89,10 @@ for(const count of [1,2,3,4,5]) {
   assert.equal(restored.state().count,count);assert.equal(restored.advance(0).events.length,0);
 }
 for(const count of [0,6,2.5,NaN])assert.throws(()=>stem.sample(data,0,1,count));
-assert.deepEqual(data.stem.reference_sockets,data.stem.socket_layouts['3']);
+// Hakkei U's three sockets stay recorded; the fitted layouts hang the farthest fruit where it hangs its farthest
+// (art/props/family-life/fit_stem.py moves the nearer ones outward on a shorter stem).
+assert.equal(data.stem.reference_sockets.length,3);
+for(const layout of Object.values(data.stem.socket_layouts))assert(Math.hypot(layout[0][0]-data.stem.reference_sockets[0][0],layout[0][1]-data.stem.reference_sockets[0][1])<.03);
 assert(!('branches' in data.stem));
 const sleep=read('expressions/reimu/sleep.json');
 assert(sleep.remove_parts.includes('face_rest_left_eye')&&sleep.remove_parts.includes('face_rest_right_eye'));

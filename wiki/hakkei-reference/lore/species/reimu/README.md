@@ -20,17 +20,11 @@
 
 ## 作品图片参考
 
-**REF10 · 爱丽丝侧背、低落与流泪**。参考短发、发箍、侧背和表情；首格另有普通灵梦、魔理沙及幼体的群像。
-
-![灵梦：爱丽丝侧背、低落与流泪](https://livedoor.blogimg.jp/yukkuri_anko/imgs/5/1/51eb7775.jpg)
-
-出处：[ありしゅとおにんぎょうさんのお話](http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html)，转载页署名：おねにーあき。图片仅作外部参考。
-
 **REF01 · 毛簇与亲子比例**。观察圆团状鬓发、蝴蝶结、帽子和群体大小；不据画面反推每个角色的亚种。
 
-![灵梦：毛簇与亲子比例](https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/b/9b35bd1c-s.png)
+![灵梦：毛簇与亲子比例](../../../../art-references/images/M04/001-9b35bd1c.png)
 
-出处：[ほんとうのしあわせ](http://blog.livedoor.jp/yukkuri_anko/archives/29582969.html)，转载页署名：キリライターあき。图片仅作外部参考。
+出处：[ほんとうのしあわせ](http://blog.livedoor.jp/yukkuri_anko/archives/29582969.html)，转载页署名：キリライターあき。原图已保存到本库，仅作作品研究参考。
 
 ## 相关资料
 
@@ -41,3 +35,5 @@
 下级条目：[多毛灵梦](wasa-reimu.md)。
 
 [形态与生态类别](../forms.md) · [共通生态](../../ecology.md) · [口吻与发音](../../../dialogue/species-variants.md) · [作品来源](../../../sources-lore.md)
+
+本地图片的出处、核对范围与用途见[美术参考索引](../../../../art-references/visual-guide.md)。

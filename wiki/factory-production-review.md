@@ -12,6 +12,8 @@
 
 ## 作品依据
 
+2026-10-14 追加：F1 已重新保存为[漫画 M10](art-references/works/M10.md)，其中 [M10-006 原图](art-references/images/M10/006-689fc0e0.png)再次核对生产台、分拣和传送带。下表“本轮”保留 2026-09-13 原始核读语境；不能误读为当前仍无法下载。
+
 | 编号、作品与来源 | 本轮实际核读 | 对流程的支持与限制 |
 | --- | --- | --- |
 | F1，36DCあき《ゆっくり加工所見学》，[作品页](http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html) | 重新目视项目既有缓存中的正文第 6 张原图，标识 [689fc0e0.png](https://livedoor.blogimg.jp/yukkuri_anko/imgs/6/8/689fc0e0.png)。本轮网页工具打开作品页失败；沿用已有原图链接登记，不声称重新下载或看完整篇 | 图上可见固定位置的亲代、出生幼体落向传送带、工作人员按种类分选；下方工人因不足油比例升高要求更换第 14 号线。支持产线质量监测和更换管理，但单页没有交代完整的更换机构、阈值或周期。它是食品加工参观漫画，不能据此断言袋装活体也经过相同后续加工 |
@@ -24,9 +26,9 @@ F1 的胎内出生画面与 F2 的整茎转运是不同作品的方案，不能�
 
 ## 实施前代码与差距
 
-核对文件：[FactoryProduction.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryProduction.java)、[FactoryWorkGoal.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryWorkGoal.java)、[HumanCommerce.java](../src/main/java/io/github/longshou/mcyukkuri/human/HumanCommerce.java)。以下为静态阅读结论，不代替实机验收。
+核对文件：[FactoryProduction.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryProduction.java)、[FactoryWorkGoal.java](../src/main/java/io/github/longshou/mcyukkuri/human/FactoryWorkGoal.java)、[HumanCommerce.java](../src/main/java/io/github/longshou/mcyukkuri/human/HumanCommerce.java)。以下是 **2026-09-13 实施前的静态阅读结论**；文件链接指向当前源码，表格不随其自动更新。流水线与捕食种后来已有实现，分别查[流水线记录](../docs/validation/factory-pipeline/README.md)与[捕食种实现](../docs/PREDATOR_IMPLEMENTATION.md)。
 
-| 环节 | 当前状态 | 需要补足的内容 |
+| 环节 | 实施前状态（历史） | 当时建议补足的内容 |
 | --- | --- | --- |
 | 亲代生产 | 使用前两只登记亲代，通过既有家庭系统发起茎生；口粮、原料、成品和育成容量参与准入 | 多组亲代的工位、轮次、休养与替换记录；以并列生产单元增加规模，保留每胎规则 |
 | 出生接收 | 根据母体身份登记子代为育成用途，保留亲缘 | 从茎到接收位、育成位的实际搬运；当前没有整茎运输或自动皮带 |

@@ -67,6 +67,10 @@ P0 的准备命令、控制协议及验收边界见 [P0 验收记录](../docs/P0
 
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
 
+Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#维护命令)。
+
+E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#登记与维护)。
+
 亚种与先天形态入口，详见[实现与验收](../docs/SUBSPECIES_IMPLEMENTATION.md)：
 
 | 脚本 | 用途与写入边界 |
@@ -86,3 +90,5 @@ P0 的准备命令、控制协议及验收边界见 [P0 验收记录](../docs/P0
 `verify_puff_java.cjs` 离线调用生产 `YukkuriModel` 的 `applyFit`、`applyRevision`、构造函数和 `render()`，以记录型 `VertexConsumer` 采集三角形，与 `pose.js` 逐三角比较，并比较鼓腮包络。需要 Java 21 和运行 classpath：以 `puff_checks.init.gradle` 隔离构建时执行 `writePuffClasspath`，写到 `.local/puff-v7/classpath.txt`（可用 `PUFF_CLASSPATH` 指定）；不启动 Minecraft。该初始化脚本把编译与资源输出都放到 `.local/puff-v7/build/`。输出该包的 `reports/current/java-parity.json`，不是实机渲染验收。另可用 `placement_fit_checks.init.gradle` 隔离构建并执行 `writePlacementFitClasspath`，输出与 classpath 位于 `.local/placement-fit/`，再以 `PUFF_CLASSPATH=.local/placement-fit/classpath.txt` 运行。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；`--check` 只核对，`--only id,... --out 文件` 写试验结果。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配记录](../art/source/placement-fit/README.md)。
+
+游戏参考分类使用 `wiki_reference_topics.py build/check`：以 `wiki/reference-library/game-annotations.json` 的逐图实体、情景、情绪、制作目标、画格和用途为主，合并图片 manifest 与小说阅读卡。生成四个交叉索引、兼容旧主题的页面、精选清单与离线筛选器；页面模板为 `wiki_reference_gallery.html`。默认显示已写明用途的游戏图片，精选优先，可组合筛选实体／情景／情绪／目标与画风。检查实体范围、所有存图的用途或队列状态、实际文件哈希和生成一致性。`quality-selection.json` 只提供辅助质量标签。两个抓取器均跳过 `collect: false` 来源；E-Hentai 的 `fetch --source` 若显式请求停采来源会在联网前拒绝。见[游戏参考库](../wiki/reference-library/README.md)。

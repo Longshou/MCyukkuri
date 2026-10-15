@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-14T04:40:43+00:00",
+  "created_at": "2026-10-14T06:59:41+00:00",
   "status": "pending_confirmation",
   "scope": [
     "Marisa side hair: one thick braid on her own left (+X, hand_right), a short loose lock on the right (-X, hand_left)",
@@ -10,7 +10,7 @@
     "Rounded body, face, hat and expression textures",
     "Reimu and other species exports",
     "Approved standard-body and tsumuri records as baselines",
-    "Seven braid interactions v1 (two-braid, re-choreography pending)"
+    "Seven braid interactions v1 (two-braid) as a saved snapshot"
   ],
   "hair_loss": "braid_lock_* and side_hair_loose* follow the per-side hair-loss rule like other hair parts",
   "baseline_approval": "standards/yukkuri-library/provenance/standard-body.json",
@@ -94,6 +94,19 @@
     "marisa_dos": {
       "model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/marisa_dos/marisa_dos.bbmodel",
       "model_sha256": "d31832121bacfb1714cd17f3529c7efd8016f73240726361ccabcdc4a1020a92"
+    }
+  },
+  "motions": {
+    "braid_follow": "contact-safe recipe v8: braid follows body twist, splays out of skin and floor",
+    "tsumuri_shell_retract": "side hair tilts back and splays outward while withdrawing",
+    "house_carry": "both grip points on the braid tip",
+    "interactions": "interactions/marisa-braids v2",
+    "sources": {
+      "standards/yukkuri-library/motions/variants/contact-safe/recipe.json": "3dea4eb7da86a3de0a5aceae6f261bd0adf9aa8eeb1b4e385e1ec4b2dc4b829e",
+      "standards/yukkuri-library/motions/variants/contact-safe/author.py": "c9ac11ea2a3144924d69fbc37497197062711315b39b45675df1915f2e292872",
+      "standards/yukkuri-library/motions/variants/marisa-tsumuri/shell_retract.json": "71887902e5252520a10633b0a1f0fcce39388651f4150d1fb8f232a8e2161e0e",
+      "scripts/runtime_house_interactions.py": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "a8ae24ebdbd164a6c1f16dba2e846553cc7869b6db5e649fbd305bb9ecbfbc36"
     }
   },
   "game_acceptance": "not_performed"

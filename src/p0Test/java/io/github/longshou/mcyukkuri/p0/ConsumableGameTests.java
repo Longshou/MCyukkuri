@@ -238,7 +238,7 @@ public final class ConsumableGameTests {
             e.setPos(e.position().add(.1,0,0));e.family().tick();check("maternal movement pauses active emergence",brood.elapsed==elapsed);e.setPos(position);e.setOnGround(true);e.family().tick();
             for(int i=0;i<50&&!brood.children.getFirst().born;i++)e.family().tick();
             var first=level.getEntity(ids.getFirst()) instanceof YukkuriEntity child?child:null;
-            check("first live child is a real small baby at front outlet",first!=null&&first.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY&&Math.abs(first.family().scale()-.18f)<.0001&&first.getZ()>e.getZ());
+            check("first live child is a real small baby at front outlet",first!=null&&first.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY&&Math.abs(first.family().scale()-io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE)<.0001&&first.getZ()>e.getZ());
             check("child retains real mother unknown father and birth identity",first!=null&&first.family().mother().equals(uuid)&&first.family().father()==null&&first.family().birthId().equals(broodId));
             check("real newborn retains the emergence facing",first!=null&&first.getYRot()==20&&first.yBodyRot==20&&first.getYHeadRot()==20);
             var cognition=first==null?null:io.github.longshou.mcyukkuri.cognition.Cognition.get(first);
@@ -336,16 +336,17 @@ public final class ConsumableGameTests {
             }
             var born=data.birth(brood,0,level,io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(mother,0));
             check("real birth uses the saved morph rather than rerolling current parents "+assets[scene],born!=null&&born.subspecies().assetId().equals(assets[scene])&&born.family().father()==null);
-            if(scene==0)check("bean collision height is already correct on world insertion",born!=null&&Math.abs(born.getBbHeight()-ModEntities.REIMU.get().getDimensions().height()*.18f*1.55f)<.0001);
+            if(scene==0)check("bean collision height is already correct on world insertion",born!=null&&Math.abs(born.getBbHeight()-ModEntities.REIMU.get().getDimensions().height()*io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE*1.55f)<.0001);
             if(scene==0&&born!=null){
                 var growth=born.family().save();growth.putLong("Nourishment",born.family().maturityAge()/4);growth.putLong("Age",0);born.family().load(growth);
+                float grown=io.github.longshou.mcyukkuri.family.GrowthSize.scale(io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY,born.family().maturityAge()/4,born.family().maturityAge(),1,false);
                 var roof=net.minecraft.world.entity.EntityType.SHULKER.create(level);roof.setNoAi(true);roof.setNoGravity(true);
-                roof.moveTo(born.getX(),born.getY()+ModEntities.REIMU.get().getDimensions().height()*.3*(1+1.55)*.5,born.getZ()+.45,0,0);level.addFreshEntity(roof);
-                double lip=born.getY()+ModEntities.REIMU.get().getDimensions().height()*.3*(1+1.55)*.5;
+                roof.moveTo(born.getX(),born.getY()+ModEntities.REIMU.get().getDimensions().height()*grown*(1+1.55)*.5,born.getZ()+.45,0,0);level.addFreshEntity(roof);
+                double lip=born.getY()+ModEntities.REIMU.get().getDimensions().height()*grown*(1+1.55)*.5;
                 roof.setBoundingBox(new AABB(born.getX()-.5,lip,born.getZ()-.05,born.getX()+.5,lip+1,born.getZ()+.95));
-                try{check("bean growth checks its taller target shape under a low overhang",!born.family().woke()&&Math.abs(born.family().scale()-.18)<.0001);}
+                try{check("bean growth checks its taller target shape under a low overhang",!born.family().woke()&&Math.abs(born.family().scale()-io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE)<.0001);}
                 finally{roof.discard();}
-                check("bean growth resumes after real clearance becomes available",born.family().woke()&&Math.abs(born.family().scale()-.3)<.0001);
+                check("bean growth resumes after real clearance becomes available",born.family().woke()&&Math.abs(born.family().scale()-grown)<.0001);
             }
         }
     }

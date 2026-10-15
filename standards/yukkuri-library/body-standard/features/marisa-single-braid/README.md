@@ -1,6 +1,6 @@
 # 魔理沙单侧粗辫修订
 
-2026-10-13，按用户要求修订魔理沙辫子：单辫，且比灵梦更粗壮，覆盖全部魔理沙。造型待确认，原圆润身体批准记录保留为基线。
+2026-10-13，按用户要求修订魔理沙辫子：单辫，且比灵梦更粗壮，覆盖全部魔理沙。2026-10-14 用户保存单辫造型及适配动作，登记见 [approved.json](approved.json)；原圆润身体批准记录保留为基线。
 
 - 辫子在魔理沙自身左侧，即 +X、`hand_right`。素材库预览和 Minecraft 的正面视图中 +X 显示在画面右侧，`hand_*` 也按该视图命名。
 - 辫身由暗色内芯和 6 节交错编织块组成，截面从 2.36 × 2.30 收至 2.06 × 2.00，灵梦系束侧发为 1.00 × 1.30。白色发结和蝴蝶结以下是散开的发尾。
@@ -10,7 +10,7 @@
 
 已同步的形态：普通、螺壳、稀毛、歪脸、豆形、家油与 DOS 魔理沙。稀毛按 `../../../subspecies/deficient/rounded-marisa/recipe.json` 的 `sparse_side_hair` 只保留一束辫、发结、发尾和一缕短侧发。豆形复用同一组辫子组件，按豆形头部比例（×0.52、纵深×0.82）缩放，并逐件沿豆形侧轮廓外移贴合，参数见 `../../../subspecies/deficient/recipes.json` 的 `hair_fit.marisa_braid`；豆形灵梦仍为原有的双股辫。稀毛头顶无发垫，帽子作为独立饰物下压佩戴：帽檐底面落在眉顶以上 0.3（`sparse_hat_seat`），头顶进入帽身，游戏内不再叠加位置适配的帽子下移。家油夹取点改用两侧实际发端（`scripts/runtime_house_interactions.py`）。
 
-各形态的模型指纹、改动部件和源文件指纹见 [candidate.json](candidate.json)。
+各形态的模型指纹、改动部件、源文件与动作源指纹见 [approved.json](approved.json)（保存时版本）。之后再改造型时，`record.py` 只更新 [candidate.json](candidate.json)，不得沿用保存记录。
 
 ## 重建顺序
 
@@ -24,7 +24,7 @@
 6. DOS 运行 `subspecies/reimu-dos/build.py`。
 7. 运行 `export_placement_fit.cjs`、`export_motion_corrections.py`、`export_hat_interactions.py`、`export_badges.py --mounts-only` 及束具 `drafts/operation-tools/build.py`。
 8. `python check_runtime_clearance.py --out runtime-clearance.json`：复核游戏动作中的辫子穿插（需要 numpy）。
-9. `python record.py`：更新 `candidate.json`。
+9. `python record.py`：更新 `candidate.json`。用户说“保存”时加 `--approve "<原话>"`，另写 `approved.json`。
 
 本次在 macOS 上导出。PNG 编码、浮点末位和 LF／CRLF 指纹差异已按内容核对后还原，只保留魔理沙相关变化；游戏的模型指纹检查同时接受 LF 与 CRLF。
 
@@ -32,7 +32,7 @@
 
 ## 穿插治理
 
-2026-10-14 按“可接受少量穿模，但尽量调整得更自然”处理，状态待复查。
+2026-10-14 按“可接受少量穿模，但尽量调整得更自然”处理，同日随单辫动作一起保存。
 
 - 游戏动作：摇摆、撑住、压低和侧弯类动作由动作修正第8版的辫子跟随处理（[说明](../../../motions/variants/contact-safe/README.md#魔理沙单辫跟随)）。螺壳缩入时两侧头发改为后仰并略向外张开，不再内收穿过压扁的身体。
 - 复核：`check_runtime_clearance.py` 按游戏的两骨骼权重摆出六种运行模型，叠加已发布的动作修正，以 10 Hz 采样每个动作，测量辫子与短侧发比静止时多进入身体皮肤的深度和低于地面的距离，结果写入 [runtime-clearance.json](runtime-clearance.json)。DOS 魔理沙不在游戏运行包中，未复核。
@@ -41,4 +41,4 @@
 
 ## 未完成
 
-- 本机未执行 GameTest 和实机查看；运行模型的验收状态已标为待复查。动作仅做了离线数值检查和关键帧渲染，穿插数值不代替游戏内观察。
+- 本机未执行 GameTest 和实机查看；保存的是造型与动作设计，运行模型的游戏验收状态仍为待复查。动作仅做了离线数值检查和关键帧渲染，穿插数值不代替游戏内观察。

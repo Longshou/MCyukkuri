@@ -4,6 +4,8 @@
 
 本设定对家油、宠物、巢和卵的区分见[家油、巢与卵](../world/resources-ecology.md#家油巢与卵)。家油卵生不推广到所有处于室内的油库里。
 
+2026-10-14 已保存《家ゆ》正文的 12 张原图，见[逐图目录 M01](../../art-references/works/M01.md)。第二张另核对书架后棉絮巢与圆卵，仍未从这些画格确认完整自然孵化过程。
+
 | 来源 | 已核内容 | 证据边界 |
 | --- | --- | --- |
 | [餡サイクロペディア：家ゆっくり](https://w.atwiki.jp/yukkurifutaba/pages/25.html) | 将家油描述为微小、寄居家具缝隙、收集棉絮灰尘筑巢、夜间觅食并卵生的生态类型；包括灵梦和魔理沙。 | 社区汇总，非单篇漫画原文。支持“棉絮灰尘巢”，没有在该段确认碎纸、布条。 |
@@ -13,6 +15,6 @@
 
 小说补充：ポミー[《側溝のゆっくり》](https://note.com/izumi_caron_/n/n57df29878607)（2021-08-29）正文已读，支持微小、卵生及常见灵梦／魔理沙的文字描写。其侧沟社会结构、大批量繁殖与寿命属于该篇设定，不推广到本项目室内家油。
 
-已制作[家油魔理沙与灵梦、巢与卵的美术预览](../../../standards/yukkuri-library/ecology/house-yukkuri/index.html)。逐图观察、文字来源及原创设计边界见[参考核读](../../../standards/yukkuri-library/ecology/house-yukkuri/REFERENCES.md)；这是模型与浏览器原型，尚未接入 Minecraft。
+制作源的[家油魔理沙与灵梦、巢与卵预览](../../../standards/yukkuri-library/ecology/house-yukkuri/index.html)保留造型与生态原型；逐图观察、文字来源及原创边界见[参考核读](../../../standards/yukkuri-library/ecology/house-yukkuri/REFERENCES.md)。家油实体和巢卵玩法后来已经接入，当前范围见[核心玩法](../../../docs/CORE_GAMEPLAY.md)与[剩余移植记录](../../../docs/PORT_REMAINDER.md)，不再以旧原型阶段的“未接入”描述游戏现状。
 
 检索中“家ゆ”也可能仅指家养宠物。例如[《万能お兄さん5_5》](https://w.atwiki.jp/yukkuri_gyakutai/pages/3069.html)中的受训带徽章个体属于宠物语境，与此处介绍的微小非宠物家油不同。

@@ -5,7 +5,7 @@ Does not launch Minecraft. Do not run locally when project execution rules forbi
 validation scripts. JSON validity does not establish visual or game acceptance.
 """
 import hashlib
-import json
+import fnmatch, json
 import math
 from pathlib import Path
 import re
@@ -98,6 +98,17 @@ def validate_textures(ident, record, model):
             require(sha(ROOT / texture['snapshot']) == texture['sha256'], f'{expression}: snapshot texture drift')
 
 
+SPECIES_ONLY = {'shell_retract': 'marisa_tsumuri'}
+LORE = json.loads((ROOT / 'standards/yukkuri-library/motions/variants/lore/recipe.json').read_text(encoding='utf-8'))
+
+
+def lore_applies(name, ident):
+    """Same gating as motions/variants/lore/author.py: the clip is compiled only into these models."""
+    rule = LORE['groups'][LORE['clips'][name]['applies']]
+    only, exclude = (rule, []) if isinstance(rule, list) else (rule['only'], rule.get('except', []))
+    return any(fnmatch.fnmatch(ident, p) for p in only) and not any(fnmatch.fnmatch(ident, p) for p in exclude)
+
+
 def validate(ident, record, actions):
     path = ASSETS / 'yukkuri' / (ident + '.json')
     model = read(path)
@@ -131,7 +142,10 @@ def validate(ident, record, actions):
             require(shared.setdefault(point, weights[i]) == weights[i], 'shared body vertex has inconsistent binding')
         require(len(shared) == 96, 'house shared vertex count changed')
         require(any(0 < w[2] < 1 for w in weights), 'house lost blended body binding')
-    require(set(model['clips']) == set(actions), 'server action names differ from packaged clips')
+    # Species-only actions fall back to idle elsewhere; the world-setting clips arrive with the corrections.
+    expected = {name for name in actions if SPECIES_ONLY.get(name, ident) == ident
+                and (name not in LORE['clips'] or lore_applies(name, ident))}
+    require(set(model['clips']) == expected, 'server action names differ from packaged clips')
     behavior_actions = {'house_pickup': (1.3, False), 'house_carry': (1, True),
                         'house_deposit': (1.3, False), 'house_crawl': (.6, True)} if model['house'] else {}
     predator=ident in ('remilia','flandre')
@@ -196,7 +210,8 @@ def main():
     source = (ROOT / 'src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriAction.java').read_text()
     actions = {name: (float(duration), loop == 'true') for name, duration, loop in
                re.findall(r'\("([a-z_]+)",\s*([\d.]+),\s*(true|false)\)', source)}
-    require(len(actions) == 19, 'expected 19 server actions')
+    require(len(actions) == 20 + len(LORE['clips']) and set(LORE['clips']) <= set(actions),
+            'server actions differ from the 19 standard, shell retract and world-setting clips')
     living = read(ASSETS / 'yukkuri_presentation/living.json')['variants']
     for ident, bone_name in (('chen', 'chen_hat'), ('alice', 'alice_headband'), ('patchouli', 'patchouli_bonnet')):
         model = read(ASSETS / 'yukkuri' / (ident + '.json'))
@@ -214,7 +229,7 @@ def main():
     if errors:
         print('\n'.join(errors), file=sys.stderr)
         return 1
-    print('Nine packaged models, bindings, 19 actions plus behavior clips, textures and source fingerprints are consistent.')
+    print(f'Nine packaged models, bindings, {len(actions)} server actions (species-gated) plus behavior clips, textures and source fingerprints are consistent.')
     return 0
 
 

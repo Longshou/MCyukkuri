@@ -4,6 +4,13 @@
 
 | 内容 | 阅读入口 |
 | --- | --- |
+| 本轮维护范围、后续缺口与编辑规则 | [维护计划](MAINTENANCE_PLAN.md) · [编辑口径](EDITORIAL_GUIDE.md) |
+| 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [实现状态导航](implementation-status.md) |
+| 游戏参考：146 张图、24 张文字卡；按实体、情景、情绪组合查找 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
+| 清楚、画风完整的参考；当前范围内 38 张美术精选 | [看精选](reference-library/quality-picks.md) · [跨来源核对](reference-library/cross-checks.md) |
+| 小说／设定文的动机、过程与阅读范围 | [小说核读目录](novel-reading/README.md) |
+| 离巢、筑巢、储粮、季节与迁徙 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md) |
+| 学习、识别、语言与社会评价 | [学习与社会判断](hakkei-reference/lore/learning-social.md) |
 | 人类与油库里的世界、沿用规则 | [世界背景与设定](hakkei-reference/world/README.md) · [基本设定](hakkei-reference/world/rules.md) |
 | 个体、性格、亲缘、饰品识别与社会地位 | [个体](hakkei-reference/world/individuals.md) · [性格与社会关系](hakkei-reference/world/personality-social.md) |
 | 食物、馅料、住所与家油生命过程 | [资源与生活生态](hakkei-reference/world/resources-ecology.md) |
@@ -27,6 +34,6 @@
 
 图片保留作品出处和署名；未明确的信息保留说明。来源页注明作品、资料类型及核读范围，本设定不代表跨作品的统一正史。
 
-本仓库保存整理文本。核读文章中的 `reference/`、`variants/` 和机器绝对路径属于历史来源记录，相关原始文件未纳入本项目，不能作为当前工作入口。新临时核读资料放项目内 `.local/reference/`；可提交的出处与文字证据仍在 Wiki 中维护。标准美术制作见 [标准素材库](../standards/README.md)，当前实体接入素材见 [美术目录](../art/README.md)。
+本仓库同时保存整理文本和 [漫画参考原图](art-references/README.md)，逐图来源、页序、尺寸、哈希与核对状态见其登记。核读文章中的旧 `reference/`、`variants/` 和机器绝对路径仍属于历史记录，不作为当前入口；新网页缓存和临时联系表放 `.local/reference/`。参考图不直接成为游戏资源或已认可造型。标准美术制作见 [标准素材库](../standards/README.md)，当前实体接入素材见 [美术目录](../art/README.md)。
 
 日常情感、生理与活动的 30 组行为核对见[日常生态来源](ecology-daily-life.md)，区分流浪、族群与宠物。

@@ -257,6 +257,7 @@ public final class WildEventGameTests {
     private void boatRules() {
         next();first=spawn(false,.5,.5);second=spawn(true,3.5,.5);var group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);second.settlement().join(group);
         BlockPos water=center.offset(4,0,0);level.setBlockAndUpdate(water,Blocks.WATER.defaultBlockState());
+        second.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
         var boat=HatBoatEntity.createFor(second,water);check("actual hat is transferred into one real boat",boat!=null&&second.getVehicle()==boat&&!second.life().hasAccessory(),boat);
         if(boat==null)return;scene=RiverEncounter.begin(first,boat);
         check("N05 binds existing boat owner and true group companion",scene!=null&&scene.target.equals(boat.getUUID())&&scene.members.get(1).equals(second.getUUID()),scene);
@@ -266,7 +267,7 @@ public final class WildEventGameTests {
         check("real capsize interrupts instead of granting rescue",scene.phase==Phase.INTERRUPTED&&scene.result.equals("real_boat_capsized"),scene.result);boat.discard();
         next();first=spawn(false,.5,.5);second=spawn(true,3.5,.5);
         group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);second.settlement().join(group);
-        water=center.offset(4,0,0);level.setBlockAndUpdate(water,Blocks.WATER.defaultBlockState());boat=HatBoatEntity.createFor(second,water);scene=boat==null?null:RiverEncounter.begin(first,boat);
+        water=center.offset(4,0,0);level.setBlockAndUpdate(water,Blocks.WATER.defaultBlockState());second.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);boat=HatBoatEntity.createFor(second,water);scene=boat==null?null:RiverEncounter.begin(first,boat);
         check("N05 rescue fixture binds real boat",scene!=null,scene);
         if(scene!=null){check("actual boat rescue returns original hat",boat.rescue(center.offset(2,0,2),player.getUUID())&&second.life().hasAccessory()&&!second.isPassenger(),boat.state());
             for(int i=0;i<105;i++)WildEvents.advance(level,scene);
@@ -384,7 +385,7 @@ public final class WildEventGameTests {
         var group=new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,center,first.getUUID());SettlementData.get(level).add(group);first.settlement().join(group);second.settlement().join(group);
         for(int x=4;x<10;x++)for(int z=-2;z<3;z++){level.setBlockAndUpdate(center.offset(x,-2,z),Blocks.STONE.defaultBlockState());level.setBlockAndUpdate(center.offset(x,-1,z),Blocks.WATER.defaultBlockState());}
     }
-    private void riverLivingStart(){liveBoat=HatBoatEntity.createFor(second,center.offset(4,-1,0));scene=liveBoat==null?null:RiverEncounter.begin(first,liveBoat);check("real flowing water fixture starts N05",scene!=null,scene);}
+    private void riverLivingStart(){second.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);liveBoat=HatBoatEntity.createFor(second,center.offset(4,-1,0));scene=liveBoat==null?null:RiverEncounter.begin(first,liveBoat);check("real flowing water fixture starts N05",scene!=null,scene);}
     private void riverLivingShore(){
         check("actual shoreline arrival is not mistaken for a failed path",scene!=null&&scene.active()&&liveBoat.isAfloat(),scene==null?"null":scene.phase+":"+scene.result+":"+first.position());
         check("real moving boat accepts actual dry-land rescue",liveBoat!=null&&liveBoat.rescue(center.offset(2,0,2),player.getUUID()),liveBoat);

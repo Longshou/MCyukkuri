@@ -245,10 +245,25 @@ public final class FamilyData extends SavedData {
         }
         if(brood.detachedHolder!=null){entity.setYRot(180);entity.yRotO=180;entity.yBodyRot=entity.yBodyRotO=180;entity.setYHeadRot(180);entity.yHeadRotO=180;}
         entity.setPersistenceRequired();
-        if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return null;
+        // An aquatic mother afloat gives birth into her hat boat: the newborn boards it instead of landing.
+        var boat=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity afloat?afloat.family().boatHome():null;
+        if(boat!=null?!boat.hasRoomForYoung():!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return null;
         spawning.add(child.id);boolean added;
         try { added=level.addFreshEntity(entity); } finally { spawning.remove(child.id); }
         if(!added)return null;
+        // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
+        // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
+        // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
+        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
+                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
+        if(hat!=null) {
+            if(level.random.nextFloat()<.12f) { entity.family().doom();entity.family().launchPast(hat); }
+            else entity.family().launchInto(hat,io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,null);
+        } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
+                entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
+            // A fruit that comes away awkwardly misses the hat held under the stem.
+            entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
+        }
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);

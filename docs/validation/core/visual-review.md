@@ -1,6 +1,6 @@
 # 独立技术视觉审查归档
 
-原始审查输入位于本机临时目录；本轮正式预览已保存至 `art/props/family-life/previews/current/` 和 `art/props/house-care/previews/current/`。几何参数未变，审查后配方仅更新状态字段。连接茎检查范围以报告为准。
+原始审查输入位于本机临时目录；本轮正式预览已保存至 `art/props/family-life/previews/current/`（2026-10-15 茎长拟合后删除，现见[世界观动作预览](../../../art/source/motion-corrections/previews/current/lore/index.html)）和 `art/props/house-care/previews/current/`。几何参数未变，审查后配方仅更新状态字段。连接茎检查范围以报告为准。
 
 # 茎生挂接与家油设施独立审查
 

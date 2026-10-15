@@ -1,4 +1,4 @@
-"""Compile selected motion overrides and the v7 cheek puff; base models stay untouched.
+"""Compile selected motion overrides, the v7 cheek puff and the world-setting clips (with Marisa's braid-and-hat clips); base models stay untouched.
 
 Reads the contact-safe recipe and all selected runtime models with the placement
 fit spliced in (scripts/placement_fit.py), the meshes the game shows. Writes the motion
@@ -12,6 +12,8 @@ import placement_fit
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
+LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
+VESSEL = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'
 MANIFEST = ROOT/'art/source/motion-corrections/manifest.json'
@@ -120,7 +122,7 @@ def main():
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
-    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', Path(__file__)]
+    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'hat.py', VESSEL, Path(__file__)]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
@@ -162,7 +164,7 @@ def main():
               'pressed', models[ident]['cheek']['pressed_vertices'], 'depth', models[ident]['cheek']['press_depth'],
               'locks', {k: v['degrees'] for k, v in models[ident]['cheek']['locks'].items()})
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
-    payload = json.dumps({'format': 2, 'revision': 'contact-safe-20261007-v7', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
+    payload = json.dumps({'format': 2, 'revision': 'contact-safe-20261014-v10', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:
         trial = Path(args.trial); (trial/'textures').mkdir(parents=True, exist_ok=True)
         (trial/'motion_corrections.json').write_text(payload, encoding='utf-8', newline='\n')
@@ -175,6 +177,10 @@ def main():
                 'geometry_note': 'Base selected models and their fingerprints are unchanged; the refined puff skin, blush carriers, side-lock swing and mouth patch live in the motion resource.',
                 'recipe': rel(SOURCE/'recipe.json'), 'recipe_sha256': sha(SOURCE/'recipe.json'),
                 'author': rel(SOURCE/'author.py'), 'author_sha256': sha(SOURCE/'author.py'),
+                'lore_recipe': rel(LORE/'recipe.json'), 'lore_recipe_sha256': sha(LORE/'recipe.json'),
+                'lore_author': rel(LORE/'author.py'), 'lore_author_sha256': sha(LORE/'author.py'),
+                'lore_hat': rel(LORE/'hat.py'), 'lore_hat_sha256': sha(LORE/'hat.py'),
+                'hat_vessel': rel(VESSEL), 'hat_vessel_sha256': sha(VESSEL),
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}

@@ -82,7 +82,7 @@ final class WildEventPreview {
                     case "teach" -> WildCards.begin("teach",a,List.of(b),player);
                     case "forest-find" -> WildCards.begin("forest-find",a,List.of(b),player);
                     case "expedition" -> Expedition.form(a,List.of(b),center.offset(7,0,0));
-                    case "boat" -> {boat=HatBoatEntity.createFor(b,center.offset(4,-1,0));yield boat==null?null:RiverEncounter.begin(a,boat);}
+                    case "boat" -> {b.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);boat=HatBoatEntity.createFor(b,center.offset(4,-1,0));yield boat==null?null:RiverEncounter.begin(a,boat);}
                     case "abandonment" -> {WildEvents.abandon(a,player);yield WildEventData.get(level).forMember(a.getUUID());}
                     default -> throw new IllegalArgumentException(kind);
                 };

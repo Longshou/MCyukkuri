@@ -1,5 +1,6 @@
 {
-  "version": 8,
+  "version": 9,
+  "lore": "motions/variants/lore/recipe.json",
   "status": "pending_user_review",
   "sample_seconds": 0.04,
   "hop_seconds": 0.8,

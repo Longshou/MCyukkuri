@@ -24,7 +24,7 @@ public final class NotebookGuide {
                     Component.translatable("notebook.mcyukkuri.chapter." + (variant.isPredator() ? "predator" : variant.isHouse() ? "house_species" : "standard_species"))));
         }
         CompoundTag forms = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedForms");
-        for (String form : List.of("kind.shell_marisa", "kind.wasa_reimu", "acquired.deibu", "congenital.sparse_hair", "congenital.face_asymmetry", "congenital.bean_body"))
+        for (String form : List.of("kind.shell_marisa", "kind.aquatic_marisa", "kind.wasa_reimu", "acquired.deibu", "congenital.sparse_hair", "congenital.face_asymmetry", "congenital.bean_body"))
             pages.add(Component.translatable("notebook.mcyukkuri.chapter.form_entry", Component.translatable("subspecies.mcyukkuri."+form),
                     Component.translatable(forms.getBoolean(form)?"notebook.mcyukkuri.chapter.seen":"notebook.mcyukkuri.chapter.unseen")));
         return List.copyOf(pages);

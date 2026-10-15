@@ -1,0 +1,58 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MCyukkuri 游戏参考库</title><style>
+:root{color-scheme:light;--ink:#23342e;--muted:#60726a;--line:#d8e1d8;--accent:#286449}*{box-sizing:border-box}body{margin:0;background:#f2f4ee;color:var(--ink);font:15px/1.65 system-ui,"Microsoft YaHei",sans-serif}header,main,footer{max-width:1480px;margin:auto;padding:24px}header{padding-bottom:12px}h1{font-size:30px;margin:4px 0}h2{font-size:17px;margin:0 0 8px}a{color:var(--accent)}.eyebrow{letter-spacing:.1em;font-size:12px;color:var(--muted)}.filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;background:#fff;padding:18px;border:1px solid var(--line);border-radius:12px}.filters label{display:grid;gap:4px;font-size:13px;font-weight:600}.wide{grid-column:span 2}input,select{min-height:40px;padding:8px;border:1px solid #b9c9bf;border-radius:6px;background:white;color:var(--ink);font:inherit}.presets{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}button{border:1px solid #b9c9bf;background:#fff;color:var(--accent);border-radius:6px;padding:5px 9px;cursor:pointer;font:inherit}button:hover{background:#e2eee5}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #ca9133;outline-offset:2px}.meta{font-size:12px;color:var(--muted)}.status{margin:0 0 16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}.card{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden}.preview{display:flex;height:300px;padding:12px;background:#e8ece5;align-items:center;justify-content:center}.preview img{max-width:100%;max-height:100%;object-fit:contain}.body{padding:18px}.purpose{font-weight:600}.focus{padding:10px;border-left:3px solid #c8a55b;background:#faf7ed}.tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.tags button{font-size:12px}.text-top{padding:20px;background:#e3ede1;font-weight:700}nav{display:flex;gap:14px;margin:12px 0}details{margin:12px 0;font-size:13px}summary{cursor:pointer;color:var(--muted)}footer{color:var(--muted);font-size:12px}@media(max-width:720px){header,main,footer{padding:16px}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}}
+</style><header><div class="eyebrow">MCYUKKURI · 制作参考</div><h1>实体 × 情景 × 情绪</h1>
+<p>先确定要做什么，再找具体画格。每张图都写明参考部位与游戏用途，作品只作出处。</p>
+<nav><a href="README.md">参考库说明</a><a href="production-briefs.md">制作归纳</a><a href="cross-checks.md">多来源核对</a></nav>
+<div class="presets"><button type="button" data-preset="shell">壳魔理沙 · 取食</button><button type="button" data-preset="read">帕秋莉 · 读书</button><button type="button" data-preset="care">幼体 · 安抚动作</button><button type="button" data-preset="boat">帽船 · 水上移动</button><button type="button" id="reset">清除筛选</button></div>
+<div class="filters"><label class="wide">搜索画格或制作目的<input id="query" type="search" placeholder="例如：侧辫、翻倒、窝沿、失饰"></label>
+<label>实体<select id="entities"><option value="">全部实体</option></select></label><label>情景<select id="scenarios"><option value="">全部情景</option></select></label>
+<label>情绪<select id="emotions"><option value="">全部情绪</option></select></label><label>制作目标<select id="targets"><option value="">全部目标</option></select></label>
+<label>材料<select id="media"><option value="image">图片</option><option value="text">文字卡</option><option value="">图片与文字</option></select></label>
+<label>清晰度与画风<select id="quality"><option value="">全部游戏参考</option><option value="selected">只看美术精选</option></select></label>
+<label>画风<select id="style"><option value="">全部画风</option></select></label></div>
+<p class="meta">已纳入实体和明确计划项；计划项在实体菜单标明。情绪按指定画格记录，不是角色的固定性格。物件图可没有情绪。文字卡保留原核读范围，质量筛选只作用于图片。</p></header>
+<main><p id="status" class="status" role="status" aria-live="polite"></p><div id="grid" class="grid"></div></main><footer>本地离线资料；原图保留署名与出处。部分材料含虚构伤害。制作用途是编辑提炼，未自动转为游戏采用或实现。2026-10-15</footer>
+<script id="data" type="application/json">__DATA__</script><script>
+'use strict';
+const data=JSON.parse(document.getElementById('data').textContent);
+const fields=['entities','scenarios','emotions','targets'];
+const controls=Object.fromEntries(['query',...fields,'media','quality','style'].map(k=>[k,document.getElementById(k)]));
+const grid=document.getElementById('grid'),status=document.getElementById('status');
+function element(tag,text,cls){const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e}
+function link(text,href){const a=element('a',text);a.href=href;return a}
+for(const field of fields){for(const value of data.facets[field].values){const scope=data.entity_scope.find(e=>e.id===value);const o=element('option',value+(field==='entities'&&scope?.status==='开发计划明确纳入'?'（计划）':''));o.value=value;controls[field].append(o)}}
+for(const style of [...new Set(data.assets.flatMap(a=>a.quality?[a.quality.style]:[]))].sort()){const o=element('option',style);o.value=style;controls.style.append(o)}
+function matches(a,f){
+ return fields.every(k=>!f[k]||a[k].includes(f[k]))&&(!f.media||a.media===f.media)&&
+  (a.media!=='image'||((!f.quality||a.quality?.status===f.quality)&&(!f.style||a.quality?.style===f.style)))&&
+  (!f.term||[a.id,a.focus,a.description,a.source_title,a.observation,...fields.flatMap(k=>a[k])].join(' ').toLocaleLowerCase().includes(f.term));
+}
+function render(){
+ const f=Object.fromEntries(Object.entries(controls).map(([k,e])=>[k,e.value]));f.term=f.query.trim().toLocaleLowerCase();
+ controls.quality.disabled=controls.style.disabled=f.media==='text';
+ const found=data.assets.filter(a=>matches(a,f));
+ found.sort((a,b)=>Number(b.quality?.status==='selected')-Number(a.quality?.status==='selected')||a.scenarios[0].localeCompare(b.scenarios[0],'zh-CN')||a.entities[0].localeCompare(b.entities[0],'zh-CN')||a.id.localeCompare(b.id));
+ status.textContent=`显示 ${found.length} 条：图片 ${found.filter(a=>a.media==='image').length} 张，文字卡 ${found.filter(a=>a.media==='text').length} 张。`+(found.length?'':' 当前组合还没有材料，可去掉一个条件。');
+ const fragment=document.createDocumentFragment();
+ for(const a of found){const card=element('article',null,'card');
+  if(a.media==='image'){const p=link('',a.href);p.className='preview';const im=element('img');im.src=a.href;im.loading='lazy';im.alt=a.id+'：'+a.focus;p.append(im);card.append(p)}
+  else card.append(element('div','文字材料 · '+a.id,'text-top'));
+  const body=element('div',null,'body');body.append(element('h2',a.entities.join('／')+' · '+a.scenarios[0]));
+  body.append(element('p',a.targets.join('／')+'：'+a.description,'purpose'),element('p',(a.media==='image'?'看这处：':'读这段：')+a.focus,'focus'));
+  for(const field of fields){if(!a[field].length)continue;const tags=element('div',null,'tags');tags.append(element('span',data.facets[field].title+'：','meta'));for(const value of a[field]){const b=element('button',value);b.type='button';b.onclick=()=>{controls[field].value=value;render()};tags.append(b)}body.append(tags)}
+  if(a.media==='image')body.append(element('p',a.id+' · '+a.width+' × '+a.height+(a.quality?.status==='selected'?' · 美术精选':''),'meta'));
+  const detail=element('details');detail.append(element('summary','画面质量、出处与阅读范围'));
+  if(a.quality)detail.append(element('p',a.quality.style+'：'+a.quality.reason),element('p',a.quality.viewing_note));
+  if(a.observation)detail.append(element('p',a.observation));if(a.limits)detail.append(element('p',a.limits));
+  detail.append(element('p',a.review_status),element('p',a.source_title+' · '+a.source_note));body.append(detail);
+  const nav=element('nav');nav.append(link(a.media==='image'?'打开原图':'阅读卡',a.href),link('出处与前后页',a.source_href));body.append(nav);card.append(body);fragment.append(card)
+ }grid.replaceChildren(fragment);
+}
+function reset(){for(const [k,e] of Object.entries(controls))e.value=k==='media'?'image':''}
+const presets={shell:{entities:'壳魔理沙',scenarios:'采集进食'},read:{entities:'帕秋莉',scenarios:'认知教学'},care:{scenarios:'照料幼体',emotions:'安心',targets:'动作'},boat:{entities:'帽船',scenarios:'水上移动'}};
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{reset();for(const [k,v] of Object.entries(presets[b.dataset.preset]))controls[k].value=v;render()}));
+document.getElementById('reset').addEventListener('click',()=>{reset();render()});
+for(const e of Object.values(controls))e.addEventListener('input',render);
+const params=new URLSearchParams(location.search);for(const [k,e] of Object.entries(controls)){if(params.has(k))e.value=params.get(k)}render();
+</script></html>

@@ -44,6 +44,13 @@ final class LiveBirthRenderer {
         private final float plane;
         private final String childId;
         private final boolean visible;
+        /** Root pose of the mother's current motion; the patch is built in rest space and placed with it. */
+        private final org.joml.Matrix4f root=new org.joml.Matrix4f(),rest=new org.joml.Matrix4f();
+        void follow(org.joml.Matrix4f pose){root.set(pose);rest.set(pose).invert();}
+        private Vector3f at(Vector3f p){return root.transformPosition(new Vector3f(p));}
+        private List<Vertex> placed(List<Vertex> polygon){
+            var out=new ArrayList<Vertex>(polygon.size());for(var v:polygon)out.add(new Vertex(at(v.point),v.u,v.v));return out;
+        }
         Delivery(YukkuriEntity mother,YukkuriModel model,float contraction){
             this.mother=mother;
             float belly=mother.livePregnancyProgress();
@@ -59,7 +66,7 @@ final class LiveBirthRenderer {
             float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
             float[] newborn=CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false));
             float minZ=Float.MAX_VALUE;for(int i=2;i<newborn.length;i+=8)minZ=Math.min(minZ,newborn[i]*scale);
-            float endZ=-(mother.getBbWidth()/mother.getScale()*.5f+.15f)*16/mother.growthScale();
+            float endZ=-(float)LiveBirthGeometry.exitFront(mother,next)*16/mother.growthScale();
             float z=plane-minZ+(endZ-(plane-minZ))*LiveBirthGeometry.smooth(progress);
             float bodyHeight=LiveBirthGeometry.modelHeight(childId),halfHeight=bodyHeight*.5f;
             float baseY=Math.max(.015f*16/mother.growthScale(),outlet.y-bodyHeight*scale*.5f);
@@ -89,7 +96,9 @@ final class LiveBirthRenderer {
                 hole=new ArrayList<>();for(int i=0;i<24;i++){double a=i*Math.PI*2/24;hole.add(new Vector3f(center.x+.025f*(float)Math.cos(a),center.y+.27f*(float)Math.sin(a),plane));}
             }
         }
-        boolean drawMotherTriangle(PoseStack pose,VertexConsumer buffer,int light,int overlay,Vector3f[] points,float[] uv){
+        boolean drawMotherTriangle(PoseStack pose,VertexConsumer buffer,int light,int overlay,Vector3f[] posed,float[] uv){
+            // The hole is cut in rest space; the posed skin is brought back there and the pieces placed again.
+            Vector3f[] points={rest.transformPosition(new Vector3f(posed[0])),rest.transformPosition(new Vector3f(posed[1])),rest.transformPosition(new Vector3f(posed[2]))};
             if((points[0].z+points[1].z+points[2].z)/3>plane+1.6f)return false;
             float left=Float.MAX_VALUE,right=-Float.MAX_VALUE,bottom=Float.MAX_VALUE,top=-Float.MAX_VALUE;
             for(var p:hole){left=Math.min(left,p.x);right=Math.max(right,p.x);bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);}
@@ -99,7 +108,7 @@ final class LiveBirthRenderer {
             // Subtract a convex hole, keeping every exterior strip of the original textured triangle.
             for(int edge=0;edge<hole.size()&&!remaining.isEmpty();edge++){
                 Vector3f a=hole.get(edge),b=hole.get((edge+1)%hole.size());
-                polygon(pose,buffer,light,overlay,clip(remaining,a,b,false),255,255,255);
+                polygon(pose,buffer,light,overlay,placed(clip(remaining,a,b,false)),255,255,255);
                 remaining=clip(remaining,a,b,true);
             }
             return true;
@@ -107,18 +116,18 @@ final class LiveBirthRenderer {
         void render(PoseStack pose,MultiBufferSource buffers,int light){
             if(visible){
                 var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+childId+"/sleep.png")));
-                for(var tri:child)polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,front(List.of(tri),plane),255,255,255);
+                for(var tri:child)polygon(pose,buffer,light,OverlayTexture.NO_OVERLAY,placed(front(List.of(tri),plane)),255,255,255);
             }
             var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/reproductive_filling.png")));
             for(int i=0;i<hole.size();i++){
                 Vector3f a=hole.get(i),b=hole.get((i+1)%hole.size());
                 Vector3f ao=outer(a),bo=outer(b);
                 // Closed annulus, with an inner wall and a raised skin edge; no painted open crescent.
-                quad(pose,ink,light,new Vector3f(a).add(0,0,.14f),new Vector3f(b).add(0,0,.14f),b,a,128,91,78);
-                quad(pose,ink,light,a,b,new Vector3f(bo).add(0,0,-.035f),new Vector3f(ao).add(0,0,-.035f),255,231,185);
-                quad(pose,ink,light,new Vector3f(ao).add(0,0,-.035f),new Vector3f(bo).add(0,0,-.035f),bo,ao,255,231,185);
+                quad(pose,ink,light,at(new Vector3f(a).add(0,0,.14f)),at(new Vector3f(b).add(0,0,.14f)),at(b),at(a),128,91,78);
+                quad(pose,ink,light,at(a),at(b),at(new Vector3f(bo).add(0,0,-.035f)),at(new Vector3f(ao).add(0,0,-.035f)),255,231,185);
+                quad(pose,ink,light,at(new Vector3f(ao).add(0,0,-.035f)),at(new Vector3f(bo).add(0,0,-.035f)),at(bo),at(ao),255,231,185);
                 var cap=new Vector3f(center).add(0,0,.16f);
-                polygon(pose,ink,light,OverlayTexture.NO_OVERLAY,List.of(swatch(cap),swatch(new Vector3f(b).add(0,0,.14f)),swatch(new Vector3f(a).add(0,0,.14f))),128,91,78);
+                polygon(pose,ink,light,OverlayTexture.NO_OVERLAY,placed(List.of(swatch(cap),swatch(new Vector3f(b).add(0,0,.14f)),swatch(new Vector3f(a).add(0,0,.14f)))),128,91,78);
             }
         }
         private Vector3f outer(Vector3f point){

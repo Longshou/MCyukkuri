@@ -1,5 +1,11 @@
 # 素材检查室
 
+2026-10-14 追加：动作修正第 9 版新增 25 段[世界观动作](../../standards/yukkuri-library/motions/variants/lore/README.md)，待用户复查。
+
+- 内容：日常、社交、情绪、分娩、接生和水生魔理沙的帽船动作。
+- 在模型页的动作列表中可选；每种形态只列出适用的动作。
+- 帽船动作在 `marisa` 模型上显示，水生魔理沙沿用这个模型。
+
 2026-10-07 追加：模型页已拼接[头饰与头发位置适配](../../art/source/placement-fit/README.md)（待用户复查），与游戏读取同一 `yukkuri_presentation/placement_fit.json`；鼓腮第七版已按适配后的网格重新导出。检查意见的模型指纹包含位置适配资源，此前的意见不会被当作新版结论。
 
 2026-10-07，第七版鼓腮修订，状态为待用户复查。当前入口：[常态与满腮五视图](../../art/source/motion-corrections/previews/current/review.png)、[19种形态特写](../../art/source/motion-corrections/previews/current/close-ups.png)、[19种形态斜侧面](../../art/source/motion-corrections/previews/current/all-models.png)、[连续动作](../../art/source/motion-corrections/previews/current/face-stability.gif)。
