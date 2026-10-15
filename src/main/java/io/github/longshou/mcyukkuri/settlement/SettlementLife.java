@@ -40,6 +40,15 @@ public final class SettlementLife {
         if (group == null) return false;
         join(group); return true;
     }
+    /** Called only after a completed shelter has accepted this same resident. */
+    public void establishHousehold(ShelterBlockEntity home) {
+        if (!home.owns(entity.getUUID()) || !home.usable(entity)) throw new IllegalStateException("New household requires an occupied usable shelter");
+        var data = SettlementData.get(level());
+        data.leave(group(), entity.getUUID());
+        stop(); duties.stop();
+        var household = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FAMILY, home.getBlockPos(), null);
+        data.add(household); join(household);
+    }
     public void naturalSpawn() { pendingNatural = true; }
     public String kind() { var group = group(); return group == null ? (groupId == null ? "wanderer" : "away") : group.kind.name().toLowerCase(java.util.Locale.ROOT); }
     public boolean active() { return target != null; }
@@ -56,6 +65,7 @@ public final class SettlementLife {
         society.tick(); duties.clock();
     }
     public boolean canUse() {
+        if (entity.independence().householdOuting()) return false;
         if (society.role() == SettlementData.Role.OUTCAST || entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
                 || entity.life().mealTicks() > 0 || entity.life().isSleeping() || entity.isInWaterOrBubble()) return false;
         if (active()) return true;
@@ -96,7 +106,7 @@ public final class SettlementLife {
         return false;
     }
     public boolean canContinue() {
-        return active() && society.role() != SettlementData.Role.OUTCAST && elapsed < 400 && !entity.isPanicking()
+        return active() && !entity.independence().householdOuting() && society.role() != SettlementData.Role.OUTCAST && elapsed < 400 && !entity.isPanicking()
                 && !entity.isCommandPlaying() && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;

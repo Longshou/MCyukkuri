@@ -1250,5 +1250,17 @@
   "activity.mcyukkuri.warm_up": "停下取暖",
   "activity.mcyukkuri.seek_shade": "寻找阴凉",
   "activity.mcyukkuri.shade_rest": "阴凉处休息",
-  "item.mcyukkuri.yukkuri_stem": "油库里的茎"
+  "item.mcyukkuri.yukkuri_stem": "油库里的茎",
+  "notebook.mcyukkuri.independence": "离巢与探亲\n\n状态：%s\n原居：%s\n工地：%s\n现场材料：%s / %s\n施工：%s%%\n暴雨损失：%s 份\n探亲完成：%s 次\n\n原居床位在新居完工认领后释放；亲缘保留。",
+  "independence.mcyukkuri.family": "与家人同住／暂不离巢",
+  "independence.mcyukkuri.eligible": "已可独立，等待离巢意愿与合适地点",
+  "independence.mcyukkuri.building": "搬运材料、整理新居",
+  "independence.mcyukkuri.independent": "独立居住",
+  "independence.mcyukkuri.returning": "探亲或返回自己的新居",
+  "activity.mcyukkuri.independence_farewell": "向家人道别",
+  "activity.mcyukkuri.independence_gather": "寻找筑居材料",
+  "activity.mcyukkuri.independence_carry": "搬运筑居材料",
+  "activity.mcyukkuri.independence_build": "铺床筑居",
+  "activity.mcyukkuri.independence_visit": "回访亲属",
+  "activity.mcyukkuri.independence_return": "返回自己的新居"
 }

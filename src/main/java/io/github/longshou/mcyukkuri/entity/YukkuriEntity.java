@@ -89,6 +89,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.play.PlayLife playLife=new io.github.longshou.mcyukkuri.play.PlayLife(this);
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
     private final FamilyLife family;
+    private io.github.longshou.mcyukkuri.family.IndependenceLife independence;
     private final io.github.longshou.mcyukkuri.settlement.SettlementLife settlement;
     private final io.github.longshou.mcyukkuri.settlement.HabitatLife habitat;
     private final io.github.longshou.mcyukkuri.house.HouseLife house;
@@ -124,6 +125,7 @@ public final class YukkuriEntity extends PathfinderMob {
         this.life = new YukkuriLife(this);
         this.social = new YukkuriSocial(this);
         this.family = new FamilyLife(this);
+        if (independence == null) independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
         if (aquaticLife == null) aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
         this.settlement = new io.github.longshou.mcyukkuri.settlement.SettlementLife(this);
         this.habitat = new io.github.longshou.mcyukkuri.settlement.HabitatLife(this);
@@ -232,6 +234,7 @@ public final class YukkuriEntity extends PathfinderMob {
         setLastHurtByMob(threat);panicTicks=100;
     }
     public FamilyLife family() { return family; }
+    public io.github.longshou.mcyukkuri.family.IndependenceLife independence() { return independence; }
     public io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies() { return subspecies; }
     public int subspeciesFlags() { return entityData.get(SUBSPECIES); }
     public void syncSubspecies(int flags) { if (!level().isClientSide) entityData.set(SUBSPECIES, flags); }
@@ -382,6 +385,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(5, new HouseGoal());
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
+        independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
+        goalSelector.addGoal(6, independence);
         goalSelector.addGoal(6, new SettlementDutyGoal());
         goalSelector.addGoal(6, new SettlementGoal());
         goalSelector.addGoal(5, new io.github.longshou.mcyukkuri.event.WildEventGoal(this));
@@ -452,7 +457,8 @@ public final class YukkuriEntity extends PathfinderMob {
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
         subspecies.tick();aquaticLife.clock();life.tick(); badges.tick(); social.tick();operations.tick(); family.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
-        entityData.set(CARRYING,(!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
+        independence.clock();
+        entityData.set(CARRYING,(!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
         entityData.set(NUZZLE_PARTNER,dailyLife.nuzzlePartnerId());
         if (!ItemStack.matches(entityData.get(AQUATIC_SERVING),aquaticLife.care().serving()))
             entityData.set(AQUATIC_SERVING,aquaticLife.care().serving().copy());
@@ -488,7 +494,7 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+                : aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : travelledX * travelledX + travelledZ * travelledZ > 0.000001 && onGround() && !life.isSleeping()
@@ -633,7 +639,7 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();playLife.stop();
             requestedAction = null;
             operations.end();
-            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();settlement.duties().dropCarrying();body.died(source); }
+            if(!deathRecorded) { deathRecorded=true;aquaticLife.dropStick();family.died();house.dropCarrying();habitat.dropCarrying();independence.abandon();settlement.duties().dropCarrying();body.died(source); }
             life.interrupt(); social.stop(); life.releaseHome();
             setAnimation(YukkuriAction.IDLE, true);
             entityData.set(EXPRESSION, "neutral");
@@ -686,6 +692,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriOperations",operations.save());
         tag.put("YukkuriSettlement",settlement.save());
         tag.put("YukkuriHabitat",habitat.save());
+        tag.put("YukkuriIndependence",independence.save());
         if (variant.isPredator()) tag.put("YukkuriPredator", predator.save());
         // Command poses and transient anatomy states never survive a world reload.
     }
@@ -720,6 +727,7 @@ public final class YukkuriEntity extends PathfinderMob {
         operations.load(tag.getCompound("YukkuriOperations"));
         settlement.load(tag.getCompound("YukkuriSettlement"));
         habitat.load(tag.getCompound("YukkuriHabitat"));
+        independence.load(tag.getCompound("YukkuriIndependence"));
         if (variant.isPredator()) { predator.load(tag.getCompound("YukkuriPredator")); setNoGravity(false); }
         entityData.set(HAIR_LOSS,body.hairLoss());
     }

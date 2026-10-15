@@ -11,6 +11,7 @@ public final class P0Mod {
 
     public P0Mod(IEventBus modBus) {
         if (P0Control.enabled()) {
+            if("independence".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(IndependenceGameTests.class));return;}
             if("shed_stem".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(ShedStemGameTests.class));return;}
             if("hats".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(HatInteractionGameTests.class));return;}
             if("personality".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PersonalityDevelopmentGameTests.class));return;}

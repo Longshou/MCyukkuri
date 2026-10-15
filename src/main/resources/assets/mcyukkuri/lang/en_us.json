@@ -1250,5 +1250,17 @@
   "activity.mcyukkuri.warm_up": "Warming up",
   "activity.mcyukkuri.seek_shade": "Seeking shade",
   "activity.mcyukkuri.shade_rest": "Resting in shade",
-  "item.mcyukkuri.yukkuri_stem": "Yukkuri Stem"
+  "item.mcyukkuri.yukkuri_stem": "Yukkuri Stem",
+  "notebook.mcyukkuri.independence": "Leaving home and visiting kin\n\nState: %s\nFamily home: %s\nWork site: %s\nMaterials on site: %s / %s\nWork: %s%%\nStorm losses: %s\nCompleted visits: %s\n\nThe old bed is released only after the new home is finished and claimed. Kinship remains.",
+  "independence.mcyukkuri.family": "With family / not ready to leave",
+  "independence.mcyukkuri.eligible": "Ready for independence, waiting for a decision and suitable site",
+  "independence.mcyukkuri.building": "Gathering materials and preparing a home",
+  "independence.mcyukkuri.independent": "Living independently",
+  "independence.mcyukkuri.returning": "Visiting kin or returning to the new home",
+  "activity.mcyukkuri.independence_farewell": "Saying goodbye to family",
+  "activity.mcyukkuri.independence_gather": "Gathering building materials",
+  "activity.mcyukkuri.independence_carry": "Carrying building materials",
+  "activity.mcyukkuri.independence_build": "Preparing bedding and shelter",
+  "activity.mcyukkuri.independence_visit": "Visiting relatives",
+  "activity.mcyukkuri.independence_return": "Returning to the new home"
 }

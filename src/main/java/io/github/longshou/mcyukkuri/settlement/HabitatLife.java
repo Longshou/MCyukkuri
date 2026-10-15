@@ -82,6 +82,7 @@ public final class HabitatLife {
     }
     public boolean canUse() {
         if(!ready())return false;
+        if(entity.independence().householdOuting()&&!entity.life().canEat()&&carrying.isEmpty())return false;
         if(active())return true;
         if(wait>0)return false;wait=60;
         var value=shelter();if(value==null||!value.usable(entity))return false;
@@ -104,6 +105,7 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity))
+                &&(!entity.independence().householdOuting()||task==Task.FOOD||!carrying.isEmpty())
                 &&(task==Task.FOOD||!carrying.isEmpty()||!entity.settlement().society().dejected());
     }
     public void tickGoal() {

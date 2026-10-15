@@ -45,6 +45,13 @@ public final class SettlementData extends SavedData {
     public Group group(UUID id) { return id == null ? null : groups.get(id); }
     public void add(Group group) { groups.put(group.id, group); setDirty(); }
     public void remove(UUID id) { if(groups.remove(id)!=null)setDirty(); }
+    /** A successful household move changes membership without deleting the family ledger. */
+    public void leave(Group group, UUID id) {
+        if (group == null) return;
+        group.members.remove(id);
+        if (id.equals(group.leader)) group.leader = null;
+        setDirty();
+    }
     public Member member(Group group, UUID id) {
         var member = group.members.get(id);
         if (member == null) {
