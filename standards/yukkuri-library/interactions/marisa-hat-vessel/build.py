@@ -16,15 +16,18 @@ the opening, the long brim axis on Z, the worn hat's front, where the bow is, on
 Placements put the hat where the game sets it to catch and the catcher where her braid holds its
 brim: a helper beside it (searched over her angle and place for braid reach, clearance from the
 swollen mother and from the hat, and a view of the outlet), or the mother before her own outlet.
-Python and numpy only.
+The hat stands clear of the live exit: a newborn is pushed out over its near brim on a short arc
+(delivery.py, also used by the births preview and mirrored in the game). Python and numpy only.
 
   python build.py [--check]
 """
 from pathlib import Path
-import argparse, hashlib, json, math
+import argparse, hashlib, json, math, sys
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import delivery as DL
 ROOT = HERE.parents[3]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 MODEL = ASSETS/'yukkuri/marisa.json'
@@ -34,6 +37,7 @@ OLD_PROPS = [ASSETS/'yukkuri_props/marisa_hat_nest.json', ASSETS/'yukkuri_props/
 METRICS = ASSETS/'yukkuri_presentation/hat_vessel.json'
 INDEX = ASSETS/'yukkuri_props/subspecies-index.json'
 TEXTURE = 'mcyukkuri:textures/entity/marisa/neutral.png'
+LIVE_BABY = .18  # LiveBirthGeometry.BABY_SCALE
 R = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
 
 
@@ -176,6 +180,11 @@ class Turned:
         self.opening, self.well = rect(levels['hole1']), rect(levels['hole2'])  # x0, x1, z0, z1
         self.keel = -float(P[:, 1].min()); self.floor = levels['floor']-levels['rim']; self.ledge = levels['ledge']-levels['rim']
         self.brim = [float(np.abs(P[:, 0]).max()), float(np.abs(P[:, 2]).max())]
+        self.brim_rects = []  # the brim's boxes seen from above (x0, x1, z0, z1)
+        for name, b in worn.items():
+            if not name.startswith('brim_'): continue
+            c = worn_to_vessel(np.array([b['lo'], b['hi']]), anchor)
+            self.brim_rects.append([round(float(c[:, 0].min()), 4), round(float(c[:, 0].max()), 4), round(float(c[:, 2].min()), 4), round(float(c[:, 2].max()), 4)])
         self.squash = {'nest': R['nest']['height']/self.keel, 'bowl': R['bowl']['squash']}
 
     def lift(self, kind, k):
@@ -218,8 +227,10 @@ def end_grip(g, anchor, sigma, k, rim_y):
 
 
 def helper_spots(pose, turned, kind, k, root, length, mother_r, land_from, reach_range):
-    """Places and angles (mother frame) from which the braid holds the brim, best first."""
+    """Places and angles (mother frame) from which the braid holds the brim, best first. The brim point held stays
+    out of the newborn's way: not on the near half of the brim beside the outlet line."""
     W = R['helper']; rims = pose(turned.rim_points()); centre = pose(np.zeros((1, 3)))[0]
+    clear_path = ~((rims[:, 2] > centre[2]) & (np.abs(rims[:, 0]) < W['corridor']))
     brim_r = max(turned.brim)*k+W['hat_clear']; body_r = W['body_radius']
     outlet = np.array([0, 1.3, -mother_r]); out = []
     for a in range(0, 360, 5):
@@ -230,7 +241,7 @@ def helper_spots(pose, turned, kind, k, root, length, mother_r, land_from, reach
                 if hz < land_from or math.hypot(hx, hz) < mother_r+body_r+W['mother_clear']: continue
                 if kind == 'nest' and math.hypot(hx-centre[0], hz-centre[2]) < brim_r+body_r: continue  # a floated brim lies below the bank
                 local = (rims-h)@Rinv.T; rs = np.linalg.norm(local-root, axis=1)/length
-                ok = (rs >= reach_range[0])&(rs <= reach_range[1])&(local[:, 0] >= W['grip_side_min'])
+                ok = (rs >= reach_range[0])&(rs <= reach_range[1])&(local[:, 0] >= W['grip_side_min'])&clear_path
                 if not ok.any(): continue
                 i = int(np.argmin(np.where(ok, abs(rs-W['reach_ideal']), 9)))
                 to = Rinv@(outlet-h); to[1] = 0
@@ -240,37 +251,41 @@ def helper_spots(pose, turned, kind, k, root, length, mother_r, land_from, reach
     out.sort(key=lambda x: x[0]); return out
 
 
-def place(variant, kind, turned, k, origin, hat, anchor, root, bowed, length, half, land_from):
-    """The helper's and the mother's own placement: the hat's turn, the brim point the braid carries it by, the brim point it holds."""
+def place(variant, kind, turned, k, origins, hat, anchor, root, bowed, length, half, land_from):
+    """The helper's and the mother's own placement: the hat's turn, the brim point the braid carries it by, the brim
+    point it holds. origins(role, yaw_rel) gives where the hat lies before the mother for that turn."""
     W = R['helper']; hover = np.array([0, R['hover'], 0]); grips = head_grips(hat, anchor, root, length, k)
     sigma = turned.squash[kind]; best_h = best_s = None
     for yaw_rel in (90, -90):
-        pose = hat_pose(turned, kind, k, yaw_rel, origin)
-        ends = [in_mother(end_grip(g, anchor, sigma, k, turned.lift(kind, k)), yaw_rel, origin) for g in grips]
-        for score, h, a, i, rr, look in helper_spots(pose, turned, kind, k, root, length, half, land_from, R['reach'][variant])[:400]:
+        origin = origins('helper', yaw_rel); pose = hat_pose(turned, kind, k, yaw_rel, origin) if origin is not None else None
+        ends = [in_mother(end_grip(g, anchor, sigma, k, turned.lift(kind, k)), yaw_rel, origin) for g in grips] if pose else []
+        for score, h, a, i, rr, look in [] if pose is None else helper_spots(pose, turned, kind, k, root, length, half, land_from, R['reach'][variant])[:400]:
             Rinv = rot_y(math.radians(-a))
             for g, e in zip(grips, ends):
                 re = reach(root, length, Rinv@(e-h)); rh = reach(root, length, Rinv@(e+hover-h))
                 if not .6 <= re <= R['reach'][variant][1]+.1 or rh > R['reach'][variant][1]+.2: continue
                 total = score+W['reach_weight']*(abs(re-1)+.5*abs(rh-1))
-                if best_h is None or total < best_h[0]: best_h = (total, yaw_rel, h, a, i, rr, look, g, re, rh)
+                if best_h is None or total < best_h[0]: best_h = (total, yaw_rel, h, a, i, rr, look, g, re, rh, origin)
         # the mother on her own, bowed: her braid side of the brim, and the brim point that lands within reach
-        rims = pose(turned.rim_points()); low = np.array([0, R['self_hover'], 0])
-        for g, e in zip(grips, ends):
-            re = reach(bowed, length, e); rh = reach(bowed, length, e+low)
-            for i, rim in enumerate(rims):
-                if rim[0] <= 0: continue
-                rr = reach(bowed, length, rim); total = abs(re-1)+.5*abs(rh-1)+abs(rr-1)
-                if best_s is None or total < best_s[0]: best_s = (total, yaw_rel, g, i, re, rh, rr)
-    if best_h is None: raise SystemExit(f'{variant}: no helper placement')
-    _, yaw_rel, h, a, i, rr, look, g, re, rh = best_h; Rinv = rot_y(math.radians(-a))
-    rnd = lambda v: [round(float(x), 4) for x in v]; rims = turned.rim_points()
-    helper = dict(mode=kind, offset=rnd(Rinv@(origin-h)), yaw=int((a+yaw_rel) % 360), hat_in_mother=dict(origin=rnd(origin), yaw=yaw_rel),
-                  at_mother=rnd(h), angle=a, rim=rnd(rims[i]), grip_worn=rnd(g),
-                  reach=dict(hold=round(rr, 3), set_down=round(re, 3), above=round(rh, 3)), look=round(look, 2))
-    _, yaw_rel, g, i, re, rh, rr = best_s
-    mine = dict(mode=kind, offset=rnd(origin), yaw=yaw_rel, hat_in_mother=dict(origin=rnd(origin), yaw=yaw_rel), rim=rnd(rims[i]), grip_worn=rnd(g),
-                bow=R['self_bow'], reach=dict(rim=round(rr, 3), set_down=round(re, 3), above=round(rh, 3)))
+        origin = origins('self', yaw_rel)
+        if origin is None: continue
+        pose = hat_pose(turned, kind, k, yaw_rel, origin)
+        ends = [in_mother(end_grip(g, anchor, sigma, k, turned.lift(kind, k)), yaw_rel, origin) for g in grips]
+        low = np.array([0, R['self_hover'], 0])
+        for g, e in zip(grips, ends):  # she lets go where the braid set it down
+            re = reach(bowed, length, e); rh = reach(bowed, length, e+low); total = abs(re-1)+.5*abs(rh-1)
+            if best_s is None or total < best_s[0]: best_s = (total, yaw_rel, g, worn_to_vessel(g, anchor)*np.array([1, sigma, 1]), re, rh, origin)
+    rnd = lambda v: [round(float(x), 4) for x in v]; rims = turned.rim_points(); helper = None
+    if origins('helper', 90) is not None:
+        if best_h is None: raise SystemExit(f'{variant}: no helper placement')
+        _, yaw_rel, h, a, i, rr, look, g, re, rh, origin = best_h; Rinv = rot_y(math.radians(-a))
+        helper = dict(mode=kind, offset=rnd(Rinv@(origin-h)), yaw=int((a+yaw_rel) % 360), hat_in_mother=dict(origin=rnd(origin), yaw=yaw_rel),
+                      at_mother=rnd(h), angle=a, rim=rnd(rims[i]), grip_worn=rnd(g),
+                      reach=dict(hold=round(rr, 3), set_down=round(re, 3), above=round(rh, 3)), look=round(look, 2))
+    if best_s is None: return helper, None
+    _, yaw_rel, g, rim, re, rh, origin = best_s
+    mine = dict(mode=kind, offset=rnd(origin), yaw=yaw_rel, hat_in_mother=dict(origin=rnd(origin), yaw=yaw_rel), rim=rnd(rim), grip_worn=rnd(g),
+                bow=R['self_bow'], reach=dict(set_down=round(re, 3), above=round(rh, 3)))
     return helper, mine
 
 
@@ -284,24 +299,40 @@ def main():
     prop = {'format': 1, 'units_per_block': 16, 'vertices': flat, 'parts': parts, 'bounds': [[round(float(P[:, i].min()), 5), round(float(P[:, i].max()), 5)] for i in range(3)]}
     t = Turned(P, levels, anchor, worn); fb = R['bowl']['freeboard']; sn, sw = t.squash['nest'], t.squash['bowl']
     x0, x1, z0, z1 = t.opening
-    seats = {'nest': [[x, round((t.keel-t.floor)*sn, 4), z] for x, z in R['nest']['seats']],
-             'day': [[x, round(fb-t.floor*sw, 4), z] for x, z in R['bowl']['young_day']],
-             'night': [[x, round(fb-t.floor*sw, 4), z] for x, z in R['bowl']['young_night']]}
     model_root, length = braid(model)
     pivot = np.array(model['bones'][[b['name'] for b in model['bones']].index('root')]['pivot'])
     bowed = rot_x(math.radians(R['self_bow']))@(model_root-pivot)+pivot  # a mother bows to set her own hat
-    half = body_half(body); exit_front = half+.15*16
+    half = body_half(body); exit_front = half+.15*16; D = R['delivery']
+    width = body['bounds'][0][1]-body['bounds'][0][0]; r_live = D['young_radius']*width*LIVE_BABY
+    rnd = lambda v: [round(float(x), 4) for x in v]
+
+    def near(yaw_rel, k):
+        """How far the brim reaches from the hat's origin toward the mother (+Z) for this turn."""
+        Rm = rot_y(math.radians(-yaw_rel))
+        return max((Rm@np.array([x, 0, z]))[2] for b in t.brim_rects for x in b[:2] for z in b[2:])*k
+
+    def before_exit(gap, k):  # the near brim this far past the live exit, beyond the newborn's round body
+        return lambda yaw_rel: np.array([0., 0., -(exit_front+r_live+gap+near(yaw_rel, k))])
     placements = {}
     for variant, k in (('land', 1.), ('aquatic', R['aquatic_scale'])):
         if variant == 'land':
-            # before the outlet, the long axis across, the opening's near edge a little nearer to her than the exit
-            near = (x1-x0)/2*k; origin = np.array([0., 0., -(exit_front-R['inside_exit'])-near]); kind, land_from = 'nest', -99.
+            kind, land_from = 'nest', -99.
+            helper_at = before_exit(D['gap']['helper'], k)
+            helper, _ = place(variant, kind, t, k, lambda role, yaw: helper_at(yaw) if role == 'helper' else None,
+                              worn, anchor, model_root, bowed, length, half, land_from)
+            helper['gap'] = D['gap']['helper']
+            for gap in D['gap']['self']:  # a mother on her own sets it as far out as her braid reaches
+                self_at = before_exit(gap, k)
+                _, mine = place(variant, kind, t, k, lambda role, yaw: self_at(yaw) if role == 'self' else None,
+                                worn, anchor, model_root, bowed, length, half, land_from)
+                if max(mine['reach'].values()) <= D['self_reach']: break
+            mine['gap'] = gap
         else:
             # floated at the bank's edge before the outlet, its near brim slipped under the bank
-            near = t.brim[0]*k; origin = np.array([0., -R['float']['bank_drop'], -half-near+R['float']['under_bank']]); kind, land_from = 'bowl', -half+R['float']['helper_back']
-        helper, mine = place(variant, kind, t, k, origin, worn, anchor, model_root, bowed, length, half, land_from)
+            origin = np.array([0., -R['float']['bank_drop'], -half-t.brim[0]*k+R['float']['under_bank']]); kind, land_from = 'bowl', -half+R['float']['helper_back']
+            helper, mine = place(variant, kind, t, k, lambda role, yaw: origin, worn, anchor, model_root, bowed, length, half, land_from)
+        for p in (helper, mine): p['near_brim'] = round(near(p['hat_in_mother']['yaw'], 1.), 4)
         placements[variant] = dict(scale=k, helper=helper, self=mine, mother_half=round(half, 4), exit_front=round(exit_front, 4))
-    rnd = lambda v: [round(float(x), 4) for x in v]
     metrics = {
         'note': __doc__.splitlines()[0], 'source_model': MODEL.relative_to(ROOT).as_posix(), 'source_model_sha256': sha(MODEL.read_bytes()),
         'prop': 'marisa_hat_turned', 'aquatic_scale': R['aquatic_scale'], 'anchor_worn': rnd(anchor),
@@ -311,8 +342,9 @@ def main():
         'nest': {'height': round(t.keel*sn, 4)},
         # afloat the owner rests on the ledge between the two opened tiers, the young on the floor below
         'bowl': {'freeboard': fb, 'owner_y': round(fb-t.ledge*sw, 4), 'mask': [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]},
-        'seats': seats, 'braid': {'root': rnd(model_root), 'length': round(length, 4)},
-        'placements': placements, 'float': R['float'], 'inside_exit': R['inside_exit'], 'pregnancy': R['pregnancy']}
+        'brim_rects': t.brim_rects, 'braid': {'root': rnd(model_root), 'length': round(length, 4)},
+        'delivery': {k: v for k, v in D.items() if k not in ('gap', 'gap_lore', 'self_reach')},
+        'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy']}
     texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
     index = json.loads(INDEX.read_text(encoding='utf-8'))
     for name in ('marisa_hat_vessel', 'marisa_hat_nest'): index.pop(name, None)
@@ -330,7 +362,23 @@ def main():
         for p in OLD_PROPS: p.unlink(missing_ok=True)
     print('turned hat', 'checked' if args.check else 'written', len(flat)//8, 'vertices; squash', metrics['squash'], 'nest height', metrics['nest']['height'])
     for variant, p in placements.items():
-        print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn') if k in p[r]} for r in ('helper', 'self')})
+        print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn', 'gap') if k in p[r]} for r in ('helper', 'self')})
+    report(metrics, body)
+
+
+def report(V, body):
+    """The canonical live births into the hat on land: ticks and highest point of each newborn's arc."""
+    D = V['delivery']; hat = DL.Hat(V, 'nest'); width = body['bounds'][0][1]-body['bounds'][0][0]
+    b = R['pregnancy']; y_out = body['outlet'][1]*(1+b['swell'])
+    start = [0., max(.24, y_out-body['height']*LIVE_BABY/2), -V['placements']['land']['exit_front']]
+    r = DL.radius(D, width*LIVE_BABY)
+    for role in ('helper', 'self'):
+        h = V['placements']['land'][role]['hat_in_mother']; pose = DL.Pose(h['origin'], -h['yaw'], 1.)
+        seats = DL.pack(hat, D, [r]*5, 'catch'); line = []
+        for s in seats:
+            end = pose.world(s); T = DL.solve(start, end, pose, hat, r, D); f = DL.arc(start, end, T, D['gravity'])
+            line.append((T, round(max(f(i/4)[1] for i in range(4*T+1)), 2)))
+        print('live', role, 'arcs (ticks, top)', line)
 
 
 if __name__ == '__main__':

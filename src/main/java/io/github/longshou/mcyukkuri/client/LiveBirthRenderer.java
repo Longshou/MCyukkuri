@@ -66,7 +66,7 @@ final class LiveBirthRenderer {
             float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
             float[] newborn=CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false));
             float minZ=Float.MAX_VALUE;for(int i=2;i<newborn.length;i+=8)minZ=Math.min(minZ,newborn[i]*scale);
-            float endZ=-(mother.getBbWidth()/mother.getScale()*.5f+.15f)*16/mother.growthScale();
+            float endZ=-(float)LiveBirthGeometry.exitFront(mother,next)*16/mother.growthScale();
             float z=plane-minZ+(endZ-(plane-minZ))*LiveBirthGeometry.smooth(progress);
             float bodyHeight=LiveBirthGeometry.modelHeight(childId),halfHeight=bodyHeight*.5f;
             float baseY=Math.max(.015f*16/mother.growthScale(),outlet.y-bodyHeight*scale*.5f);

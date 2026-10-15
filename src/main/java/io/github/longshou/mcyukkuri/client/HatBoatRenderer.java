@@ -31,6 +31,7 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
      *  until the brim stands on the squashed crown, afloat a little with the brim a freeboard over the water and the water
      *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+        if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
         if(boat.state()==HatBoatEntity.State.CAPSIZED)pose.mulPose(Axis.ZP.rotationDegrees(150));
         float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();

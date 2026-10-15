@@ -253,12 +253,12 @@ public final class FamilyData extends SavedData {
         if(!added)return null;
         // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
         // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
-        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(.9),
-                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().findFirst().orElse(null):null;
+        // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
+        var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
+                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         if(hat!=null) {
-            if(level.random.nextFloat()<.12f) {
-                entity.family().doom();var forward=Vec3.directionFromRotation(0,entity.yBodyRot);entity.setDeltaMovement(forward.x*.34,.22,forward.z*.34);
-            } else hat.boardYoung(entity);
+            if(level.random.nextFloat()<.12f) { entity.family().doom();entity.family().launchPast(hat); }
+            else entity.family().launchInto(hat,io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,null);
         } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
             // A fruit that comes away awkwardly misses the hat held under the stem.

@@ -31,6 +31,8 @@ public final class HatBoatEntity extends Entity {
     private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
+    /** Where each young aboard sits (hat units), as the server gave it: where it landed, or the next free place. */
+    private static final EntityDataAccessor<CompoundTag> SEATS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     private HatVessel.Role role = HatVessel.Role.HELPER;
@@ -43,10 +45,19 @@ public final class HatBoatEntity extends Entity {
     /** Young born into the hat (water birth); kept after a capsize so a rescue can bring them ashore. */
     private final java.util.LinkedHashSet<UUID> crew = new java.util.LinkedHashSet<>();
     public static final int MAX_YOUNG = 5;
+    /** Server only: the places (hat units x, y, z and the young's radius) of the young aboard, and those kept for young
+     *  on their way in (a newborn's flight, a bounce off the brim). */
+    private final java.util.LinkedHashMap<UUID, double[]> seats = new java.util.LinkedHashMap<>(), incoming = new java.util.LinkedHashMap<>();
+    private String seatRegion = "";
+    /** Young hopping out in turn before the hat is taken back: who, to which spot (world), from which game tick. */
+    private record Leaving(UUID young, Vec3 spot, long at) {}
+    private final java.util.ArrayList<Leaving> leaving = new java.util.ArrayList<>();
+    private java.util.List<Vec3> seatCache = java.util.List.of();
+    private String seatKey = "";
 
     public HatBoatEntity(EntityType<? extends HatBoatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
+        builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f); builder.define(SEATS, new CompoundTag());
     }
     public UUID ownerYukkuri() { return entityData.get(OWNER).orElse(null); }
     public State state() { return State.values()[Math.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
@@ -72,13 +83,119 @@ public final class HatBoatEntity extends Entity {
     public boolean young(YukkuriEntity y) {
         return ownerYukkuri() != null && (ownerYukkuri().equals(y.family().mother()) || ownerYukkuri().equals(y.family().father())) && !y.family().adult();
     }
-    private int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
-    public boolean hasRoomForYoung() { return (isAfloat() || state() == State.BEACHED || catches()) && youngAboard() < MAX_YOUNG; }
+    public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
+    public boolean hasRoomForYoung() { return (isAfloat() || state() == State.BEACHED || catches()) && youngAboard()+incoming.size() < MAX_YOUNG; }
+    /** Room for this young: a free place, or the one kept for it. */
+    public boolean hasRoomFor(YukkuriEntity child) { return incoming.containsKey(child.getUUID()) || hasRoomForYoung(); }
     /** A newborn delivered in the hat stays aboard with its mother. */
     public boolean boardYoung(YukkuriEntity child) {
-        if (level().isClientSide || !young(child) || !hasRoomForYoung()) return false;
+        if (level().isClientSide || !young(child) || !hasRoomFor(child)) return false;
+        var seat = incoming.remove(child.getUUID());
+        if (seat == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), null, taken(), null); seat = new double[]{s.x, s.y, s.z, r}; }
         crew.add(child.getUUID());
-        return child.startRiding(this, true);
+        if (!child.startRiding(this, true)) return false;
+        seats.put(child.getUUID(), seat); syncSeats(); return true;
+    }
+    @Override protected void removePassenger(Entity passenger) {
+        super.removePassenger(passenger);
+        if (!level().isClientSide && seats.remove(passenger.getUUID()) != null) syncSeats();
+    }
+    // ---------------------------------------------------------------- the hat's frame and the young's places
+    public HatVessel.Mode mode() { return isCradle() ? HatVessel.Mode.NEST : HatVessel.Mode.FLOAT; }
+    /** Blocks per hat unit (the prop's units at this hat's size). */
+    public double unit() { return hullScale()/16; }
+    private float turn() { return (float) Math.toRadians(180 - getYRot()); }
+    public Vec3 toWorld(Vec3 local) { return position().add(local.scale(unit()).yRot(turn())); }
+    public Vec3 toLocal(Vec3 world) { return world.subtract(position()).yRot(-turn()).scale(1/unit()); }
+    private String region() { return catches() ? "catch" : !isMoored() && level().isNight() ? "night" : "day"; }
+    private double radiusOf(Entity young) { return HatVessel.radius(young.getBbWidth())/unit(); }
+    private java.util.List<Entity> youngPassengers() { return getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).toList(); }
+    private java.util.List<double[]> taken() { var out = new java.util.ArrayList<double[]>(seats.values()); out.addAll(incoming.values()); return out; }
+    private void syncSeats() {
+        var list = new net.minecraft.nbt.ListTag();
+        for (var e : seats.entrySet()) { var c = new CompoundTag(); c.putUUID("Id", e.getKey()); c.putDouble("X", e.getValue()[0]); c.putDouble("Y", e.getValue()[1]); c.putDouble("Z", e.getValue()[2]); list.add(c); }
+        var tag = new CompoundTag(); tag.put("S", list); entityData.set(SEATS, tag);
+    }
+    /** The place the server gave this young aboard, or null. */
+    private Vec3 seatOf(Entity young) {
+        if (!level().isClientSide) { var s = seats.get(young.getUUID()); return s == null ? null : new Vec3(s[0], s[1], s[2]); }
+        for (var raw : entityData.get(SEATS).getList("S", net.minecraft.nbt.Tag.TAG_COMPOUND))
+            if (raw instanceof CompoundTag c && c.hasUUID("Id") && c.getUUID("Id").equals(young.getUUID())) return new Vec3(c.getDouble("X"), c.getDouble("Y"), c.getDouble("Z"));
+        return null;
+    }
+    /** Server: young aboard without a place (after loading) get one; afloat, at dusk and dawn they all move (before the
+     *  owner by day, under her at night). */
+    private void tendSeats() {
+        var young = youngPassengers(); boolean moved = !region().equals(seatRegion) && !catches(); seatRegion = region();
+        if (moved) seats.clear();
+        boolean changed = moved;
+        for (var p : young) if (!seats.containsKey(p.getUUID())) {
+            double r = radiusOf(p); var s = HatVessel.place(mode(), r, region(), null, taken(), null); seats.put(p.getUUID(), new double[]{s.x, s.y, s.z, r}); changed = true;
+        }
+        if (changed) syncSeats();
+    }
+    /** Places of the young aboard taken in boarding order: only until the server's places arrive. */
+    private java.util.List<Vec3> youngSeats() {
+        var young = youngPassengers(); var key = new StringBuilder(region()).append(mode()).append(hullScale());
+        for (var p : young) key.append(p.getId()).append(':').append(p.getBbWidth());
+        if (!key.toString().equals(seatKey)) { seatKey = key.toString(); seatCache = HatVessel.pack(mode(), young.stream().mapToDouble(this::radiusOf).toArray(), region()); }
+        return seatCache;
+    }
+    /** A place for this young (nearest prefer, hat units; null for the usual one) that it can reach from where it is
+     *  without crossing the others, kept for it until it boards. */
+    public Vec3 reserve(YukkuriEntity child, Vec3 prefer) {
+        var have = incoming.get(child.getUUID());
+        if (have == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), prefer, taken(), toLocal(child.position())); incoming.put(child.getUUID(), have = new double[]{s.x, s.y, s.z, r}); }
+        return new Vec3(have[0], have[1], have[2]);
+    }
+    /** The place a young would get next, without keeping it. */
+    public Vec3 peekSeat(YukkuriEntity child) {
+        var have = incoming.get(child.getUUID());
+        return have != null ? new Vec3(have[0], have[1], have[2]) : HatVessel.place(mode(), radiusOf(child), region(), null, taken(), toLocal(child.position()));
+    }
+    /** Before the hat is taken back the young hop out over the brim, side by side on the side clear of the adults there
+     *  (onto the bank beside a floated hat): each to the spot that keeps their ways apart, the one nearest its spot first,
+     *  4 ticks apart, so none hops over a sibling still sitting. True while any are aboard or still to go. */
+    public boolean releaseYoung(YukkuriEntity taker) {
+        if (level().isClientSide) return false;
+        if (!leaving.isEmpty()) return true;
+        var young = youngPassengers().stream().filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p).toList();
+        if (young.isEmpty()) return false;
+        var others = new java.util.ArrayList<double[]>();
+        for (var adult : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(4), y -> y.family().adult()))
+            others.add(new double[]{adult.getX(), adult.getZ(), adult.getBbWidth()*.5});
+        if (others.stream().noneMatch(o -> o[0] == taker.getX() && o[1] == taker.getZ())) others.add(new double[]{taker.getX(), taker.getZ(), taker.getBbWidth()*.5});
+        var bank = taker.position().subtract(position());
+        var spots = HatVessel.outSpots(this, young.stream().mapToDouble(y -> HatVessel.radius(y.getBbWidth())).toArray(), others,
+                isMoored() && bank.horizontalDistanceSqr() > 1e-6 ? new Vec3(bank.x, 0, bank.z).normalize() : null);
+        var froms = young.stream().map(Entity::position).toList(); var order = HatVessel.match(froms, spots);
+        var turn = new java.util.ArrayList<Integer>(); for (int i = 0; i < young.size(); i++) turn.add(i);
+        turn.sort(java.util.Comparator.comparingDouble(i -> froms.get(i).distanceToSqr(spots.get(order[i]))));
+        long now = level().getGameTime();
+        for (int k = 0; k < turn.size(); k++) { int i = turn.get(k); leaving.add(new Leaving(young.get(i).getUUID(), spots.get(order[i]), now+4L*k)); }
+        return true;
+    }
+    /** Server: the young whose turn it is hop out. */
+    private void tendLeaving() {
+        if (leaving.isEmpty() || !(level() instanceof ServerLevel server)) return;
+        long now = level().getGameTime();
+        leaving.removeIf(l -> {
+            if (l.at() > now) return false;
+            if (server.getEntity(l.young()) instanceof YukkuriEntity child && child.getVehicle() == this) {
+                var from = child.position(); child.stopRiding(); crew.remove(child.getUUID());
+                var to = ground(l.spot(), child);
+                if (to != null) child.family().hop(this, from, to);
+            }
+            return true;
+        });
+    }
+    /** Standing room on the ground at a spot, or null. */
+    private Vec3 ground(Vec3 spot, YukkuriEntity child) {
+        var hit = level().clip(new net.minecraft.world.level.ClipContext(spot.add(0, 1.2, 0), spot.add(0, -1.5, 0),
+                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.ANY, child));
+        if (hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK || !level().getFluidState(hit.getBlockPos()).isEmpty()) return null;
+        var at = hit.getLocation();
+        return level().noCollision(child, child.getBoundingBox().move(at.subtract(child.position()))) ? at : null;
     }
     public boolean towed() { return pullTicks > 0; }
     /** Drift toward a bank point, as when towed (an aquatic mother coming ashore to give birth). */
@@ -105,16 +222,19 @@ public final class HatBoatEntity extends Entity {
         float k = hullScale()/16, turn = (float) Math.toRadians(180 - getYRot());
         if (passenger.getUUID().equals(ownerYukkuri())) {
             // In the opening at the stern, on the ledge, her back to its rear edge: the inside before her stays open.
-            double z = HatVessel.OPENING[3]*k - passenger.getBbWidth()*.5;
+            double z = HatVessel.OPENING[3]*k - (passenger instanceof YukkuriEntity y ? io.github.longshou.mcyukkuri.family.LiveBirthGeometry.back(y)*y.getScale() : passenger.getBbWidth()*.5);
             var at = new Vec3(0, HatVessel.OWNER_Y*k, Math.max(0, z)).yRot(turn);
             move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z); return;
         }
-        int seat = 0;
-        for (var p : getPassengers()) { if (p == passenger) break; if (!p.getUUID().equals(ownerYukkuri())) seat++; }
-        // On the floor inside the hat: afloat before the owner by day and under her at night.
-        var local = isCradle() ? HatVessel.nestSeat(seat) : HatVessel.boatSeat(seat, !isMoored() && level().isNight());
-        var at = local.scale(k).yRot(turn);
-        move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z);
+        // Each young in its own place inside: where it landed, or packed by size (afloat before the owner by day, under her at night).
+        var local = seatOf(passenger);
+        if (local == null) {
+            int seat = youngPassengers().indexOf(passenger); var packed = youngSeats();
+            if (seat < 0 || seat >= packed.size()) return;
+            local = packed.get(seat);
+        }
+        var at = toWorld(local);
+        move.accept(passenger, at.x, at.y, at.z);
     }
     public static HatBoatEntity find(YukkuriEntity y) {
         if (y.getVehicle() instanceof HatBoatEntity boat) return boat;
@@ -255,6 +375,10 @@ public final class HatBoatEntity extends Entity {
             return;
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
+        if (tickCount % 20 == 0 && level() instanceof ServerLevel server)  // a place kept for a young no longer coming
+            incoming.keySet().removeIf(id -> !(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive() || y.isPassenger() || !y.family().flying() || y.distanceToSqr(this) > 64);
+        if (tickCount % 10 == 0) tendSeats();
+        tendLeaving();
         if (catches()) {
             if (isCradle()) {  // resting on the ground
                 var fall = new Vec3(0, Math.max(-.2, getDeltaMovement().y - .04), 0); setDeltaMovement(fall); move(MoverType.SELF, fall);

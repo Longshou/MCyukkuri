@@ -69,11 +69,27 @@ public final class LiveBirthGeometry {
     public static Vec3 outlet(YukkuriEntity mother){
         return new Vec3(modelOutlet(mother,mother.family().liveBelly(),0)).scale(1/16d);
     }
+    /** How far ahead of her origin the newborn comes out (blocks, before scale). On the ground the full newborn must
+     *  clear the maternal collision volume before becoming an entity; afloat in her hat boat it comes just out of her
+     *  swollen front, into the hat before her. Both sides (LiveBirthRenderer draws the emergence up to it). */
+    public static double exitFront(YukkuriEntity mother,int index){
+        if(mother.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity){
+            var brood=mother.family().brood();
+            float width=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).width():.8f*BABY_SCALE;
+            return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
+        }
+        return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
+    }
+    /** How far her body reaches behind its origin (blocks, before scale): her back against the hat boat's stern. */
+    public static double back(YukkuriEntity y){
+        var id=y.subspecies().assetId();float b=y.livePregnancyProgress();
+        double z=BODY.has(id)?BODY.getAsJsonObject(id).getAsJsonArray("bounds").get(2).getAsJsonArray().get(1).getAsDouble():5.9;
+        return z/16*y.growthScale()*(1+SWELL*b)*(1+LOW_DEEP*b);
+    }
     public static Vec3 localExit(YukkuriEntity mother,int index){
         float size=mother.growthScale();
         var outlet=outlet(mother).scale(size);
-        // The full newborn must clear the maternal collision volume before becoming an entity.
-        double front=Math.max(-outlet.z+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
+        double front=exitFront(mother,index);
         var brood=mother.family().brood();
         float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.53f*BABY_SCALE;
         return new Vec3(0,Math.max(.015,outlet.y-height*.5),-front);

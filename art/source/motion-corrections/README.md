@@ -1,6 +1,6 @@
 # 当前动作适配
 
-2026-10-14，第 10 版：在第 9 版的世界观动作上，把魔理沙的摘帽换成用辫子摆弄帽子的 10 段（`hat_off`、`hat_hold`、`hat_on`、`hat_off_self`、`hat_on_self`，以及水生大帽的 `_aq` 版本），去掉 `doff_hat`。只有 `marisa` 的片段有增减，其他 18 种形态的片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。辫子和帽子的轨迹由 [hat.py](../../../standards/yukkuri-library/motions/variants/lore/hat.py) 按[帽子翻过来](../../../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位求解；2026-10-15 起帽子倒过来放下时帽冠压扁（陆地贴地、水上略压）。多毛灵梦补上呆滞与白眼哭泣两张脸（与灵梦同一张图集），其 `bereaved` 不再回落到惊讶。
+2026-10-14，第 10 版：在第 9 版的世界观动作上，把魔理沙的摘帽换成用辫子摆弄帽子的 10 段（`hat_off`、`hat_hold`、`hat_on`、`hat_off_self`、`hat_on_self`，以及水生大帽的 `_aq` 版本），去掉 `doff_hat`。只有 `marisa` 的片段有增减，其他 18 种形态的片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。辫子和帽子的轨迹由 [hat.py](../../../standards/yukkuri-library/motions/variants/lore/hat.py) 按[帽子翻过来](../../../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位求解；2026-10-15 起帽子倒过来放下时帽冠压扁（陆地贴地、水上略压）；同日为让新生儿沿抛物线越过帽檐落进帽里，陆上帽子改放在出口正前方，辫子动作随新站位重新求解。多毛灵梦补上呆滞与白眼哭泣两张脸（与灵梦同一张图集），其 `bereaved` 不再回落到惊讶。
 
 第 9 版：同一资源新增 27 段[世界观动作](../../../standards/yukkuri-library/motions/variants/lore/README.md)，作为新的片段名合并进 19 种形态。
 

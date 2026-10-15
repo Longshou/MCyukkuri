@@ -47,6 +47,11 @@ public final class FamilyLife {
     public record Stand(Vec3 at, float yaw) {}
     /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
     private boolean doomed;
+    /** A young on its way into a hat's kept place (seat, hat units) or out to a spot (to, world): a parabola under gravity
+     *  from where it left (HatVessel.arc), ticks long. Not saved: an interrupted flight just falls. */
+    private record Flight(UUID hat,Vec3 from,Vec3 seat,Vec3 to,int ticks){}
+    private Flight flight;
+    private int flightTick, releaseWait;
     /** Afloat and heading for a bank to give birth there (decided every 40 ticks, needs a bank in reach). */
     private boolean shoreBound;
     public float liveBelly(){
@@ -90,7 +95,7 @@ public final class FamilyLife {
                 &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
     }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
-    public boolean active() { return task!=Task.NONE||laboring()||hatMove!=HatMove.NONE||fetching!=null; }
+    public boolean active() { return task!=Task.NONE||laboring()||hatMove!=HatMove.NONE||fetching!=null||flight!=null; }
     public String activity() {
         String big=HatVessel.aquatic(entity)?"_aq":"";
         if(hatMove!=HatMove.NONE)return switch(hatMove){case OFF->"hat_off";case ON->"hat_on";case OFF_SELF->"hat_off_self";default->"hat_on_self";}+big;
@@ -138,10 +143,26 @@ public final class FamilyLife {
             var at=FamilyGeometry.toWorld(mother,place.offset().scale(mother.growthScale()/16));
             return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
         }
+        if(brood.kind==FamilyData.BirthKind.STEM){
+            // Under the fruit, its long axis along the stem so they drop into the opening (the near brim clear of her);
+            // turned whichever way puts the helper on the far side, facing her.
+            double sx=0,sz=0;int n=brood.children.size();
+            for(int i=0;i<n;i++){var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),brood.children.get(i).variant);sx+=c.x;sz+=c.z;}
+            var under=FamilyGeometry.toWorld(mother,new Vec3(sx/Math.max(1,n),0,sz/Math.max(1,n)));
+            double ahead=under.subtract(mother.position()).dot(forward),least=mother.getBbWidth()*.5+HatVessel.BRIM[1]*k+.1;
+            var at=under.add(forward.scale(Math.max(0,least-ahead)));HatPose best=null;double far=-1;
+            for(float turn:new float[]{0,180}){
+                var pose=new HatPose(new Vec3(at.x,mother.getY(),at.z),mother.yBodyRot+turn,HatVessel.Mode.NEST,role);
+                double d=stand(pose,catcher).at().distanceToSqr(mother.position());if(d>far){far=d;best=pose;}
+            }
+            return best;
+        }
         int next=0;
         if(brood.kind==FamilyData.BirthKind.LIVE)while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
-        // The hat's long axis lies across her; its opening's near edge a little nearer to her than the exit.
-        var at=LiveBirthGeometry.position(mother,next).add(forward.scale((HatVessel.OPENING[1]-HatVessel.OPENING[0])*.5*k-HatVessel.INSIDE_EXIT*body));
+        // The long axis across her, the near brim just beyond the live exit and the newborn's round body: she pushes it
+        // out over the brim into the hat.
+        double r=HatVessel.radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
+        var at=LiveBirthGeometry.position(mother,next).add(forward.scale(r+place.gap()*body+place.nearBrim()*k));
         return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
     }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
@@ -201,9 +222,12 @@ public final class FamilyLife {
         var stand=stand(poseOf(fetching),entity);fetchTicks++;
         if(entity.distanceToSqr(stand.at())>.36&&fetchTicks<200){if(fetchTicks%10==1)entity.life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
         if(entity.distanceToSqr(stand.at())>16){fetching=null;return;}
-        var role=fetching.role();var hat=fetching;fetching=null;
+        var role=fetching.role();var hat=fetching;
         entity.getNavigation().stop();entity.setPos(stand.at().x,entity.getY(),stand.at().z);face(stand.yaw());
-        // The young climb out; the braid lifts the hat from where it lay and puts it back on (the clip starts there).
+        // The young hop out over the brim first; then the braid lifts the hat from where it lay and puts it back on.
+        if(hat.releaseYoung(entity)){releaseWait=14;return;}
+        if(releaseWait>0){releaseWait--;return;}
+        fetching=null;
         if(hat.retrieve(entity))beginHat(role==HatVessel.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
     }
     /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
@@ -218,6 +242,62 @@ public final class FamilyLife {
     public void fetchHat(HatBoatEntity hat){if(hatMove==HatMove.NONE&&fetching==null&&!entity.isPassenger()){fetching=hat;fetchTicks=0;}}
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
+    public boolean flying(){return flight!=null;}
+    /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
+     *  a parabola. */
+    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){
+        var seat=hat.reserve(entity,prefer);double r=HatVessel.radius(entity.getBbWidth());
+        var from=HatVessel.takeoff(entity.position(),hat.toWorld(seat),hat,r);
+        flight=new Flight(hat.getUUID(),from,seat,null,HatVessel.solve(from,hat.toWorld(seat),hat,r,tmin));flightTick=0;
+    }
+    /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
+    public void launchPast(HatBoatEntity hat){
+        var from=entity.position();double r=HatVessel.radius(entity.getBbWidth());
+        var far=HatVessel.overshoot(from,hat.toWorld(hat.peekSeat(entity)),hat,r);
+        var hit=level().clip(new net.minecraft.world.level.ClipContext(far.add(0,1.5,0),far.add(0,-3,0),net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                net.minecraft.world.level.ClipContext.Fluid.ANY,entity));
+        var to=hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS?new Vec3(far.x,hat.getY(),far.z):hit.getLocation();
+        flight=new Flight(null,from,null,to,HatVessel.solve(from,to,hat,r,HatVessel.TMIN));flightTick=0;
+    }
+    /** Out of the hat over its brim to a spot beside it. */
+    public void hop(HatBoatEntity hat,Vec3 from,Vec3 to){
+        entity.setPos(from.x,from.y,from.z);
+        flight=new Flight(null,from,null,to,HatVessel.solve(from,to,hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));flightTick=0;
+    }
+    /** One tick along the flight; at its end a young bound for a hat boards it. */
+    private boolean tickFlight(){
+        if(flight==null)return false;
+        var hat=flight.hat()!=null&&level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
+        if(flight.seat()!=null&&hat==null){flight=null;return false;}  // the hat is gone: it falls as anything does
+        var f=flight;var to=hat!=null?hat.toWorld(f.seat()):f.to();flightTick++;
+        var at=HatVessel.arc(f.from(),to,f.ticks(),flightTick);
+        entity.setPos(at.x,at.y,at.z);entity.fallDistance=0;entity.getNavigation().stop();entity.hasImpulse=true;
+        if(flightTick<f.ticks()){entity.setDeltaMovement(HatVessel.arc(f.from(),to,f.ticks(),flightTick+1).subtract(at));return true;}
+        flight=null;entity.setDeltaMovement(Vec3.ZERO);
+        if(hat!=null)hat.boardYoung(entity);
+        return true;
+    }
+    /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
+    private HatBoatEntity nearHat(double reach){
+        return level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(reach,2,reach),b->(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))
+                .stream().min(Comparator.comparingDouble(b->b.distanceToSqr(entity))).orElse(null);
+    }
+    /** A falling stem fruit meets the hat: on the floor it settles there (or bounces to its place), off the brim it
+     *  bounces in. */
+    private boolean catchFalling(){
+        if(flight!=null||entity.getDeltaMovement().y>0)return false;
+        double r=HatVessel.radius(entity.getBbWidth());
+        for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))){
+            var l=hat.toLocal(entity.position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
+            if(Double.isNaN(h)||l.y>h+1e-3)continue;
+            var contact=hat.toWorld(new Vec3(l.x,h,l.z));entity.setPos(contact.x,contact.y,contact.z);entity.setDeltaMovement(Vec3.ZERO);
+            var seat=hat.reserve(entity,l);  // where it came down, if free
+            if(h<HatVessel.top(hat.mode())-1e-6&&Math.hypot(seat.x-l.x,seat.z-l.z)<=HatVessel.SETTLE)hat.boardYoung(entity);
+            else{flight=new Flight(hat.getUUID(),contact,seat,null,HatVessel.solve(contact,hat.toWorld(seat),hat,r,HatVessel.HOP_TMIN));flightTick=0;}
+            return true;
+        }
+        return false;
+    }
     /** Aquatic mothers may give birth on a riverbank, which serves as a temporary nest. */
     private boolean bankNest(){
         if(entity.subspecies().kind()!=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA)return false;
@@ -268,6 +348,8 @@ public final class FamilyLife {
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         if(cradleLinger>0)cradleLinger--;
         tickHat();
+        if(tickFlight())return;
+        if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
         if(awaitingLanding&&(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity)) {
             awaitingLanding=false;
             if(doomed){
@@ -275,8 +357,9 @@ public final class FamilyLife {
                 doomed=false;entity.hurt(entity.isInWaterOrBubble()?level().damageSources().drown():level().damageSources().generic(),entity.getMaxHealth()*4);return;
             }
             if(!entity.isPassenger()){
-                var hat=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(.9),b->b.catches()&&b.young(entity)&&b.hasRoomForYoung()).stream().findFirst().orElse(null);
-                if(hat!=null)hat.boardYoung(entity);
+                // Landed beside the hat (a fruit off its end, or in the water by it): it hops in.
+                var hat=nearHat(2.5);
+                if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
             }
             entity.showReaction("happy","newborn",100);
         }
@@ -418,7 +501,7 @@ public final class FamilyLife {
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
-            if(child!=null) { if(boat==null&&!child.family().doomed())child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
+            if(child!=null) { if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);entity.showReaction("happy","birth",100); }
         }
         if(brood.complete()) {
             if(cradleEntity()!=null)cradleLinger=120;
@@ -473,7 +556,7 @@ public final class FamilyLife {
                 var child=FamilyData.get(level()).birth(brood,next,level(),LiveBirthGeometry.position(entity,next));
                 if(child!=null){
                     // A soft physical release lets the landed sibling clear the next child's outlet.
-                    if(boat==null&&!child.isPassenger()&&!child.family().doomed())child.setDeltaMovement(new Vec3(0,-.015,-.075).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
+                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,-.015,-.075).yRot((float)Math.toRadians(180-entity.yBodyRot)).scale(entity.getScale()));
                     entity.showReaction("happy","birth",60);
                 }
             }
