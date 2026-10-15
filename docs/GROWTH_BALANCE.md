@@ -55,7 +55,7 @@
 
 茎长随之按子油数量拟合，见[家庭生长与茎生](../art/props/family-life/README.md)。
 
-单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照图见[出生场景预览](../art/source/motion-corrections/previews/current/lore/births.html)的“体型规范”场景与 `keyframes-sizes.png`。旧 v1 胎生预览（`standards/yukkuri-v1/behaviors/viviparous-birth.json` 及其派生的 `assembled/*/birth.json`）仍按 0.18 绘制，未随本次更新。
+单一来源是 `standards/yukkuri-v1/profiles/growth.json`，由 `scripts/export_family_assets.py` 导出到 `yukkuri_presentation/family.json` 的 `growth`。游戏由 `family/GrowthSize` 读取；出生场景预览和[帽子容器](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位计算也读同一份。对照见[世界观动作预览](../art/source/motion-corrections/previews/current/lore/index.html)的“体型规范”场景。旧 v1 胎生预览（`standards/yukkuri-v1/behaviors/viviparous-birth.json` 及其派生的 `assembled/*/birth.json`）仍按 0.18 绘制，未随本次更新。
 
 ## 配置与旧档
 

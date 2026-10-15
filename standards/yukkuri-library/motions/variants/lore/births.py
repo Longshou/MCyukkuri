@@ -1,4 +1,5 @@
-"""Write births.html: scripted birth and midwifery scenes on the game models, as one static page.
+"""Write the world-setting preview, one static page (index.html): scripted birth and midwifery scenes on the game
+models, and, as a second tab, each lore clip on the forms it applies to (page.py).
 
 Couples, newborns, Marisa's own hat and the stem are posed per scene on the runtime models with
 their motion corrections. The pregnant body and contractions follow LiveBirthGeometry (deform,
@@ -14,7 +15,7 @@ and bounce in from the brim or the ground; the young hop out over the brim when 
 A small shared-depth rasterizer draws every actor in one frame. The page opens from
 disk; writing it does not start a browser or the game. Needs numpy and Pillow.
 
-  python births.py [--out art/source/motion-corrections/previews/current/lore/births.html]
+  python births.py [--out art/source/motion-corrections/previews/current/lore/index.html]
 """
 from pathlib import Path
 import argparse, base64, datetime, io, json, math, struct, sys
@@ -25,6 +26,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[2]/'interactions/marisa-hat-vessel'))
 import preview as P
+import page as viewer
 import delivery as DL
 
 PRESENT = P.ASSETS/'yukkuri_presentation'
@@ -470,7 +472,7 @@ def scene_sizes():
 SCENES = [scene_land_live, scene_land_stem, scene_boat, scene_dock_miss, scene_night_boat, scene_self, scene_sizes, scene_stems]  # scene_land_stem takes the packed models
 
 PAGE = r'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>出生与接生 · 场景预览</title>
+<title>世界观动作 · 预览</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#eae7de;color:#51463e;font:15px/1.6 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 main{max-width:1100px;margin:auto;padding:18px}h1{font-size:22px;margin:0 0 4px}p{margin:4px 0 8px}
@@ -478,15 +480,19 @@ main{max-width:1100px;margin:auto;padding:18px}h1{font-size:22px;margin:0 0 4px}
 button[aria-pressed=true]{background:#51463e;color:#f7f4ec;border-color:#51463e}label{display:inline-flex;gap:6px;align-items:center;font-size:14px}
 canvas{display:block;width:100%;height:540px;background:#f4f1e9;border:1px solid #d8d0c1;border-radius:10px;touch-action:none;cursor:grab}
 #caption{min-height:2.2em;font-size:16px;margin:8px 0 4px;color:#3d342c}footer{margin-top:12px;font-size:12.5px;color:#7b6f60}
+.tabs{display:flex;gap:8px;margin:6px 0 10px}.tabs button{font-size:15px;padding:5px 14px}#clipsFrame{width:100%;height:1500px;border:0}
 </style>
-<main><h1>出生与接生 · 场景预览（待复查）</h1>
-<p>灵梦×魔理沙夫妻灵梦为母、魔理沙为父；只有魔理沙接生：用辫子摘下自己的帽子，倒过来按在出口前，柔软的帽顶被压扁，用帽内接。水生魔理沙的帽子更大，当船漂在水上，帽内不进水，装子油和食物。孕体整体变大、下部前方鼓起，脸只移动不拉伸，帽子和辫子刚性跟随。游戏模型与动作修正资源（__REVISION__）。拖动旋转，滚轮缩放，直接双击打开。单个动作见<a href="motions.html">交互预览</a>。</p>
+<main><h1>世界观动作 · 预览（待复查）</h1>
+<div class="tabs"><button type="button" id="tabScenes" aria-pressed="true">出生与接生场景</button><button type="button" id="tabClips" aria-pressed="false">单个动作</button></div>
+<section id="scenesView">
+<p>灵梦×魔理沙夫妻灵梦为母、魔理沙为父；只有魔理沙接生：用辫子摘下自己的帽子，倒过来按在出口前，帽冠压扁，用帽内接。水生魔理沙的帽子更大，当船漂在水上，帽内不进水。孕体整体变大、下部前方鼓起。最后两个场景是体型规范和茎长对照。游戏模型与动作修正资源（__REVISION__）。拖动旋转，滚轮缩放，直接双击打开。</p>
 <div class="bar" id="scenes"></div>
 <div class="bar"><button type="button" id="play" aria-pressed="true">暂停</button>
 <label>速度 <select id="speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
 <label>时间 <input id="time" type="range" min="0" max="1" step=".01" value="0" style="width:320px"> <span id="clock">0.0 秒</span></label></div>
 <div id="caption"></div><canvas id="view"></canvas>
-<footer>生成于 __DATE__。离线页面只供查看出生与接生的编排，不代表游戏运行验收。失误是 12% 的原创几率事件；台词沿用已有原生台词。</footer></main>
+<footer>生成于 __DATE__。离线页面只供查看出生与接生的编排，不代表游戏运行验收。失误是 12% 的原创几率事件；台词沿用已有原生台词。</footer></section>
+<section id="clipsView" hidden><iframe id="clipsFrame" title="单个动作"></iframe></section></main>
 <script>
 const D=__DATA__;
 // ---- engine (also run offline by the checks) ----
@@ -633,16 +639,21 @@ for(const n of ['pointerup','pointercancel'])canvas.addEventListener(n,e=>ptr.de
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.5,Math.min(3,zoom*Math.exp(-e.deltaY*.001)));},{passive:false});
 function tick(now){const dt=Math.min(.1,(now-last)/1000);last=now;if(playing){time+=dt*Number($('speed').value);if(time>scene.duration)time=0;$('time').value=time;}
   $('clock').textContent=time.toFixed(1)+' 秒';const cap=scene.captions.find(([a,b])=>time>=a&&time<b);$('caption').textContent=cap?cap[2]:'';
-  if(ready===0){const w=Math.max(1,Math.round(canvas.clientWidth)),h=Math.max(1,Math.round(canvas.clientHeight));if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;
+  if(ready===0&&!$('scenesView').hidden){const w=Math.max(1,Math.round(canvas.clientWidth)),h=Math.max(1,Math.round(canvas.clientHeight));if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;
     const night=scene.night?keyAt(scene.night,time)[0]:0;canvas.getContext('2d').putImageData(new ImageData(renderScene(frameItems(scene,time),w,h,az,el,scene.span/zoom,scene.center,night,scene.focus),w,h),0,0);}
   requestAnimationFrame(tick);}
 requestAnimationFrame(tick);
-</script></html>
+// The single-clip viewer (page.py) lives in the second tab, loaded when first opened.
+for(const [id,show] of [['tabScenes',false],['tabClips',true]])$(id).onclick=()=>{
+  $('scenesView').hidden=show;$('clipsView').hidden=!show;$('tabScenes').setAttribute('aria-pressed',String(!show));$('tabClips').setAttribute('aria-pressed',String(show));
+  if(show&&!$('clipsFrame').srcdoc)$('clipsFrame').srcdoc=CLIPS_PAGE;};
+</script>
+<script>const CLIPS_PAGE=__CLIPS__;</script></html>
 '''
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0]); ap.add_argument('--out', default=str(P.OUT/'births.html'))
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0]); ap.add_argument('--out', default=str(P.OUT/'index.html'))
     ap.add_argument('--corrections', default=str(PRESENT/'motion_corrections.json')); a = ap.parse_args()
     corrections = json.loads(Path(a.corrections).read_text(encoding='utf-8'))
     family = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
@@ -654,8 +665,9 @@ def main():
     for scene in data['scenes']:
         for actor in scene['actors']: actor.pop('r', None); actor.pop('landed', None)
     html = (PAGE.replace('__REVISION__', corrections['revision']).replace('__DATE__', datetime.date.today().isoformat())
-            .replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':'))))
-    Path(a.out).write_text(html, encoding='utf-8')
+            .replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':')))
+            .replace('__CLIPS__', json.dumps(viewer.build(corrections), ensure_ascii=False).replace('</', '<\\/')))
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True); Path(a.out).write_text(html, encoding='utf-8')
     print('wrote', a.out, f'{len(html)/1e6:.2f} MB', len(data['scenes']), 'scenes')
 
 

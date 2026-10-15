@@ -87,7 +87,7 @@
 
 ## 实际预览与剩余范围
 
-![五胎茎生侧视](../art/props/family-life/previews/current/count-5-marisa-side.png)
+茎生与接生见[世界观动作预览](../art/source/motion-corrections/previews/current/lore/index.html)的“陆生茎生”和“茎长”场景（茎长拟合后的离线预览；旧实机截图已删除）。
 
 ![家油巢卵](../art/props/house-care/previews/current/eggs.png)
 

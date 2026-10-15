@@ -58,7 +58,7 @@ LIVE 新生儿为 BABY，比例 0.14（[体型规范](GROWTH_BALANCE.md#体型�
 - **夜里帽中睡**（用户纠正）：水生一家夜里在水上过夜。亲油在水边放帽下船，自家幼体跳进帽内的干燥空间，睡在帽内，亲油坐在上方；帽船一直漂在水上。天亮后载着幼体的帽船漂回岸边，一家一起上岸。陆生魔理沙不再在地上放帽过夜。
 - **跟随身体**：嘴部物品、茎与胎生出口补片跟随身体整体动作。
 
-动作与表情编排见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)，帽船、接生的帽子与浮在岸边的帽子规则见[亚种](SUBSPECIES_IMPLEMENTATION.md)。[出生与接生场景预览](../art/source/motion-corrections/previews/current/lore/births.html)演示陆生胎生与茎生的父亲接生、单亲自己接、水上分娩、靠岸接生失误落水，以及夜里帽中睡。
+动作与表情编排见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)，帽船、接生的帽子与浮在岸边的帽子规则见[亚种](SUBSPECIES_IMPLEMENTATION.md)。[出生与接生场景预览](../art/source/motion-corrections/previews/current/lore/index.html)演示陆生胎生与茎生的父亲接生、单亲自己接、水上分娩、靠岸接生失误落水，以及夜里帽中睡。
 
 ## 验证状态
 

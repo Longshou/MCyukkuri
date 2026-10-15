@@ -1,14 +1,12 @@
-"""Write a self-contained interactive page that plays the world-setting clips on the game models.
+"""The single-clip viewer of the world-setting preview: plays each lore clip on the game models.
 
 Embeds, per model, the runtime triangles (int16), two-bone weights, bones with their idle
 pose, the lore clips plus hop / shell_retract from the motion corrections, and the expression
-textures the game shows for each behavior; draws with the library's runtime/render.js. The
-page opens from disk without a server. Writing it does not start a browser or the game.
-
-  python page.py [--out art/source/motion-corrections/previews/current/lore/motions.html]
+textures the game shows for each behavior; draws with the library's runtime/render.js.
+births.py puts it in its page as the second tab (one preview file); nothing is written here.
 """
 from pathlib import Path
-import argparse, base64, datetime, io, json, struct, sys
+import base64, datetime, io, json, struct, sys
 import numpy as np
 from PIL import Image
 
@@ -71,7 +69,7 @@ footer{margin-top:14px;font-size:12.5px;color:#7b6f60}input[type=range]{vertical
 </style>
 <main>
 <h1>世界观动作 · 交互预览（第一批，待复查）</h1>
-<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，只显示有这个动作的形态；表情按动作的表情编排切换。水生魔理沙坐在帽船里；“帽中幼体”是坐在母亲帽檐上的幼体。孕肚、茎和新生儿由游戏另行绘制，这里未包含。拖动画面旋转，滚轮缩放。直接双击打开，不需要服务器。<a href="births.html">出生与接生场景</a>演示夫妻、接生与出生的子油。</p>
+<p>使用游戏运行模型与动作修正资源（__REVISION__）。选择动作后自动播放，只显示有这个动作的形态；表情按动作的表情编排切换。水生魔理沙坐在帽船里；“帽中幼体”是坐在母亲帽檐上的幼体。孕肚、茎和新生儿见“出生与接生场景”。拖动画面旋转，滚轮缩放。</p>
 <div class="sticky">
 <div class="bar" id="actions" role="toolbar" aria-label="动作"></div>
 <div class="bar"><button type="button" id="play" aria-pressed="true">暂停</button>
@@ -156,26 +154,16 @@ requestAnimationFrame(tick);
 VIEWS = [('正面', 0, .12), ('右前', .5, .18), ('右侧', 1.5707963, .05), ('左侧', -1.5707963, .05), ('背面', 3.1415927, .12)]
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('--out', default=str(P.OUT/'motions.html'))
-    a = ap.parse_args()
+def build(corrections):
+    """The viewer page (HTML) for these motion corrections."""
     recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
-    corrections = json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
     order = list(recipe['clips'])+list(EXTRA)
     panels = [panel(label, ident, mode, corrections, order) for label, ident, mode in P.PANELS]
-    face = P.FALLBACK_FACE
     buttons = ''.join(f'<button type="button" data-az="{az}" data-el="{el}">{n}</button>' for n, az, el in VIEWS)
-    html = (PAGE.replace('__REVISION__', corrections['revision']).replace('__DATE__', datetime.date.today().isoformat())
+    return (PAGE.replace('__REVISION__', corrections['revision']).replace('__DATE__', datetime.date.today().isoformat())
             .replace('__VIEW_BUTTONS__', buttons)
             .replace('__PANELS__', json.dumps(panels, ensure_ascii=False, separators=(',', ':')))
             .replace('__RECIPE__', json.dumps(recipe['clips'], ensure_ascii=False, separators=(',', ':')))
-            .replace('__FACE__', json.dumps(face)).replace('__ORDER__', json.dumps(order))
+            .replace('__FACE__', json.dumps(P.FALLBACK_FACE)).replace('__ORDER__', json.dumps(order))
             .replace('__EXTRA__', json.dumps({k: list(v) for k, v in EXTRA.items()}, ensure_ascii=False))
             .replace('__RUNTIME__', (LIB/'runtime/render.js').read_text(encoding='utf-8-sig')))
-    Path(a.out).write_text(html, encoding='utf-8')
-    print('wrote', a.out, f'{len(html)/1e6:.2f} MB', [p['triangles'] for p in panels])
-
-
-if __name__ == '__main__':
-    main()

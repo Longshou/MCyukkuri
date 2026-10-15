@@ -3670,7 +3670,7 @@
     "current_reports": "art/source/motion-corrections/reports/current",
     "history": "preview/review/puff-v6",
     "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
-    "births_preview": "art/source/motion-corrections/previews/current/lore/births.html"
+    "births_preview": "art/source/motion-corrections/previews/current/lore/index.html"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",

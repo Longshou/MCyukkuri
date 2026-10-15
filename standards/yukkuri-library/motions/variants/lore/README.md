@@ -3,14 +3,11 @@
 2026-10-14 新增，配方第 4 版，待复查。依据 Wiki 中有作品或社区资料支持的身体动作，为已有生态行为补上动作，并补上分娩、接生和水生魔理沙的帽船动作。设定出处见 [Wiki 总入口](../../../../../wiki/README.md)；编号 L、E、TM、N、W 与 Wiki 一致。Wiki 没有记载的部分写明是本项目设计。
 
 **预览**
-- [交互预览](../../../../../art/source/motion-corrections/previews/current/lore/motions.html)：单个静态网页，直接双击打开。
-  - 可以选择动作，旋转、缩放，调速，或拖动时间。
-  - 每个动作只显示适用的形态。例如缩壳只显示螺壳魔理沙，帽船动作只显示水生魔理沙。
-  - 表情按动作内的编排切换。
-- [出生与接生场景](../../../../../art/source/motion-corrections/previews/current/lore/births.html)：单个静态网页，六个场景，夫妻、接生者和出生的子油都在场——陆生胎生（父亲用辫子摘帽接）、陆生茎生、水生帽船分娩与夜里在帽内睡、水生靠岸接生与失误落水、夜里帽船上睡、单亲魔理沙自己接。孕体、收缩、茎与实子按游戏的几何绘制；茎跟随母体的整体动作；帽子是[帽子容器](../../../interactions/marisa-hat-vessel/README.md)，帽船的帽内不进水。新生儿的路线与游戏相同（[孩子怎么进帽子](../../../interactions/marisa-hat-vessel/README.md#孩子怎么进帽子)）：从出口挤出后沿重力抛物线越过帽檐落进各自的位置，茎生实子直直落下、碰到帽檐弹进去，拿回帽子前幼体先跳出帽子。孕期的表情面片按游戏 `PregnancyFaces` 的做法贴在鼓起的身体前表面上，分娩时表情不被身体遮住。
-- [离线动图](../../../../../art/source/motion-corrections/previews/current/lore/index.html)。
+- [世界观动作预览](../../../../../art/source/motion-corrections/previews/current/lore/index.html)：唯一的预览文件，单个静态网页，直接双击打开，分两页。
+  - “出生与接生场景”：夫妻、接生者和出生的子油都在场——陆生胎生（父亲用辫子摘帽接）、陆生茎生、水生帽船分娩与夜里在帽内睡、水生靠岸接生与失误落水、夜里帽船上睡、单亲魔理沙自己接，另有体型规范与茎长对照。孕体、收缩、茎与实子按游戏的几何绘制；帽子是[帽子容器](../../../interactions/marisa-hat-vessel/README.md)；新生儿的路线与游戏相同（[孩子怎么进帽子](../../../interactions/marisa-hat-vessel/README.md#孩子怎么进帽子)）。孕期的表情面片按游戏 `PregnancyFaces` 的做法贴在鼓起的身体前表面上。
+  - “单个动作”：选择动作后播放，可旋转、缩放、调速或拖动时间；每个动作只显示适用的形态（例如缩壳只显示螺壳魔理沙，帽船动作只显示水生魔理沙），表情按动作内的编排切换。
 - 素材检查室的模型页也能选择这些动作。
-- 孕肚、茎和出生中的新生儿由游戏另行绘制，两种预览都未包含。
+- 每次改动只更新这一个预览文件；回复里展示的截图渲染到 `.local/`，不入库。
 
 ## 动作与触发
 
@@ -147,8 +144,6 @@
 ```powershell
 python standards/yukkuri-library/interactions/marisa-hat-vessel/build.py
 python scripts/export_motion_corrections.py
-python standards/yukkuri-library/motions/variants/lore/preview.py
-python standards/yukkuri-library/motions/variants/lore/page.py
 python standards/yukkuri-library/motions/variants/lore/births.py
 python standards/yukkuri-library/motions/variants/lore/faces.py
 ```
