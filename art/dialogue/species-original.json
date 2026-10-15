@@ -1511,6 +1511,1878 @@
         "settlement_hurt"
       ],
       "basis": "项目原创幼语对白；失饰识别与疏远参考 N05/L17 母题及 world/personality-social.md。逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库编辑规则改写，只表达眼前需求；非八景原句、非旧汉化词形。新字幕尚无配音。"
+    },
+    {
+      "id": "remilia.adult.o_hello",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあも一緒にゆっくりするのだ。",
+      "chinese": "呜——蕾米莉亚也要一起慢慢来呀。",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_idle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここでひと休みするのだ。",
+      "chinese": "呜——就在这里歇一歇呀。",
+      "events": [
+        "idle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_hungry",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "おなかがすいたのだ。ごはんを探そう。",
+      "chinese": "肚肚饿了呀。去找饭饭吧。",
+      "events": [
+        "hungry"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_food",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ごはんがあるのだ。確かめてみよう。",
+      "chinese": "呜——这里有饭饭呀。过去看看吧。",
+      "events": [
+        "food_found"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_eat",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "むしゃむしゃ。ゆっくり味わうのだ。",
+      "chinese": "姆咻姆咻。要慢慢尝味道呀。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_fed",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おなかいっぱい。ごちそうさまなのだ。",
+      "chinese": "呜——肚肚饱饱。谢谢这顿饭呀。",
+      "events": [
+        "fed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_share",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "少し分けるのだ。一緒に食べよう。",
+      "chinese": "分你一点呀。一起吃吧。",
+      "events": [
+        "share"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_wait_turn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、先にどうぞ。次はれみりあなのだ。",
+      "chinese": "呜——你先来吧。下一份轮到蕾米莉亚呀。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_mine",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "これはれみりあが取った分なのだ。",
+      "chinese": "这是蕾米莉亚拿到的那份呀。",
+      "events": [
+        "mine"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_toilet",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おといれを探すのだ。",
+      "chinese": "呜——要去找厕所呀。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_clean",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "すっきりしたのだ。気持ちいいね。",
+      "chinese": "清清爽爽了呀。真舒服呢。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_sleep",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もう眠いのだ。おやすみ。",
+      "chinese": "呜——已经困困了呀。晚安。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_awake",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、よく寝たのだ。今日もゆっくりしよう。",
+      "chinese": "呜——睡得好饱呀。今天也慢慢来吧。",
+      "events": [
+        "awake"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_gentle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "そばにいてくれると安心なのだ。",
+      "chinese": "有你陪在旁边，就安心了呀。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し離れて見ているのだ。",
+      "chinese": "呜——先离远一点看着呀。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_afraid",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、こわいのだ。今は近づかないで。",
+      "chinese": "呜——好害怕呀。现在先别靠近。",
+      "events": [
+        "afraid"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_hurt",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、痛いのだ。少し休ませて。",
+      "chinese": "呜——好痛呀。让我歇一下。",
+      "events": [
+        "wounded"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_treated",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し楽になったのだ。ありがとう。",
+      "chinese": "呜——好受一点了呀。谢谢你。",
+      "events": [
+        "treated"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_lost",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "お飾りがないのだ。どこに落としたかな。",
+      "chinese": "饰品不见了呀。掉在哪里了呢。",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_returned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあのお飾り！ 大事にするのだ。",
+      "chinese": "呜——蕾米莉亚的饰品！要好好珍惜呀。",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_unknown",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、だれかな。もう少し見せてほしいのだ。",
+      "chinese": "呜——你是谁呢。让我再看看呀。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_play",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し動いて遊ぶのだ。一緒にどう？",
+      "chinese": "呜——活动一下玩一玩呀。要一起来吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "今は落ち着かないのだ。練習はあとにしよう。",
+      "chinese": "现在静不下来呀。晚点再练习吧。",
+      "events": [
+        "lesson_refused"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_start",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここで待つ練習なのだね。",
+      "chinese": "呜——是练习在这里等着呀。",
+      "events": [
+        "lesson_start"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_progress",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "少しわかったのだ。もう一度やってみよう。",
+      "chinese": "懂了一点呀。再试一次吧。",
+      "events": [
+        "lesson_progress"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_learned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここで待っていられるのだ。",
+      "chinese": "呜——可以在这里等着了呀。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_busy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "今はこちらで忙しいのだ。少し待ってね。",
+      "chinese": "现在正忙着这边呀。稍等一下呢。",
+      "events": [
+        "busy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_heard",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、聞こえたのだ。",
+      "chinese": "呜——已经听见了呀。",
+      "events": [
+        "heard"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_newborn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあがうまれたのだ。",
+      "chinese": "呜——蕾米莉亚出生啦。",
+      "events": [
+        "newborn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_grown",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し大きくなったのだ！",
+      "chinese": "呜——又长大一点了呀！",
+      "events": [
+        "grown"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_courtship",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きみとゆっくり暮らしたいのだ。",
+      "chinese": "呜——想和你一起慢慢生活呀。",
+      "events": [
+        "courtship"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_brood",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "小さな子、慌てなくていいのだ。",
+      "chinese": "小小的孩子，不用着急呀。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_wait_family",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、家族がそろうまで待つのだ。",
+      "chinese": "呜——要等家人到齐呀。",
+      "events": [
+        "wait_family"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_parent",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、親はどこにいるのだろう……。",
+      "chinese": "呜——亲油在哪里呢……。",
+      "events": [
+        "lost_parent"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_grief",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……またお話ししたかったのだ。",
+      "chinese": "呜——……还想再和你说说话呀。",
+      "events": [
+        "family_died"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_nuzzle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、そばで少しすりすりするのだ。",
+      "chinese": "呜——在旁边轻轻蹭蹭呀。",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_content",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、気分がほぐれたのだ。",
+      "chinese": "呜——心里放松下来啦。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_puff",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあはここにいるのだ！",
+      "chinese": "呜——！蕾米莉亚在这里呀！",
+      "events": [
+        "puff"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_hello",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃもいっちょ！",
+      "chinese": "呜——蕾米呀也要一起！",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_idle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでやしゅむのだ。",
+      "chinese": "呜——在介里歇歇呀。",
+      "events": [
+        "idle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_hungry",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おなかしゅいた。ごはんどこ？",
+      "chinese": "肚肚饿啦。饭饭在哪？",
+      "events": [
+        "hungry"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_food",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ごはんみちゅけた！",
+      "chinese": "呜——找到饭饭啦！",
+      "events": [
+        "food_found"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_eat",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "むちゃむちゃ。ゆっくちたべる。",
+      "chinese": "姆嚓姆嚓。慢慢吃吃。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_fed",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぽんぽんいっぱい。ありがと！",
+      "chinese": "呜——肚肚满满。谢谢！",
+      "events": [
+        "fed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_share",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちょっとあげる。いっちょにたべよ。",
+      "chinese": "给你一点点。一起吃吃。",
+      "events": [
+        "share"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_wait_turn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、つぎはれみりゃね。",
+      "chinese": "呜——下个是蕾米呀哦。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_mine",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "これ、れみりゃのぶん！",
+      "chinese": "介个，蕾米呀的份！",
+      "events": [
+        "mine"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_toilet",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おといれどこ？",
+      "chinese": "呜——厕所在哪？",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_clean",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "きれいきれい。きもちいいのだ。",
+      "chinese": "干净干净。舒服呀。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_sleep",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ねむねむ。おやしゅみ。",
+      "chinese": "呜——困困啦。晚安安。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_awake",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おきたのだ！",
+      "chinese": "呜——醒来啦！",
+      "events": [
+        "awake"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_gentle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "そばにいて。あんちんなのだ。",
+      "chinese": "陪在旁边嘛。安心呀。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここからみてる。",
+      "chinese": "呜——在介里看着。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_afraid",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、こわい。まだこないで。",
+      "chinese": "呜——怕怕。先别过来。",
+      "events": [
+        "afraid"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_hurt",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いたい。やしゅませて。",
+      "chinese": "呜——痛痛。要歇歇。",
+      "events": [
+        "wounded"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_treated",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちょっとらく。ありがと。",
+      "chinese": "呜——好点啦。谢谢。",
+      "events": [
+        "treated"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_lost",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おかざり、ないのだ……。",
+      "chinese": "饰饰不见啦……。",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_returned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃのおかざり！",
+      "chinese": "呜——蕾米呀的饰饰！",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_unknown",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、だあれ？ よくみちぇて。",
+      "chinese": "呜——谁呀？给窝看看。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_play",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あしょぼ！ いっちょ！",
+      "chinese": "呜——玩玩吧！一起！",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "いまはやだ。あとでなのだ。",
+      "chinese": "现在不要。晚点呀。",
+      "events": [
+        "lesson_refused"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_start",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでまつの？",
+      "chinese": "呜——在介里等吗？",
+      "events": [
+        "lesson_start"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_progress",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちょっとわかった。もっかい！",
+      "chinese": "懂一点啦。再来！",
+      "events": [
+        "lesson_progress"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_learned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでまてるのだ！",
+      "chinese": "呜——可以在介里等呀！",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_busy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "いま、いそがちい。まってね。",
+      "chinese": "现在忙忙。等等嘛。",
+      "events": [
+        "busy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_heard",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、きこえたのだ。",
+      "chinese": "呜——听见啦。",
+      "events": [
+        "heard"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_newborn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃ、うまれたよ。",
+      "chinese": "呜——蕾米呀出生啦。",
+      "events": [
+        "newborn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_grown",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おっきくなった！",
+      "chinese": "呜——长大大啦！",
+      "events": [
+        "grown"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_courtship",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いっちょにくらしょ。",
+      "chinese": "呜——一起生活嘛。",
+      "events": [
+        "courtship"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_brood",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちいさいこ、ゆっくちね。",
+      "chinese": "小小孩，慢慢来呀。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_wait_family",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、みんなをまつのだ。",
+      "chinese": "呜——等大家呀。",
+      "events": [
+        "wait_family"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_parent",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おやしゃん、どこ……？",
+      "chinese": "呜——亲亲油，在哪……？",
+      "events": [
+        "lost_parent"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_grief",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……もっとおはなちしたい。",
+      "chinese": "呜——……还想说话话。",
+      "events": [
+        "family_died"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_nuzzle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちゅりちゅりして。",
+      "chinese": "呜——蹭蹭嘛。",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_content",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ほっとちたのだ。",
+      "chinese": "呜——安心下来啦。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_puff",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみりゃ、ここ！",
+      "chinese": "呜——！蕾米呀，在介里！",
+      "events": [
+        "puff"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_hello",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんも一緒にいていい？",
+      "chinese": "呜——芙兰也能待在一起吗？",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_idle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、今日は何して遊ぼうかな。",
+      "chinese": "呜——今天玩点什么呢。",
+      "events": [
+        "idle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_hungry",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "おなかがすいたな。食べるものはある？",
+      "chinese": "肚肚饿啦。有什么可以吃的吗？",
+      "events": [
+        "hungry"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_food",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、これ食べられるかな。見てみよう。",
+      "chinese": "呜——这个能吃吗。过去看看吧。",
+      "events": [
+        "food_found"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_eat",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "むしゃむしゃ。どんな味かな。",
+      "chinese": "姆咻姆咻。是什么味道呢。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_fed",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おなかいっぱい！ ありがとうね。",
+      "chinese": "呜——肚肚饱啦！谢谢你呢。",
+      "events": [
+        "fed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_share",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ふらんの分、少しどうぞ。味はどう？",
+      "chinese": "芙兰的这份，给你一点。味道怎么样？",
+      "events": [
+        "share"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_wait_turn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、先に取っていいよ。ここで待つね。",
+      "chinese": "呜——你先拿吧。在这里等你呢。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_mine",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "これはふらんが取った分だよ。",
+      "chinese": "这是芙兰拿到的那一份哟。",
+      "events": [
+        "mine"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_toilet",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おといれはどっちかな。",
+      "chinese": "呜——厕所在哪边呢。",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_clean",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "さっぱりしたね。もう汚れてない？",
+      "chinese": "清爽啦。还有脏脏吗？",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_sleep",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、続きは起きてから。おやすみ。",
+      "chinese": "呜——睡醒再继续吧。晚安。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_awake",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、起きたよ！ 今日は何があるかな。",
+      "chinese": "呜——醒来啦！今天会有什么呢。",
+      "events": [
+        "awake"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_gentle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、会えてうれしいな。そばにいてね。",
+      "chinese": "呜——见到你真开心。陪在旁边吧。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、今はここから見ていようかな。",
+      "chinese": "呜——现在先在这里看着吧。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_afraid",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、こわいよ。そこから来ないで。",
+      "chinese": "呜——好害怕。先别从那边过来。",
+      "events": [
+        "afraid"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_hurt",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、痛いよ……少し休んでもいい？",
+      "chinese": "呜——好痛……可以休息一下吗？",
+      "events": [
+        "wounded"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_treated",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、さっきより楽だよ。ありがとう。",
+      "chinese": "呜——比刚才好受啦。谢谢你。",
+      "events": [
+        "treated"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_lost",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "お飾りがないよ。どこに行っちゃったの？",
+      "chinese": "饰品不见了。跑到哪里去啦？",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_returned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、戻ってきた！ 探してくれてありがとう。",
+      "chinese": "呜——回来啦！谢谢你帮忙找。",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_unknown",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きみはだれ？ もう一度よく見たいな。",
+      "chinese": "呜——你是谁？想再仔细看看呢。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_play",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、やってみたいな。一緒に遊ぼう？",
+      "chinese": "呜——想试试看呢。一起玩吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "今はそわそわするよ。あとで練習してもいい？",
+      "chinese": "现在静不下心。晚点再练习好吗？",
+      "events": [
+        "lesson_refused"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_start",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、動かないで待つんだね。やってみるよ。",
+      "chinese": "呜——要不动地等着呀。试试看哟。",
+      "events": [
+        "lesson_start"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_progress",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "あ、少しわかった。もう一回やろう？",
+      "chinese": "啊，懂了一点。再来一次吗？",
+      "events": [
+        "lesson_progress"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_learned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ここで待てるよ。帰ってきてね。",
+      "chinese": "呜——可以在这里等啦。要回来哦。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_busy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "今はこれをしているよ。少し待ってね。",
+      "chinese": "现在正忙着这个。等一下嘛。",
+      "events": [
+        "busy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_heard",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ちゃんと聞こえたよ。",
+      "chinese": "呜——好好听见了哟。",
+      "events": [
+        "heard"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_newborn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ここはどこかな？",
+      "chinese": "呜——这里是哪儿呀？",
+      "events": [
+        "newborn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_grown",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、大きくなったよ。届くところが増えたかな？",
+      "chinese": "呜——长大了哟。能碰到更多地方了吗？",
+      "events": [
+        "grown"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_courtship",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、一緒に暮らしたら、どんな毎日かな。",
+      "chinese": "呜——一起生活的话，每天会是什么样呢。",
+      "events": [
+        "courtship"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_brood",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "小さな子、ゆっくりでいいよ。ここにいるからね。",
+      "chinese": "小小的孩子，慢慢来就好。我在这里呢。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_wait_family",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、みんな来たかな。もう少し待とう。",
+      "chinese": "呜——大家都来了吗。再等一下吧。",
+      "events": [
+        "wait_family"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_parent",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、親はどこかな。声が聞きたいよ……。",
+      "chinese": "呜——亲油在哪里呢。想听听声音……。",
+      "events": [
+        "lost_parent"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_grief",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……もう一緒にお話しできないの……？",
+      "chinese": "呜——……不能再一起说话了吗……？",
+      "events": [
+        "family_died"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_nuzzle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、少しすりすりしてもいい？",
+      "chinese": "呜——可以轻轻蹭蹭吗？",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_content",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、楽しかったね。また一緒にね。",
+      "chinese": "呜——好开心呢。下次还一起呀。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_puff",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんだってここにいるよ！",
+      "chinese": "呜——！芙兰也在这里哟！",
+      "events": [
+        "puff"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_hello",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんもいっちょ？",
+      "chinese": "呜——芙呀也一起吗？",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_idle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、なにちてあしょぶ？",
+      "chinese": "呜——玩点什么呀？",
+      "events": [
+        "idle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_hungry",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おなかしゅいた。たべものある？",
+      "chinese": "肚肚饿啦。有吃吃吗？",
+      "events": [
+        "hungry"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_food",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、これたべりゅ？",
+      "chinese": "呜——介个能吃吗？",
+      "events": [
+        "food_found"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_eat",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "むちゃむちゃ。どんなあじ？",
+      "chinese": "姆嚓姆嚓。什么味呀？",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_fed",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぽんぽんいっぱい！ ありがと！",
+      "chinese": "呜——肚肚满满！谢谢！",
+      "events": [
+        "fed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_share",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちょっとどーぞ。おいちい？",
+      "chinese": "给一点点。好七吗？",
+      "events": [
+        "share"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_wait_turn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、さきにどーぞ。まってるね。",
+      "chinese": "呜——你先来。等着呢。",
+      "events": [
+        "wait_turn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_mine",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "これ、ふりゃんがとったの！",
+      "chinese": "介个，是芙呀拿的！",
+      "events": [
+        "mine"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_toilet",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おといれどっち？",
+      "chinese": "呜——厕所哪边呀？",
+      "events": [
+        "need_toilet"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_clean",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "きれいになった？ みてみて。",
+      "chinese": "干净了吗？看看嘛。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_sleep",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、つづきはあと。ねんねしゅる。",
+      "chinese": "呜——晚点继续。要睡睡啦。",
+      "events": [
+        "sleep"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_awake",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おきたよ！ なにがある？",
+      "chinese": "呜——醒来啦！有什么呀？",
+      "events": [
+        "awake"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_gentle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きてくれた！ そばにいて。",
+      "chinese": "呜——你来啦！陪在旁边嘛。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここからみててもいい？",
+      "chinese": "呜——在介里看着好吗？",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_afraid",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、こわい。こないで。",
+      "chinese": "呜——怕怕。别过来。",
+      "events": [
+        "afraid"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_hurt",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いたい。やしゅんでいい？",
+      "chinese": "呜——痛痛。能歇歇吗？",
+      "events": [
+        "wounded"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_treated",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちょっとよくなった。ありがと。",
+      "chinese": "呜——好一点啦。谢谢。",
+      "events": [
+        "treated"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_lost",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おかざり、どこいったの？",
+      "chinese": "饰饰去哪啦？",
+      "events": [
+        "lost_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_returned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かえってきた！ ありがと！",
+      "chinese": "呜——回来啦！谢谢！",
+      "events": [
+        "returned_accessory"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_unknown",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、だあれ？ もっとみたい。",
+      "chinese": "呜——谁呀？还想看看。",
+      "events": [
+        "unrecognized"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_play",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、やってみたい！ あしょぼ？",
+      "chinese": "呜——想试试！玩吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "いまはやだ。あとでいい？",
+      "chinese": "现在不要。晚点好吗？",
+      "events": [
+        "lesson_refused"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_start",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、うごかないでまつの？",
+      "chinese": "呜——不动动，等着吗？",
+      "events": [
+        "lesson_start"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_progress",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちょっとわかった！ もっかい？",
+      "chinese": "懂一点啦！再来吗？",
+      "events": [
+        "lesson_progress"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_learned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここでまてるよ。かえってきてね。",
+      "chinese": "呜——在介里等得住。要回来哦。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_busy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "いま、これちてる。まってね。",
+      "chinese": "现在做介个。等等嘛。",
+      "events": [
+        "busy"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_heard",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きこえたよ。",
+      "chinese": "呜——听见啦。",
+      "events": [
+        "heard"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_newborn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここどこ？",
+      "chinese": "呜——介里是哪？",
+      "events": [
+        "newborn"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_grown",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おっきい！ ここ、とどく？",
+      "chinese": "呜——大大啦！介里，碰得到吗？",
+      "events": [
+        "grown"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_courtship",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いっちょにくらしていい？",
+      "chinese": "呜——能一起生活吗？",
+      "events": [
+        "courtship"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_brood",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちいさいこ、ここにいるよ。",
+      "chinese": "小小孩，在介里陪着哦。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_wait_family",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、みんなきた？ まだまつ？",
+      "chinese": "呜——大家来啦？还等吗？",
+      "events": [
+        "wait_family"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_parent",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おやしゃん、どこ？ おこえききたい。",
+      "chinese": "呜——亲亲油，在哪？想听声音音。",
+      "events": [
+        "lost_parent"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_grief",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……もうおはなちできないの？",
+      "chinese": "呜——……不能再说话话吗？",
+      "events": [
+        "family_died"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_nuzzle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちゅりちゅりしていい？",
+      "chinese": "呜——可以蹭蹭吗？",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_content",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、たのちかった！ またいっちょ！",
+      "chinese": "呜——好开心！下次一起！",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_puff",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃんもここ！",
+      "chinese": "呜——！芙呀也在介里！",
+      "events": [
+        "puff"
+      ],
+      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
     }
   ]
 }

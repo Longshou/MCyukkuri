@@ -6191,6 +6191,2486 @@
         "id": "patchouli.young.o_settlement_hurt"
       },
       "source_sha256": "1bb536d5f4b2c87ec956dbcad6eb3ca84cae786cd8cf102d467bcbee20a8250a"
+    },
+    {
+      "id": "remilia.adult.o_hello",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあも一緒にゆっくりするのだ。",
+      "chinese": "呜——蕾米莉亚也要一起慢慢来呀。",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_hello"
+      },
+      "source_sha256": "f64b02c295decb161bd35f42d8b0517bba4bf3ca5554058754f87510b757f2a5"
+    },
+    {
+      "id": "remilia.adult.o_idle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここでひと休みするのだ。",
+      "chinese": "呜——就在这里歇一歇呀。",
+      "events": [
+        "idle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_idle"
+      },
+      "source_sha256": "1b5edf4b6e5567c07682065940662df12b73c539eca645fc873a896826546000"
+    },
+    {
+      "id": "remilia.adult.o_hungry",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "おなかがすいたのだ。ごはんを探そう。",
+      "chinese": "肚肚饿了呀。去找饭饭吧。",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_hungry"
+      },
+      "source_sha256": "f12260c1911b3754aa4db7ab8913022d37f3e1b37c2a371cb2884d8a248f226a"
+    },
+    {
+      "id": "remilia.adult.o_food",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ごはんがあるのだ。確かめてみよう。",
+      "chinese": "呜——这里有饭饭呀。过去看看吧。",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_food"
+      },
+      "source_sha256": "bbb57d5ebdb2fe37bc732ba35b0a1d8305a0a4c258695fde1fc74d43058c822f"
+    },
+    {
+      "id": "remilia.adult.o_eat",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "むしゃむしゃ。ゆっくり味わうのだ。",
+      "chinese": "姆咻姆咻。要慢慢尝味道呀。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_eat"
+      },
+      "source_sha256": "ca8bf71343f1e971d700c76655fe0fb14f1670aa4d0d5acf75b00649bddf2d07"
+    },
+    {
+      "id": "remilia.adult.o_fed",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おなかいっぱい。ごちそうさまなのだ。",
+      "chinese": "呜——肚肚饱饱。谢谢这顿饭呀。",
+      "events": [
+        "fed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_fed"
+      },
+      "source_sha256": "fecfb2c562243b1cd2e29b79e485c4f87986d14bd807c9c31eecedfdce87a3b4"
+    },
+    {
+      "id": "remilia.adult.o_share",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "少し分けるのだ。一緒に食べよう。",
+      "chinese": "分你一点呀。一起吃吧。",
+      "events": [
+        "share"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_share"
+      },
+      "source_sha256": "2af3a57bcfa7538c5309a37568d2b1779b986905b66cd0f0a70cd32fa25c44ce"
+    },
+    {
+      "id": "remilia.adult.o_wait_turn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、先にどうぞ。次はれみりあなのだ。",
+      "chinese": "呜——你先来吧。下一份轮到蕾米莉亚呀。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_wait_turn"
+      },
+      "source_sha256": "9799a46230bb3bd0495d6bdce4d0cf074d7eaf2e198b288332bb48358d2f02e5"
+    },
+    {
+      "id": "remilia.adult.o_mine",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "これはれみりあが取った分なのだ。",
+      "chinese": "这是蕾米莉亚拿到的那份呀。",
+      "events": [
+        "mine"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_mine"
+      },
+      "source_sha256": "242b9bdcfc12590c2a0ea99adb5d86e97754560a700ca6427bc84f9b35d39285"
+    },
+    {
+      "id": "remilia.adult.o_toilet",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おといれを探すのだ。",
+      "chinese": "呜——要去找厕所呀。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_toilet"
+      },
+      "source_sha256": "067e98267f23bb9c9c4c043a55b1024c1e7dff0de6edf04864ebad192d2dcb8b"
+    },
+    {
+      "id": "remilia.adult.o_clean",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "すっきりしたのだ。気持ちいいね。",
+      "chinese": "清清爽爽了呀。真舒服呢。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_clean"
+      },
+      "source_sha256": "58d086f4734d5c3a09d091828b0a4557959eb7ab3e60c37b70455e283571874d"
+    },
+    {
+      "id": "remilia.adult.o_sleep",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もう眠いのだ。おやすみ。",
+      "chinese": "呜——已经困困了呀。晚安。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_sleep"
+      },
+      "source_sha256": "bc14fba069398e15bfa5d6e5dabb6b49640c5c4ed885bd1c484c5d0770815567"
+    },
+    {
+      "id": "remilia.adult.o_awake",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、よく寝たのだ。今日もゆっくりしよう。",
+      "chinese": "呜——睡得好饱呀。今天也慢慢来吧。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_awake"
+      },
+      "source_sha256": "58705612f6a2b0650f95b721d06497b7d6e34f23d3ce914e515504ed50d00589"
+    },
+    {
+      "id": "remilia.adult.o_gentle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "そばにいてくれると安心なのだ。",
+      "chinese": "有你陪在旁边，就安心了呀。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_gentle"
+      },
+      "source_sha256": "bc609c7a804f48e32395a27c47c54c6747f08e0d6c6a7d9770c1fc0f9baf08e1"
+    },
+    {
+      "id": "remilia.adult.o_shy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し離れて見ているのだ。",
+      "chinese": "呜——先离远一点看着呀。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shy"
+      },
+      "source_sha256": "b5d2ad954fddb1071ed0712e7af1478c85fff73934d361f5374a57b70c99519c"
+    },
+    {
+      "id": "remilia.adult.o_afraid",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、こわいのだ。今は近づかないで。",
+      "chinese": "呜——好害怕呀。现在先别靠近。",
+      "events": [
+        "afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_afraid"
+      },
+      "source_sha256": "407d04bcfdc1c53eb69289a40acbbab9af37c83b00ae2c22e768d98a2c60bdc1"
+    },
+    {
+      "id": "remilia.adult.o_hurt",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、痛いのだ。少し休ませて。",
+      "chinese": "呜——好痛呀。让我歇一下。",
+      "events": [
+        "wounded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_hurt"
+      },
+      "source_sha256": "93bbed31285b0d3fe027bb91026e5a54ee9d41c3da63ca519f0ae8ee195ce82c"
+    },
+    {
+      "id": "remilia.adult.o_treated",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し楽になったのだ。ありがとう。",
+      "chinese": "呜——好受一点了呀。谢谢你。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_treated"
+      },
+      "source_sha256": "07381f856a92177d4b133096cf0baf222e9c96d0ab07cdb0c75d0371620750b5"
+    },
+    {
+      "id": "remilia.adult.o_lost",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "お飾りがないのだ。どこに落としたかな。",
+      "chinese": "饰品不见了呀。掉在哪里了呢。",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_lost"
+      },
+      "source_sha256": "c60ecff92653b2498996043c8a407bc652383518b027a79113dda1ee3adc90da"
+    },
+    {
+      "id": "remilia.adult.o_returned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあのお飾り！ 大事にするのだ。",
+      "chinese": "呜——蕾米莉亚的饰品！要好好珍惜呀。",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_returned"
+      },
+      "source_sha256": "73142308023513e100d341e32b432a84707865d184776b2f1dbfc011f78f8779"
+    },
+    {
+      "id": "remilia.adult.o_unknown",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、だれかな。もう少し見せてほしいのだ。",
+      "chinese": "呜——你是谁呢。让我再看看呀。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_unknown"
+      },
+      "source_sha256": "0ccc00ff0d8a94fe53be89a1a7e6a884e9fc7ced1a018b68f9caf1c8665a6e8a"
+    },
+    {
+      "id": "remilia.adult.o_play",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し動いて遊ぶのだ。一緒にどう？",
+      "chinese": "呜——活动一下玩一玩呀。要一起来吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_play"
+      },
+      "source_sha256": "64b59371665e514905b65d0dcbea485712820e1fb58fc34d2405f9cdaa077d27"
+    },
+    {
+      "id": "remilia.adult.o_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "今は落ち着かないのだ。練習はあとにしよう。",
+      "chinese": "现在静不下来呀。晚点再练习吧。",
+      "events": [
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_refuse"
+      },
+      "source_sha256": "f46b5acbeaa6272d92da3cedfd0cc3583a0c557952d766458e358bd89dc64ba7"
+    },
+    {
+      "id": "remilia.adult.o_start",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここで待つ練習なのだね。",
+      "chinese": "呜——是练习在这里等着呀。",
+      "events": [
+        "lesson_start"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_start"
+      },
+      "source_sha256": "0eb4ccc989bc8d4a9cb93e92b054d57cbe42a6fead32a76a93673e0a1a337b66"
+    },
+    {
+      "id": "remilia.adult.o_progress",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "少しわかったのだ。もう一度やってみよう。",
+      "chinese": "懂了一点呀。再试一次吧。",
+      "events": [
+        "lesson_progress"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_progress"
+      },
+      "source_sha256": "11cd7969c0a05404ff8aaf768b2b76e0319c6d36beb501a7428f1d7a79a8df3b"
+    },
+    {
+      "id": "remilia.adult.o_learned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ここで待っていられるのだ。",
+      "chinese": "呜——可以在这里等着了呀。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_learned"
+      },
+      "source_sha256": "02f6a4ef837a40912429f62f886bd788ba1d0dcd2773f84a2ee884f3de2961c1"
+    },
+    {
+      "id": "remilia.adult.o_busy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "今はこちらで忙しいのだ。少し待ってね。",
+      "chinese": "现在正忙着这边呀。稍等一下呢。",
+      "events": [
+        "busy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_busy"
+      },
+      "source_sha256": "318efb138c3eb10af66e476c6b74388740c89dbfa494eef8e37547adb247ff36"
+    },
+    {
+      "id": "remilia.adult.o_heard",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、聞こえたのだ。",
+      "chinese": "呜——已经听见了呀。",
+      "events": [
+        "heard"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_heard"
+      },
+      "source_sha256": "198bf5af34dea4157ce203e44ac82068b6720401dfe2763b04f8983b0f150178"
+    },
+    {
+      "id": "remilia.adult.o_newborn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあがうまれたのだ。",
+      "chinese": "呜——蕾米莉亚出生啦。",
+      "events": [
+        "newborn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_newborn"
+      },
+      "source_sha256": "8469f013f37da0b771997f6e2cc0fbad5f5577768c0a9ccd721cf2fc0a0fb6c0"
+    },
+    {
+      "id": "remilia.adult.o_grown",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、少し大きくなったのだ！",
+      "chinese": "呜——又长大一点了呀！",
+      "events": [
+        "grown"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_grown"
+      },
+      "source_sha256": "bef5d233f346abc5607741bc58239d77cb1e8cb32f434d8f2d3bad49ca7c653c"
+    },
+    {
+      "id": "remilia.adult.o_courtship",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きみとゆっくり暮らしたいのだ。",
+      "chinese": "呜——想和你一起慢慢生活呀。",
+      "events": [
+        "courtship"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_courtship"
+      },
+      "source_sha256": "f5b60e9c4e3251ebf4925d367556362ffd4cb150b0cfd9af27a612bd54c4731c"
+    },
+    {
+      "id": "remilia.adult.o_brood",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "小さな子、慌てなくていいのだ。",
+      "chinese": "小小的孩子，不用着急呀。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_brood"
+      },
+      "source_sha256": "d464bb48e36f5ccc769d4f868d446f94210aed74cf5653b13a3b8757eccaa54c"
+    },
+    {
+      "id": "remilia.adult.o_wait_family",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、家族がそろうまで待つのだ。",
+      "chinese": "呜——要等家人到齐呀。",
+      "events": [
+        "wait_family"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_wait_family"
+      },
+      "source_sha256": "d6a1c79f9f1eb7427f2b3434590c51d8348561b929fb49eeceb6e969e101ba63"
+    },
+    {
+      "id": "remilia.adult.o_parent",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、親はどこにいるのだろう……。",
+      "chinese": "呜——亲油在哪里呢……。",
+      "events": [
+        "lost_parent"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_parent"
+      },
+      "source_sha256": "79d4f15b02b1eacfb6b83b8047516ba506f66a2189ac51e5675a8eaaf151878f"
+    },
+    {
+      "id": "remilia.adult.o_grief",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……またお話ししたかったのだ。",
+      "chinese": "呜——……还想再和你说说话呀。",
+      "events": [
+        "family_died"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_grief"
+      },
+      "source_sha256": "3b73670de05740bb4a4cab09cacc19f70a62ad30166e72014606d27f831a5e45"
+    },
+    {
+      "id": "remilia.adult.o_nuzzle",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、そばで少しすりすりするのだ。",
+      "chinese": "呜——在旁边轻轻蹭蹭呀。",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_nuzzle"
+      },
+      "source_sha256": "7c4a687ffcb1858b5f5d3a0fe58749b9eb361c5a4ac308548b969b845a7858ed"
+    },
+    {
+      "id": "remilia.adult.o_content",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、気分がほぐれたのだ。",
+      "chinese": "呜——心里放松下来啦。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_content"
+      },
+      "source_sha256": "9ed17ce2f58f4c2a638220dab7aeaf62708d28ca66eea04d3ae6c6f4becd9a09"
+    },
+    {
+      "id": "remilia.adult.o_puff",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあはここにいるのだ！",
+      "chinese": "呜——！蕾米莉亚在这里呀！",
+      "events": [
+        "puff"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_puff"
+      },
+      "source_sha256": "c10eb580e6f0af611eeb6bf343c20dc1669bdc97832c01b215b0e576268c6f22"
+    },
+    {
+      "id": "remilia.young.o_hello",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃもいっちょ！",
+      "chinese": "呜——蕾米呀也要一起！",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_hello"
+      },
+      "source_sha256": "60166ba13cd8cd01509775bd80e1d2bcc6b374da4c4755cf5803708bad00a164"
+    },
+    {
+      "id": "remilia.young.o_idle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでやしゅむのだ。",
+      "chinese": "呜——在介里歇歇呀。",
+      "events": [
+        "idle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_idle"
+      },
+      "source_sha256": "8a05654f9a35c3832b4f6091aa1141330c3020b1df3bfb2d574cd51e82e65ad5"
+    },
+    {
+      "id": "remilia.young.o_hungry",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おなかしゅいた。ごはんどこ？",
+      "chinese": "肚肚饿啦。饭饭在哪？",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_hungry"
+      },
+      "source_sha256": "74dbfcaa3ff3a1dff7d69a56fe87c7e0d0669a4e701024b74d6973e5ab5cdc27"
+    },
+    {
+      "id": "remilia.young.o_food",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ごはんみちゅけた！",
+      "chinese": "呜——找到饭饭啦！",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_food"
+      },
+      "source_sha256": "1a91fb9bee67bc67036a9c75ce4388e96c2033fe8aaef9d58e595574dc48f77b"
+    },
+    {
+      "id": "remilia.young.o_eat",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "むちゃむちゃ。ゆっくちたべる。",
+      "chinese": "姆嚓姆嚓。慢慢吃吃。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_eat"
+      },
+      "source_sha256": "430c135c7a2d26b16df793d42b9f084b42b8ab0fecbabe3b5df49eafe30c69a6"
+    },
+    {
+      "id": "remilia.young.o_fed",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぽんぽんいっぱい。ありがと！",
+      "chinese": "呜——肚肚满满。谢谢！",
+      "events": [
+        "fed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_fed"
+      },
+      "source_sha256": "ba4af64f949d320d1a664284b2f392fc367c9f6d20c154b9505d547ba44d5f39"
+    },
+    {
+      "id": "remilia.young.o_share",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちょっとあげる。いっちょにたべよ。",
+      "chinese": "给你一点点。一起吃吃。",
+      "events": [
+        "share"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_share"
+      },
+      "source_sha256": "b8dc16e95f559e064b2fd48c73f5779ac5473dfb48e83d28531f59e41b18dd02"
+    },
+    {
+      "id": "remilia.young.o_wait_turn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、つぎはれみりゃね。",
+      "chinese": "呜——下个是蕾米呀哦。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_wait_turn"
+      },
+      "source_sha256": "b6171788fb572abe1ddab24195661669ad23f8039ea1f3d4a957b3b1ad99ae35"
+    },
+    {
+      "id": "remilia.young.o_mine",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "これ、れみりゃのぶん！",
+      "chinese": "介个，蕾米呀的份！",
+      "events": [
+        "mine"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_mine"
+      },
+      "source_sha256": "cbf52ca63fdf7cc22160718c1021336cb722f380c33a9a9637e86b47ddfe6d73"
+    },
+    {
+      "id": "remilia.young.o_toilet",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おといれどこ？",
+      "chinese": "呜——厕所在哪？",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_toilet"
+      },
+      "source_sha256": "01392b2f752d3844665d96fa67eaa60ab4f07714d0b89620c82b4fb69a2b7da6"
+    },
+    {
+      "id": "remilia.young.o_clean",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "きれいきれい。きもちいいのだ。",
+      "chinese": "干净干净。舒服呀。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_clean"
+      },
+      "source_sha256": "3fdef2c69957b8d0e281d65e11287554c049cab94eb5740a104b87da51c9836c"
+    },
+    {
+      "id": "remilia.young.o_sleep",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ねむねむ。おやしゅみ。",
+      "chinese": "呜——困困啦。晚安安。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_sleep"
+      },
+      "source_sha256": "b8e0a820faacd3db3fcfc129471554a8b65230d4ffa253ba283ccb5f8eee804b"
+    },
+    {
+      "id": "remilia.young.o_awake",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おきたのだ！",
+      "chinese": "呜——醒来啦！",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_awake"
+      },
+      "source_sha256": "1a15ad2d36e83d41e219225c2a5acb6cdf5e608954bc36b37908c6a3e7783c53"
+    },
+    {
+      "id": "remilia.young.o_gentle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "そばにいて。あんちんなのだ。",
+      "chinese": "陪在旁边嘛。安心呀。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_gentle"
+      },
+      "source_sha256": "85a7c49ec8f431412c206f8d043e32fbda9c5ddde49666081fa50647f36ba6cd"
+    },
+    {
+      "id": "remilia.young.o_shy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここからみてる。",
+      "chinese": "呜——在介里看着。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shy"
+      },
+      "source_sha256": "79ceefc4c8da7e4cc59e15bc2f1f52076cbedc4031e006345654d6e4a91c5b2d"
+    },
+    {
+      "id": "remilia.young.o_afraid",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、こわい。まだこないで。",
+      "chinese": "呜——怕怕。先别过来。",
+      "events": [
+        "afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_afraid"
+      },
+      "source_sha256": "f906c5f996920b938d611c0fab365ab0a56dbd9c5ce7b1dcab5e3c5f538a3c70"
+    },
+    {
+      "id": "remilia.young.o_hurt",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いたい。やしゅませて。",
+      "chinese": "呜——痛痛。要歇歇。",
+      "events": [
+        "wounded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_hurt"
+      },
+      "source_sha256": "58dbbbb9ed38a8156bb29a8ca9a33b54c597bcda20b2f85d8de75654fc245edb"
+    },
+    {
+      "id": "remilia.young.o_treated",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちょっとらく。ありがと。",
+      "chinese": "呜——好点啦。谢谢。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_treated"
+      },
+      "source_sha256": "e10d52274c4ec46b4af1906c4824211a9250e88b277a8df888cedec83c95a508"
+    },
+    {
+      "id": "remilia.young.o_lost",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おかざり、ないのだ……。",
+      "chinese": "饰饰不见啦……。",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_lost"
+      },
+      "source_sha256": "cdab2d151f7ac26efc71a4940b7f4e7db768e2eb405b749e367c6c71661906aa"
+    },
+    {
+      "id": "remilia.young.o_returned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃのおかざり！",
+      "chinese": "呜——蕾米呀的饰饰！",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_returned"
+      },
+      "source_sha256": "a2f063177d4cc0c2526e8a0a41a98d11115a5901a735d22c12934773b5bd3dc2"
+    },
+    {
+      "id": "remilia.young.o_unknown",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、だあれ？ よくみちぇて。",
+      "chinese": "呜——谁呀？给窝看看。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_unknown"
+      },
+      "source_sha256": "cb122b8801dec6e4c490b94d49fc970b927acf29e8cf6000d2e73e0e6e3786f8"
+    },
+    {
+      "id": "remilia.young.o_play",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あしょぼ！ いっちょ！",
+      "chinese": "呜——玩玩吧！一起！",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_play"
+      },
+      "source_sha256": "a6ac8343eb13885d27052d52cdf93d94a1636e86a62a2df11dba28c4db42e4e8"
+    },
+    {
+      "id": "remilia.young.o_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "いまはやだ。あとでなのだ。",
+      "chinese": "现在不要。晚点呀。",
+      "events": [
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_refuse"
+      },
+      "source_sha256": "692cc9a507072529110832af7d6e6beaa49560c6fb23f4bef8341d565916c8fd"
+    },
+    {
+      "id": "remilia.young.o_start",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでまつの？",
+      "chinese": "呜——在介里等吗？",
+      "events": [
+        "lesson_start"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_start"
+      },
+      "source_sha256": "619976ff592203f173ebceaef2e7faf2469aee0230421126724d6cd7bc4cc26a"
+    },
+    {
+      "id": "remilia.young.o_progress",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちょっとわかった。もっかい！",
+      "chinese": "懂一点啦。再来！",
+      "events": [
+        "lesson_progress"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_progress"
+      },
+      "source_sha256": "d0db4cf8649019a72bfb5c9b77436a8fa0ef86d79ee758ae8b401f00974dc03f"
+    },
+    {
+      "id": "remilia.young.o_learned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ここでまてるのだ！",
+      "chinese": "呜——可以在介里等呀！",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_learned"
+      },
+      "source_sha256": "8a6916d39bfb9c114119be8a5591ad191616be344425a5b9d21799281179eccf"
+    },
+    {
+      "id": "remilia.young.o_busy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "いま、いそがちい。まってね。",
+      "chinese": "现在忙忙。等等嘛。",
+      "events": [
+        "busy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_busy"
+      },
+      "source_sha256": "ee7dbc1ed50c57c1990d1c01b4682a338fda48d4be859b151fe16b54afd1d44c"
+    },
+    {
+      "id": "remilia.young.o_heard",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、きこえたのだ。",
+      "chinese": "呜——听见啦。",
+      "events": [
+        "heard"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_heard"
+      },
+      "source_sha256": "19b713a6442a3b69f5acbebfe0512d3b44711b704c9b3852da6b07683cfdf8d9"
+    },
+    {
+      "id": "remilia.young.o_newborn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみりゃ、うまれたよ。",
+      "chinese": "呜——蕾米呀出生啦。",
+      "events": [
+        "newborn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_newborn"
+      },
+      "source_sha256": "47447f4826420dbb5c9f9d4d05806a598f737120bc9557c19fb38d5ded9d40b4"
+    },
+    {
+      "id": "remilia.young.o_grown",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おっきくなった！",
+      "chinese": "呜——长大大啦！",
+      "events": [
+        "grown"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_grown"
+      },
+      "source_sha256": "188f715ab05622aa663ed1de60ab0ab87a024920e2d87b34118848544183f1d8"
+    },
+    {
+      "id": "remilia.young.o_courtship",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いっちょにくらしょ。",
+      "chinese": "呜——一起生活嘛。",
+      "events": [
+        "courtship"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_courtship"
+      },
+      "source_sha256": "b4c775964043cf7bdf1c9cea94ab89ed3b68f8bfd8c04a2f58d19382c34de73f"
+    },
+    {
+      "id": "remilia.young.o_brood",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ちいさいこ、ゆっくちね。",
+      "chinese": "小小孩，慢慢来呀。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_brood"
+      },
+      "source_sha256": "b27efdc6262d03d787f12d6b3090aaa23e7f3fbc917c5cb07e0e798d1ff3480c"
+    },
+    {
+      "id": "remilia.young.o_wait_family",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、みんなをまつのだ。",
+      "chinese": "呜——等大家呀。",
+      "events": [
+        "wait_family"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_wait_family"
+      },
+      "source_sha256": "f495a0ffb256bdac8e0f11aa62309811f4fbc1fc9f900848c22b63ce34e6868c"
+    },
+    {
+      "id": "remilia.young.o_parent",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おやしゃん、どこ……？",
+      "chinese": "呜——亲亲油，在哪……？",
+      "events": [
+        "lost_parent"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_parent"
+      },
+      "source_sha256": "734cca5844dc9bf6ec14d3005cc6e301ff5f5908c2d8e6ab11048c7ed8ad1686"
+    },
+    {
+      "id": "remilia.young.o_grief",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……もっとおはなちしたい。",
+      "chinese": "呜——……还想说话话。",
+      "events": [
+        "family_died"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_grief"
+      },
+      "source_sha256": "74e6865333f8b0d12616508119995039e4a2f4945f185326fa985cfe26ec6292"
+    },
+    {
+      "id": "remilia.young.o_nuzzle",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちゅりちゅりして。",
+      "chinese": "呜——蹭蹭嘛。",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_nuzzle"
+      },
+      "source_sha256": "28fe75273786b40ea065ca2b4ff21383005b5439b1fdcdc2e2e0b9ab20444137"
+    },
+    {
+      "id": "remilia.young.o_content",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ほっとちたのだ。",
+      "chinese": "呜——安心下来啦。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_content"
+      },
+      "source_sha256": "d149ba1595b4153b40a26f12fa184158050bc2fc40f799dae6550a617acf4835"
+    },
+    {
+      "id": "remilia.young.o_puff",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみりゃ、ここ！",
+      "chinese": "呜——！蕾米呀，在介里！",
+      "events": [
+        "puff"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_puff"
+      },
+      "source_sha256": "187f09f19a800a95080b88de07c4b980509af2c7e221470a6c9119049e5d1053"
+    },
+    {
+      "id": "flandre.adult.o_hello",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんも一緒にいていい？",
+      "chinese": "呜——芙兰也能待在一起吗？",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_hello"
+      },
+      "source_sha256": "685289a9bfe602f0a18263fe85a7a8dd05f3d455f77f6fc1c983b035c3b5049b"
+    },
+    {
+      "id": "flandre.adult.o_idle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、今日は何して遊ぼうかな。",
+      "chinese": "呜——今天玩点什么呢。",
+      "events": [
+        "idle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_idle"
+      },
+      "source_sha256": "a428f700ae7875a0f72dd6cd7a9e4121a5de79b0bd2e2223e138320e96c91f57"
+    },
+    {
+      "id": "flandre.adult.o_hungry",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "おなかがすいたな。食べるものはある？",
+      "chinese": "肚肚饿啦。有什么可以吃的吗？",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_hungry"
+      },
+      "source_sha256": "da59754460dae3ca3c0fae2cad26044ba5d506d7adadd2d7450a7471a9586758"
+    },
+    {
+      "id": "flandre.adult.o_food",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、これ食べられるかな。見てみよう。",
+      "chinese": "呜——这个能吃吗。过去看看吧。",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_food"
+      },
+      "source_sha256": "90703d17fb40cb30de794243466ff2e5244dfd75eac6c9a4a43637cfe18db385"
+    },
+    {
+      "id": "flandre.adult.o_eat",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "むしゃむしゃ。どんな味かな。",
+      "chinese": "姆咻姆咻。是什么味道呢。",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_eat"
+      },
+      "source_sha256": "042d0ef6442bb6d5277be52e3786a73182266d5664c5a065f82fc9d2f3e03921"
+    },
+    {
+      "id": "flandre.adult.o_fed",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おなかいっぱい！ ありがとうね。",
+      "chinese": "呜——肚肚饱啦！谢谢你呢。",
+      "events": [
+        "fed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_fed"
+      },
+      "source_sha256": "e22efd410c5d479e8b744aa0c52dcb49adcd4d32904de9d8a1a45e4a2e623916"
+    },
+    {
+      "id": "flandre.adult.o_share",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ふらんの分、少しどうぞ。味はどう？",
+      "chinese": "芙兰的这份，给你一点。味道怎么样？",
+      "events": [
+        "share"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_share"
+      },
+      "source_sha256": "0d47160454a6398dfe90f39e66fd3db8308f58ec9cb633161cd5ba3a7c5d3923"
+    },
+    {
+      "id": "flandre.adult.o_wait_turn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、先に取っていいよ。ここで待つね。",
+      "chinese": "呜——你先拿吧。在这里等你呢。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_wait_turn"
+      },
+      "source_sha256": "e6f649183dfab39b83665d609f5165c122963cdfbd2e14790823d0da4ebec54c"
+    },
+    {
+      "id": "flandre.adult.o_mine",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "これはふらんが取った分だよ。",
+      "chinese": "这是芙兰拿到的那一份哟。",
+      "events": [
+        "mine"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_mine"
+      },
+      "source_sha256": "781c8e8181937dcab739e336c9fb1815e9629a0abcabda077d99a6617bd18d2e"
+    },
+    {
+      "id": "flandre.adult.o_toilet",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おといれはどっちかな。",
+      "chinese": "呜——厕所在哪边呢。",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_toilet"
+      },
+      "source_sha256": "692f8c5fdb089d25c7ddcf5b1d15f70593ce71ee9d15958001688c5f36995347"
+    },
+    {
+      "id": "flandre.adult.o_clean",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "さっぱりしたね。もう汚れてない？",
+      "chinese": "清爽啦。还有脏脏吗？",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_clean"
+      },
+      "source_sha256": "dc25ade151b4f3aad7f2e624b9c01f4d73ca4ff7f43fb96608413cb01cd0d530"
+    },
+    {
+      "id": "flandre.adult.o_sleep",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、続きは起きてから。おやすみ。",
+      "chinese": "呜——睡醒再继续吧。晚安。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_sleep"
+      },
+      "source_sha256": "155bf9382ae4f25b315dc6fd895b8d00eefac631955a63cabfd27db0929ad133"
+    },
+    {
+      "id": "flandre.adult.o_awake",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、起きたよ！ 今日は何があるかな。",
+      "chinese": "呜——醒来啦！今天会有什么呢。",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_awake"
+      },
+      "source_sha256": "78a539a1b120f2f5186e5bd8ec9d9387fee202f76e7329d8cacc451bf01a3ed3"
+    },
+    {
+      "id": "flandre.adult.o_gentle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、会えてうれしいな。そばにいてね。",
+      "chinese": "呜——见到你真开心。陪在旁边吧。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_gentle"
+      },
+      "source_sha256": "6bf3fa85675409b8d88b7acf20ceb5e711b039307eae0fd56cc92995cac05d7a"
+    },
+    {
+      "id": "flandre.adult.o_shy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、今はここから見ていようかな。",
+      "chinese": "呜——现在先在这里看着吧。",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shy"
+      },
+      "source_sha256": "783657ea8750340ae40b6ad7921bf85d8dcbb26ca78c31e29db1cba8a7588196"
+    },
+    {
+      "id": "flandre.adult.o_afraid",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、こわいよ。そこから来ないで。",
+      "chinese": "呜——好害怕。先别从那边过来。",
+      "events": [
+        "afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_afraid"
+      },
+      "source_sha256": "ba62543d23452fb7ea538353818fdbfc53d11214ed3fc17eced97e7173ccbd45"
+    },
+    {
+      "id": "flandre.adult.o_hurt",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、痛いよ……少し休んでもいい？",
+      "chinese": "呜——好痛……可以休息一下吗？",
+      "events": [
+        "wounded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_hurt"
+      },
+      "source_sha256": "c04ba9594ccefe20494e3e1bd494430ccbcf89e7045954c59b5c9719a273239e"
+    },
+    {
+      "id": "flandre.adult.o_treated",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、さっきより楽だよ。ありがとう。",
+      "chinese": "呜——比刚才好受啦。谢谢你。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_treated"
+      },
+      "source_sha256": "ff976769e4c1af035d4e22937d5ca3ad4133fdb59ac5d93fc311ebfda472b56f"
+    },
+    {
+      "id": "flandre.adult.o_lost",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "お飾りがないよ。どこに行っちゃったの？",
+      "chinese": "饰品不见了。跑到哪里去啦？",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_lost"
+      },
+      "source_sha256": "c882d9f1c740a223d5430a3f12c1e2a0836eb657f8e193d257a2770f6a267000"
+    },
+    {
+      "id": "flandre.adult.o_returned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、戻ってきた！ 探してくれてありがとう。",
+      "chinese": "呜——回来啦！谢谢你帮忙找。",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_returned"
+      },
+      "source_sha256": "bb600c2f189578338b0b0b5fffdc2e9941f1b457023460367bf7379962d8a834"
+    },
+    {
+      "id": "flandre.adult.o_unknown",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きみはだれ？ もう一度よく見たいな。",
+      "chinese": "呜——你是谁？想再仔细看看呢。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_unknown"
+      },
+      "source_sha256": "0133ca6889ddbe94b6baea32990f8cd19d02a4fa0bcededbec4deb25e397cf50"
+    },
+    {
+      "id": "flandre.adult.o_play",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、やってみたいな。一緒に遊ぼう？",
+      "chinese": "呜——想试试看呢。一起玩吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_play"
+      },
+      "source_sha256": "58da4236dc49848f2ab76b0c55f4f79d580a0506455adbb314d6e2e5efbef121"
+    },
+    {
+      "id": "flandre.adult.o_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "今はそわそわするよ。あとで練習してもいい？",
+      "chinese": "现在静不下心。晚点再练习好吗？",
+      "events": [
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_refuse"
+      },
+      "source_sha256": "04d6bd9b18a6d28ebe91e27460f29b07c88cf8f6deb7ee6b7507d7d478ba6a32"
+    },
+    {
+      "id": "flandre.adult.o_start",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、動かないで待つんだね。やってみるよ。",
+      "chinese": "呜——要不动地等着呀。试试看哟。",
+      "events": [
+        "lesson_start"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_start"
+      },
+      "source_sha256": "b96ea7b3e41274af83fcff47ed9bd16dcd701f4f5a9b73f39d9bc7a5c192cbc5"
+    },
+    {
+      "id": "flandre.adult.o_progress",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "あ、少しわかった。もう一回やろう？",
+      "chinese": "啊，懂了一点。再来一次吗？",
+      "events": [
+        "lesson_progress"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_progress"
+      },
+      "source_sha256": "e84687bdc6540f82791c03cf890db4a6f4652ad58e04c123b6d59119c3d339b2"
+    },
+    {
+      "id": "flandre.adult.o_learned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ここで待てるよ。帰ってきてね。",
+      "chinese": "呜——可以在这里等啦。要回来哦。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_learned"
+      },
+      "source_sha256": "6287058a62ab0af772a7418ee2384f03a37836dd54c47460b410aa11de9fc64d"
+    },
+    {
+      "id": "flandre.adult.o_busy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "今はこれをしているよ。少し待ってね。",
+      "chinese": "现在正忙着这个。等一下嘛。",
+      "events": [
+        "busy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_busy"
+      },
+      "source_sha256": "e769d9e294fb4529ee37a4d106db4f6b051004134842d104eeb31f3313fce74f"
+    },
+    {
+      "id": "flandre.adult.o_heard",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ちゃんと聞こえたよ。",
+      "chinese": "呜——好好听见了哟。",
+      "events": [
+        "heard"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_heard"
+      },
+      "source_sha256": "038dbb5363626ac3cf879650c30b81419edca0284db73906b4e9826e7bd15173"
+    },
+    {
+      "id": "flandre.adult.o_newborn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ここはどこかな？",
+      "chinese": "呜——这里是哪儿呀？",
+      "events": [
+        "newborn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_newborn"
+      },
+      "source_sha256": "bf21248145ac9b7e9a9588c52d408a5cf2c0c4d48d2e5d88c1532e79b1d73187"
+    },
+    {
+      "id": "flandre.adult.o_grown",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、大きくなったよ。届くところが増えたかな？",
+      "chinese": "呜——长大了哟。能碰到更多地方了吗？",
+      "events": [
+        "grown"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_grown"
+      },
+      "source_sha256": "4eed8e935c1b2138b5c3a126d72c909836a47aebc1965000e9fbc90e29790d3b"
+    },
+    {
+      "id": "flandre.adult.o_courtship",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、一緒に暮らしたら、どんな毎日かな。",
+      "chinese": "呜——一起生活的话，每天会是什么样呢。",
+      "events": [
+        "courtship"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_courtship"
+      },
+      "source_sha256": "417867da832fb18d4727f2f32bbfaf96c0214f9a4df0fb7fd7d47049f3cae9df"
+    },
+    {
+      "id": "flandre.adult.o_brood",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "小さな子、ゆっくりでいいよ。ここにいるからね。",
+      "chinese": "小小的孩子，慢慢来就好。我在这里呢。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_brood"
+      },
+      "source_sha256": "e5ef83184b385a107faa68d7a199a6fc85ae98cb9bd953f3cc9100808a361ef9"
+    },
+    {
+      "id": "flandre.adult.o_wait_family",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、みんな来たかな。もう少し待とう。",
+      "chinese": "呜——大家都来了吗。再等一下吧。",
+      "events": [
+        "wait_family"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_wait_family"
+      },
+      "source_sha256": "3080f59e90b7d942000d268776b1705e88f1bb20a6213bf727849ccd7f5d5d03"
+    },
+    {
+      "id": "flandre.adult.o_parent",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、親はどこかな。声が聞きたいよ……。",
+      "chinese": "呜——亲油在哪里呢。想听听声音……。",
+      "events": [
+        "lost_parent"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_parent"
+      },
+      "source_sha256": "10172bc22a4939271e7e93238326b9b1e20c5ce21c05ed2c000da22efff6fd0a"
+    },
+    {
+      "id": "flandre.adult.o_grief",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……もう一緒にお話しできないの……？",
+      "chinese": "呜——……不能再一起说话了吗……？",
+      "events": [
+        "family_died"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_grief"
+      },
+      "source_sha256": "f5377eb9febfa91cca027991ca0dbcc728716624e46c316d274f3a82f73ffd9a"
+    },
+    {
+      "id": "flandre.adult.o_nuzzle",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、少しすりすりしてもいい？",
+      "chinese": "呜——可以轻轻蹭蹭吗？",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_nuzzle"
+      },
+      "source_sha256": "f2c4d365885643bc47feddb951a45c93f84a6a298f045ab9469bb66e38826389"
+    },
+    {
+      "id": "flandre.adult.o_content",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、楽しかったね。また一緒にね。",
+      "chinese": "呜——好开心呢。下次还一起呀。",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_content"
+      },
+      "source_sha256": "715bed7e68a100e8cc6311a68b81efec0667e6ab3b4b9e766585aafbc705faa9"
+    },
+    {
+      "id": "flandre.adult.o_puff",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんだってここにいるよ！",
+      "chinese": "呜——！芙兰也在这里哟！",
+      "events": [
+        "puff"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_puff"
+      },
+      "source_sha256": "5328410ed4f2c358b78742ce315d826ef40fbb1d136a43696d07595d2c35c802"
+    },
+    {
+      "id": "flandre.young.o_hello",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんもいっちょ？",
+      "chinese": "呜——芙呀也一起吗？",
+      "events": [
+        "hello",
+        "introduced",
+        "peer",
+        "known_peer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_hello"
+      },
+      "source_sha256": "8e5db03aff65292f4c187e6011e5158bd23b57ff42e680fec25bd9803c28e717"
+    },
+    {
+      "id": "flandre.young.o_idle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、なにちてあしょぶ？",
+      "chinese": "呜——玩点什么呀？",
+      "events": [
+        "idle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_idle"
+      },
+      "source_sha256": "cc360e1a7310538529288c91207b99796628f33105bf18c86a4ab73bd261f690"
+    },
+    {
+      "id": "flandre.young.o_hungry",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おなかしゅいた。たべものある？",
+      "chinese": "肚肚饿啦。有吃吃吗？",
+      "events": [
+        "hungry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_hungry"
+      },
+      "source_sha256": "fc6afb5b94d5a362a01e3dbbad34bc83e02d1d36112db2970d6877d2373f440b"
+    },
+    {
+      "id": "flandre.young.o_food",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、これたべりゅ？",
+      "chinese": "呜——介个能吃吗？",
+      "events": [
+        "food_found"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_food"
+      },
+      "source_sha256": "73209edb10ee63acb46f637f45ee40173951d93e7b2461124d8e1b0ab1754a40"
+    },
+    {
+      "id": "flandre.young.o_eat",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "むちゃむちゃ。どんなあじ？",
+      "chinese": "姆嚓姆嚓。什么味呀？",
+      "events": [
+        "take_food",
+        "chew"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_eat"
+      },
+      "source_sha256": "746cbdd8e665b257564328de4be6d676b64bd09461227fa462ba5999e60b17fa"
+    },
+    {
+      "id": "flandre.young.o_fed",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぽんぽんいっぱい！ ありがと！",
+      "chinese": "呜——肚肚满满！谢谢！",
+      "events": [
+        "fed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_fed"
+      },
+      "source_sha256": "32b5b616e6ab3f29438170e9b8003013e198f7e7f0460758a97b8b5702adfdc7"
+    },
+    {
+      "id": "flandre.young.o_share",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちょっとどーぞ。おいちい？",
+      "chinese": "给一点点。好七吗？",
+      "events": [
+        "share"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_share"
+      },
+      "source_sha256": "feb5065fee5d1d0624d69f42405b85bad7111327911888e75dd8c025e5af3452"
+    },
+    {
+      "id": "flandre.young.o_wait_turn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、さきにどーぞ。まってるね。",
+      "chinese": "呜——你先来。等着呢。",
+      "events": [
+        "wait_turn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_wait_turn"
+      },
+      "source_sha256": "ef3d8b7ca6b4f5feaeef8f29c9c6fc7b8f6eeeb2bded47d4a1f097790e3fdf92"
+    },
+    {
+      "id": "flandre.young.o_mine",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "これ、ふりゃんがとったの！",
+      "chinese": "介个，是芙呀拿的！",
+      "events": [
+        "mine"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_mine"
+      },
+      "source_sha256": "ff55969eea1b335de818fcb70bbfe25fbca7fc11cea90b27bd2a2146a18d91b8"
+    },
+    {
+      "id": "flandre.young.o_toilet",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おといれどっち？",
+      "chinese": "呜——厕所哪边呀？",
+      "events": [
+        "need_toilet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_toilet"
+      },
+      "source_sha256": "fd94da5931e95576ee50c34c2b89e6cadd149b2ee821ed62f0920bdaedbc2733"
+    },
+    {
+      "id": "flandre.young.o_clean",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "きれいになった？ みてみて。",
+      "chinese": "干净了吗？看看嘛。",
+      "events": [
+        "toilet_done",
+        "washed"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_clean"
+      },
+      "source_sha256": "0fb3d0a2c8d1bc60e2249be878320a4359d3fedcfcbb2ec10e6bc481db91ddef"
+    },
+    {
+      "id": "flandre.young.o_sleep",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、つづきはあと。ねんねしゅる。",
+      "chinese": "呜——晚点继续。要睡睡啦。",
+      "events": [
+        "sleep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_sleep"
+      },
+      "source_sha256": "bc272cd4fb98d9a47e02e8d5ab96c58e4bce7ae4550f6aa86f1fa41167038809"
+    },
+    {
+      "id": "flandre.young.o_awake",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おきたよ！ なにがある？",
+      "chinese": "呜——醒来啦！有什么呀？",
+      "events": [
+        "awake"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_awake"
+      },
+      "source_sha256": "e73f1b86b7dab502dccfcbde9d19451937c187cad5163cf056cbbcf8fe569ec2"
+    },
+    {
+      "id": "flandre.young.o_gentle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きてくれた！ そばにいて。",
+      "chinese": "呜——你来啦！陪在旁边嘛。",
+      "events": [
+        "gentle",
+        "caregiver"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_gentle"
+      },
+      "source_sha256": "b4294d2c318c7b3e2c8e5d02fb19926182f2d3e2a146c621c18ca3f9c0b8d1e4"
+    },
+    {
+      "id": "flandre.young.o_shy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここからみててもいい？",
+      "chinese": "呜——在介里看着好吗？",
+      "events": [
+        "cold",
+        "shy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shy"
+      },
+      "source_sha256": "3344d5ba2711312a889b2ca0f11d34c39512c2388294b74b6b2e9a18612c9a80"
+    },
+    {
+      "id": "flandre.young.o_afraid",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、こわい。こないで。",
+      "chinese": "呜——怕怕。别过来。",
+      "events": [
+        "afraid"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_afraid"
+      },
+      "source_sha256": "b65f89ffea67a8304070a7d06ec0726f55bb87a7b9a681814fe60165f75a1c10"
+    },
+    {
+      "id": "flandre.young.o_hurt",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いたい。やしゅんでいい？",
+      "chinese": "呜——痛痛。能歇歇吗？",
+      "events": [
+        "wounded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_hurt"
+      },
+      "source_sha256": "0e69880503fb99950497f931a0b6441bedde45485792db1201ed368eba9af158"
+    },
+    {
+      "id": "flandre.young.o_treated",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちょっとよくなった。ありがと。",
+      "chinese": "呜——好一点啦。谢谢。",
+      "events": [
+        "treated"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_treated"
+      },
+      "source_sha256": "fa529fe58b7e024a2e305f997f7bd7a2448cb4e20b8bf980a240fc556aa4470b"
+    },
+    {
+      "id": "flandre.young.o_lost",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おかざり、どこいったの？",
+      "chinese": "饰饰去哪啦？",
+      "events": [
+        "lost_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_lost"
+      },
+      "source_sha256": "1e6f963b26e2b3ea1e61b8f9244f5a0a4989c408e31d5e87d01a77daa9bbfdac"
+    },
+    {
+      "id": "flandre.young.o_returned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かえってきた！ ありがと！",
+      "chinese": "呜——回来啦！谢谢！",
+      "events": [
+        "returned_accessory"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_returned"
+      },
+      "source_sha256": "2e1de06913b9d6265348c14361da48d3b358904779255d61b573cc594e03ea4b"
+    },
+    {
+      "id": "flandre.young.o_unknown",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、だあれ？ もっとみたい。",
+      "chinese": "呜——谁呀？还想看看。",
+      "events": [
+        "unrecognized"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_unknown"
+      },
+      "source_sha256": "f140ac8321dd4cb278a5d249c935293d49118f60d9455b199a3ffcc0e24a2c9b"
+    },
+    {
+      "id": "flandre.young.o_play",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、やってみたい！ あしょぼ？",
+      "chinese": "呜——想试试！玩吗？",
+      "events": [
+        "toy",
+        "exercise"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_play"
+      },
+      "source_sha256": "e294810bc2f5e0646831df83b7c968c05d2189e48e1bfaaf32572688d64c2dab"
+    },
+    {
+      "id": "flandre.young.o_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "いまはやだ。あとでいい？",
+      "chinese": "现在不要。晚点好吗？",
+      "events": [
+        "lesson_refused"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_refuse"
+      },
+      "source_sha256": "286e7f98aaeb8a64c8b0e9a9bcf64bd9f9033c6bce433b11421842b4e0dbe660"
+    },
+    {
+      "id": "flandre.young.o_start",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、うごかないでまつの？",
+      "chinese": "呜——不动动，等着吗？",
+      "events": [
+        "lesson_start"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_start"
+      },
+      "source_sha256": "2f17e516d6d9ab81bb3f05f8d5e15a29b83f48ff1976e9d455c70d2f935d1b05"
+    },
+    {
+      "id": "flandre.young.o_progress",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちょっとわかった！ もっかい？",
+      "chinese": "懂一点啦！再来吗？",
+      "events": [
+        "lesson_progress"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_progress"
+      },
+      "source_sha256": "c93321909d240937280c2e1de0cc5985695c7ffdb3869bdb69c96e1f69891d0d"
+    },
+    {
+      "id": "flandre.young.o_learned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここでまてるよ。かえってきてね。",
+      "chinese": "呜——在介里等得住。要回来哦。",
+      "events": [
+        "lesson_learned",
+        "wait_learned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_learned"
+      },
+      "source_sha256": "3109f29d395a5f5aff15895bf9b583749f54f2ef18edca4d3e611007288453dd"
+    },
+    {
+      "id": "flandre.young.o_busy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "いま、これちてる。まってね。",
+      "chinese": "现在做介个。等等嘛。",
+      "events": [
+        "busy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_busy"
+      },
+      "source_sha256": "c145399153a534d27dcf4836924dfb47eac0c0d92f3602f9596e8f4b38438a01"
+    },
+    {
+      "id": "flandre.young.o_heard",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きこえたよ。",
+      "chinese": "呜——听见啦。",
+      "events": [
+        "heard"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_heard"
+      },
+      "source_sha256": "562892e790b766f7a5c91029c7b4181870fd820eb8248438c38e286278809e50"
+    },
+    {
+      "id": "flandre.young.o_newborn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ここどこ？",
+      "chinese": "呜——介里是哪？",
+      "events": [
+        "newborn"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_newborn"
+      },
+      "source_sha256": "98c6afa5f32584431b639726c4c4597c912f47a023f769dd3b57c7d4edac78b1"
+    },
+    {
+      "id": "flandre.young.o_grown",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おっきい！ ここ、とどく？",
+      "chinese": "呜——大大啦！介里，碰得到吗？",
+      "events": [
+        "grown"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_grown"
+      },
+      "source_sha256": "a369cc2fa25bc059a9b7995841b9b844a1f3dd6bc04ddc3ae58d123d9bac8bc3"
+    },
+    {
+      "id": "flandre.young.o_courtship",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いっちょにくらしていい？",
+      "chinese": "呜——能一起生活吗？",
+      "events": [
+        "courtship"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_courtship"
+      },
+      "source_sha256": "ff5e6ed3bdb0a53fdb75030e8085c56aa26dced7edcae59019002893512bf54f"
+    },
+    {
+      "id": "flandre.young.o_brood",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ちいさいこ、ここにいるよ。",
+      "chinese": "小小孩，在介里陪着哦。",
+      "events": [
+        "expecting",
+        "birth"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_brood"
+      },
+      "source_sha256": "88880d9e8f21c800daa781fafdb8854c6b53c60c9c9278d9986902ad7373922a"
+    },
+    {
+      "id": "flandre.young.o_wait_family",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、みんなきた？ まだまつ？",
+      "chinese": "呜——大家来啦？还等吗？",
+      "events": [
+        "wait_family"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_wait_family"
+      },
+      "source_sha256": "6ff72c5f57b0dcd55feda91d18e77433c6e43e3082698b969080fd978defbfa0"
+    },
+    {
+      "id": "flandre.young.o_parent",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おやしゃん、どこ？ おこえききたい。",
+      "chinese": "呜——亲亲油，在哪？想听声音音。",
+      "events": [
+        "lost_parent"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_parent"
+      },
+      "source_sha256": "9b59553e4412460447bd94d8323ed876acee647099f49fbebd511bdaa4194a30"
+    },
+    {
+      "id": "flandre.young.o_grief",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……もうおはなちできないの？",
+      "chinese": "呜——……不能再说话话吗？",
+      "events": [
+        "family_died"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_grief"
+      },
+      "source_sha256": "93a7fa965a7ad7f80865dcd28ce801a9226d5aea93bafec60bb7cda94eef0683"
+    },
+    {
+      "id": "flandre.young.o_nuzzle",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちゅりちゅりしていい？",
+      "chinese": "呜——可以蹭蹭吗？",
+      "events": [
+        "nuzzle",
+        "want_nuzzle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_nuzzle"
+      },
+      "source_sha256": "148c74f19fe30284cf9dcb73db4b576c6c0411355a5e50cb8d428de51f08700a"
+    },
+    {
+      "id": "flandre.young.o_content",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、たのちかった！ またいっちょ！",
+      "chinese": "呜——好开心！下次一起！",
+      "events": [
+        "nuzzle_done",
+        "leisure_done"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_content"
+      },
+      "source_sha256": "9d89a2b2e9e4c80a1494e64110e71953f7b6e062d7f6959ae810bd4c7cf5644f"
+    },
+    {
+      "id": "flandre.young.o_puff",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃんもここ！",
+      "chinese": "呜——！芙呀也在介里！",
+      "events": [
+        "puff"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_puff"
+      },
+      "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7"
     }
   ]
 }

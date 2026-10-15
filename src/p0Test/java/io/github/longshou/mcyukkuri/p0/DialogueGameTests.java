@@ -21,6 +21,71 @@ public final class DialogueGameTests {
         for (var line : NativeDialogue.lines()) if (!line.sound().isEmpty()) {
             helper.assertTrue(io.github.longshou.mcyukkuri.registry.ModSounds.paths().contains(line.sound()), "Dialogue sound registered: " + line.id());
         }
+        helper.assertTrue(NativeDialogue.lines().stream().filter(line -> !line.sound().isEmpty()).count() == 288,
+                "The 288 recorded lines remain voiced");
+        helper.assertTrue(io.github.longshou.mcyukkuri.registry.ModSounds.paths().size() == 290,
+                "Original subtitles do not manufacture sound registrations");
+        for (var line : NativeDialogue.lines()) if (line.sound().isEmpty()) {
+            boolean predator = java.util.Set.of("remilia", "flandre").contains(line.species());
+            boolean settlement = line.events().stream().allMatch(java.util.Set.of("settlement_shun", "settlement_drive",
+                    "settlement_hurt", "settlement_assign", "settlement_submit")::contains);
+            helper.assertTrue(line.key().startsWith("dialogue.mcyukkuri.original.") && (predator || settlement),
+                    "Only explicitly authored subtitle groups may be unvoiced: " + line.id());
+        }
+        helper.succeed();
+    }
+
+    @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=20, batch="dialogue_predators")
+    public static void predatorSpeech(GameTestHelper helper) {
+        var expected = java.util.Set.of("hello", "introduced", "peer", "known_peer", "idle", "hungry", "food_found",
+                "take_food", "chew", "fed", "share", "wait_turn", "mine", "need_toilet", "toilet_done", "washed",
+                "sleep", "awake", "gentle", "caregiver", "cold", "shy", "afraid", "wounded", "treated", "lost_accessory",
+                "returned_accessory", "unrecognized", "toy", "exercise", "lesson_refused", "lesson_start", "lesson_progress",
+                "lesson_learned", "wait_learned", "busy", "heard", "newborn", "grown", "courtship", "expecting", "birth",
+                "wait_family", "lost_parent", "family_died", "nuzzle", "want_nuzzle", "nuzzle_done", "leisure_done", "puff");
+        for (var type : java.util.List.of(ModEntities.REMILIA.get(), ModEntities.FLANDRE.get())) {
+            for (String mode : java.util.List.of("ADULT", "BABY", "JUVENILE", "ADULT_JUVENILE_VOICE", "ADULT_BABY_TALK")) {
+                // Selection and admission need a server level, but no ticking entity or forced chunk.
+                var speaker = type.create(helper.getLevel());
+                helper.assertTrue(speaker != null, "Predator speaker created");
+                var family = speaker.family().save();
+                boolean adult = mode.startsWith("ADULT");
+                family.putString("Stage", adult ? "ADULT" : mode);
+                family.putBoolean("JuvenileVoice", mode.equals("ADULT_JUVENILE_VOICE"));
+                family.putBoolean("BabyTalk", false);
+                speaker.family().load(family);
+                if (mode.equals("ADULT_BABY_TALK")) {
+                    helper.assertTrue(speaker.family().applyBabyTalk(), "Adult baby-talk state applied");
+                    helper.assertTrue(speaker.family().adult(), "Baby-talk changes voice, not biological adulthood");
+                }
+                boolean young = !mode.equals("ADULT");
+                helper.assertTrue(speaker.family().youngVoice() == young, "Actual age/voice rule: " + mode);
+                String species = speaker.getVariant().dialogueSpecies();
+                String age = young ? "young" : "adult";
+                for (String event : expected) {
+                    var line = NativeDialogue.select(species, speaker.family().youngVoice(), event, speaker.getRandom());
+                    helper.assertTrue(line != null, species + "/" + mode + " missing " + event);
+                    helper.assertTrue(line.species().equals(species) && line.age().equals(age), "No borrowed species or age");
+                    helper.assertTrue(line.key().startsWith("dialogue.mcyukkuri.original." + species + "." + age + ".")
+                            && line.sound().isEmpty(), "Predator original subtitle has no invented voice: " + line.id());
+                }
+                helper.assertTrue(NativeDialogue.select(species, young, "house_pickup", speaker.getRandom()) == null,
+                        "No house-yukkuri event is assigned to predators");
+                helper.assertTrue(NativeDialogue.select(species, young, "settlement_assign", speaker.getRandom()) == null,
+                        "No ordinary settlement role is assigned to predators");
+                helper.assertTrue(speaker.speak("hello"), "Unvoiced greeting still appears");
+                helper.assertTrue(speaker.getDialogueKey().contains(species + "." + age + "."), "Entity uses its actual voice state");
+                int sequence = speaker.speechSequence();
+                helper.assertTrue(!speaker.speak("hello"), "Unvoiced duplicate does not restart");
+                helper.assertTrue(speaker.speak("wounded") && speaker.speechSequence() == sequence + 1,
+                        "Urgent unvoiced reaction interrupts the greeting");
+                CompoundTag saved = new CompoundTag(); speaker.saveWithoutId(saved);
+                var restored = type.create(helper.getLevel()); restored.load(saved);
+                helper.assertTrue(restored.family().youngVoice() == young, "Voice state survives reload: " + mode);
+                helper.assertTrue(restored.getDialogueKey().isEmpty(), "Reload does not replay an old subtitle");
+                speaker.discard(); restored.discard();
+            }
+        }
         helper.succeed();
     }
 
