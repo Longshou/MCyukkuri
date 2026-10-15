@@ -59,8 +59,12 @@ public final class ShedStemGameTests {
             }
             var first=origin;var second=origin.east(3);
             level.setBlockAndUpdate(first,ModBlocks.NEST.get().defaultBlockState());level.setBlockAndUpdate(second,ModBlocks.NEST.get().defaultBlockState());
+            // Ordinary nests need a real covered entrance, just like player-provided homes.
+            for(var home:java.util.List.of(first,second))for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)
+                level.setBlockAndUpdate(home.offset(x,3,z),Blocks.STONE.defaultBlockState());
             parents[0]=parent(level,false,origin.offset(0,0,-1));parents[1]=parent(level,true,origin.offset(2,0,-1));
             actors.add(parents[0]);actors.add(parents[1]);
+            h.assertTrue(parents[0].life().entrance(first)!=null&&parents[1].life().entrance(second)!=null,"physical roofs provide both nests with dry covered entrances");
             h.assertTrue(parents[0].life().assignHome(GlobalPos.of(level.dimension(),first))&&parents[1].life().assignHome(GlobalPos.of(level.dimension(),second)),"real parents own physical homes");
             YukkuriWorldData.get(level).relate(parents[0].getUUID(),parents[1].getUUID(),30);
             YukkuriWorldData.get(level).relate(parents[1].getUUID(),parents[0].getUUID(),30);

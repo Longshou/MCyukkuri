@@ -299,10 +299,13 @@ public final class FamilyGameTests {
         // Courtship includes real navigation. Observe conception instead of assuming
         // it always finishes exactly 220 ticks after both goals become available.
         // The unchanged overall 6000-tick GameTest deadline still catches failure.
-        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null,
-                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()));
+        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null||b.family().brood()!=null,
+                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()+" / "+b.family().save()));
         later(1,"natural court",()-> {
+            // UUID order chooses the courtship initiator, not the reproductive mother.
+            if(a.family().brood()==null&&b.family().brood()!=null){var swap=a;a=b;b=swap;}
             pregnancy=a.family().brood();check("actual family goal conceives after courtship",pregnancy!=null,a.getBehaviorId()+" / "+a.family().save());
+            check("natural birth is observed on its recorded mother",pregnancy!=null&&pregnancy.mother.equals(a.getUUID()),pregnancy==null?"missing":pregnancy.mother);
             if(pregnancy==null)return;batches.add(pregnancy);pregnancy.duration=200;pregnancy.elapsed=20;
             naturalStartTick=helper.getTick();
             life(a,t->t.putFloat("Nutrition",90));life(b,t->t.putFloat("Nutrition",90));

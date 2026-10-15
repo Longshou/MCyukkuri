@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.settlement.NaturalShelter;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
@@ -103,9 +104,11 @@ public final class IndependenceGameTests {
                 level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.GRASS_BLOCK.defaultBlockState());
                 for(int y=65;y<=69;y++) level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
             }
-            NaturalShelterFixture.cave(level,ORIGIN.south(),Direction.SOUTH);
-            NaturalShelterFixture.cave(level,DESTINATION.south(),Direction.SOUTH);
-            old[0] = ShelterPlacement.place(level,new ShelterPlacement.Plan(ORIGIN,ShelterBlock.Kind.BURROW,Direction.SOUTH)).shelter();
+            var oldPlan = cavePlan(helper,ORIGIN,2);
+            cavePlan(helper,DESTINATION,1);
+            var placed = ShelterPlacement.place(level,oldPlan);
+            helper.assertTrue(placed != null,"The surveyed original cave accepts its real leaf-bed marker");
+            old[0] = placed.shelter();
             old[0].initializeEncounter(2);
             var parent = ModEntities.REIMU.get().create(level); parent.moveTo(Vec3.atBottomCenterOf(ORIGIN)); parent.setNoAi(true); level.addFreshEntity(parent); actors.add(parent);
             var y = ModEntities.MARISA.get().create(level); y.moveTo(Vec3.atBottomCenterOf(ORIGIN.south())); y.setOnGround(true); level.addFreshEntity(y); actors.add(y); child[0] = y;
@@ -116,6 +119,10 @@ public final class IndependenceGameTests {
             var group = new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,ORIGIN,null); groups.add(group.id);
             SettlementData.get(level).add(group); parent.settlement().join(group); y.settlement().join(group);
             helper.assertTrue(parent.habitat().choose(old[0]) && y.habitat().choose(old[0]),"Real related residents claim separate beds");
+            var parentBed = old[0].bed(parent.getUUID()); var childBed = old[0].bed(y.getUUID());
+            helper.assertTrue(parentBed != null && childBed != null && !parentBed.equals(childBed),"The two residents own distinct surveyed standing cells");
+            helper.assertTrue(y.life().reachable(DESTINATION,false) && y.life().reachable(DESTINATION.south(),false),
+                    "The adult builder can physically reach the new cave marker and outside entrance");
             var life = y.life().save(); life.putFloat("Nutrition",100); life.putFloat("Energy",100); life.putFloat("Bladder",0); y.life().load(life);
             helper.assertTrue(y.independence().eligible(),"Normal adult natural child can consider independence");
             var human = HumanCommerce.data(y).copy(); HumanCommerce.assign(y,UUID.randomUUID(),"companion");
@@ -179,6 +186,20 @@ public final class IndependenceGameTests {
                     && child[0].distanceToSqr(Vec3.atBottomCenterOf(stand)) < 1,"After visit reload, the same entity walks back to its own home");
         }).thenExecute(() -> weatherAndPaper(helper,old[0],actors))
         .thenSucceed();
+    }
+    private static ShelterPlacement.Plan cavePlan(GameTestHelper helper,BlockPos anchor,int beds) {
+        var level = helper.getLevel();
+        helper.assertTrue(level.isPositionEntityTicking(anchor),"Cave anchor is entity-ticking before terrain and placement checks");
+        // cave() takes the mouth/leaf-marker cell itself; its outside entrance is one cell south.
+        NaturalShelterFixture.cave(level,anchor,Direction.SOUTH);
+        var site = NaturalShelter.survey(level,anchor,Direction.SOUTH);
+        helper.assertTrue(site != null,"Existing cavity must survey at the actual mouth, not one cell behind it");
+        helper.assertTrue(site.entrance().equals(anchor.south()) && site.beds().size() >= beds
+                && NaturalShelter.stand(level,site.entrance()) && !NaturalShelter.enclosed(level,site.entrance()),
+                "Cave has sufficient real beds and a clear outside entrance");
+        var plan = new ShelterPlacement.Plan(anchor,ShelterBlock.Kind.BURROW,Direction.SOUTH);
+        helper.assertTrue(ShelterPlacement.canPlace(level,plan),"Surveyed cave satisfies unchanged production placement constraints");
+        return plan;
     }
     private static void readyVisit(YukkuriEntity y) {
         var visit = y.independence().save(); visit.putInt("VisitWait",0); visit.putInt("Wait",0); visit.putBoolean("Returning",false);

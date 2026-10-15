@@ -17,11 +17,11 @@ final class ShellWeatherChecks {
         var pos = new BlockPos(3545, 65, 9);
         var roof = pos.above(3);
         var beforeBlocks = new LinkedHashMap<BlockPos, BlockState>();
+        var beforeBiomes = new LinkedHashMap<BlockPos, String>();
         boolean forced = level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(221, 0));
         boolean rain = level.isRaining(), thunder = level.isThundering();
         float rainLevel = level.getRainLevel(1), thunderLevel = level.getThunderLevel(1);
         long time = level.getDayTime();
-        String biome = level.registryAccess().registryOrThrow(Registries.BIOME).getKey(level.getBiome(pos).value()).toString();
         var actor = new YukkuriEntity[1];
         var initialAge = new long[1];
         var done = new boolean[1];
@@ -30,7 +30,7 @@ final class ShellWeatherChecks {
             done[0] = true;
             if (actor[0] != null) actor[0].discard();
             beforeBlocks.forEach(level::setBlockAndUpdate);
-            biome(level, biome);
+            beforeBiomes.forEach((cell, id) -> fillBiome(level, cell, cell.offset(3, 3, 3), id));
             level.setDayTime(time); level.updateSkyBrightness();
             level.setWeatherParameters(rain ? 0 : 12000, rain ? 12000 : 0, rain, thunder);
             level.setRainLevel(rainLevel); level.setThunderLevel(thunderLevel);
@@ -45,6 +45,13 @@ final class ShellWeatherChecks {
         GameTestChunks.setForced(level, 221, 0, true);
         helper.startSequence().thenWaitUntil(() -> helper.assertTrue(level.isPositionEntityTicking(pos), "waiting for shell weather arena"))
             .thenExecute(() -> {
+                // BiomeManager samples eight neighboring quart cells after subtracting two blocks.
+                // Save those exact cells; sampling a single block does not identify every original cell.
+                var registry = level.registryAccess().registryOrThrow(Registries.BIOME);
+                for (int x=3540;x<=3544;x+=4) for (int y=60;y<=64;y+=4) for (int z=4;z<=8;z+=4) {
+                    var cell = new BlockPos(x,y,z);
+                    beforeBiomes.put(cell, registry.getKey(level.getChunkAt(cell).getNoiseBiome(x>>2,y>>2,z>>2).value()).toString());
+                }
                 for (var p : BlockPos.betweenClosed(pos.offset(-2, -1, -2), pos.offset(2, 31, 2))) {
                     beforeBlocks.put(p.immutable(), level.getBlockState(p));
                     level.setBlockAndUpdate(p, p.getY() == 64 ? Blocks.STONE.defaultBlockState() : Blocks.AIR.defaultBlockState());
@@ -63,8 +70,10 @@ final class ShellWeatherChecks {
                 helper.assertTrue(!y.shellRetraction().exposedRain(), "roof blocks the rain trigger");
                 level.setBlockAndUpdate(roof, Blocks.AIR.defaultBlockState());
                 biome(level, "minecraft:desert");
+                helper.assertTrue(level.getBiome(pos).is(net.minecraft.world.level.biome.Biomes.DESERT), "all local biome samples are desert");
                 helper.assertTrue(!y.shellRetraction().exposedRain(), "desert weather is not local rain");
                 biome(level, "minecraft:snowy_plains");
+                helper.assertTrue(level.getBiome(pos).is(net.minecraft.world.level.biome.Biomes.SNOWY_PLAINS), "all local biome samples are snowy plains");
                 helper.assertTrue(!y.shellRetraction().exposedRain(), "snowfall is not local rain");
                 biome(level, "minecraft:plains");
             }).thenIdle(45).thenExecute(() -> {
@@ -148,7 +157,10 @@ final class ShellWeatherChecks {
     }
 
     private static void biome(net.minecraft.server.level.ServerLevel level, String id) {
+        fillBiome(level, new BlockPos(3540,60,4), new BlockPos(3547,67,11), id);
+    }
+    private static void fillBiome(net.minecraft.server.level.ServerLevel level, BlockPos min, BlockPos max, String id) {
         level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withLevel(level).withPermission(4),
-                "fillbiome 3544 64 8 3547 67 11 " + id);
+                "fillbiome " + min.getX()+" "+min.getY()+" "+min.getZ()+" "+max.getX()+" "+max.getY()+" "+max.getZ()+" "+id);
     }
 }

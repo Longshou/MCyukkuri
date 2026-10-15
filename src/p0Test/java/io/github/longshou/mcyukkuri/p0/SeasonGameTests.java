@@ -208,7 +208,9 @@ public final class SeasonGameTests {
         }).thenSucceed();
     }
     private static void realRefuges(GameTestHelper helper, HashMap<BlockPos, BlockState> blocks, ArrayList<YukkuriEntity> actors) {
-        var level = helper.getLevel(); var shade = new BlockPos(2808, 65, 8); var sun = shade.west(5); var root = shade.east(6);
+        var level = helper.getLevel(); var shade = new BlockPos(2808, 65, 8); var root = shade.east(6);
+        // The owner starts outdoors in front of the door, within its normal path search range.
+        var sun = root.south(5);
         for (var pos : BlockPos.betweenClosed(shade.offset(-10, -1, -10), shade.offset(10, 4, 10))) {
             blocks.put(pos.immutable(), level.getBlockState(pos));
             level.setBlockAndUpdate(pos, pos.getY() == 64 ? Blocks.STONE.defaultBlockState() : Blocks.AIR.defaultBlockState());
@@ -228,7 +230,9 @@ public final class SeasonGameTests {
         helper.assertTrue(thermal.plan() && thermal.activity().equals("seek_shade"), "Actual summer conditions drive existing refuge planning");
         thermal.stop();
         var placed = ShelterPlacement.place(level, new ShelterPlacement.Plan(root, ShelterBlock.Kind.CARDBOARD, Direction.SOUTH));
-        helper.assertTrue(placed != null && actor.habitat().choose(placed.shelter()), "Actor can use a real owned winter shelter");
+        helper.assertTrue(placed != null && placed.shelter().sound(), "Real winter shelter is complete and dry");
+        helper.assertTrue(actor.life().dryStand(root) && actor.life().reachable(root, false), "Outdoor actor has a real path through the shelter entrance");
+        helper.assertTrue(actor.habitat().choose(placed.shelter()), "Actor can claim a real reachable winter shelter");
         for (int i = 0; i < 3; i++) placed.shelter().deposit(new ItemStack(Items.PAPER));
         long age = actor.family().age(); float nutrition = actor.life().nutrition(); int exposure = thermal.coldExposure();
         setSeason(level, Season.WINTER);

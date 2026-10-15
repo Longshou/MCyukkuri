@@ -317,9 +317,10 @@ public final class ConsumableGameTests {
             check("unborn morph survives save and selects the matching model "+assets[scene],saved.brood(brood.id).children.getFirst().subspeciesFlags==shapes[scene]&&mother.liveChildAssetId(0).equals(assets[scene]));
             if(scene==0){
                 child.subspeciesFlags=0;var normal=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(mother,0);
-                double normalTop=normal.y+ModEntities.REIMU.get().getDimensions().height()*.18;
+                double normalTop=normal.y+io.github.longshou.mcyukkuri.family.LiveBirthGeometry.childDimensions(child,mother.getScale()).height();
                 child.subspeciesFlags=48;var bean=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.position(mother,0);
-                double beanTop=bean.y+ModEntities.REIMU.get().getDimensions().height()*.18*1.55;
+                double beanTop=bean.y+io.github.longshou.mcyukkuri.family.LiveBirthGeometry.childDimensions(child,mother.getScale()).height();
+                check("fixture lip can separate the current ordinary and bean newborn heights",beanTop>normalTop);
                 var overhang=net.minecraft.world.entity.EntityType.SHULKER.create(level);
                 overhang.setNoAi(true);overhang.setNoGravity(true);overhang.moveTo(bean.x,(normalTop+beanTop)*.5,bean.z+.45,0,0);level.addFreshEntity(overhang);
                 // Shulkers snap their location to a block on addition; the fixture needs an exact low lip.
