@@ -666,7 +666,9 @@ public final class FamilyLife {
             }
             case FOLLOW -> {
                 if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<2.25){stop();return;}
-                entity.getLookControl().setLookAt(target,20,20);if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
+                var bank=target.getVehicle() instanceof HatBoatEntity && target.aquaticLife().awaiting(entity)?target.aquaticLife().boardingBank():null;
+                entity.getLookControl().setLookAt(target,20,20);
+                if(taskTicks%10==1&&!entity.life().navigate(bank==null?target.blockPosition():bank,1.15,false))stop();
             }
             case WAIT_CHILD -> {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);

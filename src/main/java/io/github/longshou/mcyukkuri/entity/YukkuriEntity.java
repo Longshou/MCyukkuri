@@ -60,6 +60,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private static final EntityDataAccessor<Long> SPEECH_END = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> SPEECH_SEQUENCE = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> MOUTH = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<ItemStack> AQUATIC_SERVING = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<Integer> AQUATIC_CHILD = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MEDAL = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> ACCESSORY = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> GROWTH_SCALE = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.FLOAT);
@@ -200,6 +202,8 @@ public final class YukkuriEntity extends PathfinderMob {
     public long speechEnd() { return entityData.get(SPEECH_END); }
     public int speechSequence() { return entityData.get(SPEECH_SEQUENCE); }
     public ItemStack getMouthItem() { return entityData.get(MOUTH); }
+    public ItemStack aquaticServing() { return entityData.get(AQUATIC_SERVING); }
+    public int aquaticChildId() { return entityData.get(AQUATIC_CHILD); }
     public int visibleMedal() { return entityData.get(MEDAL); }
     public boolean hasVisibleAccessory() { return entityData.get(ACCESSORY); }
     public boolean isPanicking() { return panicTicks > 0; }
@@ -333,6 +337,7 @@ public final class YukkuriEntity extends PathfinderMob {
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(ACCESSORY, true);
+        builder.define(AQUATIC_SERVING,ItemStack.EMPTY); builder.define(AQUATIC_CHILD,-1);
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);builder.define(BANDAGED,false);
         builder.define(WOUNDS,new CompoundTag());builder.define(FILLING,12);
@@ -434,6 +439,9 @@ public final class YukkuriEntity extends PathfinderMob {
         subspecies.tick();aquaticLife.clock();life.tick(); badges.tick(); social.tick();operations.tick(); family.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
         entityData.set(CARRYING,(variant.isHouse()?house.carrying():habitat.carrying()).copy());
         entityData.set(NUZZLE_PARTNER,dailyLife.nuzzlePartnerId());
+        if (!ItemStack.matches(entityData.get(AQUATIC_SERVING),aquaticLife.care().serving()))
+            entityData.set(AQUATIC_SERVING,aquaticLife.care().serving().copy());
+        entityData.set(AQUATIC_CHILD,aquaticLife.care().childId());
         body.tick();syncBody();
         surfaceLife.tick();
         if(!isAlive())return;
@@ -501,9 +509,11 @@ public final class YukkuriEntity extends PathfinderMob {
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
-        // Young in a hat (boat or cradle): just born, asleep at night, else rocked in it.
-        return reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE
-                : life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? YukkuriAction.EAT : YukkuriAction.HAT_CRADLE;
+        // Real sleep, meals and ongoing care win over a lingering newborn reaction.
+        return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? YukkuriAction.EAT
+                : behavior.equals("boat_listen") ? YukkuriAction.SWAY
+                : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
+                : reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */

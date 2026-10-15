@@ -106,8 +106,10 @@ public final class NotebookItem extends Item {
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
                 io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity)));
         if (io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
-                || entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity)
+                || entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity) {
             pages.add(1, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquatic(entity));
+            pages.add(2, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquaticFamily(entity));
+        }
         return List.copyOf(pages);
     }
     private static Component identity(java.util.UUID id) {

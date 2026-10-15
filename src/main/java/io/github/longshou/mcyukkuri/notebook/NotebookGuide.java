@@ -14,7 +14,7 @@ import net.minecraft.world.item.component.CustomData;
 public final class NotebookGuide {
     public static List<Component> pages(ItemStack notebook) {
         List<Component> pages = new ArrayList<>();
-        for (String chapter : List.of("start", "route", "discovery", "care", "water", "aquatic", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community"))
+        for (String chapter : List.of("start", "route", "discovery", "care", "water", "aquatic", "aquatic_family", "social", "home", "family", "birth", "house", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community"))
             pages.add(Component.translatable("notebook.mcyukkuri.chapter." + chapter));
         CompoundTag seen = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedSpecies");
         for (YukkuriVariant variant : YukkuriVariant.values()) {
@@ -64,6 +64,13 @@ public final class NotebookGuide {
                 boat.cargo().paddle()?"✓":"—",boat.cargo().count(),io.github.longshou.mcyukkuri.subspecies.HatBoatCargo.CAPACITY,
                 boat.youngAboard(),io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG,
                 Component.translatable("activity.mcyukkuri."+entity.getBehaviorId()));
+    }
+    public static Component aquaticFamily(YukkuriEntity entity) {
+        var owner = entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+                && boat.getControllingPassenger() instanceof YukkuriEntity parent ? parent : entity;
+        var life = owner.aquaticLife(); var care = life.care();
+        return Component.translatable("notebook.mcyukkuri.aquatic_family",life.provisions(),care.meals(),care.comforts(),care.songs(),
+                care.serving().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):care.serving().getHoverName());
     }
     private NotebookGuide() {}
 }

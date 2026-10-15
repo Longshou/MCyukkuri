@@ -18,6 +18,7 @@ public final class P0Mod {
             if("wild_events".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(WildEventGameTests.class));return;}
             if("living".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(LivingGameTests.class));return;}
             if("subspecies".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SubspeciesGameTests.class));return;}
+            if("aquatic_family".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(AquaticFamilyGameTests.class));return;}
             if("predators".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PredatorGameTests.class));return;}
             if("dialogue".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(DialogueGameTests.class));return;}
             if("freezer".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(FreezerGameTests.class));return;}
@@ -61,6 +62,7 @@ public final class P0Mod {
             modBus.addListener((RegisterGameTestsEvent event)->event.register(WaddleGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(PredatorGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(SubspeciesGameTests.class));
+            modBus.addListener((RegisterGameTestsEvent event)->event.register(AquaticFamilyGameTests.class));
             NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event)->WaddlePreview.tick(event.getServer()));
             NeoForge.EVENT_BUS.addListener(server::started);
             NeoForge.EVENT_BUS.addListener(server::tick);

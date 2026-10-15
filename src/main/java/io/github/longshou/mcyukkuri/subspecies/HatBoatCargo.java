@@ -51,6 +51,14 @@ public final class HatBoatCargo {
         }
         return false;
     }
+    /** Reserve one real serving in the parent's braid; the care session owns it until transfer or refund. */
+    public ItemStack takeMeal(YukkuriEntity rider) {
+        if (boat.level().isClientSide || rider.getVehicle() != boat || !rider.life().canEat() || rider.life().isSleeping()) return ItemStack.EMPTY;
+        for (var stack : food) if (rider.life().acceptsFood(stack)) {
+            var one = stack.split(1); food.removeIf(ItemStack::isEmpty); changed(); return one;
+        }
+        return ItemStack.EMPTY;
+    }
     /** Put provisions back on dry land or scatter them on capsize; clear before spawning to prevent duplication. */
     public void spill() {
         spillAt(boat.position());

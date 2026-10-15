@@ -109,6 +109,16 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             var root=model.rootPose();
+            if (!entity.aquaticServing().isEmpty() && action.equals("boat_feed_young")) {
+                var grip = model.paddlePose();
+                if (grip != null) {
+                    pose.pushPose(); pose.translate(grip.m30(),grip.m31()+.04,grip.m32()-.06);
+                    pose.mulPose(Axis.XP.rotationDegrees(-20)); pose.scale(.28f,.28f,.28f);
+                    Minecraft.getInstance().getItemRenderer().renderStatic(entity.aquaticServing(),ItemDisplayContext.FIXED,
+                            packedLight,overlay,pose,buffers,entity.level(),entity.getId());
+                    pose.popPose();
+                }
+            }
             if (action.equals("boat_paddle") && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                     && boat.cargo().paddle() && entity.getUUID().equals(boat.ownerYukkuri())) {
                 var grip = model.paddlePose();
@@ -173,6 +183,15 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);
         float wave=(float)Math.sin(phaseTicks*Math.PI/20);
+        if (!operated && (behavior.equals("boat_feed_young") || behavior.equals("boat_nuzzle"))
+                && entity.level().getEntity(entity.aquaticChildId()) instanceof YukkuriEntity young
+                && entity.getVehicle() != null && entity.getVehicle() == young.getVehicle()) {
+            // Turn only the seated model toward this child. Changing the captain's body yaw would steer the whole boat.
+            var delta = young.getPosition(partialTick).subtract(entity.getPosition(partialTick));
+            float yaw = (float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
+            float blend = Math.min(1,phaseTicks/8)*Math.min(1,Math.max(0,(48-phaseTicks)/8));
+            pose.mulPose(Axis.YP.rotationDegrees(Mth.wrapDegrees(Mth.rotLerp(partialTick,entity.yBodyRotO,entity.yBodyRot)-yaw)*blend));
+        }
         // The nuzzle, sing and sway clips carry the rubbing and swaying; only the approach stays here.
         if(YukkuriModel.get(entity.subspecies().assetId()).hasClip(entity.getAnimationId())&&!contact.equals("RUB"))wave=0;
         if(!operated&&behavior.equals("nuzzle")||contact.equals("RUB")) {
