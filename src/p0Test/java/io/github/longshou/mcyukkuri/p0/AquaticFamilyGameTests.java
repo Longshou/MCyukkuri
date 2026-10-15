@@ -96,11 +96,11 @@ public final class AquaticFamilyGameTests {
     public static void juvenileSailingGateAndBrim(GameTestHelper helper) {
         var child=ModEntities.MARISA.get().create(helper.getLevel());
         child.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
-        var growth=child.family().save();growth.putBoolean("Initialized",true);growth.putString("Stage","JUVENILE");growth.putFloat("Scale",.49f);child.family().load(growth);
+        var growth=child.family().save();growth.putBoolean("Initialized",true);growth.putString("Stage","JUVENILE");growth.putFloat("Scale",.34f);child.family().load(growth);
         var voyage=child.aquaticLife().firstVoyage();
         helper.assertTrue(!voyage.readySize()&&!voyage.mayLaunch(),"small juveniles cannot launch their own hats");
-        growth.putFloat("Scale",.50f);child.family().load(growth);
-        helper.assertTrue(voyage.readySize()&&!voyage.mayLaunch(),"half size still requires the first supervised voyage");
+        growth.putFloat("Scale",.35f);child.family().load(growth);
+        helper.assertTrue(voyage.readySize()&&!voyage.mayLaunch(),"35 percent size still requires the first supervised voyage");
         var saved=voyage.save();saved.putBoolean("InterruptedTrip",true);saved.putLong("Bank",new BlockPos(0,65,0).asLong());
         saved.putLong("Harbor",new BlockPos(1,64,0).asLong());saved.putString("Dimension",helper.getLevel().dimension().location().toString());
         voyage.load(saved);
@@ -116,6 +116,62 @@ public final class AquaticFamilyGameTests {
         }
         helper.assertTrue(io.github.longshou.mcyukkuri.subspecies.HatVessel.brimPlace(3,java.util.List.of())==null,"oversized young never hang beyond the brim");
         helper.succeed();
+    }
+    /** Optional remote regression: five siblings, actual father-boat departure and an interrupted return. */
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=260,batch="aquatic_family")
+    public static void firstVoyageFromFather(GameTestHelper helper) {
+        var level=helper.getLevel();long day=level.getDayTime();int x=X+32;
+        GameTestChunks.setForced(level,x/16,0,true);level.setDayTime(1000);
+        for(var p:BlockPos.betweenClosed(x,64,0,x+15,71,15))
+            level.setBlockAndUpdate(p,p.getY()<=65?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
+        for(var p:BlockPos.betweenClosed(x+4,65,2,x+13,65,13)){
+            level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState());level.setBlockAndUpdate(p.above(5),Blocks.STONE.defaultBlockState());
+        }
+        var father=ModEntities.MARISA.get().create(level);WaddleGameTests.clearGoals(father);
+        father.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
+        var adult=father.family().save();adult.putBoolean("Initialized",true);adult.putString("Stage","ADULT");adult.putFloat("Scale",1);father.family().load(adult);
+        father.moveTo(x+3.5,66,7.5,0,0);level.addFreshEntity(father);nutrition(father,85);
+        var home=HatBoatEntity.createFor(father,new BlockPos(x+5,65,7));helper.assertTrue(home!=null,"father uses his actual hat");
+        home.cargo().givePaddle(new ItemStack(Items.STICK),false);
+        var shore=father.aquaticLife().shore();
+        helper.assertTrue(shore.coastal(new BlockPos(x+3,66,7))&&!shore.coastal(new BlockPos(x,66,7)),"land activity stays in the two-block bank strip");
+        var crossing=new net.minecraft.world.level.pathfinder.Path(java.util.List.of(
+                new net.minecraft.world.level.pathfinder.Node(x+3,66,8),new net.minecraft.world.level.pathfinder.Node(x,66,7),
+                new net.minecraft.world.level.pathfinder.Node(x+3,66,7)),new BlockPos(x+3,66,7),true);
+        helper.assertTrue(!shore.allows(crossing),"a coastal destination cannot hide an inland detour");
+        var strain=shore.save();strain.putInt("LandTicks",600);shore.load(strain);
+        var children=new java.util.ArrayList<YukkuriEntity>();
+        for(int i=0;i<5;i++){
+            var y=ModEntities.MARISA.get().create(level);WaddleGameTests.clearGoals(y);
+            y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
+            var kin=y.family().save();kin.putBoolean("Initialized",true);kin.putString("Stage","JUVENILE");kin.putFloat("Scale",i==0?.35f:.20f);
+            kin.putUUID("Father",father.getUUID());y.family().load(kin);y.moveTo(home.getX(),66,home.getZ(),0,0);level.addFreshEntity(y);nutrition(y,85);
+            helper.assertTrue(home.boardYoung(y),"each of five siblings can board");children.add(y);
+        }
+        var child=children.getFirst();child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
+        helper.onEachTick(()->{
+            if(!father.isAlive()||father.isRemoved())return;
+            if(child.aquaticLife().firstVoyage().active())child.aquaticLife().firstVoyage().tick();
+            if(father.aquaticLife().firstVoyage().active())father.aquaticLife().firstVoyage().tick();
+        });
+        helper.startSequence().thenIdle(40).thenExecute(()->{
+            helper.assertTrue(shore.landTicks()<600,"real dry hat passengers recover land strain");
+            helper.assertTrue(home.onBrim(child)&&child.aquaticLife().firstVoyage().tryStart(),"lesson starts on the father's brim");
+            helper.assertTrue(home.voyageBerth(child)!=null&&!home.hasRoomForYoung(),"five-child manifest retains the pupil's berth");
+        }).thenIdle(100).thenExecute(()->{
+            var own=HatBoatEntity.owned(child);
+            helper.assertTrue(own!=null&&own!=home&&child.getVehicle()==own,"pupil boards its own real hat from the father's boat");
+            helper.assertTrue(home.youngAboard()==4&&!home.hasRoomForYoung()&&home.hasRoomFor(child),"away pupil still occupies the fifth place");
+            helper.assertTrue(father.getVehicle()==home&&children.subList(1,5).stream().allMatch(y->y.getVehicle()==home),"father and four siblings remain afloat");
+            helper.assertTrue(!child.life().hasAccessory()&&own.cargo().paddle()&&!child.aquaticLife().hasStick(),"hat and paddle have one physical owner");
+            child.aquaticLife().firstVoyage().load(child.aquaticLife().firstVoyage().save());
+        }).thenIdle(70).thenExecute(()->{
+            helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,"interrupted pupil returns to the reserved berth");
+            helper.assertTrue(child.life().hasAccessory()&&child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().completed(),"same hat and paddle return without a milestone reward");
+            helper.assertTrue(home.cargo().paddle()&&home.protects(father)&&children.stream().allMatch(home::protects),"all five children remain dry passengers");
+            level.getEntitiesOfClass(Entity.class,new AABB(x,64,0,x+16,75,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
+            level.setDayTime(day);GameTestChunks.setForced(level,x/16,0,false);
+        }).thenSucceed();
     }
     private AquaticFamilyGameTests() {}
 }

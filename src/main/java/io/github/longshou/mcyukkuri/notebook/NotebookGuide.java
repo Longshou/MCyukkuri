@@ -73,7 +73,9 @@ public final class NotebookGuide {
                 care.serving().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):care.serving().getHoverName())
                 .append(Component.translatable("notebook.mcyukkuri.first_voyage",
                         Math.round(entity.family().scale()*100),Math.round(io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE*100),
-                        Component.translatable("notebook.mcyukkuri.first_voyage."+entity.aquaticLife().firstVoyage().status())));
+                        Component.translatable("notebook.mcyukkuri.first_voyage."+entity.aquaticLife().firstVoyage().status())))
+                .append(Component.translatable("notebook.mcyukkuri.aquatic_shore",entity.aquaticLife().shore().landTicks()/20,
+                        io.github.longshou.mcyukkuri.subspecies.AquaticShore.VISIT_TICKS/20));
     }
     private NotebookGuide() {}
 }

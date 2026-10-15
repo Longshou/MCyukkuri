@@ -129,6 +129,7 @@ public final class YukkuriEntity extends PathfinderMob {
         this.house = new io.github.longshou.mcyukkuri.house.HouseLife(this);
         this.body = new io.github.longshou.mcyukkuri.body.BodyLife(this);
         this.operations = new io.github.longshou.mcyukkuri.interaction.OperationLife(this);
+        this.navigation = new io.github.longshou.mcyukkuri.subspecies.AquaticNavigation(this,level);
         this.moveControl = new io.github.longshou.mcyukkuri.house.HouseCrawlControl(this);
         setPathfindingMalus(PathType.WATER, -1);
         setPathfindingMalus(PathType.WATER_BORDER, 8);
@@ -155,7 +156,7 @@ public final class YukkuriEntity extends PathfinderMob {
         navigation.stop();
         entityData.set(PREDATOR_FLIGHT, flying); setNoGravity(flying); fallDistance = 0;
         navigation = flying ? new net.minecraft.world.entity.ai.navigation.FlyingPathNavigation(this, level())
-                : new net.minecraft.world.entity.ai.navigation.GroundPathNavigation(this, level());
+                : new io.github.longshou.mcyukkuri.subspecies.AquaticNavigation(this, level());
         moveControl = flying ? new net.minecraft.world.entity.ai.control.FlyingMoveControl(this, 30, true)
                 : new io.github.longshou.mcyukkuri.house.HouseCrawlControl(this);
         setDeltaMovement(getDeltaMovement().scale(.25));
@@ -513,6 +514,8 @@ public final class YukkuriEntity extends PathfinderMob {
         return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? YukkuriAction.EAT
                 : behavior.equals("boat_listen") ? YukkuriAction.SWAY
                 : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
+                : behavior.equals("voyage_launch") ? YukkuriAction.HAT_OFF_SELF_AQ
+                : behavior.equals("voyage_proud") ? YukkuriAction.SHIAWASE
                 : boat.changingSeat(this) && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this) ? YukkuriAction.BOAT_BOARD
                 : boat.onBrim(this) ? YukkuriAction.HAT_BRIM
                 : reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;

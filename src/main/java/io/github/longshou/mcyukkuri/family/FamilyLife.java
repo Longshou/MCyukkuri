@@ -272,6 +272,16 @@ public final class FamilyLife {
                 HatVessel.solve(entity.position(), hat.toWorld(seat), hat, HatVessel.radius(entity.getBbWidth()), HatVessel.HOP_TMIN));
         flightTick = 0; entity.getNavigation().stop();
     }
+    /** A physical hop between two hats, clearing both brims; leave the source only after reserving the landing. */
+    public boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
+        if (entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
+                || !entity.getUUID().equals(to.ownerYukkuri()) && (!to.young(entity) || !to.hasRoomFor(entity))) return false;
+        var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity):to.reserve(entity,null);
+        var start=entity.position(); var end=to.toWorld(seat); double r=HatVessel.radius(entity.getBbWidth());
+        int duration=Math.max(HatVessel.solve(start,end,from,r,HatVessel.HOP_TMIN),HatVessel.solve(start,end,to,r,HatVessel.HOP_TMIN));
+        from.holdPosition(); to.holdPosition(); entity.stopRiding();
+        flight=new Flight(to.getUUID(),start,seat,null,duration); flightTick=0; entity.getNavigation().stop(); return true;
+    }
     /** One tick along the flight; at its end a young bound for a hat boards it. */
     private boolean tickFlight(){
         if(flight==null)return false;
@@ -371,7 +381,7 @@ public final class FamilyLife {
             }
             entity.showReaction("happy","newborn",100);
         }
-        // AquaticLife owns dusk departures, boarding flights, real sleep and dawn landings.
+        // AquaticLife owns life afloat, boarding flights, real sleep and short shore visits.
         var pendingBrood=brood();var afloat=boatHome();
         if(afloat==null)shoreBound=false;
         else if(pendingBrood!=null&&!pendingBrood.cancelled&&!pendingBrood.complete()&&entity.tickCount%40==0

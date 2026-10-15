@@ -67,6 +67,12 @@ public final class HatBoatCargo {
         if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
         spillAt(owner.position());
     }
+    public void returnToFamily(YukkuriEntity owner, HatBoatEntity home) {
+        for (var stack : food) home.cargo().store(stack,stack.getCount(),false);
+        food.removeIf(ItemStack::isEmpty);
+        // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
+        unload(owner);
+    }
     public void spillAt(net.minecraft.world.phys.Vec3 at) {
         if (boat.level().isClientSide) return;
         var drops = new ArrayList<>(items()); food.clear();

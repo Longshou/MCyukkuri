@@ -125,19 +125,29 @@ public final class HatVessel {
     /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.
      *  This is deliberately separate from newborn delivery: a newborn still lands inside the well. */
     public static Vec3 brimPlace(double r,List<double[]> taken){
+        return brimPlace(r,taken,false);
+    }
+    /** The launching pupil steps to the outer front edge so its small lowered hat clears the father's brim. */
+    public static Vec3 brimPlace(double r,List<double[]> taken,boolean launch){
         double margin=DELIVERY.getAsJsonObject("brim_standing").get("margin").getAsDouble();
         Vec3 best=null; double cost=Double.MAX_VALUE;
         for(double x=-BRIM[0]+r+margin;x<=BRIM[0]-r-margin;x+=STEP)
-            for(double z=-BRIM[1]+r+margin;z<=OPENING[2]-r-margin;z+=STEP){
+            for(double z=-BRIM[1]+r+margin;z<=-2;z+=STEP){
                 boolean supported=true;
                 for(int i=0;i<17&&supported;i++){
                     double px=i==16?x:x+(r+margin)*Math.cos(i*Math.PI/8),pz=i==16?z:z+(r+margin)*Math.sin(i*Math.PI/8);
                     double h=surface(Mode.FLOAT,px,pz); supported=Double.isFinite(h)&&Math.abs(h-FREEBOARD)<1e-6;
                 }
-                if(!supported)continue;
+                // The worn aquatic hat is much wider than the body circle. Keep its front-half layout
+                // clear of the captain and reserve a rectangular footprint, including the looking sway.
+                if(!supported || z+3.4*r>-1.4)continue;
                 boolean free=true;
-                for(var s:taken)if(Math.hypot(x-s[0],z-s[2])<(r+s[3])*1.55){free=false;break;}
-                double c=Math.abs(x)+.25*Math.abs(z-OPENING[2]);
+                for(var s:taken){
+                    boolean overlap=s[1]<FREEBOARD-.1?Math.hypot(x-s[0],z-s[2])<r+s[3]
+                            :Math.abs(x-s[0])<(r+s[3])*2.8&&Math.abs(z-s[2])<(r+s[3])*3.4;
+                    if(overlap){free=false;break;}
+                }
+                double c=launch?Math.abs(x)*.2+z:Math.abs(x)+.25*Math.abs(z-OPENING[2]);
                 if(free&&c<cost){best=new Vec3(x,FREEBOARD,z);cost=c;}
             }
         return best;

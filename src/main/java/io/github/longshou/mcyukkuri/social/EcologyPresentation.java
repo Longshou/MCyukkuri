@@ -48,6 +48,7 @@ public final class EcologyPresentation {
         if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
         if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
         if (behavior.equals("voyage_balance")) return YukkuriAction.BOAT_FIRST_BALANCE;
+        if (behavior.equals("voyage_praise")) return YukkuriAction.BOAT_NUZZLE;
         if (behavior.equals("boat_feed_young")) return YukkuriAction.BOAT_FEED_YOUNG;
         if (behavior.equals("boat_nuzzle")) return YukkuriAction.BOAT_NUZZLE;
         if (behavior.equals("boat_lullaby")) return YukkuriAction.BOAT_LULLABY;

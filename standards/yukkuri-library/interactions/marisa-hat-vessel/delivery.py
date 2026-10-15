@@ -100,18 +100,20 @@ def pack(hat, D, radii, region):
     return [t[:3] for t in taken]
 
 
-def brim_place(hat, D, r, taken=()):
+def brim_place(hat, D, r, taken=(), launch=False):
     """HatVessel.brimPlace, including whole-footprint support and room for siblings' hats."""
     margin = D['brim_standing']['margin']; step = D['step']
     half = max(abs(b[i]) for b in hat.brims for i in (0, 1)); front = min(b[2] for b in hat.brims)
     best = None; x = -half+r+margin
     while x <= half-r-margin:
         z = front+r+margin
-        while z <= hat.opening[2]-r-margin:
+        while z <= -2:
             samples = [(x, z)]+[(x+(r+margin)*math.cos(i*math.pi/8), z+(r+margin)*math.sin(i*math.pi/8)) for i in range(16)]
             supported = all(hat.surface(px, pz) is not None and abs(hat.surface(px, pz)-hat.top) < 1e-6 for px, pz in samples)
-            free = all(math.hypot(x-s[0], z-s[2]) >= (r+s[3])*1.55 for s in taken)
-            cost = abs(x)+.25*abs(z-hat.opening[2])
+            supported = supported and z+3.4*r <= -1.4
+            free = all(math.hypot(x-s[0], z-s[2]) >= r+s[3] if s[1] < hat.top-.1 else
+                       abs(x-s[0]) >= (r+s[3])*2.8 or abs(z-s[2]) >= (r+s[3])*3.4 for s in taken)
+            cost = abs(x)*.2+z if launch else abs(x)+.25*abs(z-hat.opening[2])
             if supported and free and (best is None or cost < best[0]): best = (cost, x, hat.top, z)
             z += step
         x += step
