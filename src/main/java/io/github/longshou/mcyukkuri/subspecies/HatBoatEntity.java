@@ -157,7 +157,9 @@ public final class HatBoatEntity extends Entity {
     /** Server: young aboard without a place (after loading) get one; afloat, at dusk and dawn they all move (before the
      *  owner by day, under her at night). */
     private void tendSeats() {
-        var young = youngPassengers(); boolean moved = !region().equals(seatRegion) && !catches(); seatRegion = region();
+        var young = youngPassengers();
+        boolean resized = young.stream().anyMatch(p -> seats.containsKey(p.getUUID()) && Math.abs(seats.get(p.getUUID())[3]-radiusOf(p))>.001);
+        boolean moved = resized || !region().equals(seatRegion) && !catches(); seatRegion = region();
         if (moved) seats.clear();
         boolean changed = moved;
         for (var p : young) if (!seats.containsKey(p.getUUID())) {
@@ -399,6 +401,10 @@ public final class HatBoatEntity extends Entity {
     /** Reserve all dry places before returning the token or moving anybody. */
     private java.util.Map<UUID,Vec3> landingSpots(BlockPos stand, Entity owner) {
         if (!(level() instanceof ServerLevel server)) return null;
+        // Waking may grow a juvenile. Reserve using the resulting dimensions, not yesterday's smaller body.
+        if (owner instanceof YukkuriEntity y) y.life().wakeInHat();
+        for (var id : crew) if (server.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.distanceToSqr(this)<=64)
+            child.life().wakeInHat();
         var result=new java.util.LinkedHashMap<UUID,Vec3>();
         var used=new java.util.ArrayList<net.minecraft.world.phys.AABB>();
         used.add(owner.getBoundingBox().move(Vec3.atBottomCenterOf(stand).subtract(owner.position())).inflate(.04));
@@ -438,7 +444,7 @@ public final class HatBoatEntity extends Entity {
             return InteractionResult.PASS;
         }
         if (level().isClientSide) return InteractionResult.SUCCESS;
-        if (player.distanceToSqr(this)>36 || catches()) return InteractionResult.PASS;
+        if (catches()) return recoverOrphans(player) ? InteractionResult.CONSUME : InteractionResult.PASS;
         if (rescue(player.blockPosition(), player.getUUID())) return InteractionResult.CONSUME;
         if (recoverOrphans(player)) return InteractionResult.CONSUME;
         pullTarget = player.position(); pullTicks = 100; return InteractionResult.CONSUME;
