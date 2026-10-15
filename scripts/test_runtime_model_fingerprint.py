@@ -4,6 +4,9 @@ import hashlib
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
+
+import export_badges
 from runtime_model_fingerprint import matches_model_fingerprint
 
 
@@ -29,6 +32,28 @@ class ModelFingerprintTests(unittest.TestCase):
                 self.assertTrue(matches_model_fingerprint(model, data["runtimeSourceHash"]))
                 self.assertFalse(matches_model_fingerprint(model + b" ", data["runtimeSourceHash"]))
 
+
+    def test_badge_export_preserves_newlines_but_rejects_geometry_drift(self):
+        name = 'accessory_marisa_sparse'
+        assets = export_badges.ASSETS
+        model_path = assets / 'yukkuri_props' / (name + '.json')
+        raw = model_path.read_bytes().replace(b'\r\n', b'\n')
+        specs = json.loads((export_badges.ROOT / 'art/source/rounded-runtime/attachments.json').read_text())['badge_mounts']['detached']
+        previous = json.loads((assets / 'yukkuri/badge_mounts.json').read_text())['detached']
+        read_bytes = Path.read_bytes
+        for current in (raw, raw.replace(b'\n', b'\r\n')):
+            def read(path):
+                return current if path == model_path else read_bytes(path)
+            with patch.object(Path, 'read_bytes', read):
+                actual = export_badges.export_mount_group({name: specs[name]}, 'yukkuri_props', previous)
+            self.assertEqual(previous[name], actual[name])
+        changed = json.loads(raw)
+        changed['vertices'][0] += .125
+        def read(path):
+            return json.dumps(changed).encode() if path == model_path else read_bytes(path)
+        with patch.object(Path, 'read_bytes', read):
+            actual = export_badges.export_mount_group({name: specs[name]}, 'yukkuri_props', previous)
+        self.assertNotEqual(previous[name]['model_sha256'], actual[name]['model_sha256'])
 
     def test_all_detached_badges_and_geometry_drift(self):
         assets = Path(__file__).resolve().parents[1] / "src/main/resources/assets/mcyukkuri"

@@ -1,15 +1,20 @@
 """Verify standard geometry, source/export correspondence and excluded baselines."""
 from pathlib import Path
-import hashlib,json,datetime,re
-P=Path(__file__).resolve().parent;L=P.parent
+import hashlib,json,datetime,re,sys
+P=Path(__file__).resolve().parent;L=P.parent;ROOT=P.parents[2]
+sys.path.insert(0,str(ROOT/'scripts'))
+from runtime_model_fingerprint import matches_model_fingerprint
 def read(p):return json.loads(p.read_text(encoding='utf-8-sig'))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def matches_fingerprint(p,expected):
+    data=p.read_bytes()
+    return matches_model_fingerprint(data,expected) if p.suffix in {'.json','.bbmodel','.html'} else hashlib.sha256(data).hexdigest()==expected
 cfg=read(P/'recipe.json');checks=[]
 def check(name,value):
     checks.append(dict(name=name,passed=bool(value)))
     if not value:raise AssertionError(name)
-for ref,expected in read(P/'excluded-baseline.json').items():check('excluded/'+ref,sha(L/ref)==expected)
-for ref,expected in read(P/'inputs/manifest.json')['files'].items():check('frozen/'+ref,sha(P/ref)==expected)
+for ref,expected in read(P/'excluded-baseline.json').items():check('excluded/'+ref,matches_fingerprint(L/ref,expected))
+for ref,expected in read(P/'inputs/manifest.json')['files'].items():check('frozen/'+ref,matches_fingerprint(P/ref,expected))
 baseline=None
 for id in cfg['characters']:
     folder=L/cfg['sources'][id]['export'];bb=read(folder/(id+'.bbmodel'));m=read(folder/'runtime.model.json');rig=read(folder/'animation-rig.json')

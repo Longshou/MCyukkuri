@@ -1,8 +1,14 @@
 """Build original human-world assets and merge only this feature's language keys."""
 from pathlib import Path
 import importlib.util, json, hashlib, argparse
+from runtime_model_fingerprint import matches_model_fingerprint
 
 ROOT=Path(__file__).resolve().parents[1]
+TEXT_FINGERPRINT_SUFFIXES={'.java','.json','.py'}
+def matches_fingerprint(path,data,digest):
+    return (hashlib.sha256(data).hexdigest()==digest or
+            (path.suffix in TEXT_FINGERPRINT_SUFFIXES and
+             matches_model_fingerprint(data,digest)))
 def load(path,name):
     spec=importlib.util.spec_from_file_location(name,ROOT/path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 def language(chinese):
@@ -65,7 +71,7 @@ def main(check=False):
         record=json.loads(manifest.read_text(encoding='utf-8'));errors=[]
         for path,digest in record['files'].items():
             p=ROOT/path
-            if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=digest:errors.append(path)
+            if not p.is_file() or not matches_fingerprint(p,p.read_bytes(),digest):errors.append(path)
         for lang in ['zh_cn','en_us']:
             actual=json.loads((ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))
             errors.extend(lang+':'+k for k,v in language(lang=='zh_cn').items() if actual.get(k)!=v)
@@ -98,7 +104,13 @@ def main(check=False):
             if p.exists():paths.append(p)
     for pat in patterns:paths.extend(ROOT.glob(pat))
     paths.extend([ROOT/'src/main/resources/data/mcyukkuri/tags/worldgen/biome/human_buildings.json',ROOT/'src/main/resources/data/mcyukkuri/neoforge/biome_modifier/human_spawns.json'])
-    data={'files':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(paths))}}
+    previous=json.loads(manifest.read_text(encoding='utf-8')) if manifest.is_file() else {'files':{}}
+    files={}
+    for p in sorted(set(paths)):
+        relative=p.relative_to(ROOT).as_posix();content=p.read_bytes()
+        recorded=previous['files'].get(relative)
+        files[relative]=recorded if recorded and matches_fingerprint(p,content,recorded) else hashlib.sha256(content).hexdigest()
+    data={'files':files}
     manifest.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
     print('Human world: shop, three independent factory types, legacy template, NPC outfits and original products exported.')
 if __name__=='__main__':

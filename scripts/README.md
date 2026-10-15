@@ -4,7 +4,7 @@
 
 `python scripts/test_runtime_atlas.py` 检查原生方块／物品模型引用的模组贴图是否存在，并核对 `textures/props/` 已通过 `assets/minecraft/atlases/blocks.json` 加入方块图集；真实客户端重载后仍须检查缺图警告与实际外观。
 
-`python scripts/test_asset_export_checks.py` 检查生活、家庭、家油照料与周边四个导出器的只读检查模式，注入源／运行文件漂移并确认检查失败。JSON 仅容忍 LF／CRLF 差异，仍核对字段顺序、空格与结尾换行；PNG 按原始字节比较；草麦食盆先核对预览图集裁切像素，再复用所选原始调色板字节，避免不同 Pillow 编码器产生伪差异。生活口部数据从圆润选用网格重新推导并对照选用记录；遗体物品模型从 `art/props/house-care/yukkuri_remains.item.json` 复制当前渲染配置，不恢复旧的 bundle 占位图标。
+`python scripts/test_asset_export_checks.py` 检查生活、家庭、家油照料与周边四个导出器的只读检查模式，注入源／运行文件漂移并确认检查失败。普通 JSON 仅容忍 LF／CRLF 差异，仍核对字段顺序、空格与结尾换行；PNG 检查仍按字节比较，生成器仅在格式、模式、尺寸和像素完全一致时复用现有编码。三个道具包的网格生成器仅复用符号零（`-0.0`／`0.0`）等值的既有表示；其 Blockbench 模型按 JSON 内容比较，仅容忍顶点坐标不超过 `1e-15` 的计算尾差和内嵌 PNG 的等价编码。草麦食盆先核对预览图集裁切像素，再复用所选原始调色板字节。生活口部数据从圆润选用网格重新推导并对照选用记录；遗体物品模型从 `art/props/house-care/yukkuri_remains.item.json` 复制当前渲染配置，不恢复旧的 bundle 占位图标。
 
 跨平台模型指纹通过 `runtime_model_fingerprint.py` 比较原始、LF 和 CRLF 三种字节表示；Java 客户端及 GameTest 使用相同的 `ModelFingerprint` 规则。只容忍换行转换，不忽略模型数值、空格、字段顺序或结尾换行的变化。保留已有导出指纹，避免仅因跨平台检出而更换存档中的表面标识。`python scripts/test_runtime_model_fingerprint.py` 核对换行兼容、内容漂移拒绝及19种已打包模型、23组脱下帽饰的徽章挂接资源；Gradle `check` 同时运行 `verifyModelFingerprint`。
 

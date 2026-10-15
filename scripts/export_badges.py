@@ -1,8 +1,10 @@
 """Export posed accessory attachment coordinates, owned badge UI strings and handbook recipe."""
 from pathlib import Path
-import argparse, hashlib, json, math
+import argparse, json, math
 from PIL import Image, ImageDraw
 from io import BytesIO
+
+from asset_export_checks import fingerprint, provenance
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / 'art/props/badges'
@@ -39,11 +41,12 @@ def mounts():
     rounded=ROOT/'art/source/rounded-runtime/attachments.json'
     if rounded.exists():
         for group,entries in json.loads(rounded.read_text(encoding='utf-8'))['badge_mounts'].items():recipe[group].update(entries)
+    previous=provenance(ASSETS/'yukkuri/badge_mounts.json')
     for kind in ['variants','detached']:
-        result[kind]=export_mount_group(recipe[kind], 'yukkuri' if kind=='variants' else 'yukkuri_props')
+        result[kind]=export_mount_group(recipe[kind], 'yukkuri' if kind=='variants' else 'yukkuri_props', previous.get(kind,{}))
     return result
 
-def export_mount_group(specs,folder):
+def export_mount_group(specs,folder,previous):
     out={}
     for name, spec in specs.items():
         path=ASSETS/folder/f'{name}.json';raw=path.read_bytes();d=json.loads(raw);verts=d['vertices']
@@ -59,7 +62,7 @@ def export_mount_group(specs,folder):
             distance=dot(sub(point,spec['point']),sub(point,spec['point']))
             if best is None or distance<best[0]:best=(distance,start,weights,point,normal)
         if best is None:raise ValueError('No outward accessory face for '+name)
-        out[name]={'model_sha256':hashlib.sha256(raw).hexdigest(),'part':spec['part'],'triangle':best[1],
+        out[name]={'model_sha256':fingerprint(path,raw,previous.get(name,{}).get('model_sha256')),'part':spec['part'],'triangle':best[1],
                    'weights':best[2],'rest_point':best[3],'rest_normal':best[4],'diameter':spec['diameter']/16}
     return out
 

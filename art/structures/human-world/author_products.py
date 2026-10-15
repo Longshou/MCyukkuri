@@ -1,19 +1,29 @@
 """Original native pixel assets and block geometry for factory equipment, packages and badges."""
 from pathlib import Path
-from PIL import Image,ImageDraw
-import json,hashlib
+import io,json,hashlib,sys
 ROOT=Path(__file__).resolve().parents[3]
+sys.path.insert(0,str(ROOT/'scripts'))
+from PIL import Image,ImageDraw
+from asset_export_checks import preserve_equivalent_png
 ART=Path(__file__).parent/'products'
 ASSET=ROOT/'src/main/resources/assets/mcyukkuri'
 def write(path,data):path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+def write_bytes(path,data):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    if not path.is_file() or path.read_bytes()!=data:path.write_bytes(data)
+def write_png(path,image):
+    stream=io.BytesIO();image.save(stream,format='PNG')
+    data=preserve_equivalent_png(path,stream.getvalue())
+    write_bytes(path,data)
+    return data
 def export():
     records={}
     metal=Image.new('RGBA',(32,32),'#899994');md=ImageDraw.Draw(metal)
     md.rectangle((0,0,31,31),outline='#394b4c',width=2);md.rectangle((3,3,28,28),outline='#b8c7bc')
     for x in (4,27):
         for y in (4,27):md.rectangle((x,y,x+1,y+1),fill='#34454a')
-    mp=ART/'workshop_casing.png';mp.parent.mkdir(parents=True,exist_ok=True);metal.save(mp)
-    target=ASSET/'textures/block/workshop_casing.png';target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(mp.read_bytes())
+    mp=ART/'workshop_casing.png';metal_data=write_png(mp,metal)
+    target=ASSET/'textures/block/workshop_casing.png';write_bytes(target,metal_data)
     names=['yukkuri_manju','live_yukkuri_bag','silver_yukkuri_badge','gold_yukkuri_badge','labor_bench','manju_steamer','live_packing_table','nursery_station']
     for name in names:
         im=Image.new('RGBA',(32,32));d=ImageDraw.Draw(im);dark='#43392f'
@@ -58,9 +68,9 @@ def export():
                 d.ellipse((7,14,24,22),fill='#f5d9af');d.line((11,17,13,17),fill=dark);d.line((19,17,21,17),fill=dark)
                 d.arc((14,16,18,20),0,180,fill=dark);d.rectangle((14,7,17,12),fill='#fff0e1');d.rectangle((12,9,19,10),fill='#fff0e1')
             for x in (3,27):d.rectangle((x,26,x+1,28),fill='#232f30')
-        source=ART/(name+'.png');source.parent.mkdir(parents=True,exist_ok=True);im.save(source)
+        source=ART/(name+'.png');source_data=write_png(source,im)
         block=name in names[4:];target=ASSET/'textures'/('block' if block else 'item')/source.name
-        target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes())
+        write_bytes(target,source_data)
         if block:
             def box(a,b,texture='casing',front=None):
                 return {'from':a,'to':b,'faces':{face:{'texture':'#'+(front if face=='north' and front else texture),'uv':[0,0,16,16]} for face in ['north','south','east','west','up','down']}}
@@ -85,7 +95,7 @@ def export():
             write(ROOT/'src/main/resources/data/mcyukkuri/loot_table/blocks'/f'{name}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'mcyukkuri:'+name}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
         else:model={'parent':'minecraft:item/generated','textures':{'layer0':'mcyukkuri:item/'+name}}
         write(ASSET/'models/item'/f'{name}.json',model)
-        records[name]={'source':source.relative_to(ROOT).as_posix(),'target':target.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(source.read_bytes()).hexdigest()}
+        records[name]={'source':source.relative_to(ROOT).as_posix(),'target':target.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(source_data).hexdigest()}
     write(ART/'manifest.json',{'status':'pending_visual_approval','author':'Original procedural pixel art; no external source pixels.','assets':records})
     return records
 if __name__=='__main__':export()

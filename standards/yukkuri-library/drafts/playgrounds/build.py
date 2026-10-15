@@ -2,17 +2,23 @@
 
 16 units = one block. No extracted game images. --check verifies every export.
 """
-import argparse,base64,hashlib,io,json,math,runpy,uuid
+import argparse,base64,io,json,math,runpy,sys,uuid
 from pathlib import Path
 from PIL import Image
 
 HERE=Path(__file__).resolve().parent; ROOT=HERE.parents[3]
+sys.path.insert(0,str(ROOT/'scripts'))
+from asset_export_checks import check_output,fingerprints,preserve_equivalent_png,preserve_negative_zero_mesh_json,provenance
 BASE=HERE.parent/'operation-tools/build.py'
 primitive=runpy.run_path(str(BASE))
 box,rod=(primitive[k] for k in ('box','rod'))
 SNAPSHOT=ROOT/'art/props/playgrounds';ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri'
 PALETTE=['#cba471','#8c6740','#ede4cf','#c2744f','#9b4931','#73a2a7','#456d7d','#d8e4e2','#393c49','#a2a9a9','#e2ba60','#92bbb4']
 RECIPES={};COLLISION={}
+
+def mesh_number(value):
+    value=round(value,6)
+    return 0.0 if isinstance(value,float) and value==0 else value
 
 def prism(corners,z0,z1,color):
     points=[[x,y,z] for z in (z0,z1) for x,y in corners]
@@ -78,12 +84,13 @@ INGREDIENTS={'paper_tunnel':['paper']*6,'ceramic_tunnel':['brick']*6,'yukkuri_sl
              'yukkuri_trampoline':['string']*4+['slime_ball','iron_ingot'],'yukkuri_pool':['brick']*4+['cyan_dye']}
 
 def outputs():
-    result={};index={};img=Image.new('RGBA',(16,16))
+    previous=provenance(SNAPSHOT/'manifest.json');result={};index={};img=Image.new('RGBA',(16,16))
     for x in range(16):
         color=PALETTE[min(x,len(PALETTE)-1)]
         for y in range(16):img.putpixel((x,y),tuple(bytes.fromhex(color[1:]))+(255,))
-    stream=io.BytesIO();img.save(stream,format='PNG');texture=stream.getvalue()
+    stream=io.BytesIO();img.save(stream,format='PNG');texture=preserve_equivalent_png(HERE/'assembled'/next(iter(RECIPES))/'texture.png',stream.getvalue())
     def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
+    def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
     emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'collision':COLLISION,'palette':PALETTE})
     for name,shapes in RECIPES.items():
         vertices=[];parts=[];elements=[]
@@ -100,12 +107,12 @@ def outputs():
             parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start})
             elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
         extent=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)]
-        mesh={'format':1,'units_per_block':16,'vertices':[round(v,6) for v in vertices],'parts':parts,'bounds':extent}
+        mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':extent}
         bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],
             'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
         for folder in (HERE/'assembled'/name,SNAPSHOT/'selected'/name):
-            emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
-        emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+            emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
+        emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
         emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[25,225,0],'scale':[.85,.85,.85]}}})
         emit(ASSETS/f'blockstates/{name}.json',{'variants':{'':{'model':f'mcyukkuri:block/{name}'}}})
         emit(ASSETS/f'models/block/{name}.json',{'textures':{'particle':f'mcyukkuri:props/{name}'},'elements':[]})
@@ -125,14 +132,14 @@ def outputs():
         changed=any(existing.get(k)!=v for k,v in strings.items());existing.update(strings)
         if changed:result[path]=(json.dumps(existing,ensure_ascii=False,indent=2)+'\n').encode()
     emit(SNAPSHOT/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py',
-        'inputs':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (Path(__file__).resolve(),BASE)},
-        'files':{p.relative_to(ROOT).as_posix():hashlib.sha256(v).hexdigest() for p,v in result.items() if p.parent.name!='lang'}})
+        'inputs':fingerprints(ROOT,{p:p.read_bytes() for p in (Path(__file__).resolve(),BASE)},previous.get('inputs',{})),
+        'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
     return result
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args();changed=[]
     for path,data in outputs().items():
-        if not path.exists() or path.read_bytes()!=data:
+        if not check_output(path,data):
             changed.append(path.relative_to(ROOT).as_posix())
             if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))

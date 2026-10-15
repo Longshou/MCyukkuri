@@ -4,14 +4,17 @@ Uses the checked-in selected sources and mocks corruption without modifying them
 Temporary files for byte-comparison fixtures stay under .local/.
 """
 import contextlib
+import base64
 import hashlib
 import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
 
-from asset_export_checks import check_output, fingerprint
+from asset_export_checks import (check_output, fingerprint, preserve_equivalent_png,
+                                 preserve_negative_zero_mesh_json)
 import export_family_assets as family
 import export_house_assets as house
 import export_living_assets as living
@@ -52,6 +55,7 @@ class AssetExportChecks(unittest.TestCase):
         data = b'{"value": 1}\n'
         old = hashlib.sha256(data.replace(b'\n', b'\r\n')).hexdigest()
         self.assertEqual(old, fingerprint(Path('model.json'), data, old))
+        self.assertEqual(old, fingerprint(Path('model.py'), data, old))
         self.assertNotEqual(old, fingerprint(Path('model.json'), data + b' ', old))
         self.assertNotEqual(old, fingerprint(Path('model.json'), data.replace(b'1', b'2'), old))
         self.assertNotEqual(old, fingerprint(Path('texture.png'), data, old))
@@ -68,6 +72,72 @@ class AssetExportChecks(unittest.TestCase):
         atlas.putpixel((10, 10), (255, 60, 90, 255))
         with self.assertRaises(ValueError):
             peripheral.selected_bowl_palette(png(atlas), original)
+
+    def test_png_preservation_requires_matching_mode_size_and_pixels(self):
+        def png(image, **options):
+            buffer = io.BytesIO()
+            image.save(buffer, format='PNG', **options)
+            return buffer.getvalue()
+        work = ROOT / '.local/asset-export-tests'
+        work.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=work) as directory:
+            path = Path(directory) / 'texture.png'
+            image = peripheral.Image.new('RGBA', (2, 2), (30, 60, 90, 255))
+            existing, generated = png(image, compress_level=0), png(image, compress_level=9)
+            self.assertNotEqual(existing, generated)
+            path.write_bytes(existing)
+            self.assertEqual(existing, preserve_equivalent_png(path, generated))
+            image.putpixel((0, 0), (31, 60, 90, 255))
+            changed = png(image, compress_level=9)
+            self.assertEqual(changed, preserve_equivalent_png(path, changed))
+
+    def test_mesh_json_preserves_only_negative_zero_encoding(self):
+        work = ROOT / '.local/asset-export-tests'
+        work.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=work) as directory:
+            path = Path(directory) / 'mesh.json'
+            path.write_bytes(b'{"vertices":[-0.0,1.0]}\n')
+            self.assertEqual(path.read_bytes(), preserve_negative_zero_mesh_json(
+                path, b'{"vertices":[0.0,1.0]}\n'))
+            self.assertEqual(b'{"vertices":[0.0,2.0]}\n', preserve_negative_zero_mesh_json(
+                path, b'{"vertices":[0.0,2.0]}\n'))
+            self.assertEqual(b'{"vertices":[0.0,1.0]}', preserve_negative_zero_mesh_json(
+                path, b'{"vertices":[0.0,1.0]}'))
+            path.write_bytes(b'{"vertices":[-0.0,1.0]}\r\n')
+            self.assertEqual(path.read_bytes(), preserve_negative_zero_mesh_json(
+                path, b'{"vertices":[0.0,1.0]}\n'))
+
+    def test_bbmodel_allows_only_vertex_tail_noise_and_equivalent_texture(self):
+        def png(image, **options):
+            buffer = io.BytesIO()
+            image.save(buffer, format='PNG', **options)
+            return buffer.getvalue()
+        def model(texture, coordinate, origin=0.0, extra=False):
+            value = {'meta': {'format_version': '4.10'}, 'elements': [
+                {'name': 'part_0', 'origin': [origin, 0.0, 0.0],
+                 'vertices': {'0': [coordinate, 0.0, 0.0]}, 'faces': {}}]}
+            if extra:
+                value['elements'].append({'name': 'part_1', 'origin': [0.0, 0.0, 0.0],
+                                          'vertices': {}, 'faces': {}})
+            value['textures'] = [{'source': 'data:image/png;base64,' + base64.b64encode(texture).decode()}]
+            return json.dumps(value, separators=(',', ':')).encode()
+        work = ROOT / '.local/asset-export-tests'
+        work.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=work) as directory:
+            path = Path(directory) / 'model.bbmodel'
+            image = peripheral.Image.new('RGBA', (1, 1), (30, 60, 90, 255))
+            before, after = png(image, compress_level=0), png(image, compress_level=9)
+            actual = model(before, 0.30000000000000004)
+            expected = model(after, 0.3)
+            path.write_bytes(actual)
+            self.assertTrue(check_output(path, expected))
+            previous = hashlib.sha256(actual).hexdigest()
+            self.assertEqual(previous, fingerprint(path, expected, previous))
+            self.assertFalse(check_output(path, model(after, 0.300000000000002)))
+            self.assertFalse(check_output(path, model(after, 0.3, origin=1e-16)))
+            self.assertFalse(check_output(path, model(after, 0.3, extra=True)))
+            image.putpixel((0, 0), (31, 60, 90, 255))
+            self.assertFalse(check_output(path, model(png(image), 0.3)))
 
     def run_check(self, exporter):
         with patch('sys.argv', [exporter.__file__, '--check']), \

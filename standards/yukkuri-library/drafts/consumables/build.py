@@ -1,12 +1,17 @@
 """Original single-portion care consumables. Parametric source, editable meshes and runtime export."""
-import argparse,base64,hashlib,io,json,runpy,uuid
+import argparse,base64,io,json,runpy,sys,uuid
 from pathlib import Path
 from PIL import Image
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
+sys.path.insert(0,str(ROOT/'scripts'))
+from asset_export_checks import check_output,fingerprints,preserve_equivalent_png,preserve_negative_zero_mesh_json,provenance
 BASE=HERE.parent/'operation-tools/build.py';primitive=runpy.run_path(str(BASE))
 box,rod,ball=(primitive[k] for k in ('box','rod','ball'))
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
 PALETTE=['#f2edda','#427da3','#85c5ca','#da9c50','#952f3d','#cba6ce','#735576','#333c46','#e1c484','#ef8b74','#728f49','#fdf8ef']
+def mesh_number(value):
+ value=round(value,6)
+ return 0.0 if isinstance(value,float) and value==0 else value
 def bottle(radius,height,body,cap):
  return [rod([0,0,0],[0,.4,0],radius*.84,body,radius),rod([0,.4,0],[0,height-1.6,0],radius,body),rod([0,height-1.6,0],[0,height-.7,0],radius,body,radius*.55),rod([0,height-.7,0],[0,height,0],radius*.55,cap)]
 def label(radius,y,color):return box([-radius*.7,y,-radius-.02],[radius*.7,y+2,-radius+.15],color)
@@ -27,11 +32,12 @@ INGREDIENTS={'yogurt_drink':['minecraft:milk_bucket','minecraft:sugar','minecraf
  'sitataran':['minecraft:paper','minecraft:amethyst_shard','minecraft:glass_bottle'],'sleep_spray':['minecraft:poppy','minecraft:brown_mushroom','minecraft:glass_bottle'],'spicy_grain':['mcyukkuri:oil_grain_regular','minecraft:blaze_powder'],
  'reproductive_filling':['minecraft:sugar','minecraft:wheat','minecraft:milk_bucket','minecraft:paper']}
 def outputs():
- result={};index={};image=Image.new('RGBA',(16,16))
+ previous=provenance(SELECTED/'manifest.json');result={};index={};image=Image.new('RGBA',(16,16))
  for x in range(16):
   for y in range(16):image.putpixel((x,y),tuple(bytes.fromhex(PALETTE[min(x,len(PALETTE)-1)][1:]))+(255,))
- stream=io.BytesIO();image.save(stream,format='PNG');texture=stream.getvalue()
+ stream=io.BytesIO();image.save(stream,format='PNG');texture=preserve_equivalent_png(HERE/'assembled'/next(iter(RECIPES))/'texture.png',stream.getvalue())
  def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
+ def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
  emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'props':RECIPES,'palette':PALETTE,'recipes':INGREDIENTS})
  for name,shapes in RECIPES.items():
   vertices=[];parts=[];elements=[]
@@ -46,11 +52,11 @@ def outputs():
    parts.append({'name':f'part_{number}','start':start,'count':len(vertices)//8-start})
    elements.append({'name':f'part_{number}','type':'mesh','uuid':str(uuid.uuid5(uuid.NAMESPACE_URL,name+str(number))),'origin':[0,0,0],'rotation':[0,0,0],'vertices':{str(i):p for i,p in enumerate(points)},'faces':bbfaces})
   extent=[[min(vertices[i::8]),max(vertices[i::8])] for i in range(3)]
-  mesh={'format':1,'units_per_block':16,'vertices':[round(v,6) for v in vertices],'parts':parts,'bounds':extent}
+  mesh={'format':1,'units_per_block':16,'vertices':[mesh_number(v) for v in vertices],'parts':parts,'bounds':extent}
   bb={'meta':{'format_version':'4.10','model_format':'free'},'name':name,'resolution':{'width':16,'height':16},'elements':elements,'outliner':[x['uuid'] for x in elements],'textures':[{'name':'texture','source':'data:image/png;base64,'+base64.b64encode(texture).decode(),'width':16,'height':16,'uv_width':16,'uv_height':16,'id':'0'}]}
   for folder in [HERE/'assembled'/name,SELECTED/'selected'/name]:
-   emit(folder/f'{name}.bbmodel',bb);emit(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
-  emit(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
+   emit(folder/f'{name}.bbmodel',bb);emit_mesh(folder/f'{name}.mesh.json',mesh);result[folder/'texture.png']=texture
+  emit_mesh(ASSETS/f'yukkuri_props/{name}.json',mesh);result[ASSETS/f'textures/props/{name}.png']=texture
   if name in INGREDIENTS:
    emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[20,225,0]}}})
    emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
@@ -62,13 +68,13 @@ def outputs():
    'notebook.mcyukkuri.consumables':['饮用与药效\n干燥程度：%s／100\n便秘：%s\n辣味不适：%s 秒\n喷雾起效剩余：%s 秒\n助眠剩余：%s 秒\n兴奋状态：%s 秒\n幼语药效：%s','Drinks and medicine\nDryness: %s/100\nConstipation: %s\nSpicy irritation: %s s\nSpray onset: %s s\nSleep remaining: %s s\nStimulation: %s s\nBaby talk: %s'][n],
    'death.attack.mcyukkuri.spicy_food':['%s 没能撑过超辣食物的不适','%s succumbed to extra-spicy food'][n]})
   if any(data.get(k)!=v for k,v in strings.items()):data.update(strings);result[path]=(json.dumps(data,ensure_ascii=False,indent=2)+'\n').encode()
- emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__).resolve(),BASE]},'files':{p.relative_to(ROOT).as_posix():hashlib.sha256(v).hexdigest() for p,v in result.items() if p.parent.name!='lang'}})
+ emit(SELECTED/'manifest.json',{'status':'pending-review-game-adaptation','source':HERE.relative_to(ROOT).as_posix()+'/build.py','inputs':fingerprints(ROOT,{p:p.read_bytes() for p in [Path(__file__).resolve(),BASE]},previous.get('inputs',{})),'files':fingerprints(ROOT,{p:v for p,v in result.items() if p.parent.name!='lang'},previous.get('files',{}))})
  return result
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');parser.add_argument('--skip-language',action='store_true');args=parser.parse_args();changed=[]
  for path,data in outputs().items():
   if args.skip_language and path.parent.name=='lang':continue
-  if not path.exists() or path.read_bytes()!=data:
+  if not check_output(path,data):
    changed.append(path.relative_to(ROOT).as_posix())
    if not args.check:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
  if args.check and changed:raise SystemExit('Stale exports: '+', '.join(changed))

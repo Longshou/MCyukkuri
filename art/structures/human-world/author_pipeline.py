@@ -1,13 +1,23 @@
 """Original native block geometry for receiving, inspection, washing and physical transfer trays."""
 from pathlib import Path
-import json, hashlib
-from PIL import Image, ImageDraw
+import io, json, hashlib, sys
 ROOT=Path(__file__).resolve().parents[3]
+sys.path.insert(0,str(ROOT/'scripts'))
+from PIL import Image, ImageDraw
+from asset_export_checks import preserve_equivalent_png
 ART=Path(__file__).parent/'products'
 ASSET=ROOT/'src/main/resources/assets/mcyukkuri'
 NAMES=['factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray']
 def write(path,data):
     path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+def write_bytes(path,data):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    if not path.is_file() or path.read_bytes()!=data:path.write_bytes(data)
+def write_png(path,image):
+    stream=io.BytesIO();image.save(stream,format='PNG')
+    data=preserve_equivalent_png(path,stream.getvalue())
+    write_bytes(path,data)
+    return data
 def export():
     records={}
     for index,name in enumerate(NAMES):
@@ -24,8 +34,8 @@ def export():
             d.ellipse((6,10,26,23),outline='#865648',width=2);d.ellipse((12,11,20,21),fill='#865648');d.rectangle((15,5,17,8),fill='#865648')
         else:
             d.rectangle((7,10,25,20),fill='#586e74');d.rectangle((9,8,23,17),fill='#b6c6b6');d.ellipse((8,21,13,26),fill='#31494e');d.ellipse((20,21,25,26),fill='#31494e')
-        source=ART/(name+'.png');source.parent.mkdir(parents=True,exist_ok=True);im.save(source)
-        target=ASSET/'textures/block'/source.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes())
+        source=ART/(name+'.png');source_data=write_png(source,im)
+        target=ASSET/'textures/block'/source.name;write_bytes(target,source_data)
         def box(a,b,tex='casing'):
             return {'from':a,'to':b,'faces':{f:{'texture':'#'+tex,'uv':[0,0,16,16]} for f in ['north','south','east','west','up','down']}}
         if index==4:
@@ -42,7 +52,7 @@ def export():
         write(ASSET/'blockstates'/f'{name}.json',{'variants':{f'facing={f}':{'model':'mcyukkuri:block/'+name,'y':angle} for f,angle in [('north',0),('east',90),('south',180),('west',270)]}})
         write(ASSET/'models/item'/f'{name}.json',{'parent':'mcyukkuri:block/'+name})
         write(ROOT/'src/main/resources/data/mcyukkuri/loot_table/blocks'/f'{name}.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'mcyukkuri:'+name}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
-        records[name]={'source':source.relative_to(ROOT).as_posix(),'target':target.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(source.read_bytes()).hexdigest()}
+        records[name]={'source':source.relative_to(ROOT).as_posix(),'target':target.relative_to(ROOT).as_posix(),'sha256':hashlib.sha256(source_data).hexdigest()}
     write(ART/'pipeline-manifest.json',{'status':'pending_visual_approval','geometry':'Native block elements; tray passenger attaches at y=4/16 blocks.','assets':records})
     return records
 if __name__=='__main__':export()
