@@ -101,7 +101,7 @@
     "clear": 0.35,
     "overshoot": 3.0,
     "young_radius": 0.42,
-    "overlap": 0.95,
+    "overlap": 1.1,
     "ledge_cost": 4.0,
     "path_cost": 30.0,
     "step": 0.25,
@@ -139,16 +139,16 @@
       "helper": {
         "mode": "nest",
         "offset": [
-          13.2001,
+          12.9883,
           0.0,
-          -11.8884
+          -11.9258
         ],
         "yaw": 190,
         "hat_in_mother": {
           "origin": [
             0.0,
             0.0,
-            -22.9351
+            -22.7201
           ],
           "yaw": 90
         },
@@ -169,9 +169,9 @@
           -6.9
         ],
         "reach": {
-          "hold": 1.0,
-          "set_down": 1.023,
-          "above": 0.701
+          "hold": 0.992,
+          "set_down": 1.034,
+          "above": 0.717
         },
         "look": 0.7,
         "gap": 3.0,
@@ -182,14 +182,14 @@
         "offset": [
           0.0,
           0.0,
-          -20.9351
+          -21.2201
         ],
         "yaw": 90,
         "hat_in_mother": {
           "origin": [
             0.0,
             0.0,
-            -20.9351
+            -21.2201
           ],
           "yaw": 90
         },
@@ -205,10 +205,10 @@
         ],
         "bow": -14,
         "reach": {
-          "set_down": 1.46,
-          "above": 1.386
+          "set_down": 1.495,
+          "above": 1.423
         },
-        "gap": 1.0,
+        "gap": 1.5,
         "near_brim": 7.2132
       },
       "mother_half": 9.3542,

@@ -150,7 +150,7 @@ public final class FamilyGameTests {
                     &&baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
                     &&io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
                     &&baby.family().stage()==FamilyLife.Stage.JUVENILE
-                    &&Math.abs(baby.growthScale()-.3)<.001&&Math.abs(baby.getBbWidth()-.1845)<.001,
+                    &&Math.abs(baby.growthScale()-io.github.longshou.mcyukkuri.family.GrowthSize.STEM)<.001&&Math.abs(baby.getBbWidth()-.75f*.82f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM)<.001,
                     baby==null?"birth failed":baby.subspecies().save()+" width="+baby.getBbWidth());
         });
         for(int wanted=1;wanted<=5;wanted++) {
@@ -170,9 +170,9 @@ public final class FamilyGameTests {
                     baby.setNoAi(true);
                     // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
                     float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
-                            ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*.3f:.24f;
+                            ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM:.8f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM;
                     check(count+" child "+i+" has actual parents and juvenile bounds",baby.family().mother().equals(a.getUUID())&&baby.family().father().equals(b.getUUID())
-                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-expectedWidth)<.001&&Math.abs(baby.growthScale()-.3)<.001,
+                            &&baby.family().stage()==FamilyLife.Stage.JUVENILE&&Math.abs(baby.getBbWidth()-expectedWidth)<.001&&Math.abs(baby.growthScale()-io.github.longshou.mcyukkuri.family.GrowthSize.STEM)<.001,
                             java.util.Map.of("family",baby.family().save(),"model",baby.subspecies().assetId(),"width",baby.getBbWidth(),"expectedWidth",expectedWidth));
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;

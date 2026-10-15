@@ -22,7 +22,8 @@ public final class LiveBirthGeometry {
     public static float modelHeight(String id){
         return BODY.has(id)?BODY.getAsJsonObject(id).get("height").getAsFloat():id.startsWith("house_")?3.82f:id.equals("remilia")||id.equals("flandre")?9.6f:8.48f*(id.endsWith("_bean")?1.55f:1);
     }
-    public static final float BABY_SCALE=.18f;
+    /** A live newborn's size (GrowthSize, the life-stage size standard). */
+    public static final float BABY_SCALE=GrowthSize.LIVE;
     public static final int EMERGENCE=36, INTERVAL=48;
     public static int birthTick(int index){return index*INTERVAL+EMERGENCE;}
     public static float smooth(float value){float q=Math.clamp(value,0,1);return q*q*(3-2*q);}
@@ -91,7 +92,7 @@ public final class LiveBirthGeometry {
         var outlet=outlet(mother).scale(size);
         double front=exitFront(mother,index);
         var brood=mother.family().brood();
-        float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.53f*BABY_SCALE;
+        float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.6f*BABY_SCALE;
         return new Vec3(0,Math.max(.015,outlet.y-height*.5),-front);
     }
     public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,localExit(mother,index));}

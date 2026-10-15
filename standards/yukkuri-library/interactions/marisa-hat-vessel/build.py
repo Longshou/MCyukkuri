@@ -37,7 +37,8 @@ OLD_PROPS = [ASSETS/'yukkuri_props/marisa_hat_nest.json', ASSETS/'yukkuri_props/
 METRICS = ASSETS/'yukkuri_presentation/hat_vessel.json'
 INDEX = ASSETS/'yukkuri_props/subspecies-index.json'
 TEXTURE = 'mcyukkuri:textures/entity/marisa/neutral.png'
-LIVE_BABY = .18  # LiveBirthGeometry.BABY_SCALE
+GROWTH = json.loads((ASSETS/'yukkuri_presentation/family.json').read_text(encoding='utf-8'))['growth']
+LIVE_BABY = GROWTH['birth']['live']['scale']  # the size standard (GrowthSize.LIVE)
 R = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
 
 
@@ -350,6 +351,7 @@ def main():
     for name in ('marisa_hat_vessel', 'marisa_hat_nest'): index.pop(name, None)
     index.setdefault('marisa_hat_turned', {}); texts[INDEX] = json.dumps(index, separators=(',', ':'))
     manifest = {'note': 'Runtime outputs of build.py', 'recipe_sha256': sha((HERE/'recipe.json').read_bytes()), 'build_sha256': sha(Path(__file__).read_bytes()),
+                'growth_sha256': sha(json.dumps(GROWTH, sort_keys=True).encode()),
                 'outputs': {p.relative_to(ROOT).as_posix(): sha(t.encode()) for p, t in texts.items()}}
     texts[HERE/'manifest.json'] = json.dumps(manifest, ensure_ascii=False, indent=2)+'\n'
     for path, text in texts.items():

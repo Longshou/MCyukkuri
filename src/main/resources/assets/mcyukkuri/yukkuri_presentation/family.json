@@ -214,39 +214,101 @@
     }
   },
   "growth": {
-    "schema_version": 1,
+    "schema_version": 2,
     "id": "ordinary-yukkuri-growth-v1",
     "reference_body": "profiles/body.json",
     "scale_basis": "Uniform linear scale; standard adult body = 1.0; accessories excluded from body dimensions",
     "provenance": {
       "stages": "../../wiki/hakkei-reference/world/rules.md; 赤 → 子 → 成",
       "source_url": "https://wikiwiki.jp/yukkuri8kei/ゆっくりとは",
-      "scale_ranges": "Project adaptation, not numerical values quoted from the Wiki",
-      "age_policy": "Stage is explicit life-history state, never inferred from size or speech; no fixed real-world month conversion"
+      "scale_ranges": "Project adaptation (original), not numerical values quoted from the Wiki; adult ≈ basketball, about 24 cm wide (user)",
+      "age_policy": "Stage is explicit life-history state, never inferred from size or speech; no fixed real-world month conversion",
+      "size_standard": "2026-10-15 用户：子油在接生时略大，要求给出各成长阶段大小规范，数值由项目决定，以动作自然为准"
     },
     "stages": [
       {
         "id": "baby",
-        "label": "赤体 / 实子",
-        "min_scale": 0.12,
-        "max_scale": 0.3,
-        "note": "本次茎生在茎上完成赤体阶段，出生后直接进入子体"
+        "label": "赤体 / 茎上实子",
+        "min_scale": 0.1,
+        "max_scale": 0.2,
+        "nourishment": [
+          0.0,
+          0.25
+        ],
+        "note": "胎生新生 0.14 出生，约 10 分钟长到 0.20；茎上实子从 0.10 长到 0.20，在茎上完成赤体期"
       },
       {
         "id": "juvenile",
         "label": "子体",
-        "min_scale": 0.3,
+        "min_scale": 0.2,
         "max_scale": 0.8,
-        "note": "落地从 0.30 倍开始；营养和个体差异影响成长速度"
+        "nourishment": [
+          0.25,
+          1.0
+        ],
+        "note": "茎生落地即子体，从 0.20 起；营养和个体差异影响成长速度"
       },
       {
         "id": "adult",
         "label": "成体",
         "min_scale": 0.8,
         "max_scale": 1.2,
-        "note": "标准灵梦为 1.00 倍；普通大个体不自动成为 DOS"
+        "nourishment": [
+          1.0,
+          1.5
+        ],
+        "note": "从 0.80 长到个体目标（0.80–1.20）；标准灵梦为 1.00 倍；普通大个体不自动成为 DOS"
       }
-    ]
+    ],
+    "birth": {
+      "live": {
+        "stage": "baby",
+        "scale": 0.14,
+        "note": "胎生新生，约 3.4 cm，比乒乓球略小"
+      },
+      "stem": {
+        "stage": "juvenile",
+        "scale": 0.2,
+        "note": "茎生落地即子体，约 4.8 cm，乒乓球大小"
+      },
+      "egg": {
+        "stage": "baby",
+        "scale": 0.32,
+        "note": "家油卵生，相对家油成体"
+      }
+    },
+    "fruit": {
+      "from": 0.1,
+      "to": 0.2,
+      "visible_from": 0.15,
+      "full_at": 0.95,
+      "note": "茎上实子随孕程（0–1）长大：0.15 起可见，0.95 长足，落下即茎生出生大小"
+    },
+    "house": {
+      "stages": [
+        {
+          "id": "baby",
+          "min_scale": 0.32,
+          "max_scale": 0.5
+        },
+        {
+          "id": "juvenile",
+          "min_scale": 0.5,
+          "max_scale": 0.8
+        },
+        {
+          "id": "adult",
+          "min_scale": 0.8,
+          "max_scale": 1.0
+        }
+      ],
+      "note": "相对家油成体；家油成体约为普通赤体大小（餡サイクロペディア：普通油库里缩小到赤油大小）"
+    },
+    "curve": "大小只由营养积累决定：营养以成熟时间为单位，按各阶段的 nourishment 区间分段线性（赤体段从胎生出生大小起）；阶段只决定上限（赤体 ≤ 赤体上限，子体 ≤ 子体上限，成体从成体下限起），只增不减",
+    "anchors": {
+      "adult_width_cm": 24,
+      "source": "用户：普通成体篮球大小（reimu-dos/REFERENCES.md）；各阶段厘米为按此换算的原创参考"
+    }
   },
   "action": {
     "schema_version": 2,
@@ -294,7 +356,7 @@
     "wake_on": "landing",
     "timing_note": "28 seconds is an accelerated art preview, not biological age. Wiki describes roughly two periods on the stem; shortest well-fed juvenile growth roughly eight periods. These are not enforced as fixed age thresholds here.",
     "birth_stage": "juvenile",
-    "birth_scale": 0.3,
+    "birth_scale": 0.2,
     "reference": {
       "source_url": "https://wikiwiki.jp/yukkuri8kei/ゆっくりとは",
       "local_version": "eightSight.v8.3",

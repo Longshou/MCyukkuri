@@ -33,7 +33,8 @@ for (const count of [1,2,3,4,5]) for (const motherScale of [0.8, 1, 1.2]) {
     for (const child of state.children) {
       assert(child.position.every(Number.isFinite));
       assert(child.position[1]>=0);
-      assert(child.scale>=0.12 && child.scale<=0.30);
+      const baby=data.growth.stages.find(s=>s.id==='baby');
+      assert(child.scale>=baby.min_scale && child.scale<=Math.max(baby.max_scale,data.birth.birth_scale)+1e-9);
       if(child.attached) {
         assert.equal(child.stage,'baby');
         assert(child.sleeping);

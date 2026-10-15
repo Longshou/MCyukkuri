@@ -14,13 +14,13 @@
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "06985b750f88475b2b4df058807a409198aa4998d0af13298d9264112872f019",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
-  "hat_vessel_sha256": "313bafab71f21194c76063fb7463a3accfbcfff955a686addb7cae45bb72ea5b",
+  "hat_vessel_sha256": "66a14a140a46e4486f1ab9857d12dc308dcb201aeee4e4047573f0e0d714302f",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "d0c7fbb72b49e1d1cef3b1a5087bfdfc86b7d17aa9be05e0af3ba1ac7a45f884",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "df575d3865b1c52e272584a6a0e4637da7250bc5c5649d79705f124f59138921",
+  "runtime_sha256": "3404444fbb822969fd66b42ebba32206971c7d40e0d3bf7dc6b628390f4ed802",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

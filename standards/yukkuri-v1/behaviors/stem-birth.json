@@ -27,6 +27,6 @@
   "wake_on": "landing",
   "timing_note": "28 seconds is an accelerated art preview, not biological age. Wiki describes roughly two periods on the stem; shortest well-fed juvenile growth roughly eight periods. These are not enforced as fixed age thresholds here.",
   "birth_stage": "juvenile",
-  "birth_scale": 0.30,
+  "birth_scale": 0.20,
   "reference": {"source_url": "https://wikiwiki.jp/yukkuri8kei/ゆっくりとは", "local_version": "eightSight.v8.3", "field": "基本茎成長", "sprite_indices": [0, 2, 4, 6], "sprite_ids": [7456, 8358, 6197, 7478], "source_code": "yu_base.cs:1402-1413 (thin connectors), 5559-5588 (growth/distance), 10364-10401 (pendulum orientation/calyx), 35418-35481 (sleep face)", "adaptation": "3D thickness/depth, 1–5 capacity, falling trajectories and preview timing are project adaptations; arched-stalk and pendant topology follow the U rig. Extracted pixels are not shipped."}
 }

@@ -74,7 +74,7 @@ public final class InstrumentGameTests {
             for(int i=0;i<brood.children.size();i++)for(float progress:new float[]{brood.progress(),1}){
                 var child=brood.children.get(i);var point=net.minecraft.world.phys.Vec3.atBottomCenterOf(pos).add(
                     io.github.longshou.mcyukkuri.family.DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,mother.getVariant(),child.variant,bottle));
-                var box=ModEntities.forVariant(child.variant).getDimensions().scale(.3f).makeBoundingBox(point).inflate(.04);
+                var box=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.childDimensions(child,1).scale(io.github.longshou.mcyukkuri.family.GrowthSize.STEM/io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE).makeBoundingBox(point).inflate(.04);
                 children.add(java.util.Map.of("index",i,"id",child.id.toString(),"progress",progress,"base",point.toString(),"bounds",box.toString(),
                     "blocked",level.getBlockCollisions(null,box).iterator().hasNext(),"overlapsSupport",box.intersects(new AABB(pos.below()))));
             }

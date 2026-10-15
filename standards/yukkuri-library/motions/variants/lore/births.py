@@ -107,7 +107,9 @@ AQ = VESSEL['aquatic_scale']
 D = VESSEL['delivery']; G = D['gravity']
 BODY = json.loads((PRESENT/'body_geometry.json').read_text(encoding='utf-8'))['variants']['reimu']
 WIDTH = BODY['bounds'][0][1]-BODY['bounds'][0][0]
-BABY, FRUIT = .18, .3  # LiveBirthGeometry.BABY_SCALE; a stem child at birth
+FAMILY = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
+GROWTH = FAMILY['growth']  # the size standard (GrowthSize): a live newborn, a stem child at birth
+BABY, FRUIT = GROWTH['birth']['live']['scale'], GROWTH['birth']['stem']['scale']
 
 
 def key(*pairs): return [list(p) for p in pairs]
@@ -269,9 +271,9 @@ def away_from(p, from_, dist):
     return [p[0]+d[0]/n*dist, p[1], p[2]+d[2]/n*dist]
 
 
-def stem_bases(count):
-    """FamilyGeometry.childBase for a Reimu mother (scale 1, variance 1, ripe), in model units."""
-    fam = json.loads((PRESENT/'family.json').read_text(encoding='utf-8')); stem = fam['stem']
+def stem_bases(count, kinds):
+    """FamilyGeometry.childBase for a Reimu mother (scale 1, variance 1, ripe) and these children, in model units."""
+    fam = FAMILY; stem = fam['stem']
     units = stem['reference_units_to_model']/16; origin = stem['reference_origin'][1]; length = fam['lengthScale'][count-1]
     var = fam['variants']['reimu']; root = [x/16 for x in var['root']]
     def point(z, y):
@@ -279,7 +281,7 @@ def stem_bases(count):
         return [root[0], root[1]+rise, root[2]+z*units*length-clearance]
     pendant = stem['pendant_length_reference']*stem['reference_units_to_model']/16; out = []
     for i, (z, y) in enumerate(stem['socket_layouts'][str(count)]):
-        s = point(z, y); crown = fam['variants']['reimu']['crown_height']/16*FRUIT
+        shape = fam['variants'][kinds[i]]; crown = shape.get('hang_clearance_height', shape['crown_height'])/16*FRUIT; s = point(z, y)
         out.append([s[0]*16, (s[1]-pendant-crown)*16, (s[2]-fam['fruitForwardClearance']/16)*16])
     return out
 
@@ -311,7 +313,7 @@ def root_matrix(M, name, t):
 def scene_land_stem(models):
     """A Marisa father sets his hat under the ripe fruit, its long axis along the stem; they drop straight down, onto
     the floor inside or off the brim and bounce in, each to its own place."""
-    count = 3; mother, rot_m = [0, 0, 0], 0; bases = stem_bases(count); kinds = ['reimu', 'marisa', 'reimu']
+    count = 3; mother, rot_m = [0, 0, 0], 0; kinds = ['reimu', 'marisa', 'reimu']; bases = stem_bases(count, kinds)
     cx = sum(b[0] for b in bases)/count; cz = sum(b[2] for b in bases)/count
     least = WIDTH/2+VESSEL['brim'][1]+1.6; at = [cx, 0, min(cz, -least)]  # FamilyLife.catchPose, stem
     best = None
@@ -427,7 +429,31 @@ def scene_self():
                 props=[dict(kind='nest', scale=1, visible=[t_del, t_on], pos=key([0, *nest]), yaw=key([0, rot_n]))])
 
 
-SCENES = [scene_land_live, scene_land_stem, scene_boat, scene_dock_miss, scene_night_boat, scene_self]  # scene_land_stem takes the packed models
+def scene_sizes():
+    """The size standard (GrowthSize, profiles/growth.json) side by side, and a turned hat holding five live newborns."""
+    G = GROWTH; st = {s['id']: s for s in G['stages']}
+    row = [('reimu', G['fruit']['from'], 'sleep'), ('reimu', G['birth']['live']['scale'], 'sleep'), ('reimu', G['birth']['stem']['scale'], None),
+           ('marisa', .5, None), ('reimu', st['juvenile']['max_scale'], None), ('marisa', 1.0, None), ('reimu', st['adult']['max_scale'], None)]
+    actors, x = [], 0.
+    for model, scale, face in row:
+        w = WIDTH*scale; x += w/2
+        a = dict(model=model, scale=scale, pos=key([0, x, 0, 0]), yaw=key([0, 0]), clips=[[0, 'idle', 0]])
+        if face: a['faces'] = [[0, 99, face]]
+        actors.append(a); x += w/2+(5.0 if scale < .3 else 2.0)
+    x += 4; mother = [x+WIDTH*.73, 0, 0]
+    actors.append(dict(model='reimu', scale=1, pos=key([0, *mother]), yaw=key([0, 0]), belly=key([0, 1]), clips=[[0, 'brood', 0]]))
+    hat_at = [mother[0]+WIDTH*.73+4+VESSEL['brim'][1], 0, 0]; pose, hat = DL.Pose(hat_at, 90, 1.), DL.Hat(VESSEL, 'nest')
+    for i, place in enumerate(seats(pose, hat, [radius(BABY)]*5, 'catch')):
+        actors.append(dict(model=['reimu', 'marisa'][i % 2], scale=BABY, pos=key([0, *place]), yaw=key([0, 0]), clips=[[0, 'hat_cradle', i*.4]]))
+    shift = -(hat_at[0]+VESSEL['brim'][1])/2  # centred on the ground
+    for a in actors: a['pos'] = [[k[0], k[1]+shift, *k[2:]] for k in a['pos']]
+    hat_at = [hat_at[0]+shift, 0, 0]
+    return dict(id='sizes', title='体型规范：各成长阶段大小对照', duration=6, span=34, center=6, focus=[0, 0], az=0., el=.25,
+                captions=[[0, 6, '从左到右：茎上实子 0.10、胎生新生 0.14、茎生落地 0.20、子体 0.50、子体长足 0.80、成体 1.00、大个体 1.20、满孕母体；最右是倒放的帽子，坐着 5 只胎生新生']],
+                ground='land', actors=actors, props=[dict(kind='nest', scale=1, visible=[0, 99], pos=key([0, *hat_at]), yaw=key([0, 90]))])
+
+
+SCENES = [scene_land_live, scene_land_stem, scene_boat, scene_dock_miss, scene_night_boat, scene_self, scene_sizes]  # scene_land_stem takes the packed models
 
 PAGE = r'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>出生与接生 · 场景预览</title>
@@ -518,9 +544,11 @@ function stemItems(scene,actor,t,root){
   const rt=Vr.root.map(v=>v/16);const point=(z,y)=>{const rise=(y-S.reference_origin[1])*units*len,cl=Vr.depth_clearance/16*Math.min(1,Math.max(0,rise/(Vr.clearance_rise/16)));return [rt[0],rt[1]+rise,rt[2]+z*units*len-cl];};
   const spent=t>=st.drops[st.drops.length-1],col=spent?[157,135,79]:[66,186,57],tri=[];const arc=S.centerline.map(([z,y])=>{const p=point(z,y);return rt.map((r,k)=>(r+(p[k]-r)*grow)*16);});
   for(let i=1;i<arc.length;i++){const r0=(S.radius[0]+(S.radius[1]-S.radius[0])*(i-1)/(arc.length-1))*F.radiusScale[count-1],r1=(S.radius[0]+(S.radius[1]-S.radius[0])*i/(arc.length-1))*F.radiusScale[count-1];tube(tri,arc[i-1],arc[i],r0,r1);}
-  const items=[];const fs=Math.min(.3,.12+.18*Math.min(1,Math.max(0,(prog-.15)/.8)));
-  S.socket_layouts[String(count)].forEach(([z,y],i)=>{if(t>=st.drops[i])return;const s=point(z,y).map(v=>v*16);const base=[s[0],s[1]-S.pendant_length_reference*S.reference_units_to_model-Vr.crown_height*fs,s[2]-F.fruitForwardClearance];
-    tube(tri,s,[base[0],base[1]+Vr.crown_height*fs,base[2]],.12,.09);const M=MODELS[st.kinds[i]],posed=poseModel(M,'idle',0,1).v;
+  // GrowthSize.fruit and FamilyGeometry.childBase / FamilyRenderer: each fruit hangs by its own crown (or hanging anchor)
+  const items=[],Fr=F.growth.fruit,fs=Fr.from+(Fr.to-Fr.from)*Math.min(1,Math.max(0,(prog-Fr.visible_from)/(Fr.full_at-Fr.visible_from)));
+  S.socket_layouts[String(count)].forEach(([z,y],i)=>{if(t>=st.drops[i]||prog<Fr.visible_from)return;const s=point(z,y).map(v=>v*16),shape=F.variants[st.kinds[i]],an=shape.hanging_anchor;
+    const base=[s[0],s[1]-S.pendant_length_reference*S.reference_units_to_model-(shape.hang_clearance_height??shape.crown_height)*fs,s[2]-F.fruitForwardClearance];
+    tube(tri,s,an?[base[0]+an[0]*fs,base[1]+an[1]*fs,base[2]+an[2]*fs]:[base[0],base[1]+shape.crown_height*fs,base[2]],.12,.09);const M=MODELS[st.kinds[i]],posed=poseModel(M,'idle',0,1).v;
     items.push({v:place(posed,new Float32Array(posed.length),{s:fs,yaw:0,pos:base}),tex:M.tex.sleep,size:M.size});});
   items.push({v:new Float32Array(tri),color:col});
   // The stem grows from the forehead and moves with the mother's root motion (FamilyRenderer follows rootPose).
@@ -605,7 +633,7 @@ def main():
     corrections = json.loads(Path(a.corrections).read_text(encoding='utf-8'))
     family = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
     data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hat=hat_prop(), metrics=VESSEL,
-                family=dict(stem=family['stem'], lengthScale=family['lengthScale'], radiusScale=family['radiusScale'],
+                family=dict(stem=family['stem'], growth=family['growth'], lengthScale=family['lengthScale'], radiusScale=family['radiusScale'],
                             fruitForwardClearance=family['fruitForwardClearance'], variants={k: family['variants'][k] for k in ('reimu', 'marisa')}),
                 scenes=[])
     data['scenes'] = [s(data['models']) if s is scene_land_stem else s() for s in SCENES]

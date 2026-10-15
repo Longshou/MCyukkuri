@@ -396,10 +396,8 @@ public final class FamilyLife {
         float desired=scale;
         if(stage==Stage.BABY&&age>=threshold/4&&nourishment>=threshold*3/16)next=Stage.JUVENILE;
         if(next==Stage.JUVENILE&&age>threshold&&nourishment>=threshold*.75)next=Stage.ADULT;
-        if(next==Stage.BABY)desired=entity.getVariant().isHouse()?Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,threshold/4)),.32f,.5f):Mth.lerp(Math.min(1,nourishment/(float)Math.max(1,threshold/4)),.12f,.3f);
-        else if(next==Stage.JUVENILE)desired=Mth.lerp(Math.min(1,nourishment/(float)threshold),entity.getVariant().isHouse()?.5f:.3f,.8f);
-        else desired=Mth.lerp(Math.min(1,Math.max(0,nourishment-threshold)/(float)Math.max(1,threshold/2)),.8f,adultScale);
-        desired=Math.max(scale,desired);
+        // The size standard (GrowthSize): one curve over nourishment, capped by the stage reached, never shrinking.
+        desired=Math.max(scale,GrowthSize.scale(next,nourishment,threshold,adultScale,entity.getVariant().isHouse()));
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
         boolean changed=next!=stage||Math.abs(desired-scale)>.001f;stage=next;scale=desired;
@@ -408,8 +406,8 @@ public final class FamilyLife {
     public void newborn(FamilyData.Child child,FamilyData.Brood brood) {
         initialized=true;mother=brood.mother;father=brood.father;birthId=brood.id;adultScale=child.adultScale;lifespan=child.lifespan;
         maturity=Math.clamp(child.maturity,1,Math.max(1,lifespan-1));
-        age=nourishment=0;stage=brood.kind==FamilyData.BirthKind.STEM?Stage.JUVENILE:Stage.BABY;
-        scale=brood.kind==FamilyData.BirthKind.STEM?.3f:brood.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.BABY_SCALE:.32f;
+        age=nourishment=0;stage=GrowthSize.birthStage(brood.kind);
+        scale=GrowthSize.birth(brood.kind);
         awaitingLanding=brood.kind!=FamilyData.BirthKind.EGG;
         juvenileVoice=new java.util.Random(child.id.getLeastSignificantBits()).nextInt(10)==0;
         CompoundTag personality=new CompoundTag();personality.putIntArray("Innate",child.traits);personality.putIntArray("Experience",new int[6]);
@@ -442,7 +440,7 @@ public final class FamilyLife {
         initialized = true; mother = first.getUUID(); father = second == null ? null : second.getUUID();
         maturity = FamilyConfig.MATURITY.get(); lifespan = maturity + FamilyConfig.ADULT_LIFESPAN.get();
         age = maturity * 3 / 8; nourishment = age;
-        stage = Stage.JUVENILE; scale = .4f; adultScale = 1;
+        stage = Stage.JUVENILE; adultScale = 1; scale = GrowthSize.scale(stage, nourishment, maturity, adultScale, entity.getVariant().isHouse());
         entity.syncFamily();
         var relations = YukkuriWorldData.get(level());
         for (YukkuriEntity parent : second == null ? java.util.List.of(first) : java.util.List.of(first, second)) {
@@ -739,7 +737,7 @@ public final class FamilyLife {
             age=GrowthTiming.migrateAge(age,oldLifespan,maturity,lifespan);
             nourishment=GrowthTiming.migrateNourishment(nourishment,oldLifespan,maturity);
         } else maturity=Math.clamp(tag.getLong("Maturity"),1,Math.max(1,lifespan-1));
-        adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.12f,1.2f);
+        adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.1f,1.2f);
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
