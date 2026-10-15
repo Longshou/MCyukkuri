@@ -24,6 +24,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -111,14 +112,18 @@ public final class IndependenceGameTests {
             old[0] = placed.shelter();
             old[0].initializeEncounter(2);
             var parent = ModEntities.REIMU.get().create(level); parent.moveTo(Vec3.atBottomCenterOf(ORIGIN)); parent.setNoAi(true); level.addFreshEntity(parent); actors.add(parent);
-            var y = ModEntities.MARISA.get().create(level); y.moveTo(Vec3.atBottomCenterOf(ORIGIN.south())); y.setOnGround(true); level.addFreshEntity(y); actors.add(y); child[0] = y;
+            var y = ModEntities.MARISA.get().create(level); y.moveTo(Vec3.atBottomCenterOf(ORIGIN.south())); level.addFreshEntity(y); actors.add(y); child[0] = y;
             y.family().generatedChild(parent,null);
             var growth = y.family().save(); growth.putString("Stage","ADULT"); growth.putLong("Age",y.family().maturityAge()+1);
             growth.putLong("Nourishment",y.family().maturityAge()); growth.putFloat("Scale",1); y.family().load(growth);
             FamilyData.get(level).register(parent); FamilyData.get(level).register(y);
             var group = new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,ORIGIN,null); groups.add(group.id);
             SettlementData.get(level).add(group); parent.settlement().join(group); y.settlement().join(group);
-            helper.assertTrue(parent.habitat().choose(old[0]) && y.habitat().choose(old[0]),"Real related residents claim separate beds");
+            groundActor(helper,parent,"Original parent"); groundActor(helper,y,"Adult builder");
+            boolean parentClaim = parent.habitat().choose(old[0]);
+            helper.assertTrue(parentClaim,parentClaim ? "Parent claims a real bed" : "Parent claim failed: " + homeDiagnostics(parent,old[0]));
+            boolean childClaim = y.habitat().choose(old[0]);
+            helper.assertTrue(childClaim,childClaim ? "Adult child claims a separate real bed" : "Child claim failed: " + homeDiagnostics(y,old[0]));
             var parentBed = old[0].bed(parent.getUUID()); var childBed = old[0].bed(y.getUUID());
             helper.assertTrue(parentBed != null && childBed != null && !parentBed.equals(childBed),"The two residents own distinct surveyed standing cells");
             helper.assertTrue(y.life().reachable(DESTINATION,false) && y.life().reachable(DESTINATION.south(),false),
@@ -187,6 +192,21 @@ public final class IndependenceGameTests {
         }).thenExecute(() -> weatherAndPaper(helper,old[0],actors))
         .thenSucceed();
     }
+    private static void groundActor(GameTestHelper helper,YukkuriEntity actor,String label) {
+        helper.assertTrue(helper.getLevel().isPositionEntityTicking(actor.blockPosition()),label + " is in an entity-ticking chunk");
+        helper.assertTrue(actor.level().noCollision(actor),label + " actual grown body fits before ground contact: " + actor.getBoundingBox());
+        // createPath requires onGround for a dry, unmounted mob. Let collision establish it, including for NoAI.
+        actor.move(MoverType.SELF,new Vec3(0,-.125,0));
+        helper.assertTrue(actor.onGround() && actor.verticalCollision,label + " must touch the real floor before pathfinding: " + actor.position());
+    }
+    private static String homeDiagnostics(YukkuriEntity actor,ShelterBlockEntity home) {
+        var bed = home.bed(actor.getUUID());
+        return "position=" + actor.position() + ", ground=" + actor.onGround() + ", body=" + actor.getBoundingBox()
+                + ", sound=" + home.sound() + ", owns=" + home.owns(actor.getUUID()) + ", bed=" + bed
+                + ", entryDry=" + actor.life().dryStand(home.entrance()) + ", entryPath=" + actor.life().reachable(home.entrance(),false)
+                + ", beds=" + home.beds().stream().map(pos -> pos.toShortString() + ":dry=" + actor.life().dryStand(pos)
+                        + ":path=" + actor.life().reachable(pos,false)).toList();
+    }
     private static ShelterPlacement.Plan cavePlan(GameTestHelper helper,BlockPos anchor,int beds) {
         var level = helper.getLevel();
         helper.assertTrue(level.isPositionEntityTicking(anchor),"Cave anchor is entity-ticking before terrain and placement checks");
@@ -220,7 +240,9 @@ public final class IndependenceGameTests {
         var y = ModEntities.CHEN.get().create(level); y.moveTo(Vec3.atBottomCenterOf(ORIGIN.south())); level.addFreshEntity(y); actors.add(y);
         y.family().generatedChild(parent,null); var growth = y.family().save(); growth.putString("Stage","ADULT");
         growth.putLong("Age",y.family().maturityAge()+1); growth.putFloat("Scale",1); y.family().load(growth); FamilyData.get(level).register(y);
-        y.settlement().join(parent.settlement().group()); helper.assertTrue(y.habitat().choose(home),"Weather probe has a real family bed");
+        y.settlement().join(parent.settlement().group()); groundActor(helper,y,"Adult weather probe");
+        boolean claimed = y.habitat().choose(home);
+        helper.assertTrue(claimed,claimed ? "Weather probe has a real family bed" : "Weather probe claim failed: " + homeDiagnostics(y,home));
         var site = ORIGIN.south(9); var tag = project(y,ORIGIN,site,ShelterBlock.Kind.CARDBOARD); var list = new ListTag();
         var pieces = new ArrayList<ItemEntity>();
         for(int i=0;i<6;i++) {

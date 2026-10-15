@@ -19,6 +19,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -37,6 +38,7 @@ public final class ShedStemGameTests {
         var actors=new ArrayList<Entity>();var babies=new ArrayList<YukkuriEntity>();
         var brood=new FamilyData.Brood[1];var unloaded=new CompoundTag[1];var waiting=new CompoundTag[1];
         var parents=new YukkuriEntity[2];var hat=new HatBoatEntity[1];
+        var noAiAge=new long[1];var noAiScale=new float[1];
         var blocks=new java.util.LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
         var cleaned=new boolean[1];
         Consumer<EntityJoinLevelEvent> cancel=e->{if(brood[0]!=null&&e.getEntity().getUUID().equals(ShedStemDrops.itemId(brood[0].id)))e.setCanceled(true);};
@@ -83,8 +85,9 @@ public final class ShedStemGameTests {
             eligibility(h,parents[0],b);
             parents[0].family().tick();parents[0].syncFamily();drops.deliver(level.getServer());
             h.assertTrue(parents[0].family().brood()==b&&parents[0].broodCount()==5&&drops.pending(b.id)&&!drops.ready(b.id),"complete insertion keeps maternal stem while actual children are airborne");
-            // One normal ground landing, one real hat flight, one doomed water contact, one discard, one unload/reload.
-            babies.get(0).setNoAi(true); // Disable AI while airborne: physics must still confirm actual ground contact.
+            // One externally moved NoAI landing, one real hat flight, one doomed water contact, one discard, one unload/reload.
+            babies.get(0).setNoAi(true);
+            noAiAge[0]=babies.get(0).family().age();noAiScale[0]=babies.get(0).growthScale();
             hat[0]=HatBoatEntity.setDown(parents[1],Vec3.atBottomCenterOf(origin.offset(6,0,6)),0,HatVessel.Mode.NEST,HatVessel.Role.HELPER);
             h.assertTrue(hat[0]!=null,"father provides an actual catching hat");actors.add(hat[0]);
             babies.get(1).family().launchInto(hat[0],HatVessel.TMIN,null);
@@ -93,9 +96,21 @@ public final class ShedStemGameTests {
             babies.get(3).discard();
             unloaded[0]=new CompoundTag();babies.get(4).saveWithoutId(unloaded[0]);babies.get(4).remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
             waiting[0]=drops.save(new CompoundTag(),level.registryAccess());
-        }).thenIdle(45).thenExecute(()->{
+        }).thenIdle(5).thenExecute(()->{
+            var baby=babies.get(0);var b=brood[0];
+            h.assertTrue(baby.isNoAi()&&!baby.onGround()&&baby.family().awaitingLanding()&&!b.children.get(0).landed&&!drops.ready(b.id),
+                    "NoAI airborne body stays unresolved without autonomous travel or external motion");
+            double before=baby.getY();baby.move(MoverType.SELF,new Vec3(0,-8,0));
+            h.assertTrue(baby.onGround()&&baby.verticalCollision&&baby.getY()<before&&Math.abs(baby.getY()-origin.getY())<1.0e-6,
+                    "External movement of the same NoAI body collides with the actual stone floor");
+            h.assertTrue(baby.family().awaitingLanding()&&!b.children.get(0).landed,
+                    "Collision alone does not directly write family landing state; normal server tick must confirm it");
+        }).thenIdle(40).thenExecute(()->{
             var b=brood[0];
-            h.assertTrue(b.children.get(0).landed&&babies.get(0).isNoAi()&&babies.get(0).onGround()&&!babies.get(0).family().awaitingLanding(),"NoAI child really lands on the ground before confirmation");
+            h.assertTrue(b.children.get(0).landed&&babies.get(0).isNoAi()&&babies.get(0).onGround()&&!babies.get(0).family().awaitingLanding(),
+                    "Externally moved NoAI child is confirmed only after real ground contact and server family tick");
+            h.assertTrue(babies.get(0).family().age()==noAiAge[0]&&babies.get(0).growthScale()==noAiScale[0],
+                    "Pure contact confirmation awards no NoAI growth or age progression");
             h.assertTrue(b.children.get(1).landed&&babies.get(1).getVehicle()==hat[0]&&!babies.get(1).family().flying(),"hat birth waits until the actual flight has boarded");
             h.assertTrue(families.person(b.children.get(2).id).status==FamilyData.Status.DEAD,"doomed water contact records death, not a live landing");
             h.assertTrue(families.person(b.children.get(3).id).status==FamilyData.Status.REMOVED,"discard is an explicit terminal outcome");
