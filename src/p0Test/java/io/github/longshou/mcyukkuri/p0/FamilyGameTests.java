@@ -10,7 +10,9 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -34,8 +36,13 @@ public final class FamilyGameTests {
     private static final AABB AREA=new AABB(160,60,0,224,85,56);
     private static final BlockPos HOME_A=new BlockPos(180,65,21),HOME_B=new BlockPos(183,65,21);
     private record Check(String name,boolean pass,String detail) {}
+    private record FallingChild(YukkuriEntity entity,Vec3 birthPosition) {}
+    private record GroundContact(long tick,Vec3 birthPosition,Vec3 position,String model,int subspeciesFlags,
+            boolean groundFlag,boolean verticalCollision,double supportTop) {}
     private final List<Check> checks=new ArrayList<>();
     private final List<FamilyData.Brood> batches=new ArrayList<>();
+    private final Map<UUID,FallingChild> landingSubjects=new LinkedHashMap<>();
+    private final Map<UUID,GroundContact> groundContacts=new LinkedHashMap<>();
     private GameTestHelper helper;
     private ServerLevel level;
     private net.minecraft.gametest.framework.GameTestSequence sequence;
@@ -49,6 +56,7 @@ public final class FamilyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=6000,batch="family")
     public static void familyAcceptance(GameTestHelper helper) {
         FamilyGameTests test=new FamilyGameTests();test.helper=helper;test.level=helper.getLevel();test.setup();
+        helper.onEachTick(test::observeGroundContacts);
         test.sequence=helper.startSequence().thenWaitUntil(() -> {
             for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)
                 helper.assertTrue(test.level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)), "Waiting for family fixture chunks");
@@ -60,7 +68,40 @@ public final class FamilyGameTests {
             if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" family checks failed; first: "+failed.getFirst().name);
         });
     }
-    private void check(String name,boolean valid,Object detail) { checks.add(new Check(name,valid,String.valueOf(detail))); }
+    private void check(String name,boolean valid,Object detail) {
+        var result=new Check(name,valid,String.valueOf(detail));checks.add(result);
+        if(!valid)System.out.println("MCYUKKURI_P0 family check failed: "+result);
+    }
+    private void observeGroundContacts() {
+        for(var entry:landingSubjects.entrySet()) {
+            var tracked=entry.getValue();var baby=tracked.entity();
+            if(groundContacts.containsKey(entry.getKey())||!baby.isAlive()||baby.isRemoved()
+                    ||baby.family().flying()||baby.isPassenger()||baby.isInWaterOrBubble())continue;
+            if(baby.getY()>=tracked.birthPosition().y-.25||!level.noCollision(baby))continue;
+            var box=baby.getBoundingBox();double supportTop=Double.NaN;
+            // onGround may be cleared by a zero-displacement step before this observer runs.
+            // Independently require the descended, un-clipped sole to touch an actual block's top plane.
+            for(var shape:level.getBlockCollisions(baby,box.move(0,-.01,0)))for(var support:shape.toAabbs()) {
+                if(Math.abs(support.maxY-box.minY)<1.0e-6
+                        &&Math.min(support.maxX,box.maxX)-Math.max(support.minX,box.minX)>1.0e-6
+                        &&Math.min(support.maxZ,box.maxZ)-Math.max(support.minZ,box.minZ)>1.0e-6)supportTop=support.maxY;
+            }
+            if(!Double.isFinite(supportTop))continue;
+            var contact=new GroundContact(helper.getTick(),tracked.birthPosition(),baby.position(),baby.subspecies().assetId(),
+                    baby.subspeciesFlags(),baby.onGround(),baby.verticalCollision,supportTop);
+            groundContacts.put(entry.getKey(),contact);
+            System.out.println("MCYUKKURI_P0 actual newborn ground contact id="+entry.getKey()+" "+contact);
+        }
+    }
+    private List<String> landingDetails(FamilyData.Brood brood) {
+        return brood.children.stream().map(c->{
+            var entity=level.getEntity(c.id);
+            return "id="+c.id+", ledgerLanded="+c.landed+", firstContact="+groundContacts.get(c.id)
+                    +(entity instanceof YukkuriEntity baby?", position="+baby.position()+", currentGround="+baby.onGround()
+                            +", awaiting="+baby.family().awaitingLanding()+", flight="+baby.family().flying()
+                            +", velocity="+baby.getDeltaMovement()+", model="+baby.subspecies().assetId():", entity="+entity);
+        }).toList();
+    }
     private void later(int delay,String name,Runnable action) {
         sequence.thenIdle(delay).thenExecute(()-> {
             try{action.run();}catch(Throwable error){check(name,false,error.toString());}
@@ -80,6 +121,7 @@ public final class FamilyGameTests {
         clear();
     }
     private void clear() {
+        landingSubjects.clear();groundContacts.clear();
         for(var brood:batches)FamilyData.get(level).cancel(brood);batches.clear();
         level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
         level.setBlockAndUpdate(HOME_A,Blocks.AIR.defaultBlockState());level.setBlockAndUpdate(HOME_B,Blocks.AIR.defaultBlockState());
@@ -211,6 +253,7 @@ public final class FamilyGameTests {
                         } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(reject); }
                     }
                     var baby=data.birth(brood,i,level,new Vec3(176.5+i,66.5,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
+                    landingSubjects.put(baby.getUUID(),new FallingChild(baby,baby.position()));
                     WaddleGameTests.clearGoals(baby); // Keep real gravity and landing ticks, isolate random movement.
                     // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
                     float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
@@ -233,8 +276,8 @@ public final class FamilyGameTests {
             });
             later(35,"natural stem waits for actual ground landing "+count,()-> {
                 var brood=pendingStem;var stems=io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level);
-                check(count+" all children physically landed",brood.children.stream().allMatch(c->c.landed
-                        &&level.getEntity(c.id) instanceof YukkuriEntity baby&&!baby.family().awaitingLanding()&&baby.onGround()),brood.id);
+                check(count+" all children physically landed",brood.children.stream().allMatch(c->c.landed&&groundContacts.containsKey(c.id)
+                        &&level.getEntity(c.id) instanceof YukkuriEntity baby&&!baby.family().awaitingLanding()),landingDetails(brood));
                 a.family().tick();stems.deliver(level.getServer());
                 check(count+" landing removes the maternal empty stem",a.family().brood()==null&&a.broodCount()==0&&!a.hasSpentStem(),a.family().save());
                 var dropped=level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id));

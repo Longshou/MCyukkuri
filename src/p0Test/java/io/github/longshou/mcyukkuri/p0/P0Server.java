@@ -366,7 +366,10 @@ public final class P0Server {
                         "id",e.getId(),"count",e.getItem().getCount(),"item",e.getItem().toString(),"tags",e.getTags(),"x",e.getX(),"z",e.getZ())).toList());
     }
 
-    private void check(String name, boolean pass, Object detail) { checks.add(new Check(name, pass, String.valueOf(detail))); }
+    private void check(String name, boolean pass, Object detail) {
+        var result = new Check(name, pass, String.valueOf(detail)); checks.add(result);
+        if (!pass) System.out.println("MCYUKKURI_P0 entity check failed: " + result);
+    }
     private void later(int ticks, String name, Runnable step) { steps.add(new Step(ticks, name, step)); }
     private static void field(YukkuriEntity entity, String name, Object value) {
         try { Field field = YukkuriEntity.class.getDeclaredField(name); field.setAccessible(true); field.set(entity, value); }
@@ -446,8 +449,16 @@ public final class P0Server {
             later(1, id + " animation state", () -> {
                 fresh(type.get()); subject.setNoAi(true);
                 for (YukkuriAction action : YukkuriAction.values()) {
-                    if (action.id().endsWith("_retract")) subject.playAction(action.id().replace("_retract","_extend"));
-                    check(id + " accepts " + action.id(), subject.playAction(action.id()) && subject.getAnimationId().equals(action.id()), state(subject));
+                    if (action == YukkuriAction.SHELL_RETRACT) {
+                        String previous = subject.getAnimationId(); long start = subject.getAnimationStartTick();
+                        check(id + " ordinary form rejects shell retraction without changing pose", !subject.shellRetraction().hasShell()
+                                && !subject.playAction(action.id()) && subject.getAnimationId().equals(previous)
+                                && subject.getAnimationStartTick() == start, state(subject));
+                    } else {
+                        if (action.id().startsWith("anatomy_") && action.id().endsWith("_retract"))
+                            subject.playAction(action.id().replace("_retract","_extend"));
+                        check(id + " accepts " + action.id(), subject.playAction(action.id()) && subject.getAnimationId().equals(action.id()), state(subject));
+                    }
                 }
                 check(id + " unknown action rejected", !subject.playAction("invalid"), "invalid");
                 subject.playAction("idle"); subject.playAction("anatomy_mamu_retract");
@@ -489,6 +500,20 @@ public final class P0Server {
                 if (restored!=null) level.addFreshEntity(restored);
             });
         }
+        later(1,"shell-specific command guards",()-> {
+            fresh(ModEntities.MARISA.get()); subject.setNoAi(true);
+            check("Marisa can become the actual shell subspecies",subject.subspecies().set(
+                    io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA,
+                    io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL),state(subject));
+            check("actual worn shell accepts shell retraction",subject.shellRetraction().hasShell()
+                    && subject.playAction("shell_retract") && subject.getAnimationId().equals("shell_retract"),state(subject));
+            UUID shell = subject.life().takeAccessory(null);
+            check("removed real shell refuses shell retraction",shell != null && !subject.shellRetraction().hasShell()
+                    && !subject.playAction("shell_retract"),state(subject));
+            check("same shell identity can be returned",shell != null && subject.life().returnAccessory(subject.getUUID(),shell,null),state(subject));
+            check("returning the actual shell restores its command",subject.shellRetraction().hasShell()
+                    && subject.playAction("shell_retract") && subject.getAnimationId().equals("shell_retract"),state(subject));
+        });
         later(1,"cleanup",()-> {
             clearCases();
             level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,server);

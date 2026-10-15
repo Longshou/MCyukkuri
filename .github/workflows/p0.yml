@@ -61,6 +61,7 @@ jobs:
           path: |
             .local/p0/gametest/logs/
             .local/p0/gametest/crash-reports/
+            .local/p0/gametest/p0-control/
             build/reports/
           include-hidden-files: true
           if-no-files-found: ignore

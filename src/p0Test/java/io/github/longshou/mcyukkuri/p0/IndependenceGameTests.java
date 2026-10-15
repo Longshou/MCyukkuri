@@ -86,6 +86,8 @@ public final class IndependenceGameTests {
             trace.add(java.util.Map.of("tick",helper.getTick(),"phase",phase[0],"position",y.position().toString(),
                     "behavior",y.getBehaviorId(),"work",y.independence().work(),"carrying",y.independence().carrying().toString(),
                     "oldOwns",old[0].owns(y.getUUID()),"visits",y.independence().visits()));
+            if (phase[0] == 3 || phase[0] == 4)
+                System.out.println("MCYUKKURI_P0 independence recognition phase=" + phase[0] + " " + visitDiagnostics(y,actors.getFirst()));
             if (phase[0] == 0 && y.independence().work() >= 120 && !reload[0]) {
                 helper.assertTrue(old[0].owns(y.getUUID()) && y.habitat().shelter() == old[0],"Old bed remains owned throughout unfinished construction");
                 var saved = y.independence().save();
@@ -149,6 +151,12 @@ public final class IndependenceGameTests {
             helper.assertTrue(!y.settlement().groupId().equals(groups.getFirst()) && y.settlement().group().center.equals(DESTINATION),"New family return center is the real new home");
             helper.assertTrue(FamilyData.get(level).related(y.getUUID(),actors.getFirst().getUUID()),"Moving retains original parentage");
             helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(ORIGIN).inflate(18),item->item.getItem().is(Items.OAK_LEAVES)).isEmpty(),"Exactly the three real leaf materials were consumed");
+            // Distance <=1.5 alone can still put an approaching visitor behind the cave's side wall.
+            // Keep the NoAI relative at the real outside entrance for a visible greeting, with its original bed intact.
+            var parent = actors.getFirst(); var greetingSpot = Vec3.atBottomCenterOf(old[0].entrance());
+            parent.move(MoverType.SELF,greetingSpot.subtract(parent.position())); groundActor(helper,parent,"Visiting relative");
+            helper.assertTrue(parent.isNoAi() && parent.distanceToSqr(greetingSpot) < 1.0e-6 && old[0].owns(parent.getUUID())
+                    && old[0].interior().inflate(3).contains(parent.position()),"Actual external movement leaves the relative grounded at its own home's outside entrance");
             readyVisit(y);
         }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().active()
                 && child[0].independence().activity().equals("independence_visit") && child[0].distanceToSqr(actors.getFirst()) > 2.25,
@@ -161,24 +169,38 @@ public final class IndependenceGameTests {
                     "Accessory loss cancels the ongoing approach without counting a visit or losing the return obligation");
             helper.assertTrue(parent.life().returnAccessory(parent.getUUID(),removedAccessory[0],null),"The same parent accessory is returned");
         }).thenWaitUntil(() -> assertReturned(helper,child[0]))
-        .thenExecute(() -> readyVisit(child[0]))
+        .thenExecute(() -> { phase[0] = 2; readyVisit(child[0]); })
         .thenWaitUntil(() -> helper.assertTrue(child[0].independence().active()
-                && child[0].independence().activity().equals("independence_visit") && child[0].distanceToSqr(actors.getFirst()) <= 2.25,
-                "Second revisit reaches the actual relative"))
-        .thenIdle(2).thenExecute(() -> {
-            actors.getFirst().life().setMedal(2);
-            removedAccessory[0] = child[0].life().takeAccessory(null);
+                && independenceTask(child[0]).equals("GREET") && child[0].distanceToSqr(actors.getFirst()) <= 2.25
+                && child[0].hasLineOfSight(actors.getFirst()) && actors.getFirst().hasLineOfSight(child[0]),
+                "Second revisit must begin the actual visible greeting: " + visitDiagnostics(child[0],actors.getFirst())))
+        .thenExecute(() -> {
+            var y = child[0]; var parent = actors.getFirst();
+            parent.life().setMedal(2); phase[0] = 3;
+            helper.assertTrue(parent.life().hasGoldMedal(),"Observer really has the gold qualification before accessory removal");
+            helper.assertTrue(y.life().hasAccessory(),"Visitor still has its actual accessory before removal");
+            removedAccessory[0] = y.life().takeAccessory(null);
+            System.out.println("MCYUKKURI_P0 independence gold setup " + visitDiagnostics(y,parent));
         }).thenIdle(3).thenExecute(() -> {
             var y = child[0]; var parent = actors.getFirst();
-            helper.assertTrue(removedAccessory[0] != null && parent.life().canRecognize(y) && y.life().canRecognize(parent)
-                    && y.independence().active() && y.independence().activity().equals("independence_visit"),
-                    "A gold observer preserves its existing exception during a visit");
-            parent.life().setMedal(0);
+            String state = visitDiagnostics(y,parent);
+            helper.assertTrue(removedAccessory[0] != null,"Visitor accessory removal returns the real identity token: " + state);
+            helper.assertTrue(parent.life().hasGoldMedal(),"Observer retains the actual gold qualification: " + state);
+            helper.assertTrue(parent.life().canRecognize(y),"Gold observer recognizes its accessory-less child: " + state);
+            helper.assertTrue(y.life().canRecognize(parent),"Visitor still recognizes its adorned parent: " + state);
+            helper.assertTrue(y.independence().active(),"Gold exception leaves the actual visit active: " + state);
+            helper.assertTrue(independenceTask(y).equals("GREET"),"Gold exception preserves the real greeting phase: " + state);
+            helper.assertTrue(y.independence().activity().equals("independence_visit"),"Gold exception retains the public visit activity: " + state);
+            helper.assertTrue(y.independence().visits() == 0,"Brief gold greeting cannot prematurely count a completed visit: " + state);
+            parent.life().setMedal(0); phase[0] = 4;
         }).thenIdle(2).thenExecute(() -> {
-            var y = child[0];
-            helper.assertTrue(!y.independence().active() && y.independence().visits() == 0 && y.independence().save().getBoolean("Returning"),
-                    "Losing recognition during the greeting cancels it and retains the way home");
+            var y = child[0]; String state = visitDiagnostics(y,actors.getFirst());
+            helper.assertTrue(!actors.getFirst().life().canRecognize(y),"Removing gold really removes the observer's recognition exception: " + state);
+            helper.assertTrue(!y.independence().active(),"Losing recognition cancels the real greeting: " + state);
+            helper.assertTrue(y.independence().visits() == 0,"Cancelled greeting counts no completed visit: " + state);
+            helper.assertTrue(y.independence().save().getBoolean("Returning"),"Cancelled greeting retains the physical return obligation: " + state);
             helper.assertTrue(y.life().returnAccessory(y.getUUID(),removedAccessory[0],null),"The same visitor accessory is returned");
+            phase[0] = 5;
         }).thenWaitUntil(() -> assertReturned(helper,child[0]))
         .thenExecute(() -> readyVisit(child[0]))
         .thenWaitUntil(() -> helper.assertTrue(child[0].independence().visits() == 1,"Child walks back and spends time with actual relative"))
@@ -191,6 +213,35 @@ public final class IndependenceGameTests {
                     && child[0].distanceToSqr(Vec3.atBottomCenterOf(stand)) < 1,"After visit reload, the same entity walks back to its own home");
         }).thenExecute(() -> weatherAndPaper(helper,old[0],actors))
         .thenSucceed();
+    }
+    /** Read-only P0 observation: no task, goal or production state is changed to manufacture a greeting. */
+    private static String independenceTask(YukkuriEntity actor) {
+        try {
+            var field = actor.independence().getClass().getDeclaredField("task"); field.setAccessible(true);
+            return ((Enum<?>)field.get(actor.independence())).name();
+        } catch (ReflectiveOperationException error) { throw new IllegalStateException("Cannot observe the real independence task",error); }
+    }
+    private static String visitDiagnostics(YukkuriEntity visitor,YukkuriEntity parent) {
+        return "tick=" + visitor.tickCount + ", task=" + independenceTask(visitor) + ", active=" + visitor.independence().active()
+                + ", activity=" + visitor.independence().activity() + ", behavior=" + visitor.getBehaviorId()
+                + ", visits=" + visitor.independence().visits() + ", returning=" + visitor.independence().save().getBoolean("Returning")
+                + ", medals=" + parent.life().medal() + "/" + visitor.life().medal()
+                + ", accessories=" + parent.life().hasAccessory() + "/" + visitor.life().hasAccessory()
+                + ", recognizes=" + parent.life().canRecognize(visitor) + "/" + visitor.life().canRecognize(parent)
+                + ", LOS=" + parent.hasLineOfSight(visitor) + "/" + visitor.hasLineOfSight(parent)
+                + ", distance2=" + visitor.distanceToSqr(parent) + ", positions=" + parent.position() + "/" + visitor.position()
+                + ", needs=" + visitor.life().nutrition() + "/" + visitor.life().energy() + "/" + visitor.life().bladder() + "/" + visitor.life().dryness()
+                + ", urgent=" + visitor.life().hasUrgentNeed() + ", life=" + visitor.life().activity()
+                + ", panic=" + visitor.isPanicking() + ", command=" + visitor.isCommandPlaying() + ", operations=" + visitor.operations().active()
+                + ", badges=" + visitor.badges().active() + ", shell=" + visitor.shellRetraction().active()
+                + ", family=" + visitor.family().active() + "/recovery=" + visitor.family().recovery() + ", daily=" + visitor.dailyLife().activity()
+                + ", group=" + visitor.groupInteraction().activity() + ", play=" + visitor.playLife().activity()
+                + ", habitat=" + visitor.habitat().active() + ":" + visitor.habitat().activity()
+                + ", duties=" + visitor.settlement().duties().active() + ":" + visitor.settlement().duties().activity()
+                + ", social=" + visitor.social().active() + ", reserved=" + io.github.longshou.mcyukkuri.event.WildEvents.reserved(visitor)
+                + ", role=" + visitor.settlement().society().role() + ", parentLife=" + parent.life().activity()
+                + ", parentUrgent=" + parent.life().hasUrgentNeed() + ", parentPanic=" + parent.isPanicking()
+                + ", parentOperations=" + parent.operations().active() + ", parentFamily=" + parent.family().active();
     }
     private static void groundActor(GameTestHelper helper,YukkuriEntity actor,String label) {
         helper.assertTrue(helper.getLevel().isPositionEntityTicking(actor.blockPosition()),label + " is in an entity-ticking chunk");
