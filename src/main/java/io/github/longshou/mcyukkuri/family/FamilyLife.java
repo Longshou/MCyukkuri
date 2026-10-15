@@ -123,8 +123,8 @@ public final class FamilyLife {
                 &&father.isAlive()&&hatted(father)&&father.distanceToSqr(mother)<256&&father.life().canRecognize(mother))return father;
         return hatted(mother)?mother:null;
     }
-    /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it into a soft
-     *  nest before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it);
+    /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it upside down
+     *  before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it);
      *  the aquatic Marisa floats her larger hat at the bank's edge before the outlet, its near brim slipped under the bank. */
     public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role){
         boolean aquatic=HatVessel.aquatic(catcher);var place=HatVessel.placement(aquatic,role);
@@ -140,8 +140,8 @@ public final class FamilyLife {
         }
         int next=0;
         if(brood.kind==FamilyData.BirthKind.LIVE)while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
-        // The nest's long axis lies across her; its near opening edge a little nearer to her than the exit.
-        var at=LiveBirthGeometry.position(mother,next).add(forward.scale(HatVessel.NEST_OPENING[0]*k-HatVessel.INSIDE_EXIT*body));
+        // The hat's long axis lies across her; its opening's near edge a little nearer to her than the exit.
+        var at=LiveBirthGeometry.position(mother,next).add(forward.scale((HatVessel.OPENING[1]-HatVessel.OPENING[0])*.5*k-HatVessel.INSIDE_EXIT*body));
         return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
     }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */

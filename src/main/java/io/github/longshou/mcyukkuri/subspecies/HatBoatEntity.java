@@ -21,11 +21,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.UUID;
 
-/** One real hat (her own hat turned over, soft: HatVessel) and one Marisa owner. Afloat it is the aquatic Marisa's boat: she
- *  sits low in the bowl at the stern and her young ride in its dry inside, under her at night. Unloading never means rescue or death. */
+/** One real hat (her own hat turned upside down, its soft crown pressed down: HatVessel) and one Marisa owner. Afloat it is
+ *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, under her at night.
+ *  Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity {
-    /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown folded into a nest, to catch young. MOORED: an aquatic
-     *  Marisa's hat floated at a bank to catch them, held in place. Ordinals are synced: append only. */
+    /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young. MOORED: an
+     *  aquatic Marisa's hat floated at a bank to catch them, held in place. Ordinals are synced: append only. */
     public enum State { AFLOAT, BEACHED, CAPSIZED, RESCUED, REMOVED, CRADLE, MOORED }
     private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -103,15 +104,15 @@ public final class HatBoatEntity extends Entity {
         if (!hasPassenger(passenger)) return;
         float k = hullScale()/16, turn = (float) Math.toRadians(180 - getYRot());
         if (passenger.getUUID().equals(ownerYukkuri())) {
-            // Low in the bowl at the stern, her back to the rear of the opening: the bowl before her stays open.
-            double z = HatVessel.OPENING[1]*k - passenger.getBbWidth()*.5;
-            var at = new Vec3(0, (HatVessel.FREEBOARD-HatVessel.OWNER_SINK)*k, Math.max(0, z)).yRot(turn);
+            // In the opening at the stern, on the ledge, her back to its rear edge: the inside before her stays open.
+            double z = HatVessel.OPENING[3]*k - passenger.getBbWidth()*.5;
+            var at = new Vec3(0, HatVessel.OWNER_Y*k, Math.max(0, z)).yRot(turn);
             move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z); return;
         }
         int seat = 0;
         for (var p : getPassengers()) { if (p == passenger) break; if (!p.getUUID().equals(ownerYukkuri())) seat++; }
-        // On the floor of the nest; afloat on the inside of the bowl, before the owner by day and under her at night.
-        var local = isCradle() ? HatVessel.nestSeat(seat) : HatVessel.boatSeat(seat, !isMoored() && level().isNight()).add(0, HatVessel.FREEBOARD, 0);
+        // On the floor inside the hat: afloat before the owner by day and under her at night.
+        var local = isCradle() ? HatVessel.nestSeat(seat) : HatVessel.boatSeat(seat, !isMoored() && level().isNight());
         var at = local.scale(k).yRot(turn);
         move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z);
     }
@@ -152,7 +153,7 @@ public final class HatBoatEntity extends Entity {
         }
         return null;
     }
-    /** A Marisa's braid sets her hat down, turned over, to catch young: a soft nest on dry ground, or floated at a bank (aquatic). */
+    /** A Marisa's braid sets her hat down upside down to catch young: pressed on dry ground, or floated at a bank (aquatic). */
     public static HatBoatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatVessel.Mode mode, HatVessel.Role role) {
         if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA || !owner.isAlive()
                 || owner.isPassenger() || !owner.life().hasAccessory() || owner.subspecies().boatId() != null) return null;

@@ -120,18 +120,16 @@ def target_pose(metrics, variant, role):
     """Where the game sets the hat down (hat_vessel.json placements), in the catcher's model space.
 
     Returns the rigid transform that turns the unscaled worn hat over and puts its anchor (the brim's
-    seat) on the set-down hat's rim, the crown squash that presses it to the nest's or bowl's depth,
-    the hat scale, the brim point the braid takes on the head, and the rim point it holds."""
+    seat on the head) where the set-down hat's brim lies, the crown squash that presses it down as
+    the game draws it, the hat scale, the brim point the braid takes on the head, and the brim point it holds."""
     place = metrics['placements'][variant]; k = place['scale']; p = place[role]
     anchor = np.array(metrics['anchor_worn'])
     Mv = np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]], float)  # worn -> vessel (build.worn_to_vessel)
     Ry = rot_y(math.radians(-p['yaw']))  # hat frame -> catcher frame
-    if p['mode'] == 'bowl':  # afloat: the entity at the water line, the rim a freeboard above it
-        lift = np.array([0, metrics['bowl']['freeboard']*k, 0]); rim_y = 0.
-    else:  # the nest on the ground, its rim up at the nest's height
-        lift = np.zeros(3); rim_y = metrics['nest']['rim']*k
+    # afloat the brim is a freeboard over the water line; on land the pressed crown stands the brim at the nest height
+    lift = np.array([0, (metrics['bowl']['freeboard'] if p['mode'] == 'bowl' else metrics['nest']['height'])*k, 0])
     R = Ry@Mv
-    t = np.array(p['offset'])+Ry@(lift+[0, rim_y, 0])-R@anchor
+    t = np.array(p['offset'])+Ry@lift-R@anchor
     rim = np.array(p['offset'])+Ry@(np.array(p['rim'])*k+lift)
     return affine(R, t), metrics['squash'][p['mode']], k, np.array(p['grip_worn']), rim
 
@@ -204,9 +202,9 @@ def compile_hat(model, cfg, root, ground, height, name, c):
     """Tracks for one hat clip: root, hat_follow (position, rotation, crown squash), braid and tuft (rotation, scale).
 
     The braid hooks the brim on the head, lifts the hat, swings it round its root out to its side and
-    turns it over above the place, then presses it down: the soft crown squashes to the nest's or
-    bowl's depth while the braid slides from the brim to the rim it holds (a helper) or lets go (a
-    mother on her own). `reverse` plays the same motion backwards to put the hat back on."""
+    turns it over above the place, then presses it down: the soft crown squashes as the game draws the
+    set-down hat while the braid slides to the brim point it holds (a helper) or lets go (a mother on
+    her own). `reverse` plays the same motion backwards to put the hat back on."""
     metrics = json.loads(METRICS.read_text(encoding='utf-8'))
     rig = Rig(model, root); spec = c['hat']; variant, role = spec['variant'], spec['role']
     end, sigma, k, grip_worn, rim = target_pose(metrics, variant, role)
@@ -282,7 +280,7 @@ def compile_hat(model, cfg, root, ground, height, name, c):
 
 
 def compile_hold(model, cfg, root, ground, height, c):
-    """The helper holds the set-down hat's soft rim with the braid and cheers with each contraction."""
+    """The helper holds the set-down hat's brim with the braid and cheers with each contraction."""
     metrics = json.loads(METRICS.read_text(encoding='utf-8'))
     rig = Rig(model, root); spec = c['hat']; end, sigma, k, _, rim = target_pose(metrics, spec['variant'], 'helper')
     anchor = np.array(metrics['anchor_worn'])

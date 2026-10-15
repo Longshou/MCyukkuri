@@ -3,10 +3,10 @@
 Couples, newborns, Marisa's own hat and the stem are posed per scene on the runtime models with
 their motion corrections. The pregnant body and contractions follow LiveBirthGeometry (deform,
 belly, the 48-tick contraction, births every 2.4 s); the hat and the braid stay rigid on the
-swollen head as in the game. The hat is Marisa's own hat turned over as soft cloth (hat_vessel.json): a nest where the
-braid clips press it down on land (marisa_hat_nest), a pleated bowl afloat (marisa_hat_vessel)
-as the aquatic Marisa's larger boat, its inside kept dry (the water is masked over the opening,
-as in the game). The stem
+swollen head as in the game. The hat is Marisa's own hat turned upside down with its soft crown pressed along its axis
+(marisa_hat_turned, hat_vessel.json): flat on the ground where the braid clips set it, a little
+afloat as the aquatic Marisa's larger boat, its inside kept dry (the water is masked over the
+opening, as in the game). The stem
 and its fruit follow FamilyGeometry / FamilyRenderer with family.json and the mother's root
 motion. A small shared-depth rasterizer draws every actor in one frame. The page opens from
 disk; writing it does not start a browser or the game. Needs numpy and Pillow.
@@ -41,10 +41,32 @@ def pack(ident, corrections):
     rest = p.frame('idle', 0)[0]
     keep = np.repeat(np.linalg.norm(np.cross(rest[:, 1]-rest[:, 0], rest[:, 2]-rest[:, 0]), axis=1) > 1e-7, 3)
     prefixes = tuple(json.loads((PRESENT/'living.json').read_text(encoding='utf-8'))['variants'][ident]['accessory_prefixes'])
-    # 1: accessory (hidden without it, rigid on the swollen head), 2: Marisa's braid (rigid from its root)
-    group = np.concatenate([[1 if part['name'].startswith(prefixes) else 2 if part['name'].startswith('braid_lock') else 0]*part['count']
-                            for part in m['parts'] if not part.get('anatomy')])
-    v = np.c_[p.v, p.uv, p.n][keep]
+    # 1: accessory (hidden without it, rigid on the swollen head), 2: Marisa's braid (rigid from its root), 3: expression panel
+    names = np.concatenate([[part['name']]*part['count'] for part in m['parts'] if not part.get('anatomy')])
+    group = np.array([1 if n.startswith(prefixes) else 2 if n.startswith('braid_lock') else 3 if n.startswith('face_') else 0 for n in names])
+    # The expression panels are a few large flat quads just in front of the face. On a swollen body they must follow the
+    # bulge (the game projects them onto it, PregnancyFaces): keep only their front, cut finely so each point can be deformed.
+    v_all, a_all, b_all, q_all, g_all = [], [], [], [], []
+    V = np.c_[p.v, p.uv, p.n]
+    for t in range(0, len(V), 3):
+        if not keep[t]: continue
+        tri = V[t:t+3]; g = group[t]
+        if g == 3:
+            if tri[0, 7] > -.15: continue  # backs and edges of the thin panels
+            nsub = 4
+            for i in range(nsub):
+                for j in range(nsub-i):
+                    cells = [((i, j), (i+1, j), (i, j+1))]
+                    if i+j < nsub-1: cells.append(((i+1, j), (i+1, j+1), (i, j+1)))
+                    for cell in cells:
+                        for (ci, cj) in cell:
+                            w1, w2 = ci/nsub, cj/nsub; w0 = 1-w1-w2
+                            row = tri[0]*w0+tri[1]*w1+tri[2]*w2; near = int(np.argmax([w0, w1, w2]))
+                            v_all.append(row); a_all.append(p.a[t+near]); b_all.append(p.b[t+near]); q_all.append(p.q[t+near, 0]); g_all.append(3)
+        else:
+            for k in range(3):
+                v_all.append(tri[k]); a_all.append(p.a[t+k]); b_all.append(p.b[t+k]); q_all.append(p.q[t+k, 0]); g_all.append(g)
+    v = np.array(v_all); group_k = np.array(g_all)
     packed = np.c_[np.round(v[:, :3]*1024), np.round(v[:, 3:5]*16384), np.round(v[:, 5:8]*1024)].clip(-32768, 32767).astype(int).ravel().tolist()
     base = {}
     for tr in p.clips['idle']['tracks']:
@@ -61,19 +83,16 @@ def pack(ident, corrections):
         faces |= {f for _, _, f in c.get('expression_spans', [])}
     textures = {f: png_url(p.texture(f)) for f in sorted(faces)}
     special = {k: names.index(k) if k in names else -1 for k in ('root', 'hat_follow', 'hand_right')}
-    return dict(vertices=b64('h', packed), weights=b64('H', np.c_[p.a[keep], p.b[keep]].ravel().tolist()), blend=b64('B', np.round(p.q[keep, 0]*255).astype(int).tolist()),
-                group=b64('B', group[keep].tolist()), bones=bones, clips=clips, textures=textures, textureSize=int(p.texture('neutral').shape[1]), special=special)
+    return dict(vertices=b64('h', packed), weights=b64('H', np.c_[a_all, b_all].astype(int).ravel().tolist()), blend=b64('B', np.round(np.array(q_all)*255).astype(int).tolist()),
+                group=b64('B', group_k.tolist()), bones=bones, clips=clips, textures=textures, textureSize=int(p.texture('neutral').shape[1]), special=special)
 
 
-def hat_props():
-    out = {}
-    for kind, name in VESSEL['props'].items():
-        prop = json.loads((P.ASSETS/f'yukkuri_props/{name}.json').read_text(encoding='utf-8'))
-        V = np.array(prop['vertices']).reshape(-1, 8)
-        packed = np.c_[np.round(V[:, :3]*1024), np.round(V[:, 3:5]*16384), np.round(V[:, 5:8]*1024)].clip(-32768, 32767).astype(int).ravel().tolist()
-        out[kind] = b64('h', packed)
+def hat_prop():
+    prop = json.loads((P.ASSETS/f"yukkuri_props/{VESSEL['prop']}.json").read_text(encoding='utf-8'))
+    V = np.array(prop['vertices']).reshape(-1, 8)
+    packed = np.c_[np.round(V[:, :3]*1024), np.round(V[:, 3:5]*16384), np.round(V[:, 5:8]*1024)].clip(-32768, 32767).astype(int).ravel().tolist()
     tex = np.array(Image.open(P.ASSETS/'textures/entity/marisa/neutral.png').convert('RGBA'))
-    return dict(meshes=out, texture=png_url(tex), textureSize=int(tex.shape[1]))
+    return dict(vertices=b64('h', packed), texture=png_url(tex), textureSize=int(tex.shape[1]))
 
 
 # ------------------------------------------------------------------ scenes (model units, 16 per block, y up)
@@ -122,12 +141,12 @@ def exit_point(mother, rot_m, scale=1.):
 
 def boat_seat(boat, rot_b, k, i, night=False):
     x, y, z = VESSEL['seats']['night' if night else 'day'][i]
-    return add(boat, ry(rot_b, [x*k, (VESSEL['bowl']['freeboard']+y)*k, z*k]))
+    return add(boat, ry(rot_b, [x*k, y*k, z*k]))
 
 
 def owner_seat(boat, rot_b, k, half_depth):
-    z = VESSEL['bowl']['opening'][1]*k-half_depth
-    return add(boat, ry(rot_b, [0, (VESSEL['bowl']['freeboard']-VESSEL['bowl']['owner_sink'])*k, z]))
+    z = VESSEL['opening'][3]*k-half_depth
+    return add(boat, ry(rot_b, [0, VESSEL['bowl']['owner_y']*k, z]))
 
 
 def baby(model, scale, t0, path, clips, sleep_until, rot=0, extra=None):
@@ -151,10 +170,10 @@ def scene_land_live():
         babies.append(baby('reimu' if i == 0 else 'marisa', .18, b-EMERGE,
                            [[b-EMERGE, *ex], [b, *ex], [b+.35, *seat], [t_out-.4+.2*i, *seat], [t_out+.2*i, *out]],
                            [[b-EMERGE, 'idle', 0], [b+.35, 'first_wake', 0], [b+2.35, 'hat_cradle', 0], [t_out-.4, 'hop', 0], [t_out+.4, 'idle', 0]], b+.35, rot_m))
-    return dict(id='land_live', title='陆生胎生：魔理沙父亲用辫子摘帽，压成软巢接生', duration=t_on+2.6, span=24, center=6, focus=[6, -11], az=.45, el=.5,
-                captions=[[0, t_off, '灵梦母亲临产，魔理沙父亲赶到帽子要放的地方旁边'], [t_off, t_del, '辫子勾住帽檐摘下帽子，翻过来按在出口前，柔软的帽顶塌成一个巢'],
-                          [t_del, births[0]-.1, '母亲随收缩用力，父亲用辫子扶着巢沿打气'], [births[0]-.1, end+.5, '孩子一个个挤出来，落进软巢里'],
-                          [end+.5, t_out, '产后休息；子油在巢里初醒'], [t_out, t_on, '子油爬出帽子'], [t_on, t_on+2.6, '父亲用辫子把帽子拿起、翻回、戴好']],
+    return dict(id='land_live', title='陆生胎生：魔理沙父亲用辫子摘帽 接生', duration=t_on+2.6, span=24, center=6, focus=[6, -11], az=.45, el=.5,
+                captions=[[0, t_off, '灵梦母亲临产，魔理沙父亲赶到帽子要放的地方旁边'], [t_off, t_del, '辫子勾住帽檐摘下帽子，倒过来按在出口前，柔软的帽顶被压扁'],
+                          [t_del, births[0]-.1, '母亲随收缩用力，父亲用辫子扶着帽檐打气'], [births[0]-.1, end+.5, '孩子一个个挤出来，落进帽里'],
+                          [end+.5, t_out, '产后休息；子油在帽里初醒'], [t_out, t_on, '子油爬出帽子'], [t_on, t_on+2.6, '父亲用辫子把帽子拿起、翻回、戴好']],
                 ground='land', actors=[
         dict(model='reimu', scale=1, pos=key([0, *mother]), yaw=key([0, rot_m]), belly=belly_keys(births, end), contraction=[t_del, end],
              clips=[[0, 'brood', 0], [t_del, 'labor', 0], [end+.6, 'postpartum', 0], [end+3.6, 'idle', 0]]),
@@ -190,9 +209,9 @@ def scene_land_stem():
         babies.append(baby('reimu' if i != 1 else 'marisa', .3, drops[i], [[drops[i], *b], [drops[i]+.5, *seat], [t_out-.4+.2*i, *seat], [t_out+.2*i, *out]],
                            [[drops[i], 'idle', 0], [drops[i]+.5, 'first_wake', 0], [drops[i]+2.5, 'hat_cradle', 0], [t_out-.4, 'hop', 0], [t_out+.4, 'idle', 0]], drops[i]+.5, rot_m,
                            extra=dict(fall=[drops[i], drops[i]+.5])))
-    return dict(id='land_stem', title='陆生茎生：实子落进魔理沙压成的软巢', duration=t_on+2.6, span=26, center=8, focus=[6, -11], az=.45, el=.5,
-                captions=[[0, t_off, '灵梦头上的茎结满实子，魔理沙父亲赶来'], [t_off, t_hold, '辫子摘帽，翻过来按在茎下，帽顶塌成软巢'], [t_hold, drops[0], '实子成熟，父亲用辫子扶着巢沿等着'],
-                          [drops[0], drops[-1]+.8, '实子一个个落进巢里'], [drops[-1]+.8, t_out, '母亲产后休息，子油在巢里初醒'], [t_out, t_on+2.6, '子油爬出来，父亲用辫子戴回帽子']],
+    return dict(id='land_stem', title='陆生茎生：实子落进魔理沙倒放的帽子', duration=t_on+2.6, span=26, center=8, focus=[6, -11], az=.45, el=.5,
+                captions=[[0, t_off, '灵梦头上的茎结满实子，魔理沙父亲赶来'], [t_off, t_hold, '辫子摘帽，倒过来按在茎下，帽顶压扁'], [t_hold, drops[0], '实子成熟，父亲用辫子扶着帽檐等着'],
+                          [drops[0], drops[-1]+.8, '实子一个个落进帽里'], [drops[-1]+.8, t_out, '母亲产后休息，子油在帽里初醒'], [t_out, t_on+2.6, '子油爬出来，父亲用辫子戴回帽子']],
                 ground='land', stem=dict(actor=0, count=count, progress=key([0, .62], [6.0, 1]), drops=drops, kinds=['reimu', 'marisa', 'reimu']),
                 actors=[dict(model='reimu', scale=1, pos=key([0, *mother]), yaw=key([0, rot_m]), clips=[[0, 'brood', 0], [drops[-1]+.4, 'postpartum', 0], [drops[-1]+3.4, 'idle', 0]]),
                         dict(model='marisa', scale=1, pos=key([0, *away(father, mother, 22)], [t_off-.2, *father]), yaw=key([0, rot_f], [t_off-.2, rot_f]),
@@ -228,21 +247,21 @@ def scene_dock_miss():
     seat = boat_seat(hat, rot_hat, AQ, 0); ex = exit_point(mother, rot_m)
     over = add(ex, [-14, 14, 0]); splash = add(hat, [-24, -drop, 0]); sink = add(splash, [0, -7, 0])
     boat_path = key([0, -30, -drop, 30], [t_shore-.4, edge-16, -drop, 4])
-    seat_up = [0, (VESSEL['bowl']['freeboard']-VESSEL['bowl']['owner_sink'])*AQ, 0]
+    seat_up = [0, VESSEL['bowl']['owner_y']*AQ, 0]
     babies = [baby('marisa', .18, births[0]-EMERGE, [[births[0]-EMERGE, *ex], [births[0], *ex], [births[0]+.2, *add(ex, [-3, 3, 0])], [births[0]+.45, *seat]],
                    [[births[0]-EMERGE, 'idle', 0], [births[0]+.45, 'first_wake', 0], [births[0]+2.45, 'hat_cradle', 0]], births[0]+.45, rot_m),
               dict(model='marisa', scale=.18, visible=[fail-EMERGE, fail+1.6], pos=key([fail-EMERGE, *ex], [fail-.05, *ex], [fail+.3, *over], [fail+.7, *splash], [fail+1.6, *sink]),
                    yaw=key([0, rot_m]), clips=[[fail-EMERGE, 'idle', 0]], faces=[[fail-EMERGE, fail, 'sleep'], [fail, 99, 'surprise']])]
     return dict(id='dock_miss', title='水生靠岸分娩与接生失误：帽子浮在岸边接，用力过猛的孩子落水', duration=fail+9, span=30, center=2, focus=[edge-6, 6], az=-1.0, el=.5,
                 captions=[[0, t_shore, '临产的水生魔理沙让帽船靠岸'], [t_shore, t_off, '上岸戴回帽子，面朝河在岸边待产；水生父亲赶来'],
-                          [t_off, t_del, '父亲用辫子摘下自己的大帽，翻过来按在出口前的水边，软帽浮成一只碗'], [t_del, fail-.1, '父亲用辫子扶住帽沿；第一个孩子落进帽里'],
+                          [t_off, t_del, '父亲用辫子摘下自己的大帽，倒过来按在出口前的水边'], [t_del, fail-.1, '父亲用辫子扶住帽檐；第一个孩子落进帽里'],
                           [fail-.1, fail+.7, '用力过猛，第二个孩子越过帽子……'], [fail+.7, fail+2.3, '落进河里。父母愣住，呆滞'],
                           [fail+2.3, fail+9, '「ゆっくり……ゆっくりぃ！」（油库里……油库里——！）父母哭泣']],
                 ground='bank', bank=edge, water_y=-drop,
                 actors=[dict(model='marisa', scale=1, visible=[t_shore, 99], pos=key([0, *mother]), yaw=key([0, rot_m]), hat=[[0, 1]], hat_scale=AQ,
                              belly=key([0, 1], [births[0], 1], [births[0]+.05, .61], [fail, .61], [fail+.05, .22], [fail+3.5, 0]), contraction=[t_del, fail],
                              clips=[[0, 'hop', 0], [t_shore+.6, 'brood', 0], [t_del, 'labor', 0], [fail+.7, 'bereaved', 0]]),
-                        dict(model='marisa', scale=1, visible=[0, t_shore], bob=True, pos=key(*[[t, *add(add(p, seat_up), ry(140, [0, 0, VESSEL['bowl']['opening'][1]*AQ-5.9*1.26]))] for t, *p in boat_path]),
+                        dict(model='marisa', scale=1, visible=[0, t_shore], bob=True, pos=key(*[[t, *add(add(p, seat_up), ry(140, [0, 0, VESSEL['opening'][3]*AQ-5.9*1.26]))] for t, *p in boat_path]),
                              yaw=key([0, 140]), hat=[[0, 0]], belly=key([0, 1]), clips=[[0, 'boat_brood', 0]]),
                         dict(model='marisa', scale=1, pos=key([0, *away(father, mother, 24)], [t_off-.3, *father]), yaw=key([0, rot_f], [t_off-.3, rot_f]),
                              hat=[[0, 1], [t_del, 0]], hat_scale=AQ,
@@ -272,9 +291,9 @@ def scene_self():
         seat = nest_seat(nest, rot_n, 1, i); out = add(nest, ry(rot_n, [0, 0, (-13 if i else 13)])); ex = exit_point(mother, rot_m)
         babies.append(baby('marisa', .18, b-EMERGE, [[b-EMERGE, *ex], [b, *ex], [b+.35, *seat], [t_out-.4+.2*i, *seat], [t_out+.2*i, *out]],
                            [[b-EMERGE, 'idle', 0], [b+.35, 'first_wake', 0], [b+2.35, 'hat_cradle', 0], [t_out-.4, 'hop', 0], [t_out+.4, 'idle', 0]], b+.35, rot_m))
-    return dict(id='self', title='单亲魔理沙：自己用辫子把帽子按成软巢放在出口前', duration=t_on+2.6, span=22, center=6, focus=[0, -9], az=.6, el=.45,
-                captions=[[0, t_off, '没有伴侣接生的魔理沙母亲临产'], [t_off, t_del, '俯身用辫子摘帽，翻过来按在自己出口前，帽顶塌成软巢'], [t_del, end+.5, '孩子落进巢里'],
-                          [end+.5, t_out, '产后休息；子油在巢里初醒'], [t_out, t_on+2.6, '子油爬出来，她俯身用辫子拿回帽子戴好']],
+    return dict(id='self', title='单亲魔理沙：自己用辫子把帽子倒过来放在出口前', duration=t_on+2.6, span=22, center=6, focus=[0, -9], az=.6, el=.45,
+                captions=[[0, t_off, '没有伴侣接生的魔理沙母亲临产'], [t_off, t_del, '俯身用辫子摘帽，倒过来按在自己出口前，帽顶压扁'], [t_del, end+.5, '孩子落进帽里'],
+                          [end+.5, t_out, '产后休息；子油在帽里初醒'], [t_out, t_on+2.6, '子油爬出来，她俯身用辫子拿回帽子戴好']],
                 ground='land', actors=[dict(model='marisa', scale=1, pos=key([0, *mother]), yaw=key([0, rot_m]), belly=belly_keys(births, end), contraction=[t_del, end],
                                             hat=[[0, 1], [t_del, 0], [t_on, 1]],
                                             clips=[[0, 'brood', 0], [t_off, 'hat_off_self', 0], [t_del, 'labor', 0], [end+.6, 'postpartum', 0], [end+3.6, 'idle', 0], [t_on, 'hat_on_self', 0], [t_on+1.8, 'idle', 0]])]+babies,
@@ -294,7 +313,7 @@ canvas{display:block;width:100%;height:540px;background:#f4f1e9;border:1px solid
 #caption{min-height:2.2em;font-size:16px;margin:8px 0 4px;color:#3d342c}footer{margin-top:12px;font-size:12.5px;color:#7b6f60}
 </style>
 <main><h1>出生与接生 · 场景预览（待复查）</h1>
-<p>灵梦×魔理沙夫妻灵梦为母、魔理沙为父；只有魔理沙接生：用辫子摘下自己的帽子，翻过来按在出口前，柔软的帽顶塌成一个巢来接（参考 EH22：翻过来的帽子是一只带褶的软碗）。水生魔理沙的帽子更大，当船漂在水上，帽内不进水，装子油和食物。孕体整体变大、下部前方鼓起，脸只移动不拉伸，帽子和辫子刚性跟随。游戏模型与动作修正资源（__REVISION__）。拖动旋转，滚轮缩放，直接双击打开。单个动作见<a href="motions.html">交互预览</a>。</p>
+<p>灵梦×魔理沙夫妻灵梦为母、魔理沙为父；只有魔理沙接生：用辫子摘下自己的帽子，倒过来按在出口前，柔软的帽顶被压扁，用帽内接。水生魔理沙的帽子更大，当船漂在水上，帽内不进水，装子油和食物。孕体整体变大、下部前方鼓起，脸只移动不拉伸，帽子和辫子刚性跟随。游戏模型与动作修正资源（__REVISION__）。拖动旋转，滚轮缩放，直接双击打开。单个动作见<a href="motions.html">交互预览</a>。</p>
 <div class="bar" id="scenes"></div>
 <div class="bar"><button type="button" id="play" aria-pressed="true">暂停</button>
 <label>速度 <select id="speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
@@ -307,7 +326,7 @@ const D=__DATA__;
 function decode(b,T){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return new T(u.buffer);}
 function unpack(src){const raw=decode(src.vertices,Int16Array),out=new Float32Array(raw.length);for(let i=0;i<raw.length;i+=8){for(let k=0;k<3;k++){out[i+k]=raw[i+k]/1024;out[i+5+k]=raw[i+5+k]/1024;}out[i+3]=raw[i+3]/16384;out[i+4]=raw[i+4]/16384;}return out;}
 const MODELS={};for(const [id,m] of Object.entries(D.models))MODELS[id]={m,rest:unpack(m),w:decode(m.weights,Uint16Array),q:decode(m.blend,Uint8Array),grp:decode(m.group,Uint8Array),mats:m.bones.map(()=>new Float64Array(12)),tex:{},size:m.textureSize,cache:new Map()};
-const HAT={nest:unpack({vertices:D.hats.meshes.nest}),bowl:unpack({vertices:D.hats.meshes.bowl}),size:D.hats.textureSize,tex:null},V=D.metrics;
+const HAT={rest:unpack(D.hat),size:D.hat.textureSize,tex:null},V=D.metrics;
 function smooth(x){x=Math.min(1,Math.max(0,x));return x*x*(3-2*x);}
 function sample(keys,t){const n=keys.length/4;if(t<=keys[0])return [keys[1],keys[2],keys[3]];
   for(let i=1;i<n;i++)if(t<=keys[i*4]){const a=(i-1)*4,b=i*4,q=keys[b]>keys[a]?(t-keys[a])/(keys[b]-keys[a]):0;return [0,1,2].map(k=>keys[a+1+k]+(keys[b+1+k]-keys[a+1+k])*q);}
@@ -335,6 +354,18 @@ function poseModel(M,name,t,hatScale){
   const out={v:O,root:M.mats[M.m.special.root].slice(),hatW:hv?Math.max(0,1-Math.hypot(hv[0],hv[1],hv[2])/3-Math.max(...hv.slice(3,6).map(Math.abs))/30):1,
     braidW:bv?Math.max(0,1-Math.max(...bv.slice(3,6).map(Math.abs))/30):1};
   if(M.cache.size>400)M.cache.clear();M.cache.set(ck,out);return out;}
+// PregnancyFaces: each expression-panel point sits just in front of the swollen body's actual front surface.
+function fitPanels(src,grp){const G=.25,X0=-12,Y0=-1,NX=96,NY=64,front=new Float32Array(NX*NY).fill(Infinity);
+  for(let i=0;i<src.length;i+=24){if(grp[i/8]!==0)continue;const a=[src[i],src[i+1],src[i+2]],b=[src[i+8],src[i+9],src[i+10]],c=[src[i+16],src[i+17],src[i+18]];
+    if(a[2]>-2||b[2]>-2||c[2]>-2)continue;const d=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(d)<1e-9)continue;
+    const gx0=Math.max(0,Math.floor((Math.min(a[0],b[0],c[0])-X0)/G)),gx1=Math.min(NX-1,Math.ceil((Math.max(a[0],b[0],c[0])-X0)/G));
+    const gy0=Math.max(0,Math.floor((Math.min(a[1],b[1],c[1])-Y0)/G)),gy1=Math.min(NY-1,Math.ceil((Math.max(a[1],b[1],c[1])-Y0)/G));
+    for(let gy=gy0;gy<=gy1;gy++)for(let gx=gx0;gx<=gx1;gx++){const x=X0+gx*G,y=Y0+gy*G;
+      const wa=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/d,wb=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/d,wc=1-wa-wb;
+      if(wa<-.02||wb<-.02||wc<-.02)continue;const z=wa*a[2]+wb*b[2]+wc*c[2],k=gy*NX+gx;if(z<front[k])front[k]=z;}}
+  for(let i=0,vi=0;i<src.length;i+=8,vi++){if(grp[vi]!==3)continue;const gx=Math.round((src[i]-X0)/G),gy=Math.round((src[i+1]-Y0)/G);
+    if(gx<0||gy<0||gx>=NX||gy>=NY)continue;let f=Infinity;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const x=gx+dx,y=gy+dy;if(x>=0&&y>=0&&x<NX&&y<NY)f=Math.min(f,front[y*NX+x]);}
+    if(isFinite(f))src[i+2]=Math.min(src[i+2],f-.035);}}
 function keyAt(keys,t){if(t<=keys[0][0])return keys[0].slice(1);for(let i=1;i<keys.length;i++)if(t<=keys[i][0]){const a=keys[i-1],b=keys[i],q=smooth((t-a[0])/Math.max(1e-6,b[0]-a[0]));return a.slice(1).map((v,k)=>v+(b[k+1]-v)*q);}return keys[keys.length-1].slice(1);}
 function stepAt(list,t,def){let v=def;for(const e of list)if(t>=e[0])v=e;return v;}
 function contraction(a,t){if(!a.contraction||t<a.contraction[0]||t>a.contraction[1]+.3)return 0;const w=.5+.5*Math.sin((t-a.contraction[0])*20*Math.PI*2/48);return .22+.78*Math.pow(w,4);}
@@ -369,8 +400,10 @@ function stemItems(scene,actor,t,root){
   const T=actorT(actor,t);return items.map(it=>{const v=rootApply(root,it.v);it.v=place(v,new Float32Array(v.length),T);return it;});}
 function actorT(a,t){const p=keyAt(a.pos,t);if(a.bob)p[1]+=bobAt(t);return {s:a.scale,yaw:keyAt(a.yaw,t)[0],pos:p};}
 function vesselT(p,t){const pos=keyAt(p.pos,t),k=p.scale;if(p.bob)pos[1]+=bobAt(t);const yaw=keyAt(p.yaw,t)[0];
-  // the soft nest stands on the ground; the bowl's rim is a freeboard over the water (HatBoatRenderer)
-  return p.kind==='boat'?{s:k,yaw,pos:[pos[0],pos[1]+V.bowl.freeboard*k,pos[2]]}:{s:k,yaw,pos};}
+  // the hat upside down, its crown pressed along the hat's axis (HatBoatRenderer): on the ground the brim stands on the squashed
+  // crown; afloat the brim is a freeboard over the water
+  const boat=p.kind==='boat',sq=boat?V.squash.bowl:V.squash.nest;
+  return {s:k,yaw,pre:[[1,0,0,0,sq,0,0,0,1],[0,(boat?V.bowl.freeboard:V.nest.height)*k,0]],pos};}
 function frameItems(scene,t){
   const items=[],water=[];
   if(scene.ground==='land')items.push(quad(-80,-80,80,80,-.02,[214,204,178]));
@@ -385,16 +418,17 @@ function frameItems(scene,t){
     if(belly>0){src=new Float32Array(posed.v);const s=1+.26*belly,lift=9.6*(s-1)*posed.hatW,br=[6.93,9.33,-2.52],bd=deform(...br,belly,0).map((v,k)=>(v-br[k])*posed.braidW);
       for(let i=0,vi=0;i<src.length;i+=8,vi++){const g=M.grp[vi];
         if(g===1)src[i+1]+=lift;else if(g===2){src[i]+=bd[0];src[i+1]+=bd[1];src[i+2]+=bd[2];}
-        else{const d=deform(src[i],src[i+1],src[i+2],belly,c);src[i]=d[0];src[i+1]=d[1];src[i+2]=d[2];}}}
+        else{const d=deform(src[i],src[i+1],src[i+2],belly,c);src[i]=d[0];src[i+1]=d[1];src[i+2]=d[2];}}
+      fitPanels(src,M.grp);}
     const T=actorT(a,t);if(a.fall&&t>=a.fall[0]&&t<a.fall[1]){const q=(t-a.fall[0])/(a.fall[1]-a.fall[0]),k=a.pos;T.pos=k[0].slice(1).map((v,i)=>v+(k[1][i+1]-v)*(i===1?q*q:q));}
     const v=place(src,new Float32Array(src.length),T,hat?null:(vi=>M.grp[vi]===1));
     items.push({v,tex:M.tex[faceAt(M,a,clip,local,t)]||M.tex.neutral,size:M.size});
     if(scene.stem&&scene.stem.actor===idx)items.push(...stemItems(scene,a,t,posed.root));});
-  for(const p of scene.props){if(t<p.visible[0]||t>=p.visible[1])continue;const T=vesselT(p,t);
-    const mesh=p.kind==='boat'?HAT.bowl:HAT.nest;items.push({v:place(mesh,new Float32Array(mesh.length),T),tex:HAT.tex,size:HAT.size});
+  for(const p of scene.props){if(t<p.visible[0]||t>=p.visible[1])continue;const T=vesselT(p,t),pos0=T.pos;
+    items.push({v:place(HAT.rest,new Float32Array(HAT.rest.length),T),tex:HAT.tex,size:HAT.size});
     if(p.kind==='boat'){const ring=V.bowl.mask,still=keyAt(p.pos,t),v=new Float32Array(ring.length*24);  // a fan at the water line, which does not bob
       ring.forEach((a,i)=>{const b=ring[(i+1)%ring.length];v.set([0,0,0,0,0,0,1,0,a[0]*p.scale,0,a[1]*p.scale,0,0,0,1,0,b[0]*p.scale,0,b[1]*p.scale,0,0,0,1,0],i*24);});
-      items.push({v:place(v,new Float32Array(v.length),{s:1,yaw:T.yaw,pos:[T.pos[0],still[1]+.05,T.pos[2]]}),mask:true});}}
+      items.push({v:place(v,new Float32Array(v.length),{s:1,yaw:T.yaw,pos:[pos0[0],still[1]+.05,pos0[2]]}),mask:true});}}
   return items.concat(water);}
 function renderScene(items,width,height,az,el,span,centerY,night,focus){
   const fx=focus?focus[0]:0,fz=focus?focus[1]:0;
@@ -419,7 +453,7 @@ function renderScene(items,width,height,az,el,span,centerY,night,focus){
 // ---- end engine ----
 const $=id=>document.getElementById(id),canvas=$('view');let scene=D.scenes[0],time=0,playing=true,last=performance.now(),az=-.55,el=.42,zoom=1,ready=0;
 function load(src,set){const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);set(x.getImageData(0,0,c.width,c.height).data);ready--;};ready++;img.src=src;}
-for(const M of Object.values(MODELS))for(const [f,src] of Object.entries(M.m.textures))load(src,d=>M.tex[f]=d);load(D.hats.texture,d=>HAT.tex=d);
+for(const M of Object.values(MODELS))for(const [f,src] of Object.entries(M.m.textures))load(src,d=>M.tex[f]=d);load(D.hat.texture,d=>HAT.tex=d);
 D.scenes.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.textContent=s.title;b.onclick=()=>{scene=s;time=0;az=s.az??-.55;el=s.el??.42;$('time').max=s.duration;document.querySelectorAll('#scenes button').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));};$('scenes').append(b);if(!i)b.click();});
 $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'暂停':'播放';$('play').setAttribute('aria-pressed',String(playing));};
 $('time').oninput=()=>{time=Number($('time').value);playing=false;$('play').textContent='播放';};
@@ -442,7 +476,7 @@ def main():
     ap.add_argument('--corrections', default=str(PRESENT/'motion_corrections.json')); a = ap.parse_args()
     corrections = json.loads(Path(a.corrections).read_text(encoding='utf-8'))
     family = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
-    data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hats=hat_props(), metrics=VESSEL,
+    data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hat=hat_prop(), metrics=VESSEL,
                 family=dict(stem=family['stem'], lengthScale=family['lengthScale'], radiusScale=family['radiusScale'],
                             fruitForwardClearance=family['fruitForwardClearance'], variants={k: family['variants'][k] for k in ('reimu', 'marisa')}),
                 scenes=[s() for s in SCENES])

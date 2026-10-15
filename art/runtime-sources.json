@@ -3719,14 +3719,13 @@
     "builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_nest.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_vessel.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json",
       "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json"
     ],
     "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
     "manifest": "standards/yukkuri-library/interactions/marisa-hat-vessel/manifest.json",
     "status": "pending_user_review",
-    "scope": "Marisa's own hat turned over as soft cloth (reference EH22): a nest where her braid presses it down to catch young on land, and a pleated bowl afloat (the aquatic hat boat, larger, and the hat floated at a bank to catch); braid placements read by the lore hat clips and the game",
+    "scope": "Marisa's own worn hat copied box for box, opened into a well and turned upside down with its crown pressed flat (user 2026-10-15: just turn the hat over and squash its bottom): on land, where her braid presses it down to catch young, and afloat (the aquatic hat boat, larger, and the hat floated at a bank to catch); braid placements read by the lore hat clips and the game",
     "references": "wiki/art-references/ehentai/works/EH22.md"
   }
 }

@@ -4,7 +4,7 @@ Poses src/main/resources/assets/mcyukkuri/yukkuri/<id>.json with its two-bone we
 idle clip at t=0 under the clip from the motion corrections (as the game layers them),
 and draws flat-shaded, textured triangles with a numpy depth buffer. Faces follow each
 clip's expression timeline. A clip is shown only on the forms it applies to; the aquatic
-Marisa is drawn without her hat, sitting low in her own larger hat afloat, a soft pleated bowl (marisa_hat_vessel). No game, browser or build
+Marisa is drawn without her hat, sitting low in her own larger hat turned over afloat (marisa_hat_turned). No game, browser or build
 runs; this is a visual aid, not motion acceptance. Needs numpy and Pillow.
 
   python preview.py [--corrections motion_corrections.json] [--out dir] [--clips a,b]
@@ -63,13 +63,14 @@ class Posed:
         self.a, self.b, self.q = W[keep, 0].astype(int), W[keep, 1].astype(int), W[keep, 2:3]
         self.ident, self.aquatic, self.boat = ident, aquatic, 0
         if aquatic:
-            # Her own hat as the boat (the soft bowl marisa_hat_vessel at the aquatic size, hat_vessel.json): static, its rim a
-            # freeboard over the water line, the rider low in it at the stern as HatBoatEntity seats her. Same atlas as the model.
+            # Her own hat as the boat (marisa_hat_turned at the aquatic size, its crown pressed as afloat, hat_vessel.json): static,
+            # its brim a freeboard over the water line, the rider on the ledge at the stern as HatBoatEntity seats her. Same atlas.
             vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8')); k = vessel['aquatic_scale']
-            prop = json.loads((ASSETS/'yukkuri_props/marisa_hat_vessel.json').read_text(encoding='utf-8'))
-            B = np.array(prop['vertices']).reshape(-1, 8)
-            bowl = vessel['bowl']; seat = np.array([0, (bowl['freeboard']-bowl['owner_sink'])*k, bowl['opening'][1]*k-5.9])
-            B[:, :3] = B[:, :3]*k+[0, bowl['freeboard']*k, 0]-seat  # drawn under the rider, who stays at the origin
+            prop = json.loads((ASSETS/'yukkuri_props/marisa_hat_turned.json').read_text(encoding='utf-8'))
+            B = np.array(prop['vertices']).reshape(-1, 8); bowl = vessel['bowl']; sq = vessel['squash']['bowl']
+            seat = np.array([0, bowl['owner_y']*k, vessel['opening'][3]*k-5.9])
+            B[:, :3] = B[:, :3]*[k, k*sq, k]+[0, bowl['freeboard']*k, 0]-seat  # drawn under the rider, who stays at the origin
+            B[:, 5:8] /= [1, sq, 1]; B[:, 5:8] /= np.linalg.norm(B[:, 5:8], axis=1, keepdims=True)
             self.v = np.r_[self.v, B[:, :3]]; self.uv = np.r_[self.uv, B[:, 3:5]]; self.n = np.r_[self.n, B[:, 5:8]]
             zero = np.zeros(len(B), int)
             self.a, self.b, self.q = np.r_[self.a, zero], np.r_[self.b, zero], np.r_[self.q, np.zeros((len(B), 1))]
