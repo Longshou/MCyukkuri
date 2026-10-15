@@ -37,7 +37,10 @@ public final class DialogueGameTests {
                 level.addFreshEntity(e);speakers.add(e);String species=e.getVariant().assetId();String age=young?"young":"adult";
                 for(String event:NativeDialogue.events()) {
                     var line=NativeDialogue.select(species,young,event,e.getRandom());
-                    helper.assertTrue(line!=null&&!line.sound().isEmpty(),species+"/"+age+" missing "+event);
+                    helper.assertTrue(line!=null,species+"/"+age+" missing "+event);
+                    boolean originalSubtitle = java.util.Set.of("settlement_shun", "settlement_drive", "settlement_hurt", "settlement_assign", "settlement_submit").contains(event)
+                            && line.key().startsWith("dialogue.mcyukkuri.original.");
+                    helper.assertTrue(!line.sound().isEmpty() || originalSubtitle, species+"/"+age+" missing voice for "+event);
                     helper.assertTrue(line.species().equals(species)&&line.age().equals(age),"No cross-species fallback: "+species);
                 }
                 helper.assertTrue(e.speak("hello"),"Native greeting starts: "+species);

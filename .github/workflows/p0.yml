@@ -1,0 +1,62 @@
+name: Optional P0 GameTest
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Headless server test group
+        type: choice
+        default: core
+        options:
+          - core
+          - growth
+          - shed_stem
+          - settlements
+          - subspecies
+          - dialogue
+          - integration
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p0-${{ github.ref }}-${{ inputs.suite }}
+  cancel-in-progress: false
+
+jobs:
+  game-test:
+    name: P0 / ${{ inputs.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src
+            gradle
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run selected server tests
+        env:
+          P0_SUITE: ${{ inputs.suite }}
+        run: |
+          case "$P0_SUITE" in
+            core|growth|shed_stem|settlements|subspecies|dialogue|integration) ;;
+            *) echo "Unsupported P0 suite" >&2; exit 2 ;;
+          esac
+          ./gradlew runP0GameTest --no-daemon "-Pp0Suite=$P0_SUITE"
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-${{ inputs.suite }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            .local/p0/gametest/logs/
+            .local/p0/gametest/crash-reports/
+            build/reports/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
