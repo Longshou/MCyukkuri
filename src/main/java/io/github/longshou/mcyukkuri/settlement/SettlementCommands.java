@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -17,14 +18,41 @@ public final class SettlementCommands {
                         .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPos.containing(context.getSource().getPosition())))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
-                .then(Commands.literal("info").executes(context -> info(context.getSource())));
+                .then(Commands.literal("info").executes(context -> info(context.getSource())))
+                .then(Commands.literal("threat").then(Commands.argument("amount", IntegerArgumentType.integer(1, 20))
+                        .executes(context -> threat(context.getSource(), IntegerArgumentType.getInteger(context, "amount")))))
+                .then(Commands.literal("migrate").executes(context -> migrate(context.getSource())));
     }
-    /** Reports the community nearest to the command position: leader, vacancy, member roles and threat count. */
-    private static int info(CommandSourceStack source) {
-        var level = source.getLevel(); var data = SettlementData.get(level);
+    private static SettlementData.Group nearest(CommandSourceStack source) {
+        var data = SettlementData.get(source.getLevel());
         BlockPos here = BlockPos.containing(source.getPosition());
         SettlementData.Group nearest = null;
         for (var group : data.groups()) if (nearest == null || group.center.distSqr(here) < nearest.center.distSqr(here)) nearest = group;
+        return nearest;
+    }
+    /** Test aid: adds threat to the nearest community, as if scouts had seen a predator at the command position. */
+    private static int threat(CommandSourceStack source, int amount) {
+        var group = nearest(source);
+        if (group == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.info.none")); return 0; }
+        SettlementData.get(source.getLevel()).reportThreat(group, BlockPos.containing(source.getPosition()), source.getLevel().getGameTime(), amount);
+        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.threat", group.threat), true);
+        return group.threat;
+    }
+    /** Test aid: the nearest community's loaded leader tries to move now (the site search still applies). */
+    private static int migrate(CommandSourceStack source) {
+        var group = nearest(source);
+        if (group == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.info.none")); return 0; }
+        if (group.leader == null || !(source.getLevel().getEntity(group.leader) instanceof io.github.longshou.mcyukkuri.entity.YukkuriEntity leader)) {
+            source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.noleader")); return 0;
+        }
+        if (!Migration.start(leader, group, true)) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.migrate.fail")); return 0; }
+        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.migrate", group.migrateTo.toShortString()), true);
+        return 1;
+    }
+    /** Reports the community nearest to the command position: leader, vacancy, member roles and threat count. */
+    private static int info(CommandSourceStack source) {
+        var level = source.getLevel();
+        SettlementData.Group nearest = nearest(source);
         if (nearest == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.info.none")); return 0; }
         final SettlementData.Group group = nearest;
         int members = 0, outcast = 0, slaves = 0;

@@ -579,6 +579,7 @@ public final class YukkuriEntity extends PathfinderMob {
             groupInteraction.stop();dailyLife.stop();playLife.stop();
             if(!boutDamage&&source.getEntity() instanceof YukkuriEntity attacker)io.github.longshou.mcyukkuri.social.GroupInteractionGoal.witnessedAttack(this,attacker);
             operations.damaged(source);
+            settlement.attackedBy(source,false);
             if(source.getEntity() instanceof Player attackerPlayer)io.github.longshou.mcyukkuri.event.HomeClaim.attacked(this,attackerPlayer);
             requestedAction = null;
             life.interrupt(); social.stop();
@@ -595,6 +596,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public void die(DamageSource source) {
         if (!level().isClientSide) {
             if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
+            if(!deathRecorded)settlement.attackedBy(source,true);
             groupInteraction.stop();dailyLife.stop();playLife.stop();
             requestedAction = null;
             operations.end();

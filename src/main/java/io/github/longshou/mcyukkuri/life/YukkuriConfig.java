@@ -16,7 +16,7 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
-    public static final ModConfigSpec.IntValue MOURNING_TICKS, ORDER_MIN_INTERVAL, ORDER_MAX_INTERVAL, ORDER_TIMEOUT;
+    public static final ModConfigSpec.IntValue MOURNING_TICKS, ORDER_MIN_INTERVAL, ORDER_MAX_INTERVAL, ORDER_TIMEOUT, MIGRATE_THRESHOLD, THREAT_DECAY_TICKS, MIGRATE_TIMEOUT, MIGRATE_MIN_DISTANCE, MIGRATE_MAX_DISTANCE;
     public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
     public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT, SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
@@ -58,6 +58,11 @@ public final class YukkuriConfig {
         ORDER_MIN_INTERVAL = builder.comment("Shortest loaded-tick gap between two orders from the same leader.").defineInRange("orderMinInterval", 1200, 200, 48000);
         ORDER_MAX_INTERVAL = builder.comment("Longest loaded-tick gap between two orders from the same leader.").defineInRange("orderMaxInterval", 2400, 200, 48000);
         ORDER_TIMEOUT = builder.comment("An order that is not finished after this many ticks is cancelled.").defineInRange("orderTimeout", 1200, 200, 12000);
+        MIGRATE_THRESHOLD = builder.comment("Threat points (sightings 1, attacks 2, deaths 3) at which a led community considers moving away; 0 never migrates.").defineInRange("migrateThreshold", 3, 0, 20);
+        THREAT_DECAY_TICKS = builder.comment("Loaded ticks without a new predator report before the threat level drops by one.").defineInRange("threatDecayTicks", 24000, 600, 480000);
+        MIGRATE_TIMEOUT = builder.comment("A migration is declared finished after this many ticks even if stragglers are still walking.").defineInRange("migrateTimeout", 6000, 600, 72000);
+        MIGRATE_MIN_DISTANCE = builder.comment("Nearest distance of a new site from the old centre.").defineInRange("migrateMinDistance", 32, 16, 96);
+        MIGRATE_MAX_DISTANCE = builder.comment("Farthest distance of a new site from the old centre.").defineInRange("migrateMaxDistance", 48, 16, 128);
         builder.pop().push("seasons");
         BIOME_SEASONS = builder.comment("Biomes act as seasons (snowy = winter, plains = spring...); false restores the season-free behaviour.").define("biomeSeasons", true);
         AUTUMN_STOCK_PER_RESIDENT = builder.comment("Autumn regions: stored food each resident aims for (other regions aim for 3).").defineInRange("autumnStockPerResident", 6, 3, 12);

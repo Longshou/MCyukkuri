@@ -94,7 +94,7 @@ public final class SettlementOrders {
     private boolean runnable() {
         return kind != Kind.NONE && level().getGameTime() < deadline && entity.isAlive() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.life().hasUrgentNeed() && !entity.life().isSleeping() && !WildEvents.reserved(entity) && !HomeClaim.holds(entity)
-                && !Seasons.confined(entity) && entity.settlement().group() != null && entity.life().mealTicks() == 0 && !entity.isInWaterOrBubble();
+                && !Seasons.confined(entity) && entity.settlement().group() != null && !Migration.moving(entity.settlement().group()) && entity.life().mealTicks() == 0 && !entity.isInWaterOrBubble();
     }
     public boolean canUse() {
         if (kind == Kind.NONE) return false;

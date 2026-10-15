@@ -114,7 +114,8 @@ public final class HabitatLife {
     }
     private boolean ready() {
         return !entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
-                &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0;
+                &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
+                &&!Migration.underway(entity);
     }
     public boolean canUse() {
         if(!ready())return false;
@@ -161,7 +162,7 @@ public final class HabitatLife {
     /** At a gathering, a household with plenty hands one real portion to the poorest other household of the group. */
     private boolean shareStart(ShelterBlockEntity value) {
         var group=entity.settlement().group();
-        if(group==null||shareCooldown>0||!carrying.isEmpty()||entity.life().nutrition()<40||!Seasons.assembling(level(),group)
+        if(group==null||shareCooldown>0||!carrying.isEmpty()||entity.life().nutrition()<40||Migration.moving(group)||!Seasons.assembling(level(),group)
                 ||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get())return false;
         ShelterBlockEntity best=null;
         var members=level().getEntitiesOfClass(YukkuriEntity.class,new AABB(group.center).inflate(40),

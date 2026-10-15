@@ -22,7 +22,8 @@ public final class SettlementData extends SavedData {
     public static final class Group {
         public final UUID id;
         public final Kind kind;
-        public final BlockPos center;
+        /** Moves when a migration finishes; everything else reads it as before. */
+        public BlockPos center;
         public UUID leader;
         /** Transient seasonal state, rebuilt after a restart: snow seen, gathering deadline and the day of the last spring gathering. */
         public boolean snowing;
@@ -39,6 +40,12 @@ public final class SettlementData extends SavedData {
         public long threatTime;
         /** Transient: no new election attempt before this game time. */
         public long electionRetry;
+        /** Migration in progress: destination and start time; null / 0 when the group is settled. */
+        public BlockPos migrateTo;
+        public long migrateSince;
+        /** Transient: predators already counted (id to game time), the next decay step and the next migration attempt. */
+        public final Map<UUID, Long> sighted = new HashMap<>();
+        public long decayAt, migrateRetry, attackedAt;
         public Group(UUID id, Kind kind, BlockPos center, UUID leader) {
             this.id = id; this.kind = kind; this.center = center.immutable(); this.leader = leader; this.led = leader != null;
         }
@@ -90,9 +97,11 @@ public final class SettlementData extends SavedData {
         setDirty();
     }
     /** A scout saw danger near the community; the later migration logic reads these fields. */
-    public void reportThreat(Group group, BlockPos pos, long gameTime) {
-        if (group == null) return;
-        group.threat++; group.threatPos = pos.immutable(); group.threatTime = gameTime; setDirty();
+    public void reportThreat(Group group, BlockPos pos, long gameTime) { reportThreat(group, pos, gameTime, 1); }
+    /** Weighted report: a sighting counts 1, an attack on a member 2, a death 3, an omen (see {@link Migration#omen}) 2. Capped so decay stays meaningful. */
+    public void reportThreat(Group group, BlockPos pos, long gameTime, int weight) {
+        if (group == null || weight <= 0) return;
+        group.threat = Math.min(20, group.threat + weight); group.decayAt = gameTime; group.threatPos = pos.immutable(); group.threatTime = gameTime; setDirty();
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag list = new ListTag();
@@ -103,6 +112,7 @@ public final class SettlementData extends SavedData {
             value.putBoolean("Led", group.led); value.putLong("VacantSince", group.vacantSince);
             value.putInt("Threat", group.threat); value.putLong("ThreatTime", group.threatTime);
             if (group.threatPos != null) value.putLong("ThreatPos", group.threatPos.asLong());
+            if (group.migrateTo != null) { value.putLong("MigrateTo", group.migrateTo.asLong()); value.putLong("MigrateSince", group.migrateSince); }
             ListTag roles = new ListTag();
             for (var role : group.roles.entrySet()) {
                 CompoundTag item = new CompoundTag(); item.putUUID("Id", role.getKey()); item.putString("Role", role.getValue().name()); roles.add(item);
@@ -128,6 +138,7 @@ public final class SettlementData extends SavedData {
                 group.vacantSince = Math.max(0, value.getLong("VacantSince"));
                 group.threat = Math.max(0, value.getInt("Threat")); group.threatTime = value.getLong("ThreatTime");
                 if (value.contains("ThreatPos", Tag.TAG_LONG)) group.threatPos = BlockPos.of(value.getLong("ThreatPos"));
+                if (value.contains("MigrateTo", Tag.TAG_LONG)) { group.migrateTo = BlockPos.of(value.getLong("MigrateTo")); group.migrateSince = value.getLong("MigrateSince"); }
                 for (Tag item : value.getList("Roles", Tag.TAG_COMPOUND)) {
                     CompoundTag role = (CompoundTag)item;
                     if (!role.hasUUID("Id")) continue;

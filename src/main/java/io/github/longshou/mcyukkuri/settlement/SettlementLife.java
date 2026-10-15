@@ -18,7 +18,9 @@ public final class SettlementLife {
     private boolean pendingNatural;
     private BlockPos target;
     private int wait, elapsed;
-    private long greeted = -1;
+    private long greeted = -1, arrivedFor = -1;
+    /** Walking to a migration site: lifts the 48-block leash of {@link #canContinue}. */
+    private boolean marching;
     private final SettlementOrders orders;
     public SettlementLife(YukkuriEntity entity) { this.entity = entity; this.orders = new SettlementOrders(entity); }
     public SettlementOrders orders() { return orders; }
@@ -56,10 +58,11 @@ public final class SettlementLife {
         var group = group();
         if (group != null && entity.tickCount % 100 == 0) {
             SettlementData.get(level()).refreshLeader(level(), group);
-            seasonal(group);
+            if (!Migration.moving(group)) seasonal(group);
             Succession.tick(entity, group);
+            Migration.tick(entity, group);
         }
-        if (group != null && entity.tickCount % 20 == 0) orders.tickLeader(group);
+        if (group != null && entity.tickCount % 20 == 0 && !Migration.moving(group)) orders.tickLeader(group);
     }
     /** Winter: the first fair daytime after snowfall; spring: each morning. Either opens a short gathering at the centre. */
     private void seasonal(SettlementData.Group group) {
@@ -80,8 +83,10 @@ public final class SettlementLife {
         if (wait > 0) return false;
         wait = 80;
         var group = group();
+        if (Migration.moving(group) && !Seasons.confined(entity)) return migrate(group);
         if (group == null || !level().hasChunkAt(group.center)) return false;
         double distance = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
+        if (straggler(group) && !Seasons.confined(entity)) return regroup(group, distance);
         // Transporting a member never causes cross-world or long-distance forced navigation.
         if (distance > 48 * 48) return false;
         if (Seasons.confined(entity)) return false;
@@ -115,6 +120,45 @@ public final class SettlementLife {
         if (!navigateToward(destination)) return false;
         target = destination; elapsed = 0; return true;
     }
+    /** Migration: the leader walks ahead, adult members follow (never beyond the leader), arrivals give up the old burrow and look for a new one. */
+    private boolean migrate(SettlementData.Group group) {
+        BlockPos site = group.migrateTo;
+        if (!Migration.joins(entity, group) || !level().hasChunkAt(site)) return false;
+        Vec3 goal = Vec3.atBottomCenterOf(site);
+        double distance = entity.distanceToSqr(goal);
+        if (distance <= 8 * 8) {
+            if (arrivedFor != group.migrateSince) { arrivedFor = group.migrateSince; settleAt(site); }
+            return false;
+        }
+        BlockPos destination = site;
+        if (group.leader != null && !group.leader.equals(entity.getUUID())
+                && level().getEntity(group.leader) instanceof YukkuriEntity chief && chief.isAlive() && group.id.equals(chief.settlement().groupId())
+                && chief.distanceToSqr(goal) > distance + 36) {
+            if (entity.distanceToSqr(chief) <= 36) return false; // wait for the leader to walk ahead
+            destination = chief.blockPosition();
+        }
+        wait = 40;
+        if (!navigateToward(destination)) return false;
+        target = destination; elapsed = 0; marching = true; return true;
+    }
+    /** The centre moved after this member joined or last settled: it missed the migration and still has to follow. */
+    private boolean straggler(SettlementData.Group group) {
+        return origin != null && !origin.pos().equals(group.center) && Migration.joins(entity, group);
+    }
+    /** Walk to the moved centre (within a bounded range), then give up the old burrow there. */
+    private boolean regroup(SettlementData.Group group, double distance) {
+        if (distance <= 8 * 8) { settleAt(group.center); return false; }
+        if (distance > 96 * 96 || !navigateToward(group.center)) return false;
+        target = group.center; elapsed = 0; marching = true; return true;
+    }
+    /** Arrived at a new site: re-anchor to it, leave the old burrow and look for a new one (none yet means sleeping rough). */
+    private void settleAt(BlockPos site) {
+        origin = GlobalPos.of(entity.level().dimension(), site);
+        entity.habitat().release();
+        entity.habitat().findHome();
+    }
+    /** A member was hurt or killed by a predator: feeds the community's rumour counter. */
+    public void attackedBy(net.minecraft.world.damagesource.DamageSource source, boolean fatal) { Migration.attacked(entity, source, fatal); }
     boolean navigateToward(BlockPos destination) {
         Vec3 goal = Vec3.atBottomCenterOf(destination);
         if (entity.distanceToSqr(goal) <= 16 * 16 && entity.life().navigate(destination, 1, false)) return true;
@@ -130,16 +174,17 @@ public final class SettlementLife {
         return false;
     }
     public boolean canContinue() {
+        if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
         return active() && elapsed < 400 && !entity.isPanicking() && !Seasons.confined(entity)
                 && !entity.isCommandPlaying() && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
-                && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48
+                && (marching || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48)
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;
     }
     public void tickGoal() {
         elapsed++;
         if (target != null && (elapsed % 20 == 1 || entity.getNavigation().isDone()) && !navigateToward(target)) stop();
     }
-    public void stop() { target = null; wait = 100; entity.getNavigation().stop(); }
+    public void stop() { target = null; marching = false; wait = 100; entity.getNavigation().stop(); }
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         if (groupId != null) tag.putUUID("Group", groupId);
@@ -151,6 +196,6 @@ public final class SettlementLife {
         origin = FamilyData.position(tag, "Origin");
         if (origin == null) groupId = null;
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
-        target = null; wait = elapsed = 0;
+        target = null; marching = false; wait = elapsed = 0;
     }
 }
