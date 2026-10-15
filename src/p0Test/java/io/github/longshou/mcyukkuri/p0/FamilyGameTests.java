@@ -208,7 +208,7 @@ public final class FamilyGameTests {
                             a.family().tick();
                             check(count+" rejected birth grants no empty stem",!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).pending(brood.id)
                                     &&!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).delivered(brood.id),brood.id);
-                        } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.removeListener(reject); }
+                        } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(reject); }
                     }
                     var baby=data.birth(brood,i,level,new Vec3(176.5+i,66.5,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
                     WaddleGameTests.clearGoals(baby); // Keep real gravity and landing ticks, isolate random movement.

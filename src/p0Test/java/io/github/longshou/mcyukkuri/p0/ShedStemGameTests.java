@@ -41,7 +41,7 @@ public final class ShedStemGameTests {
         var cleaned=new boolean[1];
         Consumer<EntityJoinLevelEvent> cancel=e->{if(brood[0]!=null&&e.getEntity().getUUID().equals(ShedStemDrops.itemId(brood[0].id)))e.setCanceled(true);};
         Runnable cleanup=()->{
-            if(cleaned[0])return;cleaned[0]=true;NeoForge.EVENT_BUS.removeListener(cancel);
+            if(cleaned[0])return;cleaned[0]=true;NeoForge.EVENT_BUS.unregister(cancel);
             actors.forEach(Entity::discard);blocks.forEach(level::setBlockAndUpdate);
             for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++)GameTestChunks.setForced(level,x,z,forcedBefore.contains(net.minecraft.world.level.ChunkPos.asLong(x,z)));
         };
@@ -108,7 +108,7 @@ public final class ShedStemGameTests {
             drops.deliver(level.getServer());
             h.assertTrue(drops.ready(b.id)&&drops.pending(b.id)&&level.getEntity(itemId)==null,"cancelled item insertion retains the now-resolved transfer");
             var resolved=drops.save(new CompoundTag(),level.registryAccess());
-            NeoForge.EVENT_BUS.removeListener(cancel);
+            NeoForge.EVENT_BUS.unregister(cancel);
             var restored=ShedStemDrops.load(resolved,level.registryAccess());restored.deliver(level.getServer());
             h.assertTrue(restored.delivered(b.id)&&level.getEntity(itemId) instanceof ItemEntity item
                     &&item.getItem().is(ModItems.YUKKURI_STEM.get())&&item.getItem().getCount()==1,"saved resolved transfer survives mother death and creates one real empty stem");
