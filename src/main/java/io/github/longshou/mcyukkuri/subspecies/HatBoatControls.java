@@ -28,6 +28,11 @@ public final class HatBoatControls {
         if(y.getVehicle() instanceof HatBoatEntity boat) {
             if(!event.getLevel().isClientSide)boat.capsize();
         } else if(!event.getLevel().isClientSide) {
+            if (HatVessel.aquatic(y) && y.aquaticLife().firstVoyage().needsLesson()) {
+                y.aquaticLife().giveStick(event.getItemStack(),event.getEntity().getAbilities().instabuild);
+                y.aquaticLife().firstVoyage().tryStart();
+                event.setCancellationResult(InteractionResult.CONSUME); event.setCanceled(true); return;
+            }
             var boat = HatBoatEntity.tryLaunchNearby(y); if (boat == null) return;
             boat.cargo().givePaddle(event.getItemStack(), event.getEntity().getAbilities().instabuild);
         }

@@ -17,7 +17,7 @@ ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUT = ROOT/'.local/previews/lore'  # the preview page (index.html) stays local, not committed
 BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor',
               'boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board',
-              'boat_feed_young', 'boat_nuzzle', 'boat_lullaby')
+              'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance')
 # Panels: (label, model id, mode). Land forms never show the boat set; the aquatic Marisa shows only it;
 # the young panel shows a baby sitting on its mother's brim.
 PANELS = [('魔理沙', 'marisa', 'land'), ('水生魔理沙', 'marisa', 'aquatic'), ('帽中幼体', 'marisa', 'young'), ('灵梦', 'reimu', 'land'),

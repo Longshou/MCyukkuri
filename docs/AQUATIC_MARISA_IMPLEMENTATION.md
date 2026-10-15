@@ -35,6 +35,18 @@
 
 自然生成以水生个体为起点的家庭会配同亚种亲本，子代沿用既有 UUID 遗传抽取。介绍伴侣也遵守“水生只与水生配对”，不会先绑定一个无法繁殖的陆生伴侣。
 
+### 帽檐乘客与第一次独立航行（2026-10-16）
+
+按用户补充，小子油白天可以站在亲油帽船的前帽檐上。`HatVessel.brimPlace` 以实际帽檐轮廓检查圆形身体的完整支撑和兄弟姐妹间距；过大的子油或没有空位时仍在帽内。赤体留在帽内。帽内／帽檐换位同步起点、时间与重力小跳弧线；站稳后播放 `hat_brim`，身体保持落在帽檐上。进食、亲子照料、睡觉、雨天、牵引、进水和受惊时退回帽内。
+
+`FirstVoyage` 为水生子体增加独立成长事件，门槛为标准成体线性体型 **0.50**，在现有子体 0.20–0.80 区间内；这是项目平衡值，非 Wiki 数值。满足体型、真实木棍、自己的帽子、健康状态、白天和平静水面条件后，寻找附近能辨认彼此的健康亲油。亲油占用自己的 AI 任务留在干岸看护，一次只陪一个孩子；普通的跟随父母、等孩子任务可以让位。
+
+流程为走近岸沿 → 36 tick 摘下自己的帽子 → 沿实际登船弧线入帽 → 40 tick 试坐平衡 → 划出 2–3 格 → 转向返岸 → 亲油鼓励。帽船碰撞大小随帽子同步缩放，子体放帽前靠近干岸边缘，避免小帽子仍卡在岸上。练习路线只用已加载、安静且距出发岸点 5 格以内的水面节点。完成目标点并真正返岸后才记录一次成功、增加亲子关系与安慰，不制造食物、帽子或生命值。
+
+尚未成功初航的子体可准备木棒，但不能经普通 AI 或潜行右击绕过事件独立出航。完成后、仍满足体型门槛时可沿用普通帽船生态；成油不强制补做幼年课程。天气变坏、亲油离开／卸载、命令打断、需求变化、失桨、翻覆或超时会中断，适用时转入返岸或原有救援规则，失败不结算成功。中途保存只保留返岸所需地点，重载按中断旅程处理；成功标记单独保存，不重播奖励。观察笔记显示体型门槛与初航记录。
+
+当前模型的分镜与动图由 [first_voyage_preview.py](../standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py) 离线渲染，使用同一帽檐求解、重力弧线、帽子几何和运行时动作。画面展示动作与事件阶段，不是游戏实录；输出在 `.local/previews/first-voyage/`。
+
 ## 危险、保存与回收
 
 帽内的干燥保护只对实际乘员有效；帽子翻覆或水面淹过开口时立即失效。它不改变水生魔理沙的身体吸水率，不赋予游泳或潜水能力。翻覆会散落真实粮食和桨，乘员落水；失桨时停止主动划行并向岸求助。雨中仍会淋湿。
@@ -61,7 +73,7 @@
 
 亲子日常续补 `boat_feed_young`（递食）、`boat_nuzzle`（安抚）、`boat_lullaby`（哼唱）、`aquatic_hat_care`（返岸理帽）四段。子油接食复用实际进食动作，回应与听歌复用亲昵和摇摆动作；不更换基础造型。新增离线入口 [aquatic_family_preview.py](../standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py) 使用当前运行模型、帽船坐标求解和真实物品贴图，输出到 `.local/previews/aquatic-family/`。
 
-制作源为 [lore/recipe.json](../standards/yukkuri-library/motions/variants/lore/recipe.json) 和 [author.py](../standards/yukkuri-library/motions/variants/lore/author.py)。运行资源由 `scripts/export_motion_corrections.py` 导出，登记于 `art/runtime-sources.json` 与选用 manifest。木棒跟随真实辫梢骨骼，船粮在帽内可见。基础造型和其他 18 种形态的动作不变，新动作状态仍为待用户复查。
+制作源为 [lore/recipe.json](../standards/yukkuri-library/motions/variants/lore/recipe.json) 和 [author.py](../standards/yukkuri-library/motions/variants/lore/author.py)。运行资源由 `scripts/export_motion_corrections.py` 导出，登记于 `art/runtime-sources.json` 与选用 manifest。木棒跟随真实辫梢骨骼，船粮在帽内可见。初航另增魔理沙试坐 `boat_first_balance` 与非家油幼体站帽檐 `hat_brim`；既有动作和基础造型保持不变。新动作状态仍为待用户复查。
 
 无需浏览器或游戏的当前预览入口为 [aquatic_preview.py](../standards/yukkuri-library/motions/variants/lore/aquatic_preview.py)，输出位于 `.local/previews/aquatic/`。运行时验证仍需关注连续昼夜、返岸路径、多人同步、繁殖中返岸和急流翻覆；离线图和 CI 构建均不替代这些实测。
 
@@ -70,3 +82,5 @@
 水伤修正另补九种实体、所有已接入亚种／不足／灵胖形态在关闭 AI 时的持续入水伤害与离水停止断言，以及帽内免浸水、翻覆受伤、落水存读保留亚种和遗体帽尺寸数据检查；本轮仅静态核对，P0 运行待远端需要时执行。
 
 亲子夹具 `AquaticFamilyGameTests` 检查递食前后库存与嘴里物品的归属、取消和重载只归还一次、关闭 AI 中断、实际吞咽、安抚不清洗／治疗／喂食、睡前哼唱只结算一次以及翻船散落待递食物。本机不编译或运行该夹具，常规 CI 也不运行 P0。
+
+初航续补同一夹具的体型门槛、完成前禁止独航、中断读档不算成功、成功标记保存以及帽檐完整支撑／过大拒绝的断言。完整事件的运行效果仍待游戏环境实测。

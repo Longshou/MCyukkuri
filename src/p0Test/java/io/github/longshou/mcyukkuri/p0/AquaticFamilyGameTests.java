@@ -92,5 +92,30 @@ public final class AquaticFamilyGameTests {
                 level.setDayTime(daytime); GameTestChunks.setForced(level,X/16,0,false);
             }).thenSucceed();
     }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=80,batch="aquatic_family")
+    public static void juvenileSailingGateAndBrim(GameTestHelper helper) {
+        var child=ModEntities.MARISA.get().create(helper.getLevel());
+        child.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
+        var growth=child.family().save();growth.putBoolean("Initialized",true);growth.putString("Stage","JUVENILE");growth.putFloat("Scale",.49f);child.family().load(growth);
+        var voyage=child.aquaticLife().firstVoyage();
+        helper.assertTrue(!voyage.readySize()&&!voyage.mayLaunch(),"small juveniles cannot launch their own hats");
+        growth.putFloat("Scale",.50f);child.family().load(growth);
+        helper.assertTrue(voyage.readySize()&&!voyage.mayLaunch(),"half size still requires the first supervised voyage");
+        var saved=voyage.save();saved.putBoolean("InterruptedTrip",true);saved.putLong("Bank",new BlockPos(0,65,0).asLong());
+        saved.putLong("Harbor",new BlockPos(1,64,0).asLong());saved.putString("Dimension",helper.getLevel().dimension().location().toString());
+        voyage.load(saved);
+        helper.assertTrue(!voyage.completed()&&!voyage.mayLaunch()&&voyage.activity().equals("voyage_return"),"reload returns without awarding a successful lesson");
+        saved.putBoolean("Completed",true);saved.putBoolean("InterruptedTrip",false);voyage.load(saved);
+        helper.assertTrue(voyage.completed()&&voyage.mayLaunch(),"completed milestone persists and unlocks juvenile sailing");
+        var v=io.github.longshou.mcyukkuri.subspecies.HatVessel.brimPlace(1.1,java.util.List.of());
+        helper.assertTrue(v!=null,"small young has a real brim place");
+        for(int i=0;i<32;i++){
+            double h=io.github.longshou.mcyukkuri.subspecies.HatVessel.surface(io.github.longshou.mcyukkuri.subspecies.HatVessel.Mode.FLOAT,
+                    v.x+1.1*Math.cos(i*Math.PI/16),v.z+1.1*Math.sin(i*Math.PI/16));
+            helper.assertTrue(Double.isFinite(h)&&Math.abs(h-io.github.longshou.mcyukkuri.subspecies.HatVessel.FREEBOARD)<.001,"entire young footprint supported above water");
+        }
+        helper.assertTrue(io.github.longshou.mcyukkuri.subspecies.HatVessel.brimPlace(3,java.util.List.of())==null,"oversized young never hang beyond the brim");
+        helper.succeed();
+    }
     private AquaticFamilyGameTests() {}
 }

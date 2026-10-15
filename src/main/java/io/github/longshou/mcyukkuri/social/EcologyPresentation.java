@@ -22,7 +22,10 @@ public final class EcologyPresentation {
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
             case "midwife" -> YukkuriAction.MIDWIFE;
-            case "boat_launch" -> YukkuriAction.HAT_OFF_SELF_AQ;
+            case "boat_launch", "voyage_launch" -> YukkuriAction.HAT_OFF_SELF_AQ;
+            case "voyage_prepare", "voyage_wait_parent", "voyage_watch" -> YukkuriAction.LOOK_AROUND;
+            case "voyage_praise" -> YukkuriAction.GREET;
+            case "voyage_proud" -> YukkuriAction.SHIAWASE;
             case "boat_wait_young", "boat_find_paddle", "boat_seek_bank", "boat_provision" -> YukkuriAction.LOOK_AROUND;
             case "aquatic_hat_care" -> YukkuriAction.AQUATIC_HAT_CARE;
             case "hat_off", "hat_on", "hat_hold", "hat_off_self", "hat_on_self",
@@ -44,6 +47,7 @@ public final class EcologyPresentation {
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
         if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
         if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
+        if (behavior.equals("voyage_balance")) return YukkuriAction.BOAT_FIRST_BALANCE;
         if (behavior.equals("boat_feed_young")) return YukkuriAction.BOAT_FEED_YOUNG;
         if (behavior.equals("boat_nuzzle")) return YukkuriAction.BOAT_NUZZLE;
         if (behavior.equals("boat_lullaby")) return YukkuriAction.BOAT_LULLABY;
@@ -90,6 +94,9 @@ public final class EcologyPresentation {
             case "seek_toilet" -> e.life().bladder() >= 90 ? "teary" : "neutral";
             case "take_food", "seek_food" -> "drool";
             case "boat_paddle", "boat_drift" -> "closed_smile";
+            case "hat_brim", "voyage_out", "voyage_proud", "voyage_praise" -> "happy";
+            case "voyage_prepare", "voyage_watch", "voyage_return" -> "neutral";
+            case "voyage_balance" -> "chewing_closed";
             case "boat_feed_young", "aquatic_hat_care" -> "happy";
             case "boat_beg", "boat_provision" -> "drool";
             case "boat_lullaby" -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 13 ? "open_smile" : "closed_smile";

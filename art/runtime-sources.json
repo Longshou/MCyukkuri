@@ -3590,7 +3590,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "aquatic-family-20261016-v12",
+    "revision": "aquatic-first-voyage-20261016-v13",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3624,7 +3624,8 @@
     "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
     "births_preview": "art/source/motion-corrections/previews/current/lore/index.html",
     "aquatic_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_preview.py",
-    "aquatic_family_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py"
+    "aquatic_family_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py",
+    "first_voyage_preview_source": "standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",

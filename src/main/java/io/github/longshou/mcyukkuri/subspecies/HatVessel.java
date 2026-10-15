@@ -122,6 +122,26 @@ public final class HatVessel {
         }
         return best==null?new Vec3(px,floor(m),pz):new Vec3(best[1],best[2],best[3]);
     }
+    /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.
+     *  This is deliberately separate from newborn delivery: a newborn still lands inside the well. */
+    public static Vec3 brimPlace(double r,List<double[]> taken){
+        double margin=DELIVERY.getAsJsonObject("brim_standing").get("margin").getAsDouble();
+        Vec3 best=null; double cost=Double.MAX_VALUE;
+        for(double x=-BRIM[0]+r+margin;x<=BRIM[0]-r-margin;x+=STEP)
+            for(double z=-BRIM[1]+r+margin;z<=OPENING[2]-r-margin;z+=STEP){
+                boolean supported=true;
+                for(int i=0;i<17&&supported;i++){
+                    double px=i==16?x:x+(r+margin)*Math.cos(i*Math.PI/8),pz=i==16?z:z+(r+margin)*Math.sin(i*Math.PI/8);
+                    double h=surface(Mode.FLOAT,px,pz); supported=Double.isFinite(h)&&Math.abs(h-FREEBOARD)<1e-6;
+                }
+                if(!supported)continue;
+                boolean free=true;
+                for(var s:taken)if(Math.hypot(x-s[0],z-s[2])<(r+s[3])*1.55){free=false;break;}
+                double c=Math.abs(x)+.25*Math.abs(z-OPENING[2]);
+                if(free&&c<cost){best=new Vec3(x,FREEBOARD,z);cost=c;}
+            }
+        return best;
+    }
     /** Distance from a point to the segment a-b (x, z). */
     private static double segment(double px,double pz,double ax,double az,double bx,double bz){
         double dx=bx-ax,dz=bz-az,l=dx*dx+dz*dz,q=l<1e-12?0:Math.clamp(((px-ax)*dx+(pz-az)*dz)/l,0,1);

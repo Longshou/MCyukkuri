@@ -513,6 +513,8 @@ public final class YukkuriEntity extends PathfinderMob {
         return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? YukkuriAction.EAT
                 : behavior.equals("boat_listen") ? YukkuriAction.SWAY
                 : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
+                : boat.changingSeat(this) && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(this) ? YukkuriAction.BOAT_BOARD
+                : boat.onBrim(this) ? YukkuriAction.HAT_BRIM
                 : reactionTicks > 0 && reactionEvent.equals("newborn") ? YukkuriAction.FIRST_WAKE : YukkuriAction.HAT_CRADLE;
     }
 

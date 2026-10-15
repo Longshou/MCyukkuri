@@ -75,7 +75,9 @@ public enum YukkuriAction {
     HAT_OFF_SELF_AQ("hat_off_self_aq", 1.8, false),
     HAT_ON_SELF_AQ("hat_on_self_aq", 1.8, false),
     /** Shell Marisa only; other models fall back to idle. */
-    SHELL_RETRACT("shell_retract", 6.0, true);
+    SHELL_RETRACT("shell_retract", 6.0, true),
+    HAT_BRIM("hat_brim", 3.0, true),
+    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false);
 
     private final String id;
     private final double duration;

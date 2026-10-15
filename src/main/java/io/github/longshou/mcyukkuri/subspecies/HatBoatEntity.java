@@ -54,6 +54,8 @@ public final class HatBoatEntity extends Entity {
      *  on their way in (a newborn's flight, a bounce off the brim). */
     private final java.util.LinkedHashMap<UUID, double[]> seats = new java.util.LinkedHashMap<>(), incoming = new java.util.LinkedHashMap<>();
     private String seatRegion = "";
+    private record SeatMove(Vec3 from, long start, int ticks) {}
+    private final java.util.Map<UUID,SeatMove> seatMoves = new java.util.HashMap<>();
     /** Young hopping out in turn before the hat is taken back: who, to which spot (world), from which game tick. */
     private record Leaving(UUID young, Vec3 spot, long at) {}
     private final java.util.ArrayList<Leaving> leaving = new java.util.ArrayList<>();
@@ -68,6 +70,10 @@ public final class HatBoatEntity extends Entity {
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
         if (CARGO.equals(data) && cargo != null && level().isClientSide) cargo.load(entityData.get(CARGO));
+        if (SCALE.equals(data)) refreshDimensions();
+    }
+    @Override public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose pose) {
+        return super.getDimensions(pose).scale(hullScale()/HatVessel.AQUATIC_SCALE);
     }
     public HatBoatCargo cargo() { return cargo; }
     void syncCargo(CompoundTag data) { entityData.set(CARGO, data); }
@@ -75,8 +81,12 @@ public final class HatBoatEntity extends Entity {
     public void stopPaddling() { route.clear(); entityData.set(PADDLING, false); }
     public boolean paddleTo(Vec3 destination) {
         if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed()) return false;
-        stopPaddling();
-        if (destination != null) route.addAll(HatBoatRoute.find(this, destination));
+        return paddleAlong(destination == null ? java.util.List.of() : HatBoatRoute.find(this, destination));
+    }
+    /** A route already checked by the supervised first-voyage planner. */
+    boolean paddleAlong(java.util.List<Vec3> path) {
+        if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed()) return false;
+        stopPaddling(); route.addAll(path);
         entityData.set(PADDLING, !route.isEmpty()); return !route.isEmpty();
     }
     /** The stick holds the boat briefly during boarding; sleeping boats still drift with the current. */
@@ -129,7 +139,7 @@ public final class HatBoatEntity extends Entity {
     }
     @Override protected void removePassenger(Entity passenger) {
         super.removePassenger(passenger);
-        if (!level().isClientSide && seats.remove(passenger.getUUID()) != null) syncSeats();
+        if (!level().isClientSide) { seatMoves.remove(passenger.getUUID()); if (seats.remove(passenger.getUUID()) != null) syncSeats(); }
     }
     // ---------------------------------------------------------------- the hat's frame and the young's places
     public HatVessel.Mode mode() { return isCradle() ? HatVessel.Mode.NEST : HatVessel.Mode.FLOAT; }
@@ -144,7 +154,12 @@ public final class HatBoatEntity extends Entity {
     private java.util.List<double[]> taken() { var out = new java.util.ArrayList<double[]>(seats.values()); out.addAll(incoming.values()); return out; }
     private void syncSeats() {
         var list = new net.minecraft.nbt.ListTag();
-        for (var e : seats.entrySet()) { var c = new CompoundTag(); c.putUUID("Id", e.getKey()); c.putDouble("X", e.getValue()[0]); c.putDouble("Y", e.getValue()[1]); c.putDouble("Z", e.getValue()[2]); list.add(c); }
+        for (var e : seats.entrySet()) {
+            var c = new CompoundTag(); c.putUUID("Id", e.getKey()); c.putDouble("X", e.getValue()[0]); c.putDouble("Y", e.getValue()[1]); c.putDouble("Z", e.getValue()[2]);
+            var m=seatMoves.get(e.getKey());
+            if(m!=null){c.putDouble("FromX",m.from().x);c.putDouble("FromY",m.from().y);c.putDouble("FromZ",m.from().z);c.putLong("At",m.start());c.putInt("Ticks",m.ticks());}
+            list.add(c);
+        }
         var tag = new CompoundTag(); tag.put("S", list); entityData.set(SEATS, tag);
     }
     /** The place the server gave this young aboard, or null. */
@@ -154,16 +169,47 @@ public final class HatBoatEntity extends Entity {
             if (raw instanceof CompoundTag c && c.hasUUID("Id") && c.getUUID("Id").equals(young.getUUID())) return new Vec3(c.getDouble("X"), c.getDouble("Y"), c.getDouble("Z"));
         return null;
     }
+    private SeatMove seatMove(Entity young) {
+        if(!level().isClientSide)return seatMoves.get(young.getUUID());
+        for(var raw:entityData.get(SEATS).getList("S",net.minecraft.nbt.Tag.TAG_COMPOUND))
+            if(raw instanceof CompoundTag c&&c.hasUUID("Id")&&c.getUUID("Id").equals(young.getUUID())&&c.contains("At"))
+                return new SeatMove(new Vec3(c.getDouble("FromX"),c.getDouble("FromY"),c.getDouble("FromZ")),c.getLong("At"),c.getInt("Ticks"));
+        return null;
+    }
+    public boolean changingSeat(Entity young){var m=seatMove(young);return m!=null&&level().getGameTime()-m.start()<m.ticks();}
+    public boolean onBrim(Entity young){var s=seatOf(young);return isAfloat()&&s!=null&&Math.abs(s.y-HatVessel.FREEBOARD)<1e-5&&!changingSeat(young);}
+    private boolean brimSafe(Entity rider) {
+        var captain=owner();
+        return rider instanceof YukkuriEntity y && y.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.JUVENILE
+                && isAfloat() && flooding==0 && !towed() && !hasIncoming() && !level().isNight() && !level().isRainingAt(blockPosition())
+                && captain!=null && !captain.isPanicking() && !captain.family().laboring() && !captain.life().isSleeping()
+                && !captain.aquaticLife().care().active() && !y.isPanicking() && !y.life().isSleeping()
+                && !y.isNoAi() && !y.isCommandPlaying() && !y.operations().active()
+                && y.life().mealTicks()==0 && y.life().energy()>25 && y.life().nutrition()>=60;
+    }
     /** Server: young aboard without a place (after loading) get one; afloat, at dusk and dawn they all move (before the
      *  owner by day, under her at night). */
     private void tendSeats() {
         var young = youngPassengers();
         boolean resized = young.stream().anyMatch(p -> seats.containsKey(p.getUUID()) && Math.abs(seats.get(p.getUUID())[3]-radiusOf(p))>.001);
-        boolean moved = resized || !region().equals(seatRegion) && !catches(); seatRegion = region();
+        String wanted=region()+young.stream().map(p->p.getUUID()+":"+brimSafe(p)).toList();
+        boolean moved = resized || !wanted.equals(seatRegion) && !catches(); seatRegion = wanted;
+        var old=new java.util.HashMap<UUID,double[]>(seats);
+        if(resized)seatMoves.clear();
         if (moved) seats.clear();
         boolean changed = moved;
         for (var p : young) if (!seats.containsKey(p.getUUID())) {
-            double r = radiusOf(p); var s = HatVessel.place(mode(), r, region(), null, taken(), null); seats.put(p.getUUID(), new double[]{s.x, s.y, s.z, r}); changed = true;
+            double r = radiusOf(p); var s = brimSafe(p)?HatVessel.brimPlace(r,taken()):null;
+            if(s==null)s=HatVessel.place(mode(), r, region(), null, taken(), null);
+            var before=old.get(p.getUUID());
+            if(before!=null&&!resized){
+                var from=toLocal(p.position());
+                if(from.distanceToSqr(s)>.01){
+                    int ticks=HatVessel.solve(toWorld(from),toWorld(s),this,HatVessel.radius(p.getBbWidth()),HatVessel.HOP_TMIN);
+                    seatMoves.put(p.getUUID(),new SeatMove(from,level().getGameTime(),ticks));
+                }
+            }
+            seats.put(p.getUUID(), new double[]{s.x, s.y, s.z, r}); changed = true;
         }
         if (changed) syncSeats();
     }
@@ -264,7 +310,9 @@ public final class HatBoatEntity extends Entity {
             if (seat < 0 || seat >= packed.size()) return;
             local = packed.get(seat);
         }
-        var at = toWorld(local);
+        var at = toWorld(local); var movement=seatMove(passenger);
+        if(movement!=null){double time=Math.clamp(level().getGameTime()-movement.start(),0,movement.ticks());
+            at=HatVessel.arc(toWorld(movement.from()),at,movement.ticks(),time);}
         move.accept(passenger, at.x, at.y, at.z);
     }
     public static HatBoatEntity find(YukkuriEntity y) {
@@ -285,7 +333,7 @@ public final class HatBoatEntity extends Entity {
     private static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated) {
         // Only the aquatic Marisa sails her hat; land Marisa never take to the water (user correction 2026-10-14).
         if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA
-                || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA || owner.family().stage() == io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
+                || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA || !owner.aquaticLife().firstVoyage().mayLaunch()
                 || owner.subspecies().boatId() != null
                 || !owner.isAlive() || owner.isPassenger() || owner.isVehicle() || !owner.life().hasAccessory() || owner.isInWaterOrBubble()
                 || !level.getFluidState(owner.blockPosition()).isEmpty() || owner.operations().active()
@@ -294,6 +342,7 @@ public final class HatBoatEntity extends Entity {
         if (!HatBoatRoute.calmSurface(level, water)) return null;
         var boat = ModEntities.HAT_BOAT.get().create(level);
         if (boat == null) return null;
+        boat.entityData.set(SCALE, HatVessel.hatScale(owner));
         boat.setPos(water.getX()+.5, water.getY()+fluid.getHeight(level, water)+.025, water.getZ()+.5);
         var away=boat.position().subtract(owner.position()).multiply(1,0,1).normalize().scale(.10);
         boat.setPos(boat.position().add(away));

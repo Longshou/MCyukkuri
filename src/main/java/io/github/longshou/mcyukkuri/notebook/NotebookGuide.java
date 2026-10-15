@@ -70,7 +70,10 @@ public final class NotebookGuide {
                 && boat.getControllingPassenger() instanceof YukkuriEntity parent ? parent : entity;
         var life = owner.aquaticLife(); var care = life.care();
         return Component.translatable("notebook.mcyukkuri.aquatic_family",life.provisions(),care.meals(),care.comforts(),care.songs(),
-                care.serving().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):care.serving().getHoverName());
+                care.serving().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):care.serving().getHoverName())
+                .append(Component.translatable("notebook.mcyukkuri.first_voyage",
+                        Math.round(entity.family().scale()*100),Math.round(io.github.longshou.mcyukkuri.subspecies.FirstVoyage.MIN_SCALE*100),
+                        Component.translatable("notebook.mcyukkuri.first_voyage."+entity.aquaticLife().firstVoyage().status())));
     }
     private NotebookGuide() {}
 }

@@ -58,10 +58,14 @@ def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
     if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board',
-                  'boat_feed_young', 'boat_nuzzle', 'boat_lullaby'):
+                  'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance'):
         s = curled(c)
         phase = 2*math.pi*t/d
-        if action == 'boat_feed_young':
+        if action == 'boat_first_balance':
+            settle = 1-smooth(t/d)
+            r = [-2, 12*bump((t-.7)/1.3), 7*settle*math.sin(phase*2)]
+            s[1] -= .04*settle
+        elif action == 'boat_feed_young':
             reach = smooth(t/.6)*(1-smooth((t-1.2)/1.2))
             r = [-7*reach, -4*reach, -2*reach]; s[1] -= .02*reach
         elif action == 'boat_nuzzle':
@@ -241,6 +245,9 @@ def state(action, t, c, height):
             r[0] = (c['wail_chin']*(1-u)+c['head_down']*u)*fade; r[2] = 1.5*w*u*fade
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
+    elif action == 'hat_brim':
+        r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
+        s[1] = 1.025  # upright, but no idle floating above the supporting brim
     else:
         raise KeyError(action)
     return s, r, lift, shift

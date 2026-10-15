@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -20,6 +20,10 @@
     "aquatic_marisa": ["marisa"]
   },
   "clips": {
+    "hat_brim": {"label": "子油站帽檐张望", "duration": 3.0, "loop": true, "applies": "not_house", "turn": 16, "sway": 2,
+      "faces": [[0, 1, "happy"], [1, 1.6, "open_smile"], [1.6, 3, "closed_smile"]], "lore": "User 2026-10-16: small juveniles stand on the front brim. Feet stay planted; seat transitions use the server arc.", "triggers": ["awake juvenile on a supported brim seat"]},
+    "boat_first_balance": {"label": "初航试着坐稳", "duration": 2.0, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
+      "faces": [[0, 0.55, "surprise"], [0.55, 1.3, "chewing_closed"], [1.3, 62, "happy"]], "lore": "User-requested first-voyage event: a juvenile settles its weight in its own hat before rowing, then looks back toward its parent on the bank.", "triggers": ["server first-voyage balance phase, 40 ticks"]},
     "boat_feed_young": {"label": "停桨递食给子油", "duration": 2.4, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025, "serve_target": [0, -2.2, -6.5], "braid_root_offset": [0, 0, -3],
       "faces": [[0, 0.6, "closed_smile"], [0.6, 1.2, "open_smile"], [1.2, 62.4, "happy"]], "lore": "Original hat-boat adaptation of wiki N2 parenting and food sharing; a real serving leaves cargo and reaches the child's mouth at 1.2 s.", "triggers": ["server parent reserves a meal for its own hungry child"]},
     "boat_nuzzle": {"label": "俯身亲昵安抚子油", "duration": 2.4, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
