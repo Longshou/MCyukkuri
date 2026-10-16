@@ -115,6 +115,8 @@ public final class DailyLife {
     }
     private boolean begin(Kind kind, Entity companion) {
         if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
+        if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
+                || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
         if (kind != Kind.NUZZLE && !room()) return false;
         entity.social().stop();
         session = new Session(entity, companion, kind); cooldown = 600;

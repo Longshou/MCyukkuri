@@ -9,7 +9,7 @@ public final class EcologyPresentation {
     public static YukkuriAction action(String behavior) {
         return switch (behavior) {
             case "unun_exercise" -> YukkuriAction.TAISO;
-            case "toilet", "ground_toilet", "toilet_accident" -> YukkuriAction.BRACE;
+            case "toilet", "ground_toilet", "boat_toilet", "toilet_accident" -> YukkuriAction.BRACE;
             case "take_food", "chew", "family_chew", "swallow" -> YukkuriAction.EAT;
             case "receive_mash" -> YukkuriAction.DRINK;
             case "meal_finish" -> YukkuriAction.SHIAWASE;
@@ -18,7 +18,13 @@ public final class EcologyPresentation {
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
             case "independence_build", "nest_build" -> YukkuriAction.BRACE;
-            case "feed_child" -> YukkuriAction.NUZZLE;
+            // These distinct care/learning states select matching authored clips in YukkuriModel.
+            // The base enum remains the closest locomotion family so server animation timing stays shared.
+            case "feed_child", "first_toilet_assist" -> YukkuriAction.NUZZLE;
+            case "first_toilet_seek" -> YukkuriAction.LOOK_AROUND;
+            case "newborn_crawl" -> YukkuriAction.WADDLE;
+            case "learn_jump" -> YukkuriAction.HOP;
+            case "newborn_wait", "first_toilet_wait" -> YukkuriAction.IDLE;
             case "nest_gather" -> YukkuriAction.LOOK_AROUND;
             case "independence_farewell", "independence_visit" -> YukkuriAction.GREET;
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
@@ -55,6 +61,9 @@ public final class EcologyPresentation {
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
         if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
         if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
+        // BOAT_EAT supplies the existing seated base. YukkuriModel replaces it with the
+        // boat_toilet source clip, while HatBoatEntity owns the water-facing rear orientation.
+        if (behavior.equals("boat_toilet")) return YukkuriAction.BOAT_EAT;
         if (behavior.equals("family_chew")) return YukkuriAction.BOAT_EAT;
         if (behavior.equals("voyage_balance")) return YukkuriAction.BOAT_FIRST_BALANCE;
         if (behavior.equals("voyage_praise")) return YukkuriAction.BOAT_NUZZLE;
@@ -98,6 +107,9 @@ public final class EcologyPresentation {
             case "independence_farewell", "independence_visit" -> "happy";
             case "independence_build", "nest_build" -> "chewing_closed";
             case "feed_child" -> "happy";
+            case "first_toilet_seek" -> "teary";
+            case "first_toilet_assist" -> "closed_smile";
+            case "newborn_crawl", "learn_jump" -> "happy";
             case "receive_mash" -> "open_smile";
             case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
             case "unun_exercise" -> "happy";
@@ -117,6 +129,7 @@ public final class EcologyPresentation {
             case "boat_beg", "boat_provision" -> "drool";
             case "boat_lullaby" -> (e.level().getGameTime()-e.getBehaviorStartTick())%20 < 13 ? "open_smile" : "closed_smile";
             case "boat_gather", "boat_eat" -> "chewing";
+            case "boat_toilet" -> "chewing_closed";
             case "boat_drink" -> "chewing_closed";
             case "boat_call", "boat_wait_young" -> "teary";
             case "boat_steady" -> "surprise";

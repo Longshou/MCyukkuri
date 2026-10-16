@@ -57,7 +57,7 @@ def curled(c):
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board',
+    if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board', 'boat_toilet',
                   'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance'):
         s = curled(c)
         phase = 2*math.pi*t/d
@@ -68,6 +68,11 @@ def state(action, t, c, height):
         elif action == 'boat_feed_young':
             reach = smooth(t/.6)*(1-smooth((t-1.2)/1.2))
             r = [-7*reach, -4*reach, -2*reach]; s[1] -= .02*reach
+        elif action == 'boat_toilet':
+            # The boat has already selected the water-facing rear yaw.  This clip only lowers
+            # the seated body there, keeping the face out of the child-care interaction.
+            brace = .75+.25*math.sin(phase)
+            r = [9*brace, 0, 0]; s = [1.02, c['height']-.035*brace, 1.05]
         elif action == 'boat_nuzzle':
             lean = smooth(t/.5)*(1-smooth((t-1.9)/.5))
             r = [-9*lean, 0, 3*math.sin(phase*2)*lean]; s[1] -= .025*lean
@@ -124,6 +129,25 @@ def state(action, t, c, height):
     elif action == 'nuzzle':
         w = math.sin(2*math.pi*t/d)
         r = [c['lean'], 0., c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
+    elif action in ('feed_child', 'first_toilet_assist'):
+        # Both are deliberate care approaches, but they stay separate clips: mouth-to-mouth
+        # feeding faces the child, while first-toilet care is positioned by the server at its rear.
+        # The brief crouch is neutral support, never a nuzzle, wash, or toilet exercise.
+        settle = smooth(t/c['settle'])
+        leave = 1-smooth((t-c['withdraw'])/(d-c['withdraw'])) if t >= c['withdraw'] else 1.
+        reach = settle*leave
+        r[0] = c['lean']*reach
+        if 'crouch' in c:
+            k = c['crouch']*reach; s = [1+.45*k, 1-k, 1+.45*k]
+    elif action == 'newborn_crawl':
+        phase = 2*math.pi*t/d
+        s = [1.04, c['height'], 1.07]
+        r = [c['lean'], 0., c['wobble']*math.sin(phase)]
+        shift[1] = -c['push']*height*(.5+.5*math.sin(phase))
+    elif action in ('learn_jump',):
+        # One low, grounded hop: a demonstration/practice signal rather than escape or adult work.
+        s, lift, airborne = hop(t, 0, .18, .62, .84, height*c['hop_ratio'])
+        r[0] = c['look_down']*airborne
     elif action == 'sing':
         q = bump((2*t/d) % 1)
         r = [c['chin_up'], 0., c['sway']*math.sin(2*math.pi*t/d)]
@@ -318,13 +342,12 @@ def flourish_tracks(model, action, samples, cfg, c):
 
 
 def family_braid_tracks(model, action, samples, keys, root, hat, c):
-    """Reach the child's mouth ahead of the parent, or the actual enlarged worn brim.
+    """Move the braid only when it performs actual hat care at the enlarged worn brim.
 
-    The same braid solver as the hat clips keeps the food at the tip. Move the braid
-    root just forward of the cheek while serving, so the strand approaches outside the face.
-    The tuft cancels length scaling as it does when carrying the hat.
+    Food exchange is deliberately excluded: family feeding is mouth-to-mouth and the renderer
+    follows the server's single serving from the caregiver mouth to the child's mouth.
     """
-    if action not in ('boat_feed_young', 'aquatic_hat_care'): return []
+    if action != 'aquatic_hat_care': return []
     rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
     pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
     anchor = np.array(metrics['anchor_worn'])
@@ -332,10 +355,10 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
     rows = {name: [] for name in ('position', 'rotation', 'scale', 'tip_rotation', 'tip_scale')}
     previous = None
     for i, t in enumerate(samples):
-        a = smooth(t/.6)*(1-smooth((t-1.2)/1.2)) if action == 'boat_feed_young' else smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
+        a = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
         chain = rig.chain(tuple(keys[ch][i][1:] for ch in ('position', 'rotation', 'scale')))
         start = (chain@np.r_[tip, 1])[:3]
-        target = np.array(c['serve_target']) if action == 'boat_feed_young' else (chain@np.r_[brim, 1])[:3]
+        target = (chain@np.r_[brim, 1])[:3]
         offset = np.array(c.get('braid_root_offset', [0, 0, 0]))*a
         R, sy = hat['braid_to'](np.linalg.inv(chain), start+(target-start)*a, pivot+offset, v0)
         rotation = hat['to_euler'](R)

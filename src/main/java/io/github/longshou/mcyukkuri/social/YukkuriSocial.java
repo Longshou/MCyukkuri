@@ -30,7 +30,7 @@ public final class YukkuriSocial {
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
-        if(entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!io.github.longshou.mcyukkuri.life.Facilities.toy(toy.getItem())
+        if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!io.github.longshou.mcyukkuri.life.Facilities.toy(toy.getItem())
                 ||entity.distanceToSqr(toy)>36||!entity.hasLineOfSight(toy)||entity.isPanicking()||entity.life().hasUrgentNeed()
                 ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())||entity.life().mealTicks()>0)return false;
         var lease=toy.getPersistentData();long now=entity.level().getGameTime();
@@ -58,7 +58,7 @@ public final class YukkuriSocial {
         return true;
     }
     public boolean teach(Player player) {
-        if (player.level()!=entity.level() || !player.isAlive() || entity.distanceToSqr(player)>16 || !entity.hasLineOfSight(player)
+        if (!entity.childhood().canLearn() || player.level()!=entity.level() || !player.isAlive() || entity.distanceToSqr(player)>16 || !entity.hasLineOfSight(player)
                 || teachingWait > 0 || entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0
                 || entity.isCommandPlaying() || personality().trust(player.getUUID()) < 10 || personality().fear(player.getUUID()) >= 30) {
             entity.showReaction("surprise", "lesson_refused", 80); return false;
@@ -72,6 +72,7 @@ public final class YukkuriSocial {
         return true;
     }
     public boolean canUse() {
+        if (!entity.childhood().canLearn()) return task == Task.PLAYER && target != null && entity.distanceToSqr(target) <= 4 && canContinue();
         if(task==Task.NONE && io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity))return false;
         if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
         if (task != Task.NONE) return true;
@@ -107,6 +108,7 @@ public final class YukkuriSocial {
     }
     public boolean canContinue() {
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
+                && (entity.childhood().canLearn() || task == Task.PLAYER && entity.distanceToSqr(target) <= 4)
                 && entity.hasLineOfSight(target) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !entity.life().hasUrgentNeed()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration;
@@ -115,6 +117,7 @@ public final class YukkuriSocial {
         if (!canContinue()) { stop(); return; }
         elapsed++;
         entity.getLookControl().setLookAt(target, 25, 25);
+        if (!entity.childhood().canLearn()) { entity.getNavigation().stop(); return; }
         if(task==Task.TOY&&target instanceof ItemEntity toy) {
             var lease=toy.getPersistentData();
             if(!io.github.longshou.mcyukkuri.life.Facilities.toy(toy.getItem())||!lease.hasUUID("YukkuriPlayOwner")||!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())

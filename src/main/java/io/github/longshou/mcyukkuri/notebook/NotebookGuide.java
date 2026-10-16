@@ -67,7 +67,11 @@ public final class NotebookGuide {
                 Math.min(100,Math.round(100f*family.nourishment()/family.maturityAge())),
                 family.carrying().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):
                         io.github.longshou.mcyukkuri.life.InfantFood.isMash(family.carrying())?Component.translatable("notebook.mcyukkuri.childhood.mash",family.carrying().getHoverName()):family.carrying().getHoverName(),
-                Component.translatable("notebook.mcyukkuri.childhood."+(family.needsMash()?"dependent":"self_feeding")));
+                Component.translatable("notebook.mcyukkuri.childhood."+(family.needsMash()?"dependent":"self_feeding")))
+                .append(Component.translatable("notebook.mcyukkuri.childhood.skills",
+                        entity.childhood().firstToiletDone()?"✓":"—", entity.childhood().canJump()?"✓":"—",
+                        entity.childhood().canExercise()?"✓":"—", entity.childhood().canLearn()?"✓":"—",
+                        entity.childhood().canLiveIndependently()?"✓":"—"));
     }
     public static Component aquatic(YukkuriEntity entity) {
         var boat=io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.find(entity);

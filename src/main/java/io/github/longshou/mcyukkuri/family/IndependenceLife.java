@@ -102,7 +102,8 @@ public final class IndependenceLife extends Goal {
         return false;
     }
     public boolean eligible() {
-        if (!wild() || !entity.family().adult() || entity.family().elder() || entity.family().partner() != null
+        // A capable late JUVENILE may establish a first home, but remains non-reproductive in FamilyLife.
+        if (!wild() || !entity.childhood().canLiveIndependently() || entity.family().elder() || entity.family().partner() != null
                 || entity.family().recovery() > 0 || hasDependents()) return false;
         var home = entity.habitat().shelter();
         var group = entity.settlement().group();

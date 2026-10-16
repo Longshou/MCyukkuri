@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ChildhoodLife;
+import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
@@ -12,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 /** A parent stops rowing to tend real children. Interrupted servings return to cargo or the world. */
 public final class HatFamilyCare {
-    private enum Kind { NONE, FEED, NUZZLE, LULLABY }
+    private enum Kind { NONE, FEED, FIRST_TOILET, NUZZLE, LULLABY }
     private final YukkuriEntity parent;
     private Kind kind = Kind.NONE;
     private UUID child;
@@ -29,19 +31,27 @@ public final class HatFamilyCare {
     public boolean bedtimeReady() { return bedtimeSung; }
     private ServerLevel level() { return (ServerLevel) parent.level(); }
     public int childId() { var y = child(); return y == null ? -1 : y.getId(); }
+    /** Client-sync source: uninterrupted real contact in the active feed or first-toilet care. */
+    public int contactProgress() { return kind == Kind.FEED || kind == Kind.FIRST_TOILET ? deliveryTicks : 0; }
     private YukkuriEntity child() {
         return child != null && level().getEntity(child) instanceof YukkuriEntity y ? y : null;
     }
     public String activity() {
         return switch (kind) { case FEED -> {
             var young=child();yield young!=null&&young.family().needsMash()&&ticks<40?"family_chew":"boat_feed_young";
-        } case NUZZLE -> "boat_nuzzle";
+        } case FIRST_TOILET -> deliveryTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
+            case NUZZLE -> "boat_nuzzle";
             case LULLABY -> "boat_lullaby"; default -> "idle"; };
     }
     public String response(YukkuriEntity young) {
         if (kind == Kind.LULLABY && parent.getVehicle() == young.getVehicle()) return "boat_listen";
         if (!young.getUUID().equals(child)) return "idle";
-        return kind == Kind.FEED ? "boat_beg" : kind == Kind.NUZZLE ? "boat_receive_care" : "idle";
+        return switch (kind) {
+            case FEED -> "boat_beg";
+            case FIRST_TOILET -> "first_toilet_wait";
+            case NUZZLE -> "boat_receive_care";
+            default -> "idle";
+        };
     }
     public void clock() {
         if (mealWait > 0) mealWait--;
@@ -64,16 +74,18 @@ public final class HatFamilyCare {
                 && parent.getVehicle() == boat && parent.getUUID().equals(boat.ownerYukkuri()) && boat.protects(parent)
                 && boat.isAfloat() && !boat.towed() && boat.flooding() == 0 && !boat.hasIncoming()
                 && !parent.isPanicking() && !parent.family().laboring() && !parent.life().isSleeping()
-                && parent.life().mealTicks() == 0;
+                && parent.life().mealTicks() == 0 && parent.life().nutrition() >= 30 && parent.life().energy() >= 25;
     }
     /** Feeding has priority over affection. Bedtime singing begins only after reaching quiet water. */
     public boolean tend(HatBoatEntity boat, boolean bedtime) {
         if (!available(boat)) { cancel(); return false; }
         var children = children(boat);
         if (!active()) {
+            var toilet = children.stream().filter(y -> y.childhood().needsAssistedFirstToilet()).findFirst().orElse(null);
+            if (toilet != null) begin(Kind.FIRST_TOILET, toilet);
             var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping())
                     .min(Comparator.comparingDouble(y -> y.life().nutrition())).orElse(null);
-            if (hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
+            if (!active() && hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
                 serving = boat.cargo().takeCareMeal(parent,hungry);
                 if (!serving.isEmpty()) begin(Kind.FEED, hungry);
             }
@@ -100,12 +112,16 @@ public final class HatFamilyCare {
         boat.stopPaddling(); ticks++;
         if (young != null) {
             parent.getLookControl().setLookAt(young, 20, 20);
-            young.getLookControl().setLookAt(parent, 20, 20);
+            // Rear care and the subsequent rim release set the child's orientation deliberately:
+            // a generic look-at here would turn its back away from the parent or its rear back over the hat.
+            if (kind != Kind.FIRST_TOILET) young.getLookControl().setLookAt(parent, 20, 20);
         }
         if (kind == Kind.FEED) {
+            if (!boat.prepareCareSeat(young, parent)) { cancel(); return false; }
             if (young.family().needsMash() && ticks == 40) serving=InfantFood.mash(serving,parent.getUUID());
             boolean prepared=!young.family().needsMash()||InfantFood.isMash(serving);
-            if (prepared&&HatVessel.braidCanServe(parent,young)) deliveryTicks++; else deliveryTicks=0;
+            if (prepared && boat.careSeatReady(young)) FamilyFeedingContact.faceEachOther(parent, young);
+            if (prepared && boat.careSeatReady(young) && FamilyFeedingContact.mouthsMeet(parent,young)) deliveryTicks++; else deliveryTicks=0;
             if (deliveryTicks >= 20) {
                 boolean served=young.family().needsMash() ? young.life().beginBraidMeal(parent,serving) : young.life().beginMeal(serving,null,true);
                 if (!served) { cancel(); return false; }
@@ -113,7 +129,23 @@ public final class HatFamilyCare {
                 YukkuriWorldData.get(level()).relate(young.getUUID(), parent.getUUID(), 2);
                 young.life().personality().environment().record(parent.getUUID(), "shared_food", 4);
                 parent.speak("share");
+                cancel(); return true;
             }
+        }
+        if (kind == Kind.FIRST_TOILET) {
+            if (!boat.prepareRearCareSeat(young, parent)) { cancel(); return false; }
+            if (deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS) {
+                if (boat.careSeatReady(young)) faceRearCare(parent, young);
+                if (boat.careSeatReady(young) && ChildhoodLife.toiletContact(parent, young)) deliveryTicks++; else deliveryTicks=0;
+                if (ticks >= 240) { cancel(); return false; }
+                return true;
+            }
+            if (!boat.prepareToiletSeat(young, parent)) { cancel(); return false; }
+            if (!boat.toiletSeatReady(young)) { if (ticks >= 320) cancel(); return active(); }
+            boat.faceToiletOutward(young);
+            if (!young.childhood().completeAssistedFirstToilet(parent)) { cancel(); return false; }
+            parent.speak("caregiver");
+            cancel(); return true;
         }
         if (kind == Kind.NUZZLE && ticks == 48) {
             parent.dailyLife().comfort(15); young.dailyLife().comfort(35); comforts++; affectionWait = 600;
@@ -130,7 +162,7 @@ public final class HatFamilyCare {
                 parent.dailyLife().entertained(15); songs++; songWait = 1200; bedtimeSung = true;
             }
         }
-        if (ticks >= (kind == Kind.LULLABY ? 80 : kind == Kind.FEED ? 96 : 48)) cancel();
+        if (ticks >= (kind == Kind.LULLABY ? 80 : kind == Kind.FEED ? 160 : kind == Kind.FIRST_TOILET ? 320 : 48)) cancel();
         return true;
     }
     private void begin(Kind next, YukkuriEntity young) {
@@ -142,7 +174,10 @@ public final class HatFamilyCare {
         parent.setPersistenceRequired();
         parent.speak(next == Kind.LULLABY ? "song" : next == Kind.NUZZLE ? "nuzzle" : "caregiver");
     }
-    public void cancel() { kind = Kind.NONE; child = null; ticks = deliveryTicks = 0; refund(); }
+    public void cancel() {
+        if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
+        kind = Kind.NONE; child = null; ticks = deliveryTicks = 0; refund();
+    }
     private void refund() {
         if (serving.isEmpty()) return;
         var returned = serving; serving = ItemStack.EMPTY;
@@ -163,5 +198,13 @@ public final class HatFamilyCare {
         meals = Math.max(0, tag.getInt("Meals")); comforts = Math.max(0, tag.getInt("Comforts")); songs = Math.max(0, tag.getInt("Songs"));
         serving = ItemStack.parseOptional(parent.registryAccess(), tag.getCompound("Serving"));
         if (!serving.isEmpty()) serving.setCount(1);
+    }
+
+    /** Child faces away from the captain so the parent is physically behind it for first-toilet care. */
+    private static void faceRearCare(YukkuriEntity parent, YukkuriEntity child) {
+        var delta = child.position().subtract(parent.position());
+        float yaw = (float)(Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90);
+        parent.setYRot(yaw); parent.yBodyRot = yaw; parent.yBodyRotO = yaw; parent.setYHeadRot(yaw);
+        child.setYRot(yaw); child.yBodyRot = yaw; child.yBodyRotO = yaw; child.setYHeadRot(yaw);
     }
 }

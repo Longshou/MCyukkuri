@@ -17,7 +17,7 @@ public final class P0Mod {
             if("autumn_stock".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(AutumnStockGameTests.class));return;}
             if("seasons".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SeasonGameTests.class));return;}
             if("independence".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(IndependenceGameTests.class));return;}
-            if("childhood".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(FamilyCareGameTests.class);event.register(ChildhoodNestGameTests.class);});return;}
+            if("childhood".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(FamilyCareGameTests.class);event.register(ChildhoodNestGameTests.class);event.register(ChildhoodLifeGameTests.class);});return;}
             if("shed_stem".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(ShedStemGameTests.class));return;}
             if("hats".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(HatInteractionGameTests.class));return;}
             if("personality".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PersonalityDevelopmentGameTests.class));return;}
@@ -71,6 +71,7 @@ public final class P0Mod {
             modBus.addListener((RegisterGameTestsEvent event)->event.register(PredatorGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(SubspeciesGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(AquaticFamilyGameTests.class));
+            modBus.addListener((RegisterGameTestsEvent event)->event.register(ChildhoodLifeGameTests.class));
             NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event)->WaddlePreview.tick(event.getServer()));
             NeoForge.EVENT_BUS.addListener(server::started);
             NeoForge.EVENT_BUS.addListener(server::tick);

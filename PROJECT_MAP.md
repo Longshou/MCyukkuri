@@ -34,7 +34,7 @@
 
 开发规则以 [AGENTS.md](AGENTS.md) 为准，人工协作说明见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-子油的出生、第一顿、家庭大巢、成长分床与离家规则见[子代生命周期](docs/CHILDHOOD_LIFECYCLE.md)。
+胎体出生、喂糜、首便、运动学习、家庭共巢、成长分床与亚成独立规则见[子代生命周期](docs/CHILDHOOD_LIFECYCLE.md)。
 
 ## 素材从制作到游戏接入
 

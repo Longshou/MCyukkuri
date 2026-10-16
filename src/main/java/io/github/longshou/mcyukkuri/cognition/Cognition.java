@@ -79,7 +79,7 @@ public final class Cognition {
     }
     public static boolean canTeach(YukkuriEntity teacher, YukkuriEntity student) {
         return teacher != student && teacher.level() instanceof ServerLevel && teacher.level() == student.level()
-                && teacher.family().adult() && !student.family().adult()
+                && teacher.family().adult() && !student.family().adult() && student.childhood().canLearn()
                 && teacher.life().personality().trait(Trait.PATIENCE) >= 55
                 && WildEvents.safe(teacher) && WildEvents.safe(student)
                 && !teacher.life().hasUrgentNeed() && !student.life().hasUrgentNeed()
@@ -107,7 +107,7 @@ public final class Cognition {
     /** Called only after the existing Social waiting lesson commits. No new copy of the waiting skill. */
     public static TeachingResult playerLessonCompleted(YukkuriEntity student, Player teacher) {
         if (!(student.level() instanceof ServerLevel) || teacher.level() != student.level() || !teacher.isAlive()
-                || !student.isAlive() || student.isRemoved() || student.isPanicking() || student.life().hasUrgentNeed()
+                || !student.isAlive() || student.isRemoved() || !student.childhood().canLearn() || student.isPanicking() || student.life().hasUrgentNeed()
                 || student.life().isSleeping() || student.life().mealTicks() > 0 || student.isCommandPlaying()
                 || student.distanceToSqr(teacher) > 16 || !student.hasLineOfSight(teacher)) return TeachingResult.INELIGIBLE;
         var value = entry(student); int completed = student.life().personality().lessons();

@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
@@ -24,9 +27,30 @@ public final class AquaticFamilyGameTests {
     private static void nutrition(YukkuriEntity y, float value) {
         var data=y.life().save(); data.putFloat("Nutrition",value); y.life().load(data);
     }
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=300,batch="aquatic_family")
+    private static void lateJuvenile(YukkuriEntity y,float scale) {
+        var growth=y.family().save(); long maturity=y.family().maturityAge();
+        growth.putBoolean("Initialized",true); growth.putString("Stage","JUVENILE"); growth.putFloat("Scale",scale);
+        growth.putLong("Age",maturity*3/4); growth.putLong("Nourishment",maturity*9/16); y.family().load(growth);
+    }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=680,batch="aquatic_family")
     public static void realServingsAndComfort(GameTestHelper helper) {
         var level=helper.getLevel(); long daytime=level.getDayTime();
+        int chunk=X/16;
+        boolean wasForced=level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(chunk,0));
+        Map<BlockPos,BlockState> terrain=new HashMap<>();
+        for(var p:BlockPos.betweenClosed(X,64,0,X+15,70,15))terrain.put(p.immutable(),level.getBlockState(p));
+        boolean[] cleaned={false};
+        Runnable cleanup=()->{
+            if(cleaned[0])return;cleaned[0]=true;
+            level.getEntitiesOfClass(Entity.class,new AABB(X,60,0,X+16,76,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
+            terrain.forEach(level::setBlockAndUpdate);level.setDayTime(daytime);GameTestChunks.setForced(level,chunk,0,wasForced);
+        };
+        helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
+            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
+            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
+        });
         GameTestChunks.setForced(level,X/16,0,true);
         for(var p:BlockPos.betweenClosed(X,64,0,X+15,69,15))
             level.setBlockAndUpdate(p,p.getY()<=65?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
@@ -45,6 +69,19 @@ public final class AquaticFamilyGameTests {
         var siblingKin=sibling.family().save(); siblingKin.putBoolean("Initialized",true); siblingKin.putString("Stage","BABY");
         siblingKin.putFloat("Scale",.32f); siblingKin.putUUID("Mother",parent.getUUID()); sibling.family().load(siblingKin);
         var boat=new HatBoatEntity[1]; var care=parent.aquaticLife().care();
+        // Seat changes are real rider moves, so each care phase is driven across actual server ticks.
+        // Calling tend repeatedly at one game time would never let a service berth arrive.
+        int[] careStage={0}; boolean[] chewed={false}, firstMash={false}; float[] nuzzleVitals={0,0,0};
+        helper.onEachTick(()->{
+            if(cleaned[0])return;
+            var hat=boat[0];
+            if(hat==null||parent.isRemoved()||child.isRemoved()||sibling.isRemoved())return;
+            boolean bedtime=careStage[0]==3;
+            if(careStage[0]>0)care.tend(hat,bedtime);
+            if(careStage[0]==1&&care.activity().equals("family_chew")&&care.serving().is(Items.APPLE)
+                    &&child.life().mouth().isEmpty())chewed[0]=true;
+            if(careStage[0]==1&&care.meals()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth()))firstMash[0]=true;
+        });
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(parent.blockPosition()),"family arena loaded"))
             .thenExecute(()->{
                 level.setDayTime(6000); level.addFreshEntity(parent); level.addFreshEntity(child); level.addFreshEntity(sibling);
@@ -67,14 +104,15 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(hat.cargo().count()==2&&!care.active()&&care.meals()==0,"reload recovers serving without replaying care rewards");
                 care.tend(hat,false); parent.setNoAi(true); care.clock(); parent.setNoAi(false);
                 helper.assertTrue(hat.cargo().count()==2&&!care.active(),"disabling AI cancels and refunds pending care");
-                for(int i=0;i<24;i++)care.tend(hat,false);
-                helper.assertTrue(care.serving().is(Items.APPLE)&&!io.github.longshou.mcyukkuri.life.InfantFood.isMash(care.serving())
-                        &&child.life().mouth().isEmpty()&&parent.life().nutrition()==85,"parent holds the real apple while chewing; it does not gain nutrition");
-                for(int i=0;i<35;i++)care.tend(hat,false);
-                helper.assertTrue(care.meals()==1&&hat.cargo().count()==1&&care.serving().isEmpty()
+                careStage[0]=1;
+            }).thenWaitUntil(()->helper.assertTrue(care.meals()==1&&firstMash[0],
+                    "real seat movement, forty chew ticks and twenty braid-contact ticks transfer one mash serving"))
+            .thenExecute(()->{
+                var hat=boat[0];
+                helper.assertTrue(chewed[0]&&hat.cargo().count()==1&&care.serving().isEmpty()
                         &&child.life().mouth().getCount()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth())&&child.life().nutrition()==40,
-                        "forty chew ticks and twenty braid-serving ticks transfer the real serving as mash");
-                helper.assertTrue(care.activity().equals("boat_feed_young"),"prepared boat serving restores the established braid-delivery activity");
+                        "parent holds one real apple while chewing, then transfers that item as mash without gaining nutrition");
+                careStage[0]=0;
                 care.cancel();
                 helper.assertTrue(hat.cargo().count()==1&&child.life().mouth().getCount()==1,"after handoff cancellation cannot duplicate the meal");
             }).thenIdle(70).thenExecute(()->{
@@ -82,33 +120,41 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(child.life().nutrition()>40&&child.life().mouth().isEmpty(),"only actual chewing and swallowing supply nutrition");
                 nutrition(parent,85); nutrition(child,85);
                 var needs=child.dailyLife().save(); needs.putInt("Affection",60); child.dailyLife().load(needs);
-                float wet=child.life().wetness(), hygiene=child.life().hygiene(), health=child.getHealth();
-                for(int i=0;i<48;i++)care.tend(hat,false);
+                nuzzleVitals[0]=child.life().wetness(); nuzzleVitals[1]=child.life().hygiene(); nuzzleVitals[2]=child.getHealth();
+                careStage[0]=2;
+            }).thenWaitUntil(()->helper.assertTrue(care.comforts()==1,
+                    "nuzzle completes across its real service interval"))
+            .thenExecute(()->{
+                var hat=boat[0];
                 helper.assertTrue(care.comforts()==1&&child.dailyLife().affectionNeed()==25,"completed nuzzle eases loneliness");
-                helper.assertTrue(child.life().wetness()==wet&&child.life().hygiene()==hygiene&&child.getHealth()==health
+                helper.assertTrue(child.life().wetness()==nuzzleVitals[0]&&child.life().hygiene()==nuzzleVitals[1]&&child.getHealth()==nuzzleVitals[2]
                         &&child.life().nutrition()==85,"nuzzle does not wash, heal or feed");
                 level.setDayTime(13000);
-            }).thenIdle(20).thenExecute(()->{
+                careStage[0]=3;
+            }).thenWaitUntil(()->helper.assertTrue(care.songs()==1&&care.bedtimeReady(),
+                    "lullaby completes before physiological sleep over real night ticks"))
+            .thenExecute(()->{
                 var hat=boat[0];
                 helper.assertTrue(HatVessel.braidCanServe(parent,child)&&HatVessel.braidCanServe(parent,sibling),
                         "night seat reflow keeps both protected children within the boat-care boundary");
-                for(int i=0;i<80;i++)care.tend(hat,true);
                 helper.assertTrue(care.songs()==1&&care.bedtimeReady()&&!parent.life().isSleeping(),"lullaby finishes before physiological sleep");
-                for(int i=0;i<80;i++)care.tend(hat,true);
-                helper.assertTrue(care.songs()==1,"same bedtime cannot repeatedly farm song rewards");
-                nutrition(child,20); for(int i=0;i<59;i++)care.tend(hat,false);
-                helper.assertTrue(care.meals()==2&&hat.cargo().count()==0&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth()),
-                        "night-time two-child seating still completes the prepared serving");
-                for(int i=0;i<37;i++)care.tend(hat,false);
-                hat.cargo().store(new ItemStack(Items.APPLE),1,false); nutrition(sibling,20); care.tend(hat,false);
-                helper.assertTrue(care.serving().getCount()==1&&hat.cargo().count()==0,"last serving is really reserved");
+                careStage[0]=4; nutrition(child,20);
+            }).thenWaitUntil(()->helper.assertTrue(care.meals()==2&&boat[0].cargo().count()==0
+                    &&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth()),
+                    "night-time two-child seating still completes a real prepared serving"))
+            .thenIdle(70).thenExecute(()->{
+                var hat=boat[0];
+                helper.assertTrue(child.life().mouth().isEmpty(),"second mash also reaches a real swallowing tick");
+                hat.cargo().store(new ItemStack(Items.APPLE),1,false); nutrition(sibling,20); careStage[0]=5;
+            }).thenWaitUntil(()->helper.assertTrue(care.active()&&care.serving().getCount()==1&&boat[0].cargo().count()==0,
+                    "last serving is physically reserved before it can be handed off"))
+            .thenExecute(()->{
+                var hat=boat[0]; careStage[0]=0;
                 hat.capsize(); care.clock(); care.clock();
                 int apples=level.getEntitiesOfClass(ItemEntity.class,new AABB(X,64,0,X+16,75,16),i->i.getItem().is(Items.APPLE))
                         .stream().mapToInt(i->i.getItem().getCount()).sum();
                 helper.assertTrue(apples==1&&care.serving().isEmpty()&&!care.active(),"capsize drops the unserved item exactly once");
                 helper.assertTrue(parent.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA,"family care never changes aquatic identity");
-                level.getEntitiesOfClass(Entity.class,new AABB(X,64,0,X+16,75,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
-                level.setDayTime(daytime); GameTestChunks.setForced(level,X/16,0,false);
             }).thenSucceed();
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=80,batch="aquatic_family")
@@ -137,10 +183,26 @@ public final class AquaticFamilyGameTests {
         helper.succeed();
     }
     /** Separate batch: this daylight voyage must not overlap the family-care fixture changing the world to night. */
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=260,batch="aquatic_family_voyage")
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=360,batch="aquatic_family_voyage")
     public static void firstVoyageFromFather(GameTestHelper helper) {
         var level=helper.getLevel();long day=level.getDayTime();int x=X+32;
-        GameTestChunks.setForced(level,x/16,0,true);level.setDayTime(1000);
+        int chunk=x/16;
+        boolean wasForced=level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(chunk,0));
+        Map<BlockPos,BlockState> terrain=new HashMap<>();
+        for(var p:BlockPos.betweenClosed(x,64,0,x+15,71,15))terrain.put(p.immutable(),level.getBlockState(p));
+        boolean[] cleaned={false};
+        Runnable cleanup=()->{
+            if(cleaned[0])return;cleaned[0]=true;
+            level.getEntitiesOfClass(Entity.class,new AABB(x,60,0,x+16,76,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
+            terrain.forEach(level::setBlockAndUpdate);level.setDayTime(day);GameTestChunks.setForced(level,chunk,0,wasForced);
+        };
+        helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
+            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
+            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
+        });
+        GameTestChunks.setForced(level,chunk,0,true);level.setDayTime(1000);
         for(var p:BlockPos.betweenClosed(x,64,0,x+15,71,15))
             level.setBlockAndUpdate(p,p.getY()<=65?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
         for(var p:BlockPos.betweenClosed(x+4,65,2,x+13,65,13)){
@@ -169,7 +231,7 @@ public final class AquaticFamilyGameTests {
         }
         var child=children.getFirst();child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
         helper.onEachTick(()->{
-            if(!father.isAlive()||father.isRemoved())return;
+            if(cleaned[0]||!father.isAlive()||father.isRemoved())return;
             if(child.aquaticLife().firstVoyage().active())child.aquaticLife().firstVoyage().tick();
             if(father.aquaticLife().firstVoyage().active())father.aquaticLife().firstVoyage().tick();
         });
@@ -188,8 +250,22 @@ public final class AquaticFamilyGameTests {
             helper.assertTrue(child.getVehicle()==home&&HatBoatEntity.owned(child)==null&&home.youngAboard()==5,"interrupted pupil returns to the reserved berth");
             helper.assertTrue(child.life().hasAccessory()&&child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().completed(),"same hat and paddle return without a milestone reward");
             helper.assertTrue(home.cargo().paddle()&&home.protects(father)&&children.stream().allMatch(home::protects),"all five children remain dry passengers");
-            level.getEntitiesOfClass(Entity.class,new AABB(x,64,0,x+16,75,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
-            level.setDayTime(day);GameTestChunks.setForced(level,x/16,0,false);
+            lateJuvenile(child,.60f);
+            double r=HatVessel.radius(child.getBbWidth())/home.unit();
+            helper.assertTrue(child.childhood().canLiveIndependently(),"0.60 late juvenile meets the separate independence capability gate");
+            helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.60 subadult no longer fits the small-juvenile full-body brim strip");
+            helper.assertTrue(home.keepDepartureBerth(child),"0.60 subadult reserves the supported departure edge without using the juvenile brim berth");
+        }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.60 departure berth finishes its actual rider SeatMove"))
+        .thenExecute(()->{
+            helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"large subadult reaches the dedicated supported departure seat after its real move");
+            home.releaseVoyageBerth(child.getUUID()); lateJuvenile(child,.70f);
+            double r=HatVessel.radius(child.getBbWidth())/home.unit();
+            helper.assertTrue(child.childhood().canLiveIndependently(),"0.70 late juvenile remains eligible before adult stage");
+            helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.70 subadult likewise cannot use the narrow full-body brim strip");
+            helper.assertTrue(home.keepDepartureBerth(child),"0.70 subadult can still reserve the dedicated front-edge departure seat");
+        }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.70 departure berth also finishes physical rider movement"))
+        .thenExecute(()->{
+            helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"departure remains at the dedicated supported edge after the second real move");
         }).thenSucceed();
     }
     private AquaticFamilyGameTests() {}

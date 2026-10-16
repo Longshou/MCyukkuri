@@ -106,11 +106,11 @@ public final class WildCards {
             case "lookout" -> familiar(first,second) && level.getNearestPlayer(first,6)!=null
                     && first.life().personality().fear(level.getNearestPlayer(first,6).getUUID())>=15;
             case "sibling-game" -> WildEvents.siblings(first,second) && familiar(first,second)
-                    && all.stream().allMatch(p -> p.life().energy()>=65&&p.life().nutrition()>=50&&space(p));
+                    && all.stream().allMatch(p -> p.childhood().canExercise()&&p.life().energy()>=65&&p.life().nutrition()>=50&&space(p));
             case "mate-touch" -> second.getUUID().equals(first.family().partner()) && first.getUUID().equals(second.family().partner())
                     && WildEvents.friendly(first,second);
             case "imitate" -> !first.getVariant().dialogueSpecies().equals(second.getVariant().dialogueSpecies())
-                    && first.life().personality().trait(Trait.CURIOSITY)>=60 && WildEvents.friendly(first,second);
+                    && first.childhood().canLearn() && first.life().personality().trait(Trait.CURIOSITY)>=60 && WildEvents.friendly(first,second);
             case "teach" -> io.github.longshou.mcyukkuri.cognition.Cognition.canTeach(first,second) && space(first) && space(second);
             case "ornament" -> !second.life().hasAccessory() && caring(first,second)
                     && (resource=target(second,item -> AccessoryItem.matches(second,item.getItem())))!=null;
@@ -119,6 +119,7 @@ public final class WildCards {
             case "young-call" -> WildEvents.childOf(second,first) && first.distanceToSqr(second)>9 && WildEvents.friendly(first,second);
             case "reconcile" -> conflict(first,second) && affinity>-40 && first.life().personality().trait(Trait.CARE)>=60 && WildEvents.recognizes(first,second);
             case "group-turn" -> first.settlement().groupId()!=null && first.settlement().groupId().equals(second.settlement().groupId())
+                    && first.life().canEat() && second.life().canEat()
                     && first.life().nutrition()<65 && second.life().nutrition()<65
                     && WildEvents.friendly(first,second)
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;

@@ -68,8 +68,8 @@ def normalise(raw: dict) -> list[dict]:
     return result
 
 
-def prepared_textures(clips: list[dict]) -> tuple[dict, list[Path]]:
-    texture_dir = WORK / 'textures'; texture_dir.mkdir(parents=True, exist_ok=True); textures = {}; sources = []
+def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
+    texture_dir = work / 'textures'; texture_dir.mkdir(parents=True, exist_ok=True); textures = {}; sources = []
     models = {actor['model'] for clip in clips for actor in clip['actors']}
     for model in sorted(models):
         directory = ASSETS / 'textures/entity' / model
@@ -97,36 +97,37 @@ def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--manifest', type=Path, default=ROOT/'preview/hub/actions.json'); parser.add_argument('--node', default='node'); parser.add_argument('--frames', type=int, default=24); parser.add_argument('--force', action='store_true')
-    args = parser.parse_args(); manifest_path = args.manifest.resolve()
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--manifest', type=Path, default=ROOT/'preview/hub/actions.json'); parser.add_argument('--out', type=Path, default=OUT, help='local preview topic directory; defaults to .local/previews/actions'); parser.add_argument('--work', type=Path, help='temporary raster files; defaults to an isolated directory for --out'); parser.add_argument('--node', default='node'); parser.add_argument('--frames', type=int, default=24); parser.add_argument('--force', action='store_true')
+    args = parser.parse_args(); manifest_path = args.manifest.resolve(); out = args.out.resolve()
+    work = args.work.resolve() if args.work else ROOT / '.local/previews/_work' / out.name
     if args.frames < 2: parser.error('--frames must be at least 2')
     raw = json.loads(manifest_path.read_text(encoding='utf-8')); clips = normalise(raw)
-    OUT.mkdir(parents=True, exist_ok=True); WORK.mkdir(parents=True, exist_ok=True)
-    textures, resource_sources = prepared_textures(clips)
+    out.mkdir(parents=True, exist_ok=True); work.mkdir(parents=True, exist_ok=True)
+    textures, resource_sources = prepared_textures(clips, work)
     by_model = {actor['model'] for clip in clips for actor in clip['actors']}; model_sources = [ASSETS/'yukkuri'/f'{model}.json' for model in sorted(by_model)]
-    old_path = OUT/'manifest.json'; old = json.loads(old_path.read_text(encoding='utf-8')) if old_path.exists() else {}; previous = {item['id']: item for item in old.get('clips', [])}
+    old_path = out/'manifest.json'; old = json.loads(old_path.read_text(encoding='utf-8')) if old_path.exists() else {}; previous = {item['id']: item for item in old.get('clips', [])}
     dirty = []; final = []
     for clip in clips:
         digest = fingerprint(clip, [*model_sources, *resource_sources], args.frames)
-        saved = previous.get(clip['id']); png = OUT/f'{clip["id"]}.png'; gif = OUT/f'{clip["id"]}.gif'
+        saved = previous.get(clip['id']); png = out/f'{clip["id"]}.png'; gif = out/f'{clip["id"]}.gif'
         if args.force or not saved or saved.get('inputFingerprint') != digest or not png.is_file() or not gif.is_file(): dirty.append((clip, digest))
         else: final.append(saved)
     wanted = {clip['id'] for clip in clips}
-    for path in OUT.glob('*'):
+    for path in out.glob('*'):
         if path.suffix in {'.png', '.gif'} and path.stem not in wanted: path.unlink()
     if dirty:
-        task = {'width': 640, 'height': 440, 'frames': args.frames, 'work': str(WORK), 'textures': textures, 'clips': [clip for clip, _ in dirty]}
-        task_path = WORK/'tasks.json'; task_path.write_text(json.dumps(task, ensure_ascii=False), encoding='utf-8')
+        task = {'width': 640, 'height': 440, 'frames': args.frames, 'work': str(work), 'textures': textures, 'clips': [clip for clip, _ in dirty]}
+        task_path = work/'tasks.json'; task_path.write_text(json.dumps(task, ensure_ascii=False), encoding='utf-8')
         subprocess.run([args.node, str(ROOT/'scripts/render_preview_actions.cjs'), '--tasks', str(task_path)], check=True, cwd=ROOT)
-        rendered = {item['id']: item for item in json.loads((WORK/'render-result.json').read_text())['clips']}
+        rendered = {item['id']: item for item in json.loads((work/'render-result.json').read_text())['clips']}
         for clip, digest in dirty:
             raw_frames = [Path(p).read_bytes() for p in rendered[clip['id']]['frames']]
             frames = [Image.frombytes('RGBA', (task['width'], task['height']), frame) for frame in raw_frames]
-            frames[0].save(OUT/f'{clip["id"]}.png')
+            frames[0].save(out/f'{clip["id"]}.png')
             flattened = [flatten(frame, clip.get('background', '#f3f0e8')) for frame in frames]
             palette = flattened[0].quantize(colors=256, method=Image.Quantize.MEDIANCUT)
             indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in flattened]
-            indexed[0].save(OUT/f'{clip["id"]}.gif', save_all=True, append_images=indexed[1:], loop=0,
+            indexed[0].save(out/f'{clip["id"]}.gif', save_all=True, append_images=indexed[1:], loop=0,
                             duration=max(10, round(clip['duration']*1000/args.frames)), disposal=2, optimize=False)
             arrays = [np.asarray(frame) for frame in flattened]
             diffs = [int(np.any(arrays[i - 1] != arrays[i], axis=2).sum()) for i in range(1, len(arrays))]

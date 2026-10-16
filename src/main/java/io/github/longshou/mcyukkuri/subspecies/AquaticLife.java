@@ -73,7 +73,7 @@ public final class AquaticLife extends Goal {
     }
     private List<YukkuriEntity> nearbyYoung() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10,3,10),
-                y -> y.isAlive() && !y.family().adult() && !y.isPassenger()
+                y -> y.isAlive() && !y.family().adult() && !y.isPassenger() && !y.aquaticLife().firstVoyage().independent()
                         && (entity.getUUID().equals(y.family().mother()) || entity.getUUID().equals(y.family().father())));
     }
     private boolean canTendHat() {
@@ -92,7 +92,7 @@ public final class AquaticLife extends Goal {
         if (entity.getVehicle() instanceof HatBoatEntity boat) return boat.protects(entity);
         if (canTendHat()) { hatCareTicks = 0; return true; }
         if (!HatVessel.aquatic(entity) || entity.isPassenger() || entity.isPanicking() || !entity.onGround()
-                || !entity.family().adult() && !firstVoyage.completed()
+                || !entity.family().adult() && !(firstVoyage.completed() && entity.childhood().canLiveIndependently())
                 || !entity.life().hasAccessory() || entity.subspecies().boatId() != null || cooldown > 0
                 || entity.family().active() || entity.family().brood() != null || entity.life().mealTicks() > 0
                 || needsBeforeLaunch() || entity.life().isSleeping()
@@ -271,17 +271,23 @@ public final class AquaticLife extends Goal {
             var captain = boat.getControllingPassenger() instanceof YukkuriEntity y ? y : null;
             String response = captain == null ? "idle" : captain.aquaticLife().care().response(entity);
             if (!response.equals("idle")) {
-                var toward = captain.position().subtract(entity.position());
-                float yaw = (float)(Math.toDegrees(Math.atan2(toward.z,toward.x))-90);
-                entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
+                entity.childhood().stopHatPractice();
+                if (!response.equals("first_toilet_wait")) {
+                    var toward = captain.position().subtract(entity.position());
+                    float yaw = (float)(Math.toDegrees(Math.atan2(toward.z,toward.x))-90);
+                    entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
+                }
                 activity = response; return;
             }
             // Normally the parent serves the young. An unavailable parent never blocks emergency self-feeding.
             if (entity.life().nutrition() < 25 || captain == null || captain.isNoAi() || captain.isPanicking())
                 boat.cargo().feed(entity);
             if (entity.life().dryness() >= 40 && elapsed%40 == 0) entity.life().drink(30);
-            if (captain == null || captain.aquaticLife().resting() || entity.life().energy() <= 20) entity.life().restInHat(boat);
+            if (entity.life().toiletInHat(boat)) { entity.childhood().stopHatPractice(); activity = "boat_toilet"; return; }
+            if (captain == null || captain.aquaticLife().resting() || entity.life().isSleeping()
+                    || entity.life().energy() <= (entity.family().needsMash() ? 65 : 35)) entity.life().restInHat(boat);
             else entity.life().wakeInHat();
+            if (entity.childhood().practiseInHat(boat)) { activity = entity.childhood().activity(); return; }
             activity = entity.life().isSleeping() ? "boat_sleep" : boat.onBrim(entity) ? "hat_brim" : "hat_cradle";
             return;
         }
@@ -303,25 +309,31 @@ public final class AquaticLife extends Goal {
             if (boat.cargo().feed(entity)) { activity = "boat_eat"; return; }
         }
         if (elapsed%20==1) collect(boat);
-        // Remember who set out together. A timeout returns the family to shore, never abandons a late child.
-        expectedYoung.removeIf(id -> level().getEntity(id) instanceof YukkuriEntity y && (!y.isAlive() || y.getVehicle() == boat));
-        if (boat.hasIncoming() || !familyDelayed && !expectedYoung.isEmpty()) {
-            care.cancel(); entity.life().wakeInHat(); boat.holdPosition(); activity = "boat_wait_young";
+        // Remember who set out together; wait and care for the family without an automatic shore trip.
+        expectedYoung.removeIf(id -> level().getEntity(id) instanceof YukkuriEntity y
+                && (!y.isAlive() || y.getVehicle() == boat || y.aquaticLife().firstVoyage().independent()));
+        if (boat.hasIncoming() || !expectedYoung.isEmpty()) {
+            boat.holdPosition(); activity = "boat_wait_young";
             gatherFamily(boat); boardYoung(boat);
             if (++familyWait > 200) familyDelayed = true;
+            if (!boat.hasIncoming()) {
+                if (!care.active() && entity.life().toiletInHat(boat)) activity = "boat_toilet";
+                else if (care.tend(boat, level().isNight())) activity = care.activity();
+                else if (entity.life().nutrition() < 60 && boat.cargo().feed(entity)) activity = "boat_eat";
+                else if (level().isNight() || entity.life().isSleeping() || entity.life().energy() <= 35) entity.life().restInHat(boat);
+            }
             if (elapsed%100 == 1) entity.speak("wait_family");
             return;
         }
         boolean hungryCrew = boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y.life().nutrition() < 30 && y.life().mealTicks() == 0);
-        boolean needsShore = boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y
-                && (y.life().bladder() >= 70 || y != entity && y.isPanicking()));
+        if (boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y != entity && y.isPanicking())) {
+            care.cancel(); boat.holdPosition(); activity = "boat_steady"; return;
+        }
+        if (!care.active() && entity.life().toiletInHat(boat)) { boat.holdPosition(); activity = "boat_toilet"; return; }
         if (hungryCrew && boat.cargo().count()==0 && care.serving().isEmpty() && seekFloatingFood(boat)) {
             activity="boat_paddle"; return;
         }
-        boolean returnToBank = familyDelayed || needsShore || firstVoyage.needsLesson()
-                || hungryCrew && boat.cargo().count() == 0 && care.serving().isEmpty()
-                || !HatVessel.aquatic(entity) || entity.family().wantsBoatLanding()
-                || boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y!=entity && y.family().adult());
+        boolean returnToBank = !HatVessel.aquatic(entity);
         if (returnToBank) { land(boat); return; }
         if (!boat.cargo().paddle()) {
             boat.stopPaddling(); activity="boat_call";
@@ -405,7 +417,7 @@ public final class AquaticLife extends Goal {
     }
     private void gatherFamily(HatBoatEntity boat) {
         if (elapsed%20 != 0 || rememberedBank == null) return;
-        for (var id : expectedYoung) if (level().getEntity(id) instanceof YukkuriEntity young && young.isAlive()
+        for (var id : expectedYoung) if (level().getEntity(id) instanceof YukkuriEntity young && young.isAlive() && !young.aquaticLife().firstVoyage().independent()
                 && !young.isPassenger() && !young.family().flying() && !young.isNoAi() && !young.isCommandPlaying()
                 && !young.operations().active() && !young.isPanicking() && !young.life().hasUrgentNeed()
                 && !young.life().isSleeping() && young.life().mealTicks() == 0 && young.distanceToSqr(boat) > 6.25
@@ -413,7 +425,7 @@ public final class AquaticLife extends Goal {
     }
     private List<YukkuriEntity> youngOnBank(HatBoatEntity boat) {
         return level().getEntitiesOfClass(YukkuriEntity.class, boat.getBoundingBox().inflate(4,2,4),
-                y -> boat.young(y) && y.isAlive() && !y.isPassenger() && !y.family().flying()
+                y -> boat.young(y) && y.isAlive() && !y.isPassenger() && !y.family().flying() && !y.aquaticLife().firstVoyage().independent()
                         && !y.isNoAi() && !y.isCommandPlaying() && !y.operations().active() && !y.isInWaterOrBubble());
     }
     private void boardYoung(HatBoatEntity boat) {
@@ -438,6 +450,7 @@ public final class AquaticLife extends Goal {
         }
     }
     @Override public void stop() {
+        entity.childhood().stopHatPractice();
         care.cancel();
         bank = water = paddleStand = null; provisionSource = floatingSource = null; nextFoodSearch=0; launchTicks = 0; activity = "idle"; entity.getNavigation().stop();
         if (entity.getVehicle() instanceof HatBoatEntity boat && entity.getUUID().equals(boat.ownerYukkuri())) boat.stopPaddling();

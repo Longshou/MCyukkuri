@@ -96,7 +96,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             display.set(k + 1, i + animalPage*4 < quotes.size() ? quotes.get(i + animalPage*4).price : 0);
             display.set(k + 2, y == null ? 0 : Math.round(y.getHealth()));
             display.set(k + 3, y == null ? 0 : Math.round(y.life().nutrition()));
-            display.set(k + 4, y == null ? 0 : y.family().stage().ordinal());
+            display.set(k + 4, y == null ? 0 : !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal());
             display.set(34+i,y==null?0:y.life().medal());
             display.set(k + 5, y == null ? 0 : y.life().personality().lessons());
         }

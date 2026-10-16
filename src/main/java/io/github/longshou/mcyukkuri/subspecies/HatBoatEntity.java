@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -54,13 +55,22 @@ public final class HatBoatEntity extends Entity {
      *  on their way in (a newborn's flight, a bounce off the brim). */
     private final java.util.LinkedHashMap<UUID, double[]> seats = new java.util.LinkedHashMap<>(), incoming = new java.util.LinkedHashMap<>();
     private String seatRegion = "";
-    private record SeatMove(Vec3 from, long start, int ticks) {}
+    /** A real short trip inside the hat.  Crawling uses a level path; hops retain the normal safe arc. */
+    private record SeatMove(Vec3 from, long start, int ticks, boolean arc) {}
     private final java.util.Map<UUID,SeatMove> seatMoves = new java.util.HashMap<>();
+    /** A care action may temporarily move a young and the seated owner, then restores the normal layout. */
+    private record ServiceSeat(double[] original, String originalRegion, double[] service, Vec3 ownerService, boolean rearCare, boolean toiletReady) {}
+    private final java.util.Map<UUID,ServiceSeat> serviceSeats = new java.util.HashMap<>();
+    private Vec3 ownerServiceSeat;
+    private SeatMove ownerSeatMove;
+    /** The owner also uses a supported rear brim seat for ordinary on-water hygiene. */
+    private boolean ownerToiletSeat;
     /** One pupil at a time; its berth remains occupied while its own hat is away. */
     private UUID voyageYoung;
     private double[] voyageBerth;
     /** Young hopping out in turn before the hat is taken back: who, to which spot (world), from which game tick. */
-    private record Leaving(UUID young, Vec3 spot, long at) {}
+    /** A child who cannot jump is lowered over the brim by its parent instead of initiating a hop itself. */
+    private record Leaving(UUID young, Vec3 spot, long at, boolean assisted) {}
     private final java.util.ArrayList<Leaving> leaving = new java.util.ArrayList<>();
     private java.util.List<Vec3> seatCache = java.util.List.of();
     private String seatKey = "";
@@ -145,7 +155,21 @@ public final class HatBoatEntity extends Entity {
     }
     @Override protected void removePassenger(Entity passenger) {
         super.removePassenger(passenger);
-        if (!level().isClientSide) { seatMoves.remove(passenger.getUUID()); if (seats.remove(passenger.getUUID()) != null) syncSeats(); }
+        if (!level().isClientSide) {
+            boolean ownerLeft = passenger.getUUID().equals(ownerYukkuri());
+            if (ownerLeft) {
+                ownerToiletSeat = false;
+                ownerServiceSeat = null;
+                ownerSeatMove = null;
+            }
+            seatMoves.remove(passenger.getUUID());
+            boolean hadService = serviceSeats.remove(passenger.getUUID()) != null;
+            if (hadService && serviceSeats.isEmpty()) {
+                var parent = owner();
+                if (parent != null && parent.getVehicle() == this) moveOwnerSeat(parent, ownerSeat(parent), false);
+            }
+            if (ownerLeft || seats.remove(passenger.getUUID()) != null || hadService) syncSeats();
+        }
     }
     // ---------------------------------------------------------------- the hat's frame and the young's places
     public HatVessel.Mode mode() { return isCradle() ? HatVessel.Mode.NEST : HatVessel.Mode.FLOAT; }
@@ -164,15 +188,33 @@ public final class HatBoatEntity extends Entity {
     }
     public boolean keepVoyageBerth(YukkuriEntity child) {
         if (level().isClientSide || !young(child) || !onBrim(child) || !protects(child) || hasIncoming()
-                || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
+                || ownerSeatBusy() || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
         var others=new java.util.ArrayList<double[]>();
         for(var e:seats.entrySet())if(!e.getKey().equals(child.getUUID()))others.add(e.getValue());
         double r=radiusOf(child);var at=HatVessel.brimPlace(r,others,true);if(at==null)return false;
         voyageYoung = child.getUUID(); voyageBerth = new double[]{at.x,at.y,at.z,r};
         var from=toLocal(child.position());
         if(from.distanceToSqr(at)>.01)seatMoves.put(voyageYoung,new SeatMove(from,level().getGameTime(),
-                HatVessel.solve(child.position(),toWorld(at),this,HatVessel.radius(child.getBbWidth()),HatVessel.HOP_TMIN)));
+                HatVessel.solve(child.position(),toWorld(at),this,HatVessel.radius(child.getBbWidth()),HatVessel.HOP_TMIN),true));
         seats.put(voyageYoung,voyageBerth.clone());syncSeats();return true;
+    }
+
+    /**
+     * A subadult's departure berth uses the same retained slot as the ordinary first voyage, but
+     * supports the feet on the front rim rather than requiring its now-larger whole body to fit on
+     * the narrow juvenile standing strip.  It is still a real, flat in-hat SeatMove.
+     */
+    public boolean keepDepartureBerth(YukkuriEntity child) {
+        if (level().isClientSide || !young(child) || !protects(child) || hasIncoming() || !serviceSeats.isEmpty()
+                || ownerSeatBusy() || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
+        var others = new java.util.ArrayList<double[]>();
+        for (var entry : seats.entrySet()) if (!entry.getKey().equals(child.getUUID())) others.add(entry.getValue());
+        double r = radiusOf(child); Vec3 at = frontEdgePlace(child, others, false);
+        if (at == null) return false;
+        voyageYoung = child.getUUID(); voyageBerth = new double[]{at.x, at.y, at.z, r};
+        moveYoungSeat(child, voyageBerth, false);
+        syncSeats();
+        return true;
     }
     public void releaseVoyageBerth(UUID child) {
         if (child.equals(voyageYoung)) { voyageYoung = null; voyageBerth = null; seatRegion = ""; }
@@ -180,12 +222,26 @@ public final class HatBoatEntity extends Entity {
     public Vec3 voyageBerth(YukkuriEntity child) {
         return child.getUUID().equals(voyageYoung) && voyageBerth != null ? new Vec3(voyageBerth[0],voyageBerth[1],voyageBerth[2]) : null;
     }
+
+    /** The retained front support has been reached, rather than merely reserved in the seat map. */
+    public boolean onVoyageBerth(YukkuriEntity child) {
+        if (child == null) return false;
+        var berth = voyageBerth(child); var seat = child == null ? null : seatOf(child);
+        return berth != null && seat != null && !changingSeat(child) && Math.abs(seat.y-HatVessel.FREEBOARD) < 1e-5
+                && seat.distanceToSqr(berth) < 1e-5 && Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, seat.x, seat.z));
+    }
     private void syncSeats() {
         var list = new net.minecraft.nbt.ListTag();
         for (var e : seats.entrySet()) {
             var c = new CompoundTag(); c.putUUID("Id", e.getKey()); c.putDouble("X", e.getValue()[0]); c.putDouble("Y", e.getValue()[1]); c.putDouble("Z", e.getValue()[2]);
             var m=seatMoves.get(e.getKey());
-            if(m!=null){c.putDouble("FromX",m.from().x);c.putDouble("FromY",m.from().y);c.putDouble("FromZ",m.from().z);c.putLong("At",m.start());c.putInt("Ticks",m.ticks());}
+            if(m!=null){c.putDouble("FromX",m.from().x);c.putDouble("FromY",m.from().y);c.putDouble("FromZ",m.from().z);c.putLong("At",m.start());c.putInt("Ticks",m.ticks());c.putBoolean("Arc",m.arc());}
+            list.add(c);
+        }
+        if (ownerServiceSeat != null && ownerYukkuri() != null) {
+            var c = new CompoundTag(); c.putUUID("Id", ownerYukkuri()); c.putBoolean("OwnerService", true);
+            c.putDouble("X", ownerServiceSeat.x); c.putDouble("Y", ownerServiceSeat.y); c.putDouble("Z", ownerServiceSeat.z);
+            if (ownerSeatMove != null) { c.putDouble("FromX", ownerSeatMove.from().x); c.putDouble("FromY", ownerSeatMove.from().y); c.putDouble("FromZ", ownerSeatMove.from().z); c.putLong("At", ownerSeatMove.start()); c.putInt("Ticks", ownerSeatMove.ticks()); c.putBoolean("Arc", ownerSeatMove.arc()); }
             list.add(c);
         }
         var tag = new CompoundTag(); tag.put("S", list); entityData.set(SEATS, tag);
@@ -201,10 +257,368 @@ public final class HatBoatEntity extends Entity {
         if(!level().isClientSide)return seatMoves.get(young.getUUID());
         for(var raw:entityData.get(SEATS).getList("S",net.minecraft.nbt.Tag.TAG_COMPOUND))
             if(raw instanceof CompoundTag c&&c.hasUUID("Id")&&c.getUUID("Id").equals(young.getUUID())&&c.contains("At"))
-                return new SeatMove(new Vec3(c.getDouble("FromX"),c.getDouble("FromY"),c.getDouble("FromZ")),c.getLong("At"),c.getInt("Ticks"));
+                return new SeatMove(new Vec3(c.getDouble("FromX"),c.getDouble("FromY"),c.getDouble("FromZ")),c.getLong("At"),c.getInt("Ticks"),c.getBoolean("Arc"));
         return null;
     }
     public boolean changingSeat(Entity young){var m=seatMove(young);return m!=null&&level().getGameTime()-m.start()<m.ticks();}
+    private boolean changingOwnerSeat() { return ownerSeatMove != null && level().getGameTime()-ownerSeatMove.start() < ownerSeatMove.ticks(); }
+
+    /**
+     * Moves both members of a care pair inside the same protected hat.  The child gets a supported
+     * temporary berth and the captain makes a small real SeatMove from her normal stern berth;
+     * callers must still wait for {@link #careSeatReady(YukkuriEntity)} and test their own contact.
+     */
+    public boolean prepareCareSeat(YukkuriEntity child, YukkuriEntity parent) {
+        return prepareServiceSeat(child, parent, false);
+    }
+
+    /** Same temporary berth machinery for a parent standing behind the child during first-toilet care. */
+    public boolean prepareRearCareSeat(YukkuriEntity child, YukkuriEntity parent) {
+        return prepareServiceSeat(child, parent, true);
+    }
+
+    private boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) {
+        if (level().isClientSide || child == null || parent == null || parent != owner() || child.getVehicle() != this
+                || parent.getVehicle() != this || !young(child) || !protects(parent) || !protects(child)
+                || !isAfloat() || towed() || flooding != 0 || hasIncoming() || ownerToiletSeat || child.getUUID().equals(voyageYoung)) return false;
+        var held = serviceSeats.get(child.getUUID());
+        if (held != null && held.ownerService() != null) return held.rearCare() == rearCare;
+        // Feeding takes precedence over a child's voluntary movement.  Keep that movement's original
+        // berth, but replace its destination from the child's current in-hat position.
+        if (held != null) serviceSeats.remove(child.getUUID());
+        var original = held != null ? held.original() : seats.get(child.getUUID());
+        if (original == null) return false;
+        ServiceSeat best = serviceSeatFor(child, parent, original, rearCare);
+        if (best == null) return false;
+        serviceSeats.put(child.getUUID(), best);
+        moveYoungSeat(child, best.service(), false);
+        moveOwnerSeat(parent, best.ownerService(), false);
+        syncSeats();
+        return true;
+    }
+
+    /** Move the captain to a rear brim patch with the body supported but its rear clear of the hat. */
+    private boolean prepareOwnerToiletSeat(YukkuriEntity owner) {
+        if (owner != owner()) return false;
+        if (ownerToiletSeat) return true;
+        if (!serviceSeats.isEmpty() || ownerSeatBusy()) return false;
+        Vec3 brim = rearBrimPlace(owner, taken());
+        if (brim == null) return false;
+        ownerToiletSeat = true;
+        moveOwnerSeat(owner, brim, false);
+        syncSeats();
+        return true;
+    }
+
+    /** The final service geometry has arrived; it remains valid through night-seat reflow. */
+    public boolean careSeatReady(YukkuriEntity child) {
+        return child != null && serviceSeats.containsKey(child.getUUID()) && !changingSeat(child) && !changingOwnerSeat();
+    }
+
+    /** True when the active temporary berth asks the parent to face the child's back. */
+    public boolean rearCareSeat(YukkuriEntity child) {
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        return service != null && service.rearCare();
+    }
+
+    /**
+     * After rear-care contact has completed, support the child on the front brim with its rear over
+     * open water.  The accepted rear-care contact remains recorded in this temporary service seat;
+     * the child is never dropped or teleported outside the hat.
+     */
+    public boolean prepareToiletSeat(YukkuriEntity child, YukkuriEntity parent) {
+        if (level().isClientSide || child == null || parent == null || parent != owner() || child.getVehicle() != this
+                || parent.getVehicle() != this || !protects(child) || !protects(parent) || !isAfloat()) return false;
+        var service = serviceSeats.get(child.getUUID());
+        if (service == null || service.ownerService() == null || !service.rearCare()) return false;
+        if (service.toiletReady()) return true;
+        if (!careSeatReady(child)) return false;
+        Vec3 brim = frontEdgePlace(child, takenExcept(child.getUUID()), true);
+        if (brim == null) return false;
+        var destination = new double[]{brim.x, brim.y, brim.z, radiusOf(child)};
+        serviceSeats.put(child.getUUID(), new ServiceSeat(service.original(), service.originalRegion(), destination, ownerSeat(parent), true, true));
+        moveYoungSeat(child, destination, false);
+        moveOwnerSeat(parent, ownerSeat(parent), false);
+        syncSeats();
+        return true;
+    }
+
+    /**
+     * Normal hat hygiene uses the same supported front-brim position, without claiming that a
+     * first-toilet rear-care action occurred.  It cannot displace feeding or another child's care.
+     */
+    public boolean prepareToiletSeat(YukkuriEntity child) {
+        if (level().isClientSide || child == null || child.getVehicle() != this
+                || !protects(child) || !isAfloat() || towed() || flooding != 0 || hasIncoming()) return false;
+        if (child.getUUID().equals(ownerYukkuri())) return prepareOwnerToiletSeat(child);
+        var service = serviceSeats.get(child.getUUID());
+        if (service != null && service.toiletReady()) return true;
+        if (service != null && service.ownerService() != null) return false;
+        if (service != null) serviceSeats.remove(child.getUUID());
+        if (!serviceSeats.isEmpty()) return false;
+        var original = service != null ? service.original() : seats.get(child.getUUID());
+        if (original == null) return false;
+        Vec3 brim = frontEdgePlace(child, takenExcept(child.getUUID()), true);
+        if (brim == null) return false;
+        var destination = new double[]{brim.x, brim.y, brim.z, radiusOf(child)};
+        serviceSeats.put(child.getUUID(), new ServiceSeat(original.clone(), service == null ? region() : service.originalRegion(), destination, null, false, true));
+        moveYoungSeat(child, destination, false);
+        syncSeats();
+        return true;
+    }
+
+    /** A completed rear-care action may release only when the child is actually supported at the brim. */
+    public boolean toiletSeatReady(YukkuriEntity child) {
+        if (child != null && child.getUUID().equals(ownerYukkuri())) return ownerToiletSeat && !changingOwnerSeat();
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        return service != null && service.toiletReady() && !changingSeat(child) && !changingOwnerSeat();
+    }
+
+    /** Make the child face inward so the rear is beyond the front brim, toward the surrounding water. */
+    public void faceToiletOutward(YukkuriEntity child) {
+        if (child == null) return;
+        boolean owner = child.getUUID().equals(ownerYukkuri());
+        var local = owner ? ownerServiceSeat : seatOf(child); if (local == null) return;
+        Vec3 inside = toWorld(local.add(0, 0, owner ? -1 : 1)); Vec3 delta = inside.subtract(child.position());
+        float yaw = (float)(Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90);
+        child.setYRot(yaw); child.yBodyRot = yaw; child.yBodyRotO = yaw; child.setYHeadRot(yaw);
+    }
+
+    /** A real body-height point directly behind a supported brim rider, or null when no water is below it. */
+    public Vec3 toiletDropPosition(YukkuriEntity child) {
+        if (!toiletSeatReady(child)) return null;
+        boolean owner = child.getUUID().equals(ownerYukkuri());
+        var local = owner ? ownerServiceSeat : seatOf(child); if (local == null) return null;
+        Vec3 at = toWorld(local), outside = toWorld(local.add(0, 0, owner ? 1 : -1)).subtract(at).normalize();
+        Vec3 raw = at.add(outside.scale(child.getBbWidth() * .55 + .06));
+        // A water block hidden under the brim does not make this a valid drop.  The rear point must
+        // already be beyond the actual hat outline, then have an unobstructed short fall into water.
+        Vec3 rawLocal = toLocal(raw);
+        if (Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, rawLocal.x, rawLocal.z))) return null;
+        BlockPos below = BlockPos.containing(raw.add(0, -.04, 0));
+        for (int down = 0; down <= 2; down++) {
+            BlockPos atBelow = below.below(down);
+            if (level().getFluidState(atBelow).is(FluidTags.WATER)) return raw.add(0, .04, 0);
+            if (!level().getBlockState(atBelow).isAir()) return null;
+        }
+        return null;
+    }
+
+    /** Lets the completed-care caller prove that a real rear-contact phase preceded the brim release. */
+    public boolean toiletAssistanceValidated(YukkuriEntity child) {
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        return service != null && service.toiletReady() && service.rearCare();
+    }
+
+    /** Release only a temporary hygiene berth; active feeding/rear-care and childhood practice remain untouched. */
+    public boolean releaseToiletSeat(YukkuriEntity child) {
+        if (child != null && child.getUUID().equals(ownerYukkuri())) {
+            if (!ownerToiletSeat) return false;
+            ownerToiletSeat = false;
+            moveOwnerSeat(child, ownerSeat(child), false);
+            syncSeats();
+            return true;
+        }
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        if (service == null || !service.toiletReady()) return false;
+        releaseCareSeat(child.getUUID());
+        return true;
+    }
+
+    /** Restore a cared-for child to its original region berth (or an equivalent current-region berth after dusk/dawn). */
+    public void releaseCareSeat(UUID childId) {
+        var service = serviceSeats.remove(childId);
+        if (service == null) return;
+        if (level() instanceof ServerLevel server && server.getEntity(childId) instanceof YukkuriEntity child && child.getVehicle() == this) {
+            double[] destination = service.originalRegion().equals(region()) ? service.original().clone() : normalSeat(child, childId);
+            if (destination != null) moveYoungSeat(child, destination, false);
+        }
+        if (serviceSeats.isEmpty()) {
+            var parent = owner();
+            if (parent != null && parent.getVehicle() == this) moveOwnerSeat(parent, ownerSeat(parent), false);
+        }
+        syncSeats();
+    }
+
+    /** Start a small supported childhood movement inside the hat; {@code hop=false} stays level. */
+    public boolean beginPracticeMove(YukkuriEntity child, boolean hop) {
+        if (level().isClientSide || child == null || child.getVehicle() != this || !young(child) || !protects(child)
+                || !isAfloat() || towed() || flooding != 0 || hasIncoming() || child.getUUID().equals(voyageYoung)
+                || !serviceSeats.isEmpty() || changingSeat(child) || ownerSeatBusy()) return false;
+        var original = seats.get(child.getUUID());
+        if (original == null) return false;
+        double r = radiusOf(child); Vec3 from = toLocal(child.position()); Vec3 chosen = null;
+        for (int i = 0; i < 8 && chosen == null; i++) {
+            double angle = i * Math.PI / 4.0;
+            Vec3 prefer = from.add(Math.cos(angle) * Math.max(.6, r * 2.5), 0, Math.sin(angle) * Math.max(.6, r * 2.5));
+            Vec3 candidate = HatVessel.place(mode(), r, region(), prefer, takenExcept(child.getUUID()), from);
+            if (candidate != null && candidate.distanceToSqr(from) > .16 && Math.abs(candidate.y-from.y) < 1e-4
+                    && HatVessel.footprint(mode(), candidate.x, candidate.z, r) == candidate.y) chosen = candidate;
+        }
+        if (chosen == null) return false;
+        var destination = new double[]{chosen.x, chosen.y, chosen.z, r};
+        serviceSeats.put(child.getUUID(), new ServiceSeat(original.clone(), region(), destination.clone(), null, false, false));
+        moveYoungSeat(child, destination, hop);
+        syncSeats();
+        return true;
+    }
+
+    public boolean practisingMove(YukkuriEntity child) {
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        return service != null && service.ownerService() == null && !service.toiletReady() && changingSeat(child);
+    }
+
+    /** Consume a completed childhood move and send the child back to its normal berth. */
+    public boolean completePracticeMove(YukkuriEntity child) {
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        if (service == null || service.ownerService() != null || service.toiletReady() || changingSeat(child)) return false;
+        releaseCareSeat(child.getUUID());
+        return true;
+    }
+
+    /** Cancel only a child's voluntary in-hat practice; active feeding and toilet care cannot be cancelled here. */
+    public boolean cancelPracticeMove(YukkuriEntity child) {
+        var service = child == null ? null : serviceSeats.get(child.getUUID());
+        if (service == null || service.ownerService() != null || service.toiletReady()) return false;
+        releaseCareSeat(child.getUUID());
+        return true;
+    }
+
+    /**
+     * The captain is larger than a newborn, so a rear toilet seat needs a real contact patch rather
+     * than a whole-body circle inside the front juvenile brim.  The centre and forward feet remain
+     * supported; the rear drop point is checked separately beyond the hull.
+     */
+    private Vec3 rearBrimPlace(YukkuriEntity rider, java.util.List<double[]> taken) {
+        double support = Math.min(1.10, Math.max(.45, radiusOf(rider) * .25));
+        double rear = (rider.getBbWidth() * .55 + .06) / unit();
+        Vec3 best = null; double bestCost = Double.MAX_VALUE;
+        for (double x = -4.75; x <= 4.75; x += .25) for (double z = HatVessel.OPENING[3] + .20; z <= HatVessel.BRIM[1] - .20; z += .25) {
+            if (!brimSupport(x, z) || !brimSupport(x, z-support) || !brimSupport(x+support*.45, z-support*.15)
+                    || !brimSupport(x-support*.45, z-support*.15)
+                    || Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, x, z+rear))) continue;
+            boolean clear = true;
+            for (var seat : taken) if (Math.hypot(x-seat[0], z-seat[2]) < Math.max(.9, (radiusOf(rider)+seat[3])*.32)) { clear=false; break; }
+            if (!clear) continue;
+            double cost = Math.abs(x) + Math.abs(z-(HatVessel.OPENING[3]+support));
+            if (cost < bestCost) { bestCost = cost; best = new Vec3(x, HatVessel.FREEBOARD, z); }
+        }
+        return best;
+    }
+
+    /**
+     * A front edge for large pupils: their feet and inner body stay supported while the forward
+     * body may extend beyond the narrow juvenile brim.  Toileting additionally requires the rear
+     * body point to clear the actual hull outline before the water check can pass.
+     */
+    private Vec3 frontEdgePlace(YukkuriEntity rider, java.util.List<double[]> taken, boolean needsRearClear) {
+        double support = Math.min(1.10, Math.max(.45, radiusOf(rider) * .25));
+        double rear = (rider.getBbWidth() * .55 + .06) / unit();
+        Vec3 best = null; double bestCost = Double.MAX_VALUE;
+        for (double x = -4.75; x <= 4.75; x += .25) for (double z = -HatVessel.BRIM[1] + .20; z <= HatVessel.OPENING[2] - .20; z += .25) {
+            if (!brimSupport(x, z) || !brimSupport(x, z+support) || !brimSupport(x+support*.45, z+support*.15)
+                    || !brimSupport(x-support*.45, z+support*.15)) continue;
+            if (needsRearClear && Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, x, z-rear))) continue;
+            boolean clear = true;
+            for (var seat : taken) if (Math.hypot(x-seat[0], z-seat[2]) < Math.max(.9, (radiusOf(rider)+seat[3])*.32)) { clear=false; break; }
+            if (!clear) continue;
+            // Prefer the real outer front edge, leaving clearance to lower the pupil's own hat.
+            double cost = Math.abs(x)*.2 + z;
+            if (cost < bestCost) { bestCost = cost; best = new Vec3(x, HatVessel.FREEBOARD, z); }
+        }
+        return best;
+    }
+
+    private boolean brimSupport(double x, double z) {
+        return Math.abs(HatVessel.surface(HatVessel.Mode.FLOAT, x, z)-HatVessel.FREEBOARD) < 1e-6;
+    }
+
+    private ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) {
+        double r = radiusOf(child); Vec3 base = ownerSeat(parent); ServiceSeat best = null; double bestCost = Double.MAX_VALUE;
+        // The owner shifts visibly but stays on the stern ledge; the child moves to a safe interior seat.
+        for (Vec3 ownerOffset : java.util.List.of(new Vec3(0, 0, -.60), new Vec3(.32, 0, -.46), new Vec3(-.32, 0, -.46))) {
+            Vec3 ownerAt = base.add(ownerOffset);
+            double wanted = (FamilyFeedingContact.minimumMouthDistance(parent, child) + FamilyFeedingContact.mouthDistance(parent, child)) * .5 / unit();
+            for (int i = 0; i < 12; i++) {
+                double angle = i * Math.PI / 6.0;
+                Vec3 prefer = ownerAt.add(Math.cos(angle) * wanted, 0, Math.sin(angle) * wanted);
+                // A service berth may use the daytime interior while normal night packing remains reserved for sleep.
+                Vec3 candidate = HatVessel.place(mode(), r, "day", prefer, takenExcept(child.getUUID()), toLocal(child.position()));
+                if (candidate == null || !serviceGeometryFits(parent, child, ownerAt, candidate)) continue;
+                double cost = candidate.distanceToSqr(toLocal(child.position())) + ownerOffset.lengthSqr() * .25;
+                if (cost < bestCost) {
+                    bestCost = cost;
+                    best = new ServiceSeat(original.clone(), region(), new double[]{candidate.x, candidate.y, candidate.z, r}, ownerAt, rearCare, false);
+                }
+            }
+        }
+        return best;
+    }
+
+    private boolean serviceGeometryFits(YukkuriEntity parent, YukkuriEntity child, Vec3 ownerAt, Vec3 childAt) {
+        Vec3 parentWorld = toWorld(ownerAt), childWorld = toWorld(childAt);
+        double horizontal = parentWorld.subtract(childWorld).multiply(1, 0, 1).length();
+        return horizontal >= FamilyFeedingContact.minimumMouthDistance(parent, child)
+                && horizontal <= FamilyFeedingContact.mouthDistance(parent, child)
+                && Math.abs(parentWorld.y + parent.getBbHeight() * .5 - (childWorld.y + child.getBbHeight() * .5))
+                        <= FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA;
+    }
+
+    private java.util.List<double[]> takenExcept(UUID excluded) {
+        var out = new java.util.ArrayList<double[]>();
+        for (var entry : seats.entrySet()) if (!entry.getKey().equals(excluded)) out.add(entry.getValue());
+        for (var entry : incoming.entrySet()) if (!entry.getKey().equals(excluded)) out.add(entry.getValue());
+        if (voyageBerth != null && (voyageYoung == null || !voyageYoung.equals(excluded)) && !seats.containsKey(voyageYoung) && !incoming.containsKey(voyageYoung)) out.add(voyageBerth);
+        return out;
+    }
+
+    private double[] normalSeat(YukkuriEntity child, UUID excluded) {
+        double r = radiusOf(child); Vec3 next = HatVessel.place(mode(), r, region(), null, takenExcept(excluded), toLocal(child.position()));
+        if (next == null) return null;
+        return new double[]{next.x, next.y, next.z, r};
+    }
+
+    private void moveYoungSeat(YukkuriEntity child, double[] destination, boolean arc) {
+        Vec3 from = toLocal(child.position()); Vec3 to = new Vec3(destination[0], destination[1], destination[2]);
+        seats.put(child.getUUID(), destination.clone());
+        if (from.distanceToSqr(to) > .01) {
+            int ticks = arc ? HatVessel.solve(child.position(), toWorld(to), this, HatVessel.radius(child.getBbWidth()), HatVessel.HOP_TMIN)
+                    : Math.max(8, (int)Math.ceil(from.distanceTo(to) / .12));
+            seatMoves.put(child.getUUID(), new SeatMove(from, level().getGameTime(), ticks, arc));
+        } else seatMoves.remove(child.getUUID());
+    }
+
+    private boolean ownerSeatBusy() {
+        var parent = owner();
+        return ownerToiletSeat || changingOwnerSeat() || parent != null && ownerServiceSeat != null && !ownerServiceSeat.equals(ownerSeat(parent));
+    }
+
+    private void moveOwnerSeat(YukkuriEntity parent, Vec3 destination, boolean arc) {
+        Vec3 from = toLocal(parent.position()); ownerServiceSeat = destination;
+        if (from.distanceToSqr(destination) > .01) {
+            int ticks = arc ? HatVessel.solve(parent.position(), toWorld(destination), this, HatVessel.radius(parent.getBbWidth()), HatVessel.HOP_TMIN)
+                    : Math.max(8, (int)Math.ceil(from.distanceTo(destination) / .12));
+            ownerSeatMove = new SeatMove(from, level().getGameTime(), ticks, arc);
+        } else ownerSeatMove = null;
+    }
+
+    private Vec3 ownerServiceSeat(YukkuriEntity owner) {
+        if (!level().isClientSide) return ownerServiceSeat;
+        UUID id = owner.getUUID();
+        for (var raw : entityData.get(SEATS).getList("S", net.minecraft.nbt.Tag.TAG_COMPOUND)) if (raw instanceof CompoundTag c
+                && c.getBoolean("OwnerService") && c.hasUUID("Id") && c.getUUID("Id").equals(id))
+            return new Vec3(c.getDouble("X"), c.getDouble("Y"), c.getDouble("Z"));
+        return null;
+    }
+
+    private SeatMove ownerServiceMove(YukkuriEntity owner) {
+        if (!level().isClientSide) return ownerSeatMove;
+        UUID id = owner.getUUID();
+        for (var raw : entityData.get(SEATS).getList("S", net.minecraft.nbt.Tag.TAG_COMPOUND)) if (raw instanceof CompoundTag c
+                && c.getBoolean("OwnerService") && c.hasUUID("Id") && c.getUUID("Id").equals(id) && c.contains("At"))
+            return new SeatMove(new Vec3(c.getDouble("FromX"), c.getDouble("FromY"), c.getDouble("FromZ")), c.getLong("At"), c.getInt("Ticks"), c.getBoolean("Arc"));
+        return null;
+    }
     public boolean onBrim(Entity young){var s=seatOf(young);return isAfloat()&&s!=null&&Math.abs(s.y-HatVessel.FREEBOARD)<1e-5&&!changingSeat(young);}
     private boolean brimSafe(Entity rider) {
         var captain=owner();
@@ -221,22 +635,36 @@ public final class HatBoatEntity extends Entity {
         // Large juveniles need the scarce wide spaces first. Small siblings then fit around them or inside.
         var young = youngPassengers().stream().sorted(java.util.Comparator.comparingDouble(this::radiusOf).reversed()).toList();
         boolean resized = young.stream().anyMatch(p -> seats.containsKey(p.getUUID()) && Math.abs(seats.get(p.getUUID())[3]-radiusOf(p))>.001);
+        if (resized && !serviceSeats.isEmpty()) {
+            for (var id : java.util.List.copyOf(serviceSeats.keySet())) releaseCareSeat(id);
+        }
+        serviceSeats.keySet().removeIf(id -> young.stream().noneMatch(p -> p.getUUID().equals(id)));
+        if (serviceSeats.isEmpty() && !ownerToiletSeat && ownerServiceSeat != null) {
+            var parent = owner();
+            if (parent != null && parent.getVehicle() == this && !ownerServiceSeat.equals(ownerSeat(parent))) moveOwnerSeat(parent, ownerSeat(parent), false);
+        }
         String wanted=region()+young.stream().map(p->p.getUUID()+":"+brimSafe(p)).toList();
         boolean moved = resized || !wanted.equals(seatRegion) && !catches(); seatRegion = wanted;
         var old=new java.util.HashMap<UUID,double[]>(seats);
         if(resized)seatMoves.clear();
         if (moved) seats.clear();
         if (voyageBerth != null && young.stream().anyMatch(p -> p.getUUID().equals(voyageYoung))) seats.put(voyageYoung,voyageBerth.clone());
+        if (moved) for (var p : young) {
+            var service = serviceSeats.get(p.getUUID());
+            if (service != null) seats.put(p.getUUID(), service.service().clone());
+        }
         boolean changed = moved;
         for (var p : young) if (!seats.containsKey(p.getUUID())) {
             double r = radiusOf(p); var s = brimSafe(p)?HatVessel.brimPlace(r,taken()):null;
             if(s==null)s=HatVessel.place(mode(), r, region(), null, taken(), null);
+            if (s == null) continue;
             var before=old.get(p.getUUID());
             if(before!=null&&!resized){
                 var from=toLocal(p.position());
                 if(from.distanceToSqr(s)>.01){
                     int ticks=HatVessel.solve(toWorld(from),toWorld(s),this,HatVessel.radius(p.getBbWidth()),HatVessel.HOP_TMIN);
-                    seatMoves.put(p.getUUID(),new SeatMove(from,level().getGameTime(),ticks));
+                    boolean hop = p instanceof YukkuriEntity y && y.childhood().canJump();
+                    seatMoves.put(p.getUUID(),new SeatMove(from,level().getGameTime(),ticks,hop));
                 }
             }
             seats.put(p.getUUID(), new double[]{s.x, s.y, s.z, r}); changed = true;
@@ -282,7 +710,10 @@ public final class HatBoatEntity extends Entity {
         var turn = new java.util.ArrayList<Integer>(); for (int i = 0; i < young.size(); i++) turn.add(i);
         turn.sort(java.util.Comparator.comparingDouble(i -> froms.get(i).distanceToSqr(spots.get(order[i]))));
         long now = level().getGameTime();
-        for (int k = 0; k < turn.size(); k++) { int i = turn.get(k); leaving.add(new Leaving(young.get(i).getUUID(), spots.get(order[i]), now+4L*k)); }
+        for (int k = 0; k < turn.size(); k++) {
+            int i = turn.get(k); var child = young.get(i);
+            leaving.add(new Leaving(child.getUUID(), spots.get(order[i]), now+4L*k, !child.childhood().canJump()));
+        }
         return true;
     }
     /** Server: the young whose turn it is hop out. */
@@ -293,7 +724,10 @@ public final class HatBoatEntity extends Entity {
             if (l.at() > now) return false;
             if (server.getEntity(l.young()) instanceof YukkuriEntity child && child.getVehicle() == this) {
                 var to = ground(l.spot(), child);
-                if (to != null) { var from = child.position(); child.stopRiding(); crew.remove(child.getUUID()); child.family().hop(this, from, to); }
+                if (to != null) {
+                    var from = child.position(); child.stopRiding(); crew.remove(child.getUUID());
+                    if (l.assisted()) child.family().assistedClimbOut(this, from, to); else child.family().hop(this, from, to);
+                }
             }
             return true;
         });
@@ -331,8 +765,14 @@ public final class HatBoatEntity extends Entity {
         float k = hullScale()/16, turn = (float) Math.toRadians(180 - getYRot());
         if (passenger.getUUID().equals(ownerYukkuri())) {
             // In the opening at the stern, on the ledge, her back to its rear edge: the inside before her stays open.
-            var at = passenger instanceof YukkuriEntity y ? ownerSeat(y).scale(k).yRot(turn) : Vec3.ZERO;
-            move.accept(passenger, getX()+at.x, getY()+at.y, getZ()+at.z); return;
+            var local = passenger instanceof YukkuriEntity y && ownerServiceSeat(y) != null ? ownerServiceSeat(y)
+                    : passenger instanceof YukkuriEntity y ? ownerSeat(y) : Vec3.ZERO;
+            var at = toWorld(local); var movement = passenger instanceof YukkuriEntity y ? ownerServiceMove(y) : null;
+            if (movement != null) {
+                double time = Math.clamp(level().getGameTime()-movement.start(), 0, movement.ticks());
+                Vec3 from = toWorld(movement.from()); at = movement.arc() ? HatVessel.arc(from, at, movement.ticks(), time) : from.lerp(at, time / movement.ticks());
+            }
+            move.accept(passenger, at.x, at.y, at.z); return;
         }
         // Each young in its own place inside: where it landed, or packed by size (afloat before the owner by day, under her at night).
         var local = seatOf(passenger);
@@ -343,7 +783,7 @@ public final class HatBoatEntity extends Entity {
         }
         var at = toWorld(local); var movement=seatMove(passenger);
         if(movement!=null){double time=Math.clamp(level().getGameTime()-movement.start(),0,movement.ticks());
-            at=HatVessel.arc(toWorld(movement.from()),at,movement.ticks(),time);}
+            Vec3 from=toWorld(movement.from());at=movement.arc()?HatVessel.arc(from,at,movement.ticks(),time):from.lerp(at,time/movement.ticks());}
         move.accept(passenger, at.x, at.y, at.z);
     }
     public static HatBoatEntity find(YukkuriEntity y) {
@@ -369,8 +809,9 @@ public final class HatBoatEntity extends Entity {
         return createFor(owner,water,animated,null);
     }
     public static HatBoatEntity launchFromFather(YukkuriEntity child, HatBoatEntity home, BlockPos water) {
-        if (child.getVehicle()!=home || !home.protects(child) || !home.onBrim(child) || home.voyageBerth(child)==null
-                || !home.ownerYukkuri().equals(child.family().father()) || !child.aquaticLife().firstVoyage().launchingFrom(home)) return null;
+        if (child.getVehicle()!=home || !home.protects(child) || !home.onVoyageBerth(child) || home.voyageBerth(child)==null
+                || !(home.ownerYukkuri().equals(child.family().father()) || home.ownerYukkuri().equals(child.family().mother()))
+                || !child.aquaticLife().firstVoyage().launchingFrom(home)) return null;
         return createFor(child,water,true,home);
     }
     private static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated, HatBoatEntity home) {

@@ -22,7 +22,7 @@ public final class PlayLife {
     public int bounces(){return bounces;}
     public String activity(){return !active()?"idle":facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?"slide_down":"slide_climb"):
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?"trampoline":facility.kind()==PlayBlock.Kind.POOL?"pool_edge":"tunnel";}
-    private boolean available(){return entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
+    private boolean available(){return entity.childhood().canExercise()&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()
             &&entity.life().mealTicks()==0&&entity.life().energy()>=35&&entity.body().wound()==0&&!entity.family().active()&&!entity.house().active();}
     public void clock(){if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;if(active()&&!valid())stop();}
@@ -40,6 +40,7 @@ public final class PlayLife {
     }
     public boolean begin(PlayBlockEntity target){
         if(active()||cooldown>0||!available()||target==null||target.getLevel()!=entity.level()||target.isRemoved()
+                ||target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump()
                 ||entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81||target.kind()==PlayBlock.Kind.POOL&&target.water()==0)return false;
         var local=switch(target.kind()){
             case PAPER,CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));

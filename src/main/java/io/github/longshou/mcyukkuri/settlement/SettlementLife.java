@@ -134,6 +134,7 @@ public final class SettlementLife {
     }
 
     public boolean canUse() {
+        if (staysInFamilyNest()) return false;
         if (entity.independence().householdOuting() || entity.wintering().active() || society.role() == SettlementData.Role.OUTCAST
                 || entity.isPanicking() || entity.isCommandPlaying() || entity.life().hasUrgentNeed()
                 || entity.life().mealTicks() > 0 || entity.life().isSleeping() || entity.isInWaterOrBubble()) return false;
@@ -257,12 +258,17 @@ public final class SettlementLife {
     }
 
     public boolean canContinue() {
+        if (staysInFamilyNest()) return false;
         if (marching && !Migration.moving(group()) && (group() == null || !straggler(group()))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
                 && elapsed < 400 && !entity.isPanicking() && !Seasons.confined(entity) && !entity.isCommandPlaying()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0
                 && (marching || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48)
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;
+    }
+
+    private boolean staysInFamilyNest() {
+        return !entity.family().adult() && !entity.family().readyForOwnNest() && entity.life().homeStand() != null;
     }
 
     public void tickGoal() {

@@ -102,6 +102,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals("wake")) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
+            configureCareContact(entity,behavior,partialTick,model);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();
@@ -109,19 +110,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             var root=model.rootPose();
-            if (!entity.aquaticServing().isEmpty() && action.equals("boat_feed_young")) {
-                var grip = model.paddlePose();
-                if (grip != null) {
-                    pose.pushPose(); pose.translate(grip.m30(),grip.m31()+.04,grip.m32()-.06);
-                    pose.mulPose(Axis.XP.rotationDegrees(-20)); pose.scale(.28f,.28f,.28f);
-                    if(io.github.longshou.mcyukkuri.life.InfantFood.isMash(entity.aquaticServing())) {
-                        pose.scale(3.5f,3.5f,3.5f);
-                        PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);
-                    } else Minecraft.getInstance().getItemRenderer().renderStatic(entity.aquaticServing(),ItemDisplayContext.FIXED,
-                            packedLight,overlay,pose,buffers,entity.level(),entity.getId());
-                    pose.popPose();
-                }
-            }
             if (action.equals("boat_paddle") && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                     && boat.cargo().paddle() && entity.getUUID().equals(boat.ownerYukkuri())) {
                 var grip = model.paddlePose();
@@ -136,10 +124,15 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){
-                var held=heldIndex==0?entity.getMouthItem():!entity.aquaticServing().isEmpty()&&behavior.equals("family_chew")?entity.aquaticServing():entity.getCarriedItem();
+                // A prepared mash remains at the caregiver's mouth until the server atomically
+                // places that same stack in the child's mouth. Boat care follows the same path;
+                // food never travels on the braid or paddle as an independent projectile.
+                boolean aquaticCare=heldIndex==1&&!entity.aquaticServing().isEmpty()
+                        &&(behavior.equals("family_chew")||behavior.equals("boat_feed_young"));
+                var held=heldIndex==0?entity.getMouthItem():aquaticCare?entity.aquaticServing():entity.getCarriedItem();
                 if(held.isEmpty())continue;
                 boolean mash=io.github.longshou.mcyukkuri.life.InfantFood.isMash(held);
-                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!mash?model.gripPoint():null;
+                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!aquaticCare&&!mash?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
                 else {
@@ -187,6 +180,33 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
     }
 
+    /**
+     * The server keeps the two bodies in a real face-to-face envelope and only increments the
+     * synchronized progress while their mouths meet.  Model-space mouth anchors differ with age,
+     * so close the remaining rendered gap from that same target instead of inventing a flying food
+     * trajectory.  The model applies this as a root pitch/forward reach around its landed feet.
+     */
+    private static void configureCareContact(YukkuriEntity parent,String behavior,float partialTick,YukkuriModel model) {
+        if (!(behavior.equals("feed_child") || behavior.equals("boat_feed_young")) || parent.carePartnerId() < 0
+                || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)) {
+            model.setCareContact(0,Float.NaN,0);
+            return;
+        }
+        var parentPresentation=LivingPresentation.variants.get(parent.subspecies().assetId());
+        var childPresentation=LivingPresentation.variants.get(child.subspecies().assetId());
+        if (parentPresentation == null || childPresentation == null) { model.setCareContact(0,Float.NaN,0); return; }
+        float parentScale=parent.getScale()*parent.growthScale();
+        float childScale=child.getScale()*child.growthScale();
+        var parentAt=parent.getPosition(partialTick); var childAt=child.getPosition(partialTick);
+        double dx=parentAt.x-childAt.x,dz=parentAt.z-childAt.z;
+        double horizontal=Math.sqrt(dx*dx+dz*dz);
+        float renderedReach=Math.max(0,(float)(horizontal-model.faceDepth()*parentScale
+                -YukkuriModel.get(child.subspecies().assetId()).faceDepth()*childScale-.01));
+        float blend=.35f+.65f*Mth.clamp(parent.careContactProgress(),0,1);
+        float targetMouthY=(float)((childAt.y+childPresentation.y()*childScale-parentAt.y)*16/Math.max(.001f,parentScale));
+        model.setCareContact(renderedReach*blend,targetMouthY,blend);
+    }
+
     private static void dailyMotion(YukkuriEntity entity,float partialTick,PoseStack pose) {
         String behavior=entity.getBehaviorId(),contact=entity.contactPose();
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
@@ -220,4 +240,5 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.mulPose(Axis.YP.rotationDegrees(wave*4));
         }
     }
+
 }

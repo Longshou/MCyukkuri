@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.p0;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -46,7 +47,7 @@ public final class FamilyCareGameTests {
         var items=new ArrayList<ItemEntity>();
         ShelterPlacement.Placed[] childHome={null};
         YukkuriEntity[] parent={null},child={null}; ItemEntity[] source={null}; Vec3[] parentStart={null};
-        boolean[] picked={false},mashed={false},delivered={false},moved={false},swallowed={false},duplicated={false},cleaned={false};
+        boolean[] picked={false},mashed={false},delivered={false},moved={false},contacted={false},swallowed={false},duplicated={false},cleaned={false};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
             if(childHome[0]!=null)childHome[0].rollback(level);
@@ -77,6 +78,7 @@ public final class FamilyCareGameTests {
             mashed[0]|=io.github.longshou.mcyukkuri.life.InfantFood.isMash(parent[0].family().carrying());
             delivered[0]|=child[0].life().mouth().is(ModItems.YUKKURI_STEM.get())&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child[0].life().mouth());
             moved[0]|=parentStart[0]!=null&&parent[0].position().distanceToSqr(parentStart[0])>4;
+            contacted[0]|=parent[0].family().careContactProgress()>0&&FamilyFeedingContact.mouthsMeet(parent[0],child[0]);
             swallowed[0]|=child[0].life().nutrition()>=40&&child[0].life().mouth().isEmpty();
         });
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,chunk,chunk,0,0)).thenExecute(()->{
@@ -93,6 +95,9 @@ public final class FamilyCareGameTests {
             actors.add(directParent);actors.add(hungriest);actors.add(sibling);
             dependent(hungriest,directParent);sibling.family().generatedChild(directParent,null);
             FamilyData.get(level).register(directParent);FamilyData.get(level).register(hungriest);FamilyData.get(level).register(sibling);
+            // Use the exact legal mouth separation: adjacent collision centres may overlap, but this
+            // is a physical mouth-to-mouth handoff rather than the former generic nearby check.
+            directParent.moveTo(FamilyFeedingContact.approachSpot(directParent,hungriest));directParent.setOnGround(true);
             var directStem=new ItemEntity(level,directParent.getX(),directParent.getY(),directParent.getZ(),new ItemStack(ModItems.YUKKURI_STEM.get(),2));directStem.setNoPickUpDelay();
             helper.assertTrue(level.addFreshEntity(directStem),"physical stem source inserts");items.add(directStem);
             helper.assertTrue(hungriest.family().needsMash()&&!hungriest.life().canEat()
@@ -112,6 +117,14 @@ public final class FamilyCareGameTests {
                     "reload preserves the prepared serving and completed chew progress");
             for(int i=0;i<40;i++)directParent.family().tick();
             helper.assertTrue(directParent.family().canUse(),"reloaded prepared serving starts a fresh, close delivery task");
+            directParent.moveTo(hungriest.position().add(2,0,0));directParent.setOnGround(true);
+            directParent.family().tickGoal();for(int i=0;i<2;i++)directParent.family().tickGoal();
+            helper.assertTrue(directParent.family().careContactProgress()==0&&directParent.family().carrying().is(ModItems.YUKKURI_STEM.get()),
+                    "a prepared serving cannot transfer while the caregiver is still away from the child's mouth");
+            directParent.moveTo(FamilyFeedingContact.approachSpot(directParent,hungriest));directParent.setOnGround(true);
+            FamilyFeedingContact.faceEachOther(directParent,hungriest);
+            float away=directParent.getYRot()+180;directParent.setYRot(away);directParent.yBodyRot=away;directParent.yBodyRotO=away;directParent.setYHeadRot(away);
+            helper.assertTrue(!FamilyFeedingContact.mouthsMeet(directParent,hungriest),"turned-away mouths are not a valid feeding contact");
             directParent.family().tickGoal();for(int i=0;i<19;i++)directParent.family().tickGoal();
             helper.assertTrue(hungriest.life().mealTicks()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(hungriest.life().mouth())
                     &&sibling.life().mealTicks()==0&&directParent.family().carrying().isEmpty()&&directStem.getItem().getCount()==1,
@@ -153,8 +166,8 @@ public final class FamilyCareGameTests {
         .thenWaitUntil(()->helper.assertTrue(mashed[0],"Full AI caregiver must chew the carried stem into mash before approaching the child"))
         .thenWaitUntil(()->helper.assertTrue(delivered[0],"Full AI caregiver walks the prepared serving to the child and begins the child's real meal"))
         .thenWaitUntil(()->helper.assertTrue(swallowed[0],"The child reaches the stem's ordinary twenty-nutrition swallow result"))
-        .thenExecute(()->helper.assertTrue(moved[0]&&!duplicated[0]&&!source[0].isAlive(),
-                "Parent moved toward the child; the one source portion was neither left behind nor duplicated"))
+        .thenExecute(()->helper.assertTrue(moved[0]&&contacted[0]&&!duplicated[0]&&!source[0].isAlive(),
+                "Parent walked into actual mouth contact; the one source portion was neither left behind nor duplicated"))
         .thenSucceed();
     }
 

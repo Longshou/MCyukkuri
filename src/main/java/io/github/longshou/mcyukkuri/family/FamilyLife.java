@@ -96,9 +96,13 @@ public final class FamilyLife {
     }
     public boolean canEatIndependently() { return !awaitingLanding && !needsMash(); }
     /** Late-child gate for a personal nest; stem-born juveniles still start at age and nourishment zero. */
-    public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8; }
+    public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8&&entity.childhood().canLearn(); }
     public ItemStack carrying() { return carrying; }
     public int careChewTicks() { return careChewTicks; }
+    /** Client-sync source: the child a land caregiver is currently approaching, or {@code -1}. */
+    public int careTargetId() { return task == Task.FEED_CHILD && target != null ? target.getId() : -1; }
+    /** Client-sync source: uninterrupted mouth-contact progress, from zero through twenty. */
+    public int careContactProgress() { return task == Task.FEED_CHILD ? careOfferTicks : 0; }
     public boolean youngVoice() { return stage!=Stage.ADULT||juvenileVoice||babyTalk; }
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
@@ -286,6 +290,12 @@ public final class FamilyLife {
         entity.setPos(from.x,from.y,from.z);
         flight=new Flight(null,from,null,to,HatVessel.solve(from,to,hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));flightTick=0;
     }
+    /** A parent lowers a newborn over the brim; the child does not need its own jump ability for this short safe arc. */
+    public void assistedClimbOut(HatBoatEntity hat,Vec3 from,Vec3 to){
+        entity.setPos(from.x,from.y,from.z);
+        flight=new Flight(null,from,null,to,HatVessel.solve(from,to,hat,HatVessel.radius(entity.getBbWidth()),4));flightTick=0;
+        entity.getNavigation().stop();
+    }
     /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
     public void embark(HatBoatEntity hat) {
         var seat = hat.ownerSeat(entity);
@@ -454,6 +464,7 @@ public final class FamilyLife {
         CompoundTag personality=new CompoundTag();personality.putIntArray("Innate",child.traits);personality.putIntArray("Experience",new int[6]);
         if(child.dispositions.length==4){personality.putInt("Version",2);personality.putIntArray("DispositionInnate",child.dispositions);}
         entity.life().personality().load(personality);
+        entity.childhood().newborn();
         entity.syncFamily();
     }
     public void conceived(UUID brood,UUID other) { gestation=brood;partner=other;conceptions++;recovery=FamilyConfig.RECOVERY.get();entity.setPersistenceRequired(); }
@@ -615,6 +626,7 @@ public final class FamilyLife {
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
+            if(!entity.childhood().shouldStayWithParents())return false;
             var home=earlyHomeStand();
             if(home!=null) {
                 if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
@@ -637,6 +649,7 @@ public final class FamilyLife {
         if(mate!=null) { task=Task.MIDWIFE;target=mate;taskTicks=0;entity.showReaction("happy","caregiver",60);return true; }
         if(startCare())return true;
         var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
+                &&other.childhood().shouldStayWithParents()
                 &&(entity.getUUID().equals(other.family().mother)||entity.getUUID().equals(other.family().father))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("happy","wait_family",80);return true; }
@@ -786,17 +799,22 @@ public final class FamilyLife {
             if(++careChewTicks >= 40) { carrying=InfantFood.mash(carrying,entity.getUUID());careOfferTicks=0; }
             return;
         }
-        entity.getLookControl().setLookAt(target,20,20);
-        double reach=(entity.getBbWidth()+target.getBbWidth())*.5+.18;
-        if(entity.distanceToSqr(target)<=reach*reach&&entity.hasLineOfSight(target)) {
+        FamilyFeedingContact.faceEachOther(entity,target);
+        if(FamilyFeedingContact.mouthsMeet(entity,target)) {
             entity.getNavigation().stop();
-            if(++careOfferTicks<20)return;
+            if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;
             boolean handed=target.family().needsMash() ? target.life().beginParentMeal(entity,carrying) : target.life().beginMeal(carrying,null,true);
             if(handed) { carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;entity.showReaction("happy","share",80); }
             stop();return;
         }
         careOfferTicks=0;
-        if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
+        Vec3 contact=FamilyFeedingContact.approachSpot(entity,target);
+        if(entity.distanceToSqr(target)<=4) {
+            // Path navigation stops at a block-sized tolerance.  The last fraction must be a real
+            // precise approach, or the two mouths can remain permanently just outside contact.
+            entity.getNavigation().stop();
+            entity.getMoveControl().setWantedPosition(contact.x,contact.y,contact.z,.8);
+        } else if(taskTicks%5==1&&!entity.getNavigation().moveTo(contact.x,contact.y,contact.z,1.1))stop();
     }
     public boolean canContinue() {
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;

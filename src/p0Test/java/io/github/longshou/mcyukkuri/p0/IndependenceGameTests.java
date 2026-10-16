@@ -179,9 +179,12 @@ public final class IndependenceGameTests {
             old[0].initializeEncounter(2);
             var parent = ModEntities.REIMU.get().create(level); parent.moveTo(Vec3.atBottomCenterOf(ORIGIN)); parent.setNoAi(true); level.addFreshEntity(parent); actors.add(parent);
             var y = ModEntities.MARISA.get().create(level); y.moveTo(Vec3.atBottomCenterOf(ORIGIN.south())); level.addFreshEntity(y); actors.add(y); child[0] = y;
+            // This is an already-born, historically cared-for late JUVENILE: it has not reached the
+            // reproductive ADULT stage, but meets the explicit 3/4 age and 9/16 nourishment gate.
             y.family().generatedChild(parent,null);
-            var growth = y.family().save(); growth.putString("Stage","ADULT"); growth.putLong("Age",y.family().maturityAge()+1);
-            growth.putLong("Nourishment",y.family().maturityAge()); growth.putFloat("Scale",1); y.family().load(growth);
+            var growth = y.family().save(); long maturity = y.family().maturityAge();
+            growth.putString("Stage","JUVENILE"); growth.putLong("Age",maturity * 3 / 4);
+            growth.putLong("Nourishment",maturity * 9 / 16); growth.putFloat("Scale",.75f); y.family().load(growth);
             FamilyData.get(level).register(parent); FamilyData.get(level).register(y);
             var group = new SettlementData.Group(UUID.randomUUID(),SettlementData.Kind.FAMILY,ORIGIN,null); groups.add(group.id);
             SettlementData.get(level).add(group); parent.settlement().join(group); y.settlement().join(group);
@@ -208,7 +211,15 @@ public final class IndependenceGameTests {
             helper.assertTrue(y.life().reachable(DESTINATION,false) && y.life().reachable(DESTINATION.south(),false),
                     "The adult builder can physically reach the new cave marker and outside entrance");
             var life = y.life().save(); life.putFloat("Nutrition",100); life.putFloat("Energy",100); life.putFloat("Bladder",0); y.life().load(life);
-            helper.assertTrue(y.independence().eligible(),"Normal adult natural child can consider independence");
+            var underAge = growth.copy(); underAge.putLong("Age",maturity * 3 / 4 - 1); y.family().load(underAge);
+            helper.assertTrue(!y.childhood().canLiveIndependently() && !y.independence().eligible(),
+                    "One tick below the late-JUVENILE age gate cannot begin independent settlement");
+            var underfed = growth.copy(); underfed.putLong("Nourishment",maturity * 9 / 16 - 1); y.family().load(underfed);
+            helper.assertTrue(!y.childhood().canLiveIndependently() && !y.independence().eligible(),
+                    "One unit below the late-JUVENILE nourishment gate cannot begin independent settlement");
+            y.family().load(growth);
+            helper.assertTrue(!y.family().adult() && y.childhood().canLiveIndependently() && y.independence().eligible(),
+                    "A late-JUVENILE that finished early care may leave a natural family home before reproductive adulthood");
             var human = HumanCommerce.data(y).copy(); HumanCommerce.assign(y,UUID.randomUUID(),"companion");
             helper.assertTrue(!y.independence().eligible(),"A player-adopted child is excluded"); HumanCommerce.set(y,human);
             var role = y.settlement().society().record(); role.rejections = 1;
@@ -218,7 +229,8 @@ public final class IndependenceGameTests {
             // Existing leaves are actual materials; no material is seeded into the module's counters.
             var leaves = new ItemEntity(level,ORIGIN.getX()+.5,ORIGIN.getY()+.1,ORIGIN.getZ()+1.5,new ItemStack(Items.OAK_LEAVES,3));
             leaves.setDeltaMovement(Vec3.ZERO); leaves.setNoPickUpDelay(); level.addFreshEntity(leaves);
-        }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().independent(),"Child must physically carry all three materials and complete the new shelter"))
+        }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().independent() && !child[0].family().adult(),
+                "Late-JUVENILE must physically carry all three materials and complete the new shelter before adulthood"))
         .thenExecute(() -> {
             phase[0] = 1; var y = child[0]; var home = y.habitat().shelter();
             helper.assertTrue(reload[0],"The construction interruption checkpoint ran");

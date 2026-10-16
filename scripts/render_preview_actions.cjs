@@ -36,6 +36,25 @@ function transform(vertices,translation,scale,yaw,tile){
  }
  return out;
 }
+function bodyFloor(model,vertices){
+ let minimum=Infinity;
+ for(const part of model.parts||[])if(part.name==='rounded_body_surface'||part.name==='house_body_surface'||part.name==='predator_body_surface'||part.name==='deficient_body_surface'){
+  for(let index=part.start;index<part.start+part.count;index++)minimum=Math.min(minimum,vertices[index*8+1]);
+ }
+ return Number.isFinite(minimum)?minimum:0;
+}
+function groundedCarePose(model,vertices,pitch,reach){
+ // Mirrors YukkuriModel's client contact correction: the extra pitch/reach is
+ // evaluated against the actual sampled source pose, then the body floor is
+ // restored before the mouth-held serving is drawn.
+ const floor=bodyFloor(model,vertices),angle=-pitch*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),out=new Float64Array(vertices.length);
+ for(let i=0;i<vertices.length;i+=8){
+  const y=vertices[i+1],z=vertices[i+2];out[i]=vertices[i];out[i+1]=y*c-z*s;out[i+2]=y*s+z*c-reach*16;
+  out[i+3]=vertices[i+3];out[i+4]=vertices[i+4];out[i+5]=vertices[i+5];out[i+6]=vertices[i+6]*c-vertices[i+7]*s;out[i+7]=vertices[i+6]*s+vertices[i+7]*c;
+ }
+ const lift=Math.max(0,floor-bodyFloor(model,out));if(lift)for(let i=1;i<out.length;i+=8)out[i]+=lift;
+ return out;
+}
 function propVertices(prop,tile,q){
  const data=readJson(prop.source),raw=Float64Array.from(data.vertices),position=interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q);
  let base=raw;
@@ -48,6 +67,20 @@ function propVertices(prop,tile,q){
   base=new Float64Array(visible.reduce((length,part)=>length+part.length,0));
   let offset=0;for(const part of visible){base.set(part,offset);offset+=part.length;}
  }
+ if(prop.boat){
+  // HatBoatEntity keeps the turned hat fixed under a seated owner.  Reuse that
+  // vessel transform so an offline water scene shows a real supporting bowl,
+  // rather than a loose hat or a generic platform.
+  const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
+  const k=vessel.aquatic_scale,squash=vessel.squash.bowl;
+  const seat=[0,vessel.bowl.owner_y*k,vessel.opening[3]*k-5.9];
+  base=Float64Array.from(base);
+  for(let i=0;i<base.length;i+=8){
+   base[i]=base[i]*k-seat[0];base[i+1]=base[i+1]*k*squash+vessel.bowl.freeboard*k-seat[1];base[i+2]=base[i+2]*k-seat[2];
+   base[i+5]/=k;base[i+6]/=(k*squash);base[i+7]/=k;
+   const n=Math.hypot(base[i+5],base[i+6],base[i+7])||1;base[i+5]/=n;base[i+6]/=n;base[i+7]/=n;
+  }
+ }
  return transform(base,position,prop.scale===undefined?1:prop.scale,(prop.yaw||0)*Math.PI/180,tile);
 }
 function sceneEntries(clip,time){
@@ -59,7 +92,9 @@ function sceneEntries(clip,time){
   const pose=poseFor(actor.model);if(!pose.clips[actor.action])throw Error('Unknown action '+actor.model+'/'+actor.action);
   const actionTime=Math.min(actor.maxTime??Infinity,localTime*(actor.speed??1)+(actor.timeOffset??0)),face=actor.face||clip.face||pose.expressionFor(actor.action,actionTime);
   const key='entity:'+actor.model+':'+face;rawTexture(key);pose.expression(face);
-  entries.push({vertices:pose.frame(actor.action,actionTime).slice(),translation:interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key});
+  let vertices=pose.frame(actor.action,actionTime).slice();
+  if(actor.carePitch||actor.careReach)vertices=groundedCarePose(models.get(actor.model),vertices,actor.carePitch||0,actor.careReach||0);
+  entries.push({vertices,translation:interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key});
  }
  for(const prop of clip.props||[]){
   if(time<(prop.start??0)||time>=(prop.end??Infinity))continue;

@@ -64,9 +64,20 @@ public final class YukkuriModel {
     private int[] gripBones;
     private Vector3f[] gripPoints;
     private boolean gripping,carrying;
+    /**
+     * Small presentation-only addition to a contact-safe care clip.  The server has already
+     * stopped the two bodies at its real mouth envelope; this uses their synchronized mouth
+     * anchors to close the last visible gap without translating a parent below the ground.
+     */
+    private float careReach,careTargetMouthY=Float.NaN,careBlend;
     private String hatMotion="";
     private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
+    void setCareContact(float forwardBlocks,float targetMouthY,float progress){
+        careReach=Math.clamp(forwardBlocks,0,.12f);
+        careTargetMouthY=targetMouthY;
+        careBlend=Math.clamp(progress,0,1);
+    }
     private final Map<String, Clip> clips = new HashMap<>();
     private record ExpressionSpan(float start, float end, String expression) {}
     private final Map<String, List<ExpressionSpan>> actionExpressions = new HashMap<>();
@@ -560,6 +571,11 @@ public final class YukkuriModel {
             if(behavior.equals("house_pickup")||behavior.equals("house_deposit")||behavior.equals("house_carry"))selected=behavior;
             else if(behavior.equals("house_crawl"))selected="house_crawl";
         }
+        // Ecology state is more specific than the shared base action: care must never collapse
+        // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.
+        if (behavior.equals("feed_child") || behavior.equals("first_toilet_assist")
+                || behavior.equals("newborn_crawl") || behavior.equals("learn_jump")
+                || behavior.equals("boat_toilet")) selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         clips.getOrDefault(selected, clips.get("idle")).sample(selected.equals(action)?elapsed:behaviorTicks/20f, pose);
@@ -597,16 +613,25 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        for (int i = 0; i < bones.length; i++) {
-            Bone bone = bones[i];
-            float[] v = pose[i];
-            Matrix4f matrix = world[i];
-            if (bone.parent < 0) matrix.identity();
-            else matrix.set(world[bone.parent]);
-            matrix.translate(bone.x + v[0], bone.y + v[1], bone.z + v[2])
-                    .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
-                    .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
-            if(hatScale!=1&&i==hatFollowBone()){var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());}
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young"));
+        composeWorld();
+        if(careContact){
+            // The source clip's root lift already lands its body.  Measure that exact body floor,
+            // solve a root pitch toward the synchronized target mouth, then restore the same
+            // floor in model space. This keeps the caregiving mouth free to meet a smaller child
+            // while its feet remain supported.
+            float floor=bodyMinimumY();float[] root=pose[rootBone()];
+            float basePitch=root[3],baseMouth=mouthY();
+            float target=baseMouth+(careTargetMouthY-baseMouth)*careBlend;
+            float low=0,high=42;
+            if(baseMouth>target)for(int i=0;i<7;i++){
+                float pitch=(low+high)*.5f;root[3]=basePitch-pitch;composeWorld();
+                float lifted=Math.max(0,floor-bodyMinimumY());
+                if(mouthY()+lifted>target)low=pitch;else high=pitch;
+            }
+            root[3]=basePitch-(baseMouth>target?high:0);root[2]-=careReach*16;
+            composeWorld();float lowered=bodyMinimumY();
+            if(lowered<floor)raiseWorld(floor-lowered);
         }
         if(pregnancyBelly>.001f)rigidLifts();
         PoseStack.Pose transform = stack.last();
@@ -685,6 +710,39 @@ public final class YukkuriModel {
         }
     }
 
+    private void composeWorld(){
+        for (int i = 0; i < bones.length; i++) {
+            Bone bone = bones[i];float[] v = pose[i];Matrix4f matrix = world[i];
+            if (bone.parent < 0) matrix.identity(); else matrix.set(world[bone.parent]);
+            matrix.translate(bone.x + v[0], bone.y + v[1], bone.z + v[2])
+                    .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES)
+                    .scale(v[6], v[7], v[8]).translate(-bone.x, -bone.y, -bone.z);
+            if(hatScale!=1&&i==hatFollowBone()){
+                var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
+            }
+        }
+    }
+
+    /** Minimum y of the true body skin after the current root pose, in model units. */
+    private float bodyMinimumY(){
+        float minimum=Float.MAX_VALUE;
+        for(var part:parts)if(bodySurface(part.name))for(int index=part.start;index<part.start+part.count;index++){
+            skinBase(index,triangle[0]);minimum=Math.min(minimum,triangle[0].y);
+        }
+        return minimum==Float.MAX_VALUE?0:minimum;
+    }
+
+    /** Current rendered mouth height in the same model units as the root and body floor. */
+    private float mouthY(){
+        var mouth=LivingPresentation.variants.get(id);if(mouth==null)return 0;
+        var point=new Vector3f(mouth.x()*16,mouth.y()*16,mouth.z()*16);
+        io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(point,pregnancyBelly,0);
+        world[rootBone()].transformPosition(point);return point.y;
+    }
+
+    /** Apply a world-space model-unit lift to every bone so child attachments follow the landed body. */
+    private void raiseWorld(float lift){for(var matrix:world)matrix.m31(matrix.m31()+lift);}
+
     public boolean woundGeometryCompatible(){return sourceHash.matches(io.github.longshou.mcyukkuri.body.WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,io.github.longshou.mcyukkuri.entity.YukkuriEntity entity,
@@ -699,7 +757,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

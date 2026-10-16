@@ -82,7 +82,7 @@ public final class Expedition {
                 &&e.life().nutrition()>=55&&e.life().energy()>=65;
     }
     private static boolean eligibleMember(YukkuriEntity captain,YukkuriEntity e) {
-        return WildEvents.available(e)&&e!=captain&&captain.distanceToSqr(e)<=36&&WildEvents.friendly(captain,e)
+        return WildEvents.available(e)&&e.childhood().canLearn()&&e!=captain&&captain.distanceToSqr(e)<=36&&WildEvents.friendly(captain,e)
                 &&e.life().nutrition()>=55&&e.life().energy()>=65&&e.getVariant().dialogueSpecies().equals("marisa")
                 &&captain.hasLineOfSight(e)&&captain.life().reachable(e.blockPosition(),false);
     }

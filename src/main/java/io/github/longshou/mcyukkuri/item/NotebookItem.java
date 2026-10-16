@@ -105,7 +105,7 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.dispositions",personality.selfishness(),personality.aggression(),personality.attachment(),personality.selfControl(),
                         personality.environment().friendliness(),Component.translatable("decision.mcyukkuri."+personality.lastDecision())),
                 Component.translatable("notebook.mcyukkuri.memory", personality.trust(player.getUUID()), personality.fear(player.getUUID()), personality.interactions(player.getUUID()), personality.lessons()),
-                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+entity.family().stage().name().toLowerCase(java.util.Locale.ROOT)),
+                Component.translatable("notebook.mcyukkuri.growth",Component.translatable("stage.mcyukkuri."+(!entity.family().adult()&&entity.childhood().canLiveIndependently()?"subadult":entity.family().stage().name().toLowerCase(java.util.Locale.ROOT))),
                         Math.round(entity.family().scale()*100),entity.family().age()/1200,entity.family().lifespan()/1200,
                         Component.translatable(entity.family().youngVoice()?"voice.mcyukkuri.young":"voice.mcyukkuri.adult")),
                 Component.translatable("notebook.mcyukkuri.family",identity(entity.family().mother()),identity(entity.family().father()),

@@ -149,7 +149,7 @@ public final class HabitatLife {
             return false;
         }
         // Young residents eat and observe the season, but do not maintain the household before their nest gate.
-        if(!entity.family().adult()) {
+        if(!entity.family().adult()&&!entity.childhood().canLiveIndependently()) {
             if(!carrying.isEmpty()&&entity.life().dryStand(entity.blockPosition()))dropCarrying();
             return false;
         }
