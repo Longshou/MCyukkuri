@@ -45,7 +45,7 @@ function chapter(id){
  $('steps').replaceChildren(...current.steps.map((item,i)=>{const b=el('button');b.append(el('small',item.animation||item.demo&&!item.still?'动作回放':item.kind==='expression'?'表情对照':item.kind==='logic'?'状态图':item.kind==='audio'?'音频':item.kind==='subtitles'?'字幕':'静态分镜'),el('strong',item.title));b.onclick=()=>showStep(i);return b;}));
  $('gallery').replaceChildren(...(current.gallery||[]).map(item=>{const f=el('figure'),a=el('a'),img=el('img');a.href=item.src;a.target='_blank';img.src=item.src;img.alt=item.label;img.loading='lazy';a.append(img);f.append(a,el('figcaption',item.label));return f;}));showStep(0);
 }
-$('animate').onclick=()=>{animated=!animated;renderMedia();};
+$('animate').onclick=()=>{animated=!animated;const item=current.steps[step];$('main-image').src=animated?item.animation:item.image;$('animate').textContent=animated?'看静帧':'播放动作';};
 $('model-link').onclick=()=>{const item=current.steps[step];if(item.action)mode('models','models/index.html?model='+encodeURIComponent(item.model||current.model)+'&action='+encodeURIComponent(item.action)+'&autoplay=1');};
 $('back').onclick=()=>mode('recent');document.querySelector('.brand').onclick=e=>{e.preventDefault();mode('recent');};document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>mode(b.dataset.mode));
 $('main-image').onerror=()=>{$('media-caption').textContent='此动作文件尚未生成，请重新运行预览生成脚本。';};
