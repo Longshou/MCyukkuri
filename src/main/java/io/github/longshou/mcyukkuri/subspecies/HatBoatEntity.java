@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /** One real hat (her own hat turned upside down, its soft crown pressed down: HatVessel) and one Marisa owner. Afloat it is
- *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, under her at night.
+ *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, close before her at night.
  *  Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity {
     /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young. MOORED: an
@@ -109,7 +109,9 @@ public final class HatBoatEntity extends Entity {
         return super.getDimensions(pose).scale(hullScale()/HatVessel.AQUATIC_SCALE);
     }
     public HatBoatCargo cargo() { return cargo; }
-    void syncCargo(CompoundTag data) { entityData.set(CARGO, data); }
+    /** One supported envelope per real stored portion, shared by storage display and interior routing. */
+    public java.util.List<HatVessel.CargoBerth> cargoBerths() { return HatVessel.cargoBerths(mode(),cargo.count()); }
+    void syncCargo(CompoundTag data) { entityData.set(CARGO, data); seatRegion = ""; }
     public boolean paddling() { return entityData.get(PADDLING); }
     private double finalWaypointToleranceSquared = .12;
     public void stopPaddling() { route.clear(); finalWaypointToleranceSquared = .12; entityData.set(PADDLING, false); }
@@ -174,7 +176,7 @@ public final class HatBoatEntity extends Entity {
     public boolean boardYoung(YukkuriEntity child) {
         if (level().isClientSide || !young(child) || !hasRoomFor(child)) return false;
         var seat = incoming.remove(child.getUUID());
-        if (seat == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), null, taken(), null); seat = new double[]{s.x, s.y, s.z, r}; }
+        if (seat == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), null, layoutTaken(child.getUUID()), null); seat = new double[]{s.x, s.y, s.z, r}; }
         if (!child.startRiding(this, true)) return false;
         crew.add(child.getUUID());
         seats.put(child.getUUID(), seat); syncSeats(); return true;
@@ -211,6 +213,22 @@ public final class HatBoatEntity extends Entity {
     private java.util.List<double[]> taken() {
         var out = new java.util.ArrayList<double[]>(seats.values()); out.addAll(incoming.values());
         if (voyageBerth != null && !seats.containsKey(voyageYoung) && !incoming.containsKey(voyageYoung)) out.add(voyageBerth);
+        addCargoFootprints(out);
+        return out;
+    }
+    private void addCargoFootprints(java.util.List<double[]> out) {
+        for(var berth:cargoBerths()){
+            var p=berth.position();
+            out.add(new double[]{p.x,p.y,p.z,berth.radius(),berth.radius()*2,2});
+        }
+    }
+    /** Ordinary sleeping and daytime berths stay outside the parent's body projection, even on a lower layer. */
+    private java.util.List<double[]> layoutTaken(UUID excluded) {
+        var out=takenExcept(excluded);
+        if(!catches()&&getControllingPassenger() instanceof YukkuriEntity parent){
+            var at=ownerSeat(parent);
+            out.add(new double[]{at.x,at.y,at.z,radiusOf(parent),parent.getBbHeight()/unit(),1});
+        }
         return out;
     }
     public boolean keepVoyageBerth(YukkuriEntity child) {
@@ -515,13 +533,15 @@ public final class HatBoatEntity extends Entity {
         for (int i = 0; i < 8 && chosen == null; i++) {
             double angle = i * Math.PI / 4.0;
             Vec3 prefer = from.add(Math.cos(angle) * Math.max(.6, r * 2.5), 0, Math.sin(angle) * Math.max(.6, r * 2.5));
-            Vec3 candidate = HatVessel.place(mode(), r, region(), prefer, takenExcept(child.getUUID()), from);
+            Vec3 candidate = HatVessel.place(mode(), r, region(), prefer, layoutTaken(child.getUUID()), from);
             if (candidate != null && candidate.distanceToSqr(from) > .16 && Math.abs(candidate.y-from.y) < 1e-4
                     && HatVessel.footprint(mode(), candidate.x, candidate.z, r) == candidate.y) chosen = candidate;
         }
         if (chosen == null) return false;
         var destination = new double[]{chosen.x, chosen.y, chosen.z, r};
         if (!moveYoungSeat(child, destination, hop)) return false;
+        var movement=seatMoves.get(child.getUUID());
+        if(movement==null||movement.arc()!=hop)return false;
         serviceSeats.put(child.getUUID(), new ServiceSeat(original.clone(), region(), destination.clone(), null, false, false));
         syncSeats();
         return true;
@@ -659,11 +679,12 @@ public final class HatBoatEntity extends Entity {
         }
         for (var entry : incoming.entrySet()) if (!entry.getKey().equals(excluded)) out.add(entry.getValue());
         if (voyageBerth != null && (voyageYoung == null || !voyageYoung.equals(excluded)) && !seats.containsKey(voyageYoung) && !incoming.containsKey(voyageYoung)) out.add(voyageBerth);
+        addCargoFootprints(out);
         return out;
     }
 
     private double[] normalSeat(YukkuriEntity child, UUID excluded) {
-        double r = radiusOf(child); Vec3 next = HatVessel.place(mode(), r, region(), null, takenExcept(excluded), toLocal(child.position()));
+        double r = radiusOf(child); Vec3 next = HatVessel.place(mode(), r, region(), null, layoutTaken(excluded), toLocal(child.position()));
         if (next == null) return null;
         return new double[]{next.x, next.y, next.z, r};
     }
@@ -671,7 +692,9 @@ public final class HatBoatEntity extends Entity {
     private boolean moveYoungSeat(YukkuriEntity child, double[] destination, boolean arc) {
         Vec3 from = toLocal(child.position()); Vec3 to = new Vec3(destination[0], destination[1], destination[2]);
         var existing = seats.get(child.getUUID());
-        if (existing != null && java.util.Arrays.equals(existing, destination)) return true;
+        // An idempotent walking reservation is fine; a new practice hop must really launch a fresh arc.
+        if (!arc && existing != null && java.util.Arrays.equals(existing, destination)) return true;
+        if (arc && from.distanceToSqr(to)<=.01) return false;
         var route=arc||from.distanceToSqr(to)<=.01?java.util.List.<Vec3>of():walkingRoute(child,to);
         if(!arc&&from.distanceToSqr(to)>.01&&route.isEmpty())return false;
         if (!arc && !child.childhood().canJump() && hasStep(route)) return false;
@@ -831,7 +854,9 @@ public final class HatBoatEntity extends Entity {
             trip.phase=3; trip.at=level().getGameTime(); syncSeats();
         } else if (trip.phase==3 && level().getGameTime()-trip.at>=12) {
             seats.put(child.getUUID(),new double[]{trip.destination.x,trip.destination.y,trip.destination.z,radiusOf(child)});
-            carryTrip=null; syncSeats();
+            carryTrip=null;
+            if(serviceSeats.isEmpty()&&returningSeats.isEmpty())moveOwnerSeat(parent,ownerSeat(parent),false);
+            syncSeats();
         }
     }
 
@@ -949,7 +974,7 @@ public final class HatBoatEntity extends Entity {
                 && y.life().mealTicks()==0 && y.life().energy()>25 && y.life().nutrition()>=60;
     }
     /** Server: young aboard without a place (after loading) get one; afloat, at dusk and dawn they all move (before the
-     *  owner by day, under her at night). */
+     *  owner by day, gathered near her lower front at night). */
     private void tendSeats() {
         if (carryTrip != null) return;
         // Large juveniles need the scarce wide spaces first. Small siblings then fit around them or inside.
@@ -974,16 +999,37 @@ public final class HatBoatEntity extends Entity {
         boolean changed = moved;
         for (var p : young) if (!seats.containsKey(p.getUUID())) {
             double r = radiusOf(p); var s = brimSafe(p)?HatVessel.brimPlace(r,taken()):null;
-            if(s==null)s=HatVessel.place(mode(), r, region(), null, taken(), null);
+            if(s==null)s=HatVessel.place(mode(), r, region(), null, layoutTaken(p.getUUID()), null);
             if (s == null) continue;
             var before=old.get(p.getUUID());
             if(before!=null&&p instanceof YukkuriEntity y){
                 seats.put(p.getUUID(),before);
-                if(!moveYoungSeat(y,new double[]{s.x,s.y,s.z,r},false)){seatRegion="";continue;}
+                double[] destination=new double[]{s.x,s.y,s.z,r};
+                if(!moveYoungSeat(y,destination,false)){
+                    var parent=owner();
+                    if(!y.childhood().canJump()&&parent!=null&&serviceSeats.isEmpty()&&returningSeats.isEmpty()){
+                        // The carry planner must still see siblings whose new day/night berth has not
+                        // been chosen yet. They stay in their real old seats throughout this transfer.
+                        var restored=new java.util.ArrayList<UUID>();
+                        for(var entry:old.entrySet())if(!seats.containsKey(entry.getKey())){
+                            seats.put(entry.getKey(),entry.getValue());restored.add(entry.getKey());
+                        }
+                        if(beginCarry(y,parent,destination,ownerSeat(parent))){seatRegion="";return;}
+                        for(var id:restored)seats.remove(id);
+                    }
+                    seatRegion="";continue;
+                }
             }
             seats.put(p.getUUID(), new double[]{s.x, s.y, s.z, r}); changed = true;
         }
         if (changed) syncSeats();
+        if("night".equals(region())&&getControllingPassenger() instanceof YukkuriEntity parent){
+            for(var p:young)if(p instanceof YukkuriEntity y&&y.life().isSleeping()&&!changingSeat(y)
+                    &&!serviceSeats.containsKey(y.getUUID())&&!returningSeats.containsKey(y.getUUID())){
+                float yaw=io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(parent.position(),y.position());
+                io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,yaw);
+            }
+        }
     }
     /** Places of the young aboard taken in boarding order: only until the server's places arrive. */
     private java.util.List<Vec3> youngSeats() {
@@ -997,13 +1043,13 @@ public final class HatBoatEntity extends Entity {
     public Vec3 reserve(YukkuriEntity child, Vec3 prefer) {
         var have = incoming.get(child.getUUID());
         if (have == null && child.getUUID().equals(voyageYoung) && voyageBerth != null) incoming.put(child.getUUID(),have=voyageBerth.clone());
-        if (have == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), prefer, taken(), toLocal(child.position())); incoming.put(child.getUUID(), have = new double[]{s.x, s.y, s.z, r}); }
+        if (have == null) { double r = radiusOf(child); var s = HatVessel.place(mode(), r, region(), prefer, layoutTaken(child.getUUID()), toLocal(child.position())); incoming.put(child.getUUID(), have = new double[]{s.x, s.y, s.z, r}); }
         return new Vec3(have[0], have[1], have[2]);
     }
     /** The place a young would get next, without keeping it. */
     public Vec3 peekSeat(YukkuriEntity child) {
         var have = incoming.get(child.getUUID());
-        return have != null ? new Vec3(have[0], have[1], have[2]) : HatVessel.place(mode(), radiusOf(child), region(), null, taken(), toLocal(child.position()));
+        return have != null ? new Vec3(have[0], have[1], have[2]) : HatVessel.place(mode(), radiusOf(child), region(), null, layoutTaken(child.getUUID()), toLocal(child.position()));
     }
     /** Before the hat is taken back the young hop out over the brim, side by side on the side clear of the adults there
      *  (onto the bank beside a floated hat): each to the spot that keeps their ways apart, the one nearest its spot first,
@@ -1093,7 +1139,7 @@ public final class HatBoatEntity extends Entity {
             }
             move.accept(passenger, at.x, at.y, at.z); return;
         }
-        // Each young in its own place inside: where it landed, or packed by size (afloat before the owner by day, under her at night).
+        // Each real young occupies its own supported berth, including the close but visible night gathering.
         var local = seatOf(passenger);
         if (local == null) {
             int seat = youngPassengers().indexOf(passenger); var packed = youngSeats();

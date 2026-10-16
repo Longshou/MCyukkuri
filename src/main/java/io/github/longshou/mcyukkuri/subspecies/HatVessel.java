@@ -80,6 +80,22 @@ public final class HatVessel {
     public static double top(Mode m){return m==Mode.NEST?NEST_HEIGHT:FREEBOARD;}
     private static double squash(Mode m){return m==Mode.NEST?SQUASH_NEST:SQUASH_FLOAT;}
     public static double floor(Mode m){return top(m)-FLOOR*squash(m);}
+    /** Actual stored portions rest on the two existing inner ledges, never on an invented shelf.
+     *  Position and radius are unscaled hat units; renderers must keep the complete item inside this envelope. */
+    public record CargoBerth(Vec3 position,double radius){}
+    public static List<CargoBerth> cargoBerths(Mode mode,int portions){
+        var out=new ArrayList<CargoBerth>();
+        for(int i=0;i<Math.min(8,Math.max(0,portions));i++){
+            boolean left=(i&1)==0;
+            double inner=left?WELL[0]:WELL[1],outer=left?OPENING[0]:OPENING[1];
+            double r=Math.min(.3,Math.abs(outer-inner)*.30);
+            // Hug the outer edge of the existing inner ledge, preserving a full parent-width centre passage.
+            double x=outer+(left?1:-1)*r*1.1;
+            double z=.5-(i/2)*(Math.abs(WELL[2])-.8)/3;
+            out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),r));
+        }
+        return List.copyOf(out);
+    }
     private static boolean in(float[] r,double x,double z){return r[0]<=x&&x<=r[1]&&r[2]<=z&&z<=r[3];}
     /** The hat's top surface at a point: the well's floor, the ledge round it, the brim; NaN off the hat. */
     public static double surface(Mode m,double x,double z){
@@ -106,7 +122,7 @@ public final class HatVessel {
     /** A place (hat units: x, surface y, z) for a young of radius r (hat units) among those taken (x, y, z, r): the free
      *  spot nearest the preferred point (where it landed; null for the region's), on the floor rather than the ledge,
      *  overlapping the others as little as possible and, coming from start (null: anywhere), not across them. Regions:
-     *  "catch" (a hat set down), "day" (before the owner afloat), "night" (under her). */
+     *  "catch" (a hat set down), "day" (before the owner afloat), "night" (close to her front and sides). */
     public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start){
         return place(m,r,region,prefer,taken,start,Double.NaN);
     }
@@ -114,7 +130,13 @@ public final class HatVessel {
     public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start,double requiredHeight){
         var R=DELIVERY.getAsJsonObject("regions").getAsJsonObject(region);var p=R.getAsJsonArray("prefer");
         double px=prefer!=null?prefer.x:p.get(0).getAsDouble(),pz=prefer!=null?prefer.z:p.get(1).getAsDouble();
+        boolean resident=m==Mode.FLOAT&&!"catch".equals(region)&&!Double.isFinite(requiredHeight);
+        boolean night="night".equals(region);
         double zmin=R.has("z_min")?R.get("z_min").getAsDouble():-1e9,zmax=R.has("z_max")?R.get("z_max").getAsDouble():1e9;
+        // Night still means huddling close to the parent's lower front, rather than hiding below her body.
+        // Both halves share the measured day boundary; no second set of hat coordinates is introduced.
+        if(resident&&night){zmin=OPENING[2];zmax=DELIVERY.getAsJsonObject("regions").getAsJsonObject("day").get("z_max").getAsDouble();}
+        if(resident&&!night&&prefer==null)pz=(OPENING[2]+WELL[2])*.5;
         double x0=OPENING[0],x1=OPENING[1],z0=OPENING[2],z1=OPENING[3];double[] best=null;
         int nx=(int)Math.floor((x1-x0-2*r)/STEP+1e-9),nz=(int)Math.floor((z1-z0-2*r)/STEP+1e-9);
         for(int i=0;i<=Math.max(0,nx);i++){
@@ -123,12 +145,23 @@ public final class HatVessel {
                 double z=nz>=0?z0+r+j*STEP:(z0+z1)/2;
                 if(z<zmin||z>zmax)continue;
                 double h=footprint(m,x,z,r),over=0,across=0;
+                if(!Double.isFinite(h))continue;
+                // A visible ledge berth has its centre on that real ledge. Merely touching a high edge
+                // with a distant foot sample must not suspend a newborn over the middle of the well.
+                if(resident&&Math.abs(surface(m,x,z)-h)>1e-4)continue;
                 if(Double.isFinite(requiredHeight)&&(!Double.isFinite(h)||Math.abs(h-requiredHeight)>1e-4))continue;
+                boolean blocked=false;
                 for(var s:taken){
+                    // Explicit layout reservations (parent projection and actual stored food) are never
+                    // traded for a slightly cheaper seat, including children on the lower well floor.
+                    if(resident&&s.length>5&&s[5]>0&&Math.hypot(x-s[0],z-s[2])<r+s[3]){blocked=true;break;}
                     over+=Math.max(0,(r+s[3])*OVERLAP-Math.hypot(x-s[0],z-s[2]));
                     if(start!=null)across+=Math.max(0,(r+s[3])*OVERLAP-segment(s[0],s[2],start.x,start.z,x,z));
                 }
-                double cost=100*over+PATH_COST*across+(h>floor(m)+1e-6?LEDGE_COST:0)+Math.hypot(x-px,z-pz);
+                if(blocked)continue;
+                double surfaceCost=resident&&!night&&prefer==null?(h>floor(m)+1e-6?0:LEDGE_COST*2)
+                        :(h>floor(m)+1e-6?LEDGE_COST:0);
+                double cost=100*over+PATH_COST*across+surfaceCost+Math.hypot(x-px,z-pz);
                 if(best==null||cost<best[0]-1e-9)best=new double[]{cost,x,h,z};
             }
         }

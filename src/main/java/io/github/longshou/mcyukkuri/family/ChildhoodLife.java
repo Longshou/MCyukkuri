@@ -149,6 +149,12 @@ public final class ChildhoodLife {
                 || parent.life().isSleeping() || parent.isPanicking()) { stopHatPractice(); return false; }
         if (hatPractice) {
             if (++taskTicks > 240 || !boat.getUUID().equals(practiceBoat)) { stopHatPractice(); return false; }
+            if (!boat.practisingMove(entity) && task == Task.JUMP && jumpLaunched && !jumpAirborne) {
+                // A reservation can end without an actual takeoff. Retire that failed attempt
+                // immediately; waiting for airborne evidence from an already finished move can
+                // never succeed. No landing or skill is awarded by this recovery.
+                stopHatPractice(); practiceRest=24; return false;
+            }
             if (!boat.practisingMove(entity) && (task != Task.JUMP || !jumpLaunched) && boat.completePracticeMove(entity)) {
                 // Movement evidence was observed from the actual rider, before retiring the service berth.
                 hatPractice = false; practiceBoat = null; lastHatPosition = null;
@@ -158,6 +164,10 @@ public final class ChildhoodLife {
         }
         boolean hop = crawled && !shellForm();
         if (boat.changingSeat(entity) || !boat.beginPracticeMove(entity, hop)) return false;
+        if (!boat.practisingMove(entity)) {
+            // Accept a live physical move, not only a successful destination reservation.
+            boat.cancelPracticeMove(entity); practiceRest=24; return false;
+        }
         hatPractice = true; practiceBoat = boat.getUUID(); task = hop ? Task.JUMP : Task.CRAWL; taskTicks = 0;
         lastHatPosition = boat.toLocal(entity.position()); launchY = lastHatPosition.y;
         jumpLaunched = hop; jumpAirborne = false;

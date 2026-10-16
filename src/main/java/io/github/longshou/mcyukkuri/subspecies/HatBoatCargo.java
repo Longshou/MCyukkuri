@@ -21,6 +21,12 @@ public final class HatBoatCargo {
     public boolean paddle() { return paddle; }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
+    /** Read-only render snapshot: one actual serving per supported berth, retaining its item/components. */
+    public List<ItemStack> portions() {
+        var result = new ArrayList<ItemStack>(count());
+        for (var stack : food) for (int i=0;i<stack.getCount();i++) result.add(stack.copyWithCount(1));
+        return List.copyOf(result);
+    }
     public boolean canStore(ItemStack stack) {
         return !stack.isEmpty() && count() < CAPACITY && (food.size() < SLOTS
                 || food.stream().anyMatch(s -> ItemStack.isSameItemSameComponents(s, stack)));
