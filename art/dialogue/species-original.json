@@ -11416,9 +11416,9 @@
       "id": "marisa.adult.o_self_rescue_hat",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おぼうしを ひっくりかえすのぜ……。",
-      "chinese": "把帽帽翻过来……。",
-      "english": "Turn my hat over...",
+      "japanese": "おぼうし…… ふりおとすのぜ……。",
+      "chinese": "帽帽……抖掉……。",
+      "english": "Shake... the hat... off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -11428,9 +11428,9 @@
       "id": "marisa.adult.o_self_rescue_grip",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ふちに つかまったのぜ！",
-      "chinese": "抓住帽檐了！",
-      "english": "I have the brim!",
+      "japanese": "ふちを くわえたのぜ！",
+      "chinese": "咬住帽檐了！",
+      "english": "I am biting the brim!",
       "events": [
         "self_rescue_grip"
       ],
@@ -11476,9 +11476,9 @@
       "id": "marisa.adult.o_braid_rescue_offer",
       "species": "marisa",
       "age": "adult",
-      "japanese": "いまいくのぜ！ みつあみに つかまるのぜ！",
-      "chinese": "这就来！抓住辫辫！",
-      "english": "I am coming! Hold on to my braid!",
+      "japanese": "いまいくのぜ！ ふちに つかまるのぜ！",
+      "chinese": "这就来！靠过来，抓住帽檐！",
+      "english": "I am coming! Come close and hold the brim!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -11488,9 +11488,9 @@
       "id": "marisa.adult.o_braid_rescue_grip",
       "species": "marisa",
       "age": "adult",
-      "japanese": "つかんだのぜ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたのぜ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11620,9 +11620,9 @@
       "id": "marisa.young.o_self_rescue_hat",
       "species": "marisa",
       "age": "young",
-      "japanese": "おぼうしを ひっくりかえすのじぇ……。",
-      "chinese": "把帽帽翻过来……。",
-      "english": "Turn my hat over...",
+      "japanese": "おぼうし…… ふりおとすのじぇ……。",
+      "chinese": "帽帽……抖掉……。",
+      "english": "Shake... the hat... off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -11632,9 +11632,9 @@
       "id": "marisa.young.o_self_rescue_grip",
       "species": "marisa",
       "age": "young",
-      "japanese": "ふちに ちゅかまったのじぇ！",
-      "chinese": "抓住帽檐了！",
-      "english": "I have the brim!",
+      "japanese": "ふちを くわえたのじぇ！",
+      "chinese": "咬住帽檐了！",
+      "english": "I am biting the brim!",
       "events": [
         "self_rescue_grip"
       ],
@@ -11680,9 +11680,9 @@
       "id": "marisa.young.o_braid_rescue_offer",
       "species": "marisa",
       "age": "young",
-      "japanese": "いまいくのじぇ！ みつあみに ちゅかまるのじぇ！",
-      "chinese": "这就来！抓住辫辫！",
-      "english": "I am coming! Hold on to my braid!",
+      "japanese": "いまいくのじぇ！ ふちに ちゅかまるのじぇ！",
+      "chinese": "这就来！靠过来，抓住帽檐！",
+      "english": "I am coming! Come close and hold the brim!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -11692,9 +11692,9 @@
       "id": "marisa.young.o_braid_rescue_grip",
       "species": "marisa",
       "age": "young",
-      "japanese": "ちゅかんだのじぇ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたのじぇ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11764,9 +11764,9 @@
       "id": "reimu.adult.o_braid_rescue_grip",
       "species": "reimu",
       "age": "adult",
-      "japanese": "つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11788,9 +11788,9 @@
       "id": "reimu.young.o_braid_rescue_grip",
       "species": "reimu",
       "age": "young",
-      "japanese": "ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11812,9 +11812,9 @@
       "id": "alice.adult.o_braid_rescue_grip",
       "species": "alice",
       "age": "adult",
-      "japanese": "つかまったわ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたわ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11836,9 +11836,9 @@
       "id": "alice.young.o_braid_rescue_grip",
       "species": "alice",
       "age": "young",
-      "japanese": "ちゅかまったわ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたわ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11860,9 +11860,9 @@
       "id": "chen.adult.o_braid_rescue_grip",
       "species": "chen",
       "age": "adult",
-      "japanese": "つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11884,9 +11884,9 @@
       "id": "chen.young.o_braid_rescue_grip",
       "species": "chen",
       "age": "young",
-      "japanese": "ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11908,9 +11908,9 @@
       "id": "patchouli.adult.o_braid_rescue_grip",
       "species": "patchouli",
       "age": "adult",
-      "japanese": "むきゅ……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "むきゅ……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11932,9 +11932,9 @@
       "id": "patchouli.young.o_braid_rescue_grip",
       "species": "patchouli",
       "age": "young",
-      "japanese": "むきゅ……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "むきゅ……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11956,9 +11956,9 @@
       "id": "remilia.adult.o_braid_rescue_grip",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -11980,9 +11980,9 @@
       "id": "remilia.young.o_braid_rescue_grip",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -12004,9 +12004,9 @@
       "id": "flandre.adult.o_braid_rescue_grip",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -12028,9 +12028,9 @@
       "id": "flandre.young.o_braid_rescue_grip",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],

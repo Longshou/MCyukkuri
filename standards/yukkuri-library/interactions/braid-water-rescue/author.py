@@ -30,7 +30,7 @@ def export():
         r=np.array([[1,0,0],[0,ca,-sa],[0,sa,ca]])
         support.append(float(body[:,1].min()-((body-pivot)@r.T+pivot)[:,1].min()))
     board_bounds=[]
-    for pitch in range(-18,1):
+    for pitch in range(-18,7):
         row=[]
         for roll in range(-3,4):
             a,b=math.radians(pitch),math.radians(roll);ca,sa,cb,sb=math.cos(a),math.sin(a),math.cos(b),math.sin(b)
@@ -38,15 +38,21 @@ def export():
             posed=(body-pivot)@r.T+pivot
             row.append([posed.min(axis=0).tolist(),posed.max(axis=0).tolist()])
         board_bounds.append(row)
+    # Standard adult mouth: front centre of the mouth decal, pushed in front of the face plane like the living.json anchor.
+    mpart=next(p for p in model['parts'] if p['name']==recipe['mouth_part'])
+    mv=raw[mpart['start']:mpart['start']+mpart['count'],:3]
+    mouth_root=[round(float((mv[:,0].max()+mv[:,0].min())/2),4),round(float(mv[:,1].mean()),4),round(float(mv[:,2].min()-recipe['mouth_forward_units']),4)]
+    living=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants'][recipe['model']]['mouth']
+    assert max(abs(a-b) for a,b in zip(mouth_root,living))<.01,(mouth_root,living)
     vessel=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
     output={**recipe,'units_per_block':16,'bone':recipe['braid_bone'],'root_rotation':[recipe['root_pitch_degrees'],0,0],
-            'grip_height':recipe['grip_height_ratio'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
+            'grip_height':recipe['grip_height_ratio'],'mouth_root':mouth_root,'mouth_reach':recipe['mouth_reach_blocks'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
             'braid_length':float(np.linalg.norm(tip-base)),'root_lift':lift,
             'braid_first_length':float(np.linalg.norm(joint-base)),'braid_second_length':float(np.linalg.norm(tip-joint)),
             'posed_body_min':posed_body.min(axis=0).tolist(),'posed_body_max':posed_body.max(axis=0).tolist(),
             'body_min':body.min(axis=0).tolist(),'body_max':body.max(axis=0).tolist(),
             'root_support_samples':support,
-            'boarding_body_bounds':board_bounds,
+            'boarding_body_bounds':board_bounds,'boarding_body_pitch_min':-18,'boarding_body_pitch_max':6,'boarding_body_roll_min':-3,'boarding_body_roll_max':3,
             'hat_height_model_units':vessel['keel'],
             'source_model':path.relative_to(ROOT).as_posix(),'source_model_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
             'source_placement':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),'source_placement_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest(),

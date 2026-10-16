@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "aquatic-contact-climb-20261017-v22",
+    "revision": "aquatic-brim-bite-20261017-v23",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3812,7 +3812,7 @@
     "exporter": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
     "status": "pending_user_review",
-    "scope": "Two natural Marisa braid segments with shared joint contacts, measured pose support, complete child/hat clearance, low staged placement and supported release.",
+    "scope": "v4 mouth-bite rescue geometry (project original, not canon): standard-adult mouth_root and mouth_reach for the rim bite, no whole-body tilt (root rotation 0), phase ticks offer/bite/push/slide/settle/release. The two natural Marisa braid segments only hold the paddle or lightly touch the rim; they never lift, carry or turn anything.",
     "preview": ".local/previews/hat-motion/index.html"
   }
 }

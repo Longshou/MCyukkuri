@@ -72,12 +72,15 @@ public final class YukkuriModel {
     private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
     private final Vector3f rescueTip=new Vector3f(),rescueJoint=new Vector3f();
     private boolean rescueContact,rescueJointActive;
-    private float rescueRootBlend=Float.NaN;
-    private float boardingPitch=Float.NaN,boardingRoll;
+    /** Rim contact is only a light visual touch: the braid never lifts, carries or turns anything. */
+    private static final float LIGHT_RIM_TOUCH=.5f;
+    private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
     void setBraidRescueContact(Vector3f point){rescueContact=point!=null;if(point!=null)rescueTip.set(point);}
     void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);}
-    void setBraidRescueRootBlend(float blend){rescueRootBlend=Float.isFinite(blend)?Math.clamp(blend,0,1):Float.NaN;}
-    void setBoardingPose(float pitch,float roll){boardingPitch=pitch;boardingRoll=roll;}
+    /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
+    void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
+        boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
+    }
     private String hatMotion="";
     private float hatPhase;
     record HatTransfer(float removeTicks,float returnTicks,float rollDegrees,float clearance,float slideBegin,float lowerBegin){}
@@ -646,15 +649,13 @@ public final class YukkuriModel {
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
         boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young")||behavior.equals("first_toilet_assist"));
-        if(Float.isFinite(rescueRootBlend)){
-            var root=pose[rootBone()];
-            for(int i=0;i<6;i++)root[i]*=rescueRootBlend;
-            root[1]=(float)io.github.longshou.mcyukkuri.family.BraidRescueGeometry.rootLift(rescueRootBlend);
-        }
         if(Float.isFinite(boardingPitch)){
+            // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
             var root=pose[rootBone()];
-            root[0]=root[1]=root[2]=root[4]=0;root[3]=boardingPitch;root[5]=boardingRoll;
-            root[6]=root[7]=root[8]=1;
+            root[4]=Math.clamp(root[4],-8,8)*boardingYaw;
+            root[0]=root[1]=root[2]=0;root[3]=Math.clamp(boardingPitch,-12,12);root[5]=Math.clamp(boardingRoll,-12,12);
+            float wide=1+(1-boardingSquash)*.5f;
+            root[6]=wide;root[7]=boardingSquash;root[8]=wide;
         }
         composeWorld();
         if(careContact){
@@ -777,6 +778,9 @@ public final class YukkuriModel {
                 :new Vector3f((float)authored.x-base.x,(float)authored.y-base.y,(float)authored.z-base.z);
         if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
         var rotation=new org.joml.Quaternionf().rotationTo(rest.normalize(),desired.normalize());
+        // Blend the authored pose (paddle hold) with the contact target so the braid only brushes the rim.
+        var held=new org.joml.Quaternionf().rotateZYX(pose[joint][5]*DEGREES,pose[joint][4]*DEGREES,pose[joint][3]*DEGREES);
+        rotation=held.slerp(rotation,LIGHT_RIM_TOUCH);
         world[joint].set(parent).translate(base.x,base.y,base.z).rotate(rotation).translate(-base.x,-base.y,-base.z);
         for(int i=joint+1;i<bones.length;i++){
             boolean follows=false;for(int at=bones[i].parent;at>=0;at=bones[at].parent)if(at==joint){follows=true;break;}
@@ -788,7 +792,7 @@ public final class YukkuriModel {
                     var distal=new Vector3f((float)authored.x-end.x,(float)authored.y-end.y,(float)authored.z-end.z);
                     var toward=new Matrix4f(upper).invert().transformPosition(new Vector3f(rescueTip)).sub(end.x,end.y,end.z);
                     if(distal.lengthSquared()>1e-10f&&toward.lengthSquared()>1e-10f){
-                        var bend=new org.joml.Quaternionf().rotationTo(distal.normalize(),toward.normalize());
+                        var bend=new org.joml.Quaternionf().slerp(new org.joml.Quaternionf().rotationTo(distal.normalize(),toward.normalize()),LIGHT_RIM_TOUCH);
                         world[i].set(upper).translate(end.x,end.y,end.z).rotate(bend).translate(-end.x,-end.y,-end.z);
                         continue;
                     }
@@ -857,7 +861,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueRootBlend(Float.NaN);setBoardingPose(Float.NaN,0);setSelfHatPose(null);setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

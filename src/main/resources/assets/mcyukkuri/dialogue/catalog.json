@@ -13642,7 +13642,7 @@
     "events": [
       "self_rescue_grip"
     ],
-    "ticks": 46,
+    "ticks": 45,
     "sound": "voice.original.marisa.adult.o_self_rescue_grip"
   },
   {
@@ -13690,7 +13690,7 @@
     "events": [
       "braid_rescue_offer"
     ],
-    "ticks": 75,
+    "ticks": 70,
     "sound": "voice.original.marisa.adult.o_braid_rescue_offer"
   },
   {
@@ -13894,7 +13894,7 @@
     "events": [
       "braid_rescue_offer"
     ],
-    "ticks": 63,
+    "ticks": 60,
     "sound": "voice.original.marisa.young.o_braid_rescue_offer"
   },
   {
@@ -13978,7 +13978,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 62,
+    "ticks": 59,
     "sound": "voice.original.reimu.adult.o_braid_rescue_grip"
   },
   {
@@ -14002,7 +14002,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 53,
+    "ticks": 50,
     "sound": "voice.original.reimu.young.o_braid_rescue_grip"
   },
   {
@@ -14026,7 +14026,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 62,
+    "ticks": 59,
     "sound": "voice.original.alice.adult.o_braid_rescue_grip"
   },
   {
@@ -14050,7 +14050,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 53,
+    "ticks": 50,
     "sound": "voice.original.alice.young.o_braid_rescue_grip"
   },
   {
@@ -14074,7 +14074,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 52,
+    "ticks": 49,
     "sound": "voice.original.chen.adult.o_braid_rescue_grip"
   },
   {
@@ -14122,7 +14122,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 94,
+    "ticks": 90,
     "sound": "voice.original.patchouli.adult.o_braid_rescue_grip"
   },
   {
@@ -14146,7 +14146,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 79,
+    "ticks": 75,
     "sound": "voice.original.patchouli.young.o_braid_rescue_grip"
   },
   {
@@ -14170,7 +14170,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 91,
+    "ticks": 87,
     "sound": ""
   },
   {
@@ -14194,7 +14194,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 95,
+    "ticks": 87,
     "sound": ""
   },
   {
@@ -14218,7 +14218,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 91,
+    "ticks": 87,
     "sound": ""
   },
   {
@@ -14242,7 +14242,7 @@
     "events": [
       "braid_rescue_grip"
     ],
-    "ticks": 95,
+    "ticks": 87,
     "sound": ""
   }
 ]

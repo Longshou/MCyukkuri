@@ -12,8 +12,8 @@ button,select,input{font:inherit}button,select{border:1px solid var(--line);bord
 </style>
 <script defer src="three.min.js"></script><script defer src="playback-data.js"></script><script defer src="playback-audio.js"></script><script defer src="hat_motion_player.js"></script>
 </head><body><main>
-<header><div><p class="eyebrow">MCYUKKURI · 连续动作预览</p><h1>从靠近帽缘，到真正回到船上</h1><p>看完整动作、接触过程和前后衔接。打开后自动播放，可慢放或拖动进度。</p></div><a class="back" href="../index.html?topic=hat-motion">返回预览总入口 ↗</a></header>
-<nav class="tabs" role="tablist" aria-label="演示场景"><button class="tab" role="tab" data-scene="0" aria-selected="true"><span>01</span><strong>近缘登船</strong></button><button class="tab" role="tab" data-scene="1" aria-selected="false"><span>02</span><strong>翻帽自救</strong></button><button class="tab" role="tab" data-scene="2" aria-selected="false"><span>03</span><strong>亲油救援</strong></button></nav>
+<header><div><p class="eyebrow">MCYUKKURI · 连续动作预览</p><h1>压低近缘，咬缘，滑回船上</h1><p>看完整动作、接触过程和前后衔接。打开后自动播放，可慢放或拖动进度。</p></div><a class="back" href="../index.html?topic=hat-motion">返回预览总入口 ↗</a></header>
+<nav class="tabs" role="tablist" aria-label="演示场景"><button class="tab" role="tab" data-scene="0" aria-selected="true"><span>01</span><strong>近缘登船</strong></button><button class="tab" role="tab" data-scene="1" aria-selected="false"><span>02</span><strong>抖帽自救</strong></button><button class="tab" role="tab" data-scene="2" aria-selected="false"><span>03</span><strong>亲油救援</strong></button></nav>
 <section class="player" aria-label="三维动作播放器">
 <div class="viewport" id="viewport"><canvas id="view" aria-label="连续三维动作预览；拖动可转动视角" tabindex="0"></canvas><div class="topline"><span class="phase" id="phase">正在准备动作</span><span class="scene-time" id="scene-time">当前模型 · 离线演示</span></div><div class="subtitle" id="subtitle" aria-live="polite"></div><div class="loading" id="loading"><strong>正在载入当前模型和连续动作…</strong><small>播放后可用空格暂停、方向键逐秒查看。</small></div></div>
 <div class="timeline"><input id="seek" type="range" min="0" max="1" step="0.02" value="0" aria-label="播放进度" disabled><output id="time">0:00 / 0:00</output></div>

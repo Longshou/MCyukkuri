@@ -39,7 +39,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         var distress=CabinDistressPresentation.motion(entity,partialTick);
         String expression = YukkuriModel.get(entity.subspecies().assetId())
                 .expressionFor(distress!=null?distress.clip():entity.getAnimationId(),distress!=null?distress.seconds():elapsed,entity.getExpressionId());
-        if(BraidRescuePresentation.heldChild(entity))expression="teary";
         if(entity.getBehaviorId().equals("boat_rescue_approach")&&entity.aquaticRescueTargetId()>=0)expression="teary";
         if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals("boat_flee")||entity.aquaticAlarmActivity().equals("boat_return_called")))expression="teary";
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
@@ -132,7 +131,6 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
-            model.setBraidRescueRootBlend(BraidRescuePresentation.parent(entity)?BraidRescuePresentation.rootBlend(entity,partialTick):Float.NaN);
             CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
             SelfRescueHatPresentation.configure(entity,model,partialTick,renderedBodyYaw);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
@@ -146,7 +144,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?"idle":distress!=null?distress.clip():behavior, distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             var root=model.rootPose();
-            if (action.equals("boat_paddle") && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+            // The captain keeps holding the paddle while she offers the brim or nudges the child.
+            if ((action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young")) && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
                     && boat.cargo().paddle() && entity.getUUID().equals(boat.ownerYukkuri())) {
                 var grip = model.paddlePose();
                 if (grip != null) {

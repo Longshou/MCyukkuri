@@ -1,5 +1,5 @@
 {
-  "revision": "two-joint-supported-edge-rescue-20261017-v3",
+  "revision": "mouth-bite-brim-dip-20261017-v4",
   "status": "pending_user_review",
   "model": "marisa",
   "root_bone": "root",
@@ -8,7 +8,7 @@
   "ribbon_bone": "hand_right_ribbon",
   "contact_part": "braid_lock_tuft_point_out",
   "contact_rule": "farthest_existing_vertex_from_braid_root",
-  "root_pitch_degrees": -40,
+  "root_pitch_degrees": 0,
   "grip_height_ratio": 0.35,
   "reach_ticks": 20,
   "contact_ticks": 6,
@@ -17,6 +17,18 @@
   "place_ticks": 24,
   "release_ticks": 12,
   "root_blend_ticks": 12,
-  "note": "The two existing braid segments preserve their individual natural lengths and meet at the actual hand_right_tip pivot. Before grip the full child body and worn hat are swept along a supported low-edge route around the parent's actual leaned mesh bounds. Two effort pulses lift only to required brim clearance; the parent stays at pickup when this avoids transport, otherwise follows a preplanned supported route. RootBlend changes the same server and client root geometry. No point-only clearance, stretched braid or high waypoint.",
-  "settle_ticks": 16
+  "approach_ticks": 20,
+  "note": "v4 (aquatic Marisa redesign): the braid no longer lifts, carries or turns anything and the parent no longer leans; root_pitch_degrees is 0 so the braid_rescue_* clips keep no whole-body tilt and root_lift is 0. The grip becomes a mouth bite (project original, not canon): mouth_root is the standard adult face_mouth front centre pushed mouth_forward_units in front of the face plane (the same anchor as living.json), and mouth_reach is the contact distance in blocks for an adult (scale with body size). Phase ticks for the new BraidRescue flow are approach, offer, bite, push, slide, settle, release; the old reach, contact, grip, lift, place and root_blend ticks stay so old readers resolve. The two braid segments keep their natural lengths and only pose a light visual touch on the rim or hold the paddle. boarding_body_bounds now covers pitch -18..+6 (index pitch+18) and roll -3..3 (index roll+3).",
+  "settle_ticks": 16,
+  "mouth_part": "face_mouth",
+  "mouth_forward_units": 0.35,
+  "mouth_reach_blocks": 0.03,
+  "offer_ticks": 14,
+  "bite_ticks": 8,
+  "push_ticks": 20,
+  "slide_ticks": 24,
+  "boarding_pitch_range": [
+    -18,
+    6
+  ]
 }

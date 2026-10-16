@@ -11,10 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import org.joml.Quaternionf;
 
 @EventBusSubscriber(modid=MCYukkuri.MOD_ID,bus=EventBusSubscriber.Bus.MOD,value=Dist.CLIENT)
 public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
@@ -30,6 +32,14 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
     /** Marisa's own hat turned upside down (marisa_hat_turned), its soft crown pressed along the hat's axis: on the ground
      *  until the brim stands on the squashed crown, afloat a little with the brim a freeboard over the water and the water
      *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
+    /** Synced brim dip: the hull tips at most 5 degrees toward the near rim. Riders go through HatBoatMotion.rider, which has
+     *  no dip term, so they stay level on their own support (visually counter-balanced); this never moves a seat or collision. */
+    private static void applyDip(PoseStack pose,HatBoatEntity boat,float partial){
+        float degrees=Mth.clamp(boat.dipDegrees(partial),0,5);
+        if(degrees<.01f)return;
+        float toward=boat.dipYaw()*Mth.DEG_TO_RAD;  // dipping rim, as a yaw relative to the hat; the frame is already turned by 180 - yaw
+        pose.mulPose(new Quaternionf().rotationAxis(degrees*Mth.DEG_TO_RAD,-Mth.cos(toward),0,-Mth.sin(toward)));
+    }
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
         pose.pushPose();
@@ -37,6 +47,7 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         pose.translate(heldOffset.x,heldOffset.y,heldOffset.z);
         pose.mulPose(Axis.YP.rotationDegrees(180-HatBoatMotion.yaw(boat,partial)));
         HatBoatMotion.local(pose,boat,partial);
+        applyDip(pose,boat,partial);
         float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();
         pose.translate(0,(ground?HatVessel.NEST_HEIGHT:HatVessel.FREEBOARD)*k,0);
         pose.pushPose();pose.scale(scale,scale*boat.hullSquash(partial),scale);
