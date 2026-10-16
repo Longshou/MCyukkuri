@@ -88,9 +88,16 @@ public final class HabitatLife {
         return stack.is(YukkuriEntity.FOOD)&&entity.life().acceptsFood(stack)&&value.food()<AutumnStock.target(level(),value)
                 &&(!AutumnStock.autumn(level())||AutumnStock.fitCollector(entity));
     }
+    private boolean outingMealAvailable() {
+        var value=shelter();
+        return entity.life().canEat()&&value!=null&&value.usable(entity)&&value.hasFoodFor(entity)
+                &&!entity.wintering().usesWinterStores();
+    }
     public boolean canUse() {
         if(!ready())return false;
-        if(entity.independence().householdOuting()&&!entity.life().canEat()&&carrying.isEmpty())return false;
+        // A higher-priority goal must reject maintenance before the selector interrupts construction.
+        if(entity.independence().householdOuting()&&carrying.isEmpty()
+                &&(!outingMealAvailable()||active()&&task!=Task.FOOD))return false;
         if(active())return true;
         if(wait>0)return false;wait=60;
         var value=shelter();if(value==null||!value.usable(entity))return false;
@@ -123,7 +130,7 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity))
-                &&(!entity.independence().householdOuting()||task==Task.FOOD||!carrying.isEmpty())
+                &&(!entity.independence().householdOuting()||!carrying.isEmpty()||task==Task.FOOD&&outingMealAvailable())
                 &&(task==Task.FOOD||!carrying.isEmpty()||!entity.settlement().society().dejected())
                 &&(task==Task.FOOD||entity.life().nutrition()>=40&&entity.life().energy()>=35);
     }

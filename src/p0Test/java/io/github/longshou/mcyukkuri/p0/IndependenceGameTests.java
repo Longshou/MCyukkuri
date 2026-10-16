@@ -47,7 +47,8 @@ public final class IndependenceGameTests {
     private static final int BUILD_BUDGET=7*(ROUTE_LIMIT+STOP_WAIT)+2*RELOAD_GRACE;
     private static final int OUTING_BUDGET=2*(ROUTE_LIMIT+STOP_WAIT)+RELOAD_GRACE+VISIT_RETRY+GREETING;
     // Final post-greeting save/reload adds its own grace before the last physical return.
-    private static final int TEST_BUDGET=BUILD_BUDGET+3*OUTING_BUDGET+RELOAD_GRACE+40;
+    // Regression also allows a real stock-meal return (Habitat route cap 400), chewing and restart wait.
+    private static final int TEST_BUDGET=BUILD_BUDGET+3*OUTING_BUDGET+RELOAD_GRACE+40+400+64+STOP_WAIT;
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=TEST_BUDGET,batch="independence")
     public static void buildReloadVisit(GameTestHelper helper) {
         var level = helper.getLevel();
@@ -65,6 +66,8 @@ public final class IndependenceGameTests {
         UUID[] removedAccessory = {null};
         int[] previousFood = {0}, phase = {0}; boolean[] cleaned = {false}, reload = {false};
         int[] normalGreetingTicks = {0}; long[] normalGreetingStart = {-1};
+        int[] maintenanceProbe = {0}, emptyStockWorkTicks = {0};
+        var heldStock = new ArrayList<ItemStack>(); ItemEntity[] maintenanceItems = new ItemEntity[2];
         var trace = new ArrayList<java.util.Map<String,Object>>();
         Runnable cleanup = () -> {
             if (cleaned[0]) return; cleaned[0] = true;
@@ -117,6 +120,47 @@ public final class IndependenceGameTests {
                 helper.assertTrue(y.independence().work() == saved.getInt("Work")
                         && y.independence().save().getList("Materials",Tag.TAG_COMPOUND).size() == materialCount,"Interrupted and reloaded work retains references without minting materials");
                 reload[0] = true;
+                // Empty only the fixture store, retaining its exact real stacks for the positive meal case.
+                ItemStack portion; while (!(portion=old[0].takeFood(y)).isEmpty()) heldStock.add(portion);
+                helper.assertTrue(old[0].food() == 0 && !heldStock.isEmpty(),"Maintenance probe has no edible store and retains its original real food");
+                var life = y.life().save(); life.putFloat("Nutrition",60); y.life().load(life);
+                helper.assertTrue(y.life().canEat() && !y.life().hasUrgentNeed() && !y.wintering().usesWinterStores(),
+                        "Builder is willing to eat without an urgent need or winter-store takeover");
+                for (int i=0;i<maintenanceItems.length;i++) {
+                    var pos = Vec3.atBottomCenterOf(i==0?ORIGIN:ORIGIN.south()).add(0,.1,0);
+                    var stack = new ItemStack(i==0?io.github.longshou.mcyukkuri.registry.ModItems.WASTE.get():Items.STICK);
+                    maintenanceItems[i] = new ItemEntity(level,pos.x,pos.y,pos.z,stack);
+                    maintenanceItems[i].setNoPickUpDelay(); maintenanceItems[i].setDeltaMovement(Vec3.ZERO); level.addFreshEntity(maintenanceItems[i]);
+                    helper.assertTrue(!y.life().acceptsFood(stack),"Maintenance bait is a real non-food item");
+                }
+                helper.assertTrue(old[0].wasteInside().contains(maintenanceItems[0]) && old[0].needsMaterial(maintenanceItems[1].getItem()),
+                        "Old home really has accessible waste and needs the loose repair stick");
+                maintenanceProbe[0] = 1;
+            }
+            if (phase[0] == 0 && maintenanceProbe[0] == 1) {
+                helper.assertTrue(old[0].food() == 0 && maintenanceItems[0].isAlive() && maintenanceItems[1].isAlive(),
+                        "Empty-handed outing leaves non-food maintenance items in the actual world");
+                helper.assertTrue(goals(y).getAvailableGoals().stream().noneMatch(goal -> goal.isRunning()
+                                && goal.getGoal().getClass().getSimpleName().equals("HabitatGoal")),
+                        "Actual priority-four maintenance must not empty-preempt priority-six construction: " + visitDiagnostics(y,actors.getFirst()));
+                if (independenceTask(y).equals("WORK") && y.independence().active()) emptyStockWorkTicks[0]++;
+                if (y.independence().work() >= 240) {
+                    helper.assertTrue(emptyStockWorkTicks[0] >= 120,"Real construction advances a full additional 120-tick unit despite empty-store maintenance bait");
+                    for (var stack : heldStock) helper.assertTrue(old[0].returnFood(stack).isEmpty(),"Return exactly the escrowed real food and its components");
+                    heldStock.clear(); maintenanceProbe[0] = 2;
+                    helper.assertTrue(old[0].food() == previousFood[0] && old[0].hasFoodFor(y) && y.life().canEat(),
+                            "Positive priority case restores edible real stock while the builder is still hungry");
+                }
+            } else if (phase[0] == 0 && maintenanceProbe[0] == 2 && !y.life().mouth().isEmpty()) {
+                helper.assertTrue(old[0].food() == previousFood[0]-1 && y.life().mouth().getCount() == 1
+                                && y.habitat().carrying().isEmpty() && !y.independence().active()
+                                && y.distanceToSqr(Vec3.atBottomCenterOf(old[0].bed(y.getUUID()))) < .64
+                                && goals(y).getAvailableGoals().stream().anyMatch(goal -> goal.isRunning()
+                                        && goal.getGoal().getClass().getSimpleName().equals("HabitatGoal")),
+                        "Actual priority-four FOOD goal interrupts construction only to transfer one real stored portion");
+                previousFood[0]--;
+                for (var item : maintenanceItems) item.discard();
+                maintenanceProbe[0] = 3;
             }
         });
         helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper,161,164,-1,1)).thenExecute(() -> {
@@ -165,6 +209,7 @@ public final class IndependenceGameTests {
         .thenExecute(() -> {
             phase[0] = 1; var y = child[0]; var home = y.habitat().shelter();
             helper.assertTrue(reload[0],"The construction interruption checkpoint ran");
+            helper.assertTrue(maintenanceProbe[0] == 3,"Both real maintenance yielding and actual stock-meal preemption ran without removing their goals");
             helper.assertTrue(home != null && home.getBlockPos().equals(DESTINATION) && home.usable(y) && home.lining() == 3 && home.food() == 0,
                     "New home has the consumed bedding and no invented food");
             helper.assertTrue(!old[0].owns(y.getUUID()) && old[0].food() == previousFood[0],"Old bed is released, while old inventory is preserved");
