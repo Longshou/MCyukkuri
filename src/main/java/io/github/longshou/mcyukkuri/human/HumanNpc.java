@@ -83,7 +83,8 @@ public final class HumanNpc extends PathfinderMob {
     public boolean isTrading() {
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
-        return player != null && player.containerMenu instanceof HumanMenu menu && menu.target() == this;
+        return player != null && (player.containerMenu instanceof HumanMenu menu && menu.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this);
     }
     public List<YukkuriEntity> animals(String use) {
         return level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(48), y -> y.isAlive()
@@ -104,7 +105,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!level().isClientSide) HumanMenu.open(player, this);
+        if (!level().isClientSide) { if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this); else HumanMenu.open(player, this); }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {

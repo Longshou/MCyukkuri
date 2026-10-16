@@ -63,6 +63,7 @@ public final class HumanCommerce {
     }
     public static void tickAnimal(EntityTickEvent.Post e) {
         if (!(e.getEntity() instanceof YukkuriEntity animal) || !(animal.level() instanceof ServerLevel level) || animal.tickCount % 20 != 0) return;
+        io.github.longshou.mcyukkuri.shop.ShopPerformance.appeal(animal, level);
         var tag = data(animal); String role = tag.getString("PendingRole");
         if (role.isEmpty()) {
             prepareBreederHome(animal);
