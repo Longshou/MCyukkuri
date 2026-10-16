@@ -590,25 +590,40 @@ public final class HatBoatEntity extends Entity {
     }
 
     private ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) {
-        double r = radiusOf(child); Vec3 base = ownerSeat(parent); ServiceSeat best = null; double bestCost = Double.MAX_VALUE;
-        // The owner shifts visibly but stays on the stern ledge; the child moves to a safe interior seat.
-        for (Vec3 ownerOffset : java.util.List.of(new Vec3(0, 0, -.60), new Vec3(.32, 0, -.46), new Vec3(-.32, 0, -.46))) {
-            Vec3 ownerAt = base.add(ownerOffset);
-            double wanted = (FamilyFeedingContact.minimumMouthDistance(parent, child) + FamilyFeedingContact.mouthDistance(parent, child)) * .5 / unit();
-            for (int i = 0; i < 12; i++) {
-                double angle = i * Math.PI / 6.0;
-                Vec3 prefer = ownerAt.add(Math.cos(angle) * wanted, 0, Math.sin(angle) * wanted);
-                // Use the actual inner ledge at the parent's level. Keeping the child at the bottom
-                // of the well would leave a vertical gap that a grounded caregiving mouth cannot reach.
-                Vec3 candidate = HatVessel.place(mode(), r, "day", prefer, takenExcept(child.getUUID()), toLocal(child.position()), ownerAt.y);
-                if (candidate == null || !serviceGeometryFits(parent, child, ownerAt, candidate)) continue;
-                double cost = candidate.distanceToSqr(toLocal(child.position())) + ownerOffset.lengthSqr() * .25;
-                if (cost < bestCost) {
-                    bestCost = cost;
-                    best = new ServiceSeat(original.clone(), region(), new double[]{candidate.x, candidate.y, candidate.z, r}, ownerAt, rearCare, false);
+        double r=radiusOf(child); Vec3 from=toLocal(child.position()), parentFrom=toLocal(parent.position()), base=ownerSeat(parent);
+        var childPlaces=new java.util.ArrayList<Vec3>();
+        // Enumerate measured contact patches once. A parent's station is not restricted to a few stern offsets.
+        for(double x=HatVessel.OPENING[0]+r;x<=HatVessel.OPENING[1]-r;x+=.25)
+            for(double z=HatVessel.OPENING[2]+r;z<=Math.min(.5,HatVessel.OPENING[3]-r);z+=.25){
+                double y=HatVessel.footprint(mode(),x,z,r);
+                if(Double.isFinite(y)&&Double.isFinite(HatVessel.surface(mode(),x,z)))childPlaces.add(new Vec3(x,y,z));
+            }
+        ServiceSeat best=null;double bestCost=Double.MAX_VALUE;
+        for(double x=HatVessel.OPENING[0];x<=HatVessel.OPENING[1];x+=.5)
+            for(double z=HatVessel.OPENING[2];z<=HatVessel.OPENING[3];z+=.5){
+                double y=HatVessel.footprint(mode(),x,z,radiusOf(parent));
+                if(!Double.isFinite(y)||!Double.isFinite(HatVessel.surface(mode(),x,z)))continue;
+                Vec3 ownerAt=new Vec3(x,y,z);
+                for(var candidate:childPlaces){
+                    // Use a real patch at the parent's feet; the tiny child's head cannot bridge the well wall.
+                    if(Math.abs(candidate.y-ownerAt.y)>.001)continue;
+                    double cost=candidate.distanceToSqr(from)+ownerAt.distanceToSqr(parentFrom)*.5+ownerAt.distanceToSqr(base)*.25;
+                    if(cost>=bestCost)continue;
+                    if(!serviceGeometryFits(parent,child,ownerAt,candidate))continue;
+                    var path=walkingRoute(child,candidate);
+                    boolean assisted=!child.childhood().canJump()&&(hasStep(path)||Math.abs(candidate.y-from.y)>.01);
+                    if(assisted){if(carryPickup(child,parent,from,candidate,ownerAt)==null)continue;}
+                    else{
+                        if(from.distanceToSqr(candidate)>.01&&path.isEmpty())continue;
+                        var obstacles=takenExcept(child.getUUID());
+                        obstacles.add(new double[]{candidate.x,candidate.y,candidate.z,r,child.getBbHeight()/unit()});
+                        if(parentFrom.distanceToSqr(ownerAt)>.01&&HatSurfaceRoute.find(mode(),parentFrom,ownerAt,
+                                radiusOf(parent),obstacles,parent.getBbHeight()/unit()).isEmpty())continue;
+                    }
+                    bestCost=cost;
+                    best=new ServiceSeat(original.clone(),region(),new double[]{candidate.x,candidate.y,candidate.z,r},ownerAt,rearCare,false);
                 }
             }
-        }
         return best;
     }
 
@@ -711,6 +726,17 @@ public final class HatBoatEntity extends Entity {
         return false;
     }
 
+    /** A service pose is usable only when the parent can also collect and transport the real child. */
+    private Vec3 carryPickup(YukkuriEntity child,YukkuriEntity parent,Vec3 from,Vec3 to,Vec3 ownerDestination) {
+        Vec3 offset=to.subtract(ownerDestination).multiply(1,0,1), xz=from.subtract(offset);
+        Vec3 pickup=new Vec3(xz.x,HatVessel.footprint(mode(),xz.x,xz.z,radiusOf(parent)),xz.z);
+        if (!Double.isFinite(pickup.y) || !serviceGeometryFits(parent,child,pickup,from)) return null;
+        if (toLocal(parent.position()).distanceToSqr(pickup)>.01 && walkingRoute(parent,pickup).isEmpty()) return null;
+        var path=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),takenExcept(child.getUUID()),
+                offset.add(0,parent.getBbHeight()*.35/unit(),0),radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
+        return path.isEmpty() && pickup.distanceToSqr(ownerDestination)>.01?null:pickup;
+    }
+
     private boolean beginCarry(YukkuriEntity child,YukkuriEntity parent,double[] destination,Vec3 ownerDestination) {
         if (carryTrip != null) return carryTrip.child.equals(child.getUUID());
         Vec3 from=toLocal(child.position()), to=new Vec3(destination[0],destination[1],destination[2]);
@@ -724,12 +750,8 @@ public final class HatBoatEntity extends Entity {
             ownerDestination=new Vec3(at.x,HatVessel.footprint(mode(),at.x,at.z,radiusOf(parent)),at.z);
         }
         if (!Double.isFinite(ownerDestination.y)) return false;
-        Vec3 pickupXZ=from.subtract(offset);
-        Vec3 pickup=new Vec3(pickupXZ.x,HatVessel.footprint(mode(),pickupXZ.x,pickupXZ.z,radiusOf(parent)),pickupXZ.z);
-        if (!Double.isFinite(pickup.y) || !serviceGeometryFits(parent,child,pickup,from)) return false;
-        var cargoPath=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),takenExcept(child.getUUID()),
-                offset.add(0,parent.getBbHeight()*.35/unit(),0),radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
-        if (cargoPath.isEmpty() && pickup.distanceToSqr(ownerDestination)>.01) return false;
+        Vec3 pickup=carryPickup(child,parent,from,to,ownerDestination);
+        if (pickup==null) return false;
         if (!moveOwnerSeat(parent,pickup,false)) return false;
         seatMoves.remove(child.getUUID());
         seats.put(child.getUUID(),new double[]{from.x,from.y,from.z,radiusOf(child)});

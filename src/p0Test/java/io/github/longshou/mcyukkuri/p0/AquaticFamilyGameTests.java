@@ -237,7 +237,7 @@ public final class AquaticFamilyGameTests {
             y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
         }
         var kin = child.family().save(); kin.putBoolean("Initialized",true); kin.putString("Stage","BABY");
-        kin.putFloat("Scale",.32f); kin.putUUID("Mother",parent.getUUID()); child.family().load(kin);
+        kin.putFloat("Scale",.14f); kin.putUUID("Mother",parent.getUUID()); child.family().load(kin);
         var infant = child.childhood().save(); infant.putBoolean("Newborn",true); infant.putBoolean("Landed",true);
         infant.putBoolean("FirstToiletDone",false); child.childhood().load(infant);
         parent.moveTo(x+4.5,66,7.5,0,0); child.moveTo(x+4.5,66,7.5,0,0);

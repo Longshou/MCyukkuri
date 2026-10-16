@@ -149,12 +149,15 @@ def build(world, maturity):
     p = Pack(world)
     p.fn('load', ['scoreboard objectives add living dummy',
                   'execute unless score #built living matches 1 run function mcyliving:prepare'])
-    p.fn('prepare', ['scoreboard players set #built living 1', 'scoreboard players set #ready living 0',
+    prepare = ['scoreboard players set #built living 1', 'scoreboard players set #ready living 0',
                      'gamerule doMobSpawning false', 'gamerule mobGriefing true', 'gamerule doDaylightCycle true',
                      'gamerule doWeatherCycle false', 'gamerule doFireTick false', 'gamerule commandBlockOutput false',
                      'gamerule sendCommandFeedback true', 'gamerule keepInventory true', 'gamerule spawnRadius 0',
                      'difficulty peaceful', 'time set 2000', 'weather clear', 'setworldspawn 32 65 12 0',
-                     'forceload add 0 0 63 31', 'schedule function mcyliving:build/hub 2s replace'])
+                     'forceload add 0 0 79 31']
+    # Load all seven small construction footprints before delayed block writes (well below the 256-chunk limit).
+    prepare += [f'forceload add {x} {z} {x+63} {z+63}' for _, _, x, z, _ in ZONES]
+    p.fn('prepare', prepare + ['schedule function mcyliving:build/hub 2s replace'])
     hub = ['fill 0 63 0 79 64 31 minecraft:smooth_sandstone', 'fill 2 64 3 76 64 28 minecraft:oak_planks',
            label(37, 70, 3, '从出生，到自己的生活\n连续家庭  /  自然取材  /  四季聚落', 1.25),
            label(37, 68, 15, '先到场，再按“开始”\n每区可重置重播；没有自动跑完的样本\n观察笔记右键个体、住所或帽船', .75)]
@@ -172,6 +175,16 @@ def build(world, maturity):
             permanent += control(x+bx, z+3, f'function mcyliving:{zone}/{fn}', caption)
         permanent += control(x+39, z+3, f'function mcyliving:{zone}/observe', '近距离旁观')
         permanent += control(x+49, z+3, 'execute as @p run function mcyliving:home', '返回总入口')
+        if zone in ('land', 'heights'):
+            permanent += control(x+59, z+3, f'function mcyliving:{zone}/stem_replay', '茎生重播', '重置本区再开始')
+        elif zone == 'water':
+            permanent += control(x+59, z+3, 'function mcyliving:chapter/clear', '恢复晴天')
+        elif zone == 'winter':
+            permanent += control(x+59, z+3, 'function mcyliving:chapter/rain', '降雪章节', '影响全世界天气')
+        elif zone == 'spring':
+            permanent += control(x+59, z+3, 'function mcyliving:chapter/migration', '迁徙章节', '真实选址与行走')
+        elif zone == 'summer':
+            permanent += control(x+59, z+3, 'time set 6000', '午休章节', '影响全世界时间')
         p.fn(zone+'/terrain', terrain(zone, x, z, biome))
         p.fn('build/'+zone, [f'forceload add {x} {z} {x+63} {z+63}'] + permanent + [f'function mcyliving:{zone}/terrain',
             f'scoreboard players set #{zone} living 0', f'forceload remove {x} {z} {x+63} {z+63}',
@@ -202,9 +215,14 @@ def build(world, maturity):
                           f'execute if score #{zone} living matches 1 run tp {father} {x+21.5} 65 {z+27.5}',
                           f'execute if score #{zone} living matches 1 run yukkuri showcase launch {mother} {x+22} 64 {z+24}',
                           f'execute if score #{zone} living matches 1 run yukkuri showcase launch {father} {x+22} 64 {z+27}',
-                          tell('水上初始化把已受孕亲油放在岸边，从原巢24份粮中各转8份到帽内，消费各一株实际枯枝作桨，再正常脱帽下水。此后靠近真实岸莓持续采食；树叶供子代取桨。')]
+                          f'execute if score #{zone} living matches 1 run '+tell('水上初始化把已受孕亲油放在岸边，从原巢24份粮中各转8份到帽内，消费各一株实际枯枝作桨，再正常脱帽下水。此后靠近真实岸莓持续采食；树叶供子代取桨。')]
             p.fn(zone+'/begin', begin)
-            p.fn(zone+'/inspect', [tell('连续顺序：胎生 → 喂糜/首便 → 实际爬行与起落 → 自主取食 → 两份植物铺床 → 告别与真实新居；水生为实际初航往返和驶离。'),
+            if not water:
+                p.fn(zone+'/begin_stem', [line.replace('65 '+str(z+25)+' live', '65 '+str(z+25)+' stem') for line in begin])
+                p.fn(zone+'/stem_replay', [f'function mcyliving:{zone}/reset',
+                    f'execute if score #reset living matches 1 run function mcyliving:{zone}/begin_stem',
+                    'execute if score #reset living matches 1 run '+tell('已选择真实茎生胎次。等待实子形成、自然落定与空茎脱落，然后继续同一子代的照料与成长。')])
+            p.fn(zone+'/inspect', [tell('连续顺序：实际出生（胎生/茎生） → 喂糜/首便 → 实际爬行与起落 → 自主取食 → 两份植物铺床 → 告别与真实新居；水生为实际初航往返和驶离。'),
                                   'tellraw @p '+js({'text':'亲油真实家庭记录：', 'color':'aqua', 'extra':[{'nbt':'YukkuriFamily', 'entity':mother}]}),
                                   'tellraw @p '+js({'text':'原巢真实库存：', 'color':'green', 'extra':[{'nbt':'Items', 'block':f'{x+16} 65 {z+25}'}]}),
                                   'tellraw @p '+js({'text':'子代护理与运动记录：', 'color':'yellow', 'extra':[{'nbt':'YukkuriChildhood', 'entity':f'@e[tag=living_{zone},tag=!living_{zone}_mother,tag=!living_{zone}_father,type=!mcyukkuri:hat_boat]'}]}),
@@ -270,7 +288,7 @@ def validate(pack):
             if not (pack.functions/(function+'.mcfunction')).is_file():
                 raise ValueError(f'{file}: missing function {function}')
         for line in text.splitlines():
-            if line.startswith('fill '):
+            if line.startswith(('fill ', 'fillbiome ')):
                 tokens = line.split(); a = list(map(int, tokens[1:4])); b = list(map(int, tokens[4:7]))
                 if (abs(a[0]-b[0])+1)*(abs(a[1]-b[1])+1)*(abs(a[2]-b[2])+1)>32768:
                     raise ValueError(f'Fill exceeds vanilla limit: {line}')

@@ -48,6 +48,7 @@ public final class HatShoreForageGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){cleanup.run();}
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){cleanup.run();}
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         helper.onEachTick(() -> {
             if(cleaned[0])return; ticks[0]++;
