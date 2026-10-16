@@ -41,7 +41,11 @@ public final class NativeDialogue {
             // Exam, shop and wild-role performances interrupt ordinary chatter but never urgent distress.
             case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
                  "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
-                 "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke" -> 2;
+                 "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke",
+                 // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
+                 "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
+                 "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner",
+                 "predator_restrain", "predator_obey", "predator_defy" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             default -> 1;
         };

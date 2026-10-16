@@ -13,6 +13,22 @@ PREFIX = 'dialogue.mcyukkuri.native.'
 PREFIXES = (PREFIX, 'dialogue.mcyukkuri.original.')
 
 
+def place_dialogue(values, old_order):
+    """Keep every existing key where it was; insert newly generated dialogue keys after their predecessor."""
+    dialogue = {k: v for k, v in values.items() if k.startswith(PREFIXES)}
+    rest = {k: v for k, v in values.items() if k not in dialogue}
+    order = [k for k in old_order if k in rest or k in dialogue]
+    present = set(order)
+    previous = None
+    for k in dialogue:
+        if k not in present:
+            at = order.index(previous) + 1 if previous in present else len(order)
+            order.insert(at, k)
+            present.add(k)
+        previous = k
+    return {k: rest[k] if k in rest else dialogue[k] for k in order} | {k: v for k, v in rest.items() if k not in present}
+
+
 def outputs():
     source = json.loads((ROOT / 'art/dialogue/runtime-lines.json').read_text(encoding='utf-8'))
     corpus_text = (ROOT / 'art/dialogue/native-u/catalogue-data.js').read_text(encoding='utf-8')
@@ -23,11 +39,12 @@ def outputs():
     manifest_path = ROOT / 'art/audio/aquestalk/manifest.json'
     voices = json.loads(manifest_path.read_text(encoding='utf-8'))['clips'] if manifest_path.exists() else {}
     catalog, sounds, files = [], {}, {}
-    locales = {}
+    locales, anchors = {}, {}
     for locale in ('zh_cn', 'ja_jp', 'en_us'):
         path = ASSETS / f'lang/{locale}.json'
         old = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
         locales[locale] = {k: v for k, v in old.items() if not k.startswith(PREFIXES)}
+        anchors[locale] = list(old)
     seen = set()
     for line in source['lines']:
         ident, ref = line['id'], line['source']
@@ -60,9 +77,10 @@ def outputs():
                             ticks=ticks, sound=sound_id if clip else ''))
         locales['zh_cn'][key] = line['chinese']
         locales['ja_jp'][key] = line['japanese']
-        # Until an English translation is reviewed, retain the original Japanese.
-        locales['en_us'][key] = line['japanese']
+        # Lines without a reviewed 'english' field retain the original Japanese.
+        locales['en_us'][key] = line.get('english', line['japanese'])
     for locale, values in locales.items():
+        values = place_dialogue(values, anchors[locale])
         files[ASSETS / f'lang/{locale}.json'] = (json.dumps(values, ensure_ascii=False, indent=2) + '\n').encode()
     files[ASSETS / 'dialogue/catalog.json'] = (json.dumps(catalog, ensure_ascii=False, indent=2) + '\n').encode()
     sounds_path = ASSETS / 'sounds.json'

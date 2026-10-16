@@ -15135,6 +15135,3542 @@
         "id": "flandre.young.o_badge_admire"
       },
       "source_sha256": "258b40462a2ecb053c02819815ee63aceaa3e01aeb0b47a4b95a36818c51ccda"
+    },
+    {
+      "id": "reimu.adult.o_date_meet",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆ、ゆっくりしていってね……。ちょっとはずかしいよ。",
+      "chinese": "请、请慢慢来哦……。有点害羞呢。",
+      "english": "Hello... I'm Reimu. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_date_meet"
+      },
+      "source_sha256": "33b63e0adcc7d7a28c6d0f385b5dbb0d1c01aa3ada485327029002cc576bec32"
+    },
+    {
+      "id": "reimu.adult.o_date_fond",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あのこ、すてき……。また あいたいな。",
+      "chinese": "那孩子好棒……。还想再见面。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_date_fond"
+      },
+      "source_sha256": "90ba84953a59ff3751e1707bd37ca1b7eae2e71ab305f752efd20fad5cc4ac4b"
+    },
+    {
+      "id": "reimu.adult.o_permit_glad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あかちゃん、いいの？ ありがとう！ しあわせだよ！",
+      "chinese": "可以要宝宝吗？谢谢！好幸福哦！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_permit_glad"
+      },
+      "source_sha256": "30816428d5265c34af539cf01285659ab686c6b6d682c6581b50cb148fc982f0"
+    },
+    {
+      "id": "reimu.adult.o_courtship_held",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ほんとはすーりすーりしたいけど……まだがまんだよ。",
+      "chinese": "其实想蹭蹭的……但还要忍着哦。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_courtship_held"
+      },
+      "source_sha256": "7baff125ed6a2304e61bccda927e7a9cc2070e585efd54cce53e1d86298e55f2"
+    },
+    {
+      "id": "reimu.adult.o_badge_pinned",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "バッジ、つけてくれたの？ うれしいよ！",
+      "chinese": "给我别上徽章了吗？好开心哦！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_pinned"
+      },
+      "source_sha256": "3c35377ac0369cca0db3c6340a1189a544be82d50ffe04f16e3e454b69187b8d"
+    },
+    {
+      "id": "reimu.adult.o_badge_taken",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "バッジ、なくなっちゃった……。しょんぼりだよ……。",
+      "chinese": "徽章没有了……。好失落哦……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_taken"
+      },
+      "source_sha256": "486a30249cb33e17fb07742b0b7fd3187b50bf988b0cd826ad2dd6df59bc00d3"
+    },
+    {
+      "id": "reimu.adult.o_spray_drowsy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ラムネの あまいにおい……ねむく なって……ゆぅ……。",
+      "chinese": "汽水的甜香……困了……油——……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_spray_drowsy"
+      },
+      "source_sha256": "b167ab724fd3907f0507e4675a5045a390c875af5288395e0d32fd43526e99dc"
+    },
+    {
+      "id": "reimu.adult.o_spray_drowsy2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ふわふわ……ちからが ぬけちゃうよ……。",
+      "chinese": "轻飘飘的……力气都没了哦……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "6af62d48ef5f6b5924d30b868f3f81749495adb581e9f8244ca46e204725ee3b"
+    },
+    {
+      "id": "reimu.adult.o_basket_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やだよ！ かごはいやだよ！ はなしてね！",
+      "chinese": "不要！不要篮子！放开我哦！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_basket_refuse"
+      },
+      "source_sha256": "f702452a7a451f958771f55f0d7796fd0ae5033630e75df58e288b0ec8badecb"
+    },
+    {
+      "id": "reimu.adult.o_basket_refuse2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "こわいよ！ はいりたくないよ！",
+      "chinese": "好可怕！不想进去哦！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_basket_refuse2"
+      },
+      "source_sha256": "5575f70c27f9a4ab75be16e370faf9d32e9482accf4f00e7ed95ba9636667c69"
+    },
+    {
+      "id": "reimu.adult.o_basket_enter",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はーい！ ゆっくり はいるよ！",
+      "chinese": "好——！慢慢进去哦！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_basket_enter"
+      },
+      "source_sha256": "92a3af70cd5f600a400a5540574439c2752adfef67e759fb1d686e97979cf728"
+    },
+    {
+      "id": "reimu.adult.o_basket_exit",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ、ここはどこ？ あたらしいおうちだね！",
+      "chinese": "咦，这里是哪里？是新家呢！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_basket_exit"
+      },
+      "source_sha256": "5e536a9a7d6aa188ca59c13922844704b7cf7a28c6210f115ad54daffa420341"
+    },
+    {
+      "id": "reimu.adult.o_wild_plea_keep",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてね！ いいこにするよ！",
+      "chinese": "请收我当宠物哦！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "beea039d6060f24a99b77cb0098788608ac2ffab943c2f6166c775035cc198f5"
+    },
+    {
+      "id": "reimu.adult.o_pet_report_owner",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたよ。",
+      "chinese": "人类先生，野良我没理会哦。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_pet_report_owner"
+      },
+      "source_sha256": "14cf686f88781f8d6243fd0fac5412706fde2c4a9602712adb623d72031c543d"
+    },
+    {
+      "id": "reimu.young.o_date_meet",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぅ……はじめまちて。はじゅかちいよ……。",
+      "chinese": "油……初次见面惹哟。有点害羞惹哟……。",
+      "english": "H-hello... Reimu is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_date_meet"
+      },
+      "source_sha256": "a27c362750a54d760dbadbaf0916eb83c757912947abb4619784b8826008f39c"
+    },
+    {
+      "id": "reimu.young.o_date_fond",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あのこ、すちぇき！ またあいたいよぉ！",
+      "chinese": "那孩子好棒惹哟！还想再见惹哟！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_date_fond"
+      },
+      "source_sha256": "eb9ef729816a899f3608a9bda7aa22ab9fa5c16fe2b31170743115937dc785cb"
+    },
+    {
+      "id": "reimu.young.o_permit_glad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あかちゃん、いいの？ ありがちょう！ しあわちぇー！",
+      "chinese": "可以要宝宝吗惹哟？谢谢惹！好幸福惹——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_permit_glad"
+      },
+      "source_sha256": "04daadbbaef341006e97475eefbe349a81754d086bd0bcd5aeda7286c7874179"
+    },
+    {
+      "id": "reimu.young.o_courtship_held",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "すーりすーり ちたいけど……まだがまんだよぉ。",
+      "chinese": "想蹭蹭惹……但还要忍着惹哟。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_courtship_held"
+      },
+      "source_sha256": "b59b347016516f4807f0c4dac76d6af8008515ddcc0ae8a7c790d7cbc403a161"
+    },
+    {
+      "id": "reimu.young.o_badge_pinned",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、つけてくれちゃの？ うれちいよぉ！",
+      "chinese": "给窝别上徽章了惹？好开心惹哟！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_pinned"
+      },
+      "source_sha256": "8904c35adf3d60e6186c81c32e41b4cfd724fcfb41b52bcc1a9c1051c5140308"
+    },
+    {
+      "id": "reimu.young.o_badge_taken",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、にゃくなっちゃった……しょんぼりだよぉ……。",
+      "chinese": "徽章没有惹……好失落惹哟……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_taken"
+      },
+      "source_sha256": "b81f22cf57723963c255fe7e593b3848766339ce9e9c760bd13d4310973efc90"
+    },
+    {
+      "id": "reimu.young.o_spray_drowsy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ラムネのあまいにおい……ねむねむ……ゆぅ……。",
+      "chinese": "汽水的甜香……困困惹……油——……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_spray_drowsy"
+      },
+      "source_sha256": "c790675e8d39526183b4abeb1eabe5ff128c2658e751d3a26de6469dcc5cd9a9"
+    },
+    {
+      "id": "reimu.young.o_spray_drowsy2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ふわふわ……ちからが ぬけちゃうよぉ……。",
+      "chinese": "轻飘飘惹……没力气惹哟……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_spray_drowsy2"
+      },
+      "source_sha256": "d5172b145314f5805ca51020106a9a16bc4ff13cd967f1e169c6fa92a87619be"
+    },
+    {
+      "id": "reimu.young.o_basket_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "やぁだ！ かごはいやだよぉ！ はなちてぇ！",
+      "chinese": "不要惹！不要篮子惹哟！放开窝惹！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_basket_refuse"
+      },
+      "source_sha256": "df1972e3554a1b3cc2936847080e62d7ad7803fe708ad1fad95221694b3f507c"
+    },
+    {
+      "id": "reimu.young.o_basket_refuse2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こわいよぉ！ はいりたくにゃいよぉ！",
+      "chinese": "好怕惹哟！不想进去惹哟！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_basket_refuse2"
+      },
+      "source_sha256": "b54fc91f831d1ce256101aa51da4188edf04a21b9894a2d908698647286190d6"
+    },
+    {
+      "id": "reimu.young.o_basket_enter",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はーい！ ゆっくち はいりゅよ！",
+      "chinese": "好惹——！慢慢进去惹哟！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_basket_enter"
+      },
+      "source_sha256": "9b9c50cefe0391e645e9e9e5f44cff7884747d4298d9a7fb19059471edc7c530"
+    },
+    {
+      "id": "reimu.young.o_basket_exit",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっ？ ここ どこ？ あたらちいおうちだぁ！",
+      "chinese": "咦？这是哪惹？是新家惹哟！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_basket_exit"
+      },
+      "source_sha256": "fcea2549020effae79e9dd3534414f29dc8de77ee05baba2e1c636832542eb30"
+    },
+    {
+      "id": "reimu.young.o_wild_plea_keep",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆっくりにしちぇね！ いいこにしゅるよ！",
+      "chinese": "收窝当宠物惹哟！窝会乖乖的惹！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_wild_plea_keep"
+      },
+      "source_sha256": "3329d3bdcdadf0b3b2b01dc267934444b860964481d6d71c8befc707a4331430"
+    },
+    {
+      "id": "reimu.young.o_pet_report_owner",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたよ。",
+      "chinese": "人类先生，野良窝没理惹哟。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_pet_report_owner"
+      },
+      "source_sha256": "790dcc6eae7bd81beb40a86c98df3c8e1980d6e10c6181cb7b8b2ab8f6411414"
+    },
+    {
+      "id": "marisa.adult.o_date_meet",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ま、まりさなのぜ。よ、よろしくなのぜ……。",
+      "chinese": "我、我是魔理沙贼。请、请多关照贼……。",
+      "english": "Hello... I'm Marisa. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_date_meet"
+      },
+      "source_sha256": "01aac249798344e15b2526d02f93facec75af267766801f638da132995e478cf"
+    },
+    {
+      "id": "marisa.adult.o_date_fond",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あいつ、わるくないのぜ。また あいたいのぜ。",
+      "chinese": "那家伙不坏贼。还想再见贼。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_date_fond"
+      },
+      "source_sha256": "7a5c213e0dc4f46270f95026fcde9cb2ff2055324acd9d21e2c4b2456161d4f6"
+    },
+    {
+      "id": "marisa.adult.o_permit_glad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あかちゃんを つくっていいのぜ？ やったのぜ！",
+      "chinese": "可以要宝宝了贼？太好了贼！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_permit_glad"
+      },
+      "source_sha256": "394cdd69b22ca04374716a31da7f730008fcfd89859ec726271782b2c329f04c"
+    },
+    {
+      "id": "marisa.adult.o_courtship_held",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すーりすーりしたいのぜ……でも まだがまんなのぜ。",
+      "chinese": "好想蹭蹭贼……但还要忍着贼。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_courtship_held"
+      },
+      "source_sha256": "824e381949a3f6723e39acb92e9a469fe04dbd08cd0efdf0d9a55bd9393f0f71"
+    },
+    {
+      "id": "marisa.adult.o_badge_pinned",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジを つけてもらったのぜ！ ほこらしいのぜ！",
+      "chinese": "被别上徽章了贼！好自豪贼！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_pinned"
+      },
+      "source_sha256": "2ba9c3e235c9c2c105df3747ab53cf62a2106a026db2628a653c0f1dfb8297a9"
+    },
+    {
+      "id": "marisa.adult.o_badge_taken",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジが……ないのぜ……。しょんぼりなのぜ……。",
+      "chinese": "徽章……没有了贼……。好失落贼……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_taken"
+      },
+      "source_sha256": "0b973b0943aa9d497192b82f48817e7e3a0e49faf6c5b545214d56fc6ec0db11"
+    },
+    {
+      "id": "marisa.adult.o_spray_drowsy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ラムネのあまいにおいなのぜ……ねむく……なるのぜ……。",
+      "chinese": "汽水的甜香贼……困了……贼……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_spray_drowsy"
+      },
+      "source_sha256": "9a79022818bc771dc2bdc789cbb38585939dfa02660d46395b588d910509cb33"
+    },
+    {
+      "id": "marisa.adult.o_spray_drowsy2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あしに ちからが はいらないのぜ……ぜぇ……。",
+      "chinese": "腿使不上力了贼……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "0802e51b68ca7342587b3a2377d01f7e95e92de4c8cb352d796aad3c6c571d91"
+    },
+    {
+      "id": "marisa.adult.o_basket_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いやなのぜ！ かごはいやなのぜ！ はなすのぜ！",
+      "chinese": "不要贼！不要篮子贼！放开贼！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_basket_refuse"
+      },
+      "source_sha256": "56ef50a9218e6a35adcb77090d10447832b2b40b5f058c44b86821ce063d9ef0"
+    },
+    {
+      "id": "marisa.adult.o_basket_refuse2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "こ、こわくなんかないのぜ！ でも はいらないのぜ！",
+      "chinese": "才、才不怕贼！但就是不进去贼！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_basket_refuse2"
+      },
+      "source_sha256": "39e03a850e2f698ad01bf7f6e6913f3fb61d56d3c860d142b49c2a0a4bf1023f"
+    },
+    {
+      "id": "marisa.adult.o_basket_enter",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "わかったのぜ！ さっさと はいるのぜ！",
+      "chinese": "知道了贼！这就进去贼！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_basket_enter"
+      },
+      "source_sha256": "33dd90b7681449c680261ab77643db18c1229a96ed8c1f584891d26c64e86265"
+    },
+    {
+      "id": "marisa.adult.o_basket_exit",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここが あたらしいおうちなのぜ？ いいところなのぜ！",
+      "chinese": "这里是新家贼？是好地方贼！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_basket_exit"
+      },
+      "source_sha256": "3da19c1a3246a5752baad1d2400ccdcfe4c09d3d500cbd759f578393c3b66a75"
+    },
+    {
+      "id": "marisa.adult.o_wild_plea_keep",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてほしいのぜ！ いいこにするのぜ！",
+      "chinese": "想当宠物贼！会乖乖的贼！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "b074942e79acd2122b763fa88b3dfb361d086c4c745b88fa36defb66d865ce2f"
+    },
+    {
+      "id": "marisa.adult.o_pet_report_owner",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたのぜ。えらいのぜ？",
+      "chinese": "人类先生，野良我没理会贼。厉害吧贼？",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_pet_report_owner"
+      },
+      "source_sha256": "185167265bc3bfe2277f374f7143357ff91614d5c037d2872d3822115aa699f2"
+    },
+    {
+      "id": "marisa.young.o_date_meet",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "は、はじめまちてなのじぇ……はじゅかちいのじぇ……。",
+      "chinese": "初、初次见面惹杰……好害羞惹杰……。",
+      "english": "H-hello... Marisa is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_date_meet"
+      },
+      "source_sha256": "4b206b8a6155a88c810a7b4c6ac82b5088625d72b8f548ff66a6eb9c2a321791"
+    },
+    {
+      "id": "marisa.young.o_date_fond",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あのこ、いいこなのじぇ！ また あいたいのじぇ！",
+      "chinese": "那孩子是好孩子惹杰！还想再见惹杰！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_date_fond"
+      },
+      "source_sha256": "b963fec984583196b7cd43da02b22e21df9b30c512a04ad5847c4060e4a93915"
+    },
+    {
+      "id": "marisa.young.o_permit_glad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あかちゃん、いいのじぇ？ やったのじぇ！ しあわちぇー！",
+      "chinese": "可以要宝宝惹杰？太好惹杰！好幸福惹杰——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_permit_glad"
+      },
+      "source_sha256": "c114080960a206574dbdf42cb6b45367d50fd97e84bb7c02fbe298feede9be4e"
+    },
+    {
+      "id": "marisa.young.o_courtship_held",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "すーりすーり ちたいのじぇ……まだ がまんなのじぇ。",
+      "chinese": "想蹭蹭惹杰……还要忍着惹杰。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_courtship_held"
+      },
+      "source_sha256": "5305df0a6d496a4c726fdf98f6088b050d66995b44dc4648498d46bf068f4c11"
+    },
+    {
+      "id": "marisa.young.o_badge_pinned",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらっちゃのじぇ！ きらきらなのじぇ！",
+      "chinese": "被别上徽章惹杰！亮晶晶惹杰！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_pinned"
+      },
+      "source_sha256": "fb3817853079da48d2b861da1f7ec84687206ad755289a2ca581c7abe7df9fc0"
+    },
+    {
+      "id": "marisa.young.o_badge_taken",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじが にゃいのじぇ……しょんぼりなのじぇ……。",
+      "chinese": "徽章没有惹杰……好失落惹杰……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_taken"
+      },
+      "source_sha256": "35b35c378e3a4bcceb81de546564af3f5943bb8e22fc3d7c37af38a79856319f"
+    },
+    {
+      "id": "marisa.young.o_spray_drowsy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ラムネのにおい……ねむねむなのじぇ……。",
+      "chinese": "汽水的味道……困困惹杰……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_spray_drowsy"
+      },
+      "source_sha256": "c9ddf267a9d725908f0f450a648a813dc68002626383e053af4f0cf1f079c1b6"
+    },
+    {
+      "id": "marisa.young.o_spray_drowsy2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふわふわで ちからが ぬけるのじぇ……。",
+      "chinese": "轻飘飘的没力气惹杰……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_spray_drowsy2"
+      },
+      "source_sha256": "edcde4a842f08a90d144f13d691115140ad538ebef8e0eef7f544d7f41c9cc94"
+    },
+    {
+      "id": "marisa.young.o_basket_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いやなのじぇ！ かごはいやなのじぇ！",
+      "chinese": "不要惹杰！不要篮子惹杰！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_basket_refuse"
+      },
+      "source_sha256": "0716b5ff0bce95ed59898a7b0b55497b54edf3c57919f158997f361e0c196efc"
+    },
+    {
+      "id": "marisa.young.o_basket_refuse2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいのじぇ！ はいりたくにゃいのじぇ！",
+      "chinese": "好怕惹杰！不想进去惹杰！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_basket_refuse2"
+      },
+      "source_sha256": "4789261734e7075dfc333306220d6a4f403fd8f375647470d4ba7c99f3565dc1"
+    },
+    {
+      "id": "marisa.young.o_basket_enter",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はいるのじぇ！ ゆっくち はいりゅのじぇ！",
+      "chinese": "进去惹杰！慢慢进去惹杰！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_basket_enter"
+      },
+      "source_sha256": "c2218dec87823b7e511b0ff0e2d928a610167134256e340cd523a38dff64915a"
+    },
+    {
+      "id": "marisa.young.o_basket_exit",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここ どこなのじぇ？ あたらちいおうちなのじぇ！",
+      "chinese": "这是哪惹杰？是新家惹杰！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_basket_exit"
+      },
+      "source_sha256": "a2d5e05cff1045e40608a3697336fd47f1f528a26fd5042ee83ceab114929f94"
+    },
+    {
+      "id": "marisa.young.o_wild_plea_keep",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆっくりにちてなのじぇ！ いいこにしゅるのじぇ！",
+      "chinese": "收窝当宠物惹杰！会乖乖的惹杰！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_wild_plea_keep"
+      },
+      "source_sha256": "3f791c54f20bff14d7ef09ab1c8c21a9f4f47a04c86211c2832903e02eb2ff3d"
+    },
+    {
+      "id": "marisa.young.o_pet_report_owner",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたのじぇ！",
+      "chinese": "人类先生，野良窝没理惹杰！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_pet_report_owner"
+      },
+      "source_sha256": "c7aecc5b6ee82628afd7283abaa341904666b162a8778a892751a508933ebc5a"
+    },
+    {
+      "id": "alice.adult.o_date_meet",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "は、はじめまして。ありす、とかいはに ごあいさつするわ……。",
+      "chinese": "初、初次见面。爱丽丝会都会派地问候哇……。",
+      "english": "Hello... I'm Alice. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_date_meet"
+      },
+      "source_sha256": "2d3eb962dd3d5f08d285097ad70ebb63ce1abc20a88f2333af970e46a4fbc2cd"
+    },
+    {
+      "id": "alice.adult.o_date_fond",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あのひと、すてき……。また あいたいわ。",
+      "chinese": "那个人好棒……。还想再见面哇。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_date_fond"
+      },
+      "source_sha256": "6b42ea7a9bd79cb85859c85702d814760143323317ccab62f237433cf67707a1"
+    },
+    {
+      "id": "alice.adult.o_permit_glad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あかちゃん、いいのね？ ありがとう、とかいはに そだてるわ！",
+      "chinese": "可以要宝宝了对吧？谢谢，会都会派地养大哇！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_permit_glad"
+      },
+      "source_sha256": "c458267b7bf44c117619dba18e4799bb5cd88cc3bef854b0ecedd67196c3a07c"
+    },
+    {
+      "id": "alice.adult.o_courtship_held",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーりすーりしたいけれど……まだ がまんよ。",
+      "chinese": "好想蹭蹭……但还要忍着哇。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_courtship_held"
+      },
+      "source_sha256": "6cbf3deffdabab114d0e59ed9d4882e726b2c2f2a745c8240f43b391051c88cf"
+    },
+    {
+      "id": "alice.adult.o_badge_pinned",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジを つけてもらったわ。とかいはね！",
+      "chinese": "被别上徽章了哇。很都会派吧！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_pinned"
+      },
+      "source_sha256": "80ad3268e7a378d95fd51cb10d133eacafeae6311eb3d6fa25619a572e86ea33"
+    },
+    {
+      "id": "alice.adult.o_badge_taken",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジが……ないわ。とかいはじゃない……。",
+      "chinese": "徽章……没有了哇。一点也不都会派……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_taken"
+      },
+      "source_sha256": "ae7598bf021084637e12d6b2045f2dead4924d275454cf55152d0ce9983da1c3"
+    },
+    {
+      "id": "alice.adult.o_spray_drowsy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ラムネの あまいかおり……なんだか ねむいわ……。",
+      "chinese": "汽水的甜香……不知怎么困了哇……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_spray_drowsy"
+      },
+      "source_sha256": "cc5d0ab997db1d1cc54261a933d631fd92064f70eaa6e578b063f0eeded2e64d"
+    },
+    {
+      "id": "alice.adult.o_spray_drowsy2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "からだが ふわふわして……ちからが ぬけるわ……。",
+      "chinese": "身体轻飘飘的……力气都没了哇……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "306d5f723418d14efb07a41dbe445877001089e8829e2b315065e106ca285890"
+    },
+    {
+      "id": "alice.adult.o_basket_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いやよ！ かごなんて とかいはじゃないわ！",
+      "chinese": "不要哇！篮子什么的才不都会派哇！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_basket_refuse"
+      },
+      "source_sha256": "8f63b00db6f808c71fb421f157cb9ea7a47b0bae73c101e8c0971132ec377a20"
+    },
+    {
+      "id": "alice.adult.o_basket_refuse2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "こわいわ……はいりたくないの……。",
+      "chinese": "好怕哇……不想进去……。",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_basket_refuse2"
+      },
+      "source_sha256": "0cab8d5d2bc71e5c2a6ed6b8b67d7c3e5807201c2fafdd6b43966617e3bea6ff"
+    },
+    {
+      "id": "alice.adult.o_basket_enter",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "わかったわ。とかいはに はいるわね。",
+      "chinese": "知道了哇。会都会派地进去哇。",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_basket_enter"
+      },
+      "source_sha256": "fdbfd75151b9243745ac63c167ba0dcca0a4f0ae6741f40ecdec893606e55354"
+    },
+    {
+      "id": "alice.adult.o_basket_exit",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "まあ、あたらしいおうちね。すてきな ところだわ！",
+      "chinese": "哎呀，是新家呢。真是好地方哇！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_basket_exit"
+      },
+      "source_sha256": "f9ee12d02b22b7dc91701df423ef04a2994f07661d1eebc35df95c1cd31d2488"
+    },
+    {
+      "id": "alice.adult.o_wild_plea_keep",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてちょうだい！ いいこにするわ！",
+      "chinese": "请收我当宠物哇！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "5f9af1471f41b23f0065b50f73bd7752851155ae0611825cdfd6c328253245c6"
+    },
+    {
+      "id": "alice.adult.o_pet_report_owner",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたわ。ほめてちょうだい。",
+      "chinese": "人类先生，野良我没理会哇。请夸夸我哇。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_pet_report_owner"
+      },
+      "source_sha256": "7b7efcf6d3ddb3a38b013c241a09ed2430fdab5260929a8916959f18a540322e"
+    },
+    {
+      "id": "alice.young.o_date_meet",
+      "species": "alice",
+      "age": "young",
+      "japanese": "は、はじめまちて……ありちゅ、はじゅかちいわ……。",
+      "chinese": "初、初次见面……窝好害羞哇……。",
+      "english": "H-hello... Alice is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_date_meet"
+      },
+      "source_sha256": "9a01006c1f39c3fa5bb337f1d921e7ace63587efee3be82513b7ba396dadc071"
+    },
+    {
+      "id": "alice.young.o_date_fond",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あのこ、ときゃいはね！ また あいたいわ！",
+      "chinese": "那孩子很都会派哇！还想再见哇！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_date_fond"
+      },
+      "source_sha256": "4d087a63c9b5512483826f978eef91aa8c52f078a959ecfd734fc540fe74d8d2"
+    },
+    {
+      "id": "alice.young.o_permit_glad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あかちゃん、いいの？ ありがちょう！ しあわちぇー！",
+      "chinese": "可以要宝宝吗？谢谢哇！好幸福哇——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_permit_glad"
+      },
+      "source_sha256": "04daadbbaef341006e97475eefbe349a81754d086bd0bcd5aeda7286c7874179"
+    },
+    {
+      "id": "alice.young.o_courtship_held",
+      "species": "alice",
+      "age": "young",
+      "japanese": "すーりすーり ちたいけど……まだ がまんよ。",
+      "chinese": "想蹭蹭……但还要忍着哇。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_courtship_held"
+      },
+      "source_sha256": "91b87eaccd7043dc33172075497b45163628426768118e3125f9e1b4c1680e4f"
+    },
+    {
+      "id": "alice.young.o_badge_pinned",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらっちゃ！ ときゃいはでしょ！",
+      "chinese": "被别上徽章啦！很都会派吧！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_pinned"
+      },
+      "source_sha256": "b98d11b06f296f908f7a585001014cfc197a53b8ee611eaf1ec3752d572475ab"
+    },
+    {
+      "id": "alice.young.o_badge_taken",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじが にゃいわ……しょんぼりよぉ……。",
+      "chinese": "徽章没有了哇……好失落哇……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_taken"
+      },
+      "source_sha256": "7e94956cd591306261029a22aa0e1a5a37cfcd39af47c3132d6201e13eddb132"
+    },
+    {
+      "id": "alice.young.o_spray_drowsy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ラムネの あまいにおい……ねむいわぁ……。",
+      "chinese": "汽水的甜香……好困哇……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_spray_drowsy"
+      },
+      "source_sha256": "ef8996273939472ff4d17c73f518b2ca8dee9f07e651ae6806065b215864ad47"
+    },
+    {
+      "id": "alice.young.o_spray_drowsy2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ふわふわで ちからが ぬけちゃうわぁ……。",
+      "chinese": "轻飘飘的没力气了哇……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_spray_drowsy2"
+      },
+      "source_sha256": "16bacb91faa110d8d10681831b26f70125f4e0e55abb0592978550d9a06e18c8"
+    },
+    {
+      "id": "alice.young.o_basket_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いやよぉ！ かごはいやぁ！ はなちてぇ！",
+      "chinese": "不要哇！不要篮子！放开窝！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_basket_refuse"
+      },
+      "source_sha256": "51730b8ce051f553d33f45f0b375f863330d39ae903b3b9c24e0f357f4356c89"
+    },
+    {
+      "id": "alice.young.o_basket_refuse2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こわいわぁ……はいりたくにゃいの……。",
+      "chinese": "好怕哇……不想进去……。",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_basket_refuse2"
+      },
+      "source_sha256": "d66a0d036e9adea1e8e926f24e134f7e243689d2f97db338562d813cc9923d65"
+    },
+    {
+      "id": "alice.young.o_basket_enter",
+      "species": "alice",
+      "age": "young",
+      "japanese": "わかったわ！ ゆっくち はいりゅわ！",
+      "chinese": "知道了哇！慢慢进去哇！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_basket_enter"
+      },
+      "source_sha256": "63ff704c9a47d40fa13c98cdeccc701fee74be4965e3cb9c55f09de2211029fa"
+    },
+    {
+      "id": "alice.young.o_basket_exit",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あら、ここはどこ？ あたらちいおうちね！",
+      "chinese": "咦，这是哪里？是新家哇！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_basket_exit"
+      },
+      "source_sha256": "b02adf61cde4eef4713c520ffb6c079764cfd01a72697486cc9e18704f7be731"
+    },
+    {
+      "id": "alice.young.o_wild_plea_keep",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆっくりにちて！ ありちゅ、いいこにしゅるわ！",
+      "chinese": "收窝当宠物！窝会乖乖的哇！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_wild_plea_keep"
+      },
+      "source_sha256": "1669cd36545ac6d6a0e95384314574a2e89dcc38df7cd306d3f4c1e4a96a0acc"
+    },
+    {
+      "id": "alice.young.o_pet_report_owner",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたわ！",
+      "chinese": "人类先生，野良窝没理会哇！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_pet_report_owner"
+      },
+      "source_sha256": "892e2277e61f34015b0e20c13f3eb933455e950b9f270b19f0a3b99906b9f7f2"
+    },
+    {
+      "id": "chen.adult.o_date_meet",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "は、はじめましてだよー……ちょっとはずかしいよー……。",
+      "chinese": "初、初次见面哟——……有点害羞哟——……。",
+      "english": "Hello... I'm Chen. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_date_meet"
+      },
+      "source_sha256": "ae60c2f70c0a0a9f2e866bc6ef4e36eda761e23be05306c00bd03197e355f4b4"
+    },
+    {
+      "id": "chen.adult.o_date_fond",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あのこ、いいこだねー。また あいたいよー！",
+      "chinese": "那孩子是好孩子呢——。还想再见哟——！",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_date_fond"
+      },
+      "source_sha256": "1162684cff9f1888b4ffe82e945803e3182a8f22862cc7e9a49492ee8e6427ce"
+    },
+    {
+      "id": "chen.adult.o_permit_glad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あかちゃん、いいんだねー！ ありがとうだよー！",
+      "chinese": "可以要宝宝了呢——！谢谢哟——！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_permit_glad"
+      },
+      "source_sha256": "84b6c7fd97fea72e55a96e6067a4d23be44cc56f07e259531d5d6f6591ccc828"
+    },
+    {
+      "id": "chen.adult.o_courtship_held",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーりすーりしたいけど……まだ がまんだよー。",
+      "chinese": "想蹭蹭……但还要忍着哟——。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_courtship_held"
+      },
+      "source_sha256": "b321eea9ca20b9464d518c8ff1a63fff873ff4fed348a7409615983303624d89"
+    },
+    {
+      "id": "chen.adult.o_badge_pinned",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジ、つけてもらったよー！ うれしいなー！",
+      "chinese": "被别上徽章了哟——！好开心——！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_pinned"
+      },
+      "source_sha256": "98da303d6cbe06a661ba058d8ba933be4f2b7067054776c13387da3e401985be"
+    },
+    {
+      "id": "chen.adult.o_badge_taken",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジが ないよー……しょんぼりだよー……。",
+      "chinese": "徽章没有了哟——……好失落哟——……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_taken"
+      },
+      "source_sha256": "9e7c74bf1473603359e469a91799cdce355865133b87a02e3eaa584cceae9df7"
+    },
+    {
+      "id": "chen.adult.o_spray_drowsy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ラムネの あまいにおい……ねむく なってきたよー……。",
+      "chinese": "汽水的甜香……渐渐困了哟——……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_spray_drowsy"
+      },
+      "source_sha256": "6412c2c47d9a3cc8fb02b4fec6278c3ce93b59a1e89eeba63d934df848cd583c"
+    },
+    {
+      "id": "chen.adult.o_spray_drowsy2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ふわふわして……ちから ぬけちゃうよー……。",
+      "chinese": "轻飘飘的……没力气了哟——……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "2df6c3f8ea01a6a411fcc3912bdc3f09244dbb4c26533dad97cecc06eac3a90d"
+    },
+    {
+      "id": "chen.adult.o_basket_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いやだよー！ かごは いやだよー！",
+      "chinese": "不要哟——！不要篮子哟——！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_basket_refuse"
+      },
+      "source_sha256": "4bdf447a3e226be03fafe942d3ec20ee81ae3a5b4487da9179d2d8cd1bfbd26d"
+    },
+    {
+      "id": "chen.adult.o_basket_refuse2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "こわいよー！ はいりたくないんだよー！",
+      "chinese": "好怕哟——！不想进去哟——！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_basket_refuse2"
+      },
+      "source_sha256": "a913966321c2a0bad219ff2f36cc78a4d8ec7b11d5b925e769f91ea56ce439c6"
+    },
+    {
+      "id": "chen.adult.o_basket_enter",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わかったよー！ はいるよー！",
+      "chinese": "知道了哟——！这就进去哟——！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_basket_enter"
+      },
+      "source_sha256": "3f2e14d3b7b806307c6ca45dfa73961f1acde7cc7d8de4e363e18e2af47bef3c"
+    },
+    {
+      "id": "chen.adult.o_basket_exit",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここは どこかなー？ あたらしいおうちなんだねー！",
+      "chinese": "这是哪里呢——？是新家呢——！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_basket_exit"
+      },
+      "source_sha256": "1248caa0413724c66c71eb27aab54cee26199efe4dde78b71991db4ad8072376"
+    },
+    {
+      "id": "chen.adult.o_wild_plea_keep",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆっくりに してねー！ いいこに するよー！",
+      "chinese": "请收我当宠物哟——！我会乖乖的哟——！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "35bef8d07388aca70c97921470bdfb20ff5d716ac922e3aab1b1983adcfaeb70"
+    },
+    {
+      "id": "chen.adult.o_pet_report_owner",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたよー。わかるよー！",
+      "chinese": "人类先生，野良我没理会哟——。我明白的哟——！",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_pet_report_owner"
+      },
+      "source_sha256": "739f2f44020c484aef9b7d87d7fd8125bdd69a996934ca384bf3d60be0f40d19"
+    },
+    {
+      "id": "chen.young.o_date_meet",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はじめまちてー……ちぇん、はじゅかちいよー……。",
+      "chinese": "初次见面——……橙好害羞哟——……。",
+      "english": "H-hello... Chen is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_date_meet"
+      },
+      "source_sha256": "b7c1b61cf089fc06ae9d61c8f85aa19bbbfb57e2101e15c66dfbdd085d0a4c6f"
+    },
+    {
+      "id": "chen.young.o_date_fond",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あのこ、いいこだよー！ またあいたいよぉー！",
+      "chinese": "那孩子是好孩子哟——！还想再见哟——！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_date_fond"
+      },
+      "source_sha256": "8aa3c38eca776ae6e82aff87c93aad7aa8be6ff49f693cbe8864397e77a0f886"
+    },
+    {
+      "id": "chen.young.o_permit_glad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あかちゃん、いいのー？ ありがちょうー！ しあわちぇー！",
+      "chinese": "可以要宝宝吗——？谢谢——！好幸福——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_permit_glad"
+      },
+      "source_sha256": "7734086ef1ed8646db429e3ef9690c29a9682bb1637a97b3fda2327536e6b7c1"
+    },
+    {
+      "id": "chen.young.o_courtship_held",
+      "species": "chen",
+      "age": "young",
+      "japanese": "すーりすーり ちたいよー……まだ がまんだよー。",
+      "chinese": "想蹭蹭哟——……还要忍着哟——。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_courtship_held"
+      },
+      "source_sha256": "568bd01d2c9dde007619e808ef3d82f70fd6b3f9d1ab523330682ad292aa1674"
+    },
+    {
+      "id": "chen.young.o_badge_pinned",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらったよー！ うれちいよー！",
+      "chinese": "被别上徽章了哟——！好开心哟——！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_pinned"
+      },
+      "source_sha256": "55082a5a90dfc7e41adbbef3e667cb8c0c472d741de411474a5d11aac4dcd23c"
+    },
+    {
+      "id": "chen.young.o_badge_taken",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじが にゃいよー……しょんぼりだよぉー……。",
+      "chinese": "徽章没有了哟——……好失落哟——……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_taken"
+      },
+      "source_sha256": "5ebd2fbcc0411ca8914ba9299c58f6b8179153f3377c72d78e5f590dbe4b463c"
+    },
+    {
+      "id": "chen.young.o_spray_drowsy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ラムネの においー……ねむねむだよー……。",
+      "chinese": "汽水的味道——……困困哟——……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_spray_drowsy"
+      },
+      "source_sha256": "ff7b45dfe3ec196ce61f87397495da4e62e798c4df3e361df601a9b9b9b2c88a"
+    },
+    {
+      "id": "chen.young.o_spray_drowsy2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ふわふわで ちから ぬけちゃうよぉー……。",
+      "chinese": "轻飘飘的没力气了哟——……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_spray_drowsy2"
+      },
+      "source_sha256": "9547baa5dbda4351d21a51eb07d569c36fb5cde6f582fbfbccb9f08e3b0ed22b"
+    },
+    {
+      "id": "chen.young.o_basket_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いやだよぉー！ かごは いやだよー！ はなちてぇー！",
+      "chinese": "不要哟——！不要篮子哟——！放开橙——！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_basket_refuse"
+      },
+      "source_sha256": "ac3bac5605a5cbf68fb13dd557fbcbca79ed6bbf851a54b195820deef9829f08"
+    },
+    {
+      "id": "chen.young.o_basket_refuse2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こわいよー！ はいりたくにゃいよー！",
+      "chinese": "好怕哟——！不想进去哟——！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_basket_refuse2"
+      },
+      "source_sha256": "780e5f39f64aa783beca4b1f2f47ffe9204133d40cd73d5e0ce2c017095b6334"
+    },
+    {
+      "id": "chen.young.o_basket_enter",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はーい！ ゆっくち はいりゅよー！",
+      "chinese": "好——！慢慢进去哟——！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_basket_enter"
+      },
+      "source_sha256": "9f469ab401b1486a92c147c58d725107b52a35342d04f1e7ddc21091b7c97dae"
+    },
+    {
+      "id": "chen.young.o_basket_exit",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここ どこー？ あたらちいおうちだよー！",
+      "chinese": "这是哪——？是新家哟——！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_basket_exit"
+      },
+      "source_sha256": "dfe8600f3694f6b48e56ee84b066ada55cf3de293d7eaab282c22dd7239b9600"
+    },
+    {
+      "id": "chen.young.o_wild_plea_keep",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆっくりに ちてねー！ いいこにしゅるよー！",
+      "chinese": "收橙当宠物哟——！橙会乖乖的哟——！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_wild_plea_keep"
+      },
+      "source_sha256": "8b77d70eedd0ad65b5daa092663b1d982c017de3b444e0bdaa48b85ba2218b09"
+    },
+    {
+      "id": "chen.young.o_pet_report_owner",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたよー！",
+      "chinese": "人类先生，野良橙没理会哟——！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_pet_report_owner"
+      },
+      "source_sha256": "136419ac136be25b2354eb0f1a735dec6a5f6bf7d03863945dd4e448d8f9a7f6"
+    },
+    {
+      "id": "patchouli.adult.o_date_meet",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……はじめまして。ぱちゅりーよ。きんちょうするわ。",
+      "chinese": "姆啾……初次见面。我是帕秋莉。有点紧张。",
+      "english": "Hello... I'm Patchouli. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_date_meet"
+      },
+      "source_sha256": "002584f433431cfcca78a94ce4c475046c80514c5fd8a7feff76a38b4cfcb3d8"
+    },
+    {
+      "id": "patchouli.adult.o_date_fond",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あの子……いい子ね。また あいたいわ。",
+      "chinese": "姆啾，那孩子……是个好孩子。还想再见。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_date_fond"
+      },
+      "source_sha256": "981cc74b44d3df199546c7575630a44d4b3c6b5fe15c6543ad0cf2d1abe60000"
+    },
+    {
+      "id": "patchouli.adult.o_permit_glad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あかちゃんを いいのね。ありがとう。",
+      "chinese": "姆啾，可以要宝宝了呢。谢谢。",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_permit_glad"
+      },
+      "source_sha256": "4d3cac5b320c683ff213091314dd1f806cdcfd476a811e1fc688625f2edfab0d"
+    },
+    {
+      "id": "patchouli.adult.o_courtship_held",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……すりすりしたいけど、まだ がまんよ。",
+      "chinese": "姆啾……想蹭蹭，但还要忍着。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_courtship_held"
+      },
+      "source_sha256": "400b4308dd75e0fe453c0812622ef2b8de62ebe0281e228950129e377bd31c21"
+    },
+    {
+      "id": "patchouli.adult.o_badge_pinned",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。バッジを つけてもらったわ。うれしい。",
+      "chinese": "姆啾。被别上徽章了。好开心。",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_pinned"
+      },
+      "source_sha256": "b57b057aa58775b21e88cdde7a8bbe17713998a26e0eee7cb041a6244ede3ebc"
+    },
+    {
+      "id": "patchouli.adult.o_badge_taken",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……バッジが ないわ。かなしいわ……。",
+      "chinese": "姆啾……徽章没有了。好难过……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_taken"
+      },
+      "source_sha256": "ffbb22db05df7c0521b8d65a5e88c210dc154fa91b951a0a6c4b3cc4d9fe2aad"
+    },
+    {
+      "id": "patchouli.adult.o_spray_drowsy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ラムネの あまいにおい……ねむ……い……。",
+      "chinese": "姆啾……汽水的甜香……困……了……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_spray_drowsy"
+      },
+      "source_sha256": "4b28d8275f0c56d0ba03e1f4dc34cfcced4ef19ac1433334f6b9a71d94bfce7c"
+    },
+    {
+      "id": "patchouli.adult.o_spray_drowsy2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅぅ……ちからが ぬけていくわ……。",
+      "chinese": "姆啾……力气渐渐没了……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "4fe687d4ed875809c3d6f1383668ffcc35b0378f58cd7ffe7c2a866883bb216c"
+    },
+    {
+      "id": "patchouli.adult.o_basket_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ かごは いやよ！ はなして！",
+      "chinese": "姆啾！不要篮子！放开！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_basket_refuse"
+      },
+      "source_sha256": "347b12b306cbb974334eaae3d0fe8bdf6471b2743853d6c75b03447d36f9b19b"
+    },
+    {
+      "id": "patchouli.adult.o_basket_refuse2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……こわいの。はいりたくないわ……。",
+      "chinese": "姆啾……好怕。不想进去……。",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_basket_refuse2"
+      },
+      "source_sha256": "bba9361e91cf38339b8e817ed1e6174812cf619ed88a8cd4431f2c0ff7102b5c"
+    },
+    {
+      "id": "patchouli.adult.o_basket_enter",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、わかったわ。おとなしく はいるわね。",
+      "chinese": "姆啾，知道了。我乖乖进去。",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_basket_enter"
+      },
+      "source_sha256": "da4e0ae280f852f5b4b6570809719d6b7c46fc6b61df1c0e30fc841cd91b4dfb"
+    },
+    {
+      "id": "patchouli.adult.o_basket_exit",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ここが あたらしい おうちなのね。",
+      "chinese": "姆啾……这里就是新家呢。",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_basket_exit"
+      },
+      "source_sha256": "9e0066e4425008cca52356cd59ee6fb24a5d9be9ae43b05a5c724cd9ae97a491"
+    },
+    {
+      "id": "patchouli.adult.o_wild_plea_keep",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、かいゆっくりにしてちょうだい。",
+      "chinese": "姆啾，请收我当宠物。",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "2dfcfeb030c30d63788f2d0eaa3acfe6e3b7dbf59f0a656beaabc5a69b231c58"
+    },
+    {
+      "id": "patchouli.adult.o_pet_report_owner",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。にんげんさん、のらには こたえなかったわ。",
+      "chinese": "姆啾。人类先生，我没有回应野良。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_pet_report_owner"
+      },
+      "source_sha256": "dcf5998219676343eae7bb7673f1fe6298836585b47d5aae7f985f568594874d"
+    },
+    {
+      "id": "patchouli.young.o_date_meet",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……はじめまちて。ぱちゅ、どきどきちてるわ。",
+      "chinese": "姆啾……初次见面。帕秋心怦怦跳。",
+      "english": "H-hello... Patchouli is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_date_meet"
+      },
+      "source_sha256": "9227949cfe61d35175803901d34124c636a8b5c83337103db9496102e5201860"
+    },
+    {
+      "id": "patchouli.young.o_date_fond",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あのこ、いいこね。また あいたいわ。",
+      "chinese": "姆啾，那孩子是好孩子。还想再见。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_date_fond"
+      },
+      "source_sha256": "8da8cbcb46c5413d2e82ecb2b77807e7482ba7d4f2132e89f043479ec3b5a784"
+    },
+    {
+      "id": "patchouli.young.o_permit_glad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あかちゃん、いいのね。ありがちょう。",
+      "chinese": "姆啾，可以要宝宝了。谢谢。",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_permit_glad"
+      },
+      "source_sha256": "6e972cca5c961e2c9836611e70f742e0bb3f478f386e99b382658a9d907cd1ce"
+    },
+    {
+      "id": "patchouli.young.o_courtship_held",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……すりすり ちたいけど、まだ がまんよ。",
+      "chinese": "姆啾……想蹭蹭，但还要忍着。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_courtship_held"
+      },
+      "source_sha256": "acda4a5c74ec60e1baa7c63f1f78dca44f6deb473e9cd944326815f975518de2"
+    },
+    {
+      "id": "patchouli.young.o_badge_pinned",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ばっじ、つけてもらったわ。うれちい。",
+      "chinese": "姆啾。被别上徽章了。好开心。",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_pinned"
+      },
+      "source_sha256": "b6cda08ddd904f9eb7b842a75f0d0036e744f6abb3ddda0a56c2ca51a8bbbcb8"
+    },
+    {
+      "id": "patchouli.young.o_badge_taken",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ばっじが にゃいわ。かなちいわ……。",
+      "chinese": "姆啾……徽章没有了。好难过……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_taken"
+      },
+      "source_sha256": "1ed5e93b83edd1dc27906d8f59a4a2da6b4c774460113e2f25178ec0343141a6"
+    },
+    {
+      "id": "patchouli.young.o_spray_drowsy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ラムネの におい……ねむいわ……。",
+      "chinese": "姆啾……汽水的味道……好困……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_spray_drowsy"
+      },
+      "source_sha256": "46feeadec95d186b21a6741700246538d1057e5987371c2c011089d23e906d2f"
+    },
+    {
+      "id": "patchouli.young.o_spray_drowsy2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅぅ……ちから ぬけちゃう……。",
+      "chinese": "姆啾……力气没了……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_spray_drowsy2"
+      },
+      "source_sha256": "7d823d4bd33fbe5d254f20e63a4edc8cb6467afe80ceef12cb067853bf9c5ba3"
+    },
+    {
+      "id": "patchouli.young.o_basket_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ かごは いやよ！ はなちて！",
+      "chinese": "姆啾！不要篮子！放开！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_basket_refuse"
+      },
+      "source_sha256": "f9795e16c227060eeb2d93dceb3e3002c69fc46454e95b806a42bbdbc11255bc"
+    },
+    {
+      "id": "patchouli.young.o_basket_refuse2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……こわいわ。はいりたくにゃいの……。",
+      "chinese": "姆啾……好怕。不想进去……。",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_basket_refuse2"
+      },
+      "source_sha256": "4d9cde6898eead1430c932873a5cd390320af0db40ea42d35f71f421783472e3"
+    },
+    {
+      "id": "patchouli.young.o_basket_enter",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、わかったわ。おとなちく はいるわ。",
+      "chinese": "姆啾，知道了。帕秋乖乖进去。",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_basket_enter"
+      },
+      "source_sha256": "cafa77060564d7b2d2ffc25425be99c5d26849f04275c79468f79f26a16a5b1f"
+    },
+    {
+      "id": "patchouli.young.o_basket_exit",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ここが あたらちい おうちね。",
+      "chinese": "姆啾……这里是新家。",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_basket_exit"
+      },
+      "source_sha256": "422ff74bcb0914caea21c95164fb5c16af6751e020b24eb059cc095ca99318f7"
+    },
+    {
+      "id": "patchouli.young.o_wild_plea_keep",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、かいゆっくりに ちてちょうだい。",
+      "chinese": "姆啾，请收帕秋当宠物。",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_wild_plea_keep"
+      },
+      "source_sha256": "7945c0cfb8368dcc21e9a4b9e0d35cfbc7d6a08bff73124c535936b5d566858d"
+    },
+    {
+      "id": "patchouli.young.o_pet_report_owner",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。にんげんしゃん、のらには こたえなかったわ。",
+      "chinese": "姆啾。人类先生，帕秋没有回应野良。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_pet_report_owner"
+      },
+      "source_sha256": "3a96b7bbb0f86e0e411347e985622d82b9a2b5096620831d1a43a382965df73e"
+    },
+    {
+      "id": "remilia.adult.o_date_meet",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、はじめましてなのだ。ちょっと きんちょうなのだ……。",
+      "chinese": "呜——，初次见面呀。有点紧张呀……。",
+      "english": "Hello... I'm Remilia. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_date_meet"
+      },
+      "source_sha256": "be2be7ce4abdf7dcc751e7787f3302a46b4747bc3a5a22c16a6b1fc3a4d43606"
+    },
+    {
+      "id": "remilia.adult.o_date_fond",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あのこ、きにいったのだ。また あいたいのだ。",
+      "chinese": "呜——，喜欢那孩子呀。还想再见呀。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_date_fond"
+      },
+      "source_sha256": "43e8907b24537aed2b35a16ca56bf13634eea5df3018f1f5d7d3403ba68ec9c7"
+    },
+    {
+      "id": "remilia.adult.o_permit_glad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ あかちゃん、いいのだ？ うれしいのだぁ！",
+      "chinese": "呜——！可以要宝宝了呀？好开心呀！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_permit_glad"
+      },
+      "source_sha256": "bde71a9e449ddb9dd18f20700e3d22dfc8085f22b806ec80cf092cdfabcd115c"
+    },
+    {
+      "id": "remilia.adult.o_courtship_held",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、すりすりしたいけど……まだ がまんなのだ。",
+      "chinese": "呜——，想蹭蹭……但还要忍着呀。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_courtship_held"
+      },
+      "source_sha256": "6473fd88543f4b97c005825d3019b5981c918744ff35fbc2b66eb16638c2e303"
+    },
+    {
+      "id": "remilia.adult.o_badge_pinned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジを つけてもらったのだ！ えっへんなのだ！",
+      "chinese": "呜——，被别上徽章了呀！得意呀！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_pinned"
+      },
+      "source_sha256": "bbd02a738522509d8227093ec2cd9c44195c9beac0c36205530a0d36c6c3773a"
+    },
+    {
+      "id": "remilia.adult.o_badge_taken",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……バッジが ないのだ……。しょんぼりなのだ……。",
+      "chinese": "呜——……徽章没有了呀……。好失落呀……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_taken"
+      },
+      "source_sha256": "c81a5cfcd45a34b079b31e1b78c078db018ddcc10c0bc274698fee11e760fd06"
+    },
+    {
+      "id": "remilia.adult.o_spray_drowsy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ラムネの あまいにおい……ねむいのだぁ……。",
+      "chinese": "呜——，汽水的甜香……好困呀……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_spray_drowsy"
+      },
+      "source_sha256": "229c62b58551bfd74d0c17689db6de601897817b24c1254ba68cf69286e4cd6e"
+    },
+    {
+      "id": "remilia.adult.o_spray_drowsy2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ちからが ぬけるのだぁ……。",
+      "chinese": "呜——……力气都没了呀……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "7418c41390a4762cf517fbea418f4719a1eb8cf4adaf0b12eb58beeb9de623cc"
+    },
+    {
+      "id": "remilia.adult.o_basket_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ かごは いやなのだ！ はなすのだ！",
+      "chinese": "呜——！不要篮子呀！放开呀！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_basket_refuse"
+      },
+      "source_sha256": "c4eb67c9c36bd1fff19736672411f0f610e5a29fea62a67f29602a370f0a405b"
+    },
+    {
+      "id": "remilia.adult.o_basket_refuse2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、こわいのだ！ はいらないのだ！",
+      "chinese": "呜——，好怕呀！不进去呀！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_basket_refuse2"
+      },
+      "source_sha256": "a97f6aecfefad2c050dcbd621064c41447a9fe7d049fc033b5b0f97be8f4cb11"
+    },
+    {
+      "id": "remilia.adult.o_basket_enter",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ わかったのだ！ はいるのだ！",
+      "chinese": "呜——！知道了呀！这就进去呀！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_basket_enter"
+      },
+      "source_sha256": "46ffbbd17e0f8c3c422d139b0190e5f3cee57bbf5794bcaa2b1c805a6ef344bc"
+    },
+    {
+      "id": "remilia.adult.o_basket_exit",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー？ ここが あたらしい おうちなのだ？",
+      "chinese": "呜——？这里是新家呀？",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_basket_exit"
+      },
+      "source_sha256": "357c62ccb150cc16d0cf0a88c7c964ffff5c85cff0148edf64a73d2b7a990822"
+    },
+    {
+      "id": "remilia.adult.o_wild_plea_keep",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆっくりに してほしいのだ！",
+      "chinese": "呜——，想当宠物呀！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "ef077b1889c49b58fff43b217229c87e863e05b25cb039b29cc36bd1c3b19347"
+    },
+    {
+      "id": "remilia.adult.o_pet_report_owner",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらは むししたのだ。",
+      "chinese": "呜——，人类先生。野良我没理会呀。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_pet_report_owner"
+      },
+      "source_sha256": "f8e9f3b1c7974f4b54442ac552b704d3deb7e7eb3f465ce5f49ca18d81488641"
+    },
+    {
+      "id": "remilia.adult.o_predator_restrain",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……がまんなのだ。このこは おうちの こなのだ。",
+      "chinese": "呜——……要忍住呀。这孩子是有主的呀。",
+      "english": "I'll hold back. That one has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_predator_restrain"
+      },
+      "source_sha256": "107e25ac7382734e349ada6374d9528bf73f24c30fe5d396f4c39090e3384b03"
+    },
+    {
+      "id": "remilia.adult.o_predator_obey",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、わかったのだ！ いうとおりにするのだ！",
+      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "english": "Okay! I'll do as you say!",
+      "events": [
+        "predator_obey"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_predator_obey"
+      },
+      "source_sha256": "fde37f36d0d2a3fb4b315827a4884d83dedb584e018423019ca30d6e83d36749"
+    },
+    {
+      "id": "remilia.adult.o_predator_defy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ いやなのだ！ いうことは きかないのだ！",
+      "chinese": "呜——！不要呀！才不听话呀！",
+      "english": "No! I won't obey!",
+      "events": [
+        "predator_defy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_predator_defy"
+      },
+      "source_sha256": "57ebc87aee3159f366903e9320c0afd12bffe3f5042878c1f62c4a397947d061"
+    },
+    {
+      "id": "remilia.young.o_date_meet",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、はじめまちて。れみぃ、どきどきなのだ……。",
+      "chinese": "呜——，初次见面。蕾米心怦怦跳呀……。",
+      "english": "H-hello... Remilia is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_date_meet"
+      },
+      "source_sha256": "0f34a9a030dce64d9830a239d0fc6851ca4523260eec6c5115513398a137cded"
+    },
+    {
+      "id": "remilia.young.o_date_fond",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あのこ、しゅきなのだ。また あいたいのだ。",
+      "chinese": "呜——，喜欢那孩子呀。还想再见呀。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_date_fond"
+      },
+      "source_sha256": "f553a9ac5b6327c4dca2d5776bdb7c3e899f8a7dd4b00b58126df88c0f0275b6"
+    },
+    {
+      "id": "remilia.young.o_permit_glad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ あかちゃん、いいのだ？ うれちいのだぁ！",
+      "chinese": "呜——！可以要宝宝了呀？好开心呀！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_permit_glad"
+      },
+      "source_sha256": "e16385530d260942a502ff64c04434789cbbbf8d4fbb156ac3f780f6ea8cf0aa"
+    },
+    {
+      "id": "remilia.young.o_courtship_held",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、すりすり ちたいけど……まだ がまんなのだ。",
+      "chinese": "呜——，想蹭蹭……但还要忍着呀。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_courtship_held"
+      },
+      "source_sha256": "a87d49eaac7ea70fce14a589aee161d121b58afebfa7586691c8c0b7d6961508"
+    },
+    {
+      "id": "remilia.young.o_badge_pinned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじ つけてもらったのだ！ きらきらなのだ！",
+      "chinese": "呜——，被别上徽章了呀！亮晶晶呀！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_pinned"
+      },
+      "source_sha256": "9f145ac6267658442d119ae6dcf8d24eca7f7effc7735488f8027f96b57a721c"
+    },
+    {
+      "id": "remilia.young.o_badge_taken",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ばっじが にゃいのだ……しょんぼりなのだ……。",
+      "chinese": "呜——……徽章没有了呀……好失落呀……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_taken"
+      },
+      "source_sha256": "a4c965cbfeef841b33ff634a04ec76d8218c68fccff791f09bc9d5ad5c2f12ee"
+    },
+    {
+      "id": "remilia.young.o_spray_drowsy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ラムネの におい……ねむいのだぁ……。",
+      "chinese": "呜——，汽水的味道……好困呀……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_spray_drowsy"
+      },
+      "source_sha256": "35d71a8c101c8eedee92cf43da4d539f6e189ca3fe57247a205e92d2d227f3c5"
+    },
+    {
+      "id": "remilia.young.o_spray_drowsy2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ちから ぬけちゃうのだぁ……。",
+      "chinese": "呜——……没力气了呀……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_spray_drowsy2"
+      },
+      "source_sha256": "55f06e6600c2728c0f21ef8323cc058d526b3b5fbe4c8db70ecfe1a19b46a129"
+    },
+    {
+      "id": "remilia.young.o_basket_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ かごは いやなのだ！ はなちてなのだ！",
+      "chinese": "呜——！不要篮子呀！放开呀！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_basket_refuse"
+      },
+      "source_sha256": "de271694a8a5bb91afd8ffe6423218593cbb1f5dd41d2866aa754d4355ab91bf"
+    },
+    {
+      "id": "remilia.young.o_basket_refuse2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、こわいのだ！ はいりたくにゃいのだ！",
+      "chinese": "呜——，好怕呀！不想进去呀！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_basket_refuse2"
+      },
+      "source_sha256": "9a0101baf4d05e1df461fbebdc09f468dfcdf7dbf47a6cc9093b8eeb509edc5e"
+    },
+    {
+      "id": "remilia.young.o_basket_enter",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ わかったのだ！ はいりゅのだ！",
+      "chinese": "呜——！知道了呀！这就进去呀！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_basket_enter"
+      },
+      "source_sha256": "01a306fa36381687fe6305d0576f7c1cb47417ea029e6de1d2bfb888e53d5826"
+    },
+    {
+      "id": "remilia.young.o_basket_exit",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー？ ここが あたらちい おうちなのだ？",
+      "chinese": "呜——？这里是新家呀？",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_basket_exit"
+      },
+      "source_sha256": "24ed8fba444b9fd585d7bc35a582f5b3b15741536423b0a40290e524090eab38"
+    },
+    {
+      "id": "remilia.young.o_wild_plea_keep",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆっくりに ちてほちいのだ！",
+      "chinese": "呜——，想当宠物呀！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_wild_plea_keep"
+      },
+      "source_sha256": "de6a233351f842116606d3accf3495e1081587b64b84c9196e5e74b9d309fef9"
+    },
+    {
+      "id": "remilia.young.o_pet_report_owner",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらは むちしたのだ。",
+      "chinese": "呜——，人类先生。野良蕾米没理会呀。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_pet_report_owner"
+      },
+      "source_sha256": "23768a6336000e05804126bd4ad8b66206a39619ea4e145db64f4a1150f7d91f"
+    },
+    {
+      "id": "remilia.young.o_predator_restrain",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……がまんなのだ。おうちの こなのだ。",
+      "chinese": "呜——……要忍住呀。是有主的孩子呀。",
+      "english": "Hold back... it has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_predator_restrain"
+      },
+      "source_sha256": "1ecfb0f1a13b0974b409ba60c9de31055545123e5aef212dbbb56b0a726b6386"
+    },
+    {
+      "id": "remilia.young.o_predator_obey",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、わかったのだ！ いうとおりにしゅるのだ！",
+      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "english": "Okay! Doing it!",
+      "events": [
+        "predator_obey"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_predator_obey"
+      },
+      "source_sha256": "f594c54c6cb0857d2b62f8a7953987274e479a4c2e8ca3b17637ee5c740bafa0"
+    },
+    {
+      "id": "remilia.young.o_predator_defy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ いやなのだ！ きかにゃいのだ！",
+      "chinese": "呜——！不要呀！才不听呀！",
+      "english": "No! Won't listen!",
+      "events": [
+        "predator_defy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_predator_defy"
+      },
+      "source_sha256": "09987a2463ac5a458df3142ebbca36c2536d98cb7d1912017eb0746e0569686b"
+    },
+    {
+      "id": "flandre.adult.o_date_meet",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、はじめまして。ふらん、ちょっと はずかしいな。",
+      "chinese": "呜——，初次见面。芙兰有点害羞呢。",
+      "english": "Hello... I'm Flandre. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_date_meet"
+      },
+      "source_sha256": "085c63431dbc1a00b782a3d613ca7d5c3477cf8735b24940cdebb99972d22e8a"
+    },
+    {
+      "id": "flandre.adult.o_date_fond",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あの子、すき。また あいたいな。",
+      "chinese": "呜——，喜欢那孩子。还想再见呢。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_date_fond"
+      },
+      "source_sha256": "e1e783e20cbd4294d3544020c2e1da3d38f8568cd5b57f2206bddd63d30369dc"
+    },
+    {
+      "id": "flandre.adult.o_permit_glad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ あかちゃん、いいの？ ふらん、うれしい！",
+      "chinese": "呜——！可以要宝宝吗？芙兰好开心！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_permit_glad"
+      },
+      "source_sha256": "80ef8beaaebdd7116717f35bd7cdd4ff1165d53ed19883217ed4db9157e43634"
+    },
+    {
+      "id": "flandre.adult.o_courtship_held",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、すりすりしたいけど……まだ がまんするね。",
+      "chinese": "呜——，想蹭蹭……但还要忍着哦。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_courtship_held"
+      },
+      "source_sha256": "a14ef78a34b629e9da30dd5cadaf8aea9dcd2348c4e5ef8f3903820a0bb97426"
+    },
+    {
+      "id": "flandre.adult.o_badge_pinned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ つけてもらったよ！ みて、みて！",
+      "chinese": "呜——，被别上徽章了哦！看，快看！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_pinned"
+      },
+      "source_sha256": "3c9bab4a6663419de6b393a3f67e3ef1878f6779e354f17ce94013b93aa53a7b"
+    },
+    {
+      "id": "flandre.adult.o_badge_taken",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……バッジが ないよ……。さみしいな……。",
+      "chinese": "呜——……徽章没有了……。好寂寞……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_taken"
+      },
+      "source_sha256": "6c9b330244aca2f73fbcea55f8a34d475bf0f1e3f31c777859a398a874258bfa"
+    },
+    {
+      "id": "flandre.adult.o_spray_drowsy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ラムネの あまいにおい……ねむいな……。",
+      "chinese": "呜——，汽水的甜香……好困……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_spray_drowsy"
+      },
+      "source_sha256": "e89461b1ee43dcbeb8f49e9b154d06c203f657eb78a5fa0e26a1134c9f10282d"
+    },
+    {
+      "id": "flandre.adult.o_spray_drowsy2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ちから、ぬけちゃうよ……。",
+      "chinese": "呜——……力气都没了……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_spray_drowsy2"
+      },
+      "source_sha256": "10c323aeec807757ffed85a762f635094fcc8d397d752fe24def40f0dc77d794"
+    },
+    {
+      "id": "flandre.adult.o_basket_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ かごは いや！ はなして！",
+      "chinese": "呜——！不要篮子！放开！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_basket_refuse"
+      },
+      "source_sha256": "e5f41761db0b5c0d3a0df53a5db2b15d5261e4689b6dc5b92541e67487b0d6fb"
+    },
+    {
+      "id": "flandre.adult.o_basket_refuse2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、こわいよ！ はいりたくない！",
+      "chinese": "呜——，好怕！不想进去！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_basket_refuse2"
+      },
+      "source_sha256": "b80e9114168b1d4a7e9ab7c9ac767644bb1474a921a543d0bd931a5cc0b5d80d"
+    },
+    {
+      "id": "flandre.adult.o_basket_enter",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかった！ はいるね！",
+      "chinese": "呜——，知道了！这就进去！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_basket_enter"
+      },
+      "source_sha256": "d230375e4b5ce0f9dbbd0380b727b4ee67cd6e7436e906e57113d351e0f2e640"
+    },
+    {
+      "id": "flandre.adult.o_basket_exit",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー？ ここが あたらしい おうちかな？",
+      "chinese": "呜——？这里是新家吗？",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_basket_exit"
+      },
+      "source_sha256": "9d83b3183141528305dd16f8680f0501e04b62ef6906553c72fb64f38a7dc9bb"
+    },
+    {
+      "id": "flandre.adult.o_wild_plea_keep",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆっくりに してね！ いい子にするよ！",
+      "chinese": "呜——，请收我当宠物！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_wild_plea_keep"
+      },
+      "source_sha256": "e1c54172cd360c82586ab1aa00b5e1fc7e1b10755835c4aa531ee48c8bc0bdd9"
+    },
+    {
+      "id": "flandre.adult.o_pet_report_owner",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらは むししたよ。",
+      "chinese": "呜——，人类先生。野良我没理会哦。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_pet_report_owner"
+      },
+      "source_sha256": "00333128c504b16e056ebfcda0552c972ccb2857216c367edd6c6e1c442329f4"
+    },
+    {
+      "id": "flandre.adult.o_predator_restrain",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……がまん、がまん。あの子は おうちの子だもん。",
+      "chinese": "呜——……忍住，忍住。那孩子是有主的嘛。",
+      "english": "I'll hold back. That one has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_predator_restrain"
+      },
+      "source_sha256": "d87f9852598e8c8482cbf57025534f6d6c4d6671fdfa5f1e88d8136c68e787db"
+    },
+    {
+      "id": "flandre.adult.o_predator_obey",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかった！ いうとおりにするよ！",
+      "chinese": "呜——，知道了！照你说的做！",
+      "english": "Okay! I'll do as you say!",
+      "events": [
+        "predator_obey"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_predator_obey"
+      },
+      "source_sha256": "8c920e28f01bfd61f68975418215799fdac44025317306a190dc2a33912527e8"
+    },
+    {
+      "id": "flandre.adult.o_predator_defy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ やだ！ いうことなんて きかないよ！",
+      "chinese": "呜——！不要！才不听你的呢！",
+      "english": "No! I won't obey!",
+      "events": [
+        "predator_defy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_predator_defy"
+      },
+      "source_sha256": "c021c6026e97108635410604ad45b98d473b9f66339361bd43f9025b000ae42c"
+    },
+    {
+      "id": "flandre.young.o_date_meet",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、はじめまちて。ふりゃん、はじゅかちいな。",
+      "chinese": "呜——，初次见面。芙呀好害羞。",
+      "english": "H-hello... Flandre is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_date_meet"
+      },
+      "source_sha256": "d980e3e6bd3ed917f9ecc8da0c9b6b1c78188e1555cdf744f904ff2e2a366606"
+    },
+    {
+      "id": "flandre.young.o_date_fond",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あのこ、しゅき。また あいたいな。",
+      "chinese": "呜——，喜欢那孩子。还想再见。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_date_fond"
+      },
+      "source_sha256": "ee8698c320cf75236b402e7948b21fe494dc8cc1f8a5aea6d03cc44bcf145637"
+    },
+    {
+      "id": "flandre.young.o_permit_glad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ あかちゃん、いいの？ ふりゃん、うれちい！",
+      "chinese": "呜——！可以要宝宝吗？芙呀好开心！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_permit_glad"
+      },
+      "source_sha256": "34cc2dda3be4af30f49d91dcc6c77eefb4633602a980615d287d838d53adeabd"
+    },
+    {
+      "id": "flandre.young.o_courtship_held",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、すりすり ちたいけど……まだ がまんね。",
+      "chinese": "呜——，想蹭蹭……但还要忍着。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_courtship_held"
+      },
+      "source_sha256": "f51ebf905b658bd02e638703bdbecd851f37ce75bb5f3b0a894c0a8cad5f75ad"
+    },
+    {
+      "id": "flandre.young.o_badge_pinned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ つけてもらったよ！ みちぇ、みちぇ！",
+      "chinese": "呜——，被别上徽章了！看，快看！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_pinned"
+      },
+      "source_sha256": "603170a7c1906b9e21373c185b0d3e30120551b4e836230ff756638c20d86db6"
+    },
+    {
+      "id": "flandre.young.o_badge_taken",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ばっじが にゃいよ……さみちいな……。",
+      "chinese": "呜——……徽章没有了……好寂寞……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_taken"
+      },
+      "source_sha256": "7551cc3110198c6cbb5b0003f3bf69e55acd7ea0a78de26d8dbd37e71441659b"
+    },
+    {
+      "id": "flandre.young.o_spray_drowsy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ラムネの におい……ねむいな……。",
+      "chinese": "呜——，汽水的味道……好困……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_spray_drowsy"
+      },
+      "source_sha256": "540442ebae145939f8326213beee917ab152ae5751965261d368528cfde6d80b"
+    },
+    {
+      "id": "flandre.young.o_spray_drowsy2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ちから、ぬけちゃうよぉ……。",
+      "chinese": "呜——……没力气了……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_spray_drowsy2"
+      },
+      "source_sha256": "f694094205846b2b647dc1c44604833b884625b3d346d576ba7aba7fbe381ec7"
+    },
+    {
+      "id": "flandre.young.o_basket_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ かごは やぁ！ はなちて！",
+      "chinese": "呜——！不要篮子！放开！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_basket_refuse"
+      },
+      "source_sha256": "d3f0eb827e6df903344c3dcf81285b755e5b05a5f67bf6840b47fc7ddc630937"
+    },
+    {
+      "id": "flandre.young.o_basket_refuse2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、こわいよ！ はいりたくにゃい！",
+      "chinese": "呜——，好怕！不想进去！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_basket_refuse2"
+      },
+      "source_sha256": "2fc18e18a2562473ef7408929a6285fbfccb882bf3d839e28185b70ba762f361"
+    },
+    {
+      "id": "flandre.young.o_basket_enter",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかった！ はいりゅね！",
+      "chinese": "呜——，知道了！这就进去！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_basket_enter"
+      },
+      "source_sha256": "62e52ba3b1ead013df0f250617333f724a80f21f44651b86452f2caf08074de8"
+    },
+    {
+      "id": "flandre.young.o_basket_exit",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー？ ここが あたらちい おうち？",
+      "chinese": "呜——？这里是新家？",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_basket_exit"
+      },
+      "source_sha256": "b61e934acec98b9a3b6b909f4261a7350ebc76ed3c3d15b7d76d89a2e1545d69"
+    },
+    {
+      "id": "flandre.young.o_wild_plea_keep",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆっくりに ちてね！ いいこにしゅるよ！",
+      "chinese": "呜——，收芙呀当宠物！芙呀会乖乖的！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_wild_plea_keep"
+      },
+      "source_sha256": "dadc8c779797356191f836d013d227f4bb8515da9cf49e98730662589ddc2be2"
+    },
+    {
+      "id": "flandre.young.o_pet_report_owner",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらは むちしたよ。",
+      "chinese": "呜——，人类先生。野良芙呀没理会。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_pet_report_owner"
+      },
+      "source_sha256": "f3b75d6deed66df2b13ad2772659b99a7d5214bd06b9c1649e42cda26ff580f0"
+    },
+    {
+      "id": "flandre.young.o_predator_restrain",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……がまん、がまん。おうちの こだもん。",
+      "chinese": "呜——……忍住，忍住。是有主的孩子嘛。",
+      "english": "Hold back... it has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_predator_restrain"
+      },
+      "source_sha256": "10718eee24402054b78e32e03ed1d0bd57a43d57fc6be15e682039a202fc403a"
+    },
+    {
+      "id": "flandre.young.o_predator_obey",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかった！ いうとおりにしゅるよ！",
+      "chinese": "呜——，知道了！照你说的做！",
+      "english": "Okay! Doing it!",
+      "events": [
+        "predator_obey"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_predator_obey"
+      },
+      "source_sha256": "f31a1b4381e18aaf8432dca0ac7c2db0d3126904dd872d64addab8bf3d0ddb2f"
+    },
+    {
+      "id": "flandre.young.o_predator_defy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ やだ！ きかにゃいもん！",
+      "chinese": "呜——！不要！才不听嘛！",
+      "english": "No! Won't listen!",
+      "events": [
+        "predator_defy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_predator_defy"
+      },
+      "source_sha256": "c5af2054c76fd39bce0e8f7e65041032e3fc073029be079e6873cce1818212be"
     }
   ]
 }

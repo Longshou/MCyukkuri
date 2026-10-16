@@ -8219,6 +8219,2710 @@
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
       "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_date_meet",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆ、ゆっくりしていってね……。ちょっとはずかしいよ。",
+      "chinese": "请、请慢慢来哦……。有点害羞呢。",
+      "english": "Hello... I'm Reimu. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_date_fond",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あのこ、すてき……。また あいたいな。",
+      "chinese": "那孩子好棒……。还想再见面。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_permit_glad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あかちゃん、いいの？ ありがとう！ しあわせだよ！",
+      "chinese": "可以要宝宝吗？谢谢！好幸福哦！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_courtship_held",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ほんとはすーりすーりしたいけど……まだがまんだよ。",
+      "chinese": "其实想蹭蹭的……但还要忍着哦。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_badge_pinned",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "バッジ、つけてくれたの？ うれしいよ！",
+      "chinese": "给我别上徽章了吗？好开心哦！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_badge_taken",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "バッジ、なくなっちゃった……。しょんぼりだよ……。",
+      "chinese": "徽章没有了……。好失落哦……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_spray_drowsy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ラムネの あまいにおい……ねむく なって……ゆぅ……。",
+      "chinese": "汽水的甜香……困了……油——……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_spray_drowsy2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ふわふわ……ちからが ぬけちゃうよ……。",
+      "chinese": "轻飘飘的……力气都没了哦……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_basket_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やだよ！ かごはいやだよ！ はなしてね！",
+      "chinese": "不要！不要篮子！放开我哦！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_basket_refuse2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "こわいよ！ はいりたくないよ！",
+      "chinese": "好可怕！不想进去哦！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_basket_enter",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はーい！ ゆっくり はいるよ！",
+      "chinese": "好——！慢慢进去哦！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_basket_exit",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ、ここはどこ？ あたらしいおうちだね！",
+      "chinese": "咦，这里是哪里？是新家呢！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_wild_plea_keep",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてね！ いいこにするよ！",
+      "chinese": "请收我当宠物哦！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_pet_report_owner",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたよ。",
+      "chinese": "人类先生，野良我没理会哦。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_date_meet",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぅ……はじめまちて。はじゅかちいよ……。",
+      "chinese": "油……初次见面惹哟。有点害羞惹哟……。",
+      "english": "H-hello... Reimu is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_date_fond",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あのこ、すちぇき！ またあいたいよぉ！",
+      "chinese": "那孩子好棒惹哟！还想再见惹哟！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_permit_glad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あかちゃん、いいの？ ありがちょう！ しあわちぇー！",
+      "chinese": "可以要宝宝吗惹哟？谢谢惹！好幸福惹——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_courtship_held",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "すーりすーり ちたいけど……まだがまんだよぉ。",
+      "chinese": "想蹭蹭惹……但还要忍着惹哟。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_badge_pinned",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、つけてくれちゃの？ うれちいよぉ！",
+      "chinese": "给窝别上徽章了惹？好开心惹哟！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_badge_taken",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、にゃくなっちゃった……しょんぼりだよぉ……。",
+      "chinese": "徽章没有惹……好失落惹哟……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_spray_drowsy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ラムネのあまいにおい……ねむねむ……ゆぅ……。",
+      "chinese": "汽水的甜香……困困惹……油——……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_spray_drowsy2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ふわふわ……ちからが ぬけちゃうよぉ……。",
+      "chinese": "轻飘飘惹……没力气惹哟……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_basket_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "やぁだ！ かごはいやだよぉ！ はなちてぇ！",
+      "chinese": "不要惹！不要篮子惹哟！放开窝惹！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_basket_refuse2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こわいよぉ！ はいりたくにゃいよぉ！",
+      "chinese": "好怕惹哟！不想进去惹哟！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_basket_enter",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はーい！ ゆっくち はいりゅよ！",
+      "chinese": "好惹——！慢慢进去惹哟！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_basket_exit",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっ？ ここ どこ？ あたらちいおうちだぁ！",
+      "chinese": "咦？这是哪惹？是新家惹哟！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_wild_plea_keep",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆっくりにしちぇね！ いいこにしゅるよ！",
+      "chinese": "收窝当宠物惹哟！窝会乖乖的惹！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_pet_report_owner",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたよ。",
+      "chinese": "人类先生，野良窝没理惹哟。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_date_meet",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ま、まりさなのぜ。よ、よろしくなのぜ……。",
+      "chinese": "我、我是魔理沙贼。请、请多关照贼……。",
+      "english": "Hello... I'm Marisa. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_date_fond",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あいつ、わるくないのぜ。また あいたいのぜ。",
+      "chinese": "那家伙不坏贼。还想再见贼。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_permit_glad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あかちゃんを つくっていいのぜ？ やったのぜ！",
+      "chinese": "可以要宝宝了贼？太好了贼！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_courtship_held",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すーりすーりしたいのぜ……でも まだがまんなのぜ。",
+      "chinese": "好想蹭蹭贼……但还要忍着贼。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_badge_pinned",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジを つけてもらったのぜ！ ほこらしいのぜ！",
+      "chinese": "被别上徽章了贼！好自豪贼！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_badge_taken",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジが……ないのぜ……。しょんぼりなのぜ……。",
+      "chinese": "徽章……没有了贼……。好失落贼……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_spray_drowsy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ラムネのあまいにおいなのぜ……ねむく……なるのぜ……。",
+      "chinese": "汽水的甜香贼……困了……贼……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_spray_drowsy2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あしに ちからが はいらないのぜ……ぜぇ……。",
+      "chinese": "腿使不上力了贼……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_basket_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いやなのぜ！ かごはいやなのぜ！ はなすのぜ！",
+      "chinese": "不要贼！不要篮子贼！放开贼！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_basket_refuse2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "こ、こわくなんかないのぜ！ でも はいらないのぜ！",
+      "chinese": "才、才不怕贼！但就是不进去贼！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_basket_enter",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "わかったのぜ！ さっさと はいるのぜ！",
+      "chinese": "知道了贼！这就进去贼！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_basket_exit",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここが あたらしいおうちなのぜ？ いいところなのぜ！",
+      "chinese": "这里是新家贼？是好地方贼！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_wild_plea_keep",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてほしいのぜ！ いいこにするのぜ！",
+      "chinese": "想当宠物贼！会乖乖的贼！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_pet_report_owner",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたのぜ。えらいのぜ？",
+      "chinese": "人类先生，野良我没理会贼。厉害吧贼？",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_date_meet",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "は、はじめまちてなのじぇ……はじゅかちいのじぇ……。",
+      "chinese": "初、初次见面惹杰……好害羞惹杰……。",
+      "english": "H-hello... Marisa is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_date_fond",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あのこ、いいこなのじぇ！ また あいたいのじぇ！",
+      "chinese": "那孩子是好孩子惹杰！还想再见惹杰！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_permit_glad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あかちゃん、いいのじぇ？ やったのじぇ！ しあわちぇー！",
+      "chinese": "可以要宝宝惹杰？太好惹杰！好幸福惹杰——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_courtship_held",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "すーりすーり ちたいのじぇ……まだ がまんなのじぇ。",
+      "chinese": "想蹭蹭惹杰……还要忍着惹杰。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_badge_pinned",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらっちゃのじぇ！ きらきらなのじぇ！",
+      "chinese": "被别上徽章惹杰！亮晶晶惹杰！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_badge_taken",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじが にゃいのじぇ……しょんぼりなのじぇ……。",
+      "chinese": "徽章没有惹杰……好失落惹杰……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_spray_drowsy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ラムネのにおい……ねむねむなのじぇ……。",
+      "chinese": "汽水的味道……困困惹杰……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_spray_drowsy2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふわふわで ちからが ぬけるのじぇ……。",
+      "chinese": "轻飘飘的没力气惹杰……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_basket_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いやなのじぇ！ かごはいやなのじぇ！",
+      "chinese": "不要惹杰！不要篮子惹杰！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_basket_refuse2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいのじぇ！ はいりたくにゃいのじぇ！",
+      "chinese": "好怕惹杰！不想进去惹杰！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_basket_enter",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はいるのじぇ！ ゆっくち はいりゅのじぇ！",
+      "chinese": "进去惹杰！慢慢进去惹杰！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_basket_exit",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここ どこなのじぇ？ あたらちいおうちなのじぇ！",
+      "chinese": "这是哪惹杰？是新家惹杰！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_wild_plea_keep",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆっくりにちてなのじぇ！ いいこにしゅるのじぇ！",
+      "chinese": "收窝当宠物惹杰！会乖乖的惹杰！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_pet_report_owner",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたのじぇ！",
+      "chinese": "人类先生，野良窝没理惹杰！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_date_meet",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "は、はじめまして。ありす、とかいはに ごあいさつするわ……。",
+      "chinese": "初、初次见面。爱丽丝会都会派地问候哇……。",
+      "english": "Hello... I'm Alice. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_date_fond",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あのひと、すてき……。また あいたいわ。",
+      "chinese": "那个人好棒……。还想再见面哇。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_permit_glad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あかちゃん、いいのね？ ありがとう、とかいはに そだてるわ！",
+      "chinese": "可以要宝宝了对吧？谢谢，会都会派地养大哇！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_courtship_held",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すーりすーりしたいけれど……まだ がまんよ。",
+      "chinese": "好想蹭蹭……但还要忍着哇。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_badge_pinned",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジを つけてもらったわ。とかいはね！",
+      "chinese": "被别上徽章了哇。很都会派吧！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_badge_taken",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジが……ないわ。とかいはじゃない……。",
+      "chinese": "徽章……没有了哇。一点也不都会派……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_spray_drowsy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ラムネの あまいかおり……なんだか ねむいわ……。",
+      "chinese": "汽水的甜香……不知怎么困了哇……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_spray_drowsy2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "からだが ふわふわして……ちからが ぬけるわ……。",
+      "chinese": "身体轻飘飘的……力气都没了哇……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_basket_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いやよ！ かごなんて とかいはじゃないわ！",
+      "chinese": "不要哇！篮子什么的才不都会派哇！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_basket_refuse2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "こわいわ……はいりたくないの……。",
+      "chinese": "好怕哇……不想进去……。",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_basket_enter",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "わかったわ。とかいはに はいるわね。",
+      "chinese": "知道了哇。会都会派地进去哇。",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_basket_exit",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "まあ、あたらしいおうちね。すてきな ところだわ！",
+      "chinese": "哎呀，是新家呢。真是好地方哇！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_wild_plea_keep",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆっくりにしてちょうだい！ いいこにするわ！",
+      "chinese": "请收我当宠物哇！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_pet_report_owner",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたわ。ほめてちょうだい。",
+      "chinese": "人类先生，野良我没理会哇。请夸夸我哇。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_date_meet",
+      "species": "alice",
+      "age": "young",
+      "japanese": "は、はじめまちて……ありちゅ、はじゅかちいわ……。",
+      "chinese": "初、初次见面……窝好害羞哇……。",
+      "english": "H-hello... Alice is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_date_fond",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あのこ、ときゃいはね！ また あいたいわ！",
+      "chinese": "那孩子很都会派哇！还想再见哇！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_permit_glad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あかちゃん、いいの？ ありがちょう！ しあわちぇー！",
+      "chinese": "可以要宝宝吗？谢谢哇！好幸福哇——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_courtship_held",
+      "species": "alice",
+      "age": "young",
+      "japanese": "すーりすーり ちたいけど……まだ がまんよ。",
+      "chinese": "想蹭蹭……但还要忍着哇。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_badge_pinned",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらっちゃ！ ときゃいはでしょ！",
+      "chinese": "被别上徽章啦！很都会派吧！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_badge_taken",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじが にゃいわ……しょんぼりよぉ……。",
+      "chinese": "徽章没有了哇……好失落哇……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_spray_drowsy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ラムネの あまいにおい……ねむいわぁ……。",
+      "chinese": "汽水的甜香……好困哇……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_spray_drowsy2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ふわふわで ちからが ぬけちゃうわぁ……。",
+      "chinese": "轻飘飘的没力气了哇……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_basket_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いやよぉ！ かごはいやぁ！ はなちてぇ！",
+      "chinese": "不要哇！不要篮子！放开窝！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_basket_refuse2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こわいわぁ……はいりたくにゃいの……。",
+      "chinese": "好怕哇……不想进去……。",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_basket_enter",
+      "species": "alice",
+      "age": "young",
+      "japanese": "わかったわ！ ゆっくち はいりゅわ！",
+      "chinese": "知道了哇！慢慢进去哇！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_basket_exit",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あら、ここはどこ？ あたらちいおうちね！",
+      "chinese": "咦，这是哪里？是新家哇！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_wild_plea_keep",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆっくりにちて！ ありちゅ、いいこにしゅるわ！",
+      "chinese": "收窝当宠物！窝会乖乖的哇！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_pet_report_owner",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたわ！",
+      "chinese": "人类先生，野良窝没理会哇！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_date_meet",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "は、はじめましてだよー……ちょっとはずかしいよー……。",
+      "chinese": "初、初次见面哟——……有点害羞哟——……。",
+      "english": "Hello... I'm Chen. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_date_fond",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あのこ、いいこだねー。また あいたいよー！",
+      "chinese": "那孩子是好孩子呢——。还想再见哟——！",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_permit_glad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あかちゃん、いいんだねー！ ありがとうだよー！",
+      "chinese": "可以要宝宝了呢——！谢谢哟——！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_courtship_held",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すーりすーりしたいけど……まだ がまんだよー。",
+      "chinese": "想蹭蹭……但还要忍着哟——。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_badge_pinned",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジ、つけてもらったよー！ うれしいなー！",
+      "chinese": "被别上徽章了哟——！好开心——！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_badge_taken",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジが ないよー……しょんぼりだよー……。",
+      "chinese": "徽章没有了哟——……好失落哟——……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_spray_drowsy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ラムネの あまいにおい……ねむく なってきたよー……。",
+      "chinese": "汽水的甜香……渐渐困了哟——……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_spray_drowsy2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ふわふわして……ちから ぬけちゃうよー……。",
+      "chinese": "轻飘飘的……没力气了哟——……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_basket_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いやだよー！ かごは いやだよー！",
+      "chinese": "不要哟——！不要篮子哟——！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_basket_refuse2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "こわいよー！ はいりたくないんだよー！",
+      "chinese": "好怕哟——！不想进去哟——！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_basket_enter",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "わかったよー！ はいるよー！",
+      "chinese": "知道了哟——！这就进去哟——！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_basket_exit",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここは どこかなー？ あたらしいおうちなんだねー！",
+      "chinese": "这是哪里呢——？是新家呢——！",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_wild_plea_keep",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆっくりに してねー！ いいこに するよー！",
+      "chinese": "请收我当宠物哟——！我会乖乖的哟——！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_pet_report_owner",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、のらは むししたよー。わかるよー！",
+      "chinese": "人类先生，野良我没理会哟——。我明白的哟——！",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_date_meet",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はじめまちてー……ちぇん、はじゅかちいよー……。",
+      "chinese": "初次见面——……橙好害羞哟——……。",
+      "english": "H-hello... Chen is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_date_fond",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あのこ、いいこだよー！ またあいたいよぉー！",
+      "chinese": "那孩子是好孩子哟——！还想再见哟——！",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_permit_glad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あかちゃん、いいのー？ ありがちょうー！ しあわちぇー！",
+      "chinese": "可以要宝宝吗——？谢谢——！好幸福——！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_courtship_held",
+      "species": "chen",
+      "age": "young",
+      "japanese": "すーりすーり ちたいよー……まだ がまんだよー。",
+      "chinese": "想蹭蹭哟——……还要忍着哟——。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_badge_pinned",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ、つけてもらったよー！ うれちいよー！",
+      "chinese": "被别上徽章了哟——！好开心哟——！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_badge_taken",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじが にゃいよー……しょんぼりだよぉー……。",
+      "chinese": "徽章没有了哟——……好失落哟——……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_spray_drowsy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ラムネの においー……ねむねむだよー……。",
+      "chinese": "汽水的味道——……困困哟——……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_spray_drowsy2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ふわふわで ちから ぬけちゃうよぉー……。",
+      "chinese": "轻飘飘的没力气了哟——……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_basket_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いやだよぉー！ かごは いやだよー！ はなちてぇー！",
+      "chinese": "不要哟——！不要篮子哟——！放开橙——！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_basket_refuse2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こわいよー！ はいりたくにゃいよー！",
+      "chinese": "好怕哟——！不想进去哟——！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_basket_enter",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はーい！ ゆっくち はいりゅよー！",
+      "chinese": "好——！慢慢进去哟——！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_basket_exit",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここ どこー？ あたらちいおうちだよー！",
+      "chinese": "这是哪——？是新家哟——！",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_wild_plea_keep",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆっくりに ちてねー！ いいこにしゅるよー！",
+      "chinese": "收橙当宠物哟——！橙会乖乖的哟——！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_pet_report_owner",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらは むちしたよー！",
+      "chinese": "人类先生，野良橙没理会哟——！",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_date_meet",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……はじめまして。ぱちゅりーよ。きんちょうするわ。",
+      "chinese": "姆啾……初次见面。我是帕秋莉。有点紧张。",
+      "english": "Hello... I'm Patchouli. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_date_fond",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あの子……いい子ね。また あいたいわ。",
+      "chinese": "姆啾，那孩子……是个好孩子。还想再见。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_permit_glad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あかちゃんを いいのね。ありがとう。",
+      "chinese": "姆啾，可以要宝宝了呢。谢谢。",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_courtship_held",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……すりすりしたいけど、まだ がまんよ。",
+      "chinese": "姆啾……想蹭蹭，但还要忍着。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_badge_pinned",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。バッジを つけてもらったわ。うれしい。",
+      "chinese": "姆啾。被别上徽章了。好开心。",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_badge_taken",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……バッジが ないわ。かなしいわ……。",
+      "chinese": "姆啾……徽章没有了。好难过……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_spray_drowsy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ラムネの あまいにおい……ねむ……い……。",
+      "chinese": "姆啾……汽水的甜香……困……了……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_spray_drowsy2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅぅ……ちからが ぬけていくわ……。",
+      "chinese": "姆啾……力气渐渐没了……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_basket_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ かごは いやよ！ はなして！",
+      "chinese": "姆啾！不要篮子！放开！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_basket_refuse2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……こわいの。はいりたくないわ……。",
+      "chinese": "姆啾……好怕。不想进去……。",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_basket_enter",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、わかったわ。おとなしく はいるわね。",
+      "chinese": "姆啾，知道了。我乖乖进去。",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_basket_exit",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ここが あたらしい おうちなのね。",
+      "chinese": "姆啾……这里就是新家呢。",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_wild_plea_keep",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、かいゆっくりにしてちょうだい。",
+      "chinese": "姆啾，请收我当宠物。",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_pet_report_owner",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。にんげんさん、のらには こたえなかったわ。",
+      "chinese": "姆啾。人类先生，我没有回应野良。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_date_meet",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……はじめまちて。ぱちゅ、どきどきちてるわ。",
+      "chinese": "姆啾……初次见面。帕秋心怦怦跳。",
+      "english": "H-hello... Patchouli is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_date_fond",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あのこ、いいこね。また あいたいわ。",
+      "chinese": "姆啾，那孩子是好孩子。还想再见。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_permit_glad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あかちゃん、いいのね。ありがちょう。",
+      "chinese": "姆啾，可以要宝宝了。谢谢。",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_courtship_held",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……すりすり ちたいけど、まだ がまんよ。",
+      "chinese": "姆啾……想蹭蹭，但还要忍着。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_badge_pinned",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ばっじ、つけてもらったわ。うれちい。",
+      "chinese": "姆啾。被别上徽章了。好开心。",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_badge_taken",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ばっじが にゃいわ。かなちいわ……。",
+      "chinese": "姆啾……徽章没有了。好难过……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_spray_drowsy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ラムネの におい……ねむいわ……。",
+      "chinese": "姆啾……汽水的味道……好困……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_spray_drowsy2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅぅ……ちから ぬけちゃう……。",
+      "chinese": "姆啾……力气没了……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_basket_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ かごは いやよ！ はなちて！",
+      "chinese": "姆啾！不要篮子！放开！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_basket_refuse2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……こわいわ。はいりたくにゃいの……。",
+      "chinese": "姆啾……好怕。不想进去……。",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_basket_enter",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、わかったわ。おとなちく はいるわ。",
+      "chinese": "姆啾，知道了。帕秋乖乖进去。",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_basket_exit",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ここが あたらちい おうちね。",
+      "chinese": "姆啾……这里是新家。",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_wild_plea_keep",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、かいゆっくりに ちてちょうだい。",
+      "chinese": "姆啾，请收帕秋当宠物。",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_pet_report_owner",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。にんげんしゃん、のらには こたえなかったわ。",
+      "chinese": "姆啾。人类先生，帕秋没有回应野良。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_date_meet",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、はじめましてなのだ。ちょっと きんちょうなのだ……。",
+      "chinese": "呜——，初次见面呀。有点紧张呀……。",
+      "english": "Hello... I'm Remilia. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_date_fond",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あのこ、きにいったのだ。また あいたいのだ。",
+      "chinese": "呜——，喜欢那孩子呀。还想再见呀。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_permit_glad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ あかちゃん、いいのだ？ うれしいのだぁ！",
+      "chinese": "呜——！可以要宝宝了呀？好开心呀！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_courtship_held",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、すりすりしたいけど……まだ がまんなのだ。",
+      "chinese": "呜——，想蹭蹭……但还要忍着呀。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_badge_pinned",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジを つけてもらったのだ！ えっへんなのだ！",
+      "chinese": "呜——，被别上徽章了呀！得意呀！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_badge_taken",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……バッジが ないのだ……。しょんぼりなのだ……。",
+      "chinese": "呜——……徽章没有了呀……。好失落呀……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_spray_drowsy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ラムネの あまいにおい……ねむいのだぁ……。",
+      "chinese": "呜——，汽水的甜香……好困呀……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_spray_drowsy2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ちからが ぬけるのだぁ……。",
+      "chinese": "呜——……力气都没了呀……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_basket_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ かごは いやなのだ！ はなすのだ！",
+      "chinese": "呜——！不要篮子呀！放开呀！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_basket_refuse2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、こわいのだ！ はいらないのだ！",
+      "chinese": "呜——，好怕呀！不进去呀！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_basket_enter",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ わかったのだ！ はいるのだ！",
+      "chinese": "呜——！知道了呀！这就进去呀！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_basket_exit",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー？ ここが あたらしい おうちなのだ？",
+      "chinese": "呜——？这里是新家呀？",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_wild_plea_keep",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆっくりに してほしいのだ！",
+      "chinese": "呜——，想当宠物呀！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_pet_report_owner",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらは むししたのだ。",
+      "chinese": "呜——，人类先生。野良我没理会呀。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_predator_restrain",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……がまんなのだ。このこは おうちの こなのだ。",
+      "chinese": "呜——……要忍住呀。这孩子是有主的呀。",
+      "english": "I'll hold back. That one has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_predator_obey",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、わかったのだ！ いうとおりにするのだ！",
+      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "english": "Okay! I'll do as you say!",
+      "events": [
+        "predator_obey"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_predator_defy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ いやなのだ！ いうことは きかないのだ！",
+      "chinese": "呜——！不要呀！才不听话呀！",
+      "english": "No! I won't obey!",
+      "events": [
+        "predator_defy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_date_meet",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、はじめまちて。れみぃ、どきどきなのだ……。",
+      "chinese": "呜——，初次见面。蕾米心怦怦跳呀……。",
+      "english": "H-hello... Remilia is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_date_fond",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あのこ、しゅきなのだ。また あいたいのだ。",
+      "chinese": "呜——，喜欢那孩子呀。还想再见呀。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_permit_glad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ あかちゃん、いいのだ？ うれちいのだぁ！",
+      "chinese": "呜——！可以要宝宝了呀？好开心呀！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_courtship_held",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、すりすり ちたいけど……まだ がまんなのだ。",
+      "chinese": "呜——，想蹭蹭……但还要忍着呀。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_badge_pinned",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじ つけてもらったのだ！ きらきらなのだ！",
+      "chinese": "呜——，被别上徽章了呀！亮晶晶呀！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_badge_taken",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ばっじが にゃいのだ……しょんぼりなのだ……。",
+      "chinese": "呜——……徽章没有了呀……好失落呀……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_spray_drowsy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ラムネの におい……ねむいのだぁ……。",
+      "chinese": "呜——，汽水的味道……好困呀……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_spray_drowsy2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ちから ぬけちゃうのだぁ……。",
+      "chinese": "呜——……没力气了呀……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_basket_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ かごは いやなのだ！ はなちてなのだ！",
+      "chinese": "呜——！不要篮子呀！放开呀！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_basket_refuse2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、こわいのだ！ はいりたくにゃいのだ！",
+      "chinese": "呜——，好怕呀！不想进去呀！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_basket_enter",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ わかったのだ！ はいりゅのだ！",
+      "chinese": "呜——！知道了呀！这就进去呀！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_basket_exit",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー？ ここが あたらちい おうちなのだ？",
+      "chinese": "呜——？这里是新家呀？",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_wild_plea_keep",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆっくりに ちてほちいのだ！",
+      "chinese": "呜——，想当宠物呀！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_pet_report_owner",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらは むちしたのだ。",
+      "chinese": "呜——，人类先生。野良蕾米没理会呀。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_predator_restrain",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……がまんなのだ。おうちの こなのだ。",
+      "chinese": "呜——……要忍住呀。是有主的孩子呀。",
+      "english": "Hold back... it has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_predator_obey",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、わかったのだ！ いうとおりにしゅるのだ！",
+      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "english": "Okay! Doing it!",
+      "events": [
+        "predator_obey"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_predator_defy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ いやなのだ！ きかにゃいのだ！",
+      "chinese": "呜——！不要呀！才不听呀！",
+      "english": "No! Won't listen!",
+      "events": [
+        "predator_defy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_date_meet",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、はじめまして。ふらん、ちょっと はずかしいな。",
+      "chinese": "呜——，初次见面。芙兰有点害羞呢。",
+      "english": "Hello... I'm Flandre. I'm a little shy.",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_date_fond",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あの子、すき。また あいたいな。",
+      "chinese": "呜——，喜欢那孩子。还想再见呢。",
+      "english": "I like that one... I want to meet again.",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_permit_glad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ あかちゃん、いいの？ ふらん、うれしい！",
+      "chinese": "呜——！可以要宝宝吗？芙兰好开心！",
+      "english": "Babies are allowed? Thank you! I'm so happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_courtship_held",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、すりすりしたいけど……まだ がまんするね。",
+      "chinese": "呜——，想蹭蹭……但还要忍着哦。",
+      "english": "I want to cuddle, but I'll hold back for now.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_badge_pinned",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ つけてもらったよ！ みて、みて！",
+      "chinese": "呜——，被别上徽章了哦！看，快看！",
+      "english": "You pinned my badge on! I'm so happy!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_badge_taken",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……バッジが ないよ……。さみしいな……。",
+      "chinese": "呜——……徽章没有了……。好寂寞……。",
+      "english": "My badge is gone... I feel so down...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_spray_drowsy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ラムネの あまいにおい……ねむいな……。",
+      "chinese": "呜——，汽水的甜香……好困……。",
+      "english": "That sweet ramune smell... I'm getting sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_spray_drowsy2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ちから、ぬけちゃうよ……。",
+      "chinese": "呜——……力气都没了……。",
+      "english": "So floaty... my strength is going...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_basket_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ かごは いや！ はなして！",
+      "chinese": "呜——！不要篮子！放开！",
+      "english": "No! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_basket_refuse2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、こわいよ！ はいりたくない！",
+      "chinese": "呜——，好怕！不想进去！",
+      "english": "I'm scared! I don't want to go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_basket_enter",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかった！ はいるね！",
+      "chinese": "呜——，知道了！这就进去！",
+      "english": "Okay! I'll go in nicely!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_basket_exit",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー？ ここが あたらしい おうちかな？",
+      "chinese": "呜——？这里是新家吗？",
+      "english": "Where is this? A new home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_wild_plea_keep",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆっくりに してね！ いい子にするよ！",
+      "chinese": "呜——，请收我当宠物！我会乖乖的！",
+      "english": "Please keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_pet_report_owner",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらは むししたよ。",
+      "chinese": "呜——，人类先生。野良我没理会哦。",
+      "english": "I didn't answer the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_predator_restrain",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……がまん、がまん。あの子は おうちの子だもん。",
+      "chinese": "呜——……忍住，忍住。那孩子是有主的嘛。",
+      "english": "I'll hold back. That one has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_predator_obey",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかった！ いうとおりにするよ！",
+      "chinese": "呜——，知道了！照你说的做！",
+      "english": "Okay! I'll do as you say!",
+      "events": [
+        "predator_obey"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_predator_defy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ やだ！ いうことなんて きかないよ！",
+      "chinese": "呜——！不要！才不听你的呢！",
+      "english": "No! I won't obey!",
+      "events": [
+        "predator_defy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_date_meet",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、はじめまちて。ふりゃん、はじゅかちいな。",
+      "chinese": "呜——，初次见面。芙呀好害羞。",
+      "english": "H-hello... Flandre is shy...",
+      "events": [
+        "date_meet"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_date_fond",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あのこ、しゅき。また あいたいな。",
+      "chinese": "呜——，喜欢那孩子。还想再见。",
+      "english": "I like that one! Wanna meet again!",
+      "events": [
+        "date_fond"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_permit_glad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ あかちゃん、いいの？ ふりゃん、うれちい！",
+      "chinese": "呜——！可以要宝宝吗？芙呀好开心！",
+      "english": "Babies okay? Thank you! So happy!",
+      "events": [
+        "permit_glad"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_courtship_held",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、すりすり ちたいけど……まだ がまんね。",
+      "chinese": "呜——，想蹭蹭……但还要忍着。",
+      "english": "Wanna cuddle... but gotta wait.",
+      "events": [
+        "courtship_held"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_badge_pinned",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ つけてもらったよ！ みちぇ、みちぇ！",
+      "chinese": "呜——，被别上徽章了！看，快看！",
+      "english": "My badge! So shiny! Yay!",
+      "events": [
+        "badge_pinned"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_badge_taken",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ばっじが にゃいよ……さみちいな……。",
+      "chinese": "呜——……徽章没有了……好寂寞……。",
+      "english": "No more badge... so sad...",
+      "events": [
+        "badge_taken"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_spray_drowsy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ラムネの におい……ねむいな……。",
+      "chinese": "呜——，汽水的味道……好困……。",
+      "english": "That sweet ramune smell... sleepy...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_spray_drowsy2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ちから、ぬけちゃうよぉ……。",
+      "chinese": "呜——……没力气了……。",
+      "english": "So floaty... can't stay up...",
+      "events": [
+        "spray_drowsy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_basket_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ かごは やぁ！ はなちて！",
+      "chinese": "呜——！不要篮子！放开！",
+      "english": "No no! Not the basket! Let go!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_basket_refuse2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、こわいよ！ はいりたくにゃい！",
+      "chinese": "呜——，好怕！不想进去！",
+      "english": "Scary! Don't wanna go in!",
+      "events": [
+        "basket_refuse"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_basket_enter",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかった！ はいりゅね！",
+      "chinese": "呜——，知道了！这就进去！",
+      "english": "Okay! Going in!",
+      "events": [
+        "basket_enter"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_basket_exit",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー？ ここが あたらちい おうち？",
+      "chinese": "呜——？这里是新家？",
+      "english": "Where's this? New home!",
+      "events": [
+        "basket_exit"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_wild_plea_keep",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆっくりに ちてね！ いいこにしゅるよ！",
+      "chinese": "呜——，收芙呀当宠物！芙呀会乖乖的！",
+      "english": "Keep me as a pet! I'll be good!",
+      "events": [
+        "wild_plea_keep"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_pet_report_owner",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらは むちしたよ。",
+      "chinese": "呜——，人类先生。野良芙呀没理会。",
+      "english": "I ignored the wild one, human.",
+      "events": [
+        "pet_report_owner"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_predator_restrain",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……がまん、がまん。おうちの こだもん。",
+      "chinese": "呜——……忍住，忍住。是有主的孩子嘛。",
+      "english": "Hold back... it has an owner.",
+      "events": [
+        "predator_restrain"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_predator_obey",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかった！ いうとおりにしゅるよ！",
+      "chinese": "呜——，知道了！照你说的做！",
+      "english": "Okay! Doing it!",
+      "events": [
+        "predator_obey"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_predator_defy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ やだ！ きかにゃいもん！",
+      "chinese": "呜——！不要！才不听嘛！",
+      "english": "No! Won't listen!",
+      "events": [
+        "predator_defy"
+      ],
+      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
+      "audio_status": "unvoiced"
     }
   ]
 }
