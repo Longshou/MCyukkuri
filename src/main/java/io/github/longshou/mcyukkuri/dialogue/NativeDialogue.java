@@ -18,6 +18,11 @@ public final class NativeDialogue {
             Map.entry("family_alarm_flee", "afraid"),
             Map.entry("family_alarm_calm", "unrecognized"),
             Map.entry("water_help", "afraid"),
+            Map.entry("self_rescue_hat", "lost_accessory"),
+            Map.entry("self_rescue_grip", "exercise"),
+            Map.entry("self_rescue_climb", "exercise"),
+            Map.entry("self_rescue_slip", "afraid"),
+            Map.entry("self_rescue_safe", "returned_accessory"),
             Map.entry("braid_rescue_offer", "wait_family"),
             Map.entry("braid_rescue_grip", "exercise"),
             Map.entry("braid_rescue_safe", "wait_turn"));
@@ -53,9 +58,10 @@ public final class NativeDialogue {
             case "family_alarm_call", "family_alarm_answer" -> 4;
             case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth",
                     "boat_rock_startle", "family_alarm_flee", "water_help",
-                    "braid_rescue_offer", "braid_rescue_grip" -> 3;
+                    "braid_rescue_offer", "braid_rescue_grip", "self_rescue_hat", "self_rescue_grip",
+                    "self_rescue_climb", "self_rescue_slip" -> 3;
             case "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
-                    "family_alarm_calm", "braid_rescue_safe" -> 2;
+                    "family_alarm_calm", "braid_rescue_safe", "self_rescue_safe" -> 2;
             // Exam, shop and wild-role performances interrupt ordinary chatter but never urgent distress.
             case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
                  "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",

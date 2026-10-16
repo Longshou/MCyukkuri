@@ -220,6 +220,7 @@ public final class FirstVoyage {
     }
     /** The placement authored for taking off one's own hat, measured from the retained front berth. */
     private Vec3 dock(HatBoatEntity home){
+        if(returningToParent())return home.emergencyApproach(child);
         var berth=home.voyageBerth(child);
         if(berth==null&&completed&&!leavingHome)berth=home.peekSeat(child);
         if(berth==null){
@@ -309,10 +310,15 @@ public final class FirstVoyage {
         if(phase==Phase.RETURN||phase==Phase.REBOARD){
             // A missing or capsized father releases this goal to emergency landing/call-for-help behavior.
             if(!safeHome(home,father)){reachedTurn=false;if(ticks>100)finish();return;}
+            // First bring both real brims together; FamilyLife then walks to the
+            // near takeoff edge, aligns and commits one bounded short hop.
+            var approach=home.emergencyApproach(child);
             if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
-                    &&(boat.distanceToSqr(home)<=6.25||emergencyReturn(boat)&&!home.hasSafeRoomFor(child))
+                    &&approach!=null&&boat.position().distanceToSqr(approach)<=.01
                     &&boat.protects(child)&&!boat.towed()){
+                boat.holdPosition();home.holdPosition();
                 if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);return;}
+                if(boat.changingSeat(child))return;
             }
             if(ticks%20==1&&!sail(boat,dock(home))){boat.stopPaddling();if(ticks%100==1)child.speak("wait_family");}
         }
@@ -341,8 +347,8 @@ public final class FirstVoyage {
     private boolean sail(HatBoatEntity boat,Vec3 destination){
         if(boat.unsteadyMotion())return false;
         var home=home();
-        boolean closeEmergency=returningToParent()&&home!=null&&emergencyReturn(boat)&&!home.hasSafeRoomFor(child);
-        if(!closeEmergency)return boat.paddleAlong(practicePath(boat,destination));
+        boolean closeReturn=returningToParent()&&home!=null;
+        if(!closeReturn)return boat.paddleAlong(practicePath(boat,destination));
         // A retained berth can become crowded during the trip. Approach outside both
         // actual hulls rather than navigating the child's own hat into that interior seat.
         destination=home.emergencyApproach(child);

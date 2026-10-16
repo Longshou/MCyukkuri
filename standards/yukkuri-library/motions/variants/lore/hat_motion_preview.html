@@ -1,69 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>帽船 · 呼唤返航、撤离与单辫救援</title>
-  <style>
-    :root{color-scheme:light;--ink:#243c40;--soft:#647d80;--paper:#f4f2eb;--line:#d5dfda;--sea:#216a74}
-    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}
-    main{max-width:1440px;margin:auto;padding:44px 32px 24px}a{color:var(--sea);text-decoration:none}a:hover{text-decoration:underline}
-    header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:30px}.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--sea);margin:0 0 10px}h1{font-size:clamp(28px,4vw,46px);line-height:1.2;margin:0 0 16px;letter-spacing:.03em}header p{max-width:720px;color:var(--soft);margin:0}.back{font-size:14px;white-space:nowrap;margin-top:4px}
-    .scenes{display:grid;grid-template-columns:1fr 1fr;gap:22px}figure{margin:0;background:#fffdf8;border:1px solid var(--line);border-radius:20px;overflow:hidden}.media{display:block;width:100%;height:auto;background:#e8eff0}figcaption{padding:20px 24px 24px}.number{color:var(--sea);font-size:13px;letter-spacing:.1em}h2{font-size:23px;margin:4px 0 8px}figcaption p{color:var(--soft);font-size:14px;margin:0;min-height:48px}.tools{display:flex;gap:20px;align-items:center;margin-top:16px;font-size:13px}button{border:1px solid #b6cbc8;border-radius:8px;background:#eef5f2;color:var(--ink);padding:8px 14px;cursor:pointer;font:inherit}button:hover{background:#e0eeea}
-    .sequence{margin-top:26px;padding:24px;background:#fffdf8;border:1px solid var(--line);border-radius:20px}.sequence h2{margin:0 0 16px}.sequence img{display:block;width:100%;height:auto;border-radius:10px}.note{font-size:13px;color:var(--soft);margin:22px 0 8px}.key{display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:5px;background:#fffdf8;color:var(--ink)}
-    @media(max-width:850px){main{padding:28px 16px}.scenes{grid-template-columns:1fr}header{display:block}.back{display:inline-block;margin-top:18px}figcaption p{min-height:0}.sequence{padding:16px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-  </style>
-</head>
-<body>
-<main>
-  <header>
-    <div><p class="eyebrow">水生魔理沙 / 当前模型离线参数演出</p><h1>呼唤、返航与一条辫子的救援。</h1><p>摇晃后警戒撤离；孩子听到亲油呼唤，各自划帽船赶回。有人被挤落时，先在真实水面扑腾，再由亲油用现有单辫接触、抓托、抬回与放稳。</p></div>
-    <a class="back" href="../index.html?topic=hat-motion">返回集中预览 ↗</a>
-  </header>
-  <section class="scenes" aria-label="连续动作预览">
-    <figure>
-      <img class="media" id="rock" src="rock-and-flee.gif" data-motion="rock-and-flee.gif" data-still="rock-poster.png" alt="帽船受摇、亲子受惊呼唤，随后操桨向摇船者反方向撤离，远离后逐渐安心">
-      <figcaption><span class="number">01 / 受惊后真正离开</span><h2>警戒回望，朝危险的反方向划。</h2><p>交互源起初约3格外。完整44tick衰减摇晃后，按当前桨力、水阻与转向速度划离；实际距源超过7格后，再保留80tick逐渐安心。</p><div class="tools"><button data-play="rock">播放对白</button><button data-target="rock">看关键帧</button><a href="rock-and-flee.gif">原尺寸 GIF ↗</a></div><p class="spoken" id="spoken-rock" aria-live="polite"></p></figcaption>
-    </figure>
-    <figure>
-      <img class="media" id="rescue" src="float-and-braid-rescue.gif" data-motion="float-and-braid-rescue.gif" data-still="rescue-poster.png" alt="赤油在实际水面扑腾，亲油靠近伸出既有单辫，接触后同一辫梢抓托抬起并放回真实帽面">
-      <figcaption><span class="number">02 / 水面扑腾到同梢托回</span><h2>一条真实辫子，从接触到松开。</h2><p>采用当前五列浸水浮力的静水平衡与服务端单辫球面运动。抓前不挪孩子；抓托后孩子抓点始终跟随同一个自然长度的辫梢，亲油沿真实帽面走到放回位置。</p><div class="tools"><button data-play="rescue">播放对白</button><button data-target="rescue">看关键帧</button><a href="float-and-braid-rescue.gif">原尺寸 GIF ↗</a></div><p class="spoken" id="spoken-rescue" aria-live="polite"></p></figcaption>
-    </figure>
-    <figure>
-      <img class="media" id="recall" src="recall-and-crowding.gif" data-motion="recall-and-crowding.gif" data-still="recall-poster.png" alt="亲油成功呼唤、不同反应时间的小子油各自划帽船返航，真实登船后拥挤争位，当前六只构成保持支撑并安全聚拢">
-      <figcaption><span class="number">03 / 完整家庭因果链</span><h2>听见呼唤才返航，上帽后才会拥挤。</h2><p>镜头保留各自帽船的实际返程与清檐跳回。两赤油、两只初始同胞、两只按真实成长曲线导出的较大归航子油造成持续接触与有限反作用。此六只构成仍有足够支撑，实际结果是安全聚拢，没有挤落；落水及完整单辫救援另见第二段。</p><div class="tools"><button data-play="recall">播放对白</button><button data-target="recall">看关键帧</button><a href="recall-and-crowding.gif">原尺寸 GIF ↗</a></div><p class="spoken" id="spoken-recall" aria-live="polite"></p></figcaption>
-    </figure>
-  </section>
-  <section class="sequence"><h2>从失衡到实际获救</h2><a href="distress-stages.png"><img src="distress-stages.png" alt="撑檐、争抢、落水冲击、呼救扑水、低力停顿、回帽喘息六个分阶段动作"></a></section>
-  <section class="sequence"><h2>呼唤到返船的连续时刻</h2><a href="storyboard.png"><img src="storyboard.png" alt="呼唤、各自操桨返航、清檐回帽、拥挤争位与安全聚拢的连续分镜"></a></section>
-  <p class="note">GIF 本身无声。点击“播放对白”会从头重播画面，并按相同故事时序播放仓库现有日语 OGG 与其原中文字幕；同一角色的新高优先级呼声会中断旧声音。</p>
-  <p class="note">这是当前源码参数与选用模型的受控离线演出，保留真实体型、支撑与遮挡。没有运行 Minecraft，不代表 AI 已自动完成整套过程；静水续程与几何路线不代替完整引擎碰撞、伤害或多人效果。没有新增假手、辫子长度、平台或客户端孩子飞行弧线。</p>
-</main>
-<script id="story-data" type="application/json">__STORY_DATA__</script>
-<script>
-  const stories=JSON.parse(document.getElementById('story-data').textContent),timers=[],voices=new Map();
-  let playing='';
-  function stop(){timers.splice(0).forEach(clearTimeout);voices.forEach(a=>{a.pause();a.currentTime=0});voices.clear();document.querySelectorAll('[data-play]').forEach(b=>b.textContent='播放对白');playing='';}
-  document.querySelectorAll('[data-play]').forEach(button=>button.addEventListener('click',()=>{
-    const id=button.dataset.play;if(playing===id){stop();return;}stop();playing=id;button.textContent='停止对白';
-    const image=document.getElementById(id),story=stories[id];if(!story)return;image.dataset.paused='false';
-    image.onload=()=>{image.onload=null;story.cues.forEach(cue=>timers.push(setTimeout(()=>{
-      if(playing!==id)return;const previous=voices.get(cue.role);if(previous)previous.pause();
-      const audio=new Audio('audio/'+cue.file);voices.set(cue.role,audio);audio.play().catch(()=>{document.getElementById('spoken-'+id).textContent='浏览器未允许声音，请再次点击播放。';});
-      document.getElementById('spoken-'+id).textContent=cue.role+'：'+cue.text;
-    },cue.tick*50)));timers.push(setTimeout(stop,story.ticks*50+1000));};
-    image.src=image.dataset.motion+'?replay='+Date.now();
-  }));
-  document.querySelectorAll('button[data-target]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      stop();
-      const img=document.getElementById(button.dataset.target),still=img.dataset.paused!=='true';
-      img.dataset.paused=String(still);img.src=still?img.dataset.still:img.dataset.motion;
-      button.textContent=still?'播放动作':'看关键帧';
-    });
-  });
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('button[data-target]').forEach(button=>button.click());}
-</script>
-</body>
-</html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>帽船 · 近檐登船与水中救援</title>
+<style>body{margin:0;background:#f4f2eb;color:#243c40;font:16px/1.8 "Microsoft YaHei",system-ui,sans-serif}main{max-width:1800px;margin:auto;padding:36px 24px}h1{font-size:32px;line-height:1.3}a{color:#216a74}img{display:block;width:100%;height:auto;border-radius:16px}p{max-width:1050px;color:#526d72}.note{font-size:14px}</style>
+<main><a href="../index.html?topic=hat-motion">返回集中预览 ↗</a><h1>近檐登船、翻帽抓檐与低位托回</h1>
+<p>本轮只保留这张当前分镜。第一行是先到近檐再短距跳回；第二行是原帽离头、同一实体翻为船、持续抓檐后实际爬入；第三行是亲油先划近，再用现有单辫沿实际帽缘低位托回。</p>
+<a href="current-interactions.png"><img src="current-interactions.png" alt="九格当前模型离线动作分镜：近檐短跳、自帽翻船和抓檐爬入、亲油实际划近后以同一自然长度辫梢低位托回"></a>
+<p>取帽期仍是头上同一顶帽子的骨骼转移；只有到固定部署端点并重新验证后才生成真实帽船。部署失败则原帽平滑退回。旧翻覆帽需要握住同一真实檐点扶正，失握会回倾，不能凭一次判定瞬间成功。</p>
+<p class="note">当前选用模型与共享公式的受控离线动作分镜，未运行Minecraft、未游戏实测。静水与空旷空间是参数示例；没有把远跳、高举或预定成功剪进过程。孩子泡水时照常受伤，持续接触、体力、空间和打滑都影响成败，可能在成功前死亡。图中不增加平台、假手、第二顶帽子或辫子长度。</p></main></html>

@@ -32,7 +32,7 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&!entity.family().flying()&&!entity.family().heldByBraid();}
+    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&!entity.family().flying()&&!entity.family().heldByBraid()&&!entity.family().selfClimbActive();}
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
     public UUID pusherId(){return pusher;}
@@ -68,12 +68,12 @@ public final class WaterDistress {
         phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
-            if(!entity.family().heldByBraid())surfaceBuoyancy();
+            if(!entity.family().heldByBraid()&&!entity.family().selfClimbActive())surfaceBuoyancy();
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&(fatigue>=160||entity.life().energy()<20))set(Phase.EXHAUSTED);
-            if(!entity.family().heldByBraid()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
+            if(!entity.family().heldByBraid()&&!entity.family().selfClimbActive()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
                 if(burstTicks>0)burstTicks--;else if(restTicks>0)restTicks--;
                 if(callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;alertKin();}
             }else burstTicks=0;
@@ -82,7 +82,7 @@ public final class WaterDistress {
         burstTicks=0;
         // An upward flight or airborne tumble is not a completed rescue.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
-            if(entity.family().braidRescueActive()){drySupportTicks=0;return;}
+            if(entity.family().braidRescueActive()||entity.family().selfClimbActive()){drySupportTicks=0;return;}
             if(entity.family().flying()||!entity.onGround()&&!entity.shelteredInHat()){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);shore=null;target=null;destination=null;
@@ -111,6 +111,7 @@ public final class WaterDistress {
                 ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().heldByBraid())return;
         tick();
         if(phase==Phase.IMPACT){entity.getNavigation().stop();return;}
+        if(entity.family().selfClimbActive()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
         if(searchWait==0){findEscape();searchWait=20;}
         if(target!=null&&level().getEntity(target) instanceof HatBoatEntity hat){
             if(!safeHat(hat)){target=null;destination=null;searchWait=0;}

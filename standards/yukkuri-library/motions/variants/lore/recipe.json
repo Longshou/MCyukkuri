@@ -2927,7 +2927,7 @@
       ]
     },
     "braid_rescue_hold": {
-      "label": "同一辫梢抓托抬回",
+      "label": "同梢贴水抓托沿帽缘回护",
       "duration": 1.2,
       "loop": false,
       "applies": "aquatic_marisa",
@@ -2944,10 +2944,11 @@
           "teary"
         ]
       ],
-      "lore": "The server's real held child and one braid tip share the same grip point throughout the lift, with no client child translation, extra hand or braid scaling.",
+      "lore": "The actual existing tuft contact follows the server low edge-support curve. The child grip remains at that same natural-length tip; no high hoist, root translation, extra hand or scaling is added by the pose.",
       "triggers": [
         "braid rescue GRIP",
-        "braid rescue LIFT"
+        "braid rescue LIFT",
+        "braid rescue PLACE"
       ]
     },
     "braid_rescue_settle": {
@@ -2970,8 +2971,89 @@
       ],
       "lore": "Place on the reserved real support before release. Recovery belongs to actual dry support; this pose does not manufacture a platform or free flight.",
       "triggers": [
-        "braid rescue PLACE",
+        "braid rescue SETTLE",
         "braid rescue RELEASE"
+      ]
+    },
+    "water_hat_flip": {
+      "label": "落水脱帽翻船",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.27999999999999997,
+          "cry"
+        ],
+        [
+          0.27999999999999997,
+          60.8,
+          "teary"
+        ]
+      ],
+      "lore": "The real server removes and turns the original hat. This supported body gesture adds no hat copy, root lift or invented grip.",
+      "triggers": [
+        "water_hat_flip"
+      ],
+      "hat_transfer": {
+        "bone": "hat_follow",
+        "remove_ticks": 18,
+        "return_ticks": 20,
+        "deploy_roll_degrees": 110,
+        "blend": "smoothstep",
+        "destination": "synchronized fixed DeployX/Y/Z + DeployYaw; same physical hat at deployment",
+        "failure": "return only the still-worn same hat from actual RemovalProgress; deployed hats are never duplicated",
+        "clearance_model_units": 1.2,
+        "slide_begin": 0.18,
+        "lower_begin": 0.6
+      }
+    },
+    "water_hat_grip": {
+      "label": "贴真实帽檐抓稳喘息",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.35,
+          "cry"
+        ],
+        [
+          0.35,
+          61.0,
+          "teary"
+        ]
+      ],
+      "lore": "Only the real contact phase uses this brace; the body remains at the synchronized fluid or hull contact point, with no upward animation track.",
+      "triggers": [
+        "water_hat_grip"
+      ]
+    },
+    "water_hat_climb": {
+      "label": "沿真实帽檐爬入",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.42,
+          "cry"
+        ],
+        [
+          0.42,
+          61.2,
+          "teary"
+        ]
+      ],
+      "lore": "The server owns every climb position and duration. The pose compresses against the edge then relaxes; it never adds a jump arc or root translation.",
+      "triggers": [
+        "water_hat_climb"
       ]
     },
     "shy": {

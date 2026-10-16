@@ -75,6 +75,14 @@ public final class YukkuriModel {
     void setBraidRescueContact(Vector3f point){rescueContact=point!=null;if(point!=null)rescueTip.set(point);}
     private String hatMotion="";
     private float hatPhase;
+    record HatTransfer(float removeTicks,float returnTicks,float rollDegrees,float clearance,float slideBegin,float lowerBegin){}
+    private HatTransfer selfHatTransfer;
+    private Matrix4f selfHatDestination;
+    private float selfHatAmount;
+    HatTransfer selfHatTransfer(){return selfHatTransfer;}
+    void setSelfHatTransfer(Matrix4f destination,float amount){
+        selfHatDestination=destination==null?null:new Matrix4f(destination);selfHatAmount=Math.clamp(amount,0,1);
+    }
     public void setCarrying(boolean value){carrying=value;}
     void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
         careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
@@ -526,6 +534,10 @@ public final class YukkuriModel {
             float duration = clip.get("duration").getAsFloat();
             if (!(duration > 0)) throw new IllegalArgumentException("Invalid clip duration");
             clips.put(entry.getKey(), new Clip(duration, clip.get("loop").getAsBoolean(), tracks));
+            if(entry.getKey().equals("water_hat_flip")&&clip.has("hat_transfer")){
+                var transfer=clip.getAsJsonObject("hat_transfer");
+                selfHatTransfer=new HatTransfer(transfer.get("remove_ticks").getAsFloat(),transfer.get("return_ticks").getAsFloat(),transfer.get("deploy_roll_degrees").getAsFloat(),transfer.get("clearance_model_units").getAsFloat(),transfer.get("slide_begin").getAsFloat(),transfer.get("lower_begin").getAsFloat());
+            }
             if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
             if (clip.has("expression_spans")) {
                 List<ExpressionSpan> spans = new ArrayList<>();
@@ -777,6 +789,19 @@ public final class YukkuriModel {
             if(hatScale!=1&&i==hatFollowBone()){
                 var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
             }
+            if(i==hatFollowBone()&&selfHatDestination!=null&&selfHatAmount>0&&selfHatTransfer!=null){
+                var anchor=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();
+                var from=matrix.transformPosition(new Vector3f(anchor));
+                var to=selfHatDestination.transformPosition(new Vector3f(anchor));
+                float slide=smooth((selfHatAmount-selfHatTransfer.slideBegin())/(selfHatTransfer.lowerBegin()-selfHatTransfer.slideBegin()));
+                float lower=smooth((selfHatAmount-selfHatTransfer.lowerBegin())/(1-selfHatTransfer.lowerBegin()));
+                var position=new Vector3f(from).lerp(to,slide);
+                position.y=net.minecraft.util.Mth.lerp(lower,from.y+selfHatTransfer.clearance()*smooth(selfHatAmount/selfHatTransfer.slideBegin()),to.y);
+                var scale=matrix.getScale(new Vector3f()).lerp(selfHatDestination.getScale(new Vector3f()),lower);
+                var rotation=matrix.getUnnormalizedRotation(new org.joml.Quaternionf()).normalize()
+                        .slerp(selfHatDestination.getUnnormalizedRotation(new org.joml.Quaternionf()).normalize(),lower);
+                matrix.translationRotateScale(position,rotation,scale).translate(anchor.negate());
+            }
         }
     }
 
@@ -817,7 +842,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setSelfHatTransfer(null,0);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

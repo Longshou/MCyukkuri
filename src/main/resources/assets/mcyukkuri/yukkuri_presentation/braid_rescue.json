@@ -1,5 +1,5 @@
 {
-  "revision": "single-braid-water-rescue-20261017-v1",
+  "revision": "single-braid-low-edge-rescue-20261017-v2",
   "status": "pending_user_review",
   "model": "marisa",
   "root_bone": "root",
@@ -13,10 +13,11 @@
   "reach_ticks": 16,
   "contact_ticks": 6,
   "grip_ticks": 6,
-  "lift_ticks": 18,
+  "lift_ticks": 8,
   "place_ticks": 12,
   "release_ticks": 6,
-  "note": "One existing braid, fixed natural root-to-tip length and current selected placement. The shared server geometry owns reach, contact and child custody. Root pitch and support correction are exported together; the client neither stretches the braid nor moves the child to manufacture contact.",
+  "note": "One existing braid and its actual tuft contact vertex, fixed natural length. The server first paddles to actual reach, then raises only to footprint-measured rim clearance plus 0.015 block, turns horizontally at that low height and lowers a short distance in SETTLE. Every child position remains Tip minus its real grip offset; no high waypoint or client child motion.",
+  "settle_ticks": 6,
   "units_per_block": 16,
   "bone": "hand_right",
   "root_rotation": [
@@ -52,5 +53,5 @@
   "source_placement": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "source_placement_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
-  "source_recipe_sha256": "7872a09789721b820e4d8ebc4a95643fb9471a43cdb9cb08d0b288bbd46951df"
+  "source_recipe_sha256": "25c3d17602957d9ad807cec4ecb0986ce11d54dd3132eef59de861ebd4976ebb"
 }

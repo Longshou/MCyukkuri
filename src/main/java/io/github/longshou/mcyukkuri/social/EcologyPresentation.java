@@ -53,6 +53,7 @@ public final class EcologyPresentation {
             case "boat_capsizing" -> YukkuriAction.BOAT_STEADY;
             case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
+            case "boat_rescue_approach" -> YukkuriAction.BOAT_PADDLE;
             case "boat_alarm_call" -> YukkuriAction.BOAT_ALARM_CALL;
             case "boat_alarm_wait" -> YukkuriAction.BOAT_ALARM_WAIT;
             case "boat_flee", "boat_return_called" -> YukkuriAction.BOAT_FLEE;
@@ -66,6 +67,14 @@ public final class EcologyPresentation {
             case "escape_water", "struggle", "water_struggle" -> YukkuriAction.WATER_STRUGGLE;
             case "water_exhausted" -> YukkuriAction.WATER_GASP;
             case "water_recover" -> YukkuriAction.WATER_RECOVER;
+            case "water_hat_remove", "water_hat_right" -> YukkuriAction.WATER_HAT_FLIP;
+            case "water_hat_reach" -> YukkuriAction.WATER_STRUGGLE;
+            case "water_hat_grip", "hat_board_grip" -> YukkuriAction.WATER_HAT_GRIP;
+            case "water_hat_climb", "hat_board_lift", "hat_board_settle" -> YukkuriAction.WATER_HAT_CLIMB;
+            case "water_hat_slip" -> YukkuriAction.WATER_GASP;
+            case "water_hat_safe" -> YukkuriAction.WATER_RECOVER;
+            case "hat_board_align" -> YukkuriAction.BOAT_STEADY;
+            case "hat_board_hop" -> YukkuriAction.BOAT_BOARD;
             case "boat_give_paddle" -> YukkuriAction.BOAT_CALL;
             case "boat_receive_paddle" -> YukkuriAction.HAT_CRADLE;
             case "boat_wait_young", "boat_find_paddle", "boat_seek_bank", "boat_provision" -> YukkuriAction.LOOK_AROUND;
@@ -90,7 +99,7 @@ public final class EcologyPresentation {
                 ||behavior.equals("boat_calm")||behavior.equals("boat_answer_call"))return action(behavior);
         if(behavior.equals("boat_flee")||behavior.equals("boat_return_called"))
             return boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
-        if (behavior.equals("boat_reassure") || behavior.equals("boat_rescue_young") || behavior.equals("boat_crowd_guard"))
+        if (behavior.equals("boat_reassure") || behavior.equals("boat_rescue_young") || behavior.equals("boat_rescue_approach") || behavior.equals("boat_crowd_guard"))
             return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_REASSURE;
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
@@ -203,6 +212,9 @@ public final class EcologyPresentation {
             case "boat_steady" -> "surprise";
             case "boat_rocked", "hat_stumble", "hat_jostle", "hat_scramble", "hat_slipping", "boat_crowd_guard" -> "teary";
             case "boat_reassure", "boat_rescue_young" -> "teary";
+            case "boat_rescue_approach", "water_hat_remove", "water_hat_right", "water_hat_reach", "water_hat_grip", "water_hat_climb", "water_hat_slip",
+                 "hat_board_align", "hat_board_hop", "hat_board_grip", "hat_board_lift", "hat_board_settle" -> "teary";
+            case "water_hat_safe" -> "sad";
             case "boat_alarm_call", "boat_answer_call" -> "surprise";
             case "boat_alarm_wait", "boat_flee", "boat_return_called", "braid_rescue_reach", "braid_rescue_hold", "braid_be_rescued" -> "teary";
             case "boat_calm" -> e.level().getGameTime()-e.aquaticAlarmStartTick()<40?"teary":"neutral";
