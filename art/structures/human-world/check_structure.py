@@ -15,7 +15,7 @@ AIR = 'minecraft:air'
 FREE = {AIR, 'mcyukkuri:exam_mark', 'minecraft:light'}
 def free(name): return name in FREE or name.endswith(('_sign', '_banner', '_carpet'))
 # Blocks that let block light through. Furniture, stairs, slabs and every full cube count as opaque (a conservative estimate).
-TRANSPARENT = {AIR, 'minecraft:glass', 'minecraft:lantern', 'minecraft:chain', 'minecraft:light', 'minecraft:spruce_fence', 'minecraft:oak_leaves'}
+TRANSPARENT = {AIR, 'minecraft:glass', 'minecraft:glass_pane', 'minecraft:lantern', 'minecraft:chain', 'minecraft:light', 'minecraft:spruce_fence', 'minecraft:oak_leaves'}
 def transparent(name):
     return (name in TRANSPARENT or name.startswith(('mcyukkuri:', 'minecraft:potted_')) or
             name.endswith(('_door', '_sign', '_banner', '_carpet', '_pressure_plate', '_trapdoor', '_fence', '_leaves')))
@@ -90,6 +90,7 @@ def check(b):
         if name.endswith('_door') and props.get('half') == 'lower' and (x, y, z) not in b.doors: errors.append(f'door at {(x, y, z)} not registered')
     errors += reachability(b)
     errors += facade_patches(b)
+    errors += roof_patches(b)
     tiles = [y for (x, y, z), (n, _, _) in b.blocks.items() if n.endswith('mud_brick_slab') or n.endswith('mud_brick_stairs')]
     rows = max(tiles) - 9 + 1; ratio = rows / (6 + rows)
     if ratio > 0.41: errors.append(f'roof is {ratio:.0%} of facade height')
@@ -132,6 +133,16 @@ def facade_patches(b, limit=6):
             if kind == AIR: continue
             width = max(p[axis] for p in comp) - min(p[axis] for p in comp) + 1; height = max(p[1] for p in comp) - min(p[1] for p in comp) + 1
             if width > limit and height > limit: errors.append(f'{plane}: {kind} patch {width}x{height}')
+    return errors
+
+def roof_patches(b, limit=6):
+    """Roof planes seen from above: no window of one block family larger than 6x6 (trim, ridge cap and skylights break the slopes)."""
+    top = {}
+    for (x, y, z), (n, _, _) in b.blocks.items():
+        if y >= 9 and n not in ('minecraft:light', 'minecraft:smooth_quartz') and top.get((x, z), (0,))[0] < y: top[x, z] = (y, n.replace('_slab', '').replace('_stairs', ''))
+    errors = []; n = limit + 1
+    for (x, z), (_, kind) in sorted(top.items()):   # any 7x7 window of one block family is a patch larger than 6x6
+        if all(top.get((x + i, z + j), (0, None))[1] == kind for i in range(n) for j in range(n)): errors.append(f'roof: {kind} patch at x{x} z{z}'); break
     return errors
 
 def load_build():
