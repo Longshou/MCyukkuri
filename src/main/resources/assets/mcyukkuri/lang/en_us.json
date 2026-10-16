@@ -2041,5 +2041,11 @@
   "shop.mcyukkuri.tag.5": "Timid",
   "shop.mcyukkuri.tag.6": "Curious",
   "shop.mcyukkuri.full": "The shop is full and cannot take another animal.",
-  "shop.mcyukkuri.no_pen": "There is no free pen for it."
+  "shop.mcyukkuri.no_pen": "There is no free pen for it.",
+  "item.mcyukkuri.exam_podium": "Exam Podium",
+  "block.mcyukkuri.exam_podium": "Exam Podium",
+  "item.mcyukkuri.exam_hide_box": "Exam Hiding Box",
+  "block.mcyukkuri.exam_hide_box": "Exam Hiding Box",
+  "item.mcyukkuri.exam_mark": "Exam Floor Mark",
+  "block.mcyukkuri.exam_mark": "Exam Floor Mark"
 }

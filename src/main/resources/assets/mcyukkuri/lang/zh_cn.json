@@ -2041,5 +2041,11 @@
   "shop.mcyukkuri.tag.5": "胆小",
   "shop.mcyukkuri.tag.6": "好奇",
   "shop.mcyukkuri.full": "店里已经满了，收不下了。",
-  "shop.mcyukkuri.no_pen": "没有空闲的栏位可以安置。"
+  "shop.mcyukkuri.no_pen": "没有空闲的栏位可以安置。",
+  "item.mcyukkuri.exam_podium": "答题台",
+  "block.mcyukkuri.exam_podium": "答题台",
+  "item.mcyukkuri.exam_hide_box": "躲藏箱",
+  "block.mcyukkuri.exam_hide_box": "躲藏箱",
+  "item.mcyukkuri.exam_mark": "考位标记",
+  "block.mcyukkuri.exam_mark": "考位标记"
 }

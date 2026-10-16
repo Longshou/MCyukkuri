@@ -1,0 +1,52 @@
+{
+  "status": "pending_visual_approval",
+  "author": "Original procedural pixel art; no external source pixels.",
+  "geometry": "podium 3/16 slab; hide box 1/16 walls + roof, interior 14/16 wide and 15/16 high, open side = FACING; marks 1/16 mats, kind in room,promise,actor,gold,trainee,examiner",
+  "assets": {
+    "exam_podium_top": {
+      "source": "art/structures/human-world/products/exam_podium_top.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_podium_top.png",
+      "sha256": "2b85db92ac0a546fa0ddaadf128e18da83217c84ca0967441ac324615f56b1a7"
+    },
+    "exam_podium_side": {
+      "source": "art/structures/human-world/products/exam_podium_side.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_podium_side.png",
+      "sha256": "dead1a3889629c439b9d490d68ceada716313d37ea1f877036c1ca78e8c17f47"
+    },
+    "exam_hide_box": {
+      "source": "art/structures/human-world/products/exam_hide_box.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_hide_box.png",
+      "sha256": "a85dedc5f94cb8504b7d8a777bd72f2f3b69e6546fed9487c5ae58b74f299fba"
+    },
+    "exam_mark_room": {
+      "source": "art/structures/human-world/products/exam_mark_room.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_room.png",
+      "sha256": "a60e94d989eb812f0a0f8f76b1ab08585ac6bcf4c40e35ddd5a365528f0b1280"
+    },
+    "exam_mark_promise": {
+      "source": "art/structures/human-world/products/exam_mark_promise.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_promise.png",
+      "sha256": "c46090b6f09858967d91b6ce5c6b3b4c83a577c3a79d4569b2ea3bee19ded288"
+    },
+    "exam_mark_actor": {
+      "source": "art/structures/human-world/products/exam_mark_actor.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_actor.png",
+      "sha256": "da5b731ba7d7690cd417ad91b0f1b7b32b6469ba920dc9681f36a364310b633a"
+    },
+    "exam_mark_gold": {
+      "source": "art/structures/human-world/products/exam_mark_gold.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_gold.png",
+      "sha256": "eaf9124812731829ea661aecc1553ed5aae5791edac9efeff049ca016eaf315f"
+    },
+    "exam_mark_trainee": {
+      "source": "art/structures/human-world/products/exam_mark_trainee.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_trainee.png",
+      "sha256": "e7ade79a0ce344bc280b549f16af49eaaf3b5640469f7704ec8c37598b0c29a3"
+    },
+    "exam_mark_examiner": {
+      "source": "art/structures/human-world/products/exam_mark_examiner.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_mark_examiner.png",
+      "sha256": "d9848dc324f75c550d15b16dbbc1f2eb44d96613c16fd3ba05d1e2906f0f394d"
+    }
+  }
+}

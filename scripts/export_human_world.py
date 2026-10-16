@@ -64,6 +64,7 @@ def language(chinese):
     keys['human.mcyukkuri.help.21']='查看下一页实际可售个体，包括捕食种。' if chinese else 'Browse the next page of actual stock, including predators.'
     keys['human.mcyukkuri.animals_page']='本店活体 · %s/%s 页' if chinese else 'Animals / page %s of %s'
     keys.update(load('art/structures/human-world/pipeline_language.py','factory_pipeline_language').language(chinese))
+    keys.update(load('art/structures/human-world/author_exam_props.py','exam_props_language').language('zh_cn' if chinese else 'en_us'))
     return keys
 def main(check=False):
     manifest=ROOT/'art/structures/human-world/exports.json'
@@ -75,6 +76,9 @@ def main(check=False):
         for lang in ['zh_cn','en_us']:
             actual=json.loads((ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))
             errors.extend(lang+':'+k for k,v in language(lang=='zh_cn').items() if actual.get(k)!=v)
+        actual=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json').read_text(encoding='utf-8'))
+        errors.extend('ja_jp:'+k for k,v in load('art/structures/human-world/author_exam_props.py','exam_props_language').language('ja_jp').items() if actual.get(k)!=v)
+        errors.extend('shop structure: '+e for e in load('art/structures/human-world/check_structure.py','shop_structure_check').check_shop())
         if errors:raise SystemExit('Human-world assets differ: '+', '.join(errors))
         print(f"Human-world sources and exports match ({len(record['files'])} files).")
         return
@@ -82,6 +86,11 @@ def main(check=False):
     load('standards/yukkuri-library/tools/author_human_npcs.py','build_human_textures').export()
     load('art/structures/human-world/author_products.py','build_human_products').export()
     load('art/structures/human-world/author_pipeline.py','build_factory_pipeline').export()
+    exam=load('art/structures/human-world/author_exam_props.py','build_exam_props'); exam.export()
+    problems=load('art/structures/human-world/check_structure.py','shop_structure_check').check_shop()
+    if problems: raise SystemExit('Shop structure checks failed: '+'; '.join(problems))
+    p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'))
+    p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     for lang in ['zh_cn','en_us']:
         p=ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(language(lang=='zh_cn'))
         p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -89,12 +98,16 @@ def main(check=False):
         p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8')
     patterns=['src/main/resources/data/mcyukkuri/structure/yukkuri_*.nbt','src/main/resources/data/mcyukkuri/worldgen/*/yukkuri_*.json',
               'src/main/resources/assets/mcyukkuri/textures/entity/human/*.png','standards/yukkuri-library/textures/human/*.png',
-              'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*']
+              'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*',
+              'src/main/resources/assets/mcyukkuri/textures/block/exam_*.png','src/main/resources/assets/mcyukkuri/models/block/exam_*.json','src/main/resources/assets/mcyukkuri/models/item/exam_*.json',
+              'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json']
     paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
     paths.append(ROOT/'art/structures/human-world/author_pipeline.py')
     paths.append(ROOT/'art/structures/human-world/pipeline_language.py')
+    paths.extend([ROOT/'art/structures/human-world/author_exam_props.py',ROOT/'art/structures/human-world/check_structure.py'])
+    paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')

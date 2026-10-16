@@ -2029,5 +2029,11 @@
   "shop.mcyukkuri.tag.5": "こわがり",
   "shop.mcyukkuri.tag.6": "好奇心旺盛",
   "shop.mcyukkuri.full": "お店が満員で、これ以上引き取れません。",
-  "shop.mcyukkuri.no_pen": "入れる飼育スペースがありません。"
+  "shop.mcyukkuri.no_pen": "入れる飼育スペースがありません。",
+  "item.mcyukkuri.exam_podium": "解答台",
+  "block.mcyukkuri.exam_podium": "解答台",
+  "item.mcyukkuri.exam_hide_box": "かくれ箱",
+  "block.mcyukkuri.exam_hide_box": "かくれ箱",
+  "item.mcyukkuri.exam_mark": "試験位置マーク",
+  "block.mcyukkuri.exam_mark": "試験位置マーク"
 }

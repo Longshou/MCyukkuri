@@ -2,12 +2,12 @@
   {
     "name": "yukkuri_shop",
     "size": [
-      25,
-      13,
-      25
+      41,
+      16,
+      33
     ],
-    "blocks": 8125,
-    "entities": 17,
+    "blocks": 12085,
+    "entities": 29,
     "source": "art/structures/human-world/build.py"
   },
   {
