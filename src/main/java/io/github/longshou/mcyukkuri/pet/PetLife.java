@@ -209,32 +209,83 @@ public final class PetLife {
     }
 
     // social
+    private final Map<UUID, Long> noticed = new HashMap<>();
+    private UUID stareAt, faceAt;
+    private int stareTicks, faceTicks;
+    /** Nothing that a badge performance may interrupt: sleep, meals, sessions, panic, family or daily tasks, command actions. */
+    private boolean calm() {
+        return !busy() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking() && !animal.isCommandPlaying()
+                && !animal.operations().active() && !animal.life().isSleeping() && !animal.life().hasUrgentNeed() && animal.life().mealTicks() == 0
+                && !animal.dailyLife().active() && !animal.groupInteraction().active() && !animal.playLife().active() && animal.hurtTime == 0
+                && !animal.family().active();
+    }
+    private void face(YukkuriEntity peer, int ticks) { faceAt = peer.getUUID(); faceTicks = ticks; animal.getLookControl().setLookAt(peer, 30, 30); }
     public boolean reactTo(YukkuriEntity peer) {
-        if (busy() || socialCooldown > 0 || peer.pet().visibleEffective() == BadgeGrade.NONE && visibleEffective() == BadgeGrade.NONE) return false;
+        if (socialCooldown > 0 || stareTicks > 0 || !calm() || !peer.isAlive() || peer.pet().busy() || peer.life().isSleeping()
+                || peer.pet().visibleEffective() == BadgeGrade.NONE && visibleEffective() == BadgeGrade.NONE) return false;
+        if (startStare(peer)) return true;
+        react(peer); return true;
+    }
+    /** A wild observer pauses to stare at a visible silver/gold badge before it reacts, once per pair per 10 minutes. */
+    private boolean startStare(YukkuriEntity peer) {
+        if (owner() != null || peer.pet().visibleEffective().id() < BadgeGrade.SILVER.id() || !animal.hasLineOfSight(peer)) return false;
+        long t = now(); Long last = noticed.get(peer.getUUID());
+        if (last != null && t - last < 12000) return false;
+        noticed.values().removeIf(v -> t - v > 12000); noticed.put(peer.getUUID(), t);
+        stareAt = peer.getUUID(); stareTicks = 40; animal.life().deferSocial(60);
+        animal.playAction("nervous"); animal.showReaction("surprise", "", 40);
+        face(peer, 40);
+        return true;
+    }
+    private void react(YukkuriEntity peer) {
         socialCooldown = 600;
         int mine = visibleEffective().id(), theirs = peer.pet().visibleEffective().id();
         var personality = animal.life().personality();
-        boolean kind = personality.trait(Trait.CARE) >= 55 || animal.family().caresFor(peer)
-                || io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level()).affinity(animal.getUUID(),peer.getUUID()) >= 10;
-        String line; int relation;
+        boolean bold = personality.trait(Trait.BOLDNESS) >= 55;
+        var world = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level());
+        boolean kind = personality.trait(Trait.CARE) >= 55 || animal.family().caresFor(peer) || world.affinity(animal.getUUID(), peer.getUUID()) >= 10;
+        int relation;
         if (theirs > mine) {
-            boolean envy = !kind && personality.trait(Trait.BOLDNESS) >= 55;
-            line = envy ? "envy" : "admire"; relation = envy ? -2 : 2;
+            boolean envy = !kind && bold; relation = envy ? -2 : 2;
+            if (envy) { animal.playAction(animal.getRandom().nextBoolean() ? "puff" : "sulk"); animal.showReaction(animal.getRandom().nextBoolean() ? "angry" : "teary", "badge_envy", 80); }
+            else { animal.playAction("beg"); animal.showReaction("open_smile", "badge_admire", 80); }
         } else if (mine > theirs) {
-            line = kind ? "help" : personality.trait(Trait.BOLDNESS) >= 55 ? "boast" : "polite";
-            relation = line.equals("boast") ? -2 : 2;
-        } else { line = "peer"; relation = 2; }
-        animal.sayBadge(line);
-        io.github.longshou.mcyukkuri.life.YukkuriWorldData.get((ServerLevel)animal.level()).relate(animal.getUUID(), peer.getUUID(), relation);
+            boolean boast = !kind && bold; relation = boast ? -2 : 2;
+            if (boast) { animal.playAction("proud"); animal.showReaction("smug", "badge_proud", 80); }
+            else { animal.playAction(kind ? "bow" : "greet"); animal.showReaction("closed_smile", kind ? "peer" : "hello", 80); }
+        } else {
+            relation = 2; animal.playAction("greet"); animal.showReaction("happy", "peer", 80);
+        }
+        face(peer, 60);
+        world.relate(animal.getUUID(), peer.getUUID(), relation);
         if (relation < 0) animal.life().deferSocial(200);
-        return true;
+    }
+    /** Wild individuals notice nearby visible silver/gold badges without waiting for a formal greeting. */
+    private void scanBadges() {
+        if (owner() != null || socialCooldown > 0 || stareTicks > 0 || !calm()) return;
+        var peer = animal.level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(6), y -> y != animal && y.isAlive()
+                && y.pet().visibleEffective().id() >= BadgeGrade.SILVER.id() && animal.hasLineOfSight(y)).stream()
+                .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+        if (peer != null) reactTo(peer);
+    }
+    private void tickPerformance() {
+        if (faceTicks > 0) {
+            faceTicks--;
+            if (((ServerLevel)animal.level()).getEntity(faceAt) instanceof YukkuriEntity y) animal.getLookControl().setLookAt(y.getX(), y.getEyeY(), y.getZ(), 30, 30);
+        }
+        if (stareTicks > 0) {
+            stareTicks--;
+            var y = ((ServerLevel)animal.level()).getEntity(stareAt) instanceof YukkuriEntity o && o.isAlive() ? o : null;
+            if (y == null || !calm() || !animal.hasLineOfSight(y)) { stareTicks = 0; return; }
+            if (stareTicks == 0 && socialCooldown == 0) react(y);
+        } else if (animal.tickCount % 40 == 7) scanBadges();
     }
 
     public void tick() {
         if (animal.level().isClientSide) return;
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
-        lessons.tick();
+        lessons.tick(); tickPerformance();
         stressClock += animal.life().isSleeping() ? 2 : 1;
         if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }
