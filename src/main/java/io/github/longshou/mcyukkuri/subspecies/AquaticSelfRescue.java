@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
+import io.github.longshou.mcyukkuri.family.HatBoarding;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -8,9 +10,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-/** Finite physical attempts to recover one's own hat; immersion damage remains entirely in YukkuriLife. */
+/** Finite physical attempts to recover one's own hat; immersion damage remains entirely in YukkuriLife.
+ *  The hat is shaken off the head, bitten at its rim and, if upside down, pushed over with the body three times (project-original, not canon). */
 public final class AquaticSelfRescue {
     public enum Phase { IDLE, REMOVE_HAT, DEPLOY_HAT, APPROACH, GRIP, RIGHT_HAT, CLIMB, SLIPPED, SAFE }
+    /** Three pushes, each 12 ticks of pushing and 8 of rest; progress .33 / .66 / 1 of the existing hat righting. */
+    public static final int PUSHES=3, PUSH_ON=12, PUSH_TICKS=20, BITE_TICKS=8, MAX_ATTEMPT_TICKS=320;
     private final YukkuriEntity actor;
     private Phase phase=Phase.IDLE;
     private UUID hatId;
@@ -21,7 +26,6 @@ public final class AquaticSelfRescue {
     private HatBoatEntity.SelfRescueDeployment deployment;
     private float removalProgress;
     private SelfRescueHatGeometry.Pose carriedPose,previousCarriedPose;
-    private Vec3 braidTip,previousBraidTip,braidJoint,previousBraidJoint;
     private long poseTick=Long.MIN_VALUE;
     private float poseYaw=Float.NaN,previousPoseYaw=Float.NaN;
     public AquaticSelfRescue(YukkuriEntity actor){this.actor=actor;}
@@ -31,7 +35,9 @@ public final class AquaticSelfRescue {
     public long phaseStart(){return started;}
     public boolean active(){return phase!=Phase.IDLE;}
     public int targetHatId(){var hat=hat();return hat==null?-1:hat.getId();}
-    public float gripProgress(){return phase==Phase.RIGHT_HAT?Math.clamp(rightTicks/28f,0,1):Math.clamp(contact/8f,0,1);}
+    public int pushIndex(){return Math.min(PUSHES-1,rightTicks/PUSH_TICKS);}
+    public float gripProgress(){return phase==Phase.RIGHT_HAT?Math.clamp(rightTicks/(float)(PUSHES*PUSH_TICKS),0,1):Math.clamp(contact/(float)BITE_TICKS,0,1);}
+    /** Kept stable for the presentation, which maps the clip from the phase. */
     public String activity(){return switch(phase){
         case IDLE->"idle";case REMOVE_HAT->"water_hat_remove";case DEPLOY_HAT,RIGHT_HAT->"water_hat_right";
         case APPROACH->"water_hat_reach";case GRIP->"water_hat_grip";case CLIMB->"water_hat_climb";
@@ -44,18 +50,12 @@ public final class AquaticSelfRescue {
             &&actor.childhood().canJump()&&actor.life().energy()>=8
             &&(actor.family().adult()||actor.aquaticLife().firstVoyage().readySize());}
     private void set(Phase next){if(phase!=next){phase=next;started=now();}}
-    private void pose(SelfRescueHatGeometry.Pose next){
-        if(poseTick!=now()){previousCarriedPose=carriedPose;previousBraidTip=braidTip;previousBraidJoint=braidJoint;previousPoseYaw=poseYaw;poseTick=now();}
+    private void trackYaw(){
+        if(poseTick!=now()){previousPoseYaw=poseYaw;poseTick=now();}
         poseYaw=actor.yBodyRot;
-        carriedPose=next;if(next!=null){braidTip=next.tip();braidJoint=next.joint();}
     }
-    private void gripPose(Vec3 tip){
-        if(poseTick!=now()){previousBraidTip=braidTip;previousBraidJoint=braidJoint;previousPoseYaw=poseYaw;poseTick=now();}
-        poseYaw=actor.yBodyRot;
-        var root=SelfRescueHatGeometry.root(actor);
-        if(tip==null||!io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,root,tip)){braidTip=braidJoint=null;return;}
-        braidTip=tip;var hint=actor.position().add(new Vec3(0,actor.getBbHeight()*.35,0));
-        braidJoint=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.joint(actor,root,tip,hint);
+    private void pose(SelfRescueHatGeometry.Pose next){
+        previousCarriedPose=carriedPose;carriedPose=next;
     }
     public void clock(){
         if(actor.level().isClientSide)return;
@@ -70,7 +70,7 @@ public final class AquaticSelfRescue {
             slip();return;
         }
         if(phase==Phase.SLIPPED){
-            // Before contact the hat never left the head. After contact it is already a real drifting vessel.
+            // Before the shake the hat never left the head. After it, the hat is already a real drifting vessel.
             if(now()-started>=20){stop();nextAttempt=Math.max(nextAttempt,now()+12);}return;
         }
         if(active()&&phase!=Phase.SLIPPED&&!capable()){slip();return;}
@@ -94,8 +94,8 @@ public final class AquaticSelfRescue {
             else return false;
             attemptTicks=contact=rightTicks=0;lastGrip=lockedGripLocal=null;actor.showReaction("teary","self_rescue_hat",36);
         }
-        if(++attemptTicks>240){slip();nextAttempt=now()+40;return false;}
-        actor.life().wakeInHat();actor.getNavigation().stop();
+        if(++attemptTicks>MAX_ATTEMPT_TICKS){slip();nextAttempt=now()+40;return false;}
+        actor.life().wakeInHat();actor.getNavigation().stop();trackYaw();
         if(phase==Phase.SLIPPED){
             if(now()-started>=20){set(Phase.IDLE);nextAttempt=Math.max(nextAttempt,now()+12);}return false;
         }
@@ -105,20 +105,20 @@ public final class AquaticSelfRescue {
                     ||held!=null&&(!held.ownsPhysicalHat(actor)||!held.selfRescueHeld())){slip();return false;}
             float elapsed=Math.min(SelfRescueHatGeometry.REMOVE_TICKS,now()-started);
             removalProgress=elapsed/SelfRescueHatGeometry.REMOVE_TICKS;
-            // The selected action has a stable neutral root. Water buoyancy/damage are never suspended.
+            // Shaking the head loose: the body keeps its heading and stays afloat; water buoyancy/damage are never suspended.
             actor.yBodyRot=deployment.path().bodyYaw();actor.setYRot(actor.yBodyRot);actor.setYHeadRot(actor.yBodyRot);
             var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.6,velocity.y,velocity.z*.6);
             var next=SelfRescueHatGeometry.pose(actor,deployment.path(),elapsed);
-            if(!SelfRescueHatGeometry.valid(actor,deployment.path(),next,carriedPose,elapsed>=SelfRescueHatGeometry.REACH)){slip();return false;}
+            if(!SelfRescueHatGeometry.valid(actor,deployment.path(),next,carriedPose)){slip();return false;}
             pose(next);
-            if(elapsed>=SelfRescueHatGeometry.REACH+SelfRescueHatGeometry.CONTACT){
+            if(elapsed>=SelfRescueHatGeometry.SHAKE){
+                // Once clear of the head the same unique hat becomes the real vessel and slides to the planned spot.
                 if(held==null){
                     if(!actor.life().spendEnergy(.35f)){slip();return false;}
                     held=HatBoatEntity.deployForSelfRescue(actor,deployment,next,elapsed);
                     if(held==null||!held.selfRescueHeld()){slip();return false;}
-                    hatId=held.getUUID();nextGripCheck=now()+8;
+                    hatId=held.getUUID();
                 }else if(!actor.life().spendEnergy(.012f)||!held.setSelfRescueCarryPose(actor,next,elapsed)){slip();return false;}
-                if(now()>=nextGripCheck){nextGripCheck=now()+8;if(actor.getRandom().nextFloat()<slipRisk(held)){slip();return false;}}
             }
             if(elapsed<SelfRescueHatGeometry.REMOVE_TICKS)return true;
             if(held==null){slip();return false;}
@@ -127,45 +127,46 @@ public final class AquaticSelfRescue {
         var current=hat();
         if(current==null||!current.ownsPhysicalHat(actor)||actor.distanceToSqr(current)>64){stop();nextAttempt=now()+20;return false;}
         if(phase==Phase.DEPLOY_HAT){
-            // The same actual grip holds the upright hat for six settling ticks, then lets water/inertia take over.
+            // The settled upright pose is held for six ticks, then lets water/inertia take over.
             if(deployment!=null&&now()-started<6){
                 var settled=SelfRescueHatGeometry.pose(actor,deployment.path(),SelfRescueHatGeometry.REMOVE_TICKS);
-                if(!SelfRescueHatGeometry.valid(actor,deployment.path(),settled,carriedPose,true)
+                if(!SelfRescueHatGeometry.valid(actor,deployment.path(),settled,carriedPose)
                         ||!current.setSelfRescueCarryPose(actor,settled,SelfRescueHatGeometry.REMOVE_TICKS)){slip();return false;}
                 pose(settled);return true;
             }
-            current.finishSelfRescueCarry(actor);carriedPose=previousCarriedPose=null;
-            braidTip=braidJoint=null;set(Phase.APPROACH);
+            current.finishSelfRescueCarry(actor);carriedPose=previousCarriedPose=null;set(Phase.APPROACH);
         }
         if(current.capsizing()||current.state()==HatBoatEntity.State.BEACHED||current.towed())return false;
         var target=current.ownGripApproach(actor);if(target==null){slip();return false;}
-        // Present the real right braid to the rim. Swimming direction remains independent of this bounded turn.
-        SurfaceApproach.face(actor,SurfaceApproach.yaw(actor.position(),current.position())-90);
-        var grip=(phase==Phase.GRIP||phase==Phase.RIGHT_HAT)&&lockedGripLocal!=null
-                ?current.selfRescueGrip(actor,lockedGripLocal):current.selfRescueGrip(actor);
+        boolean holding=(phase==Phase.GRIP||phase==Phase.RIGHT_HAT)&&lockedGripLocal!=null;
+        var grip=holding?current.selfRescueGrip(actor,lockedGripLocal):current.selfRescueGrip(actor);
         if(grip==null){
-            braidTip=braidJoint=null;contact=0;rightTicks=Math.max(0,rightTicks-2);lastGrip=lockedGripLocal=null;set(Phase.APPROACH);
+            contact=0;rightTicks=Math.max(0,rightTicks-2);lastGrip=lockedGripLocal=null;set(Phase.APPROACH);
+            SurfaceApproach.face(actor,SurfaceApproach.yaw(actor.position(),current.position()));
             swimToward(current,target);return true;
         }
-        if(lastGrip!=null&&lastGrip.distanceToSqr(grip)>.10*.10){slip();return false;}
+        if(holding&&lastGrip!=null&&lastGrip.distanceToSqr(grip)>.10*.10){slip();return false;}
         lastGrip=grip;
-        gripPose(grip);
-        if(braidTip==null){swimToward(current,target);return true;}
+        // The mouth, not the braid, meets the rim: face it and close the last distance a little at a time.
+        SurfaceApproach.face(actor,SurfaceApproach.yaw(actor.position(),grip));
         // Finite effort and drift control the outcome. A fast moving/turning brim cannot grant instant grip.
         if(current.getDeltaMovement().subtract(actor.getDeltaMovement()).horizontalDistanceSqr()>.10*.10){slip();return false;}
         if(phase==Phase.APPROACH){
-            lockedGripLocal=current.selfRescueGripLocal(actor);if(lockedGripLocal==null)return true;
+            lockedGripLocal=current.selfRescueGripLocal(actor);if(lockedGripLocal==null){swimToward(current,target);return true;}
             set(Phase.GRIP);contact=0;nextGripCheck=now()+8;
         }
-        if((phase==Phase.GRIP||phase==Phase.RIGHT_HAT)&&now()>=nextGripCheck){
+        if(phase==Phase.GRIP&&now()>=nextGripCheck){
             nextGripCheck=now()+8;
             if(actor.getRandom().nextFloat()<slipRisk(current)){slip();return false;}
         }
         if(!actor.life().spendEnergy(.025f)){slip();return false;}
         var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.65,velocity.y,velocity.z*.65);
         if(phase==Phase.GRIP){
-            if(++contact<8)return true;
-            actor.speak("self_rescue_grip");
+            double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY());
+            closeOnRim(grip,wall);
+            contact=BraidRescueGeometry.bites(actor,BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot),grip,wall)?contact+1:0;
+            if(contact<BITE_TICKS)return true;
+            if(contact==BITE_TICKS)actor.speak("self_rescue_grip");
             if(current.state()==HatBoatEntity.State.CAPSIZED){rightTicks=0;set(Phase.RIGHT_HAT);}
             else if(current.isAfloat()&&!current.unsteadyMotion()){
                 var water=BlockPos.containing(current.position().add(0,-.12,0));
@@ -175,13 +176,30 @@ public final class AquaticSelfRescue {
             return true;
         }
         if(phase==Phase.RIGHT_HAT){
-            if(!actor.life().spendEnergy(.035f)||!current.setSelfRighting(actor,++rightTicks/28f,lockedGripLocal)){slip();return false;}
-            if(rightTicks>=28){
+            // Three body pushes from below the rim: push, then rest. Each costs effort and may let the rim slip away.
+            int slot=pushIndex(),within=rightTicks%PUSH_TICKS;
+            if(within==0){
+                if(!actor.life().spendEnergy(.035f)||actor.getRandom().nextFloat()<slipRisk(current)){slip();return false;}
+                if(slot==0)actor.speak("self_rescue_climb");
+            }
+            double progress=(slot+(within<PUSH_ON?HatBoarding.smooth((double)within/PUSH_ON):1))/PUSHES;
+            if(!current.setSelfRighting(actor,(float)progress,lockedGripLocal)){slip();return false;}
+            if(++rightTicks>=PUSHES*PUSH_TICKS){
                 if(current.finishSelfRighting(actor)){contact=rightTicks=0;lastGrip=lockedGripLocal=null;set(Phase.APPROACH);return true;}
                 slip();return false;
             }
         }
         return true;
+    }
+    /** Nudge the body, never through a block, until the mouth is on the rim wall (from the waterline up to the lip). */
+    private void closeOnRim(Vec3 grip,double wall){
+        var mouth=BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot);
+        double y=Math.clamp(mouth.y,grip.y-wall,grip.y);
+        var gap=new Vec3(grip.x-mouth.x,y-mouth.y,grip.z-mouth.z);double length=gap.length();
+        if(length<=BraidRescueGeometry.biteReach(actor)*.5)return;
+        var step=gap.scale(Math.min(1,.02/length));
+        if(level().getBlockCollisions(actor,actor.getBoundingBox().move(step)).iterator().hasNext())return;
+        var next=actor.position().add(step);actor.setPos(next.x,next.y,next.z);actor.hasImpulse=true;
     }
     private boolean startClimb(HatBoatEntity current){
         if(actor.family().climbOwnHat(current)){set(Phase.CLIMB);actor.speak("self_rescue_climb");return true;}
@@ -212,13 +230,13 @@ public final class AquaticSelfRescue {
     private void slip(){
         var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().selfClimbActive())current.releaseOwnBoardingSeat(actor);}
         if(phase!=Phase.SLIPPED)actor.showReaction("teary","self_rescue_slip",24);
-        carriedPose=previousCarriedPose=null;braidTip=braidJoint=null;
+        carriedPose=previousCarriedPose=null;
         contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;set(Phase.SLIPPED);
     }
     public void stop(){
         var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().selfClimbActive())current.releaseOwnBoardingSeat(actor);}
         phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;deployment=null;removalProgress=0;
-        carriedPose=previousCarriedPose=null;braidTip=previousBraidTip=braidJoint=previousBraidJoint=null;poseTick=Long.MIN_VALUE;
+        carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;
     }
     public CompoundTag syncState(){
@@ -226,22 +244,21 @@ public final class AquaticSelfRescue {
         tag.putFloat("Grip",gripProgress());tag.putString("Activity",activity());
         tag.putBoolean("Planned",deployment!=null);
         tag.putFloat("RemovalProgress",removalProgress);tag.putInt("RemoveTicks",SelfRescueHatGeometry.REMOVE_TICKS);
+        // Index of the current body push (0-2) while the upside-down hat is being righted; Pushing is false during the rest.
+        tag.putInt("PushIndex",phase==Phase.RIGHT_HAT?pushIndex():0);tag.putBoolean("Pushing",phase==Phase.RIGHT_HAT&&rightTicks%PUSH_TICKS<PUSH_ON);
+        tag.putBoolean("Bite",phase==Phase.GRIP&&contact>0||phase==Phase.RIGHT_HAT);
         if(deployment!=null){
             tag.putDouble("DeployX",deployment.position().x);tag.putDouble("DeployY",deployment.position().y);tag.putDouble("DeployZ",deployment.position().z);
             tag.putFloat("DeployYaw",deployment.yaw());
             tag.putFloat("RemovalYaw",deployment.path().bodyYaw());
-            vector(tag,"RemovalFeet",deployment.path().feet());vector(tag,"RemovalRim",deployment.path().localRim());
-            vector(tag,"FirstGrip",deployment.path().firstGrip());vector(tag,"FinalGrip",deployment.path().finalGrip());
+            vector(tag,"RemovalFeet",deployment.path().feet());
         }
         if(carriedPose!=null&&actor.life().hasAccessory()&&(phase==Phase.REMOVE_HAT||phase==Phase.SLIPPED)){
             tag.putBoolean("HatPose",true);hatPose(tag,"Hat",carriedPose);hatPose(tag,"PrevHat",previousCarriedPose!=null?previousCarriedPose:carriedPose);
         }
-        if(braidTip!=null&&braidJoint!=null&&active()&&phase!=Phase.CLIMB&&phase!=Phase.SAFE){
-            tag.putBoolean("BraidContact",true);vector(tag,"Tip",braidTip);vector(tag,"PrevTip",previousBraidTip!=null?previousBraidTip:braidTip);
-            vector(tag,"Joint",braidJoint);vector(tag,"PrevJoint",previousBraidJoint!=null?previousBraidJoint:braidJoint);
+        if(active()&&phase!=Phase.CLIMB&&phase!=Phase.SAFE){
             tag.putFloat("BodyYaw",Float.isFinite(poseYaw)?poseYaw:actor.yBodyRot);
             tag.putFloat("PrevBodyYaw",Float.isFinite(previousPoseYaw)?previousPoseYaw:actor.yBodyRot);
-            tag.putFloat("RootBlend",0);
         }
         if(lockedGripLocal!=null){
             tag.putBoolean("Locked",true);tag.putDouble("GripLocalX",lockedGripLocal.x);tag.putDouble("GripLocalY",lockedGripLocal.y);tag.putDouble("GripLocalZ",lockedGripLocal.z);
@@ -257,7 +274,7 @@ public final class AquaticSelfRescue {
         // Reload never reconstructs a grip or replays removal; the persisted physical hat/token remain authoritative.
         phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;lastEscape=Long.MIN_VALUE;
         deployment=null;removalProgress=0;
-        carriedPose=previousCarriedPose=null;braidTip=previousBraidTip=braidJoint=previousBraidJoint=null;poseTick=Long.MIN_VALUE;
+        carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;
         nextAttempt=Math.max(now()+12,tag.getLong("RetryAt"));
     }

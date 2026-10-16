@@ -3,11 +3,11 @@ package io.github.longshou.mcyukkuri.subspecies;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -15,31 +15,25 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-/** One physical hat and one existing braid. All positions are world coordinates; the mesh is the
- * selected marisa_hat_turned prop, before its freeboard translation. No client pose interpolation. */
+/** One physical hat shaken off the head. All positions are world coordinates; the mesh is the selected
+ * marisa_hat_turned prop, before its freeboard translation. No braid takes part: the hat is shaken loose,
+ * slides over the face to the planned water spot and settles there. No client pose interpolation. */
 public final class SelfRescueHatGeometry {
-    public static final int REACH=8, CONTACT=6, TURN=28, LOWER=16, REMOVE_TICKS=REACH+CONTACT+TURN+LOWER;
-    private record Mesh(List<Vec3> vertices,List<Vec3[]> rimEdges){}
+    /** Shaking loose, sliding off over the face while turning over, then settling on the water. */
+    public static final int SHAKE=12, TURN=14, LOWER=10, REMOVE_TICKS=SHAKE+TURN+LOWER;
+    private record Mesh(List<Vec3> vertices){}
     private static final Mesh MESH=read();
     private static Mesh read(){
         try(var stream=SelfRescueHatGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json")){
             if(stream==null)throw new IllegalStateException("Missing selected physical hat");
             var data=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-            var raw=data.getAsJsonArray("vertices");var vertices=new ArrayList<Vec3>();var edges=new ArrayList<Vec3[]>();
+            var raw=data.getAsJsonArray("vertices");var vertices=new ArrayList<Vec3>();
             for(int i=0;i<raw.size();i+=8)vertices.add(new Vec3(raw.get(i).getAsDouble(),raw.get(i+1).getAsDouble(),raw.get(i+2).getAsDouble()));
-            for(var entry:data.getAsJsonArray("parts")){
-                var part=entry.getAsJsonObject();if(!part.get("name").getAsString().startsWith("brim"))continue;
-                int begin=part.get("start").getAsInt(),end=begin+part.get("count").getAsInt();
-                for(int i=begin;i<end;i+=3)for(int j=0;j<3;j++){
-                    var a=vertices.get(i+j);var b=vertices.get(i+(j+1)%3);
-                    // The owner's right OUTER edge. This is an existing mesh edge, not a point on an invented circle.
-                    if(a.z<-HatVessel.BRIM[1]+.3&&b.z<-HatVessel.BRIM[1]+.3&&Math.abs(a.y)<.2&&Math.abs(b.y)<.2)edges.add(new Vec3[]{a,b});
-                }
-            }
-            return new Mesh(List.copyOf(vertices),List.copyOf(edges));
+            return new Mesh(List.copyOf(vertices));
         }catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
     }
-    public record Plan(Vec3 feet,float bodyYaw,Vec3 localRim,Vec3 firstGrip,Vec3 finalGrip,Vec3 finalCentre,float boatYaw){}
+    public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw){}
+    /** grip and tip are unused now (nothing grips the hat); they remain so the client can rebuild the same pose. */
     public record Pose(Vec3 origin,Quaternionf rotation,float squash,Vec3 grip,Vec3 tip,Vec3 joint){
         public Vec3 world(Vec3 local,double unit){
             var p=new Vector3f((float)(local.x*unit),(float)(local.y*unit*squash),(float)(local.z*unit));rotation.transform(p);
@@ -59,56 +53,45 @@ public final class SelfRescueHatGeometry {
     public static double hatUnit(YukkuriEntity actor){return bodyUnit(actor)*HatVessel.hatMultiplier(actor.subspeciesFlags());}
     private static Quaternionf facing(float yaw){return new Quaternionf().rotationY((float)Math.toRadians(180-yaw));}
     private static Vec3 anchor(){var a=HatVessel.anchor();return new Vec3(a.x,a.y,a.z);}
-    public static Vec3 root(YukkuriEntity actor){return BraidRescueGeometry.root(actor,0);}
-    public static Plan plan(YukkuriEntity actor,double waterY){
-        var q=facing(actor.yBodyRot).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
-        var origin=actor.position().add(transform(facing(actor.yBodyRot),anchor().scale(bodyUnit(actor))));
-        var desired=new Vec3(-BraidRescueGeometry.modelRoot().z/HatVessel.hatMultiplier(actor.subspeciesFlags()),0,-HatVessel.BRIM[1]);
-        Plan best=null;double cost=Double.POSITIVE_INFINITY;var visited=new java.util.HashSet<Vec3>();
-        for(var edge:MESH.rimEdges){
-            var d=edge[1].subtract(edge[0]);double t=d.lengthSqr()<1e-10?0:Math.clamp(desired.subtract(edge[0]).dot(d)/d.lengthSqr(),0,1);
-            var local=edge[0].add(d.scale(t));var grip=origin.add(transform(q,local.scale(hatUnit(actor))));
-            if(!visited.add(local))continue;
-            var finalGrip=new Vec3(grip.x,waterY+(HatVessel.FREEBOARD+local.y*HatVessel.SQUASH_FLOAT)*hatUnit(actor),grip.z);
-            var endRotation=facing(actor.yBodyRot).rotateY((float)Math.PI/2);
-            var propOrigin=finalGrip.subtract(transform(endRotation,new Vec3(local.x,local.y*HatVessel.SQUASH_FLOAT,local.z).scale(hatUnit(actor))));
-            var centre=propOrigin.subtract(transform(endRotation,new Vec3(0,HatVessel.FREEBOARD*hatUnit(actor),0)));
-            var candidate=new Plan(actor.position(),actor.yBodyRot,local,grip,finalGrip,centre,actor.yBodyRot-90);
-            if(!BraidRescueGeometry.reachable(actor,root(actor),grip)||!BraidRescueGeometry.reachable(actor,root(actor),finalGrip))continue;
-            double score=local.distanceToSqr(desired);if(score>=cost||!validPath(actor,candidate))continue;
-            best=candidate;cost=score;
+    private static Vec3 wornOrigin(YukkuriEntity actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}
+    private static Vec3 settledOrigin(YukkuriEntity actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}
+    /** The first spot in front of the face, along a small choice of headings, that the caller finds usable and the whole shake keeps clear. */
+    public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){
+        double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.BRIM[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
+        for(float turn:new float[]{0,25,-25})for(double gap:new double[]{.05,.12,.22}){
+            float yaw=actor.yBodyRot+turn;double radians=Math.toRadians(yaw),distance=half+depth+gap*Math.max(.3,size);
+            var centre=new Vec3(actor.getX()-Math.sin(radians)*distance,waterY,actor.getZ()+Math.cos(radians)*distance);
+            var candidate=new Plan(actor.position(),yaw,centre,yaw-90);
+            if(usable.test(candidate)&&validPath(actor,candidate))return candidate;
         }
-        return best;
+        return null;
     }
     public static Pose pose(YukkuriEntity actor,Plan plan,double elapsed){
-        double turn=smooth((elapsed-REACH-CONTACT)/TURN),lower=smooth((elapsed-REACH-CONTACT-TURN)/LOWER);
-        var body=facing(plan.bodyYaw);var rotation=new Quaternionf(body).rotateZ((float)(-Math.PI*turn)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
+        double up=smooth((elapsed-3)/(SHAKE-3.0)),slide=smooth((elapsed-SHAKE)/TURN),lower=smooth((elapsed-SHAKE-TURN)/LOWER);
+        double wobble=Math.sin(elapsed*Math.PI/2)*.08*(1-up);
+        var rotation=new Quaternionf(facing(plan.bodyYaw())).rotateY((float)wobble).rotateZ((float)(-Math.PI*slide)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
+        var worn=wornOrigin(actor,plan);var settled=settledOrigin(actor,plan);
+        double lifted=worn.y+9*bodyUnit(actor)*up;
+        var origin=new Vec3(worn.x+(settled.x-worn.x)*slide,lifted+(settled.y-lifted)*lower,worn.z+(settled.z-worn.z)*slide);
         float squash=(float)(1+(HatVessel.SQUASH_FLOAT-1)*lower);
-        var grip=plan.firstGrip.lerp(plan.finalGrip,lower);
-        var local=new Vec3(plan.localRim.x,plan.localRim.y*squash,plan.localRim.z).scale(hatUnit(actor));
-        var origin=grip.subtract(transform(rotation,local));
-        var rest=BraidRescueGeometry.restTip(actor,0);var tip=rest.lerp(grip,smooth(elapsed/REACH));
-        var bend=actor.position().add(transform(body,BraidRescueGeometry.modelJoint().scale(bodyUnit(actor))));
-        var joint=BraidRescueGeometry.joint(actor,root(actor),tip,bend);
-        return new Pose(origin,rotation,squash,grip,tip,joint);
+        return new Pose(origin,rotation,squash,origin,origin,null);
     }
     private static double smooth(double q){q=Math.clamp(q,0,1);return q*q*(3-2*q);}
-    /** A complete removal is planned only once. At runtime validate just the swept interval and current reach. */
+    /** A complete shake is planned only once. At runtime validate just the swept interval. */
     private static boolean validPath(YukkuriEntity actor,Plan plan){
         Pose previous=null;
-        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!valid(actor,plan,current,previous,tick>=REACH))return false;previous=current;}
+        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous))return false;previous=current;}
         return true;
     }
-    public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous,boolean gripping){
-        if(plan==null||pose==null||Math.abs(net.minecraft.util.Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw))>8)return false;
-        if(gripping&&!BraidRescueGeometry.reachable(actor,root(actor),pose.grip))return false;
-        var ray=actor.level().clip(new ClipContext(root(actor),pose.tip,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor));
-        if(ray.getType()!=HitResult.Type.MISS)return false;
+    public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
+        return plan!=null&&pose!=null&&Math.abs(net.minecraft.util.Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw()))<=8&&clear(actor,plan,pose,previous);
+    }
+    private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
         WoundSurface skin;
         try{skin=WoundSurface.get(actor.subspecies().assetId());}catch(IllegalStateException unsupported){return false;}
         double body=bodyUnit(actor),unit=hatUnit(actor);
-        var inverse=facing(actor.yBodyRot).conjugate();
-        var verts=MESH.vertices;
+        var inverse=facing(plan.bodyYaw()).conjugate();
+        var verts=MESH.vertices();
         for(int i=0;i<verts.size();i+=3){
             var points=new Vector3f[3];
             for(int j=0;j<3;j++){

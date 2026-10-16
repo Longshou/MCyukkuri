@@ -38,7 +38,14 @@ public final class HatBoatEntity extends Entity {
     private static final EntityDataAccessor<Boolean> PADDLING = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.BOOLEAN);
     /** One authoritative start time and direction; clients evaluate the same continuous curve. */
     private static final EntityDataAccessor<CompoundTag> MOTION = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Weight-shift dip toward one rim: From/To degrees, At game tick, Ticks ramp length and Yaw (see dipYaw). Never persisted. */
+    private static final EntityDataAccessor<CompoundTag> DIP = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     public static final int ROCK_TICKS=44, CAPSIZE_TICKS=16, CAPSIZE_RELEASE_TICK=9;
+    public static final float MAX_DIP=5f;
+    public static final int DIP_RENEW_TICKS=10;
+    private long dipRenewed=Long.MIN_VALUE;
+    /** A hypothetical or current tilt: lowered-rim direction yaw (hat-local, degrees) and its angle. */
+    public record Dip(float degrees,float yaw){ public static final Dip NONE=new Dip(0,0); }
     private boolean capsizeReleased;
     private final HatBoatCargo cargo = new HatBoatCargo(this);
     private final java.util.ArrayDeque<Vec3> route = new java.util.ArrayDeque<>();
@@ -107,7 +114,7 @@ public final class HatBoatEntity extends Entity {
     public HatBoatEntity(EntityType<? extends HatBoatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f); builder.define(SEATS, new CompoundTag());
-        builder.define(CARGO, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag());
+        builder.define(CARGO, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -161,7 +168,73 @@ public final class HatBoatEntity extends Entity {
     }
     public boolean selfRighting(){return state()==State.CAPSIZED&&entityData.get(MOTION).contains("RightProgress");}
     public float selfRightingProgress(float partial){var m=entityData.get(MOTION);return net.minecraft.util.Mth.lerp(partial,m.getFloat("RightPrevious"),m.getFloat("RightProgress"));}
+    /** The dip is only a bounded weight shift: it is deliberately not unsteady motion, so footing and stability stay valid. */
     public boolean unsteadyMotion(){return rocking()||capsizing()||deploying()||selfRighting()||selfRescueHeld();}
+    private float dipValue(float partial){
+        var m=entityData.get(DIP);if(m.isEmpty())return 0;
+        double t=Math.clamp((level().getGameTime()-m.getLong("At")+partial)/Math.max(1,m.getInt("Ticks")),0,1);t=t*t*(3-2*t);
+        return (float)(m.getFloat("From")+(m.getFloat("To")-m.getFloat("From"))*t);
+    }
+    /** Synced tilt toward the lowered near rim, in degrees (0 .. MAX_DIP). */
+    public float dipDegrees(float partial){return dipValue(partial);}
+    /** Lowered-rim direction in Minecraft yaw (degrees) in the hat's own frame: local direction (-sin, 0, cos). */
+    public float dipYaw(){return entityData.get(DIP).getFloat("Yaw");}
+    public Dip dip(){return new Dip(dipValue(0),dipYaw());}
+    /** How far the near rim is lowered at this hat-local point, in blocks; zero on the far side and when level. */
+    public double rimLift(Vec3 localPoint){return rimLift(localPoint,dip(),unit());}
+    public static double rimLift(Vec3 localPoint,Dip dip,double unit){
+        if(dip==null||dip.degrees()<=.01f)return 0;
+        double yaw=Math.toRadians(dip.yaw()),along=-localPoint.x*Math.sin(yaw)+localPoint.z*Math.cos(yaw);
+        return Math.max(0,along*Math.tan(Math.toRadians(dip.degrees()))*unit);
+    }
+    /** The hat can take a small weight shift now: afloat, steady, not towed or flooding, and its captain (if any) is aboard and idle. */
+    public boolean dippable(YukkuriEntity actor){
+        if(level().isClientSide||!isAfloat()||unsteadyMotion()||towed()||flooding>0)return false;
+        var captain=owner();
+        return captain==null||captain==actor||captain.isAlive()&&!captain.isNoAi()&&!captain.life().isSleeping()&&!captain.isCommandPlaying()&&captain.getVehicle()==this;
+    }
+    /** The tilt dipToward would settle at for this target, without changing anything; Dip.NONE if it cannot dip. */
+    public Dip planDip(Vec3 worldTarget,float maxDegrees){
+        if(worldTarget==null)return Dip.NONE;
+        var local=toLocal(worldTarget);double length=Math.hypot(local.x,local.z);
+        if(length<1e-6)return Dip.NONE;
+        float yaw=(float)Math.toDegrees(Math.atan2(-local.x,local.z)),current=dipValue(0);
+        if(current>.5f&&Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw-dipYaw()))<=25f)yaw=dipYaw();
+        double dx=-local.x/length,dz=local.z/length;
+        double reach=Math.min(Math.abs(dx)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[0]/Math.abs(dx),Math.abs(dz)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[1]/Math.abs(dz));
+        float cap=(float)Math.toDegrees(Math.atan(.6*HatVessel.FREEBOARD/reach));
+        float degrees=Math.min(Math.min(maxDegrees,MAX_DIP),cap);
+        return degrees<=.05f?Dip.NONE:new Dip(degrees,yaw);
+    }
+    /** Ask the hull to lean its near rim toward this point (the visitor's weight). Renew every few ticks; it lapses after DIP_RENEW_TICKS. */
+    public boolean dipToward(Vec3 worldTarget,float maxDegrees,int rampTicks){
+        if(level().isClientSide||!isAfloat()||unsteadyMotion()||towed()||flooding>0||catches())return false;
+        var plan=planDip(worldTarget,maxDegrees);if(plan.degrees()<=0)return false;
+        var m=entityData.get(DIP);boolean leaning=m.getFloat("To")>0;float held=m.getFloat("Yaw");
+        // While tilted toward one side, a weight on the opposite side waits for the hull to level instead of snapping it across.
+        if(dipValue(0)>.5f&&Math.abs(net.minecraft.util.Mth.wrapDegrees(plan.yaw()-held))>25f)return false;
+        dipRenewed=level().getGameTime();
+        if(leaning&&m.getFloat("To")==plan.degrees())return true;
+        var next=new CompoundTag();next.putFloat("From",dipValue(0));next.putFloat("To",plan.degrees());
+        next.putLong("At",level().getGameTime());next.putInt("Ticks",Math.max(1,rampTicks));next.putFloat("Yaw",leaning?held:plan.yaw());
+        entityData.set(DIP,next);return true;
+    }
+    /** Level the hull again over this many ticks; safe to call when not dipped. */
+    public void releaseDip(int ticks){
+        if(level().isClientSide)return;
+        dipRenewed=Long.MIN_VALUE;var m=entityData.get(DIP);
+        if(m.isEmpty()||m.getFloat("To")<=0)return;
+        float current=dipValue(0);
+        if(current<.01f){entityData.set(DIP,new CompoundTag());return;}
+        var next=new CompoundTag();next.putFloat("From",current);next.putFloat("To",0);next.putLong("At",level().getGameTime());
+        next.putInt("Ticks",Math.max(1,ticks));next.putFloat("Yaw",m.getFloat("Yaw"));entityData.set(DIP,next);
+    }
+    private void tickDip(){
+        var m=entityData.get(DIP);if(m.isEmpty()||m.getFloat("To")<=0)return;
+        boolean unsettled=!isAfloat()||unsteadyMotion()||towed()||catches();
+        if(unsettled)releaseDip(4);
+        else if(level().getGameTime()-dipRenewed>DIP_RENEW_TICKS)releaseDip(14);
+    }
     public long motionStartTick(){var m=entityData.get(MOTION);return m.contains("CapAt")?m.getLong("CapAt"):m.contains("RockAt")?m.getLong("RockAt"):0;}
     private double motionAge(CompoundTag motion,String key,float partial){return Math.max(0,level().getGameTime()-motion.getLong(key)+partial);}
     /** Signed local Z roll, in degrees, applied after the ordinary boat yaw. */
@@ -1688,35 +1761,37 @@ public final class HatBoatEntity extends Entity {
             return java.util.List.copyOf(out);
         }
     }
+    /** A rim point as it actually stands: tilted by a capsize or righting, and lowered where a weight shift dips the near rim. */
+    private Vec3 rimPoint(Vec3 local){return tiltedWorld(local).subtract(0,rimLift(local),0);}
     private Vec3 nearestGrip(YukkuriEntity actor){
         if(actor==null||!(ownsPhysicalHat(actor)||young(actor))||!(isAfloat()||state()==State.CAPSIZED)||capsizing()||deploying())return null;
         Vec3 best=null;double score=Double.POSITIVE_INFINITY;
         for(var local:GripRim.POINTS){
-            var point=tiltedWorld(local);double gap=actor.getBoundingBox().getCenter().distanceToSqr(point);
+            var point=rimPoint(local);double gap=actor.getBoundingBox().getCenter().distanceToSqr(point);
             if(gap<score){score=gap;best=point;}
         }
         return best;
     }
-    /** The actual visible rim point; ordinary head/body reach and block sight are both required. */
+    /** The actual visible rim point the mouth will take hold of; ordinary body reach and block sight are both required. */
     public Vec3 selfRescueGripLocal(YukkuriEntity actor){
         var world=selfRescueGrip(actor);if(world==null)return null;
-        for(var local:GripRim.POINTS)if(tiltedWorld(local).distanceToSqr(world)<1e-8)return local;
+        for(var local:GripRim.POINTS)if(rimPoint(local).distanceToSqr(world)<1e-8)return local;
         return null;
     }
     public Vec3 selfRescueGrip(YukkuriEntity actor,Vec3 localGrip){
         if(localGrip==null||GripRim.POINTS.stream().noneMatch(p->p.distanceToSqr(localGrip)<1e-8)
                 ||!(ownsPhysicalHat(actor)||young(actor))||capsizing()||deploying())return null;
-        var grip=tiltedWorld(localGrip);
-        return io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),grip)?reachableGrip(actor,grip):null;
+        return reachableGrip(actor,rimPoint(localGrip));
     }
+    /** The rim point nearest this body's mouth that a few body-lengths of nudging can take in the teeth. */
     public Vec3 selfRescueGrip(YukkuriEntity actor){
         if(nearestGrip(actor)==null)return null;
         Vec3 best=null;double score=Double.POSITIVE_INFINITY;
-        var root=SelfRescueHatGeometry.root(actor);var rest=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.restTip(actor,0);
+        var mouth=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot);
         for(var local:GripRim.POINTS){
-            var grip=tiltedWorld(local);
-            if(!io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,root,grip)||reachableGrip(actor,grip)==null)continue;
-            double distance=rest.distanceToSqr(grip);if(distance<score){best=grip;score=distance;}
+            var grip=rimPoint(local);
+            if(reachableGrip(actor,grip)==null)continue;
+            double distance=mouth.distanceToSqr(grip);if(distance<score){best=grip;score=distance;}
         }
         return best;
     }
@@ -1836,12 +1911,11 @@ public final class HatBoatEntity extends Entity {
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory())return null;
         var water=BlockPos.containing(actor.position());
         if(!HatBoatRoute.calmSurface(level,water))return null;
-        var path=SelfRescueHatGeometry.plan(actor,HatBoatRoute.surface(level,water).y);
-        if(path==null)return null;
-        var plan=new SelfRescueDeployment(path.finalCentre(),path.boatYaw(),path);
-        return selfRescueDeploymentReachable(actor,plan)?plan:null;
+        var path=SelfRescueHatGeometry.plan(actor,HatBoatRoute.surface(level,water).y,
+                candidate->selfRescueDeploymentReachable(actor,new SelfRescueDeployment(candidate.finalCentre(),candidate.boatYaw(),candidate)));
+        return path==null?null:new SelfRescueDeployment(path.finalCentre(),path.boatYaw(),path);
     }
-    /** Reach is measured to the real tilted rim from the actual body, bounded by the existing natural braid length. */
+    /** The spot in front of the face must be calm open water the hull can float in; nothing is reached for, so no braid length applies. */
     public static boolean selfRescueDeploymentReachable(YukkuriEntity actor,SelfRescueDeployment plan){
         if(plan==null||!(actor.level() instanceof ServerLevel level))return false;
         if(plan.path()==null)return false;
@@ -1850,14 +1924,13 @@ public final class HatBoatEntity extends Entity {
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
         return HatBoatRoute.calmSurface(level,water)&&level.getWorldBorder().isWithinBounds(water)
                 &&Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08
-                &&level.noCollision(boat,boat.getBoundingBox())
-                &&io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),plan.path().finalGrip());
+                &&level.noCollision(boat,boat.getBoundingBox());
     }
     /** Revalidate exactly the planned endpoint. Failure leaves the one original hat on its owner. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan){
         return deployForSelfRescue(actor,plan,null,SelfRescueHatGeometry.REMOVE_TICKS);
     }
-    /** Custody moves to the real vessel only after the same braid has held the worn rim continuously. */
+    /** Custody moves to the real vessel once the hat has been shaken clear of the head. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan,SelfRescueHatGeometry.Pose heldPose,float elapsed){
         if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory()||!selfRescueDeploymentReachable(actor,plan))return null;
@@ -1880,11 +1953,10 @@ public final class HatBoatEntity extends Entity {
         if(heldPose!=null&&!boat.setSelfRescueCarryPose(actor,heldPose,elapsed))boat.releaseSelfRescueCarry();
         return boat;
     }
-    /** Same local rim, world-space prop origin and natural braid used by the worn-hat geometry. */
+    /** The shaken-off hat follows the same world-space prop origin as the worn-hat geometry. */
     public boolean setSelfRescueCarryPose(YukkuriEntity actor,SelfRescueHatGeometry.Pose pose,float elapsed){
-        if(level().isClientSide||!ownsPhysicalHat(actor)||isVehicle()||hasIncoming()||pose==null
-                ||!io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),pose.grip()))return false;
-        double q=Math.clamp((elapsed-SelfRescueHatGeometry.REACH-SelfRescueHatGeometry.CONTACT)/SelfRescueHatGeometry.TURN,0,1);q=q*q*(3-2*q);
+        if(level().isClientSide||!ownsPhysicalHat(actor)||isVehicle()||hasIncoming()||pose==null)return false;
+        double q=Math.clamp((elapsed-SelfRescueHatGeometry.SHAKE)/SelfRescueHatGeometry.TURN,0,1);q=q*q*(3-2*q);
         var offset=pose.rotation().transform(new org.joml.Vector3f(0,(float)(HatVessel.FREEBOARD*unit()),0));
         var centre=pose.origin().subtract(new Vec3(offset.x,offset.y,offset.z));
         var m=entityData.get(MOTION).copy();
@@ -2076,6 +2148,7 @@ public final class HatBoatEntity extends Entity {
             return;
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
+        tickDip();
         if(selfRescueHeld()){
             var holder=owner();var held=entityData.get(MOTION);
             if(holder!=null&&holder.isAlive()&&(holder.aquaticLife().selfRescue().phase()==AquaticSelfRescue.Phase.REMOVE_HAT
