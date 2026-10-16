@@ -7,7 +7,7 @@ Atlas map (x, y, w, h):
   panel 9-slice   (0,0,24,24) corner 4      card (24,0,16,16) corner 3      card_selected (40,0,16,16) corner 3
   tab normal/hover/selected (56|72|88,0,16,16) corner 3                       star full/empty (104|113,0,9,9)
   bar track (0,24,8,6) caps 2                bar fills (8+8*i,24,8,4) i = manners, academics, wits, poise
-  grade chips (0|9|18,48,9,9) bronze, silver, gold
+  grade chips (0|9|18|27,48,9,9) bronze, silver, gold, expired
   icons 16x16 at (16*i,32): live, goods, buyback, consult, exam, profile, keeper
 """
 import hashlib, json, shutil, sys
@@ -66,7 +66,8 @@ rect(25, 1, 14, 14, CARD)
 for i in range(1, 15): put(24 + i, 1, SHADE); put(24 + i, 14, LIGHT)
 for j in range(1, 15): put(25, j, SHADE); put(38, j, LIGHT)
 put(38, 1, CARD); put(25, 14, CARD)
-G = PALETTES['gold']; gold0, gold2 = rgb(G['shade'][0]), rgb(G['shade'][2])
+G = PALETTES['gold']
+gold0, gold2 = rgb('#7a4a10'), rgb('#f0c040')  # selected-card rim: dark outer, bright inner (brightness cue, not hue only)
 sel_fill = rgb('#f8edc2')
 rect(40, 0, 16, 16, sel_fill)
 for i in range(16): put(40 + i, 0, gold0); put(40 + i, 15, gold0)
@@ -76,7 +77,7 @@ for j in range(1, 15): put(41, j, gold2); put(54, j, gold2)
 for cx, cy in ((40, 0), (55, 0), (40, 15), (55, 15)): put(cx, cy, (0, 0, 0, 0))
 # --- tabs: raised key; hover brighter; selected is lit, inset-less, with a 2px teal underline (greyscale-safe)
 bevel(56, 0, 16, 16, OUT, LIGHT, SHADE, rgb('#d8c8a2'))
-bevel(72, 0, 16, 16, OUT, LIGHT, SHADE, rgb('#ece0c0'))
+bevel(72, 0, 16, 16, OUT, LIGHT, SHADE, rgb('#e2d5b2'))  # hover ~214, normal ~200, selected ~243 (luminance)
 bevel(88, 0, 16, 16, OUT, LIGHT, SHADE, LIGHT, notch=True)
 for i in range(1, 15): put(88 + i, 13, TEAL_L); put(88 + i, 14, TEAL)  # underline sits in the bottom border slice so it never stretches
 # --- stars 9x9
@@ -129,6 +130,19 @@ def chip(x0, tier):
         put(x0 + 3, 48 + 3, rgb(p['spec']))
 for n, t in enumerate(('bronze', 'silver', 'gold')): chip(n * 9, t)
 
+# expired grade chip: desaturated disc with a 2px dark red cross (no 1px-only cue)
+def expired_chip(x0):
+    o, hi, mid, lo, red = rgb('#4a4a46'), rgb('#cfcfc8'), rgb('#a8a8a0'), rgb('#7e7e78'), rgb('#9a3b32')
+    for j in range(9):
+        for i in range(9):
+            d = ((i - 4) ** 2 + (j - 4) ** 2) ** .5
+            if d <= 4.3: put(x0 + i, 48 + j, o)
+            if d <= 3.3: put(x0 + i, 48 + j, hi if i + j < 6 else (lo if i + j > 9 else mid))
+    for k in range(2, 7):
+        for dx in (0, 1):
+            put(x0 + k + dx - (1 if k > 4 else 0), 48 + k, red); put(x0 + 8 - k - dx + (1 if k > 4 else 0), 48 + k, red)
+expired_chip(27)
+
 # --- 16x16 tab icons
 ICONS = {}
 ICONS['live'] = ([
@@ -138,10 +152,9 @@ ICONS['live'] = ([
  {'o': '#1f1b18', 'K': '#3c3632', 'k': '#6a625c', 'R': '#c8402e', 'r': '#8e2a20', 'h': '#ee6f56', 'W': '#fbf3de', 'D': '#6e1c16', 'S': '#f6e2c8',
   's': '#d4b090', 'e': '#ffffff', 'E': '#2a2024', 'p': '#ee9c98', 'M': '#c8402e'})
 ICONS['goods'] = ([
- "................", ".....oo..oo.....", "....oTTooTTo....", ".....oTTTTo.....", ".....oRRRRo.....", "....oTTTTTTo....",
- "...oTTTttttdo...", "..oTTTtttttttdo.", "..oTTWWWWWWtddo.", "..oTTWgWWgWtddo.", "..oTTWWggWWtddo.", "..oTTWgWWgWtddo.",
- "..odTttttttttdo.", "...oddttttttdo..", "....ooddddooo...", "................"],
- {'o': '#3a2410', 'T': '#e8c88a', 't': '#c89a5a', 'd': '#9a6e3a', 'R': '#b8442e', 'W': '#fbf3de', 'g': '#d8a820'})
+ "................", "................", "................", "......oooo......", "....ooYYYYoo....", "...oYYYgYYYYo...", "..oYYgYYYYgYYo..",
+ ".oYYYYYgYYYYYYo.", ".oLLLLLLLLLLLLo.", ".oBBBBBBBBBBDDo.", "..oBBBBBBBBDDo..", "...oBBBBBBDDo...", "....oDDDDDDo....", "....oooooooo....", "................", "................"],
+ {'o': '#3a2410', 'Y': '#e8c040', 'g': '#b88a20', 'L': '#e8806a', 'B': '#c0502e', 'D': '#8c2e22'})
 ICONS['buyback'] = ([
  "................", ".........ooooo..", "........oLLMMMo.", ".......oLMMMMMDo", ".......oMMdddMDo", ".......oMMdMdMDo", ".......oMMdddMDo",
  ".......oMMMMMDDo", "........oMDDDDo.", "...k.....ooooo..", "..kTkkkkkkkkkkk.", ".kTTTTTTTTTTTTk.", "kTTtttttttttttk.", ".kTnnnnnnnnnnk..", "..knnkkkkkkkkk..", "...k............"],
@@ -162,8 +175,12 @@ ICONS['keeper'] = ([
  "................", "...ooo...ooo....", "..oRhRo.oRRRo...", "..oRRRRoRRRro...", "..oRRRRRRRRro...", "...oRRRRRRro....", "....oRRRRro.....",
  ".....oRRro......", "......oro.......", ".oooooooooooo...", "oYYyYYyYYyYYYo..", "oyYYyyYYyYYyYo..", ".oyYYyYyYYyyo...", "..ooyyyyyyoo....", "....oooooo......", "................"],
  {'o': '#3a2410', 'R': '#d04a3a', 'r': '#8e2a20', 'h': '#f07a64', 'Y': '#e8c870', 'y': '#b88a40'})
+HANDBOOK = Image.open(ROOT / 'art' / 'props' / 'badges' / 'badge_handbook.png').convert('RGBA')
+assert HANDBOOK.size == (16, 16)
 ORDER = ['live', 'goods', 'buyback', 'consult', 'exam', 'profile', 'keeper']
 for n, name in enumerate(ORDER):
+    if name == 'profile':  # same pixels as the item texture (checklist 14)
+        atlas.paste(HANDBOOK, (16 * n, 32)); continue
     rows, pal = ICONS[name]
     assert len(rows) == 16, (name, len(rows))
     for j, row in enumerate(rows):

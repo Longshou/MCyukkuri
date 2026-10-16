@@ -1,16 +1,25 @@
 """Offline mock-ups of the shop screens from shop_ui.png (layout constants mirror client/ShopScreen etc.).
 
-Usage: python preview_ui.py [out_dir]   (default .local/previews/shop-ui under the repo's main checkout).
-Text uses a system TTF as a stand-in for the Minecraft font; this is a layout check, not a pixel-exact capture.
+Usage: python preview_ui.py [out_dir] [lang]   (default .local/previews/shop-ui, lang zh_cn or en_us; both when omitted).
+Text uses the vanilla font through .local/tools/art-review/mcfont.py when present (ascii bitmaps + Unifont), otherwise a
+system TTF stand-in. Strings come from the lang files; values are sample data. Also writes a 480x270 viewport (1080p GUI auto).
 """
-import sys
+import json, re, sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
+for cand in Path(__file__).resolve().parents:
+    tools = cand / '.local' / 'tools' / 'art-review'
+    if tools.is_dir(): sys.path.insert(0, str(tools)); break
+try:
+    from mcfont import MCFont
+    MC = MCFont()
+except Exception:
+    MC = None
 
 HERE = Path(__file__).resolve().parent
 ATLAS = Image.open(HERE / 'shop_ui.png').convert('RGBA')
 INK, SOFT, WARN = '#34453e', '#6a7a70', '#9a3b32'
-GRADE = {1: '#8f5428', 2: '#5a6676', 3: '#ba781e'}
+GRADE = {1: '#8f5428', 2: '#5a6676', 3: '#9a6214'}
 FONT_PATHS = ['/System/Library/Fonts/Supplemental/Arial.ttf', '/System/Library/Fonts/Helvetica.ttc', '/Library/Fonts/Arial.ttf']
 
 class Canvas:
@@ -46,8 +55,10 @@ class Canvas:
     def chip(self, x, y, g):
         if 1 <= g <= 3: self.blit(x, y, (g - 1) * 9, 48, 9, 9)
     def text(self, x, y, t, color=INK):
-        self.d.text((x * self.s, y * self.s - self.s), t, font=self.font, fill=color)
-    def width(self, t): return self.d.textlength(t, font=self.font) / self.s
+        if MC:
+            rgb = tuple(int(color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)); MC.draw(self.im, x, y, t, rgb, self.s)
+        else: self.d.text((x * self.s, y * self.s - self.s), t, font=self.font, fill=color)
+    def width(self, t): return MC.width(t) if MC else self.d.textlength(t, font=self.font) / self.s
     def button(self, x, y, w, h, label, active=True):
         s = self.s; base = '#6c6c6c' if active else '#4a4a4a'
         self.d.rectangle([x * s, y * s, (x + w) * s - 1, (y + h) * s - 1], fill='#000000')
@@ -60,92 +71,130 @@ class Canvas:
         o = -1 if selected else 0
         self.icon(x + 4, y + (h - 16) // 2 + o, icon); self.text(x + 23, y + (h - 8) // 2 + o + 1, label, INK if selected else SOFT)
 
-def gtext(c, x, y, grade_name, rest, grade):
-    c.text(x, y, grade_name, GRADE.get(grade, SOFT)); c.text(x + c.width(grade_name), y, rest)
-
-ABIL = ['Man', 'Aca', 'Wit', 'Poi']
+L = {}
+def tr(key, *a):
+    it = iter(a)
+    return re.sub(r'%(\d+\$)?s', lambda m: str(next(it, '?')), L.get(key, key))
+def grade_chip(c, x, y, g, expired=False):
+    if expired: c.blit(x, y, 27, 48, 9, 9)
+    else: c.chip(x, y, g)
+def fit(c, x, y, t, color, maxw, tag):
+    if c.width(t) > maxw: print('OVER', tag, int(c.width(t)), '>', maxw, t)
+    c.text(x, y, t, color)
 def bars(c, x, y, vals):
     for i, v in enumerate(vals):
-        cx = x + i * 60; c.text(cx, y, ABIL[i]); c.text(cx + 54 - c.width(str(v)), y, str(v)); c.bar(cx, y + 10, 54, i, v)
+        cx = x + i * 60; lab = tr(f'shop.mcyukkuri.ab.{i}'); c.text(cx, y, lab); c.text(cx + 54 - c.width(str(v)), y, str(v)); c.bar(cx, y + 10, 54, i, v)
+        if c.width(lab) + c.width(str(v)) + 2 > 54: print('OVER ability', lab, v)
+def button(c, x, y, w, h, label, active=True): c.button(x, y, w, h, label, active)
 
-ROWS = [(3, 'Gold', 'Reimu', 'Adult', 41, 86, [88, 72, 65, 90], 'Polite / Curious', 20, 80, 'On display', False),
-        (2, 'Silver', 'Marisa', 'Adult', 22, 64, [60, 71, 48, 55], 'Selfish', 20, 74, 'On display', False),
-        (1, 'Bronze', 'Orange', 'Child', 9, 31, [45, 30, 52, 12], 'Timid', 18, 60, 'In back', False),
-        (0, 'No badge', 'Alice', 'Adult', 4, 12, [20, 33, 5, 0], 'Loves owner', 20, 90, 'Sold', True)]
+ROWS = [dict(g=3, sp='reimu', st=2, price=41, ped=95, ab=[88, 72, 65, 90], tags=(1, 2), hp=20, food=80, zone='display'),
+        dict(g=2, sp='marisa', st=2, price=22, ped=70, ab=[60, 71, 48, 55], tags=(3,), hp=20, food=74, zone='display'),
+        dict(g=2, exp=True, sp='house_marisa', st=3, price=120, ped=55, ab=[100, 100, 100, 100], tags=(5, 6), hp=20, food=90, zone='sold', factory=True)]
+def species(sp): return L.get('shop.mcyukkuri.sp.' + sp) or L.get('entity.mcyukkuri.' + sp, sp)
+def tagtext(t): return ' / '.join(tr(f'shop.mcyukkuri.tag.{k}') for k in t)
 
-def shop(tab, s, focus=2):
-    c = Canvas(340, 294, s); c.panel(0, 0, 340, 294)
-    names = ['Live', 'Goods', 'Buyback', 'Consult']
-    for i in range(4): c.tab(8 + i * 82, 6, 78, 22, names[i], i, i == tab)
-    if tab == 0:
-        for i, r in enumerate(ROWS):
-            y = 34 + i * 58; c.card(8, y, 256, 55, focus == i + 1)
-            g, gn, sp, st, price, ped, ab, tags, hp, food, zone, sold = r
-            c.chip(14, y + 4, g); gtext(c, 25, y + 5, gn, f' {sp} ({st}) - {price} E', g)
-            c.stars(264 - 6 - 49, y + 4, ped); bars(c, 14, y + 18, ab)
-            c.text(14, y + 33, f'{tags}  HP {hp}  Food {food}', SOFT); c.text(14, y + 44, zone, WARN if sold else SOFT)
-            c.button(270, y + 4, 62, 20, 'Buy', not sold); c.button(270, y + 27, 62, 20, 'Locate')
-        c.button(8, 268, 40, 20, '<'); c.button(52, 268, 40, 20, '>'); c.text(100, 274, 'Page 1 / 3', SOFT)
-    elif tab == 1:
-        c.text(16, 36, 'Food')
-        items = [('Regular grain x8 - 1 E'), ('Budget grain x16 - 2 E'), ('Premium grain x8 - 3 E'), ('Orange juice x1 - 2 E')]
-        for i, t in enumerate(items):
-            c.card(8, 48 + i * 36, 324, 30); c.icon(14, 55 + i * 36, 1); c.button(36, 54 + i * 36, 290, 20, t)
-        c.text(16, 198, 'Trades left today: 8', SOFT)
-        c.button(8, 268, 40, 20, '<'); c.button(52, 268, 40, 20, '>'); c.text(100, 274, 'Page 1 / 6', SOFT)
-    else:
-        buy = tab == 2
-        c.card(8, 32, 324, 120 if buy else 178)
-        c.text(16, 38, '1/3 Reimu (Gold, Adult)'); bars(c, 16, 52, [88, 72, 65, 90]); c.chip(16, 75, 3); c.stars(29, 75, 86); c.text(86, 76, 'Polite', SOFT)
-        c.text(16, 90, 'HP 20  Food 80  Hygiene 90', SOFT)
-        if buy:
-            c.text(16, 108, 'The shop offers 28 E'); c.text(16, 122, 'Stock 5/12, free pen available', SOFT); c.text(16, 136, 'Sold animals belong to the shop.', SOFT)
-            c.button(100, 268, 160, 20, 'Sell to shop')
-        else:
-            c.text(16, 108, 'Bowl 5  Toilet 4  Sleep 6'); c.text(16, 120, 'Stress 12  Indulgence 30  Pedigree 86  Unauthorized 0')
-            c.text(16, 132, 'Weakest: Wits'); c.text(16, 144, 'Forecast: bronze high, silver mid, gold low'); c.text(16, 160, 'Advice')
-            for i, a in enumerate(['- Rest first', '- Wit practice below 80']): c.text(16, 172 + i * 12, a)
-            c.button(100, 268, 160, 20, 'Exam forecast (1 E)')
-        c.button(8, 268, 40, 20, '<'); c.button(52, 268, 40, 20, '>')
-    c.button(272, 268, 60, 20, 'Done'); return c
+def new_canvas(w, h, s): c = Canvas(w, h, s); c.panel(0, 0, w, h); return c
+def tabs(c, sel):
+    for i in range(4): c.tab(8 + i * 82, 6, 78, 22, tr(f'shop.mcyukkuri.tab.{i}'), i, i == sel)
+def footer(c, left=True): 
+    if left: button(c, 8, 224, 40, 20, '<'); button(c, 52, 224, 40, 20, '>')
+    button(c, 272, 224, 60, 20, tr('gui.done'))
 
-def exam(s):
-    c = Canvas(340, 282, s); c.panel(0, 0, 340, 282); c.icon(316, 6, 4)
-    c.button(8, 6, 40, 20, '<'); c.button(52, 6, 40, 20, '>'); c.text(100, 12, '1/2 Reimu (yours)')
-    c.card(8, 28, 324, 98); c.chip(16, 35, 2); gtext(c, 27, 35, 'Silver', '  valid 12 days', 2)
-    c.text(16, 47, 'Man 80  Aca 60  Wit 70  Poi 75'); c.text(16, 59, 'HP 20  Food 80  Hygiene 90  Stress 10', SOFT)
-    c.text(16, 75, 'Hall supports: Man ok  Aca ok  Wit ok  Poi ok', '#2f6b3f'); c.text(16, 93, 'Last: Oral exam - passed (Silver)'); c.text(16, 105, 'Scores 80 70 -- --', SOFT)
-    for i, (n, hint) in enumerate([('Oral', 'Fee 3 E  Social skills'), ('Home', 'Fee 3 E  Routines'), ('Hide', 'Fee 4 E  Calm'), ('Care', 'Fee 5 E  Ability'), ('Gold', 'Not enough hall support')]):
-        c.button(8, 128 + i * 22, 110, 20, n); c.card(122, 127 + i * 22, 210, 22); c.text(128, 134 + i * 22, hint, WARN if i == 4 else SOFT)
-    c.text(16, 260, '12 emeralds', SOFT); c.button(100, 254, 130, 20, 'Exam log'); c.button(272, 254, 60, 20, 'Done'); return c
+def shop_live(s, focus=2):
+    c = new_canvas(340, 250, s); tabs(c, 0)
+    for i, r in enumerate(ROWS):
+        y = 32 + i * 57; c.card(8, y, 256, 56, focus == i + 1); sold = r['zone'] == 'sold'
+        grade_chip(c, 14, y + 4, r['g'], r.get('exp')); gn = tr(f'badge.mcyukkuri.profile.grade.{r["g"]}')
+        head_pre = ''; x = 25
+        txt = tr('shop.mcyukkuri.row.head2', gn, species(r['sp']), tr(f'human.mcyukkuri.stage.{r["st"]}'))
+        fit(c, x, y + 5, txt, SOFT if r.get('exp') else INK, 256 - 6 - 49 - x - 3 + 8, 'row.head2')
+        c.stars(264 - 6 - 49, y + 4, r['ped']); bars(c, 14, y + 17, r['ab'])
+        fit(c, 14, y + 35, tagtext(r['tags']) + '  ' + tr('shop.mcyukkuri.vitals', r['hp'], r['food']), SOFT, 244, 'tags')
+        z = tr('shop.mcyukkuri.zone.' + r['zone']) + ('  ' + tr('shop.mcyukkuri.origin.factory') if r.get('factory') else '')
+        fit(c, 14, y + 44, z, WARN if sold else SOFT, 244, 'zone')
+        button(c, 270, y + 4, 62, 20, tr('shop.mcyukkuri.buy_price', r['price']), not sold); button(c, 270, y + 28, 62, 20, tr('shop.mcyukkuri.locate'))
+    footer(c); c.text(100, 230, tr('shop.mcyukkuri.page', 1, 3), SOFT); return c
+
+def shop_consult(s):
+    c = new_canvas(340, 250, s); tabs(c, 3); c.card(8, 32, 324, 178)
+    c.text(16, 38, tr('shop.mcyukkuri.subject', 1, 3, species('reimu'), tr('badge.mcyukkuri.profile.grade.3'), tr('human.mcyukkuri.stage.2')))
+    bars(c, 16, 52, [88, 72, 65, 90]); c.chip(16, 75, 3); c.stars(29, 75, 86); c.text(86, 76, tagtext((1, 2)), SOFT)
+    c.text(16, 90, tr('shop.mcyukkuri.vitals3', 20, 80, 90), SOFT)
+    fit(c, 16, 108, tr('badge.mcyukkuri.profile.routines', 5, 4, 6), INK, 308, 'routines'); fit(c, 16, 120, tr('badge.mcyukkuri.profile.growth', 86, 12, 30, 0), INK, 308, 'growth')
+    c.text(16, 132, tr('shop.mcyukkuri.weakest', tr('shop.mcyukkuri.ability.2'))); c.text(16, 160, tr('shop.mcyukkuri.advice_title'))
+    button(c, 100, 224, 160, 20, tr('shop.mcyukkuri.forecast')); footer(c); return c
+
+def shop_goods(s):
+    c = new_canvas(340, 250, s); tabs(c, 1); c.text(16, 36, tr('shop.mcyukkuri.category.0'))
+    for i in range(4): c.card(8, 46 + i * 34, 324, 30); c.icon(14, 53 + i * 34, 1); button(c, 36, 52 + i * 34, 290, 20, tr('human.mcyukkuri.buy_supply', 'Regular grain', 8, 1))
+    c.text(16, 184, tr('shop.mcyukkuri.trades_left', 8), SOFT); footer(c); c.text(100, 230, tr('shop.mcyukkuri.page', 1, 6), SOFT); return c
+
+def exam(s, refuse=True):
+    c = new_canvas(340, 250, s); c.icon(316, 6, 4); button(c, 8, 6, 40, 20, '<'); button(c, 52, 6, 40, 20, '>')
+    fit(c, 100, 12, tr('exam.mcyukkuri.ui.subject', 1, 2, species('reimu'), tr('exam.mcyukkuri.ui.relation.0')), INK, 210, 'subject')
+    c.card(8, 28, 324, 80); c.chip(16, 32, 2)
+    fit(c, 27, 32, tr('exam.mcyukkuri.ui.grade', tr('badge.mcyukkuri.profile.grade.2'), tr('exam.mcyukkuri.ui.valid_days', 12)), INK, 300, 'grade')
+    fit(c, 16, 42, tr('shop.mcyukkuri.abilities', 80, 60, 70, 75), INK, 308, 'abil'); fit(c, 16, 52, tr('exam.mcyukkuri.ui.vitals', 55, 12, 0, 0), SOFT, 308, 'vitals')
+    fit(c, 16, 64, tr('exam.mcyukkuri.ui.hall') + '  ' + '  '.join(tr(f'shop.mcyukkuri.ability.{i}') + ' ✓' for i in range(4)), '#2f6b3f', 308, 'hall')
+    for i in range(5):
+        c.button(8, 112 + i * 22, 110, 20, tr(f'exam.mcyukkuri.btn.{i + 3}')); c.card(122, 111 + i * 22, 210, 22)
+        t = tr(f'exam.mcyukkuri.hint.{i + 3}') ; t = tr('exam.mcyukkuri.ui.fee', 5) + '  ' + t
+        words = t; lines = wrap(c, words, 198)
+        if len(lines) > 2: print('OVER exam hint (>2 lines)', t)
+        top = 111 + i * 22 + (7 if len(lines) == 1 else 3)
+        for n, ln in enumerate(lines[:2]): c.text(128, top + n * 8, ln, SOFT)
+    c.text(16, 230, tr('exam.mcyukkuri.ui.emeralds', 12), SOFT); button(c, 150, 224, 116, 20, tr('exam.mcyukkuri.btn.log')); button(c, 272, 224, 60, 20, tr('gui.done')); return c
+
+def wrap(c, t, w):
+    out, cur = [], ''
+    for ch in t:
+        if c.width(cur + ch) > w and cur: out.append(cur); cur = ch
+        else: cur += ch
+    return out + [cur]
 
 def keeper(s):
     c = Canvas(300, 220, s); c.panel(0, 0, 300, 220)
-    c.text(12, 10, 'Shop 14/16  Nursery 2  Next restock in 2 day(s)'); c.text(12, 30, 'Studs: 2')
-    c.button(236, 24, 24, 20, '<'); c.button(264, 24, 24, 20, '>')
+    fit(c, 12, 10, tr('shop.mcyukkuri.keeper.status', 14, 16, 2, 2), INK, 276, 'status'); c.text(12, 30, tr('shop.mcyukkuri.keeper.studs', 2))
     c.card(8, 40, 284, 54); c.card(10, 42, 280, 12, True)
-    for i, (g, gn, sp, ped) in enumerate([(2, 'Silver', 'Reimu', 64), (2, 'Silver', 'Marisa', 41), (0, 'No badge', 'Alice', 12)]):
-        c.chip(14, 43 + i * 12, g); gtext(c, 25, 44 + i * 12, gn, f' {sp} {ped}', g); c.stars(292 - 6 - 49, 43 + i * 12, ped)
-    c.icon(8, 96, 6); c.text(28, 100, 'Matchmaking (omiai)'); c.card(8, 114, 284, 28)
-    c.text(14, 118, 'Yours: Reimu, pedigree 70 (1/2)'); c.text(14, 130, 'Ready. Fee: 6 emeralds.')
-    c.button(8, 144, 30, 20, '<'); c.button(42, 144, 30, 20, '>'); c.button(78, 144, 214, 20, 'Arrange a match (6 emeralds)'); c.button(230, 192, 60, 20, 'Done'); return c
+    for i, (g, sp, ped) in enumerate([(2, 'reimu', 64), (2, 'marisa', 41), (0, 'alice', 12)]):
+        c.chip(14, 43 + i * 12, g); c.text(25, 44 + i * 12, tr(f'badge.mcyukkuri.profile.grade.{g}') + ' ' + species(sp) + f' {ped}', INK); c.stars(292 - 6 - 49, 43 + i * 12, ped)
+    c.icon(8, 96, 6); c.text(28, 100, tr('shop.mcyukkuri.keeper.omiai')); c.card(8, 114, 284, 28)
+    c.text(14, 118, tr('shop.mcyukkuri.keeper.subject', species('reimu'), 70, 1, 2)); c.text(14, 130, tr('shop.mcyukkuri.keeper.state.0', 6))
+    button(c, 8, 144, 30, 20, '<'); button(c, 42, 144, 30, 20, '>'); button(c, 78, 144, 214, 20, tr('shop.mcyukkuri.keeper.book', 6)); button(c, 230, 192, 60, 20, tr('gui.done')); return c
 
 def badge(s):
-    c = Canvas(360, 304, s); c.panel(0, 0, 360, 304); c.card(6, 6, 348, 168); c.card(6, 246, 348, 28); c.icon(334, 8, 5)
-    c.text(14, 10, 'Reimu #12 (Lv 2)'); c.chip(14, 26, 3); gtext(c, 25, 26, 'Gold', ' valid for 10 days, worn', 3)
-    for i, t in enumerate(['Source: bred 3fa2', 'Man 88  Aca 72  Wit 65  Poi 90', 'Bowl 5  Toilet 4  Sleep 6', 'Pedigree 86  Stress 12  Indulgence 30 ', 'Last exam: Oral - passed (Silver)', 'Scores 80 70 -- --']): c.text(14, 43 + i * 16, t)
-    c.text(14, 140, 'Idle'); c.text(190, 140, 'Lessons: idle'); c.text(14, 156, 'Hint: ...'); 
-    for n in range(6): c.button(10 + n % 3 * 115, 176 + n // 3 * 24, 110, 20, ['Badge', 'Clip', 'Cut', 'Order', 'Sit', 'Follow'][n])
-    for k in range(4): c.button(10 + k * 58, 224, 55, 20, ['Bowl', 'Toilet', 'Sleep', 'Bow'][k])
-    c.button(240, 224, 110, 20, 'Done')
-    c.text(14, 251, 'Breeding partner: Marisa (1/2)'); c.text(14, 262, 'Permit: none (0 births)')
-    for k in range(3): c.button(10 + k * 115, 278, 110, 20, ['Breed', 'Permit', 'Revoke'][k])
+    c = new_canvas(360, 250, s); c.card(6, 6, 348, 116); c.icon(334, 8, 5)
+    c.text(14, 10, tr('badge.mcyukkuri.subject', 'Reimu', 2, 1)); c.chip(14, 21, 3)
+    fit(c, 25, 21, tr('badge.mcyukkuri.profile.grade', tr('badge.mcyukkuri.profile.grade.3'), tr('badge.mcyukkuri.profile.validity.days', 10), tr('badge.mcyukkuri.wear.1')), INK, 320, 'grade')
+    rows = [('source', tr('badge.mcyukkuri.profile.source.1'), '3fa2'), ('abilities', 88, 72, 65, 90), ('routines', 5, 4, 6), ('growth', 86, 12, 30, 0)]
+    for i, (k, *a) in enumerate(rows): fit(c, 14, 31 + i * 10, tr('badge.mcyukkuri.profile.' + k, *a), INK, 320, k)
+    fit(c, 14, 71, tr('badge.mcyukkuri.profile.exam', tr('badge.mcyukkuri.profile.type.3'), tr('badge.mcyukkuri.profile.outcome.0'), tr('badge.mcyukkuri.profile.grade.2')), INK, 320, 'exam')
+    fit(c, 14, 81, tr('badge.mcyukkuri.profile.scores', 80, 70, '-', '-'), INK, 320, 'scores'); c.text(14, 91, tr('badge.mcyukkuri.profile.idle'))
+    fit(c, 14, 101, tr('badge.mcyukkuri.profile.hint'), INK, 320, 'hint')
+    for n in range(6): button(c, 10 + n % 3 * 115, 126 + n // 3 * 22, 110, 20, tr(f'badge.mcyukkuri.action.{[5, 10, 8, 11, 12, 13][n]}'))
+    for k in range(4): button(c, 10 + k * 58, 172, 55, 20, tr(f'pet.mcyukkuri.ui.lesson.{k}'))
+    button(c, 240, 172, 110, 20, tr('gui.done')); c.card(6, 196, 348, 26)
+    fit(c, 14, 200, tr('badge.mcyukkuri.profile.breed_partner', 'Marisa', 1, 2), INK, 330, 'partner'); fit(c, 14, 211, tr('badge.mcyukkuri.profile.permit_none', 0), INK, 330, 'permit')
+    for k in range(3): button(c, 10 + k * 115, 224, 110, 20, tr(f'badge.mcyukkuri.action.{30 + k}'))
     return c
+
+def viewport(c, w, h, s):
+    """Centre the screen in a 480x270 GUI-px viewport (1080p, GUI scale 4) and flag overflow."""
+    vp = Image.new('RGBA', (480 * s, 270 * s), (70, 100, 70, 255)); x, y = (480 - w) // 2, (270 - h) // 2
+    vp.alpha_composite(c.im, (x * s, y * s)); d = ImageDraw.Draw(vp)
+    d.rectangle((0, 0, 480 * s - 1, 270 * s - 1), outline=(255, 0, 0), width=2)
+    if y < 0 or h > 270: d.text((6, 6), f'OVERFLOW: {h} > 270', fill=(255, 255, 0))
+    return vp
 
 if __name__ == '__main__':
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE.parents[2] / '.local' / 'previews' / 'shop-ui'
     out.mkdir(parents=True, exist_ok=True)
-    for s in (2, 3):
-        for name, c in [('shop_live', shop(0, s)), ('shop_goods', shop(1, s)), ('shop_buyback', shop(2, s)), ('shop_consult', shop(3, s)), ('exam', exam(s)), ('keeper', keeper(s)), ('badge', badge(s))]:
-            c.im.convert('RGB').save(out / f'{name}_x{s}.png')
+    langs = [sys.argv[2]] if len(sys.argv) > 2 else ['zh_cn', 'en_us']
+    for lang in langs:
+        L.clear(); L.update(json.loads((HERE.parents[2] / f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))); L.setdefault('gui.done', {'zh_cn': '完成'}.get(lang, 'Done'))
+        print('==', lang)
+        for name, make, w, h in [('shop_live', shop_live, 340, 250), ('shop_goods', shop_goods, 340, 250), ('shop_consult', shop_consult, 340, 250), ('exam', exam, 340, 250), ('keeper', keeper, 300, 220), ('badge', badge, 360, 250)]:
+            print('-', name)
+            c = make(2); c.im.convert('RGB').save(out / f'{name}_{lang}_x2.png')
+            viewport(make(2), w, h, 2).convert('RGB').save(out / f'{name}_{lang}_1080p-auto.png')
     print('ok', out)

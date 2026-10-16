@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -12,18 +13,20 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
-    private static final int ROW = 58, ROW_X = 8, ROW_W = 256, ROW_H = 55, TOP = 34, FOOT = 268;
+    private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224;
     private final Button[] actions = new Button[22];
-    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 294; }
+    public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 250; }
     @Override protected void init() {
         super.init();
         int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT};
         for (int i = 0; i < 4; i++) {
             int tabId = i;
             actions[i] = addRenderableWidget(new GuiKit.Tab(leftPos + 8 + i * 82, topPos + 6, 78, 22, Component.translatable("shop.mcyukkuri.tab." + i), icons[i], b -> press(tabId)));
+            add(14 + i, 36, 52 + i * 34, 290, Component.empty());
+        }
+        for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
             add(4 + i, 270, TOP + i * ROW + 4, 62, Component.translatable("shop.mcyukkuri.buy"));
-            add(8 + i, 270, TOP + i * ROW + 27, 62, Component.translatable("shop.mcyukkuri.locate"));
-            add(14 + i, 36, 54 + i * 36, 290, Component.empty());
+            add(8 + i, 270, TOP + i * ROW + 28, 62, Component.translatable("shop.mcyukkuri.locate"));
         }
         add(12, 8, FOOT, 40, Component.literal("<")); add(13, 52, FOOT, 40, Component.literal(">"));
         add(20, 8, FOOT, 40, Component.literal("<")); add(21, 52, FOOT, 40, Component.literal(">"));
@@ -40,9 +43,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         int tab = menu.value(0); boolean day = menu.value(2) != 0, own = menu.value(6) > 0;
         for (int i = 0; i < 4; i++) {
             actions[i].active = tab != i;
-            boolean has = menu.value(8 + i * 12) > 0, locked = (menu.value(10 + i * 12) & 16) != 0;
-            actions[4 + i].visible = actions[8 + i].visible = tab == ShopMenu.LIVE;
-            actions[4 + i].active = has && day && !locked; actions[8 + i].active = has;
+            if (i < ShopMenu.PAGE_ROWS) {
+                boolean has = menu.value(8 + i * 12) > 0, locked = (menu.value(10 + i * 12) & 16) != 0;
+                actions[4 + i].visible = actions[8 + i].visible = tab == ShopMenu.LIVE;
+                actions[4 + i].active = has && day && !locked; actions[8 + i].active = has;
+                if (has) actions[4 + i].setMessage(Component.translatable("shop.mcyukkuri.buy_price", menu.value(19 + i * 12)));
+            }
             var stack = ShopMenu.goodsStack(menu.value(3), i); int price = ShopMenu.goodsPrice(menu.value(3), i);
             actions[14 + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
             actions[14 + i].active = day && menu.value(1) > 0;
@@ -57,17 +63,22 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         panel(g, leftPos, topPos, imageWidth, imageHeight);
         int tab = menu.value(0);
         if (tab == ShopMenu.LIVE) {
-            for (int i = 0; i < 4; i++) card(g, leftPos + ROW_X, topPos + TOP + i * ROW, ROW_W, ROW_H, menu.value(56) == i + 1 && menu.value(8 + i * 12) > 0);
+            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) card(g, leftPos + ROW_X, topPos + TOP + i * ROW, ROW_W, ROW_H, menu.value(56) == i + 1 && menu.value(8 + i * 12) > 0);
         } else if (tab == ShopMenu.GOODS) {
             for (int i = 0; i < 4; i++) {
                 var stack = ShopMenu.goodsStack(menu.value(3), i); if (stack.isEmpty()) continue;
-                card(g, leftPos + 8, topPos + 48 + i * 36, 324, 30, false);
-                g.renderItem(stack, leftPos + 14, topPos + 55 + i * 36);
+                card(g, leftPos + 8, topPos + 46 + i * 34, 324, 30, false);
+                g.renderItem(stack, leftPos + 14, topPos + 53 + i * 34);
             }
         } else card(g, leftPos + 8, topPos + 32, 324, menu.value(6) == 0 ? 28 : tab == ShopMenu.BUYBACK ? 120 : 178, false);
     }
     private void line(GuiGraphics g, int y, int color, Component text) { g.drawString(font, text, 16, y, color, false); }
-    private static Component species(int v) { return v > 0 && v <= YukkuriVariant.values().length ? Component.translatable("entity.mcyukkuri." + YukkuriVariant.values()[v - 1].assetId()) : Component.empty(); }
+    /** Short species name (no Yukkuri suffix) when the lang file has one, else the entity name. */
+    private static Component species(int v) {
+        if (v <= 0 || v > YukkuriVariant.values().length) return Component.empty();
+        String id = YukkuriVariant.values()[v - 1].assetId();
+        return Component.translatable(I18n.exists("shop.mcyukkuri.sp." + id) ? "shop.mcyukkuri.sp." + id : "entity.mcyukkuri." + id);
+    }
     private static Component grade(int flags) {
         var c = GuiKit.gradeName(flags & 3);
         return (flags & 4) != 0 ? c.append(Component.translatable("shop.mcyukkuri.expired")) : c;
@@ -86,12 +97,12 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         }
     }
     private void drawRow(GuiGraphics g, int k, int y) {
-        int f = menu.value(k + 2);
-        chip(g, ROW_X + 6, y + 4, f & 3);
-        g.drawString(font, Component.translatable("shop.mcyukkuri.row.head", grade(f), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." + menu.value(k + 1)), menu.value(k + 11)), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
+        int f = menu.value(k + 2); boolean expired = (f & 4) != 0;
+        if (expired) expiredChip(g, ROW_X + 6, y + 4); else chip(g, ROW_X + 6, y + 4, f & 3);
+        g.drawString(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & 3) : GuiKit.gradeName(f & 3), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." + menu.value(k + 1))), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
         stars(g, ROW_X + ROW_W - 6 - STARS_WIDTH, y + 4, menu.value(k + 3));
-        abilityBars(g, ROW_X + 6, y + 18, k + 4);
-        g.drawString(font, tags(menu.value(k + 8)).append("  ").append(Component.translatable("shop.mcyukkuri.vitals", menu.value(k + 9), menu.value(k + 10))), ROW_X + 6, y + 33, SOFT, false);
+        abilityBars(g, ROW_X + 6, y + 17, k + 4);
+        g.drawString(font, tags(menu.value(k + 8)).append("  ").append(Component.translatable("shop.mcyukkuri.vitals", menu.value(k + 9), menu.value(k + 10))), ROW_X + 6, y + 35, SOFT, false);
         var zone = Component.translatable((f & 16) != 0 ? "shop.mcyukkuri.zone.sold" : (f & 8) != 0 ? "shop.mcyukkuri.zone.display" : "shop.mcyukkuri.zone.back");
         if ((f & 32) != 0) zone.append("  ").append(Component.translatable("shop.mcyukkuri.origin.factory"));
         g.drawString(font, zone, ROW_X + 6, y + 44, (f & 16) != 0 ? WARN : SOFT, false);
@@ -99,7 +110,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         int tab = menu.value(0);
         if (tab == ShopMenu.LIVE) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
                 int k = 8 + i * 12, y = TOP + i * ROW;
                 if (menu.value(k) == 0) { if (i == 0) g.drawString(font, Component.translatable("human.mcyukkuri.empty"), ROW_X + 6, y + 6, SOFT, false); continue; }
                 drawRow(g, k, y);
@@ -107,7 +118,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             g.drawString(font, Component.translatable("shop.mcyukkuri.page", menu.value(3) + 1, menu.value(4)), 100, FOOT + 6, SOFT, false);
         } else if (tab == ShopMenu.GOODS) {
             line(g, 36, INK, Component.translatable("shop.mcyukkuri.category." + ShopMenu.goodsCategory(menu.value(3))));
-            line(g, 198, SOFT, Component.translatable("shop.mcyukkuri.trades_left", menu.value(1)));
+            line(g, 184, SOFT, Component.translatable("shop.mcyukkuri.trades_left", menu.value(1)));
             g.drawString(font, Component.translatable("shop.mcyukkuri.page", menu.value(3) + 1, menu.value(4)), 100, FOOT + 6, SOFT, false);
         } else {
             if (menu.value(6) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }

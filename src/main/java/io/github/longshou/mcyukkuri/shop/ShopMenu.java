@@ -33,7 +33,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
- *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-7 buy live row; 8-11 locate row; 12/13 prev/next page;
+ *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
  *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
@@ -41,7 +41,7 @@ import net.minecraft.world.phys.Vec3;
  *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35). */
 public final class ShopMenu extends AbstractContainerMenu {
-    public static final int LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, CAPACITY = 16, STOCK_CAPACITY = 12;
+    public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, CAPACITY = 16, STOCK_CAPACITY = 12;
     private record Quote(UUID id, int price) {}
     private record Good(int category, Supplier<ItemStack> stack, int price) {}
     private static final Good[] CATALOG = {
@@ -95,7 +95,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             target.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
                     .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID))
                     .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), ShopPricing.price(y))));
-        if (focusAnimal != null) for (int i = 0; i < quotes.size(); i++) if (quotes.get(i).id.equals(focusAnimal)) { focus = i; page = i / 4; }
+        if (focusAnimal != null) for (int i = 0; i < quotes.size(); i++) if (quotes.get(i).id.equals(focusAnimal)) { focus = i; page = i / PAGE_ROWS; }
         addDataSlots(data); refresh();
     }
     public static void open(Player p, HumanNpc npc) { open(p, npc, null); }
@@ -151,7 +151,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var b = y.pet(); return b.grade().id() | (b.expired() ? 4 : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? 8 : 0) | (locked ? 16 : 0) | (ShopDeliveries.factoryOrigin(y) ? 32 : 0);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
-    private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + 3) / 4) : tab == GOODS ? goodsPages() : 1; }
+    private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + PAGE_ROWS - 1) / PAGE_ROWS) : tab == GOODS ? goodsPages() : 1; }
 
     private YukkuriEntity quoted(int index) {
         if (target == null || index < 0 || index >= quotes.size() || !(target.level() instanceof ServerLevel level)) return null;
@@ -184,10 +184,10 @@ public final class ShopMenu extends AbstractContainerMenu {
         for (int i = 0; i < 57; i++) data.set(i, 0);
         put(0, tab); put(1, target.remainingTrades()); put(2, target.level().isDay() ? 1 : 0); put(3, page); put(4, pageCount());
         put(5, shopCount); put(6, mine.size()); put(7, mine.isEmpty() ? 0 : selected + 1);
-        if (tab == LIVE && focus >= 0 && focus / 4 == page) put(56, focus % 4 + 1);
+        if (tab == LIVE && focus >= 0 && focus / PAGE_ROWS == page) put(56, focus % PAGE_ROWS + 1);
         if (tab == LIVE) {
-            for (int i = 0; i < 4; i++) {
-                int idx = page * 4 + i; var y = quoted(idx); if (y == null) continue; int k = 8 + i * 12; var t = tags(y); var b = y.pet();
+            for (int i = 0; i < PAGE_ROWS; i++) {
+                int idx = page * PAGE_ROWS + i; var y = quoted(idx); if (y == null) continue; int k = 8 + i * 12; var t = tags(y); var b = y.pet();
                 put(k, y.getVariant().ordinal() + 1); put(k + 1, stage(y)); put(k + 2, flags(y, b.busy())); put(k + 3, b.pedigree());
                 for (var a : Ability.values()) put(k + 4 + a.ordinal(), b.ability(a));
                 put(k + 8, t[0] | t[1] << 4); put(k + 9, Math.round(y.getHealth())); put(k + 10, Math.round(y.life().nutrition())); put(k + 11, quotes.get(idx).price);
@@ -219,7 +219,8 @@ public final class ShopMenu extends AbstractContainerMenu {
 
     // actions
     private boolean buyLive(Player p, int row) {
-        int idx = page * 4 + row; var animal = quoted(idx);
+        if (row < 0 || row >= PAGE_ROWS) return false;
+        int idx = page * PAGE_ROWS + row; var animal = quoted(idx);
         if (animal == null || animal.pet().busy() || animal.isPassenger() || !room(p) || !(p.level() instanceof ServerLevel level)) return false;
         int price = quotes.get(idx).price;
         if (count(p, Items.EMERALD) < price || !animal.pet().lock("sale", p.getUUID())) return false;
@@ -248,7 +249,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         return true;
     }
     private boolean locate(Player p, int row) {
-        var animal = quoted(page * 4 + row); if (animal == null || !(p.level() instanceof ServerLevel level)) return false;
+        if (row < 0 || row >= PAGE_ROWS) return false;
+        var animal = quoted(page * PAGE_ROWS + row); if (animal == null || !(p.level() instanceof ServerLevel level)) return false;
         UUID id = animal.getUUID();
         if (!locating.add(id)) { custom = true; return false; } // its beam is still running
         p.displayClientMessage(Component.translatable("shop.mcyukkuri.locate_hint", animal.getDisplayName()), true); custom = true;
