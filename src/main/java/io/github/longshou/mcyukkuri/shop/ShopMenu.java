@@ -35,13 +35,13 @@ import net.minecraft.world.phys.Vec3;
 /** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-7 buy live row; 8-11 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject.
- *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop population, 6 subject count, 7 subject index+1;
+ *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
  *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, pedigree, 4 abilities, health, nutrition, hygiene, stress, indulgence,
  *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35). */
 public final class ShopMenu extends AbstractContainerMenu {
-    public static final int LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, CAPACITY = 16;
+    public static final int LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, CAPACITY = 16, STOCK_CAPACITY = 12;
     private record Quote(UUID id, int price) {}
     private record Good(int category, Supplier<ItemStack> stack, int price) {}
     private static final Good[] CATALOG = {
@@ -152,7 +152,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         selected = mine.isEmpty() ? 0 : Math.min(selected, mine.size() - 1); evaluate();
     }
     private int population(ServerLevel level) {
-        return ShopPens.population(level, target);
+        return ShopPens.stock(level, target);
     }
     private void evaluate() {
         shopCount = 0; penOk = false;
@@ -192,7 +192,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             put(29, tab == BUYBACK ? ShopPricing.buyback(y) : ShopPricing.price(y));
             var f = forecasts.get(y.getUUID()); put(33, f == null ? 0 : 1);
             if (f != null) for (int i = 0; i < 3; i++) put(30 + i, f[i]);
-            put(34, tab != BUYBACK ? 0 : shopCount >= CAPACITY ? 1 : penOk ? 0 : 2); put(35, t[0] | t[1] << 4);
+            put(34, tab != BUYBACK ? 0 : shopCount >= STOCK_CAPACITY ? 1 : penOk ? 0 : 2); put(35, t[0] | t[1] << 4);
         }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
@@ -244,7 +244,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private boolean sell(Player p) {
         var a = subject(); if (a == null || !mayHandle(a, p) || !(p.level() instanceof ServerLevel level)) return false;
         shopCount = population(level);
-        if (shopCount >= CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return false; }
+        if (shopCount >= STOCK_CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return false; }
         BlockPos pen = ShopPens.freePen(level, target, a);
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return false; }
         if (!a.pet().lock("sale", p.getUUID())) return false;

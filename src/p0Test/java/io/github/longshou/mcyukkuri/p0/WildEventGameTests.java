@@ -220,11 +220,16 @@ public final class WildEventGameTests {
         UUID id=first.getUUID();UUID token=YukkuriWorldData.get(level).capture(first);
         var released=YukkuriWorldData.get(level).release(token,level,new Vec3(center.getX()+.5,65,center.getZ()+.5),0);actors.add(released);first=released;
         check("ordinary carrier release preserves owner and never abandons",released!=null&&released.getUUID().equals(id)&&HumanCommerce.ownedBy(released,player.getUUID())&&WildEventData.get(level).forMember(id)==null,"same UUID");
-        first.setOnGround(true);for(int i=0;i<21;i++)first.operations().tick();var baseline=first.pet().save();var newMenu=new CareMenu(3,player.getInventory(),first.getId());
+        first.setOnGround(true);for(int i=0;i<21;i++)first.operations().tick();var baseline=first.pet().save();var before=first.pet();var gradeBefore=before.grade();var serialBefore=before.serial();var issuerBefore=before.issuer();var pedigreeBefore=before.pedigree();var historyBefore=List.copyOf(before.history());int[] abilitiesBefore=new int[io.github.longshou.mcyukkuri.pet.Ability.values().length];for(var a:io.github.longshou.mcyukkuri.pet.Ability.values())abilitiesBefore[a.ordinal()]=before.ability(a);int[] routinesBefore=new int[3];for(int k=0;k<3;k++)routinesBefore[k]=before.routine(k);var newMenu=new CareMenu(3,player.getInventory(),first.getId());
         check("explicit abandonment menu removes only actual ownership",newMenu.clickMenuButton(player,CareAction.ABANDON.ordinal())&&!HumanCommerce.data(first).hasUUID("Owner"),HumanCommerce.data(first));
         scene=WildEventData.get(level).forMember(id);for(int i=0;i<205;i++)WildEvents.advance(level,scene);
         check("remembered former owner produces completed lament",scene.phase==Phase.COMPLETE&&scene.result.equals("former_owner_lament"),scene.result);
-        check("abandonment keeps badge record intact",baseline.equals(first.pet().save()),"badge NBT");
+        var after=first.pet();boolean abilitiesSame=true;for(var a:io.github.longshou.mcyukkuri.pet.Ability.values())abilitiesSame&=after.ability(a)==abilitiesBefore[a.ordinal()];
+        boolean routinesSame=true;for(int k=0;k<3;k++)routinesSame&=after.routine(k)==routinesBefore[k];
+        check("abandonment keeps grade, serial, issuer and pedigree",after.grade()==gradeBefore&&java.util.Objects.equals(after.serial(),serialBefore)&&java.util.Objects.equals(after.issuer(),issuerBefore)&&after.pedigree()==pedigreeBefore,"grade "+gradeBefore+"->"+after.grade()+" serial "+serialBefore+"->"+after.serial()+" issuer "+issuerBefore+"->"+after.issuer()+" pedigree "+pedigreeBefore+"->"+after.pedigree());
+        check("abandonment keeps abilities, routines and exam history",abilitiesSame&&routinesSame&&historyBefore.equals(after.history()),"abilities same="+abilitiesSame+" routines same="+routinesSame+" history "+historyBefore.size()+"->"+after.history().size());
+        check("abandonment record names the player as former owner",player.getUUID().equals(after.formerOwner())&&after.abandoned(),"formerOwner="+after.formerOwner()+" abandoned="+after.abandoned());
+        check("a worn badge is void after abandonment (none worn: nothing to void)",gradeBefore==io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE||after.voidBadge()&&after.effectiveGrade()==io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE,"grade="+gradeBefore+" voidBadge="+after.voidBadge()+" effective="+after.effectiveGrade());
         check("repeat abandonment cannot replay without new ownership",!WildEvents.abandon(first,player),"no owner");
     }
     private void interruptionRules() {
