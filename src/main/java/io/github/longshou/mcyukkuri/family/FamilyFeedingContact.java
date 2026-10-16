@@ -37,7 +37,9 @@ public final class FamilyFeedingContact {
         Vec3 offset = caregiver.position().subtract(child.position()).multiply(1, 0, 1);
         if (offset.lengthSqr() < 1.0e-6) offset = horizontalForward(caregiver);
         else offset = offset.normalize();
-        return child.position().add(offset.scale(mouthDistance(caregiver, child)));
+        // Aim inside the accepted envelope: MoveControl may stop just short of its exact target.
+        double contact = (minimumMouthDistance(caregiver, child) + mouthDistance(caregiver, child)) * .5;
+        return child.position().add(offset.scale(contact));
     }
 
     /** Point both heads at one another before testing the shared physical envelope. */

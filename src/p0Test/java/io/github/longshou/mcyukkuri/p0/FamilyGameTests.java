@@ -49,6 +49,7 @@ public final class FamilyGameTests {
     private boolean observingFollow,previousFollow,approachedParent;
     private Vec3 previousFollowPosition;
     private double closestFollowingDistance=Double.POSITIVE_INFINITY;
+    private double followingStartDistance;
     private GameTestHelper helper;
     private ServerLevel level;
     private net.minecraft.gametest.framework.GameTestSequence sequence;
@@ -116,7 +117,7 @@ public final class FamilyGameTests {
         // The setup displacement is excluded; require actual movement during consecutive FOLLOW observations.
         boolean moved=previousFollow&&following&&child.position().distanceToSqr(previousFollowPosition)>1.0e-6;
         double distance=Math.min(child.distanceToSqr(m),child.distanceToSqr(f));
-        if(moved) { closestFollowingDistance=Math.min(closestFollowingDistance,distance);if(distance<9)approachedParent=true; }
+        if(moved) { closestFollowingDistance=Math.min(closestFollowingDistance,distance);if(distance<followingStartDistance-1)approachedParent=true; }
         followTrace.add(new FollowSample(helper.getTick(),child.getUUID(),m.getUUID(),f.getUUID(),child.position().toString(),
                 m.position().toString(),f.position().toString(),child.getBehaviorId(),m.getBehaviorId(),f.getBehaviorId(),distance,moved));
         previousFollow=following;previousFollowPosition=child.position();
@@ -154,7 +155,10 @@ public final class FamilyGameTests {
         if(!level.addFreshEntity(entity))throw new IllegalStateException("Family fixture spawn rejected");return entity;
     }
     private void pair() {
-        clear();a=spawn(ModEntities.REIMU.get(),180.5,20.5);b=spawn(ModEntities.MARISA.get(),182.5,20.5);
+        pair(ModEntities.MARISA.get());
+    }
+    private void pair(EntityType<YukkuriEntity> second) {
+        clear();a=spawn(ModEntities.REIMU.get(),180.5,20.5);b=spawn(second,182.5,20.5);
         level.setBlockAndUpdate(HOME_A,ModBlocks.NEST.get().defaultBlockState());level.setBlockAndUpdate(HOME_B,ModBlocks.NEST.get().defaultBlockState());
         if(!a.life().assignHome(GlobalPos.of(level.dimension(),HOME_A))||!b.life().assignHome(GlobalPos.of(level.dimension(),HOME_B)))throw new IllegalStateException("Family fixture home failed");
         var data=FamilyData.get(level);data.register(a);data.register(b);
@@ -354,7 +358,9 @@ public final class FamilyGameTests {
     }
     private void natural() {
         later(1,"natural court setup",()-> {
-            pair();pregnancy=null;child=null;
+            // This scene checks courtship, ordinary landing and following. A Marisa catch hat also
+            // introduces a valid random birth-loss branch, which belongs to the separate hat cases.
+            pair(ModEntities.REIMU.get());pregnancy=null;child=null;
             if(a.getUUID().compareTo(b.getUUID())>0){var swap=a;a=b;b=swap;}
             a.setNoAi(false);b.setNoAi(false);a.family().introduce(b);
         });
@@ -383,7 +389,7 @@ public final class FamilyGameTests {
             child=(YukkuriEntity)level.getEntity(pregnancy.children.getFirst().id);
         });
         sequence.thenWaitUntil(()->helper.assertTrue(child!=null&&!child.family().awaitingLanding(),
-                "Waiting for newborn to land before following: "+(child==null?"missing":child.position())));
+                "Waiting for newborn to land before following: "+(child==null?pregnancyDetails():child.position())));
         later(1,"natural newborn landing",()-> {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
             helper.assertTrue(child!=null&&pregnancy.mother.equals(child.family().mother())&&pregnancy.father.equals(child.family().father())
@@ -404,6 +410,9 @@ public final class FamilyGameTests {
                     &&child.life().reachable(a.blockPosition(),false),"Following starts on the real floor, outside both parent thresholds, with a reachable mother");
             life(child,t->t.putFloat("Nutrition",85));
             followTrace.clear();previousFollow=false;previousFollowPosition=child.position();
+            // Newborns now crawl at their real small-body gait. Require measurable approach during
+            // FOLLOW, rather than the old adult-speed expectation of arriving within three blocks.
+            followingStartDistance=Math.min(child.distanceToSqr(a),child.distanceToSqr(b));
             closestFollowingDistance=Double.POSITIVE_INFINITY;approachedParent=false;observingFollow=true;
             observeFollowing();
         });
@@ -425,7 +434,8 @@ public final class FamilyGameTests {
         return "kind="+pregnancy.kind+" observedTicks="+(helper.getTick()-naturalStartTick)+" mother="+a.getVariant()+" children="+pregnancy.children.size()+" unborn="+pregnancy.unborn()
                 +" elapsed="+pregnancy.elapsed+" nextAt="+nextAt+" completeAt="+completeAt
                 +" ready="+a.family().readyForDelivery()+" outletClear="+outletClear+" motion="+a.getDeltaMovement()+" behavior="+a.getBehaviorId()
-                +" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save();
+                +" pos="+a.position()+" home="+a.life().homeStand()+" life="+a.life().save()
+                +" children="+pregnancy.children.stream().map(c->c.id+":"+FamilyData.get(level).person(c.id).status+":"+level.getEntity(c.id)).toList();
     }
     private void persistence() {
         later(1,"pregnant capture setup",()-> {

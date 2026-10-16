@@ -98,7 +98,7 @@ public final class ChildhoodLife {
         if (task == Task.CRAWL && lastPosition != null && !entity.isPassenger() && entity.onGround() && safePracticeState()) {
             double moved = here.subtract(lastPosition).horizontalDistance();
             // A teleport, a boat ride or a stationary timer is not crawling practice.
-            if (moved > .002 && moved <= .20) {
+            if (moved > 1.0e-6 && moved <= .20) {
                 crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
                 if (crawlDistance >= CRAWL_DISTANCE_REQUIRED) crawled = true;
             }

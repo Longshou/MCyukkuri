@@ -108,6 +108,10 @@ public final class HatVessel {
      *  overlapping the others as little as possible and, coming from start (null: anywhere), not across them. Regions:
      *  "catch" (a hat set down), "day" (before the owner afloat), "night" (under her). */
     public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start){
+        return place(m,r,region,prefer,taken,start,Double.NaN);
+    }
+    /** A care berth must be on a real surface at the caregiver's height, never suspended over the well. */
+    public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start,double requiredHeight){
         var R=DELIVERY.getAsJsonObject("regions").getAsJsonObject(region);var p=R.getAsJsonArray("prefer");
         double px=prefer!=null?prefer.x:p.get(0).getAsDouble(),pz=prefer!=null?prefer.z:p.get(1).getAsDouble();
         double zmin=R.has("z_min")?R.get("z_min").getAsDouble():-1e9,zmax=R.has("z_max")?R.get("z_max").getAsDouble():1e9;
@@ -119,6 +123,7 @@ public final class HatVessel {
                 double z=nz>=0?z0+r+j*STEP:(z0+z1)/2;
                 if(z<zmin||z>zmax)continue;
                 double h=footprint(m,x,z,r),over=0,across=0;
+                if(Double.isFinite(requiredHeight)&&(!Double.isFinite(h)||Math.abs(h-requiredHeight)>1e-4))continue;
                 for(var s:taken){
                     over+=Math.max(0,(r+s[3])*OVERLAP-Math.hypot(x-s[0],z-s[2]));
                     if(start!=null)across+=Math.max(0,(r+s[3])*OVERLAP-segment(s[0],s[2],start.x,start.z,x,z));
@@ -127,7 +132,7 @@ public final class HatVessel {
                 if(best==null||cost<best[0]-1e-9)best=new double[]{cost,x,h,z};
             }
         }
-        return best==null?new Vec3(px,floor(m),pz):new Vec3(best[1],best[2],best[3]);
+        return best==null?(Double.isFinite(requiredHeight)?null:new Vec3(px,floor(m),pz)):new Vec3(best[1],best[2],best[3]);
     }
     /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.
      *  This is deliberately separate from newborn delivery: a newborn still lands inside the well. */

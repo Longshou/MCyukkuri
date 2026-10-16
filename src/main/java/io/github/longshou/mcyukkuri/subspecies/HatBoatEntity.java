@@ -542,8 +542,9 @@ public final class HatBoatEntity extends Entity {
             for (int i = 0; i < 12; i++) {
                 double angle = i * Math.PI / 6.0;
                 Vec3 prefer = ownerAt.add(Math.cos(angle) * wanted, 0, Math.sin(angle) * wanted);
-                // A service berth may use the daytime interior while normal night packing remains reserved for sleep.
-                Vec3 candidate = HatVessel.place(mode(), r, "day", prefer, takenExcept(child.getUUID()), toLocal(child.position()));
+                // Use the actual inner ledge at the parent's level. Keeping the child at the bottom
+                // of the well would leave a vertical gap that a grounded caregiving mouth cannot reach.
+                Vec3 candidate = HatVessel.place(mode(), r, "day", prefer, takenExcept(child.getUUID()), toLocal(child.position()), ownerAt.y);
                 if (candidate == null || !serviceGeometryFits(parent, child, ownerAt, candidate)) continue;
                 double cost = candidate.distanceToSqr(toLocal(child.position())) + ownerOffset.lengthSqr() * .25;
                 if (cost < bestCost) {

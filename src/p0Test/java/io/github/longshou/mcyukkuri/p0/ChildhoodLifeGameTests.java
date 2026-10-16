@@ -136,7 +136,9 @@ public final class ChildhoodLifeGameTests {
                     "saved completion prevents a second assisted-first-toilet reward");
             vitals(child[0], 0); observePractice.set(true);
         }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().canJump() && airborne.get() && landedAfterAirborne.get(),
-                "ordinary newborn gains jumping only after real crawling and a complete lift-off then landing"))
+                "ordinary newborn gains jumping only after real crawling and a complete lift-off then landing; state="
+                        + child[0].childhood().save() + ", activity=" + child[0].getBehaviorId()
+                        + ", position=" + child[0].position() + ", energy=" + child[0].life().energy()))
         .thenSucceed();
     }
 
@@ -201,12 +203,14 @@ public final class ChildhoodLifeGameTests {
             parent[0] = ModEntities.MARISA.get().create(level); child[0] = ModEntities.MARISA.get().create(level);
             parent[0].subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
             child[0].subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
-            parent[0].moveTo(origin.getX() + .5, origin.getY(), origin.getZ(), 0, 0);
+            // createFor requires a dry owner within three blocks of the exact water centre.
+            parent[0].moveTo(origin.getX() + .75, origin.getY(), origin.getZ(), 0, 0);
             child[0].moveTo(origin.getX() - .5, origin.getY(), origin.getZ(), 0, 0);
             adult(parent[0]); newborn(child[0], parent[0]); vitals(parent[0], 0); vitals(child[0], 10);
             helper.assertTrue(level.addFreshEntity(parent[0]) && level.addFreshEntity(child[0]), "aquatic parent and newborn join the level");
             boat[0] = HatBoatEntity.createFor(parent[0], origin.offset(3, 0, 0));
-            helper.assertTrue(boat[0] != null && boat[0].boardYoung(child[0]), "the actual newborn occupies a protected hat berth");
+            helper.assertTrue(boat[0] != null, "a dry parent within the real launch radius creates its hat");
+            helper.assertTrue(boat[0].boardYoung(child[0]), "the actual newborn occupies a protected hat berth");
         }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().landed() && child[0].childhood().needsAssistedFirstToilet(),
                 "a settled hat passenger keeps its real first-toilet need instead of suppressing it"))
         .thenWaitUntil(() -> helper.assertTrue(child[0].childhood().firstToiletDone(),
