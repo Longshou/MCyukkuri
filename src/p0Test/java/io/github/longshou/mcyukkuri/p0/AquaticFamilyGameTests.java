@@ -57,12 +57,6 @@ public final class AquaticFamilyGameTests {
             level.getEntitiesOfClass(Entity.class,new AABB(X,60,0,X+16,76,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
             terrain.forEach(level::setBlockAndUpdate);level.setDayTime(daytime);GameTestChunks.setForced(level,chunk,0,wasForced);
         };
-        helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
-            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
-            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
-        });
         GameTestChunks.setForced(level,X/16,0,true);
         for(var p:BlockPos.betweenClosed(X,64,0,X+15,69,15))
             level.setBlockAndUpdate(p,p.getY()<=65?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
@@ -83,16 +77,36 @@ public final class AquaticFamilyGameTests {
         var boat=new HatBoatEntity[1]; var care=parent.aquaticLife().care();
         // Seat changes are real rider moves, so each care phase is driven across actual server ticks.
         // Calling tend repeatedly at one game time would never let a service berth arrive.
-        int[] careStage={0}; boolean[] chewed={false}, firstMash={false}; float[] nuzzleVitals={0,0,0};
+        int[] careStage={0}; boolean[] chewed={false}, firstMash={false}, lastTend={false}; float[] nuzzleVitals={0,0,0};
+        var lastServingTrace=new java.util.ArrayList<Map<String,Object>>();
         helper.onEachTick(()->{
             if(cleaned[0])return;
             var hat=boat[0];
             if(hat==null||parent.isRemoved()||child.isRemoved()||sibling.isRemoved())return;
             boolean bedtime=careStage[0]==3;
-            if(careStage[0]>0)care.tend(hat,bedtime);
+            lastTend[0]=careStage[0]>0&&care.tend(hat,bedtime);
             if(careStage[0]==1&&care.activity().equals("family_chew")&&care.serving().is(Items.APPLE)
                     &&child.life().mouth().isEmpty())chewed[0]=true;
             if(careStage[0]==1&&care.meals()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth()))firstMash[0]=true;
+            if(careStage[0]==5&&level.getGameTime()%40==0) {
+                var trace=lastServingDebug(level,hat,care,parent,sibling,lastTend[0]);
+                trace.put("event","wait_reservation"); lastServingTrace.add(trace);
+                if(lastServingTrace.size()>16)lastServingTrace.remove(0);
+                P0Control.write("aquatic-last-serving-trace",lastServingTrace);
+            }
+        });
+        helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
+            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
+            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                if(careStage[0]==5&&boat[0]!=null) {
+                    var trace=lastServingDebug(level,boat[0],care,parent,sibling,lastTend[0]);
+                    trace.put("event","test_failed"); lastServingTrace.add(trace);
+                    P0Control.write("aquatic-last-serving-trace",lastServingTrace);
+                }
+                cleanup.run();
+            }
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         helper.startSequence().thenWaitUntil(()->helper.assertTrue(level.isPositionEntityTicking(parent.blockPosition()),"family arena loaded"))
             .thenExecute(()->{
@@ -202,7 +216,7 @@ public final class AquaticFamilyGameTests {
         helper.succeed();
     }
     /** Separate batch: this daylight voyage must not overlap the family-care fixture changing the world to night. */
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=360,batch="aquatic_family_voyage")
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=760,batch="aquatic_family_voyage")
     public static void firstVoyageFromFather(GameTestHelper helper) {
         var level=helper.getLevel();long day=level.getDayTime();int x=X+32;
         int chunk=x/16;
@@ -287,7 +301,30 @@ public final class AquaticFamilyGameTests {
         }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.70 departure berth also finishes physical rider movement"))
         .thenExecute(()->{
             helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"departure remains at the dedicated supported edge after the second real move");
+        }).thenWaitUntil(()->helper.assertTrue(child.aquaticLife().firstVoyage().independent(),"eligible subadult completes the real away-voyage before becoming independent"))
+        .thenExecute(()->{
+            var own=HatBoatEntity.owned(child);
+            helper.assertTrue(own!=null&&own!=home&&child.getVehicle()==own&&own.protects(child),"independent subadult retains the own afloat hat reached through the real departure");
+            helper.assertTrue(home.voyageBerth(child)==null&&home.youngAboard()==4&&home.hasRoomForYoung(),"departure releases exactly the retained family berth");
+            helper.assertTrue(father.getVehicle()==home&&children.subList(1,5).stream().allMatch(y->y.getVehicle()==home),"father and all four nondeparting siblings remain on their original hat");
+            helper.assertTrue(!child.life().hasAccessory()&&own.cargo().paddle()&&!child.aquaticLife().hasStick(),"departed subadult has one hat and paddle, without duplicate personal equipment");
         }).thenSucceed();
+    }
+    /** Diagnostic emitted only when the last-serving wait fails; it does not schedule or move a care seat. */
+    private static Map<String,Object> lastServingDebug(net.minecraft.server.level.ServerLevel level,HatBoatEntity hat,
+            io.github.longshou.mcyukkuri.subspecies.HatFamilyCare care,YukkuriEntity parent,YukkuriEntity sibling,boolean tendResult) {
+        var state=new java.util.LinkedHashMap<String,Object>();
+        state.put("gameTime",level.getGameTime()); state.put("dayTime",level.getDayTime());
+        state.put("careActivity",care.activity()); state.put("careActive",care.active()); state.put("careSave",care.save().toString());
+        state.put("normalTendResult",tendResult); state.put("cargo",hat.cargo().items().toString()); state.put("cargoCount",hat.cargo().count());
+        state.put("hatState",hat.state().toString()); state.put("hatTowed",hat.towed()); state.put("hatFlooding",hat.flooding()); state.put("hatIncoming",hat.hasIncoming());
+        state.put("parentProtects",hat.protects(parent)); state.put("siblingProtects",hat.protects(sibling));
+        state.put("sameHat",parent.getVehicle()==hat&&sibling.getVehicle()==hat); state.put("lineOfSight",parent.hasLineOfSight(sibling));
+        state.put("braidCanServe",HatVessel.braidCanServe(parent,sibling)); state.put("siblingChangingSeat",hat.changingSeat(sibling)); state.put("siblingCareSeatReady",hat.careSeatReady(sibling));
+        state.put("parentNutrition",parent.life().nutrition()); state.put("parentEnergy",parent.life().energy()); state.put("parentMealTicks",parent.life().mealTicks()); state.put("parentSleeping",parent.life().isSleeping());
+        state.put("siblingNutrition",sibling.life().nutrition()); state.put("siblingEnergy",sibling.life().energy()); state.put("siblingMealTicks",sibling.life().mealTicks()); state.put("siblingSleeping",sibling.life().isSleeping());
+        state.put("siblingCareFood",sibling.life().canReceiveCareFood()); state.put("parentCaresForSibling",parent.family().caresFor(sibling));
+        return state;
     }
     private AquaticFamilyGameTests() {}
 }
