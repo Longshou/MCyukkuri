@@ -51,12 +51,11 @@ public final class FamilyLife {
     public record Stand(Vec3 at, float yaw) {}
     /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
     private boolean doomed;
-    /** A young on its way into a hat's kept place (seat, hat units) or out to a spot (to, world): a parabola under gravity
-     *  from where it left (HatVessel.arc), ticks long. Not saved: an interrupted flight just falls. */
+    /** A saved gravity arc into a reserved hat place (hat units) or out to a world position. */
     private record Flight(UUID hat,Vec3 from,Vec3 seat,Vec3 to,int ticks){}
     private Flight flight;
     private int flightTick, releaseWait;
-    /** Afloat and heading for a bank to give birth there (decided every 40 ticks, needs a bank in reach). */
+    /** Visible pregnancy and the brief post-delivery recovery of the mother's belly. */
     public float liveBelly(){
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE)

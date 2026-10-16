@@ -224,6 +224,8 @@ public final class AquaticFamilyGameTests {
         Map<BlockPos,BlockState> terrain=new HashMap<>();
         for(var p:BlockPos.betweenClosed(x,64,0,x+15,71,15))terrain.put(p.immutable(),level.getBlockState(p));
         boolean[] cleaned={false};
+        var departureTrace=new java.util.ArrayList<Map<String,Object>>(); int[] departureTraceStage={0};
+        YukkuriEntity[] traceFather={null},traceChild={null}; HatBoatEntity[] traceHome={null};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
             level.getEntitiesOfClass(Entity.class,new AABB(x,60,0,x+16,76,16),e->e instanceof YukkuriEntity||e instanceof HatBoatEntity||e instanceof ItemEntity).forEach(Entity::discard);
@@ -232,7 +234,14 @@ public final class AquaticFamilyGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                if(traceFather[0]!=null&&traceChild[0]!=null&&traceHome[0]!=null) {
+                    var trace=departureDebug(level,traceHome[0],traceFather[0],traceChild[0]);
+                    trace.put("event","test_failed"); departureTrace.add(trace);
+                    P0Control.write("aquatic-departure-trace",departureTrace);
+                }
+                cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         GameTestChunks.setForced(level,chunk,0,true);level.setDayTime(1000);
@@ -245,7 +254,7 @@ public final class AquaticFamilyGameTests {
         father.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
         var adult=father.family().save();adult.putBoolean("Initialized",true);adult.putString("Stage","ADULT");adult.putFloat("Scale",1);father.family().load(adult);
         father.moveTo(x+3.5,66,7.5,0,0);level.addFreshEntity(father);nutrition(father,85);
-        var home=HatBoatEntity.createFor(father,new BlockPos(x+5,65,7));helper.assertTrue(home!=null,"father uses his actual hat");
+        var home=HatBoatEntity.createFor(father,new BlockPos(x+5,65,7));helper.assertTrue(home!=null,"father uses his actual hat");traceFather[0]=father;traceHome[0]=home;
         home.cargo().givePaddle(new ItemStack(Items.STICK),false);
         var shore=father.aquaticLife().shore();
         helper.assertTrue(shore.coastal(new BlockPos(x+3,66,7))&&!shore.coastal(new BlockPos(x,66,7)),"land activity stays in the two-block bank strip");
@@ -262,11 +271,16 @@ public final class AquaticFamilyGameTests {
             kin.putUUID("Father",father.getUUID());y.family().load(kin);y.moveTo(home.getX(),66,home.getZ(),0,0);level.addFreshEntity(y);nutrition(y,85);
             helper.assertTrue(home.boardYoung(y),"each of five siblings can board");children.add(y);
         }
-        var child=children.getFirst();child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
+        var child=children.getFirst();traceChild[0]=child;child.aquaticLife().giveStick(new ItemStack(Items.STICK),false);
         helper.onEachTick(()->{
             if(cleaned[0]||!father.isAlive()||father.isRemoved())return;
             if(child.aquaticLife().firstVoyage().active())child.aquaticLife().firstVoyage().tick();
             if(father.aquaticLife().firstVoyage().active())father.aquaticLife().firstVoyage().tick();
+            if(departureTraceStage[0]>0&&level.getGameTime()%40==0) {
+                var trace=departureDebug(level,home,father,child); trace.put("event","departure_wait"); departureTrace.add(trace);
+                if(departureTrace.size()>20)departureTrace.remove(0);
+                P0Control.write("aquatic-departure-trace",departureTrace);
+            }
         });
         helper.startSequence().thenIdle(40).thenExecute(()->{
             helper.assertTrue(shore.landTicks()<600,"real dry hat passengers recover land strain");
@@ -298,6 +312,7 @@ public final class AquaticFamilyGameTests {
             helper.assertTrue(child.childhood().canLiveIndependently(),"0.70 late juvenile remains eligible before adult stage");
             helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.70 subadult likewise cannot use the narrow full-body brim strip");
             helper.assertTrue(child.aquaticLife().firstVoyage().tryStart(),"0.70 subadult can reserve the dedicated front-edge departure seat through its real departure path");
+            departureTraceStage[0]=1;
         }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.70 departure berth also finishes physical rider movement"))
         .thenExecute(()->{
             helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"departure remains at the dedicated supported edge after the second real move");
@@ -321,9 +336,24 @@ public final class AquaticFamilyGameTests {
         state.put("parentProtects",hat.protects(parent)); state.put("siblingProtects",hat.protects(sibling));
         state.put("sameHat",parent.getVehicle()==hat&&sibling.getVehicle()==hat); state.put("lineOfSight",parent.hasLineOfSight(sibling));
         state.put("braidCanServe",HatVessel.braidCanServe(parent,sibling)); state.put("siblingChangingSeat",hat.changingSeat(sibling)); state.put("siblingCareSeatReady",hat.careSeatReady(sibling));
+        state.put("parentAlive",parent.isAlive()); state.put("parentRemoved",parent.isRemoved()); state.put("parentHealth",parent.getHealth()); state.put("parentPanicking",parent.isPanicking()); state.put("parentCommand",parent.isCommandPlaying());
         state.put("parentNutrition",parent.life().nutrition()); state.put("parentEnergy",parent.life().energy()); state.put("parentMealTicks",parent.life().mealTicks()); state.put("parentSleeping",parent.life().isSleeping());
+        state.put("siblingAlive",sibling.isAlive()); state.put("siblingRemoved",sibling.isRemoved()); state.put("siblingHealth",sibling.getHealth()); state.put("siblingPanicking",sibling.isPanicking()); state.put("siblingCommand",sibling.isCommandPlaying()); state.put("siblingNoAi",sibling.isNoAi());
         state.put("siblingNutrition",sibling.life().nutrition()); state.put("siblingEnergy",sibling.life().energy()); state.put("siblingMealTicks",sibling.life().mealTicks()); state.put("siblingSleeping",sibling.life().isSleeping());
-        state.put("siblingCareFood",sibling.life().canReceiveCareFood()); state.put("parentCaresForSibling",parent.family().caresFor(sibling));
+        state.put("siblingAwaitingLanding",sibling.family().awaitingLanding()); state.put("siblingOperations",sibling.operations().active()); state.put("siblingCareFood",sibling.life().canReceiveCareFood()); state.put("parentCaresForSibling",parent.family().caresFor(sibling));
+        state.put("parentEntity",parent.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()); state.put("siblingEntity",sibling.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        return state;
+    }
+    /** Failure-only trace for the late-juvenile departure; every field is observational. */
+    private static Map<String,Object> departureDebug(net.minecraft.server.level.ServerLevel level,HatBoatEntity home,YukkuriEntity father,YukkuriEntity child) {
+        var state=new java.util.LinkedHashMap<String,Object>(); var voyage=child.aquaticLife().firstVoyage();
+        state.put("gameTime",level.getGameTime()); state.put("dayTime",level.getDayTime()); state.put("night",level.isNight());
+        state.put("voyageStatus",voyage.status()); state.put("voyageActivity",voyage.activity()); state.put("voyageActive",voyage.active()); state.put("voyageIndependent",voyage.independent()); state.put("voyageSave",voyage.save().toString());
+        state.put("childPosition",child.position().toString()); state.put("childScale",child.getScale()); state.put("childFamilyScale",child.family().scale()); state.put("childWidth",child.getBbWidth()); state.put("childVehicle",child.getVehicle()==null?"none":child.getVehicle().getClass().getSimpleName()+":"+child.getVehicle().getUUID());
+        state.put("childAlive",child.isAlive()); state.put("childRemoved",child.isRemoved()); state.put("childHealth",child.getHealth()); state.put("childPanicking",child.isPanicking()); state.put("childCommand",child.isCommandPlaying()); state.put("childAwaitingLanding",child.family().awaitingLanding());
+        state.put("fatherPosition",father.position().toString()); state.put("fatherVehicle",father.getVehicle()==null?"none":father.getVehicle().getClass().getSimpleName()+":"+father.getVehicle().getUUID()); state.put("fatherVoyage",father.aquaticLife().firstVoyage().save().toString());
+        state.put("homePosition",home.position().toString()); state.put("homeAfloat",home.isAfloat()); state.put("homeProtectsChild",home.protects(child)); state.put("homeChangingSeat",home.changingSeat(child)); state.put("homeOnVoyageBerth",home.onVoyageBerth(child)); state.put("homeVoyageBerth",String.valueOf(home.voyageBerth(child))); state.put("homeIncoming",home.hasIncoming()); state.put("homeYoungAboard",home.youngAboard());
+        state.put("childEntity",child.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()); state.put("fatherEntity",father.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
         return state;
     }
     private AquaticFamilyGameTests() {}
