@@ -7,45 +7,45 @@
   "chapters": [
     {
       "id": "hat-motion",
-      "label": "帽檐与落水",
-      "title": "帽檐上撑稳，拥挤时争位，落水后呼救。",
+      "label": "呼唤与辫子救援",
+      "title": "听见亲油呼唤，赶回帽边；落水后由辫子托起。",
       "tag": "水生魔理沙 · 2026-10-17",
-      "summary": "赤油在实际前帽檐撑稳身体，危机争位后沿帽缘挤落；落水采用冲击、扑腾、疲惫与获救喘息的新动作。三段当前模型离线演出与阶段分镜。",
+      "summary": "摇晃受惊后远离危险；子油浮在实际水面扑腾，亲油用自然长度的单辫接触、托回与放稳。完整展示呼唤、回应、返帽、争位与挤落。页面附同步现有配音，GIF无声。",
       "demoPage": "hat-motion/index.html",
       "model": "marisa",
       "points": [
-        "空手右键轻摇水上的帽船；潜行空手仍可救援或拉近。",
-        "赤油压低撑稳、亲油护幼；落脚空间随体型和真实存粮变化。",
-        "危机中近身争位才会挤落；落水者按真实体力间歇扑腾呼救，不获得无限浮力。"
+        "子油的浮力与扑腾分开，疲惫时仍受实际水面浮力支撑。",
+        "亲油先接近并停船，辫梢实际接触后才托起孩子。",
+        "声音发出后孩子听见回应，赶回实际座位，拥挤按真实接触处理。"
       ],
       "steps": [
         {
-          "title": "轻摇帽船，一家人稳住身体",
-          "body": "醒着的赤油站在受支撑的前帽檐，压低、侧倾撑稳；各自反应与位置和摇摆方向相连。",
+          "title": "受惊、呼唤家人，再远离摇船者",
+          "body": "稳住身体后等待近身家人，沿水路撤离，回望并逐渐平复。",
           "image": "hat-motion/rock-poster.png",
-          "animation": "hat-motion/rock-and-steady.gif"
+          "animation": "hat-motion/rock-and-flee.gif"
         },
         {
-          "title": "倾倒、跌落与水中挣扎",
-          "body": "从逐渐倾倒到实际离船。这里按实现的运动公式离线取样，不是游戏录像。",
-          "image": "hat-motion/capsize-poster.png",
-          "animation": "hat-motion/capsize-and-struggle.gif"
+          "title": "水面扑腾，亲油伸辫托回",
+          "body": "抓前自然漂浮，接触后跟随同一辫梢抬回，落稳座位后再松开。",
+          "image": "hat-motion/rescue-poster.png",
+          "animation": "hat-motion/float-and-braid-rescue.gif"
         },
         {
-          "title": "争位、挤落与呼救",
-          "body": "接触、抵住退让、滑出帽檐、入水冲击和间歇扑腾相连；轨迹为离线演出示意。",
-          "image": "hat-motion/crowd-poster.png",
-          "animation": "hat-motion/crowd-and-distress.gif"
+          "title": "听见呼唤、赶回与实际争位",
+          "body": "子油回应后划回自己的帽船，有的成功上帽，有的在持续拥挤中失去支撑落水。",
+          "image": "hat-motion/recall-poster.png",
+          "animation": "hat-motion/recall-and-crowding.gif"
         }
       ],
       "gallery": [
         {
           "src": "hat-motion/storyboard.png",
-          "label": "当前模型 · 摇船与翻覆分镜"
+          "label": "受惊撤离、辫子救援与召回争位"
         },
         {
           "src": "hat-motion/distress-stages.png",
-          "label": "失衡、拥挤、落水与获救喘息的七段动作"
+          "label": "从实际接触到放稳松开的救援阶段"
         }
       ],
       "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md"
