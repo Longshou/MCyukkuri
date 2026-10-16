@@ -146,17 +146,17 @@ def handbook_png():
     fill(13,2,13,13,deep);fill(3,13,13,13,deep)                   # shaded right/bottom edge
     fill(14,2,14,14,'#efe3bd');fill(3,14,14,14,'#d3c391');fill(14,14,14,14,ol)  # page block
     px[14,1]=P(ol)
-    def medal(cx,cy,tier):
-        pal=G[tier]
-        for dx in range(-2,3):
-            for dy in range(-2,3):
-                if abs(dx)==2 and abs(dy)==2:continue
-                edge=max(abs(dx),abs(dy))==2
-                if edge:c=pal['outline']
-                else:c=pal['shade'][2] if dx+dy<0 else pal['shade'][1] if dx+dy==0 else pal['shade'][0]
-                px[cx+dx,cy+dy]=P(c)
-        px[cx-1,cy-1]=P(pal['spec'])
-    medal(7,5,'gold');medal(10,9,'silver')
+    def medal(x0,y0,tier):
+        # 6x6 round medallion: outline only on the outer ring, 4x4 shaded domed interior, top-left light.
+        pal=G[tier];rows=['.XXXX.','XXXXXX','XXXXXX','XXXXXX','XXXXXX','.XXXX.']
+        cells={(i,j) for j,row in enumerate(rows) for i,ch in enumerate(row) if ch=='X'}
+        for i,j in cells:
+            if any(n not in cells for n in ((i+1,j),(i-1,j),(i,j+1),(i,j-1))):c=pal['outline']
+            else:
+                d=(i-1)+(j-1);c=pal['shade'][2] if d<=1 else pal['shade'][1] if d<=3 else pal['shade'][0]
+            px[x0+i,y0+j]=P(c)
+        px[x0+1,y0+1]=P(pal['spec'])
+    medal(5,2,'gold');medal(8,7,'silver')
     stream=BytesIO(); image.save(stream,format='PNG'); return stream.getvalue()
 
 def main(check=False, mounts_only=False, only=None):

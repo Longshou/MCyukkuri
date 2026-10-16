@@ -52,7 +52,7 @@
         "part": "chen_hat_lower",
         "point": [
           2.5599999849056605,
-          11.22,
+          11.66,
           -3.78
         ],
         "normal": [
@@ -102,7 +102,7 @@
           0.422618,
           -0.906308
         ],
-        "diameter": 1.5
+        "diameter": 1.3
       },
       "reimu_wasa": {
         "part": "bow_outer_1",
@@ -130,7 +130,7 @@
           0,
           -1
         ],
-        "diameter": 1.2666666666666666
+        "diameter": 1.5999999999999999
       },
       "reimu_wasa_deibu": {
         "part": "bow_outer_1",
@@ -144,35 +144,35 @@
           0,
           -1
         ],
-        "diameter": 1.2666666666666666
+        "diameter": 1.5999999999999999
       },
       "reimu_bean": {
         "part": "bow_outer_1",
         "point": [
-          3.146,
-          13.736,
-          2.5115999999999996
+          3.1500039999999996,
+          13.29998,
+          2.50996
         ],
         "normal": [
           0,
           0,
           -1
         ],
-        "diameter": 1.9
+        "diameter": 1.25
       },
       "marisa_bean": {
         "part": "hat_band",
         "point": [
-          2.3920000000000003,
-          13.376,
-          -3.483284007278159
+          2.349984000000001,
+          13.449995999999999,
+          -3.479982687274273
         ],
         "normal": [
           0,
           0,
           -1
         ],
-        "diameter": 1.9
+        "diameter": 1.1
       },
       "remilia": {
         "part": "predator_cap_crown",
@@ -292,7 +292,7 @@
         "part": "chen_hat_lower",
         "point": [
           2.5599999849056605,
-          11.22,
+          11.66,
           -3.78
         ],
         "normal": [
@@ -342,7 +342,7 @@
           0.422618,
           -0.906308
         ],
-        "diameter": 1.5
+        "diameter": 1.3
       },
       "accessory_reimu_wasa": {
         "part": "bow_outer_1",
@@ -370,7 +370,7 @@
           0,
           -1
         ],
-        "diameter": 1.2666666666666666
+        "diameter": 1.5999999999999999
       },
       "accessory_reimu_wasa_deibu": {
         "part": "bow_outer_1",
@@ -384,35 +384,35 @@
           0,
           -1
         ],
-        "diameter": 1.2666666666666666
+        "diameter": 1.5999999999999999
       },
       "accessory_reimu_bean": {
         "part": "bow_outer_1",
         "point": [
-          3.146,
-          13.736,
-          2.5115999999999996
+          3.1500039999999996,
+          13.29998,
+          2.50996
         ],
         "normal": [
           0,
           0,
           -1
         ],
-        "diameter": 1.9
+        "diameter": 1.25
       },
       "accessory_marisa_bean": {
         "part": "hat_band",
         "point": [
-          2.3920000000000003,
-          13.376,
-          -3.483284007278159
+          2.349984000000001,
+          13.449995999999999,
+          -3.479982687274273
         ],
         "normal": [
           0,
           0,
           -1
         ],
-        "diameter": 1.9
+        "diameter": 1.1
       },
       "accessory_remilia": {
         "part": "predator_cap_crown",

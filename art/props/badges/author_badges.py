@@ -9,9 +9,9 @@ from PIL import Image
 
 # Locked palettes: outline, shade (dark -> light), specular. Reuse these for GUI/handbook.
 PALETTES = {
-    'bronze': {'outline': '#3a1d0f', 'shade': ['#6a3a1c', '#8f5428', '#b6713a'], 'light': '#d08e52', 'spec': '#f0c493'},
-    'silver': {'outline': '#2c3642', 'shade': ['#8c98a6', '#bec8d2', '#e8eef3'], 'light': '#f4f8fb', 'spec': '#ffffff'},
-    'gold':   {'outline': '#5c340e', 'shade': ['#ba781e', '#e8aa2e', '#fad258'], 'light': '#ffe58a', 'spec': '#fff8d0'},
+    'bronze': {'outline': '#3a1d0f', 'shade': ['#8f5428', '#b6713a', '#d08e52'], 'light': '#e8a868', 'spec': '#f6d2a8', 'engrave': '#4a2814'},
+    'silver': {'outline': '#2c3642', 'shade': ['#8c98a6', '#bec8d2', '#e8eef3'], 'light': '#f4f8fb', 'spec': '#ffffff', 'engrave': '#5a6676'},
+    'gold':   {'outline': '#5c340e', 'shade': ['#ba781e', '#e8aa2e', '#fad258'], 'light': '#ffe58a', 'spec': '#fff8d0', 'engrave': '#8a5414'},
 }
 TIERS = ('bronze', 'silver', 'gold')
 
@@ -25,10 +25,12 @@ EMBLEM = [
 SIZE = 16
 GROOVE = {'silver': '#667383'}  # silver inner groove between the two rims (named, locked with the palette)
 
+# Gold teeth: 4 cardinal teeth 2x1 and 4 diagonal teeth stepping 1px (no 2x2 lumps), on the 14px disc.
+GOLD_TEETH = {(7, 0), (8, 0), (7, 15), (8, 15), (0, 7), (0, 8), (15, 7), (15, 8),
+              (3, 2), (2, 3), (12, 2), (13, 3), (3, 13), (2, 12), (12, 13), (13, 12)}
+
 def _radius(tier, a):
-    if tier == 'gold':  # scalloped rim: 8 teeth reaching the full 16px, notches down to the 14px disc
-        return 7.95 if math.cos(8 * a) > .2 else 6.95
-    return 7.05 if tier == 'bronze' else 7.95  # bronze is a smaller, plain 14px disc
+    return 7.05 if tier in ('bronze', 'gold') else 7.95  # bronze/gold: 14px disc; silver: 16px circle
 
 def badge(tier):
     p = PALETTES[tier]
@@ -38,7 +40,7 @@ def badge(tier):
         for x in range(SIZE):
             dx, dy = x + .5 - 8, y + .5 - 8
             r = math.hypot(dx, dy)
-            info[x, y] = (r <= _radius(tier, math.atan2(dy, dx)), r, dx, dy)
+            info[x, y] = (r <= _radius(tier, math.atan2(dy, dx)) or (tier == 'gold' and (x, y) in GOLD_TEETH), r, dx, dy)
     inside = lambda x, y: info.get((x, y), (False,))[0]
     base = {'bronze': 7.05, 'silver': 7.95, 'gold': 6.95}[tier]
     face_r = {'bronze': 5.2, 'silver': 4.1, 'gold': 5.1}[tier]
@@ -62,7 +64,7 @@ def badge(tier):
             if (ex, ey) not in body:
                 im.putpixel((ex, ey), _rgba(p['light']))
     for (x, y), ch in body.items():
-        im.putpixel((x, y), _rgba(p['outline']) if ch == 'X' else _rgba(p['shade'][1]))
+        im.putpixel((x, y), _rgba(p['engrave']) if ch == 'X' else _rgba(p['shade'][1]))
     for xy in SPEC[tier]:
         im.putpixel(xy, _rgba(p['spec']))
     return im

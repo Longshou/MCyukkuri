@@ -15,17 +15,17 @@
     "bronze_yukkuri_badge": {
       "source": "art/structures/human-world/products/bronze_yukkuri_badge.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/item/bronze_yukkuri_badge.png",
-      "sha256": "cbc356ab48a9beea438cbbb6f0ce8b3d50341a720fdd6e258da2c6aee9032813"
+      "sha256": "d102ff747609c40444c954b13d464331abe930e59fb318e31dc718c9d4a35d24"
     },
     "silver_yukkuri_badge": {
       "source": "art/structures/human-world/products/silver_yukkuri_badge.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/item/silver_yukkuri_badge.png",
-      "sha256": "48a8552ca61040bd15e70e5c4868326baaa7821609258981272be403ecf31a2b"
+      "sha256": "db37e04b6b296858c0d7fa224720f454159608b579feff16169ef47bea23c54d"
     },
     "gold_yukkuri_badge": {
       "source": "art/structures/human-world/products/gold_yukkuri_badge.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/item/gold_yukkuri_badge.png",
-      "sha256": "8e7619e008416a6b584722ed99cbeeb3cd8f925b8492ec1d362f4f9187dff3e6"
+      "sha256": "d9e445f6821b3a0deff8e94f38b002146b5efc7615f436ea7969bf10b89a822e"
     },
     "labor_bench": {
       "source": "art/structures/human-world/products/labor_bench.png",
