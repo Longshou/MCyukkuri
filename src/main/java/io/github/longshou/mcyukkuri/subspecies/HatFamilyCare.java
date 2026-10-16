@@ -23,6 +23,8 @@ public final class HatFamilyCare {
     private int finishTicks, toiletTicks;
     private final java.util.Map<UUID,Long> blocked=new java.util.HashMap<>();
     private boolean bedtimeSung;
+    private UUID grateful;
+    private long gratefulUntil;
 
     public HatFamilyCare(YukkuriEntity parent) { this.parent = parent; }
     public ItemStack serving() { return serving; }
@@ -31,6 +33,8 @@ public final class HatFamilyCare {
     public int songs() { return songs; }
     public boolean active() { return kind != Kind.NONE; }
     public boolean bedtimeReady() { return bedtimeSung; }
+    /** A rescued child is nuzzled once the parent can attend; still mouth contact only, no cleaning or healing. */
+    public void expectNuzzle(YukkuriEntity young) { grateful = young.getUUID(); gratefulUntil = level().getGameTime() + 200; }
     private ServerLevel level() { return (ServerLevel) parent.level(); }
     public int childId() { var y = child(); return y == null ? -1 : y.getId(); }
     /** Client-sync source: uninterrupted real contact in the active feed or first-toilet care. */
@@ -99,6 +103,11 @@ public final class HatFamilyCare {
             if (!active() && hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
                 serving = boat.cargo().takeCareMeal(parent,hungry);
                 if (!serving.isEmpty()) begin(Kind.FEED, hungry);
+            }
+            if (grateful != null && level().getGameTime() > gratefulUntil) grateful = null;
+            if (!active() && grateful != null) {
+                var rescued = children.stream().filter(y -> y.getUUID().equals(grateful) && y.life().mealTicks() == 0 && !y.life().isSleeping()).findFirst().orElse(null);
+                if (rescued != null) { grateful = null; begin(Kind.NUZZLE, rescued); }
             }
             if (!active() && bedtime && !bedtimeSung && songWait == 0 && !children.isEmpty()
                     && children.stream().anyMatch(y -> !y.life().isSleeping())
@@ -229,7 +238,7 @@ public final class HatFamilyCare {
     }
     public void load(CompoundTag tag) {
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
-        blocked.clear();
+        blocked.clear(); grateful = null;
         kind = Kind.NONE; child = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0;
         mealWait = Math.clamp(tag.getInt("MealWait"), 0, 80); affectionWait = Math.clamp(tag.getInt("AffectionWait"), 0, 600);
         songWait = Math.clamp(tag.getInt("SongWait"), 0, 1200); bedtimeSung = tag.getBoolean("BedtimeSung");

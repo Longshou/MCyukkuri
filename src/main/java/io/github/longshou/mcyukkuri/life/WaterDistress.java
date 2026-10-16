@@ -40,6 +40,7 @@ public final class WaterDistress {
             &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
     public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
     public boolean canBeLifted(){return liftWait==0;}
+    /** The parent's body nudge and rim slide take over the child's position; its bursts pause and it is not lifted again for 60 ticks. */
     public void lifted(){liftWait=60;burstTicks=0;}
     public Vec3 direction(){return destination==null?Vec3.ZERO:destination.subtract(entity.position()).multiply(1,0,1).normalize();}
     public String activity(){return switch(phase){
@@ -111,6 +112,9 @@ public final class WaterDistress {
                 ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().heldByBraid())return;
         tick();
         if(phase==Phase.IMPACT){entity.getNavigation().stop();return;}
+        // While a parent offers the dipped rim the child waits in the water (it still floats, bites and takes real water damage);
+        // its own swimming bursts resume at once if the rescue fails and cancels.
+        if(entity.family().braidRescueActive()){burstTicks=0;entity.getNavigation().stop();return;}
         if(entity.family().selfClimbActive()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
         if(searchWait==0){findEscape();searchWait=20;}
         if(target!=null&&level().getEntity(target) instanceof HatBoatEntity hat){

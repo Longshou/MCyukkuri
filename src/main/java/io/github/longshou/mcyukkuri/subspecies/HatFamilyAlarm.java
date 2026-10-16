@@ -270,10 +270,10 @@ public final class HatFamilyAlarm {
     private void approachExact(HatBoatEntity boat,Vec3 berth){
         if(now()<nextRoute)return;nextRoute=now()+20;
         if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();return;}
-        if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0025){boat.holdPosition();return;}
+        if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.holdPosition();return;}
         var path=new ArrayList<>(HatBoatRoute.find(boat,berth,point->entity.aquaticLife().familyLife().allowsDestination(boat,point)));
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
-        if(finalApproachClear(boat,from,berth)){path.add(berth);boat.paddleAlong(path,.0025);}
+        if(finalApproachClear(boat,from,berth)){path.add(berth);boat.paddleAlong(path,.0009);}
         else if(!path.isEmpty())boat.paddleAlong(path);
         else boat.holdPosition();
     }

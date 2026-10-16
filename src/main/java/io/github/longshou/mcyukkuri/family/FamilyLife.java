@@ -297,7 +297,7 @@ public final class FamilyLife {
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){
         if(hat==null||flying()||heldByBraid()||hat.unsteadyMotion())return;
         // Only the actual birth push is not a voluntary jump. Landed children must
-        // approach on real ground; swimming infants wait for their parent's braid.
+        // approach on real ground; swimming infants wait for their parent's dipped rim.
         if(!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()){
             boardFromShore(hat);return;
         }
@@ -356,11 +356,11 @@ public final class FamilyLife {
         to.cancelIncoming(entity);
         from.approachBoardingEdge(entity,to.position());return false;
     }
-    /** A nearby parent lifts a swimming young over the brim, starting at its real water position. */
+    /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){
         return hat!=null&&!flying()&&rescue.start(hat);
     }
-    /** A capable shore child jumps from its actual feet; infants must use the parent's real braid grip. */
+    /** A capable shore child jumps from its actual feet; infants wait for the parent's dipped rim. */
     public boolean boardFromShore(HatBoatEntity hat){
         if(entity.level().isClientSide||hat==null||hat.level()!=entity.level()||flying()||heldByBraid()
                 ||!entity.childhood().canJump()||entity.isPassenger()||!entity.onGround()||entity.isInWaterOrBubble()
@@ -370,7 +370,7 @@ public final class FamilyLife {
         if(boarding.begin(null,hat,seat))return true;
         hat.cancelIncoming(entity);return false;
     }
-    /** A trained young may scramble from real brim contact; an untrained infant must be lifted. */
+    /** A trained young may scramble from real brim contact; an untrained infant is nudged over the dipped rim by its parent. */
     public boolean scrambleIntoHat(HatBoatEntity hat){
         if(entity.level().isClientSide||hat==null||flying()||heldByBraid()||entity.isPassenger()||!entity.isInWaterOrBubble()
                 ||!entity.childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
