@@ -42,6 +42,7 @@ public final class ChildhoodNestGameTests {
         YukkuriEntity[] parent={null},child={null};
         ItemEntity[] leaf={null};BlockPos[] grass={null};
         int[] pausedWork={0};boolean[] harvested={false};
+        var trace=new java.util.ArrayList<String>();
         boolean[] cleaned={false};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
@@ -62,13 +63,17 @@ public final class ChildhoodNestGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                P0Control.write("childhood-nest-trace",trace);
                 P0Control.write("childhood-nest-failure",java.util.Map.of("home",home[0]==null?"none":home[0].saveWithFullMetadata(level.registryAccess()).toString(),
                         "child",child[0]==null?"none":child[0].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()));cleanup.run();
             }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         ShelterGameTests.daylightFixture(level);
-        helper.onEachTick(()->{if(child[0]!=null&&child[0].habitat().activity().equals("nest_harvest"))harvested[0]=true;});
+        helper.onEachTick(()->{if(child[0]!=null){
+            if(child[0].habitat().activity().equals("nest_harvest"))harvested[0]=true;
+            if(child[0].tickCount%40==0)trace.add(child[0].tickCount+" "+child[0].position()+" "+child[0].habitat().debug()+" nav="+child[0].getNavigation().isDone()+" behavior="+child[0].getBehaviorId());
+        }});
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
         for(int x=171;x<=173;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,true);
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,171,173,-1,1)).thenExecute(()->{

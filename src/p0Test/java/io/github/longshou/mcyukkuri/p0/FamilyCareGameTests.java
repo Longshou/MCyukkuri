@@ -148,6 +148,12 @@ public final class FamilyCareGameTests {
                     &&sibling.life().mealTicks()==0&&directParent.family().carrying().isEmpty()&&directStem.getItem().getCount()==1,
                     "twenty close delivery ticks hand the saved mash to the lower-nutrition child without duplicating its source");
             directStem.discard();
+            helper.assertTrue(directParent.family().activity().equals("care_finish"),
+                    "the successful handoff enters its real closing action before a second care task may start");
+            for(int i=0;i<80&&directParent.family().activity().equals("care_finish");i++)directParent.family().tickGoal();
+            helper.assertTrue(!directParent.family().active()&&!hungriest.careApproach().waiting()
+                    &&directParent.family().carrying().isEmpty()&&hungriest.life().mealTicks()==1,
+                    "the old handoff closes and releases both actors without consuming or duplicating the child's held meal");
             var stocked=ShelterPlacement.place(level,new ShelterPlacement.Plan(new BlockPos(X+12,65,8),ShelterBlock.Kind.CARDBOARD,Direction.SOUTH));
             helper.assertTrue(stocked!=null,"a real resident store is available for the care food selection check");childHome[0]=stocked;
             directParent.moveTo(Vec3.atBottomCenterOf(stocked.shelter().entrance()));directParent.setOnGround(true);
@@ -159,7 +165,10 @@ public final class FamilyCareGameTests {
             helper.assertTrue(stocked.shelter().returnFood(rejected).isEmpty()
                     &&stocked.shelter().returnFood(new ItemStack(ModItems.YUKKURI_STEM.get())).isEmpty(),"both physical portions enter separate stock slots");
             for(int i=0;i<40;i++)directParent.family().tick();
-            helper.assertTrue(directParent.family().canUse(),"caregiver finds a stored portion accepted by its child");directParent.family().tickGoal();
+            helper.assertTrue(directParent.family().canUse(),"caregiver finds a stored portion accepted by its child");
+            helper.assertTrue(directParent.family().careTargetId()==sibling.getId(),
+                    "a new care task selects the hungry sibling while the first child still holds its original meal");
+            directParent.family().tickGoal();
             helper.assertTrue(directParent.family().carrying().is(ModItems.YUKKURI_STEM.get())
                     &&stocked.shelter().foodFor(directParent).is(ModItems.FILLING.get())&&stocked.shelter().food()==1,
                     "care takes the later stem slot, leaving the child's rejected filling unchanged");

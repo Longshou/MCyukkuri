@@ -575,6 +575,8 @@ public final class YukkuriModel {
         if (behavior.equals("feed_child") || behavior.equals("first_toilet_assist")
                 || behavior.equals("newborn_crawl") || behavior.equals("learn_jump")
                 || behavior.equals("boat_toilet")) selected=behavior;
+        if(behavior.equals("hat_walk")||behavior.equals("learn_watch")||behavior.equals("care_finish")||behavior.equals("boat_carry_young")||behavior.equals("boat_be_carried")
+                ||behavior.equals("nest_harvest")||behavior.equals("nest_place")||behavior.equals("nest_spread")||behavior.equals("nest_press"))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");
         clips.getOrDefault(selected, clips.get("idle")).sample(selected.equals(action)?elapsed:behaviorTicks/20f, pose);

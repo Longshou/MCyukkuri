@@ -17,14 +17,15 @@ public final class EcologyPresentation {
             case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
-            case "independence_build", "nest_build" -> YukkuriAction.BRACE;
+            case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> YukkuriAction.BRACE;
             // These distinct care/learning states select matching authored clips in YukkuriModel.
             // The base enum remains the closest locomotion family so server animation timing stays shared.
             case "feed_child", "first_toilet_assist" -> YukkuriAction.NUZZLE;
             case "first_toilet_seek" -> YukkuriAction.LOOK_AROUND;
-            case "newborn_crawl" -> YukkuriAction.WADDLE;
+            case "newborn_crawl", "hat_walk" -> YukkuriAction.WADDLE;
             case "learn_jump" -> YukkuriAction.HOP;
-            case "newborn_wait", "first_toilet_wait" -> YukkuriAction.IDLE;
+            case "newborn_wait", "first_toilet_wait", "care_finish", "learn_watch" -> YukkuriAction.IDLE;
+            case "boat_carry_young", "boat_be_carried" -> YukkuriAction.BRACE;
             case "nest_gather" -> YukkuriAction.LOOK_AROUND;
             case "independence_farewell", "independence_visit" -> YukkuriAction.GREET;
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
@@ -105,7 +106,7 @@ public final class EcologyPresentation {
             case "nuzzle", "listen_song", "exercise_watch", "boat_nuzzle", "boat_receive_care", "boat_listen" -> "closed_smile";
             case "meal_finish" -> "satisfied";
             case "independence_farewell", "independence_visit" -> "happy";
-            case "independence_build", "nest_build" -> "chewing_closed";
+            case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> "chewing_closed";
             case "feed_child" -> "happy";
             case "first_toilet_seek" -> "teary";
             case "first_toilet_assist" -> "closed_smile";

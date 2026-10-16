@@ -83,7 +83,7 @@ public final class AquaticFamilyGameTests {
         var boat=new HatBoatEntity[1]; var care=parent.aquaticLife().care();
         // Seat changes are real rider moves, so each care phase is driven across actual server ticks.
         // Calling tend repeatedly at one game time would never let a service berth arrive.
-        int[] careStage={0}; boolean[] chewed={false}, firstMash={false}, lastTend={false}, nuzzleRelieved={false}; float[] nuzzleVitals={0,0,0};
+        int[] careStage={0}; boolean[] chewed={false}, firstMash={false}, lastTend={false}, nuzzleRelieved={false}, nuzzlePure={false};
         var lastServingTrace=new java.util.ArrayList<Map<String,Object>>();
         helper.onEachTick(()->{
             if(cleaned[0])return;
@@ -91,8 +91,13 @@ public final class AquaticFamilyGameTests {
             if(hat==null||parent.isRemoved()||child.isRemoved()||sibling.isRemoved())return;
             boolean bedtime=careStage[0]==3;
             int comfortsBefore=care.comforts(), affectionBefore=child.dailyLife().affectionNeed();
+            float wetBefore=child.life().wetness(), hygieneBefore=child.life().hygiene(), healthBefore=child.getHealth(), foodBefore=child.life().nutrition();
             lastTend[0]=careStage[0]>0&&care.tend(hat,bedtime);
-            if (care.comforts()>comfortsBefore) nuzzleRelieved[0]=child.dailyLife().affectionNeed()==Math.max(0,affectionBefore-35);
+            if (care.comforts()>comfortsBefore) {
+                nuzzleRelieved[0]=child.dailyLife().affectionNeed()==Math.max(0,affectionBefore-35);
+                nuzzlePure[0]=child.life().wetness()==wetBefore && child.life().hygiene()==hygieneBefore
+                        && child.getHealth()==healthBefore && child.life().nutrition()==foodBefore;
+            }
             if (careStage[0] == 4 && care.meals() == 2 && child.life().mealTicks() > 0) {
                 helper.assertTrue(care.active() && hat.careSeatReady(child), "served child retains real parent contact until swallowing finishes");
                 helper.assertTrue(care.response(child).equals("boat_eat"), "a swallowing child stops begging for its already-delivered serving");
@@ -158,15 +163,13 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(child.life().nutrition()>40&&child.life().mouth().isEmpty(),"only actual chewing and swallowing supply nutrition");
                 nutrition(parent,85); nutrition(child,85);
                 var needs=child.dailyLife().save(); needs.putInt("Affection",60); child.dailyLife().load(needs);
-                nuzzleVitals[0]=child.life().wetness(); nuzzleVitals[1]=child.life().hygiene(); nuzzleVitals[2]=child.getHealth();
                 careStage[0]=2;
             }).thenWaitUntil(()->helper.assertTrue(care.comforts()==1,
                     "nuzzle completes across its real service interval"))
             .thenExecute(()->{
                 var hat=boat[0];
                 helper.assertTrue(care.comforts()==1&&nuzzleRelieved[0],"completed nuzzle removes exactly 35 affection need at actual contact completion");
-                helper.assertTrue(child.life().wetness()==nuzzleVitals[0]&&child.life().hygiene()==nuzzleVitals[1]&&child.getHealth()==nuzzleVitals[2]
-                        &&child.life().nutrition()==85,"nuzzle does not wash, heal or feed");
+                helper.assertTrue(nuzzlePure[0],"the exact nuzzle reward step does not wash, heal or feed");
                 level.setDayTime(13000);
                 careStage[0]=3;
             }).thenWaitUntil(()->helper.assertTrue(care.songs()==1&&care.bedtimeReady(),
@@ -293,7 +296,21 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(childCarried[0] && parentWalked[0] && swallowed[0] && rearContact[0] && brimReached[0],"every visible care phase occurred on the server");
                 helper.assertTrue(care.meals() == 1 && boat.cargo().count() == 0 && care.serving().isEmpty(),"one serving is consumed once across the full contract");
                 helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16),i->wasteFrom(i,child)).size() == 1,"first toilet creates exactly one physical child waste item");
-            }).thenSucceed();
+                started[0]=false; nutrition(child,85);
+                helper.assertTrue(boat.prepareCareSeat(child,parent),"a second real assisted trip can start after returning");
+            }).thenWaitUntil(()->helper.assertTrue(boat.hatCarrier(child)!=null && boat.walkingInHat(parent),"reload happens during actual owned transport"))
+            .thenExecute(()->{
+                Vec3 before=child.position();
+                var saved=boat.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+                boat.load(saved);
+                helper.assertTrue(parent.getUUID().equals(boat.hatCarrier(child)) && child.position().distanceTo(before)<.0001,
+                        "reload retains the same physical child and holder without a teleport");
+            }).thenWaitUntil(()->helper.assertTrue(!boat.transportingInHat(child) && !boat.changingSeat(child)
+                    && boat.toLocal(child.position()).distanceTo(original[0])<.1
+                    && parent.position().distanceTo(boat.toWorld(boat.ownerSeat(parent)))<.02,"interrupted loaded transport safely returns both riders"))
+            .thenExecute(()->helper.assertTrue(care.meals()==1 && care.serving().isEmpty() && boat.cargo().count()==0,
+                    "transport reload grants no care reward and creates no serving"))
+            .thenSucceed();
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=80,batch="aquatic_family")
     public static void juvenileSailingGateAndBrim(GameTestHelper helper) {

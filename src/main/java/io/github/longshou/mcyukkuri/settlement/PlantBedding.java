@@ -26,9 +26,15 @@ public final class PlantBedding {
     private final YukkuriEntity entity;
     private Target target;
     private int contactTicks, elapsed;
+    private int candidates, supportedSites, reachableSites;
     public PlantBedding(YukkuriEntity entity){this.entity=entity;}
     public boolean active(){return target!=null;}
     public boolean harvesting(){return contactTicks>0;}
+    public net.minecraft.nbt.CompoundTag debug(){
+        var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("Candidates",candidates);tag.putInt("Supported",supportedSites);tag.putInt("Reachable",reachableSites);
+        tag.putInt("Contact",contactTicks);tag.putInt("Elapsed",elapsed);
+        if(target!=null){tag.putString("Source",target.block().toShortString());tag.putString("Stand",target.stand().toString());}return tag;
+    }
     public void stop(){target=null;contactTicks=elapsed=0;}
     public static ItemStack material(BlockState state){
         if(state.is(BlockTags.LEAVES))return new ItemStack(state.getBlock());
@@ -37,11 +43,12 @@ public final class PlantBedding {
         return ItemStack.EMPTY;
     }
     public boolean find(BlockPos center,int radius,Predicate<BlockPos> allowed){
-        stop();if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
+        stop();candidates=supportedSites=reachableSites=0;if(!EventHooks.canEntityGrief(entity.level(),entity))return false;
         var plants=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(center.offset(-radius,-1,-radius),center.offset(radius,2,radius)))
             if(allowed.test(pos)&&entity.level().hasChunkAt(pos)&&!material(entity.level().getBlockState(pos)).isEmpty())plants.add(pos.immutable());
         plants.sort(Comparator.comparingDouble(pos->entity.distanceToSqr(Vec3.atCenterOf(pos))));
+        candidates=plants.size();
         for(var plant:plants){
             var state=entity.level().getBlockState(plant);
             for(var direction:Direction.Plane.HORIZONTAL)for(int down=0;down<=1;down++){
@@ -50,7 +57,9 @@ public final class PlantBedding {
                 double mouth=stand.y+entity.getBbHeight()*.45;
                 if(mouth<plant.getY()-.12||mouth>plant.getY()+1.15)continue;
                 Vec3 touch=new Vec3(plant.getX()+.5+direction.getStepX()*.505,Math.clamp(mouth,plant.getY()+.05,plant.getY()+.9),plant.getZ()+.5+direction.getStepZ()*.505);
-                if(SurfaceApproach.supported(entity,stand)&&entity.life().reachable(BlockPos.containing(stand),false)&&visible(stand,touch,plant)){
+                if(!SurfaceApproach.supported(entity,stand))continue;supportedSites++;
+                if(!entity.life().reachable(BlockPos.containing(stand),false))continue;reachableSites++;
+                if(visible(stand,touch,plant)){
                     target=new Target(plant,state,stand,touch);return true;
                 }
             }

@@ -84,7 +84,7 @@ public final class LivingShowcaseCommands {
                             if (twig != null && !boat.cargo().paddle() && y.level().setBlock(twig, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3))
                                 boat.cargo().givePaddle(new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.STICK), false);
                             boat.addTag(OWNED); for (String tag : y.getTags()) if (tag.startsWith("living_")) boat.addTag(tag);
-                            if (home != null) for (int i = 0; i < 4; i++) {
+                            if (home != null) for (int i = 0; i < 8; i++) {
                                 var serving = home.takeFood(y);
                                 if (serving.isEmpty()) break;
                                 boat.cargo().store(serving, 1, false);

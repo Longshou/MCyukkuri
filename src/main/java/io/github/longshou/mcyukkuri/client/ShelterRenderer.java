@@ -15,7 +15,8 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
     public ShelterRenderer(BlockEntityRendererProvider.Context context) {}
     @Override public void render(ShelterBlockEntity home,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
         if(home.kind()==io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW) {
-            var shared=Set.copyOf(home.sharedBeds());
+            var shared=new java.util.HashSet<>(home.sharedBeds());
+            for(var project:home.nestConstructions())shared.remove(project.bed());
             if(home.lining()>0) for(var bed:shared) {
                 var offset=bed.subtract(home.getBlockPos());
                 int local=home.getLevel()==null?light:net.minecraft.client.renderer.LevelRenderer.getLightColor(home.getLevel(),bed);
@@ -26,7 +27,16 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
                 var offset=bed.subtract(home.getBlockPos());
                 int local=home.getLevel()==null?light:net.minecraft.client.renderer.LevelRenderer.getLightColor(home.getLevel(),bed);
                 pose.pushPose();pose.translate(offset.getX()+.5,0,offset.getZ()+.5);
-                PropModels.render("personal_leaf_nest",0,pose,buffers,local,overlay);pose.popPose();
+                PropModels.renderLayers("personal_leaf_nest",7,pose,buffers,local,overlay);pose.popPose();
+            }
+            for(var project:home.nestConstructions()) {
+                var bed=project.bed();var offset=bed.subtract(home.getBlockPos());
+                int local=home.getLevel()==null?light:net.minecraft.client.renderer.LevelRenderer.getLightColor(home.getLevel(),bed);
+                pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);
+                if(project.work()<20)PropModels.render("bedding_bundle",0,pose,buffers,local,overlay);
+                else PropModels.renderLayers("personal_leaf_nest",project.work()<80?1:project.work()<100?3:7,pose,buffers,local,overlay);
+                if(project.portions()==2&&project.work()<80){pose.translate(.18,0,.12);PropModels.render("bedding_bundle",0,pose,buffers,local,overlay);}
+                pose.popPose();
             }
             if(home.branches()>0) {
                 if(home.getLevel()!=null)light=net.minecraft.client.renderer.LevelRenderer.getLightColor(home.getLevel(),home.entrance());

@@ -83,7 +83,7 @@ def cave(x, z, initialized=False):
         data = n.Compound({'Version': n.Int(2), 'NaturalBeds': n.LongArray([pos(*p) for p in beds]),
                            'NaturalEntrance': pos(x, 65, z+1), 'Branches': n.Int(2), 'Condition': n.Int(100),
                            'Moisture': n.Int(0), 'Lining': n.Int(4), 'Dirt': n.Int(0),
-                           'Items': n.List[n.Compound]([n.Compound({'Slot': n.Byte(0), 'id': n.String('minecraft:short_grass'), 'count': n.Int(12)})])})
+                           'Items': n.List[n.Compound]([n.Compound({'Slot': n.Byte(0), 'id': n.String('minecraft:short_grass'), 'count': n.Int(24)})])})
         lines += [f'setblock {x} 65 {z} mcyukkuri:forest_burrow[facing=south,part=12]{data.snbt()}']
     return lines
 
@@ -135,8 +135,11 @@ def terrain(zone, x, z, biome):
             lines += [f'setblock {x+20} 65 {z+dz} minecraft:dead_bush',
                       f'setblock {x+19} 65 {z+dz+1} minecraft:sweet_berry_bush[age=3]']
         for dz in (18, 22, 30, 34, 38, 42, 46):
-            lines += [f'setblock {x+21} 65 {z+dz} minecraft:oak_leaves[persistent=true]',
-                      f'setblock {x+20} 65 {z+dz} minecraft:sweet_berry_bush[age=3]']
+            lines += [f'setblock {x+20} 65 {z+dz} minecraft:oak_leaves[persistent=true]',
+                      f'setblock {x+21} 65 {z+dz} minecraft:sweet_berry_bush[age=3]']
+        for dz in (17, 21, 25, 29, 33, 37, 41, 45):
+            lines += [f'setblock {x+57} 65 {z+dz} minecraft:sweet_berry_bush[age=3]',
+                      f'setblock {x+58} 65 {z+dz} minecraft:oak_leaves[persistent=true]']
     for dx, dz in [(6, 13), (58, 13), (6, 44)]:
         lines += [f'fill {x+dx} 65 {z+dz} {x+dx} 68 {z+dz} minecraft:oak_log',
                   f'fill {x+dx-2} 69 {z+dz-2} {x+dx+2} 70 {z+dz+2} minecraft:oak_leaves[persistent=true]']
@@ -191,7 +194,7 @@ def build(world, maturity):
                      parent(zone, 'father', 'marisa', x+17, z+25, maturity, water),
                      f'execute store success score #{zone} living run yukkuri showcase pair {mother} {father} {x+16} 65 {z+25} live',
                      f'yukkuri showcase track {zone}',
-                     f'execute if score #{zone} living matches 1 run '+tell('初始化：一对成油、现存家庭叶巢、12份有限旧粮、真实植物。新生子代、护理、学习、铺床与独立全部由玩法产生。'),
+                     f'execute if score #{zone} living matches 1 run '+tell('初始化：一对成油、现存家庭叶巢、24份有限旧粮、真实植物。新生子代、护理、学习、铺床与独立全部由玩法产生。'),
                      f'execute unless score #{zone} living matches 1 run '+tell('受孕初始化失败；没有生成孩子。请检查住所与可达性并重置本区。')]
             if water:
                 # A real embark uses the owner's existing hat and the actual adjacent water; no boat/passenger NBT shortcut.
@@ -199,7 +202,7 @@ def build(world, maturity):
                           f'execute if score #{zone} living matches 1 run tp {father} {x+21.5} 65 {z+27.5}',
                           f'execute if score #{zone} living matches 1 run yukkuri showcase launch {mother} {x+22} 64 {z+24}',
                           f'execute if score #{zone} living matches 1 run yukkuri showcase launch {father} {x+22} 64 {z+27}',
-                          tell('水上初始化把已受孕亲油放在岸边，从原巢12份粮中各转4份到帽内，消费各一株实际枯枝作桨，再正常脱帽下水。此后真实吃粮、照护、初航；岸边树叶供子代取桨。')]
+                          tell('水上初始化把已受孕亲油放在岸边，从原巢24份粮中各转8份到帽内，消费各一株实际枯枝作桨，再正常脱帽下水。此后靠近真实岸莓持续采食；树叶供子代取桨。')]
             p.fn(zone+'/begin', begin)
             p.fn(zone+'/inspect', [tell('连续顺序：胎生 → 喂糜/首便 → 实际爬行与起落 → 自主取食 → 两份植物铺床 → 告别与真实新居；水生为实际初航往返和驶离。'),
                                   'tellraw @p '+js({'text':'亲油真实家庭记录：', 'color':'aqua', 'extra':[{'nbt':'YukkuriFamily', 'entity':mother}]}),
@@ -238,12 +241,12 @@ def build(world, maturity):
     p.fn('tick', tick)
     pages = [
         '生活展示\n\n先到场，再开始。每区开始前不生成活体，所以不会在你到场前完成首便。按本区重置可重复观看；清理按展示身份和真实血缘追踪。',
-        '连续家庭\n\n只初始化成油、现存巢、12份有限旧粮及自然地形。真实受孕后由玩法完成出生、亲代嚼糜递喂、首便、活动学习、成长、取材铺床和独立。没有预置不同年龄的孩子。',
+        '连续家庭\n\n只初始化成油、现存巢、24份有限旧粮及自然地形。真实受孕后由玩法完成出生、亲代嚼糜递喂、首便、活动学习、成长、取材铺床和独立。没有预置不同年龄的孩子。',
         ('时间\n\n本档采用默认成熟48000 tick（40分钟）、妊娠6000 tick（5分钟）。' if maturity==48000 else
          '时间\n\n本档成熟基准12000 tick（10分钟），妊娠1200 tick（1分钟）；是明确的演示参数，普通世界默认48000/6000。')+
          '80TPS还会把真实等待压缩至约四分之一；20TPS细看照料。',
         '陆上与台地\n\n真实短草和低矮植物提供口粮和铺材；不会召唤树叶掉落物来冒充采集。远处空洞穴用于真实另筑新居。台地有完整一格高差、宽阶梯和绕行路线。',
-        '河湾\n\n亲油使用自己的帽子正常下水。初始化从原巢有限旧粮各转4份到帽内，消费真实枯枝作桨；之后继续取粮和照料。子代从岸边真实树叶取桨。不会补发孩子或初航成功记录。',
+        '河湾\n\n亲油使用自己的帽子正常下水。初始化从原巢有限旧粮各转8份到帽内，消费真实枯枝作桨；之后划向岸边实际成熟莓丛，近身采果入船。子代从岸边真实树叶取桨。不会补发初航成功。',
         '四季聚落\n\n季节来自群系：针叶林秋、雪林冬、平原春、丛林夏。按钮查看真实季节及聚落。全世界日夜和雨雪联动；切换需留意其他已开始的区。',
         '旁观与交互\n\n观察笔记右键个体、巢和帽船。近距离旁观切为旁观模式；/function mcyliving:home 返回冒险。暂停世界后请点聊天[继续世界]，冻结期间按钮也停。\n\n/function mcyliving:land/reset 等可重置本区。',
     ]
