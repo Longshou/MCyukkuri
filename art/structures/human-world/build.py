@@ -306,7 +306,7 @@ def shop():
     # Regular customer in the consultation corner and the lost-companion nook (hedge behind the shop, open to the east).
     b.human(20.5,14.5,'caretaker_sister',0,1,'shop_sister')
     b.box((4,3,32),(10,4,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.box((4,3,31),(4,4,31),'oak_leaves',{'persistent':'true','distance':'1'})
-    b.box((4,5,31),(10,5,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.block(7,4,31,'lantern',{'hanging':'true','waterlogged':'false'})
+    b.box((4,5,31),(10,5,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.block(10,4,31,'lantern',{'hanging':'true','waterlogged':'false'})
     b.pet_lost(7.5,31.5,'marisa','shop_sister')
     # Rugs, plants and shelves keep the rooms warm and lived-in.
     for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(22,8),(2,10),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
@@ -330,16 +330,18 @@ def shop():
         if name_at(b,x,8,z)!='minecraft:smooth_quartz' or any(name_at(b,x,y,z)!='minecraft:air' for y in (5,6,7)) or not 2<=x<=38 or not 4<=z<=29: return False
         b.block(x,8,z,'ochre_froglight',{'axis':'y'},over=True); return True
     order=sorted(((abs(dx)+abs(dz),dx,dz) for dx in range(-2,3) for dz in range(-2,3)))
-    for gx in range(3,38,5):
-        for gz in range(5,30,5):
-            any(flush(gx+dx,gz+dz) for _,dx,dz in order)
+    for gx in range(3,39,5):
+        for gz in range(5,30,5): flush(gx,gz)   # regular 5-block lattice of visible ceiling lights
+    def invisible(x,z):
+        if name_at(b,x,7,z)!='minecraft:air' or not 2<=x<=38 or not 4<=z<=29: return False
+        b.block(x,7,z,'light',{'level':'15','waterlogged':'false'}); return True
     for x,z in [(9,13),(15,13),(11,8),(19,8),(27,8),(32,12)]: hang(x,z)   # a few lanterns over the counter and aisles
     for _ in range(400):
         level=light_levels(b); dark=[(level.get((x,3,z),0),(x,z)) for x,z in walk_cells(b)]
         dark=[t for t in dark if t[0]<8]
         if not dark: break
         dark.sort(); x,z=dark[0][1]
-        if any(flush(x+dx,z+dz) for _,dx,dz in order) or any(hang(x+dx,z+dz) for _,dx,dz in order): continue
+        if any(invisible(x+dx,z+dz) for _,dx,dz in order) or any(hang(x+dx,z+dz) for _,dx,dz in order): continue
         break
     connect_panes(b)
     return b
