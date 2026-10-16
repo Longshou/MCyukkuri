@@ -16,7 +16,7 @@
         "art/source/human-runtime/textures/oniisan.png",
         "src/main/resources/assets/mcyukkuri/textures/entity/human/oniisan.png"
       ],
-      "sha256": "c562283b1f87754d17b6e93be7f4b1686d630eee1f5110eaf12b528b4f1ba332"
+      "sha256": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd"
     },
     "brother": {
       "source": "standards/yukkuri-library/textures/human/brother.png",
@@ -43,7 +43,7 @@
         "art/source/human-runtime/textures/shopkeeper.png",
         "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png"
       ],
-      "sha256": "b6448eee0ba957dae559e338236dc35165cd81787aa81202ecfbf3ebea17bd25"
+      "sha256": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6"
     },
     "factory_worker": {
       "source": "standards/yukkuri-library/textures/human/factory_worker.png",

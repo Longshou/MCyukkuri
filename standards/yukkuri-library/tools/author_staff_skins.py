@@ -137,11 +137,14 @@ def shopkeeper():
         "     gg ",   # printed name line
         "        ",
         "cccccccc",   # waist tie
-        "  yyyY  ",   # round yukkuri-silhouette logo, two dot eyes and a mouth
-        " ykyYkY ",
-        " yymmYY ",
-        "  yyYY  ",
-        "cc    cc"], C)
+        "        ",   # skirt: logo below
+        "        ",
+        "        ",
+        "        ",
+        "        "], C)
+    # shop emblem (matches the shop sign): a Reimu yukkuri head, 7x5, centred as near as 8 columns allow
+    art(im, 20, 27, [" RRDRR ", " KKKKK ", "KKSSSKK", "SESSSES", " SSMSS "],
+        lg({'R': '#c8302c', 'D': '#7d1a1c', 'K': '#1b1b22', 'S': '#f3d3b2', 'E': '#121218', 'M': '#a8443c'}))
         # back: crossed straps, waist band, bow and tails over a polo hem, trousers below
     art(im, 32, 20, ["  qssq  "], C)
     for k in range(6):
@@ -436,7 +439,7 @@ def stub(seed, rows, _a, _b, strip=None):
             if strip and y < 5 and x in strip:
                 row += 'R'
             elif y in rows or y == 6 and not strip:
-                row += 'x' if noise(x, y, seed) > .72 else ' '
+                row += 'x' if noise(x, y, seed) > .88 else ' '
             else:
                 row += ' '
         out.append(row)
