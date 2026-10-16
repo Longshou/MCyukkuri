@@ -93,7 +93,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             line(g, 70, SOFT, Component.translatable("shop.mcyukkuri.vitals3", menu.value(16), menu.value(17), menu.value(18)));
             if (buy) {
                 line(g, 90, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(29)));
-                line(g, 104, menu.value(34) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(34), menu.value(5), ShopMenu.CAPACITY));
+                line(g, 104, menu.value(34) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(34), menu.value(5), ShopMenu.STOCK_CAPACITY));
                 line(g, 118, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
                 return;
             }

@@ -18,6 +18,10 @@ public final class ShopPens {
         return false;
     }
     private static boolean stockOf(YukkuriEntity y, java.util.UUID shop) { return HumanCommerce.ownedBy(y, shop) && HumanCommerce.data(y).getString("Use").equals("stock"); }
+    /** Sellable stock: animals of Use stock owned by this shopkeeper within 48 blocks; the buyback cap counts only these. */
+    public static int stock(ServerLevel level, HumanNpc npc) {
+        return level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(48), y -> y.isAlive() && stockOf(y, npc.getUUID())).size();
+    }
     /** Animals owned by NPCs within 48 blocks of the NPC. */
     public static int population(ServerLevel level, HumanNpc npc) {
         return level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(48), y -> y.isAlive()
