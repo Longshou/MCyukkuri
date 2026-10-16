@@ -34,11 +34,14 @@ public interface ExamContext {
     double chance(Ability a);
     /** Examiner line: a speech card above the examiner (~60 ticks) and the owner's action bar. */
     void examinerSay(String langKey, Object... args);
-    /** Staging cards that are removed automatically when the item ends. */
-    UUID card(Vec3 pos, Component text, int ticks);
-    UUID itemCard(Vec3 pos, ItemStack stack, int ticks);
+    /** Staging cards that are removed automatically when the item ends; scale 1 is the default size. */
+    UUID card(Vec3 pos, Component text, int ticks, float scale);
+    UUID itemCard(Vec3 pos, ItemStack stack, int ticks, float scale);
+    default UUID card(Vec3 pos, Component text, int ticks) { return card(pos, text, ticks, 1f); }
+    default UUID itemCard(Vec3 pos, ItemStack stack, int ticks) { return itemCard(pos, stack, ticks, .5f); }
     void examinerWalkTo(BlockPos pos);
     boolean examinerAt(BlockPos pos);
+    /** Aims the examiner once; the session never re-aims the examiner on its own while an item runs. */
     void examinerLookAt(Entity e);
     void examinerSwing();
     /** Shop trainees that sit the exam alongside the candidate (may be empty). */
