@@ -19,7 +19,9 @@ public final class FactoryPipeline {
     private final FactoryProduction line;
     private UUID trayId;
     private boolean trayBroken;
+    public static final long SHIP_INTERVAL = 48000;
     private int purposeMode, nextPurpose = 1, saleFilter, serial, inspected, held;
+    private long nextShip, stuckSince;
     private final Map<UUID,Integer> batches = new HashMap<>();
     private final Map<UUID,Integer> batchPurposes = new HashMap<>();
     private final Set<UUID> residents = new HashSet<>();
@@ -53,6 +55,50 @@ public final class FactoryPipeline {
         for(int x=(p.getX()-22)>>4;x<=(p.getX()+22)>>4;x++)for(int z=(p.getZ()-22)>>4;z<=(p.getZ()+22)>>4;z++)
             if(!level.isPositionEntityTicking(new BlockPos(x*16+8,p.getY(),z*16+8)))return false;
         return true;
+    }
+    /** Nursery young fit to be sold: healthy, able to live independently, still resting in the nursery (never breeders, inputs, labour or anything mid-processing). */
+    public static boolean shopFit(YukkuriEntity y) {
+        var d = HumanCommerce.data(y);
+        return stage(y).equals("nursery") && d.getString("Use").equals("nursery") && !FactoryBreeding.member(y) && healthy(y) && y.life().nutrition() >= 45
+                && (y.family().adult() || y.childhood().canLiveIndependently()) && !y.family().awaitingLanding() && !y.isPassenger() && !y.operations().active();
+    }
+    /** Sorting: mark up to two fit young as shop candidates while a shop is in range; stale marks are cleared. */
+    private void markCandidates(ServerLevel level) {
+        if (stuckSince != 0 && level.getGameTime() - stuckSince > 24000) { // shipping impossible for over a game day: release the nursery slots
+            stuckSince = 0;
+            for (var y : worker.animals("nursery")) if (HumanCommerce.data(y).getBoolean("ShopCandidate")) { var tag = HumanCommerce.data(y).copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); }
+        }
+        boolean shop = io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled() && io.github.longshou.mcyukkuri.shop.ShopDeliveries.get(level).nearestShop(level, worker.blockPosition()) != null;
+        int marked = (int) worker.animals("nursery").stream().filter(y -> HumanCommerce.data(y).getBoolean("ShopCandidate")).count();
+        for (var y : worker.animals("nursery")) {
+            var tag = HumanCommerce.data(y); boolean flagged = tag.getBoolean("ShopCandidate");
+            if (flagged && !(shop && shopFit(y))) { tag = tag.copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); marked--; }
+            else if (!flagged && shop && marked < 2 && shopFit(y)) { tag = tag.copy(); tag.putBoolean("ShopCandidate", true); HumanCommerce.set(y, tag); marked++; }
+        }
+    }
+    /** Every SHIP_INTERVAL ticks: ship the candidates (timer persisted). */
+    private void tickShipping(ServerLevel level) {
+        long now = level.getGameTime();
+        io.github.longshou.mcyukkuri.shop.ShopDeliveries.resolveExpired(level, now);
+        if (nextShip == 0) { nextShip = now + SHIP_INTERVAL; return; }
+        if (now < nextShip) return;
+        nextShip = now + SHIP_INTERVAL;
+        boolean waiting = worker.animals("nursery").stream().anyMatch(y -> HumanCommerce.data(y).getBoolean("ShopCandidate"));
+        if (ship(level) > 0 || !waiting) stuckSince = 0; else if (stuckSince == 0) stuckSince = now;
+    }
+    /** Capture up to two candidates with identity intact and queue them for the nearest shop. Returns how many shipped. */
+    public int ship(ServerLevel level) {
+        var data = io.github.longshou.mcyukkuri.shop.ShopDeliveries.get(level); var shop = data.nearestShop(level, worker.blockPosition());
+        if (shop == null || !io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled()) return 0;
+        int sent = 0;
+        for (var y : worker.animals("nursery")) {
+            if (sent >= 2 || data.pendingFor(shop.getKey()) >= 4) break;
+            if (!HumanCommerce.data(y).getBoolean("ShopCandidate") || !shopFit(y)) continue;
+            var token = io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level).capture(y);
+            if (token == null) continue;
+            data.add(new io.github.longshou.mcyukkuri.shop.ShopDeliveries.Delivery(token, shop.getKey(), shop.getValue().pos(), level.getGameTime(), worker.getUUID())); sent++;
+        }
+        return sent;
     }
     public int trackedPopulation() {
         var level=(ServerLevel)worker.level();var family=FamilyData.get(level);var custody=io.github.longshou.mcyukkuri.life.YukkuriWorldData.get(level);
@@ -200,12 +246,13 @@ public final class FactoryPipeline {
         if (!(worker.level() instanceof ServerLevel level)) return;
         for(var y:animals()) {
             enroll(y);
-            if(stage(y).equals("nursery") && FactoryProduction.nurseryReady(y)) {
+            if(stage(y).equals("nursery") && FactoryProduction.nurseryReady(y) && !HumanCommerce.data(y).getBoolean("ShopCandidate")) {
                 var tag=HumanCommerce.data(y).copy(); tag.putString("Use","input"); HumanCommerce.set(y,tag); transition(y,"grade");
             } else if(stage(y).equals("observe") && healthy(y) && y.life().nutrition()>=45) {
                 transition(y,HumanCommerce.data(y).getBoolean("FactoryYoung")&&!FactoryProduction.nurseryReady(y)?"nursery_transfer":"grade");
             }
         }
+        if(line.kind().equals("bag")||line.kind().equals("manju")) { if(worker.tickCount%100==0) markCandidates(level); if(io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled()) tickShipping(level); }
         if(!operating()) return;
         if(trayId==null && !trayBroken) {
             var pos=destinationBlock("receive");
@@ -219,14 +266,14 @@ public final class FactoryPipeline {
     public CompoundTag save() {
         var tag=new CompoundTag(); if(trayId!=null)tag.putUUID("Tray",trayId); tag.putBoolean("TrayBroken",trayBroken);
         tag.putInt("PurposeMode",purposeMode);tag.putInt("NextPurpose",nextPurpose);tag.putInt("SaleFilter",saleFilter);
-        tag.putInt("Serial",serial);tag.putInt("Inspected",inspected);tag.putInt("Held",held);
+        tag.putInt("Serial",serial);tag.putInt("Inspected",inspected);tag.putInt("Held",held);tag.putLong("NextShip",nextShip);tag.putLong("StuckSince",stuckSince);
         var people=new ListTag();residents.forEach(id->people.add(NbtUtils.createUUID(id)));tag.put("Residents",people);
         var list=new ListTag(); batches.forEach((id,number)->{var b=new CompoundTag();b.putUUID("Id",id);b.putInt("Number",number);b.putInt("Purpose",batchPurposes.getOrDefault(id,0));list.add(b);});tag.put("BatchNumbers",list);return tag;
     }
     public void load(CompoundTag tag) {
         trayId=tag.hasUUID("Tray")?tag.getUUID("Tray"):null;trayBroken=tag.getBoolean("TrayBroken");
         purposeMode=Math.clamp(tag.getInt("PurposeMode"),0,2);nextPurpose=tag.getInt("NextPurpose")==2?2:1;saleFilter=Math.clamp(tag.getInt("SaleFilter"),0,2);
-        serial=Math.max(0,tag.getInt("Serial"));inspected=Math.max(0,tag.getInt("Inspected"));held=Math.max(0,tag.getInt("Held"));
+        serial=Math.max(0,tag.getInt("Serial"));inspected=Math.max(0,tag.getInt("Inspected"));held=Math.max(0,tag.getInt("Held"));nextShip=tag.getLong("NextShip");stuckSince=tag.getLong("StuckSince");
         residents.clear();for(var id:tag.getList("Residents",11))residents.add(NbtUtils.loadUUID(id));
         batches.clear();batchPurposes.clear();for(var raw:tag.getList("BatchNumbers",10)){var b=(CompoundTag)raw;if(b.hasUUID("Id")){batches.put(b.getUUID("Id"),b.getInt("Number"));batchPurposes.put(b.getUUID("Id"),b.getInt("Purpose"));serial=Math.max(serial,b.getInt("Number"));}}
     }

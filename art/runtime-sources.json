@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "single-braid-causal-water-20261017-v18",
+    "revision": "pet-shop-braid-water-20261017-v19",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3784,13 +3784,25 @@
     "manifest": "art/source/house-guard/manifest.json",
     "runtime": [
       "src/main/resources/assets/mcyukkuri/models/block/household_guard.json",
-      "src/main/resources/assets/mcyukkuri/models/item/household_guard.json",
       "src/main/resources/assets/mcyukkuri/blockstates/household_guard.json"
     ],
+    "status": "legacy_save_compatibility",
+    "superseded_by": "house_repellent",
+    "scope": "Original filter-box source and legacy placed-block model retained for old saves. Current household_guard item is the spray authored by house_repellent; this exporter no longer writes its item model."
+  },
+  "house_repellent": {
+    "source": "standards/yukkuri-library/ecology/house-repellent",
+    "recipe": "standards/yukkuri-library/ecology/house-repellent/recipe.json",
+    "exporter": "standards/yukkuri-library/ecology/house-repellent/build.py",
+    "snapshot": "art/source/house-repellent",
+    "manifest": "art/source/house-repellent/manifest.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/models/item/household_guard.json"
+    ],
     "preview_source": "standards/yukkuri-library/ecology/house-nest/render_supplies.py",
-    "preview": ".local/previews/house-supplies/house-supplies.png",
+    "preview": ".local/previews/house-supplies/repellent-spray.png",
     "status": "pending_user_review",
-    "scope": "Original small sealed filter-box geometry; Minecraft metal, dark filter, paper and red seal surface textures, no reused item icon. Native block/item models require no block entity or ticking renderer."
+    "scope": "Original handheld spray bottle, nozzle, trigger and barred-yukkuri face label. Native item geometry uses vanilla block surface textures; no item icon is reused, no block is placed. Existing item ID is retained for save compatibility."
   },
   "braid_water_rescue": {
     "source": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",

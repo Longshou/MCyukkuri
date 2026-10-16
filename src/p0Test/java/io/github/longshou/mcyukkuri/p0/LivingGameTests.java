@@ -383,11 +383,11 @@ public final class LivingGameTests {
             check("acquaintances are directed",relations.affinity(a.getUUID(),b.getUUID())==35&&relations.affinity(b.getUUID(),a.getUUID())==0,relations.save(new CompoundTag(),level.registryAccess()));
             accessoryToken=b.life().takeAccessory(alice.getUUID());
             check("missing accessory blocks recognition without erasing relation",!a.life().canRecognize(b)&&relations.affinity(a.getUUID(),b.getUUID())==35,state());
-            life(b,d->d.putBoolean("GoldMedal",true));
+            b.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null);
             check("target medal does not grant observer recognition",!a.life().canRecognize(b),b.life().save());
-            life(a,d->d.putBoolean("GoldMedal",true));
+            a.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null);
             check("observer medal grants recognition",a.life().canRecognize(b),state());
-            life(a,d->d.putBoolean("GoldMedal",false));
+            a.pet().revoke();
             check("wrong owner cannot take returned accessory",!a.life().returnAccessory(b.getUUID(),accessoryToken,alice.getUUID()),state());
             check("return restores identity recognition",b.life().returnAccessory(b.getUUID(),accessoryToken,alice.getUUID())&&a.life().canRecognize(b),b.life().save());
             var next=b.life().takeAccessory(alice.getUUID());

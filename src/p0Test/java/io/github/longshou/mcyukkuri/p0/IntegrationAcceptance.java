@@ -93,7 +93,7 @@ final class IntegrationAcceptance {
             var life=e.life().save();life.putFloat("Nutrition",100);life.putFloat("Energy",95);life.putFloat("Hygiene",100);e.life().load(life);
             var cognition=new CompoundTag();cognition.putInt("Innate",40+index);cognition.putInt("Learned",3+index);cognition.putString("Origin","joint-fixture");
             e.getPersistentData().put(Cognition.KEY,cognition);
-            e.badges().initializeStock(index%2+1,server.getPlayerList().getPlayers().getFirst().getUUID());
+            e.pet().initializeStock(io.github.longshou.mcyukkuri.pet.BadgeGrade.of(index%2+2),server.getPlayerList().getPlayers().getFirst().getUUID(),60);
             if(variant==YukkuriVariant.REIMU)e.subspecies().set(SubspeciesLife.Kind.WASA_REIMU,SubspeciesLife.Congenital.NORMAL);
             if(variant==YukkuriVariant.MARISA)e.subspecies().set(SubspeciesLife.Kind.SHELL_MARISA,SubspeciesLife.Congenital.NORMAL);
             level.addFreshEntity(e);FamilyData.get(level).register(e);index++;
@@ -113,7 +113,7 @@ final class IntegrationAcceptance {
         for(var e:entities(level)) {
             var row=new LinkedHashMap<String,Object>();row.put("network",network(e));row.put("id",e.getId());
             row.put("index",e.getTags().stream().filter(t->t.startsWith("integration_index_")).findFirst().orElse("born_child"));
-            row.put("family",e.family().save().toString());row.put("badges",e.badges().save().toString());
+            row.put("family",e.family().save().toString());row.put("badges",e.pet().save().toString());
             row.put("cognition",Cognition.get(e));row.put("subspecies",e.subspecies().save().toString());
             row.put("custody",HumanCommerce.data(e).toString());
             row.put("position",e.position().toString());row.put("life",e.life().save().toString());

@@ -1,7 +1,6 @@
 {
-  "type":"minecraft:crafting_shaped",
+  "type":"minecraft:crafting_shapeless",
   "category":"misc",
-  "pattern":[" I ","PWP"," I "],
-  "key":{"I":{"item":"minecraft:iron_ingot"},"P":{"item":"minecraft:paper"},"W":{"tag":"minecraft:wool"}},
+  "ingredients":[{"item":"minecraft:glass_bottle"},{"item":"minecraft:iron_nugget"},{"tag":"minecraft:leaves"}],
   "result":{"id":"mcyukkuri:household_guard","count":1}
 }

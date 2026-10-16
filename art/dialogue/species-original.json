@@ -3515,6 +3515,4710 @@
         "house_search_home"
       ],
       "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_exam_nervous",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ、バッジ、もらえるかな……ドキドキするよ。",
+      "chinese": "油油，能拿到徽章吗……心跳得好厉害。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_nervous2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きんちょうするけど、れいむ、がんばるよ！",
+      "chinese": "虽然很紧张，但灵梦会加油的！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_answer",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はいっ、れいむ、わかるよ！",
+      "chinese": "好的，灵梦知道哦！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_unsure",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "えーと……あれ……？ れいむ、どうだったかな……。",
+      "chinese": "嗯……咦……？灵梦，是怎么来着……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_hide_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむはいないよ！ ここにはだれもいないよ！",
+      "chinese": "灵梦不在哦！这里谁也没有哦！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_wait",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "がまん……がまんだよ……。おやつ、まってるよ……。",
+      "chinese": "忍耐……要忍耐哦……。灵梦在等点心……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_wait2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり まつよ……。おやつさん、まだかな……。",
+      "chinese": "慢慢等哦……。点心先生，还没来吗……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ずるいよ！ どうしてれいむじゃないの！",
+      "chinese": "太狡猾啦！为什么不是灵梦！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_fail2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむもまってたのに！ ぷんぷん！",
+      "chinese": "灵梦也一直在等呀！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_report",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらのゆっくりがいるよ！",
+      "chinese": "人类先生，有野生的油库里在那边哦！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_sorry",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごめんなさい……。れいむ、まちがえちゃったよ……。",
+      "chinese": "对不起……灵梦弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_pass",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やったあ！ バッジだよ！ れいむ、ゆっくりできるよ！",
+      "chinese": "太好啦！是徽章哦！灵梦可以安心油库里啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_pass2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ れいむ、とってもしあわせー！",
+      "chinese": "谢谢人类先生！灵梦好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どぼじで……どぼじでなのおおお……！",
+      "chinese": "为什么……为什么会这样啊啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_exam_fail2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむ、ふごうかく……？ ゆええん……。",
+      "chinese": "灵梦，不合格……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_badge_proud",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむのバッジ、すごいでしょ！ ゆっくり みていってね！",
+      "chinese": "灵梦的徽章，很厉害吧！请慢慢看哦！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_shop_appeal",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむを かってね！ いっしょに ゆっくりしようね！",
+      "chinese": "请买下灵梦吧！一起慢慢油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_shop_appeal2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ここだよ、ここ！ れいむ、とってもいい子だよ！",
+      "chinese": "在这里哦，在这里！灵梦是很乖的孩子哦！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_shop_bought",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ、あたらしいおうち！ よろしくおねがいします！",
+      "chinese": "油油，新的家！请多多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_shop_sold_sad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どうしてなの……？ れいむのこと、わすれないでね……。",
+      "chinese": "为什么啊……？不要忘记灵梦哦……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_shop_sold_proud",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむは、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "灵梦要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_wild_role_beg",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おいしいもの、ちょうだい！ ここ、あけてね！",
+      "chinese": "把好吃的给我！把这里打开哦！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_wild_role_provoke",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "そんなバッジ、れいむにはかんけいないよ！ ゆっくりできないね！",
+      "chinese": "那种徽章，跟灵梦才没关系呢！真让人没法安心哦！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_lesson_praised",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "えへへ、ほめられたよ！ れいむ、うれしいな！",
+      "chinese": "嘿嘿，被夸奖啦！灵梦好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_lesson_praised2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もっとゆっくりおぼえるよ！ ありがとう、にんげんさん！",
+      "chinese": "灵梦会再慢慢学的！谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_lesson_scolded",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごめんなさい……。れいむ、ちゃんとなおすよ……。",
+      "chinese": "对不起……灵梦会好好改正的……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_badge_envy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "いいなあ……れいむも、そのバッジがほしいな。",
+      "chinese": "真好呀……灵梦也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_badge_admire",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すごいね！ れいむにも、おしえてほしいな！",
+      "chinese": "好厉害哦！也教教灵梦吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_nervous",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、もらえるかなぁ……どきどきしゅるよ。",
+      "chinese": "徽章，能拿到吗……心扑通扑通的惹哟。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_nervous2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こわいけど、れいみゅ、がんばりゅよ！",
+      "chinese": "虽然怕怕，窝会加油惹哟！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_answer",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はいっ、れいみゅ、わかりゅよ！",
+      "chinese": "好的，窝知道惹哟！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_unsure",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "えーと……あれぇ……？ れいみゅ、わかんにゃいよ……。",
+      "chinese": "嗯……咦……？窝不知道惹哟……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_hide_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅはいにゃいよ！ だぁれもいにゃいよ！",
+      "chinese": "窝不在惹哟！谁也没有惹哟！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_wait",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "がまん、がまん……おやつ、まっちぇるよ……。",
+      "chinese": "忍耐，忍耐……窝在等点心惹哟……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_wait2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち まつよ……まだかにゃ……。",
+      "chinese": "油库里等着惹哟……还没好吗……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ずるいよぉ！ れいみゅのばんだよぉ！",
+      "chinese": "狡猾惹哟！明明是窝的份惹哟！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_fail2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅも まっちぇたのにぃ！ ぷんぷん！",
+      "chinese": "窝也等着的惹哟！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_report",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらのゆっくちがいるよぉ！",
+      "chinese": "人类先生，有野生的油库里在惹哟！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_sorry",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……れいみゅ、まちがえちゃった……。",
+      "chinese": "对不起惹……窝弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_pass",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "やったぁ！ ばっじだよ！ れいみゅ、しあわちぇー！",
+      "chinese": "太好啦！是徽章惹哟！窝好幸福惹——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_pass2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ ゆっくちできりゅね！",
+      "chinese": "谢谢人类先生惹！可以油库里啦惹哟！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "どぼちて……どぼちてぇぇ……！",
+      "chinese": "为什么……为什么惹哟啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_exam_fail2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅ、だめだったの……？ ゆえぇん……。",
+      "chinese": "窝，不行吗……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_badge_proud",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅのばっじ、きらきらでしょ！ みちぇね！",
+      "chinese": "窝的徽章，亮晶晶吧！快看惹哟！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_shop_appeal",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅをかっちぇね！ いっちょにゆっくちしようね！",
+      "chinese": "买下窝惹哟！一起油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_shop_appeal2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ここだよぉ！ れいみゅ、いいこだよぉ！",
+      "chinese": "在这里惹哟！窝是乖孩子惹哟！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_shop_bought",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆゆっ、あたらちいおうち！ よろちくね！",
+      "chinese": "油油，新的家！请多关照惹哟！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_shop_sold_sad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "どうちて……れいみゅをわすれにゃいでね……。",
+      "chinese": "为什么……不要忘了窝惹哟……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_shop_sold_proud",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅ、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "窝要去更好的家惹哟！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_wild_role_beg",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あまあま、ちょうだい！ あけちぇね！",
+      "chinese": "给窝甜甜惹哟！快打开惹哟！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_wild_role_provoke",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "そんなばっじ、れいみゅはいらにゃいよ！ ゆっくちできにゃいね！",
+      "chinese": "那种徽章，窝才不要惹哟！真不能油库里惹哟！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_lesson_praised",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "えへへ、ほめられちゃった！ れいみゅ、うれちいよ！",
+      "chinese": "嘿嘿，被夸奖惹！窝好开心惹哟！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_lesson_praised2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅね！ ありがちょう！",
+      "chinese": "窝会再慢慢学的惹哟！谢谢惹！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_lesson_scolded",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……れいみゅ、なおしゅよ……。",
+      "chinese": "对不起惹……窝会改的惹哟……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_badge_envy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "いいにゃあ……れいみゅも、そのばっじほちいよ。",
+      "chinese": "真好惹……窝也想要那个徽章惹哟。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_badge_admire",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しゅごいにぇ！ れいみゅにも おしえちぇ！",
+      "chinese": "好厉害惹！也教教窝惹哟！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_nervous",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジ、とれるかのぜ……。ちょっと きんちょうするのぜ。",
+      "chinese": "徽章，拿得到吗贼……。有点紧张贼。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_nervous2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさ、ここでがんばるのぜ！ しっぱいはゆるされないのぜ！",
+      "chinese": "魔理沙要在这里加油贼！可不能失败贼！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_answer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はいなのぜ！ まりさ、わかってるのぜ！",
+      "chinese": "是贼！魔理沙明白贼！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_unsure",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "えーと……あれ……？ まりさ、わすれちゃったのぜ……。",
+      "chinese": "嗯……咦……？魔理沙忘掉了贼……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_hide_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさはいないのぜ！ だれもいないのぜ！",
+      "chinese": "魔理沙不在贼！谁也没有贼！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_wait",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "がまんなのぜ……まりさは、まてるのぜ……。",
+      "chinese": "要忍耐贼……魔理沙等得住贼……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_wait2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おやつは、まだなのぜ……。ゆっくり まつのぜ。",
+      "chinese": "点心还没来贼……。慢慢等着贼。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
+      "chinese": "狡猾贼！没有魔理沙的份贼！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_fail2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいのぜ！",
+      "chinese": "抢先拿走，太狡猾贼！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_report",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらがいるのぜ！",
+      "chinese": "人类先生，那边有野生的在贼！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_sorry",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すまないのぜ……。まりさ、まちがえたのぜ。",
+      "chinese": "对不起贼……。魔理沙弄错了贼。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_pass",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "やったのぜ！ バッジなのぜ！ まりさはすごいのぜ！",
+      "chinese": "太好了贼！是徽章贼！魔理沙好厉害贼！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_pass2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうなのぜ！ まりさ、しあわせなのぜ！",
+      "chinese": "谢谢人类先生贼！魔理沙好幸福贼！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どぼじて……どぼじてなのぜええ……！",
+      "chinese": "为什么……为什么会这样贼啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_exam_fail2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさ、ふごうかくなのぜ……？ ゆぐっ……ゆぐっ……。",
+      "chinese": "魔理沙，不合格贼……？呜……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_badge_proud",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうなのぜ、まりさのバッジは！ えっへんなのぜ！",
+      "chinese": "怎么样贼，魔理沙的徽章！得意贼！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_shop_appeal",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさを かうのぜ！ いっしょにゆっくりするのぜ！",
+      "chinese": "买下魔理沙贼！一起慢慢来贼！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_shop_appeal2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさは つよくてかしこいのぜ！ みてくれなのぜ！",
+      "chinese": "魔理沙又强又聪明贼！看看我贼！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_shop_bought",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あたらしいおうちなのぜ！ よろしくなのぜ！",
+      "chinese": "新的家贼！请多关照贼！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_shop_sold_sad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうしてなのぜ……まりさをおいていかないでほしいのぜ……。",
+      "chinese": "为什么贼……不要把魔理沙丢下贼……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_shop_sold_proud",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさは、もっといいおうちにいくのぜ！ さらばなのぜ！",
+      "chinese": "魔理沙要去更好的家贼！再见贼！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_wild_role_beg",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあまを よこすのぜ！ ここをあけるのぜ！",
+      "chinese": "把甜甜交出来贼！把这里打开贼！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_wild_role_provoke",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "そんなバッジ、まりさにはなんでもないのぜ！ おまえ、ゆっくりできないのぜ！",
+      "chinese": "那种徽章，对魔理沙来说什么都不是贼！你真不让人安心贼！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_lesson_praised",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ほめられたのぜ！ まりさ、うれしいのぜ！",
+      "chinese": "被夸奖了贼！魔理沙好开心贼！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_lesson_praised2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もっとおぼえるのぜ！ ありがとうなのぜ、にんげんさん！",
+      "chinese": "还要再学贼！谢谢你贼，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_lesson_scolded",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すまないのぜ……。まりさ、ちゃんと なおすのぜ……。",
+      "chinese": "对不起贼……。魔理沙会好好改正贼……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_badge_envy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いいのぜ……まりさも、あのバッジがほしいのぜ。",
+      "chinese": "真好贼……魔理沙也想要那个徽章贼。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_badge_admire",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すごいのぜ！ まりさにも、おしえてほしいのぜ！",
+      "chinese": "好厉害贼！也教教魔理沙贼！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_nervous",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかにゃ……どきどきなのじぇ。",
+      "chinese": "徽章，能拿到吗……扑通扑通惹杰。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_nervous2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいけど、まりちゃ、がんばりゅのじぇ！",
+      "chinese": "虽然怕怕，窝会加油惹杰！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_answer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はいなのじぇ！ まりちゃ、わかりゅのじぇ！",
+      "chinese": "是惹杰！窝知道惹杰！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_unsure",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "えーと……あれぇ……？ まりちゃ、わかんにゃいのじぇ……。",
+      "chinese": "嗯……咦……？窝不知道惹杰……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_hide_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃはいにゃいのじぇ！ だぁれもいにゃいのじぇ！",
+      "chinese": "窝不在惹杰！谁也没有惹杰！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_wait",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "がまん、がまんなのじぇ……おやちゅ、まってりゅのじぇ……。",
+      "chinese": "忍耐，忍耐惹杰……窝在等点心惹杰……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_wait2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち まつのじぇ……まだにゃのじぇ……。",
+      "chinese": "油库里等着惹杰……还没好惹杰……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ずるいのじぇぇ！ まりちゃのばんなのじぇぇ！",
+      "chinese": "狡猾惹杰！明明是窝的份惹杰！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_fail2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃも まってたのじぇ！ ぷんぷんなのじぇ！",
+      "chinese": "窝也等着的惹杰！气鼓鼓惹杰！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_report",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらがいるのじぇぇ！",
+      "chinese": "人类先生，有野生的在惹杰！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_sorry",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいなのじぇ……まりちゃ、まちがえちゃったのじぇ……。",
+      "chinese": "对不起惹杰……窝弄错惹杰……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_pass",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "やったのじぇ！ ばっじなのじぇ！ まりちゃ、しあわちぇー！",
+      "chinese": "太好惹杰！是徽章惹杰！窝好幸福惹杰——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_pass2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうなのじぇ！",
+      "chinese": "谢谢人类先生惹杰！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "どぼちてなのじぇぇ……！",
+      "chinese": "为什么惹杰啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_exam_fail2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、だめだったのじぇ……？ ゆえぇん……。",
+      "chinese": "窝，不行惹杰……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_badge_proud",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃのばっじ、きらきらなのじぇ！ すごいのじぇ！",
+      "chinese": "窝的徽章，亮晶晶惹杰！很厉害惹杰！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_shop_appeal",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃを かうのじぇ！ いっちょにゆっくちしゅるのじぇ！",
+      "chinese": "买下窝惹杰！一起油库里惹杰！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_shop_appeal2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、いいこなのじぇ！ みちぇなのじぇ！",
+      "chinese": "窝是乖孩子惹杰！看看窝惹杰！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_shop_bought",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あたらちいおうちなのじぇ！ よろちくなのじぇ！",
+      "chinese": "新的家惹杰！请多关照惹杰！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_shop_sold_sad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "どうちてなのじぇ……まりちゃを わすれないでほちいのじぇ……。",
+      "chinese": "为什么惹杰……不要忘了窝惹杰……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_shop_sold_proud",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、もっといいおうちにいくのじぇ！ ばいばいなのじぇ！",
+      "chinese": "窝要去更好的家惹杰！拜拜惹杰！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_wild_role_beg",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あまあま、ちょうだいなのじぇ！ あけちぇなのじぇ！",
+      "chinese": "给窝甜甜惹杰！快打开惹杰！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_wild_role_provoke",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "そんなばっじ、まりちゃはいらにゃいのじぇ！ ゆっくちできにゃいのじぇ！",
+      "chinese": "那种徽章，窝才不要惹杰！真不能油库里惹杰！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_lesson_praised",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "えへへ、ほめられたのじぇ！ まりちゃ、うれちいのじぇ！",
+      "chinese": "嘿嘿，被夸奖惹杰！窝好开心惹杰！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_lesson_praised2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅのじぇ！ ありがちょうなのじぇ！",
+      "chinese": "窝还要慢慢学惹杰！谢谢惹杰！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_lesson_scolded",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいなのじぇ……まりちゃ、なおしゅのじぇ……。",
+      "chinese": "对不起惹杰……窝会改惹杰……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_badge_envy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いいにゃあなのじぇ……まりちゃも そのばっじほちいのじぇ。",
+      "chinese": "真好惹杰……窝也想要那个徽章惹杰。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_badge_admire",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しゅごいのじぇ！ まりちゃにも おしえちぇなのじぇ！",
+      "chinese": "好厉害惹杰！也教教窝惹杰！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_nervous",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジ、もらえるかしら……ありす、すこしふあんだわ。",
+      "chinese": "徽章，能拿到吗……爱丽丝有点不安哇。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_nervous2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "とかいはなありすでも、きんちょうはするのよ……。",
+      "chinese": "就算是都会派的爱丽丝，也是会紧张的哇……。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_answer",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "はい、ありすはわかっているわ！",
+      "chinese": "是的，爱丽丝明白哇！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_unsure",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "えーと……あら……？ ありす、どうだったかしら……。",
+      "chinese": "嗯……咦……？爱丽丝，是怎么来着哇……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_hide_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすはいないわよ！ ここにはだれもいないわ！",
+      "chinese": "爱丽丝不在哇！这里谁也没有哇！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_wait",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "がまんよ……とかいはは、まてるのよ……。",
+      "chinese": "要忍耐哇……都会派是等得住的哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_wait2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おやつは、もうすこし……ゆっくりまつわ……。",
+      "chinese": "点心再等一下……慢慢等着哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ずるいわ！ ありすのぶんはどこなの！",
+      "chinese": "太狡猾了哇！爱丽丝的那份在哪里！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_fail2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、とかいはじゃないわ！",
+      "chinese": "抢先拿走，才不是都会派的做法哇！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_report",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらのゆっくりがいるわ。",
+      "chinese": "人类先生，那里有野生的油库里哇。",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_sorry",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごめんなさい……。ありす、まちがえてしまったわ……。",
+      "chinese": "对不起……。爱丽丝弄错了哇……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_pass",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "やったわ！ バッジよ！ ありす、とかいはでしょう！",
+      "chinese": "太好了哇！是徽章哇！爱丽丝是都会派吧！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_pass2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ ありす、とってもしあわせよ！",
+      "chinese": "谢谢人类先生！爱丽丝好幸福哇！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして……どぼじてなのおおお……！",
+      "chinese": "为什么……为什么会这样啊啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_exam_fail2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありす、ふごうかくなの……？ そんな……ぐすっ……。",
+      "chinese": "爱丽丝，不合格吗……？怎么会……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_badge_proud",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすのバッジ、とかいはでしょう？ ゆっくり みていってね！",
+      "chinese": "爱丽丝的徽章，很都会派吧？请慢慢看哇！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_shop_appeal",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすを かってちょうだい！ とかいはに おせわしてあげるわ！",
+      "chinese": "请买下爱丽丝哇！会都会派地照顾你的哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_shop_appeal2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここよ、ここ！ ありす、とってもいい子よ！",
+      "chinese": "在这里哇，在这里！爱丽丝是很乖的孩子哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_shop_bought",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あたらしいおうちね！ よろしくおねがいするわ！",
+      "chinese": "新的家哇！请多多关照哇！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_shop_sold_sad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして……ありすのこと、わすれないでちょうだい……。",
+      "chinese": "为什么……请不要忘记爱丽丝哇……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_shop_sold_proud",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすは、もっととかいはなおうちにいくわ！ さようなら！",
+      "chinese": "爱丽丝要去更都会派的家哇！再见！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_wild_role_beg",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあまを ちょうだい！ ここをあけてちょうだい！",
+      "chinese": "把甜甜给我！把这里打开哇！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_wild_role_provoke",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "そんなバッジ、ありすにはかんけいないわ！ ちっともとかいはじゃないわね！",
+      "chinese": "那种徽章，跟爱丽丝没关系哇！一点也不都会派哇！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_lesson_praised",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ほめられたわ！ ありす、うれしいわ！",
+      "chinese": "被夸奖了哇！爱丽丝好开心哇！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_lesson_praised2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もっとおぼえるわ。ありがとう、にんげんさん！",
+      "chinese": "还要再学哇。谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_lesson_scolded",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごめんなさい……。ありす、ちゃんとなおすわ……。",
+      "chinese": "对不起……。爱丽丝会好好改正哇……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_badge_envy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うらやましいわ……ありすも、あのバッジがほしいわ。",
+      "chinese": "好羡慕哇……爱丽丝也想要那个徽章哇。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_badge_admire",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すてきだわ！ ありすにも、おしえてちょうだい！",
+      "chinese": "好棒哇！也教教爱丽丝吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_nervous",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかちら……ありちゅ、どきどきしゅるわ。",
+      "chinese": "徽章，能拿到吗哇……爱丽丝扑通扑通的哇。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_nervous2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こわいけど、ありちゅ、がんばりゅわ！",
+      "chinese": "虽然怕怕，窝会加油哇！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_answer",
+      "species": "alice",
+      "age": "young",
+      "japanese": "はいっ、ありちゅ、わかりゅわ！",
+      "chinese": "好的，窝知道哇！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_unsure",
+      "species": "alice",
+      "age": "young",
+      "japanese": "えーと……あらぁ……？ ありちゅ、わかんにゃいわ……。",
+      "chinese": "嗯……咦……？窝不知道哇……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_hide_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅはいにゃいわ！ だぁれもいにゃいわ！",
+      "chinese": "窝不在哇！谁也没有哇！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_promise_wait",
+      "species": "alice",
+      "age": "young",
+      "japanese": "がまんよ、がまん……ありちゅ、まてりゅわ……。",
+      "chinese": "忍耐哇，忍耐……窝等得住哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_promise_wait2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おやちゅ、まだかちら……ゆっくち まつわ……。",
+      "chinese": "点心还没来吗哇……慢慢等着哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_promise_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ずるいわぁ！ ありちゅのばんよぉ！",
+      "chinese": "狡猾哇！明明是窝的份哇！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_promise_fail2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅも まってたのにぃ！ ぷんぷん！",
+      "chinese": "窝也等着的哇！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_report",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらのゆっくちがいるわぁ！",
+      "chinese": "人类先生，有野生的油库里在哇！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_sorry",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……ありちゅ、まちがえちゃったわ……。",
+      "chinese": "对不起哇……窝弄错了哇……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_pass",
+      "species": "alice",
+      "age": "young",
+      "japanese": "やったぁ！ ばっじよ！ ありちゅ、ときゃいはでしょ！",
+      "chinese": "太好啦！是徽章哇！窝是都会派吧！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_pass2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ しあわちぇー！",
+      "chinese": "谢谢人类先生！好幸福哇——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "どぼちて……どぼちてなのぉぉ……！",
+      "chinese": "为什么……为什么哇啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_exam_fail2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅ、だめだったの……？ ふえぇん……。",
+      "chinese": "窝，不行吗……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_badge_proud",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅのばっじ、きらきらでしょ！ ときゃいはでしょ！",
+      "chinese": "窝的徽章，亮晶晶吧！很都会派吧！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_shop_appeal",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅを かっちぇ！ いっちょに ゆっくちしようね！",
+      "chinese": "买下窝哇！一起油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_shop_appeal2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ここよぉ！ ありちゅ、いいこよぉ！",
+      "chinese": "在这里哇！窝是乖孩子哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_shop_bought",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あたらちいおうちね！ よろちくね！",
+      "chinese": "新的家哇！请多关照哇！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_shop_sold_sad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "どうちて……ありちゅを わすれにゃいでぇ……。",
+      "chinese": "为什么……不要忘了窝哇……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_shop_sold_proud",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅ、もっとときゃいはなおうちにいくわ！ ばいばい！",
+      "chinese": "窝要去更都会派的家哇！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_wild_role_beg",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あまあま、ちょうだい！ あけちぇ！",
+      "chinese": "给窝甜甜哇！快打开哇！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_wild_role_provoke",
+      "species": "alice",
+      "age": "young",
+      "japanese": "そんなばっじ、ありちゅはいらにゃいわ！ ときゃいはじゃにゃいわ！",
+      "chinese": "那种徽章，窝才不要哇！一点也不都会派哇！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_lesson_praised",
+      "species": "alice",
+      "age": "young",
+      "japanese": "えへへ、ほめられちゃった！ ありちゅ、うれちいわ！",
+      "chinese": "嘿嘿，被夸奖啦！窝好开心哇！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_lesson_praised2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅわ！ ありがちょう！",
+      "chinese": "窝会再慢慢学哇！谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_lesson_scolded",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……ありちゅ、なおしゅわ……。",
+      "chinese": "对不起哇……窝会改哇……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_badge_envy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いいにゃあ……ありちゅも そのばっじほちいわ。",
+      "chinese": "真好哇……窝也想要那个徽章哇。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_badge_admire",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しゅてき！ ありちゅにも おしえちぇ！",
+      "chinese": "好棒哇！也教教窝哇！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_nervous",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジ、もらえるかなー……ちぇん、どきどきするよー。",
+      "chinese": "徽章，能拿到吗——……橙，心跳得好快哟——。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_nervous2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "きんちょうするけど、ちぇん、がんばるよー！",
+      "chinese": "虽然紧张，橙会加油哟——！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_answer",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "はいっ、わかるよー！ ちぇん、わかるよー！",
+      "chinese": "好的，瓦卡鲁哟——！橙，瓦卡鲁哟——！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_unsure",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "えーと……あれー……？ ちぇん、わからないよー……。",
+      "chinese": "嗯……咦——……？橙，瓦卡拉奈哟——……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_hide_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんはいないよー！ だれもいないんだよー！",
+      "chinese": "橙不在哟——！谁也没有哟——！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_wait",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "がまんするよー……ちぇんは、まてるんだよー……。",
+      "chinese": "会忍耐哟——……橙是等得住的哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_wait2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おやつ、まだかなー……ゆっくり まつよー……。",
+      "chinese": "点心，还没来吗——……慢慢等哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
+      "chinese": "狡猾哟——！没有橙的份哟——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_fail2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんも まってたんだよー！ ぷんぷん！",
+      "chinese": "橙也一直在等哟——！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_report",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらがいるよー。",
+      "chinese": "人类先生，那边有野生的在哟——。",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_sorry",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごめんなさいだよー……。ちぇん、まちがえたよー……。",
+      "chinese": "对不起哟——……。橙弄错了哟——……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_pass",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "やったー！ バッジだよー！ ちぇん、わかったよー！",
+      "chinese": "太好啦——！是徽章哟——！橙做到啦哟——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_pass2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうだよー！ しあわせー！",
+      "chinese": "谢谢人类先生哟——！好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "どうしてー……どぼじてなのー……！",
+      "chinese": "为什么——……为什么会这样啊——……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_exam_fail2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇん、ふごうかくなのー……？ わからないよー……。",
+      "chinese": "橙，不合格吗——……？瓦卡拉奈哟——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_badge_proud",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんのバッジ、みてみてー！ すごいでしょー！",
+      "chinese": "看看橙的徽章——！很厉害吧——！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_shop_appeal",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんを かってねー！ いっしょにゆっくりするよー！",
+      "chinese": "请买下橙哟——！一起慢慢来哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_shop_appeal2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここだよー、ここー！ ちぇん、いいこだよー！",
+      "chinese": "在这里哟——，这里——！橙是乖孩子哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_shop_bought",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あたらしいおうちだよー！ よろしくだよー！",
+      "chinese": "新的家哟——！请多关照哟——！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_shop_sold_sad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "どうしてなのー……ちぇんのこと、わすれないでねー……。",
+      "chinese": "为什么啊——……不要忘记橙哟——……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_shop_sold_proud",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんは、もっといいおうちにいくよー！ ばいばいだよー！",
+      "chinese": "橙要去更好的家哟——！拜拜哟——！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_wild_role_beg",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあま、ちょうだいー！ ここ、あけてよー！",
+      "chinese": "给橙甜甜——！把这里打开哟——！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_wild_role_provoke",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "そんなバッジ、ちぇんにはいらないよー！ ゆっくりできないよー！",
+      "chinese": "那种徽章，橙才不要哟——！真没法安心哟——！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_lesson_praised",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ほめられたよー！ ちぇん、うれしいよー！",
+      "chinese": "被夸奖啦哟——！橙好开心哟——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_lesson_praised2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もっとおぼえるよー！ わかるよー、ありがとうー！",
+      "chinese": "还要再学哟——！瓦卡鲁哟——，谢谢——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_lesson_scolded",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごめんなさいだよー……。ちぇん、なおすよー……。",
+      "chinese": "对不起哟——……。橙会改正哟——……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_badge_envy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いいなー……ちぇんも、あのバッジがほしいよー。",
+      "chinese": "真好呀——……橙也想要那个徽章哟——。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_badge_admire",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すごいよー！ ちぇんにも、おしえてほしいよー！",
+      "chinese": "好厉害哟——！也教教橙哟——！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_nervous",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかにゃー……どきどきしゅるよー。",
+      "chinese": "徽章，能拿到吗——……心扑通扑通哟——。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_nervous2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こわいけど、ちぇん、がんばりゅよー！",
+      "chinese": "虽然怕怕，橙会加油哟——！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_answer",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はいっ、わかうよー！ ちぇん、わかうよー！",
+      "chinese": "好的，瓦卡呜哟——！橙，瓦卡呜哟——！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_unsure",
+      "species": "chen",
+      "age": "young",
+      "japanese": "えーと……あれー……？ ちぇん、わかんにゃいよー……。",
+      "chinese": "嗯……咦——……？橙，瓦卡呐奈哟——……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_hide_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんはいにゃいよー！ だぁれもいにゃいよー！",
+      "chinese": "橙不在哟——！谁也没有哟——！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_promise_wait",
+      "species": "chen",
+      "age": "young",
+      "japanese": "がまんしゅるよー……まってりゅよー……。",
+      "chinese": "会忍耐哟——……在等着哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_promise_wait2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃー……ゆっくち まつよー……。",
+      "chinese": "点心，还没来吗——……慢慢等哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_promise_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ずるいよぉー！ ちぇんのばんだよぉー！",
+      "chinese": "狡猾哟——！明明是橙的份哟——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_promise_fail2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんも まってたよぉー！ ぷんぷん！",
+      "chinese": "橙也等着的哟——！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_report",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらがいるよぉー！",
+      "chinese": "人类先生，有野生的在哟——！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_sorry",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいー……ちぇん、まちがえちゃったよー……。",
+      "chinese": "对不起——……橙弄错了哟——……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_pass",
+      "species": "chen",
+      "age": "young",
+      "japanese": "やったぁー！ ばっじだよー！ ちぇん、わかうよー！",
+      "chinese": "太好啦——！是徽章哟——！橙，瓦卡呜哟——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_pass2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうー！ しあわちぇー！",
+      "chinese": "谢谢人类先生——！好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "どぼちてぇー……！",
+      "chinese": "为什么呀——……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_exam_fail2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇん、だめだったにょー……？ わかんにゃいよー……ゆえーん……。",
+      "chinese": "橙，不行吗——……？瓦卡呐奈哟——……呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_badge_proud",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんのばっじ、みてみてー！ きらきらだよー！",
+      "chinese": "看看橙的徽章——！亮晶晶哟——！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_shop_appeal",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんを かっちぇー！ いっちょに ゆっくちしようよー！",
+      "chinese": "买下橙哟——！一起油库里哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_shop_appeal2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここだよぉー！ ちぇん、いいこだよぉー！",
+      "chinese": "在这里哟——！橙是乖孩子哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_shop_bought",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あたらちいおうちだよー！ よろちくねー！",
+      "chinese": "新的家哟——！请多关照哟——！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_shop_sold_sad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "どうちてー……ちぇんを わすれにゃいでぇー……。",
+      "chinese": "为什么——……不要忘了橙哟——……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_shop_sold_proud",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇん、もっといいおうちにいくよー！ ばいばいー！",
+      "chinese": "橙要去更好的家哟——！拜拜——！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_wild_role_beg",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あまあま、ちょうだいー！ あけちぇー！",
+      "chinese": "给橙甜甜——！快打开——！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_wild_role_provoke",
+      "species": "chen",
+      "age": "young",
+      "japanese": "そんなばっじ、ちぇんはいらにゃいよー！ ゆっくちできにゃいよー！",
+      "chinese": "那种徽章，橙才不要哟——！真不能油库里哟——！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_lesson_praised",
+      "species": "chen",
+      "age": "young",
+      "japanese": "えへへー、ほめられたー！ ちぇん、うれちいよー！",
+      "chinese": "嘿嘿——，被夸奖啦——！橙好开心哟——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_lesson_praised2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅよー！ ありがちょうー！",
+      "chinese": "橙会再慢慢学哟——！谢谢——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_lesson_scolded",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいー……ちぇん、なおしゅよー……。",
+      "chinese": "对不起——……橙会改哟——……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_badge_envy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いいにゃー……ちぇんも そのばっじほちいよー。",
+      "chinese": "真好呀——……橙也想要那个徽章哟——。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_badge_admire",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅごいよー！ ちぇんにも おしえちぇー！",
+      "chinese": "好厉害哟——！也教教橙哟——！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_nervous",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……バッジ、もらえるかしら。ぱちゅりー、すこし ふあんだわ。",
+      "chinese": "姆啾……徽章，能拿到吗。帕秋莉，有点不安呢。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_nervous2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、きんちょうするけれど……ぱちゅりー、おちついて やるわ。",
+      "chinese": "姆啾，虽然紧张……帕秋莉会冷静地去做。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_answer",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、わかるわ。ぱちゅりーが こたえるわ。",
+      "chinese": "姆啾，我知道。由帕秋莉来回答。",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_unsure",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……えーと……あれ……？ ぱちゅりー、わすれたかしら……。",
+      "chinese": "姆啾……嗯……咦……？帕秋莉，忘掉了吗……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_hide_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ ぱちゅりーは いないわ！ だれもいないのよ！",
+      "chinese": "姆啾！帕秋莉不在！这里谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_wait",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……がまんよ。ぱちゅりーは、おとなしく まつわ……。",
+      "chinese": "姆啾……要忍耐。帕秋莉会安静地等……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_wait2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "おやつは、もうすこし……むきゅ、じっと まつわ。",
+      "chinese": "点心再等一会儿……姆啾，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
+      "chinese": "姆啾！太狡猾了！没有帕秋莉的份啊！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_fail2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいわ……むきゅー！",
+      "chinese": "抢先拿走，太狡猾了……姆啾——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_report",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、にんげんさん。そこに のらのゆっくりが いるわ。",
+      "chinese": "姆啾，人类先生。那里有野生的油库里。",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_sorry",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ごめんなさい。ぱちゅりー、まちがえたわ。",
+      "chinese": "姆啾……对不起。帕秋莉弄错了。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_pass",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅー！ バッジよ！ ぱちゅりー、がんばったわ！",
+      "chinese": "姆啾——！是徽章！帕秋莉努力过了！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_pass2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう。むきゅ、しあわせだわ。",
+      "chinese": "谢谢人类先生。姆啾，好幸福。",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……どぼじて……どぼじてなのおお……！",
+      "chinese": "姆啾……为什么……为什么会这样啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_exam_fail2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ぱちゅりー、ふごうかく……？ むきゅう……ぐすっ……。",
+      "chinese": "帕秋莉，不合格……？姆啾……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_badge_proud",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぱちゅりーの バッジよ。ゆっくり みてね。",
+      "chinese": "姆啾。这是帕秋莉的徽章。请慢慢看。",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_shop_appeal",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ぱちゅりーを かってね。しずかに おせわしてあげるわ。",
+      "chinese": "姆啾，请买下帕秋莉。我会安静地照顾你。",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_shop_appeal2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ここよ、むきゅ。ぱちゅりー、ものしりで いい子よ。",
+      "chinese": "在这里，姆啾。帕秋莉很博学，是乖孩子。",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_shop_bought",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あたらしいおうちね。よろしくおねがいするわ。",
+      "chinese": "姆啾，新的家呢。请多多关照。",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_shop_sold_sad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……どうして……ぱちゅりーのこと、わすれないでね……。",
+      "chinese": "姆啾……为什么……请不要忘记帕秋莉……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_shop_sold_proud",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぱちゅりーは、もっといいおうちに いくわ。さようなら。",
+      "chinese": "姆啾。帕秋莉要去更好的家。再见。",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_wild_role_beg",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ あまあまを ちょうだい！ ここを あけてちょうだい！",
+      "chinese": "姆啾！给我甜甜！请把这里打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_wild_role_provoke",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、そんなバッジ、ぱちゅりーには いみがないわ。ゆっくりできないわね。",
+      "chinese": "姆啾，那种徽章，对帕秋莉没有意义。真让人没法安心呢。",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_praised",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ほめられたわ。ぱちゅりー、うれしいわ。",
+      "chinese": "姆啾，被夸奖了。帕秋莉很开心。",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_praised2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "もっと おぼえるわ。ありがとう、にんげんさん。",
+      "chinese": "还要再学。谢谢你，人类先生。",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_scolded",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ごめんなさい。ぱちゅりー、ちゃんと なおすわ……。",
+      "chinese": "姆啾……对不起。帕秋莉会好好改正……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_badge_envy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……いいわね。ぱちゅりーも、あのバッジがほしいわ。",
+      "chinese": "姆啾……真好呢。帕秋莉也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_badge_admire",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、すごいわ。ぱちゅりーにも、おしえてほしいわ。",
+      "chinese": "姆啾，好厉害。也请教教帕秋莉。",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_nervous",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ばっじ、もらえりゅかちら……どきどきしゅるわ。",
+      "chinese": "姆啾……徽章，能拿到吗……心扑通扑通的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_nervous2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、こわいけど……ぱちゅ、がんばりゅわ。",
+      "chinese": "姆啾，虽然怕怕……帕秋会加油的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_answer",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、わかりゅわ！ ぱちゅが こたえりゅ！",
+      "chinese": "姆啾，窝知道！由帕秋回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_unsure",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……えーと……あれぇ……？ ぱちゅ、わかんにゃいわ……。",
+      "chinese": "姆啾……嗯……咦……？帕秋不知道……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_hide_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ ぱちゅはいにゃいわ！ だぁれもいにゃいの！",
+      "chinese": "姆啾！帕秋不在！谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_wait",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……がまんよ。ぱちゅ、おとなちく まっちぇりゅわ……。",
+      "chinese": "姆啾……要忍耐。帕秋乖乖等着……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_wait2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "おやちゅ、まだかちら……むきゅ、じっと まつわ。",
+      "chinese": "点心还没来吗……姆啾，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ ずるいわぁ！ ぱちゅのばんよぉ！",
+      "chinese": "姆啾——！狡猾！明明是帕秋的份！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_fail2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ぱちゅも まってたのにぃ……むきゅー！",
+      "chinese": "帕秋也等着的……姆啾——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_report",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、にんげんしゃん。のらがいりゅわ！",
+      "chinese": "姆啾，人类先生。有野生的在！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_sorry",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ごめんにゃしゃい。ぱちゅ、まちがえちゃったわ。",
+      "chinese": "姆啾……对不起。帕秋弄错了。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_pass",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ ばっじよ！ ぱちゅ、がんばったわ！",
+      "chinese": "姆啾——！是徽章！帕秋努力过啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_pass2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう。しあわちぇよ！",
+      "chinese": "谢谢人类先生。好幸福！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……どぼちて……どぼちてぇぇ……！",
+      "chinese": "姆啾……为什么……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_exam_fail2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ぱちゅ、だめだったの……？ むきゅぅ……ふえぇん……。",
+      "chinese": "帕秋，不行吗……？姆啾……呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_badge_proud",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぱちゅのばっじよ。みちぇね！",
+      "chinese": "姆啾。这是帕秋的徽章。快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_shop_appeal",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ぱちゅを かっちぇ。おとなちく ちてるわ。",
+      "chinese": "姆啾，买下帕秋。会乖乖的。",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_shop_appeal2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ここよ、むきゅ。ぱちゅ、いいこよぉ。",
+      "chinese": "在这里，姆啾。帕秋是乖孩子。",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_shop_bought",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あたらちいおうちね。よろちくね！",
+      "chinese": "姆啾，新的家呢。请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_shop_sold_sad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……どうちて……ぱちゅを わすれにゃいでぇ……。",
+      "chinese": "姆啾……为什么……不要忘了帕秋……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_shop_sold_proud",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぱちゅ、もっといいおうちにいくわ。ばいばい！",
+      "chinese": "姆啾。帕秋要去更好的家。拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_wild_role_beg",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ あまあま、ちょうだい！ あけちぇ！",
+      "chinese": "姆啾——！给帕秋甜甜！快打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_wild_role_provoke",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、そんなばっじ、ぱちゅはいらにゃいわ。ゆっくちできにゃいわ。",
+      "chinese": "姆啾，那种徽章，帕秋才不要。真不能安心。",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_lesson_praised",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ほめられちゃった。ぱちゅ、うれちいわ！",
+      "chinese": "姆啾，被夸奖了。帕秋好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_lesson_praised2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "もっと おぼえりゅわ。ありがちょう！",
+      "chinese": "还要再学。谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_lesson_scolded",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ごめんにゃしゃい。ぱちゅ、なおしゅわ……。",
+      "chinese": "姆啾……对不起。帕秋会改……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_badge_envy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……いいにゃあ。ぱちゅも そのばっじほちいわ。",
+      "chinese": "姆啾……真好呀。帕秋也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_badge_admire",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、しゅごいわ。ぱちゅにも おしえちぇ！",
+      "chinese": "姆啾，好厉害。也教教帕秋！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_nervous",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジ、もらえるかのだ……。れみりあ、ちょっとこわいのだ。",
+      "chinese": "呜——，徽章，拿得到吗呀……。蕾米莉亚有点怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_nervous2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きんちょうするのだ……でも がんばるのだ。",
+      "chinese": "呜——，好紧张呀……不过会加油的呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_answer",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、わかるのだ！ れみりあが こたえるのだ！",
+      "chinese": "呜——，知道呀！由蕾米莉亚来回答呀！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_unsure",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……えーと……あれ……？ れみりあ、わからないのだ……。",
+      "chinese": "呜——……嗯……咦……？蕾米莉亚，不知道呀……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_hide_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあはいないのだ！ だれもいないのだ！",
+      "chinese": "呜——！蕾米莉亚不在呀！谁也没有呀！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_wait",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……がまんするのだ。れみりあは、まてるのだ……。",
+      "chinese": "呜——……会忍耐的呀。蕾米莉亚等得住呀……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_wait2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "おやつは、まだなのだ……うー、じっと まつのだ。",
+      "chinese": "点心还没来呀……呜——，静静等着呀。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
+      "chinese": "呜——！狡猾呀！没有蕾米莉亚的份呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_fail2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいのだぁ！",
+      "chinese": "抢先拿走，太狡猾呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_report",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。そこに のらがいるのだ。",
+      "chinese": "呜——，人类先生。那边有野生的呀。",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_sorry",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ごめんなさいなのだ。れみりあ、まちがえたのだ。",
+      "chinese": "呜——……对不起呀。蕾米莉亚弄错了呀。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_pass",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ バッジなのだ！ れみりあ、すごいのだ！",
+      "chinese": "呜——！是徽章呀！蕾米莉亚好厉害呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_pass2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうなのだ！ うれしいのだぁ！",
+      "chinese": "谢谢人类先生呀！好开心呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……どぼじてなのだぁ……！",
+      "chinese": "呜——……为什么会这样呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_exam_fail2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "れみりあ、ふごうかくなのだ……？ うー……ぐすっ……。",
+      "chinese": "蕾米莉亚，不合格吗……？呜——……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_badge_proud",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあのバッジなのだ！ えっへんなのだ！",
+      "chinese": "呜——，蕾米莉亚的徽章呀！得意呀！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shop_appeal",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあを かうのだ！ いっしょに ゆっくりするのだ！",
+      "chinese": "呜——，买下蕾米莉亚呀！一起慢慢来呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shop_appeal2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "ここなのだ、ここ！ れみりあ、いい子なのだ！",
+      "chinese": "在这里呀，这里！蕾米莉亚是乖孩子呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shop_bought",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あたらしいおうちなのだ！ よろしくなのだ！",
+      "chinese": "呜——，新的家呀！请多关照呀！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shop_sold_sad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……どうしてなのだ……れみりあを わすれないでほしいのだ……。",
+      "chinese": "呜——……为什么呀……不要忘了蕾米莉亚呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_shop_sold_proud",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあは、もっといいおうちにいくのだ！ さらばなのだ！",
+      "chinese": "呜——！蕾米莉亚要去更好的家呀！再见呀！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_wild_role_beg",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ あまあまを ちょうだいなのだ！ ここを あけるのだ！",
+      "chinese": "呜——！把甜甜给我呀！把这里打开呀！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_wild_role_provoke",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、そんなバッジ、れみりあにはいらないのだ！ ゆっくりできないのだ！",
+      "chinese": "呜——，那种徽章，蕾米莉亚才不要呀！真没法安心呀！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_lesson_praised",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ほめられたのだ！ れみりあ、うれしいのだ！",
+      "chinese": "呜——，被夸奖了呀！蕾米莉亚好开心呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_lesson_praised2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "もっと おぼえるのだ。ありがとうなのだ、にんげんさん！",
+      "chinese": "还要再学呀。谢谢你呀，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_lesson_scolded",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ごめんなさいなのだ。れみりあ、ちゃんと なおすのだ……。",
+      "chinese": "呜——……对不起呀。蕾米莉亚会好好改正呀……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_badge_envy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……いいのだ。れみりあも、あのバッジがほしいのだ。",
+      "chinese": "呜——……真好呀。蕾米莉亚也想要那个徽章呀。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_badge_admire",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、すごいのだ！ れみりあにも、おしえてほしいのだ！",
+      "chinese": "呜——，好厉害呀！也教教蕾米莉亚呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_nervous",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじ、もらえりゅかにゃ……こわいのだぁ。",
+      "chinese": "呜——，徽章，能拿到吗……怕怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_nervous2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、どきどきしゅるのだ……がんばりゅのだ！",
+      "chinese": "呜——，扑通扑通呀……要加油呀！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_answer",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、わかりゅのだ！ れみぃが こたえりゅのだ！",
+      "chinese": "呜——，知道呀！蕾米来回答呀！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_unsure",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……えーと……あれぇ……？ れみぃ、わかんにゃいのだ……。",
+      "chinese": "呜——……嗯……咦……？蕾米不知道呀……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_hide_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみぃはいにゃいのだ！ だぁれもいにゃいのだ！",
+      "chinese": "呜——！蕾米不在呀！谁也没有呀！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_wait",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……がまんなのだ。れみぃ、まってりゅのだ……。",
+      "chinese": "呜——……要忍耐呀。蕾米等着呀……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_wait2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃ……うー、じっと まつのだ。",
+      "chinese": "点心还没来吗……呜——，静静等着呀。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ ずるいのだぁ！ れみぃのばんなのだぁ！",
+      "chinese": "呜——！狡猾呀！明明是蕾米的份呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_fail2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "れみぃも まってたのだぁ！ ぷんぷんなのだ！",
+      "chinese": "蕾米也等着的呀！气鼓鼓呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_report",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらがいりゅのだぁ！",
+      "chinese": "呜——，人类先生。有野生的在呀！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_sorry",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃいなのだ。れみぃ、まちがえちゃったのだ。",
+      "chinese": "呜——……对不起呀。蕾米弄错了呀。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_pass",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ ばっじなのだ！ れみぃ、しゅごいのだ！",
+      "chinese": "呜——！是徽章呀！蕾米好厉害呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_pass2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうなのだ！ うれちいのだぁ！",
+      "chinese": "谢谢人类先生呀！好开心呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……どぼちてなのだぁ……！",
+      "chinese": "呜——……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_exam_fail2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "れみぃ、だめだったのだ……？ うぇーん……。",
+      "chinese": "蕾米，不行吗……？呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_badge_proud",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃのばっじなのだ！ きらきらなのだ！",
+      "chinese": "呜——，蕾米的徽章呀！亮晶晶呀！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shop_appeal",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃを かっちぇなのだ！ いっちょに ゆっくちしゅるのだ！",
+      "chinese": "呜——，买下蕾米呀！一起慢慢来呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shop_appeal2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ここなのだぁ！ れみぃ、いいこなのだぁ！",
+      "chinese": "在这里呀！蕾米是乖孩子呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shop_bought",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あたらちいおうちなのだ！ よろちくなのだ！",
+      "chinese": "呜——，新的家呀！请多关照呀！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shop_sold_sad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……どうちて……れみぃを わすれにゃいでぇなのだ……。",
+      "chinese": "呜——……为什么……不要忘了蕾米呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_shop_sold_proud",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみぃ、もっといいおうちにいくのだ！ ばいばいなのだ！",
+      "chinese": "呜——！蕾米要去更好的家呀！拜拜呀！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_wild_role_beg",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ あまあま、ちょうだいなのだ！ あけちぇなのだ！",
+      "chinese": "呜——！给蕾米甜甜呀！快打开呀！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_wild_role_provoke",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、そんなばっじ、れみぃはいらにゃいのだ！ ゆっくちできにゃいのだ！",
+      "chinese": "呜——，那种徽章，蕾米才不要呀！真不能安心呀！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_lesson_praised",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ほめられたのだ！ れみぃ、うれちいのだ！",
+      "chinese": "呜——，被夸奖啦！蕾米好开心呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_lesson_praised2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "もっと おぼえりゅのだ！ ありがちょうなのだ！",
+      "chinese": "还要再学呀！谢谢呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_lesson_scolded",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃいなのだ。れみぃ、なおしゅのだ……。",
+      "chinese": "呜——……对不起呀。蕾米会改呀……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_badge_envy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……いいにゃあなのだ。れみぃも そのばっじほちいのだ。",
+      "chinese": "呜——……真好呀。蕾米也想要那个徽章呀。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_badge_admire",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、しゅごいのだ！ れみぃにも おしえちぇなのだ！",
+      "chinese": "呜——，好厉害呀！也教教蕾米呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_nervous",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ、もらえるかな……。ふらん、ちょっとこわいよ。",
+      "chinese": "呜——，徽章，拿得到吗……。芙兰有点怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_nervous2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きんちょうするけど……ふらん、がんばるね。",
+      "chinese": "呜——，虽然紧张……芙兰会加油的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_answer",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかるよ！ ふらんが こたえるね！",
+      "chinese": "呜——，知道哦！由芙兰来回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_unsure",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……えっと……あれ……？ ふらん、わからなくなっちゃった……。",
+      "chinese": "呜——……嗯……咦……？芙兰，不明白了……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_hide_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんはいないよ！ ここにはだれもいないよ！",
+      "chinese": "呜——！芙兰不在哦！这里谁也没有哦！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_wait",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……がまんするね。ふらん、まてるよ……。",
+      "chinese": "呜——……会忍耐的。芙兰等得住哦……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_wait2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "おやつ、まだかな……うー、じっと まつよ。",
+      "chinese": "点心，还没来吗……呜——，静静等着哦。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
+      "chinese": "呜——！狡猾！没有芙兰的份哦！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_fail2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるい……ふらんだって まってたのに！",
+      "chinese": "抢先拿走，太狡猾……芙兰也一直在等呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_report",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。あそこに のらのゆっくりがいるよ。",
+      "chinese": "呜——，人类先生。那边有野生的油库里哦。",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_sorry",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ごめんなさい。ふらん、まちがえちゃった……。",
+      "chinese": "呜——……对不起。芙兰弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_pass",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ バッジだ！ ふらん、やったよ！",
+      "chinese": "呜——！是徽章！芙兰做到啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_pass2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ ふらん、すっごくうれしい！",
+      "chinese": "谢谢人类先生！芙兰好开心！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……どうして……どぼじてなの……！",
+      "chinese": "呜——……为什么……为什么会这样……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_exam_fail2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ふらん、ふごうかく……？ うー……ぐすっ……。",
+      "chinese": "芙兰，不合格……？呜——……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_badge_proud",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんのバッジだよ！ みて、みて！",
+      "chinese": "呜——，这是芙兰的徽章哦！看，快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shop_appeal",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんを かってね！ いっしょに あそぼう？",
+      "chinese": "呜——，请买下芙兰！一起玩吧？",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shop_appeal2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ここだよ、ここ！ ふらん、いい子にするよ！",
+      "chinese": "在这里哦，这里！芙兰会乖乖的！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shop_bought",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あたらしいおうちだ！ よろしくね！",
+      "chinese": "呜——，新的家！请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shop_sold_sad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……どうして……ふらんのこと、わすれないでね……。",
+      "chinese": "呜——……为什么……不要忘记芙兰哦……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_shop_sold_proud",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんは、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "呜——！芙兰要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_wild_role_beg",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ あまあまちょうだい！ ここ、あけて！",
+      "chinese": "呜——！给我甜甜！把这里打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_wild_role_provoke",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、そんなバッジ、ふらんにはいらないよ！ ゆっくりできないね！",
+      "chinese": "呜——，那种徽章，芙兰才不要呢！真没法安心呢！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_lesson_praised",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ほめられたよ！ ふらん、うれしい！",
+      "chinese": "呜——，被夸奖啦！芙兰好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_lesson_praised2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "もっと おぼえるね。ありがとう、にんげんさん！",
+      "chinese": "还要再学哦。谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_lesson_scolded",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ごめんなさい。ふらん、ちゃんと なおすね……。",
+      "chinese": "呜——……对不起。芙兰会好好改正的……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_badge_envy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……いいなあ。ふらんも、あのバッジがほしいな。",
+      "chinese": "呜——……真好呀。芙兰也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_badge_admire",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、すごいね！ ふらんにも、おしえてほしいな！",
+      "chinese": "呜——，好厉害！也教教芙兰吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_nervous",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ、もらえりゅかにゃ……ふりゃん、こわいよ。",
+      "chinese": "呜——，徽章，能拿到吗……芙呀怕怕。",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_nervous2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、どきどきしゅるけど……ふりゃん、がんばりゅ！",
+      "chinese": "呜——，虽然扑通扑通……芙呀会加油！",
+      "events": [
+        "exam_nervous"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_answer",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかりゅよ！ ふりゃんが こたえりゅ！",
+      "chinese": "呜——，知道！由芙呀回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_unsure",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……えっと……あれぇ……？ ふりゃん、わかんにゃい……。",
+      "chinese": "呜——……嗯……咦……？芙呀不明白……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_hide_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃんはいにゃいよ！ だぁれもいにゃいよ！",
+      "chinese": "呜——！芙呀不在！谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_wait",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……がまんしゅる。ふりゃん、まってりゅよ……。",
+      "chinese": "呜——……会忍耐。芙呀等着……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_wait2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃ……うー、じっと まつよ。",
+      "chinese": "点心还没来吗……呜——，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ずるいよぉ！ ふりゃんのばんだよぉ！",
+      "chinese": "呜——！狡猾！明明是芙呀的份！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_fail2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ふりゃんも まってたのにぃ！ ぷんぷん！",
+      "chinese": "芙呀也等着的！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_report",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。あしょこに のらがいりゅよぉ！",
+      "chinese": "呜——，人类先生。那边有野生的！",
+      "events": [
+        "exam_report"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_sorry",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃい。ふりゃん、まちがえちゃった……。",
+      "chinese": "呜——……对不起。芙呀弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_pass",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ばっじだぁ！ ふりゃん、やったぁ！",
+      "chinese": "呜——！是徽章！芙呀做到啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_pass2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ うれちいよぉ！",
+      "chinese": "谢谢人类先生！好开心！",
+      "events": [
+        "exam_pass"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……どぼちて……どぼちてぇぇ……！",
+      "chinese": "呜——……为什么……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_exam_fail2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ふりゃん、だめだったの……？ うぇーん……。",
+      "chinese": "芙呀，不行吗……？呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_badge_proud",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんのばっじだよ！ みちぇ、みちぇ！",
+      "chinese": "呜——，这是芙呀的徽章！看，快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shop_appeal",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんを かっちぇ！ いっちょに あしょぼ？",
+      "chinese": "呜——，买下芙呀！一起玩吧？",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shop_appeal2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ここだよぉ！ ふりゃん、いいこにしゅるよ！",
+      "chinese": "在这里！芙呀会乖乖的！",
+      "events": [
+        "shop_appeal"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shop_bought",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あたらちいおうちだぁ！ よろちくね！",
+      "chinese": "呜——，新的家！请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shop_sold_sad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……どうちて……ふりゃんを わすれにゃいでぇ……。",
+      "chinese": "呜——……为什么……不要忘了芙呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_shop_sold_proud",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃん、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "呜——！芙呀要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_wild_role_beg",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ あまあまちょうだい！ あけちぇ！",
+      "chinese": "呜——！给芙呀甜甜！快打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_wild_role_provoke",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、そんなばっじ、ふりゃんはいらにゃい！ ゆっくちできにゃい！",
+      "chinese": "呜——，那种徽章，芙呀才不要！真不能安心！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_lesson_praised",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ほめられちゃった！ ふりゃん、うれちい！",
+      "chinese": "呜——，被夸奖啦！芙呀好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_lesson_praised2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "もっと おぼえりゅね！ ありがちょう！",
+      "chinese": "还要再学！谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_lesson_scolded",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃい。ふりゃん、なおしゅね……。",
+      "chinese": "呜——……对不起。芙呀会改……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_badge_envy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……いいにゃあ。ふりゃんも そのばっじほちい。",
+      "chinese": "呜——……真好呀。芙呀也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_badge_admire",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、しゅごい！ ふりゃんにも おしえちぇ！",
+      "chinese": "呜——，好厉害！也教教芙呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
+      "audio_status": "unvoiced"
     }
   ]
 }

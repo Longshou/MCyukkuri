@@ -1,7 +1,8 @@
 {
   "id": "household_guard",
   "revision": "sealed-filter-box-20261016",
-  "status": "pending_user_review",
+  "status": "legacy_save_compatibility",
+  "superseded_by": "standards/yukkuri-library/ecology/house-repellent/recipe.json",
   "units_per_block": 16,
   "bounds": [[3, 13], [0, 5], [4, 12]],
   "role": "Small sealed household prevention box with metal filter grille and a paper seal. No item icon or powered-machine imagery is reused.",

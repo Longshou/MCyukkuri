@@ -28,7 +28,7 @@ public final class ModItems {
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier", () -> new CarrierItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<BlockItem> HOUSEHOLD_GUARD=ITEMS.registerSimpleBlockItem("household_guard",ModBlocks.HOUSEHOLD_GUARD);
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new io.github.longshou.mcyukkuri.item.HouseholdSprayItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);

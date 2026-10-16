@@ -347,6 +347,55 @@ def state(action, t, c, height):
             r[0] = (c['wail_chin']*(1-u)+c['head_down']*u)*fade; r[2] = 1.5*w*u*fade
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
+    elif action == 'think':
+        ph = 2*math.pi*t/d; k = c['squash']
+        r = [c['look_up'], c['turn']*math.sin(ph), c['tilt']*math.sin(ph)]; s = [1+.5*k, 1-k, 1+.5*k]
+    elif action == 'nervous':
+        ph = 2*math.pi*t/c['hop_seconds']; k = c['shrink']
+        s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['tremble_units']*math.sin(2*math.pi*c['tremble_hz']*t)
+        q = bump((t % c['hop_seconds'])/c['hop_seconds']); lift = c['hop_ratio']*height*q
+        s = [s[0]*(1-.015*q), s[1]*(1+.03*q), s[2]*(1-.015*q)]; r = [-2, c['glance']*math.sin(2*math.pi*t/c['glance_seconds']), c['shudder']*math.sin(ph*2)]
+    elif action == 'proud':
+        # Lean back and puff the chest, hold, then settle with a small overshoot and rest.
+        if t < .5:
+            a = smooth(t/.5)
+        elif t < 1.5:
+            a = 1.
+        else:
+            a = 1-smooth((t-1.5)/.5)
+        k = c['stretch']*a; r = [c['lean_back']*a+c['chin_up']*bump((t-.5)/1.0), 0., 0.]
+        s = [1-.3*k, 1+k, 1-.3*k]
+        if t >= 1.5: e = bump((t-1.5)/.5); s = [s[0]*(1+.03*e), s[1]*(1-.04*e), s[2]*(1+.03*e)]
+    elif action == 'joy_jump':
+        def leap(t0, tk, tl, te, h):
+            if t < t0 or t >= te: return None
+            if t < tk:
+                a = smooth((t-t0)/(tk-t0)); return squash(a, .09, .17, .06), 0., 0.
+            if t < tl:
+                air = (t-tk)/(tl-tk); e = math.sin(math.pi*air); release = 1-smooth(air/.2)
+                return times(squash(release, .09, .17, .06), [1-.06*e, 1+.14*e, 1-.05*e]), h*4*air*(1-air), e
+            return squash(bump((t-tl)/(te-tl)), .08, .14, .05), 0., 0.
+        got = leap(0, .22, .62, .8, height*c['hop_ratio']) or leap(.8, 1.0, 1.4, 1.6, height*c['second_hop_ratio'])
+        if got: s, lift, e = got; r[0] = c['look_up']*e
+    elif action == 'sulk':
+        ph = 2*math.pi*t/d; wide = 1+(1-c['height'])*.5
+        s = [c['width'], c['height']+.01*math.sin(ph), c['width']]; s[0] = wide
+        r = [c['head_down'], c['turn'], c['tilt']]
+        if 1.4 <= t < 1.9:
+            w = bump((t-1.4)/.5)*math.sin(2*math.pi*9*t); r[2] += c['shudder']*w; shift[0] = .006*height*w
+    elif action == 'hide_face':
+        ph = 2*math.pi*t/d
+        w = 2*math.pi*c['wiggle_hz']*t
+        r = [c['lean']+c['wiggle']*math.sin(w), c['yaw']*math.sin(w), c['roll']*math.sin(w+1)]; s = [1.03, c['height'], 1.03]
+    elif action == 'beg':
+        q = bump((t % c['bounce_seconds'])/c['bounce_seconds'])
+        r = [c['lean']+c['lean_bounce']*q, 0., 0.]; lift = c['bounce_ratio']*height*q
+        s = [1-.02*q, 1+.04*q, 1-.02*q]
+    elif action == 'bow':
+        if t < .45: a = smooth(t/.45)
+        elif t < .65: a = 1.
+        else: a = 1-smooth((t-.65)/.55)
+        r[0] = c['bow']*a; k = c['squash']*a; s = [1+.5*k, 1-k, 1+.5*k]
     elif action == 'hat_brim':
         r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
         s[1] = 1.025  # upright, but no idle floating above the supporting brim
@@ -525,7 +574,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips():
+def export_distress_clips(include_pet=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -534,7 +583,11 @@ def export_distress_clips():
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
+    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet else None
+    contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet else None
     names=DISTRESS_CLIPS
+    if include_pet:
+        names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow')
     cfg['clips']={name:cfg['clips'][name] for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     for ident,revision in payload['models'].items():
@@ -551,14 +604,17 @@ def export_distress_clips():
             row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
             return floor-((points-pivot)@row+pivot[1]).min()
         authored=compile_clips(model,cfg,root,ground,height)
+        if include_pet:
+            follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
+            authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         for clip in authored.values():
             for track in clip['tracks']:
                 name=model['bones'][track['bone']]['name']
                 if name not in revision['bone_names']:revision['bone_names'].append(name)
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
-        print('Exported water/balance clips:',ident,flush=True)
-    payload['revision']='single-braid-causal-water-20261017-v18'
+        print('Exported selected lore clips:',ident,flush=True)
+    payload['revision']='pet-shop-braid-water-20261017-v19'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -566,6 +622,8 @@ def export_distress_clips():
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
                        ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+    if include_pet:
+        entry['exporter_sha256']=hashlib.sha256((ROOT/entry['exporter']).read_bytes()).hexdigest()
     manifest.write_text(json.dumps(entry,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 
 
@@ -573,4 +631,6 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
     parser.add_argument('--export-distress',action='store_true')
-    if parser.parse_args().export_distress:export_distress_clips()
+    parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
+    args=parser.parse_args()
+    if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)

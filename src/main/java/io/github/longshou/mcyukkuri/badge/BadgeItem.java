@@ -13,8 +13,8 @@ public final class BadgeItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player p, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity y)) return InteractionResult.PASS;
         if (!p.level().isClientSide) {
-            if (handbook) BadgeMenu.open(p, null, y);
-            else if (!y.badges().attach(p, stack)) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
+            if (handbook) BadgeMenu.open(p, y);
+            else if (!y.pet().attach(p, stack)) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
         }
         return InteractionResult.sidedSuccess(p.level().isClientSide);
     }

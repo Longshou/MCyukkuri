@@ -95,7 +95,7 @@ final class SettlementSocietyChecks {
         tag.putIntArray("DispositionExperience", new int[4]); entity.life().personality().load(tag);
     }
     private static void medal(YukkuriEntity entity, boolean gold) {
-        var tag = entity.life().save(); tag.putBoolean("GoldMedal", gold); entity.life().load(tag);
+        if (gold) entity.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD, 1, null); else entity.pet().revoke();
     }
     private SettlementSocietyChecks() {}
 }

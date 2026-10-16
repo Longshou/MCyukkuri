@@ -1,0 +1,9 @@
+{
+  "status": "pending_user_confirmation",
+  "source": "art/props/ui/author_shop_ui.py",
+  "palette_source": "art/props/badges/author_badges.py PALETTES (gold accents, grade chips)",
+  "outputs": {
+    "art/props/ui/shop_ui.png": "0f6489c25d70d1e2ea5aed8595fdc990db750a91d66ec7af905b2231985f0e99",
+    "src/main/resources/assets/mcyukkuri/textures/gui/shop_ui.png": "0f6489c25d70d1e2ea5aed8595fdc990db750a91d66ec7af905b2231985f0e99"
+  }
+}

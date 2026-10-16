@@ -1,0 +1,12 @@
+{
+  "clips": [
+    {"id":"think","title":"思考 · 歪头与侧目","model":"reimu","action":"think","duration":2,"still":0.4,"flattenStill":true},
+    {"id":"nervous","title":"紧张 · 缩身与轻颤","model":"marisa","action":"nervous","duration":1.5,"still":0.5,"flattenStill":true},
+    {"id":"proud","title":"得意 · 抬头挺身","model":"reimu","action":"proud","duration":2,"still":0.5,"flattenStill":true},
+    {"id":"joy-jump","title":"合格 · 开心跳起","model":"marisa","action":"joy_jump","duration":1.6,"still":0.4,"flattenStill":true},
+    {"id":"sulk","title":"不合格 · 缩身低落","model":"reimu","action":"sulk","duration":2.4,"still":0.5,"flattenStill":true},
+    {"id":"hide-face","title":"躲猫猫 · 遮住脸","model":"marisa","action":"hide_face","duration":2,"still":0.5,"flattenStill":true},
+    {"id":"beg","title":"求买与乞讨 · 贴地抬眼","model":"reimu","action":"beg","duration":1.4,"still":0.5,"flattenStill":true},
+    {"id":"bow","title":"礼貌 · 鞠躬","model":"marisa","action":"bow","duration":1.2,"still":0.5,"flattenStill":true}
+  ]
+}

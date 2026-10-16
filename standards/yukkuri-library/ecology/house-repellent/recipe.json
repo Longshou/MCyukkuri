@@ -1,0 +1,52 @@
+{
+  "id": "house_repellent",
+  "item_id": "household_guard",
+  "revision": "trigger-spray-20261017",
+  "status": "pending_user_review",
+  "units_per_block": 16,
+  "role": "Handheld yukkuri repellent spray: grip bottle, separate pump nozzle and trigger, original barred-yukkuri face label. The existing item ID remains save-compatible; this item places no block.",
+  "textures": {
+    "bottle": "minecraft:block/light_blue_concrete",
+    "trim": "minecraft:block/gray_concrete",
+    "paper": "minecraft:block/white_concrete",
+    "warning": "minecraft:block/red_concrete",
+    "ink": "minecraft:block/black_concrete"
+  },
+  "elements": [
+    {"name":"bottle_foot","from":[5.5,0,6.2],"to":[10.5,0.7,9.8],"material":"trim"},
+    {"name":"grip_bottle","from":[5,0.7,6],"to":[11,6.3,10],"material":"bottle"},
+    {"name":"upper_grip","from":[5.5,6.3,6.2],"to":[10.5,7.6,9.8],"material":"bottle"},
+    {"name":"narrow_shoulder","from":[6,7.6,6.5],"to":[10,8.3,9.5],"material":"bottle"},
+    {"name":"bottle_neck","from":[6.7,8.3,7.1],"to":[9.3,9.5,8.9],"material":"bottle"},
+    {"name":"pump_collar","from":[6.4,9.2,6.8],"to":[9.6,9.8,9.2],"material":"trim"},
+    {"name":"pump_head","from":[6.4,9.8,4.5],"to":[9.6,11.7,10.3],"material":"paper"},
+    {"name":"pump_top","from":[6.8,11.7,4.8],"to":[9.2,12,9.9],"material":"paper"},
+    {"name":"nozzle","from":[6.75,10.15,3.5],"to":[9.25,11.35,4.5],"material":"bottle"},
+    {"name":"spray_aperture","from":[7.55,10.5,3.4],"to":[8.45,11,3.5],"material":"ink"},
+    {"name":"trigger_finger","from":[7.4,8.7,4.9],"to":[8.6,9.8,5.4],"material":"trim"},
+    {"name":"trigger_hook","from":[7.4,8.3,4.9],"to":[8.6,8.7,6.5],"material":"trim"},
+    {"name":"back_palm_rest","from":[6.8,9.2,9.2],"to":[9.2,9.8,10.3],"material":"trim"},
+    {"name":"front_label","from":[5.65,1.8,5.94],"to":[10.35,6.15,6],"material":"paper"}
+  ],
+  "badge": {
+    "description": "Original cuboid face pictogram and octagonal red prohibition border; no game item icon is sampled.",
+    "elements": [
+      {"name":"face_hair","from":[6.6,3.3,5.84],"to":[9.4,5,5.94],"material":"ink"},
+      {"name":"face_cheeks","from":[6.85,3.15,5.79],"to":[9.15,4.12,5.84],"material":"paper"},
+      {"name":"face_eye_left","from":[7.15,3.68,5.75],"to":[7.48,3.95,5.79],"material":"ink"},
+      {"name":"face_eye_right","from":[8.52,3.68,5.75],"to":[8.85,3.95,5.79],"material":"ink"},
+      {"name":"face_mouth","from":[7.75,3.34,5.75],"to":[8.25,3.48,5.79],"material":"ink"},
+      {"name":"face_bow_left","from":[6.55,4.85,5.79],"to":[7.45,5.25,5.84],"material":"warning"},
+      {"name":"face_bow_right","from":[8.55,4.85,5.79],"to":[9.45,5.25,5.84],"material":"warning"},
+      {"name":"border_top","from":[6.7,5.45,5.72],"to":[9.3,5.75,5.79],"material":"warning"},
+      {"name":"border_bottom","from":[6.7,2.2,5.72],"to":[9.3,2.5,5.79],"material":"warning"},
+      {"name":"border_left","from":[6.05,2.85,5.72],"to":[6.35,5.1,5.79],"material":"warning"},
+      {"name":"border_right","from":[9.65,2.85,5.72],"to":[9.95,5.1,5.79],"material":"warning"},
+      {"name":"border_upper_left","from":[6.35,5.1,5.72],"to":[6.7,5.45,5.79],"material":"warning"},
+      {"name":"border_upper_right","from":[9.3,5.1,5.72],"to":[9.65,5.45,5.79],"material":"warning"},
+      {"name":"border_lower_left","from":[6.35,2.5,5.72],"to":[6.7,2.85,5.79],"material":"warning"},
+      {"name":"border_lower_right","from":[9.3,2.5,5.72],"to":[9.65,2.85,5.79],"material":"warning"}
+    ],
+    "slash": {"start":[6.4,2.75,5.65],"step":[0.48,0.4,0],"size":[0.68,0.5,0.07],"count":6,"material":"warning"}
+  }
+}

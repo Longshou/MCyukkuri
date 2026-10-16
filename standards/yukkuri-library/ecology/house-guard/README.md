@@ -1,5 +1,7 @@
 # 家居防护盒
 
+此造型已由 [驱油喷雾](../house-repellent/README.md) 替代，仅保留旧存档方块兼容与制作输入。导出器不再写 `models/item/household_guard.json`，当前物品由喷雾制作源负责。
+
 `recipe.json` 是原创制作源：低矮金属盒、正面竖向过滤栅、侧面横栅与越过顶盖的封口纸条。红色封口标记表示盒体完整，不绘制电源、燃料槽或持续消耗品。
 
 尺寸为 10 × 5 × 8 模型单位，游戏内边界为 x=3..13、y=0..5、z=4..12；每格 16 单位。运行模型由 Minecraft 原生方块模型绘制，无专用方块实体或动画。
@@ -8,6 +10,6 @@
 
 导出：`python standards/yukkuri-library/ecology/house-guard/build.py`。只读核对加 `--check`。选用配方与来源清单导出至 `art/source/house-guard/`。
 
-当前离线预览由 `house-nest/render_supplies.py` 生成至 `.local/previews/house-supplies/house-supplies.png`，通过本目录 `preview.py` 读取已导出的方块模型与本机 Minecraft 资源包中的原版材质。可用环境变量 `MCYUKKURI_VANILLA_JAR` 指定资源 JAR。只进行软件光栅化，不启动游戏、浏览器或编译。
+旧盒的离线读取工具 `preview.py` 保留作为制作输入；当前 `house-supplies` 预览只展示喷雾，不再展示永久盒方案。可用环境变量 `MCYUKKURI_VANILLA_JAR` 指定资源 JAR。工具只进行软件光栅化，不启动游戏、浏览器或编译。
 
-防护范围与防护结果由服务器逻辑决定；模型与示意图不作为实机测试结果。当前造型待用户审阅。
+兼容方块的行为由服务器逻辑决定；旧模型不代表当前喷雾行为，也不作为实机测试结果。

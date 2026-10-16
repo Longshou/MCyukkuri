@@ -46,7 +46,7 @@ final class RoundedPreview {
             if(hit==null)throw new IllegalStateException("Preview skin unavailable");
             e.body().addWound(new io.github.longshou.mcyukkuri.body.BodyWound(java.util.UUID.randomUUID(),"dent",hit.triangle(),hit.u(),hit.v(),2,1,0,0));
         }
-        if(state.equals("badge"))e.badges().initializeStock(2,java.util.UUID.randomUUID());
+        if(state.equals("badge"))e.pet().initializeStock(io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER,java.util.UUID.randomUUID(),60);
         if(state.equals("bare"))e.life().takeAccessory(null);
         e.setNoAi(true);e.syncFamily();
         e.playAction(request.has("action")?request.get("action").getAsString():"idle");

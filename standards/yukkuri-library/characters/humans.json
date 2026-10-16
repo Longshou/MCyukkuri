@@ -1,7 +1,7 @@
 {
   "id": "humans",
   "entities": ["oniisan", "caretaker_brother", "caretaker_sister"],
-  "outfits": ["oniisan", "brother", "sister", "shopkeeper", "factory_worker"],
+  "outfits": ["oniisan", "brother", "sister", "shopkeeper", "factory_worker", "examiner", "keeper"],
   "source": "tools/author_human_npcs.py",
   "geometry": "../../src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java",
   "geometry_path_base": "standards/yukkuri-library",

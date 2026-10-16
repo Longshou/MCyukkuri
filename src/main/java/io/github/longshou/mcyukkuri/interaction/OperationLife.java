@@ -131,7 +131,9 @@ public final class OperationLife {
             case RELEASE -> false;
         };
         if(done){
+            if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
+            entity.pet().contact(player.getUUID(),!java.util.EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
         }
         return done;
@@ -230,7 +232,7 @@ public final class OperationLife {
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);
             tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
-        entity.badges().markAccessory(stack);
+        entity.pet().markAccessory(stack);
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
     }
@@ -246,7 +248,7 @@ public final class OperationLife {
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
         CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putBoolean("Cut",true);
             tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.getVariant().isHouse()?.32f:1));});
-        entity.badges().markAccessory(stack);
+        entity.pet().markAccessory(stack);
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}

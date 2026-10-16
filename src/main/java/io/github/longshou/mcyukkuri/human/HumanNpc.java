@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class HumanNpc extends PathfinderMob {
     public enum Look { ONIISAN, BROTHER, SISTER }
-    public enum Job { RESIDENT, SHOPKEEPER, FACTORY }
+    public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER, KEEPER }
     public enum Attitude { CRUEL, CARING, NEUTRAL }
     private static final EntityDataAccessor<Integer> JOB = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTITUDE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
@@ -32,7 +32,7 @@ public final class HumanNpc extends PathfinderMob {
     private String siteRole = "";
     private UUID lostAnimal, questPlayer, customer;
     private boolean questComplete, initialized;
-    private long nextRestock;
+    private long nextRestock, nextBreed;
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private YukkuriEntity attention;
     private final FactoryProduction production = new FactoryProduction(this);
@@ -54,6 +54,9 @@ public final class HumanNpc extends PathfinderMob {
     public void setJob(Job job) { entityData.set(JOB, job.ordinal()); }
     public void setAttitude(Attitude attitude) { entityData.set(ATTITUDE, attitude.ordinal()); }
     public String siteRole() { return siteRole; }
+    /** Game time of the keeper's next stud pairing; 0 until first scheduled. */
+    public long nextBreed() { return nextBreed; }
+    public void setNextBreed(long time) { nextBreed = time; }
     public BlockPos home() { return home == null ? blockPosition() : home; }
     public boolean resting() { return entityData.get(RESTING); }
     public int careFood() { return careFood; }
@@ -79,21 +82,15 @@ public final class HumanNpc extends PathfinderMob {
         if (isTrading() && !player.getUUID().equals(customer)) return false;
         customer = player.getUUID(); getNavigation().stop(); return true;
     }
-    private UUID badgeCandidate;
-    public boolean beginBadgeExam(Player player, YukkuriEntity animal) {
-        if (badgeCandidate != null && level() instanceof ServerLevel l && l.getEntity(badgeCandidate) instanceof YukkuriEntity prior
-                && prior.badges().examinedBy(getUUID())) return false;
-        if (!beginTrade(player)) return false;
-        badgeCandidate = animal.getUUID(); getNavigation().stop(); return true;
-    }
-    public void endBadgeExam(YukkuriEntity animal) { if (animal.getUUID().equals(badgeCandidate)) { badgeCandidate = null; } }
     public void endTrade(Player player) { if (player.getUUID().equals(customer)) customer = null; }
     public boolean isTrading() {
-        if (badgeCandidate != null && level() instanceof ServerLevel l && l.getEntity(badgeCandidate) instanceof YukkuriEntity y
-                && y.badges().examinedBy(getUUID())) return true;
+        if (io.github.longshou.mcyukkuri.pet.exam.ExamSession.active(this)) return true;
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
-        return player != null && player.containerMenu instanceof HumanMenu menu && menu.target() == this;
+        return player != null && (player.containerMenu instanceof HumanMenu menu && menu.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.KeeperMenu keeper && keeper.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.pet.exam.ExamMenu exam && exam.target() == this);
     }
     public List<YukkuriEntity> animals(String use) {
         return level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(48), y -> y.isAlive()
@@ -114,7 +111,12 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!level().isClientSide) HumanMenu.open(player, this);
+        if (!level().isClientSide) {
+            if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this);
+            else if (job() == Job.KEEPER) io.github.longshou.mcyukkuri.shop.KeeperMenu.open(player, this);
+            else if (job() == Job.EXAMINER) io.github.longshou.mcyukkuri.pet.exam.ExamMenu.open(player, this);
+            else HumanMenu.open(player, this);
+        }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
@@ -131,6 +133,19 @@ public final class HumanNpc extends PathfinderMob {
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (job() == Job.FACTORY) production.tick();
+        if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
+        if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) io.github.longshou.mcyukkuri.shop.ShopDeliveries.register(this);
+        if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) io.github.longshou.mcyukkuri.shop.ShopDeliveries.arrive(this, (net.minecraft.server.level.ServerLevel) level(), level().getGameTime());
+        if (job() == Job.KEEPER && tickCount % 20 == 0) io.github.longshou.mcyukkuri.shop.ShopKeeping.tick(this);
+    }
+    /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
+    private void revokeVoidBadges() {
+        for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6), v -> v.isAlive() && v.pet().voidBadge() && hasLineOfSight(v))) {
+            y.pet().revoke(); swing(InteractionHand.MAIN_HAND);
+            var near = level().getNearestPlayer(this, 16);
+            if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
+            return;
+        }
     }
     /** Staff refill nearby bowls from finite saved supplies, through their normal service aisle. */
     private void serviceFacilities() {
@@ -191,6 +206,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public void start() { elapsed = 0; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
+            if (io.github.longshou.mcyukkuri.pet.exam.ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
             if (isTrading()) { getNavigation().stop(); return; }
             if (resting()) {
                 if (distanceToSqr(Vec3.atBottomCenterOf(home())) > 2) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
@@ -207,18 +223,18 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void addAdditionalSaveData(CompoundTag t) {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
-        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock", nextRestock);
+        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock", nextRestock); t.putLong("NextBreed", nextBreed);
         t.put("FactoryProduction", production.save());
         if (lostAnimal != null) t.putUUID("LostAnimal", lostAnimal); if (lostAt != null) t.putLong("LostAt", lostAt.asLong());
         if (questPlayer != null) t.putUUID("QuestPlayer", questPlayer); t.putBoolean("QuestComplete", questComplete);
     }
     @Override public void readAdditionalSaveData(CompoundTag t) {
-        super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, 2)]);
+        super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized"); home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         production.load(t.getCompound("FactoryProduction"));
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
-        trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock");
+        trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock"); nextBreed = t.getLong("NextBreed");
         lostAnimal = t.hasUUID("LostAnimal") ? t.getUUID("LostAnimal") : null; lostAt = t.contains("LostAt") ? BlockPos.of(t.getLong("LostAt")) : blockPosition();
         questPlayer = t.hasUUID("QuestPlayer") ? t.getUUID("QuestPlayer") : null; questComplete = t.getBoolean("QuestComplete");
     }

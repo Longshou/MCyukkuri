@@ -159,24 +159,39 @@ public final class FamilyData extends SavedData {
                 && !HumanCommerce.data(mother).hasUUID("Owner") && !HumanCommerce.data(father).hasUUID("Owner")
                 && !HumanCommerce.data(mother).contains("PendingRole") && !HumanCommerce.data(father).contains("PendingRole");
     }
-    public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
-        ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
-        if(!mother.family().canReproduceWith(father)||busyParent(mother.getUUID())||busyParent(father.getUUID()))return null;
-        if(kind==BirthKind.EGG != mother.getVariant().isHouse())return null;
-        if(kind==BirthKind.LIVE&&mother.getVariant().isPredator())return null;
+    /** The checked facts of a prospective conception; refusal is null when every gate passes. */
+    private record Plan(String refusal,long seed,int count,ShelterBlockEntity shelter,boolean joinMother,float cost){}
+    private static Plan refused(String reason){return new Plan(reason,0,0,null,false,0);}
+    private Plan plan(ServerLevel level,YukkuriEntity mother,YukkuriEntity father,BirthKind kind,GlobalPos anchor){
+        if(!mother.family().canReproduceWith(father))return refused("pair");
+        if(busyParent(mother.getUUID())||busyParent(father.getUUID()))return refused("busy");
+        if(kind==BirthKind.EGG != mother.getVariant().isHouse())return refused("kind");
+        if(kind==BirthKind.LIVE&&mother.getVariant().isPredator())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
         int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed):2+new Random(seed).nextInt(3);
-        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(mother,father,count))return null;
+        if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
         if(joinMother) {
             int incoming=count+(shelter.owns(father.getUUID())?0:1);
-            if(!shelter.suitableForYoung(incoming))return null;
-        } else if(shelter!=null&&!shelter.suitableForYoung(count))return null;
+            if(!shelter.suitableForYoung(incoming))return refused("shelter");
+        } else if(shelter!=null&&!shelter.suitableForYoung(count))return refused("shelter");
         var budget = birthBudget(level, anchor.pos(), mother.getUUID());
-        if(population(level,budget.center())+count>budget.limit())return null;
+        if(population(level,budget.center())+count>budget.limit())return refused("crowded");
         float cost=10+count*2;
-        if(mother.life().nutrition()<cost+45 || father.life().nutrition()<50)return null;
+        if(mother.life().nutrition()<cost+45)return refused("hungry_mother");
+        if(father.life().nutrition()<50)return refused("hungry_father");
+        return new Plan(null,seed,count,shelter,joinMother,cost);
+    }
+    /** Why conceive() would return null right now (pair, busy, kind, factory, shelter, crowded, hungry_mother, hungry_father), or null when it would succeed. Changes nothing. */
+    public String conceiveRefusal(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
+        return plan((ServerLevel)mother.level(),mother,father,kind,anchor).refusal();
+    }
+    public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
+        ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
+        Plan plan=plan(level,mother,father,kind,anchor);
+        if(plan.refusal()!=null)return null;
+        long seed=plan.seed();int count=plan.count();var shelter=plan.shelter();boolean joinMother=plan.joinMother();float cost=plan.cost();
         Brood brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=father.getUUID();brood.kind=kind;brood.anchor=anchor;
         brood.duration=kind!=BirthKind.EGG?FamilyConfig.GESTATION.get():FamilyConfig.EGG_INCUBATION.get();
         Random random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
@@ -308,6 +323,7 @@ public final class FamilyData extends SavedData {
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);
         if(actualMother!=null)io.github.longshou.mcyukkuri.human.HumanCommerce.inheritFactoryChild(entity,actualMother);
+        io.github.longshou.mcyukkuri.human.HumanCommerce.inheritPet(entity,actualMother,actualFather);
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
             var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(parent);
             if(custody.hasUUID("Owner")&&level.getServer().getPlayerList().getPlayer(custody.getUUID("Owner")) instanceof net.minecraft.server.level.ServerPlayer owner)
