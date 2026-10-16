@@ -37,8 +37,10 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
     private static void applyDip(PoseStack pose,HatBoatEntity boat,float partial){
         float degrees=Mth.clamp(boat.dipDegrees(partial),0,5);
         if(degrees<.01f)return;
-        float toward=boat.dipYaw()*Mth.DEG_TO_RAD;  // dipping rim, as a yaw relative to the hat; the frame is already turned by 180 - yaw
-        pose.mulPose(new Quaternionf().rotationAxis(degrees*Mth.DEG_TO_RAD,-Mth.cos(toward),0,-Mth.sin(toward)));
+        // dipYaw is the lowered rim's direction (-sin, 0, cos) in the hat's own frame, which is exactly the frame the pose is in here.
+        // A right-handed turn about the horizontal axis (cos, 0, sin) sends that direction downward (and the far rim up).
+        float toward=boat.dipYaw()*Mth.DEG_TO_RAD;
+        pose.mulPose(new Quaternionf().rotationAxis(degrees*Mth.DEG_TO_RAD,Mth.cos(toward),0,Mth.sin(toward)));
     }
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)

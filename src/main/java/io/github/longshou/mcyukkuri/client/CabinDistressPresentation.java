@@ -62,7 +62,7 @@ final class CabinDistressPresentation {
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         return switch(state.getString("Phase")){
             // Shake the worn hat off (project original): the clip spans the server's whole phase.
-            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*net.minecraft.util.Mth.clamp(elapsed/(state.contains("Duration")?Math.max(1,state.getInt("Duration"))/20f:1.8f),0,1));
+            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*net.minecraft.util.Mth.clamp(elapsed/(state.contains("RemoveTicks")?Math.max(1,state.getInt("RemoveTicks"))/20f:1.8f),0,1));
             case "DEPLOY_HAT"->new Motion("water_hat_shake",1.2f);
             case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
             case "RIGHT_HAT"->{

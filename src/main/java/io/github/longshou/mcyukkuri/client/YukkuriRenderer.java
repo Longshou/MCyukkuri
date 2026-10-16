@@ -58,10 +58,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             boolean hatCarrier=entity.isVehicle()&&io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity);
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.yBodyRotO,entity.yBodyRot);
             var boardingPose=entity.boardingState();var selfRescuePose=entity.aquaticSelfRescueState();
-            boolean controlledContact=boardingPose.getBoolean("Active")||selfRescuePose.getBoolean("BraidContact")||BraidRescuePresentation.active(entity);
+            boolean controlledContact=boardingPose.getBoolean("Active")||selfRescuePose.contains("BodyYaw")||BraidRescuePresentation.active(entity);
             if(boardingPose.getBoolean("Active")&&boardingPose.contains("BodyYaw"))
                 renderedBodyYaw=Mth.rotLerp(partialTick,boardingPose.getFloat("PrevBodyYaw"),boardingPose.getFloat("BodyYaw"));
-            else if(selfRescuePose.getBoolean("BraidContact")&&selfRescuePose.contains("BodyYaw"))
+            else if(selfRescuePose.contains("BodyYaw"))
                 renderedBodyYaw=Mth.rotLerp(partialTick,selfRescuePose.getFloat("PrevBodyYaw"),selfRescuePose.getFloat("BodyYaw"));
             var rockingHat=entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat?boat
                     :hatParent!=null&&hatParent.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity carriedBoat?carriedBoat:null;

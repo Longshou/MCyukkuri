@@ -16,7 +16,7 @@
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
   "hat_vessel_sha256": "5a5684770da2790ec573bc31e29579dc39060c81df8bbb5e18739c646c78c26c",
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "5b7b429f3e1a76956b590b6f38604c2ee03e23f0157053eed91d5bbb0d3126cf",
+  "exporter_sha256": "0207067027b6a3019ae5febe318e7af91193f34d2d0d08d4cf5c59c5df85e0d1",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
