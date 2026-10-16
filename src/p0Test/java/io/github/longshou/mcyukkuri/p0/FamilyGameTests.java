@@ -39,10 +39,16 @@ public final class FamilyGameTests {
     private record FallingChild(YukkuriEntity entity,Vec3 birthPosition) {}
     private record GroundContact(long tick,Vec3 birthPosition,Vec3 position,String model,int subspeciesFlags,
             boolean groundFlag,boolean verticalCollision,double supportTop) {}
+    private record FollowSample(long tick,UUID child,UUID mother,UUID father,String childPosition,String motherPosition,
+            String fatherPosition,String activity,String motherActivity,String fatherActivity,double distanceSquared,boolean movedInFollow) {}
     private final List<Check> checks=new ArrayList<>();
     private final List<FamilyData.Brood> batches=new ArrayList<>();
     private final Map<UUID,FallingChild> landingSubjects=new LinkedHashMap<>();
     private final Map<UUID,GroundContact> groundContacts=new LinkedHashMap<>();
+    private final List<FollowSample> followTrace=new ArrayList<>();
+    private boolean observingFollow,previousFollow,approachedParent;
+    private Vec3 previousFollowPosition;
+    private double closestFollowingDistance=Double.POSITIVE_INFINITY;
     private GameTestHelper helper;
     private ServerLevel level;
     private net.minecraft.gametest.framework.GameTestSequence sequence;
@@ -56,7 +62,7 @@ public final class FamilyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=6000,batch="family")
     public static void familyAcceptance(GameTestHelper helper) {
         FamilyGameTests test=new FamilyGameTests();test.helper=helper;test.level=helper.getLevel();test.setup();
-        helper.onEachTick(test::observeGroundContacts);
+        helper.onEachTick(()-> { test.observeGroundContacts();test.observeFollowing(); });
         test.sequence=helper.startSequence().thenWaitUntil(() -> {
             for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)
                 helper.assertTrue(test.level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)), "Waiting for family fixture chunks");
@@ -101,6 +107,19 @@ public final class FamilyGameTests {
                             +", awaiting="+baby.family().awaitingLanding()+", flight="+baby.family().flying()
                             +", velocity="+baby.getDeltaMovement()+", model="+baby.subspecies().assetId():", entity="+entity);
         }).toList();
+    }
+    private void observeFollowing() {
+        if(!observingFollow||child==null||!child.isAlive())return;
+        var mother=level.getEntity(child.family().mother());var father=level.getEntity(child.family().father());
+        if(!(mother instanceof YukkuriEntity m)||!(father instanceof YukkuriEntity f)||!m.isAlive()||!f.isAlive())return;
+        boolean following=child.family().active()&&child.family().activity().equals("follow_parent")&&child.getBehaviorId().equals("follow_parent");
+        // The setup displacement is excluded; require actual movement during consecutive FOLLOW observations.
+        boolean moved=previousFollow&&following&&child.position().distanceToSqr(previousFollowPosition)>1.0e-6;
+        double distance=Math.min(child.distanceToSqr(m),child.distanceToSqr(f));
+        if(moved) { closestFollowingDistance=Math.min(closestFollowingDistance,distance);if(distance<9)approachedParent=true; }
+        followTrace.add(new FollowSample(helper.getTick(),child.getUUID(),m.getUUID(),f.getUUID(),child.position().toString(),
+                m.position().toString(),f.position().toString(),child.getBehaviorId(),m.getBehaviorId(),f.getBehaviorId(),distance,moved));
+        previousFollow=following;previousFollowPosition=child.position();
     }
     private void later(int delay,String name,Runnable action) {
         sequence.thenIdle(delay).thenExecute(()-> {
@@ -367,11 +386,31 @@ public final class FamilyGameTests {
                 "Waiting for newborn to land before following: "+(child==null?"missing":child.position())));
         later(1,"natural newborn landing",()-> {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
-            child.moveTo(a.getX()+5,65,a.getZ(),0,0);
+            helper.assertTrue(child!=null&&pregnancy.mother.equals(child.family().mother())&&pregnancy.father.equals(child.family().father())
+                    &&a.getUUID().equals(child.family().mother())&&b.getUUID().equals(child.family().father()),"Following uses the actual recorded biological parents");
+            Vec3 start=null;
+            for(var offset:List.of(new Vec3(5,0,0),new Vec3(-5,0,0),new Vec3(0,0,5),new Vec3(0,0,-5))) {
+                var candidate=a.position().add(offset);
+                if(candidate.distanceToSqr(a.position())<=16||candidate.distanceToSqr(b.position())<=16
+                        ||!child.life().dryStand(BlockPos.containing(candidate))
+                        ||!level.noCollision(child,child.getBoundingBox().move(candidate.subtract(child.position()))))continue;
+                start=candidate;break;
+            }
+            helper.assertTrue(start!=null,"A clear dry following start exists beyond four blocks from both actual parents");
+            child.moveTo(start.x,start.y,start.z,0,0);child.setDeltaMovement(Vec3.ZERO);child.getNavigation().stop();
+            child.move(net.minecraft.world.entity.MoverType.SELF,new Vec3(0,-.125,0));
+            helper.assertTrue(child.onGround()&&child.verticalCollision&&level.noCollision(child)
+                    &&child.distanceToSqr(a)>16&&child.distanceToSqr(b)>16&&child.distanceToSqr(a)<144
+                    &&child.life().reachable(a.blockPosition(),false),"Following starts on the real floor, outside both parent thresholds, with a reachable mother");
             life(child,t->t.putFloat("Nutrition",85));
+            followTrace.clear();previousFollow=false;previousFollowPosition=child.position();
+            closestFollowingDistance=Double.POSITIVE_INFINITY;approachedParent=false;observingFollow=true;
+            observeFollowing();
         });
         later(180,"family following",()-> {
-            check("child approaches a real parent",child!=null&&Math.min(child.distanceToSqr(a),child.distanceToSqr(b))<9,child==null?"missing":child.position());
+            observeFollowing();observingFollow=false;P0Control.write("family-follow-trace",followTrace);
+            check("child approaches a real parent",approachedParent,"closest squared distance during moving FOLLOW="+closestFollowingDistance
+                    +", samples="+followTrace.size()+", last="+(followTrace.isEmpty()?"none":followTrace.getLast()));
         });
     }
     private String pregnancyDetails() {
