@@ -25,6 +25,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,7 +41,14 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class IndependenceGameTests {
     private static final BlockPos ORIGIN = new BlockPos(2600,65,8), DESTINATION = ORIGIN.east(10);
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=4000,batch="independence")
+    // Budget existing production ceilings, not faster fixture clocks: three pickup/delivery pairs and
+    // one work goal; three outings with one unsuccessful 1200-tick visit retry each, plus reload grace.
+    private static final int ROUTE_LIMIT=1000, STOP_WAIT=40, RELOAD_GRACE=100, VISIT_RETRY=1200, GREETING=100;
+    private static final int BUILD_BUDGET=7*(ROUTE_LIMIT+STOP_WAIT)+2*RELOAD_GRACE;
+    private static final int OUTING_BUDGET=2*(ROUTE_LIMIT+STOP_WAIT)+RELOAD_GRACE+VISIT_RETRY+GREETING;
+    // Final post-greeting save/reload adds its own grace before the last physical return.
+    private static final int TEST_BUDGET=BUILD_BUDGET+3*OUTING_BUDGET+RELOAD_GRACE+40;
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=TEST_BUDGET,batch="independence")
     public static void buildReloadVisit(GameTestHelper helper) {
         var level = helper.getLevel();
         var forced = new HashSet<>(level.getForcedChunks());
@@ -55,6 +64,7 @@ public final class IndependenceGameTests {
         YukkuriEntity[] child = {null}; ShelterBlockEntity[] old = {null};
         UUID[] removedAccessory = {null};
         int[] previousFood = {0}, phase = {0}; boolean[] cleaned = {false}, reload = {false};
+        int[] normalGreetingTicks = {0}; long[] normalGreetingStart = {-1};
         var trace = new ArrayList<java.util.Map<String,Object>>();
         Runnable cleanup = () -> {
             if (cleaned[0]) return; cleaned[0] = true;
@@ -85,9 +95,19 @@ public final class IndependenceGameTests {
             var y = child[0];
             trace.add(java.util.Map.of("tick",helper.getTick(),"phase",phase[0],"position",y.position().toString(),
                     "behavior",y.getBehaviorId(),"work",y.independence().work(),"carrying",y.independence().carrying().toString(),
-                    "oldOwns",old[0].owns(y.getUUID()),"visits",y.independence().visits()));
-            if (phase[0] == 3 || phase[0] == 4)
+                    "oldOwns",old[0].owns(y.getUUID()),"visits",y.independence().visits(),
+                    "diagnostics",visitDiagnostics(y,actors.getFirst())));
+            if (phase[0] == 3 || phase[0] == 4 || phase[0] > 0 && helper.getTick()%100 == 0)
                 System.out.println("MCYUKKURI_P0 independence recognition phase=" + phase[0] + " " + visitDiagnostics(y,actors.getFirst()));
+            if (phase[0] == 6 && y.independence().visits() == 0) {
+                var parent = actors.getFirst();
+                if (independenceTask(y).equals("GREET") && y.independence().active() && y.distanceToSqr(parent) <= 2.25
+                        && y.hasLineOfSight(parent) && parent.hasLineOfSight(y)
+                        && y.life().canRecognize(parent) && parent.life().canRecognize(y)) {
+                    if (normalGreetingStart[0] < 0) normalGreetingStart[0] = level.getGameTime()-independenceCounter(y,"elapsed");
+                    normalGreetingTicks[0]++;
+                } else { normalGreetingTicks[0] = 0; normalGreetingStart[0] = -1; }
+            }
             if (phase[0] == 0 && y.independence().work() >= 120 && !reload[0]) {
                 helper.assertTrue(old[0].owns(y.getUUID()) && y.habitat().shelter() == old[0],"Old bed remains owned throughout unfinished construction");
                 var saved = y.independence().save();
@@ -157,6 +177,7 @@ public final class IndependenceGameTests {
             parent.move(MoverType.SELF,greetingSpot.subtract(parent.position())); groundActor(helper,parent,"Visiting relative");
             helper.assertTrue(parent.isNoAi() && parent.distanceToSqr(greetingSpot) < 1.0e-6 && old[0].owns(parent.getUUID())
                     && old[0].interior().inflate(3).contains(parent.position()),"Actual external movement leaves the relative grounded at its own home's outside entrance");
+            isolateIdleWandering(helper,y);
             readyVisit(y);
         }).thenWaitUntil(() -> helper.assertTrue(child[0].independence().active()
                 && child[0].independence().activity().equals("independence_visit") && child[0].distanceToSqr(actors.getFirst()) > 2.25,
@@ -202,10 +223,20 @@ public final class IndependenceGameTests {
             helper.assertTrue(y.life().returnAccessory(y.getUUID(),removedAccessory[0],null),"The same visitor accessory is returned");
             phase[0] = 5;
         }).thenWaitUntil(() -> assertReturned(helper,child[0]))
-        .thenExecute(() -> readyVisit(child[0]))
-        .thenWaitUntil(() -> helper.assertTrue(child[0].independence().visits() == 1,"Child walks back and spends time with actual relative"))
+        .thenExecute(() -> { phase[0] = 6; readyVisit(child[0]); })
+        .thenWaitUntil(() -> helper.assertTrue(child[0].independence().active() && independenceTask(child[0]).equals("GREET")
+                && child[0].distanceToSqr(actors.getFirst()) <= 2.25
+                && child[0].hasLineOfSight(actors.getFirst()) && actors.getFirst().hasLineOfSight(child[0]),
+                "Normal restored-accessory visit reaches the real visible greeting: " + visitDiagnostics(child[0],actors.getFirst())))
+        .thenWaitUntil(() -> helper.assertTrue(child[0].independence().visits() == 1,
+                "Child walks back and spends time with actual relative: " + visitDiagnostics(child[0],actors.getFirst())))
         .thenExecute(() -> {
             var y = child[0]; y.independence().load(y.independence().save());
+            helper.assertTrue(normalGreetingTicks[0] >= GREETING && normalGreetingStart[0] >= 0
+                    && level.getGameTime()-normalGreetingStart[0] >= GREETING,
+                    "Completed visit requires 100 real loaded ticks of continuous visible, recognized proximity; observed="
+                            + normalGreetingTicks[0] + ", start=" + normalGreetingStart[0] + ", now=" + level.getGameTime());
+            phase[0] = 7;
             helper.assertTrue(!old[0].owns(y.getUUID()),"Visit and reload never reclaim the family bed");
         }).thenWaitUntil(() -> {
             var stand = child[0].habitat().homeStand();
@@ -221,7 +252,35 @@ public final class IndependenceGameTests {
             return ((Enum<?>)field.get(actor.independence())).name();
         } catch (ReflectiveOperationException error) { throw new IllegalStateException("Cannot observe the real independence task",error); }
     }
+    private static int independenceCounter(YukkuriEntity actor,String name) {
+        try {
+            var field = actor.independence().getClass().getDeclaredField(name); field.setAccessible(true);
+            return field.getInt(actor.independence());
+        } catch (ReflectiveOperationException error) { throw new IllegalStateException("Cannot observe independence counter " + name,error); }
+    }
+    private static GoalSelector goals(YukkuriEntity actor) {
+        try {
+            var field = net.minecraft.world.entity.Mob.class.getDeclaredField("goalSelector"); field.setAccessible(true);
+            return (GoalSelector)field.get(actor);
+        } catch (ReflectiveOperationException error) { throw new IllegalStateException("Cannot inspect real server goals",error); }
+    }
+    private static void isolateIdleWandering(GameTestHelper helper,YukkuriEntity actor) {
+        var selector = goals(actor);
+        var before = selector.getAvailableGoals().stream().map(net.minecraft.world.entity.ai.goal.WrappedGoal::getGoal).toList();
+        var wandering = before.stream().filter(goal -> goal instanceof WaterAvoidingRandomStrollGoal).toList();
+        helper.assertTrue(wandering.size() == 1,"Fixture isolates exactly the unrelated idle wandering goal");
+        // removeGoal stops a running goal; removeAllGoals would leave its running navigation behind.
+        wandering.forEach(selector::removeGoal);
+        var after = selector.getAvailableGoals().stream().map(net.minecraft.world.entity.ai.goal.WrappedGoal::getGoal).toList();
+        helper.assertTrue(after.size() == before.size()-1 && after.contains(actor.independence())
+                && before.stream().filter(goal -> !wandering.contains(goal)).allMatch(after::contains),
+                "All life, danger, family, social, shelter and real independence goals remain registered");
+        System.out.println("MCYUKKURI_P0 independence fixture isolates idle wandering only; retained="
+                + after.stream().map(goal -> goal.getClass().getName()).toList());
+    }
     private static String visitDiagnostics(YukkuriEntity visitor,YukkuriEntity parent) {
+        var saved = visitor.independence().save(); var home = visitor.habitat().shelter(); var stand = visitor.habitat().homeStand();
+        var path = visitor.getNavigation().getPath();
         return "tick=" + visitor.tickCount + ", task=" + independenceTask(visitor) + ", active=" + visitor.independence().active()
                 + ", activity=" + visitor.independence().activity() + ", behavior=" + visitor.getBehaviorId()
                 + ", visits=" + visitor.independence().visits() + ", returning=" + visitor.independence().save().getBoolean("Returning")
@@ -230,6 +289,15 @@ public final class IndependenceGameTests {
                 + ", recognizes=" + parent.life().canRecognize(visitor) + "/" + visitor.life().canRecognize(parent)
                 + ", LOS=" + parent.hasLineOfSight(visitor) + "/" + visitor.hasLineOfSight(parent)
                 + ", distance2=" + visitor.distanceToSqr(parent) + ", positions=" + parent.position() + "/" + visitor.position()
+                + ", home=" + (home == null ? null : home.getBlockPos()) + ", stand=" + stand
+                + ", homeDistance2=" + (home == null ? -1 : visitor.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())))
+                + ", standDistance2=" + (stand == null ? -1 : visitor.distanceToSqr(Vec3.atBottomCenterOf(stand)))
+                + ", ground=" + visitor.onGround() + ", verticalCollision=" + visitor.verticalCollision + ", velocity=" + visitor.getDeltaMovement()
+                + ", navDone=" + visitor.getNavigation().isDone() + ", path=" + (path == null ? null : path.getTarget())
+                + ", wait=" + saved.getInt("Wait") + ", visitWait=" + saved.getInt("VisitWait")
+                + ", loadGrace=" + independenceCounter(visitor,"loadGrace") + ", elapsed=" + independenceCounter(visitor,"elapsed")
+                + ", runningGoals=" + goals(visitor).getAvailableGoals().stream().filter(net.minecraft.world.entity.ai.goal.WrappedGoal::isRunning)
+                        .map(goal -> goal.getGoal().getClass().getName()).toList()
                 + ", needs=" + visitor.life().nutrition() + "/" + visitor.life().energy() + "/" + visitor.life().bladder() + "/" + visitor.life().dryness()
                 + ", urgent=" + visitor.life().hasUrgentNeed() + ", life=" + visitor.life().activity()
                 + ", panic=" + visitor.isPanicking() + ", command=" + visitor.isCommandPlaying() + ", operations=" + visitor.operations().active()
@@ -277,9 +345,12 @@ public final class IndependenceGameTests {
         y.independence().load(visit);
     }
     private static void assertReturned(GameTestHelper helper,YukkuriEntity y) {
-        var stand = y.habitat().homeStand();
-        helper.assertTrue(stand != null && !y.independence().save().getBoolean("Returning")
-                && y.distanceToSqr(Vec3.atBottomCenterOf(stand)) < 1,"Interrupted visitor walks back to its own new home");
+        var stand = y.habitat().homeStand(); var home = y.habitat().shelter();
+        helper.assertTrue(stand != null && home != null && !y.independence().save().getBoolean("Returning")
+                && y.distanceToSqr(Vec3.atBottomCenterOf(stand)) < 1
+                && y.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) <= 9,
+                "Interrupted visitor physically returns to its own bed within the production revisit departure radius: " + y.position()
+                        + ", stand=" + stand + ", home=" + (home == null ? null : home.getBlockPos()) + ", state=" + y.independence().save());
     }
     private static CompoundTag project(YukkuriEntity y,BlockPos old,BlockPos site,ShelterBlock.Kind kind) {
         var tag = new CompoundTag(); FamilyData.putPosition(tag,"Origin",GlobalPos.of(y.level().dimension(),old));
