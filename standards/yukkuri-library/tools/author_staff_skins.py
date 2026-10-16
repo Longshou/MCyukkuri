@@ -143,8 +143,8 @@ def shopkeeper():
         "        ",
         "        "], C)
     # shop emblem (matches the shop sign): a Reimu yukkuri head, 7x5, centred as near as 8 columns allow
-    art(im, 20, 27, [" RRDRR ", " KKKKK ", "KKSSSKK", "SESSSES", " SSMSS "],
-        lg({'R': '#c8302c', 'D': '#7d1a1c', 'K': '#1b1b22', 'S': '#f3d3b2', 'E': '#121218', 'M': '#a8443c'}))
+    art(im, 20, 27, ["FRRDRRF", " KKKKK ", "KKSSSKK", "SESSSES", " SSMSS "],
+        lg({'F': '#f4f0e8', 'R': '#c8302c', 'D': '#7d1a1c', 'K': '#1b1b22', 'S': '#f3d3b2', 'E': '#121218', 'M': '#a8443c'}))
         # back: crossed straps, waist band, bow and tails over a polo hem, trousers below
     art(im, 32, 20, ["  qssq  "], C)
     for k in range(6):

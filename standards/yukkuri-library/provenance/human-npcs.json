@@ -43,7 +43,7 @@
         "art/source/human-runtime/textures/shopkeeper.png",
         "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png"
       ],
-      "sha256": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6"
+      "sha256": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40"
     },
     "factory_worker": {
       "source": "standards/yukkuri-library/textures/human/factory_worker.png",

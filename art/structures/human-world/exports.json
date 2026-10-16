@@ -5,7 +5,7 @@
     "art/source/human-runtime/textures/factory_worker.png": "f077544394eb6d60696d3fb5da47b9ba798cc4711ce2a46ee126498482b97370",
     "art/source/human-runtime/textures/keeper.png": "48fe79263897022a6412164bcaa259ee4710256a80affb3fee1edbc85e96b754",
     "art/source/human-runtime/textures/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
-    "art/source/human-runtime/textures/shopkeeper.png": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6",
+    "art/source/human-runtime/textures/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "art/source/human-runtime/textures/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
     "art/structures/human-world/author_exam_props.py": "f4f755be70fb2c8c802a064122e1dffeaac17730f0a5870ba0a435e3393a7049",
     "art/structures/human-world/author_pipeline.py": "3e77a874fb0580006cd297da0246e0a38856daeb4d938b0fb79210f436b0ef2e",
@@ -119,7 +119,7 @@
     "src/main/resources/assets/mcyukkuri/textures/entity/human/factory_worker.png": "f077544394eb6d60696d3fb5da47b9ba798cc4711ce2a46ee126498482b97370",
     "src/main/resources/assets/mcyukkuri/textures/entity/human/keeper.png": "48fe79263897022a6412164bcaa259ee4710256a80affb3fee1edbc85e96b754",
     "src/main/resources/assets/mcyukkuri/textures/entity/human/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
-    "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6",
+    "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "src/main/resources/assets/mcyukkuri/textures/entity/human/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
     "src/main/resources/assets/mcyukkuri/textures/item/gold_yukkuri_badge.png": "d9e445f6821b3a0deff8e94f38b002146b5efc7615f436ea7969bf10b89a822e",
     "src/main/resources/assets/mcyukkuri/textures/item/live_yukkuri_bag.png": "1532d75ce6f4c465c0e7f83a903ae2ad59f3b5bca8a08b7591226f00128d600c",
@@ -154,16 +154,16 @@
     "standards/yukkuri-library/assembled/humans/textures/factory_worker.png": "f077544394eb6d60696d3fb5da47b9ba798cc4711ce2a46ee126498482b97370",
     "standards/yukkuri-library/assembled/humans/textures/keeper.png": "48fe79263897022a6412164bcaa259ee4710256a80affb3fee1edbc85e96b754",
     "standards/yukkuri-library/assembled/humans/textures/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
-    "standards/yukkuri-library/assembled/humans/textures/shopkeeper.png": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6",
+    "standards/yukkuri-library/assembled/humans/textures/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "standards/yukkuri-library/assembled/humans/textures/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
     "standards/yukkuri-library/textures/human/brother.png": "cd377281566df7eee694557ea68ddb28b1aa645c769f12379916678da5e0ed52",
     "standards/yukkuri-library/textures/human/examiner.png": "88ffddb54ac54112b3f0139ec4e3054b44e2669127712be0661dce7efb763ab2",
     "standards/yukkuri-library/textures/human/factory_worker.png": "f077544394eb6d60696d3fb5da47b9ba798cc4711ce2a46ee126498482b97370",
     "standards/yukkuri-library/textures/human/keeper.png": "48fe79263897022a6412164bcaa259ee4710256a80affb3fee1edbc85e96b754",
     "standards/yukkuri-library/textures/human/oniisan.png": "d2e8f7547db6299ea5b47def1ac54b2b2fb80fcffa96f795dbdd0b6cd506c6bd",
-    "standards/yukkuri-library/textures/human/shopkeeper.png": "f70f8bcf3d3a53226fe4e7beef681b9946e52b768475fcf119af4d89ff179ab6",
+    "standards/yukkuri-library/textures/human/shopkeeper.png": "363c4b5c6799bb38e97dc1b655feb5a8022a80caa2df6eb4766695cb794a1f40",
     "standards/yukkuri-library/textures/human/sister.png": "b381308c3a3d19c60935c977100cab1e584c8231f982f77a067a382d364147c2",
     "standards/yukkuri-library/tools/author_human_npcs.py": "2a94ba6ffe76b40982594c9c3ed808da61ac0b588192093d1805e0688e99b5b0",
-    "standards/yukkuri-library/tools/author_staff_skins.py": "6ebdae85bc6b46d54e138aacc10ebb2b611e6994c7ad214f8601f4cc316f7cff"
+    "standards/yukkuri-library/tools/author_staff_skins.py": "9913d7624b4aa5eee66a60e25ea187dd303108876ff00feab7dc886a1bd08634"
   }
 }
