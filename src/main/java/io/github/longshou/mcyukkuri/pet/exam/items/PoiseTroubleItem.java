@@ -37,7 +37,6 @@ public final class PoiseTroubleItem extends Scene {
                 if (ok) {
                     if (pt == 1 && real) a.go(y, baby.blockPosition());
                     if (pt >= 30 && (!real || a.done()) || pt > 100) {
-                        if (pt % 40 == 0 || ph == 2) { }
                         y.playAction("nuzzle"); y.speak("nuzzle"); Staging.sparkle(lvl, top(y, .2));
                         if (baby != null) baby.showReaction("happy", "", 50);
                         next();
