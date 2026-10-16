@@ -27,21 +27,39 @@ public final class ShopKeeping {
         keeper.setNextBreed(now + (breed(keeper, level) ? INTERVAL : RETRY));
     }
 
+    /** The shop restocks only while it holds at most this many animals within 32 blocks, so the studs' local population budget (default 16) has room for a litter. */
+    public static final int RESTOCK_MAX_POPULATION = 12;
+
     private static boolean breed(HumanNpc keeper, ServerLevel level) {
-        if (ShopPens.population(level, keeper) + LITTER_MARGIN > ShopMenu.CAPACITY) return false;
+        if (ShopPens.population(level, keeper) + LITTER_MARGIN > ShopMenu.CAPACITY || ShopPens.population(level, keeper) > RESTOCK_MAX_POPULATION) return false;
         var family = FamilyData.get(level); var studs = keeper.animals("stud");
         for (int i = 0; i < studs.size(); i++) for (int j = i + 1; j < studs.size(); j++) {
             var a = studs.get(i); var b = studs.get(j);
             if (a.pet().busy() || b.pet().busy() || family.busyParent(a.getUUID()) || family.busyParent(b.getUUID()) || !FamilyLife.arrangedMatch(a, b)) continue;
+            if ("crowded".equals(refusal(level, a, b)) && "crowded".equals(refusal(level, b, a))) continue;
             if (arrangedConceive(level, a, b) || arrangedConceive(level, b, a)) return true;
         }
         return false;
     }
 
+    /** Where an arranged birth happens: the mother's home, else her position. */
+    private static GlobalPos anchorOf(ServerLevel level, YukkuriEntity mother) {
+        var home = mother.life().homeStand();
+        return GlobalPos.of(level.dimension(), home != null ? home : mother.blockPosition());
+    }
+    /** FamilyData.conceiveRefusal for an arranged pair (the pair is arranged only for the duration of the call), born at the mother's own home. Null means it would succeed. */
+    public static String refusal(ServerLevel level, YukkuriEntity mother, YukkuriEntity father) {
+        return refusal(level, mother, father, anchorOf(level, mother));
+    }
+    public static String refusal(ServerLevel level, YukkuriEntity mother, YukkuriEntity father, GlobalPos anchor) {
+        mother.family().arrange(father.getUUID()); father.family().arrange(mother.getUUID());
+        try { return FamilyData.get(level).conceiveRefusal(mother, father, mother.family().naturalBirthKind(father), anchor); }
+        finally { mother.family().arrange(null); father.family().arrange(null); }
+    }
+
     /** Conception between two animals that are not courting in the wild: the pair is arranged only for the duration of the call. */
     public static boolean arrangedConceive(ServerLevel level, YukkuriEntity mother, YukkuriEntity father) {
-        var home = mother.life().homeStand();
-        return arrangedConceive(level, mother, father, GlobalPos.of(level.dimension(), home != null ? home : mother.blockPosition()));
+        return arrangedConceive(level, mother, father, anchorOf(level, mother));
     }
     public static boolean arrangedConceive(ServerLevel level, YukkuriEntity mother, YukkuriEntity father, GlobalPos anchor) {
         mother.family().arrange(father.getUUID()); father.family().arrange(mother.getUUID());

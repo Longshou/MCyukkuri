@@ -21,12 +21,14 @@ import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.KeeperMenu;
+import io.github.longshou.mcyukkuri.shop.ShopKeeping;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopPens;
 import io.github.longshou.mcyukkuri.shop.ShopPricing;
 import java.util.*;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -133,6 +135,8 @@ public final class PetShopGameTests {
         players.clear();
         if (forced) for (int x = minCx; x <= maxCx; x++) for (int z = minCz; z <= maxCz; z++) GameTestChunks.setForced(level, x, z, false);
         forced = false;
+        for (var c : remoteChunks) GameTestChunks.setForced(level, c[0], c[1], false);
+        remoteChunks.clear();
     }
 
     private void finish() {
@@ -670,6 +674,21 @@ public final class PetShopGameTests {
     // ------------------------------------------------------------------ e. breeding
 
     private YukkuriEntity mate, spare;
+    private final List<int[]> remoteChunks = new ArrayList<>();
+
+    /** A covered nest 90 blocks east of the shop (well outside the shop's 32-block population radius); its chunks stay forced until cleanup. */
+    private BlockPos buildRemoteNest() {
+        int rx = ox + 90, rz = oz + 10;
+        for (int cx = (rx - 8) >> 4; cx <= (rx + 8) >> 4; cx++) for (int cz = (rz - 8) >> 4; cz <= (rz + 8) >> 4; cz++) { GameTestChunks.setForced(level, cx, cz, true); remoteChunks.add(new int[] {cx, cz}); }
+        for (int x = rx - 3; x <= rx + 4; x++) for (int z = rz - 3; z <= rz + 3; z++) {
+            level.setBlock(new BlockPos(x, 64, z), Blocks.STONE.defaultBlockState(), 3);
+            for (int y = 65; y <= 70; y++) level.setBlock(new BlockPos(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+        }
+        for (int x = rx - 1; x <= rx + 2; x++) for (int z = rz - 1; z <= rz + 1; z++) level.setBlock(new BlockPos(x, 67, z), Blocks.STONE.defaultBlockState(), 3);
+        var nest = new BlockPos(rx, 65, rz);
+        level.setBlock(nest, io.github.longshou.mcyukkuri.registry.ModBlocks.NEST.get().defaultBlockState(), 3);
+        return nest;
+    }
 
     @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 4500, batch = "pet_shop")
     public static void breeding(GameTestHelper h) {
@@ -760,11 +779,27 @@ public final class PetShopGameTests {
             check("pet stands beside the player in sight", ShopFixtures.placeNear(level, subject, player, 1.0), "player=" + player.blockPosition() + " pet=" + subject.blockPosition());
             subject.setNoAi(true);
             spare = keeper.animals("stud").get(0);
+            ShopFixtures.needs(spare); ShopFixtures.needs(subject);
             var menu = new KeeperMenu(61, player.getInventory(), keeper.getId()); player.containerMenu = menu;
             cash = ShopFixtures.emeralds(player);
+            boolean homeless = subject.life().homeStand() == null;
+            boolean refused = !menu.clickMenuButton(player, 2);
+            check("a pet without its own home gets booking state 6 and no charge", homeless && menu.value(9) == 6 && refused && ShopFixtures.emeralds(player) == cash && !subject.pet().busy(),
+                    "homeless=" + homeless + " state=" + menu.value(9) + " refused=" + refused + " cash " + cash + " -> " + ShopFixtures.emeralds(player));
+            var nest = buildRemoteNest();
+            subject.moveTo(nest.getX() + 2.5, nest.getY(), nest.getZ() + 2.5, 0, 0);
+            boolean assigned = subject.life().assignHome(GlobalPos.of(level.dimension(), nest));
+            check("the pet is given a nest 40+ blocks from the shop", assigned && nest.distSqr(keeper.blockPosition()) > 40 * 40,
+                    "assigned=" + assigned + " nest=" + nest + " keeper=" + keeper.blockPosition());
+            ShopFixtures.placeFor(level, player, keeper, 2.0);
+            check("pet stands beside the player in sight again", ShopFixtures.placeNear(level, subject, player, 1.0), "player=" + player.blockPosition() + " pet=" + subject.blockPosition());
+            subject.setNoAi(true);
+            check("the pet's home stand is known while it is at the shop", subject.life().homeStand() != null && subject.life().nutrition() >= 80 && spare.life().nutrition() >= 80,
+                    "homeStand=" + subject.life().homeStand() + " nutrition " + subject.life().nutrition() + "/" + spare.life().nutrition());
+            menu = new KeeperMenu(63, player.getInventory(), keeper.getId()); player.containerMenu = menu;
             boolean match = FamilyLife.arrangedMatch(subject, spare);
             check("the booking screen says the date is possible", menu.value(9) == 0 && menu.value(10) == KeeperMenu.FEE && menu.value(7) == 1,
-                    "state=" + menu.value(9) + " (0 ok,1 night,2 emeralds,3 no animal,4 no stud,5 cannot mate) fee=" + menu.value(10) + " subject index=" + menu.value(7) + " arrangedMatch=" + match);
+                    "state=" + menu.value(9) + " (0 ok,1 night,2 emeralds,3 no animal,4 no stud,5 cannot mate,6 no home,7 crowded,8 hungry; refusal=" + ShopKeeping.refusal(level, subject, spare) + ") fee=" + menu.value(10) + " subject index=" + menu.value(7) + " arrangedMatch=" + match);
             boolean clicked = menu.clickMenuButton(player, 2);
             clickTick = h.getTick();
             check("the date is booked", clicked, "arrangedMatch=" + match + " stud=" + spare.getUUID());
@@ -780,10 +815,8 @@ public final class PetShopGameTests {
             boolean permit = subject.pet().breedingPermitted(subjectId) && spare.pet().breedingPermitted(subject.getUUID());
             int cashNow = ShopFixtures.emeralds(player);
             MCYukkuri.LOGGER.info("[pet_shop/{}] matchmaking outcome: {}", label, pregnant ? "CONCEIVED (brood exists)" : "REFUNDED (conceive returned null)");
-            if (pregnant) check("matchmaking conceived: brood exists, fee kept and permits recorded both ways", cashNow == cash - KeeperMenu.FEE && permit,
-                    "cash " + cash + " -> " + cashNow + " permit=" + permit + " mother conceptions=" + subject.family().conceptions());
-            else check("matchmaking found no conception: fee refunded and no permit", cashNow == cash && !permit && !FamilyData.get(level).busyParent(subject.getUUID()),
-                    "cash " + cash + " -> " + cashNow + " permit=" + permit + " (conceive returned null, e.g. population budget)");
+            check("matchmaking conceived at the pet's own home: brood exists, fee kept and permits recorded both ways", pregnant && cashNow == cash - KeeperMenu.FEE && permit,
+                    "pregnant=" + pregnant + " cash " + cash + " -> " + cashNow + " permit=" + permit + " busyParent=" + FamilyData.get(level).busyParent(subject.getUUID()) + " mother conceptions=" + subject.family().conceptions());
             return true;
         });
         step("keeper night refusal", 5, () -> {
@@ -794,6 +827,33 @@ public final class PetShopGameTests {
             int state = menu.value(9);
             level.setDayTime(6000); level.updateSkyBrightness();
             check("matchmaking is refused at night without charge", !clicked && state == 1 && ShopFixtures.emeralds(player) == before, "clicked=" + clicked + " state slot=" + state + " (1 = night) cash " + before + " -> " + ShopFixtures.emeralds(player));
+            return true;
+        });
+        step("restock: thin out the shop", 5, () -> {
+            for (var y : level.getEntitiesOfClass(YukkuriEntity.class, area, e -> e.isAlive() && e != subject && HumanCommerce.data(e).hasUUID("Owner") && !HumanCommerce.data(e).getUUID("Owner").equals(player.getUUID())
+                    && (use(e).equals("stock") || use(e).equals("stud")))) y.discard();
+            var spots = ShopFixtures.spots(level, keeper.position(), 1.5, 5);
+            check("two free spots beside the keeper for fresh studs", spots.size() >= 2, "spots=" + spots.size());
+            if (spots.size() < 2) return true;
+            var a = ShopFixtures.spawn(level, ModEntities.REIMU, spots.get(0).getX() + .5, spots.get(0).getY(), spots.get(0).getZ() + .5);
+            var b = ShopFixtures.spawn(level, ModEntities.MARISA, spots.get(1).getX() + .5, spots.get(1).getY(), spots.get(1).getZ() + .5);
+            for (var y : List.of(a, b)) { ShopFixtures.needs(y); ShopFixtures.adult(y); y.setNoAi(true); HumanCommerce.assign(y, keeper.getUUID(), "stud"); }
+            spare = a; mate = b;
+            return true;
+        });
+        step("restock: the keeper breeds the studs once the shop is thin", 40, () -> {
+            if (spare == null || mate == null) return true;
+            int local = FamilyData.get(level).population(level, keeper.blockPosition());
+            int owned = ShopPens.population(level, keeper);
+            note = "family population within 32 of keeper=" + local + " shop-owned within 48=" + owned;
+            if (local > ShopKeeping.RESTOCK_MAX_POPULATION && h.getTick() % 5 != 0) return false;
+            check("the shop is at or below the restock threshold (" + ShopKeeping.RESTOCK_MAX_POPULATION + ")", local <= ShopKeeping.RESTOCK_MAX_POPULATION && owned <= ShopKeeping.RESTOCK_MAX_POPULATION, note);
+            keeper.setNextBreed(level.getGameTime());
+            ShopKeeping.tick(keeper);
+            var family = FamilyData.get(level);
+            boolean brood = family.busyParent(spare.getUUID()) && family.busyParent(mate.getUUID());
+            check("restock: a stud brood exists", brood, brood ? "" : "FAIL reasons: " + spare.getUUID() + " as mother -> " + ShopKeeping.refusal(level, spare, mate)
+                    + ", " + mate.getUUID() + " as mother -> " + ShopKeeping.refusal(level, mate, spare) + "; arrangedMatch=" + FamilyLife.arrangedMatch(spare, mate) + " " + note);
             return true;
         });
     }
