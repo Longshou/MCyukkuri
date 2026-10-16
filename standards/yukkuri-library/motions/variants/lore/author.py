@@ -333,13 +333,14 @@ def state(action, t, c, height):
     elif action == 'think':
         ph = 2*math.pi*t/d; k = c['squash']
         r = [c['look_up'], c['turn']*math.sin(ph), c['tilt']*math.sin(ph)]; s = [1+.5*k, 1-k, 1+.5*k]
+        shift[0] = c['sway']*height*math.sin(ph)
     elif action == 'nervous':
         ph = 2*math.pi*t/c['hop_seconds']; k = c['shrink']
         s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['tremble_units']*math.sin(2*math.pi*c['tremble_hz']*t)
         q = bump((t % c['hop_seconds'])/c['hop_seconds']); lift = c['hop_ratio']*height*q
         s = [s[0]*(1-.015*q), s[1]*(1+.03*q), s[2]*(1-.015*q)]; r = [-2, c['glance']*math.sin(2*math.pi*t/c['glance_seconds']), c['shudder']*math.sin(ph*2)]
     elif action == 'proud':
-        # Lean back and puff the chest, hold, then settle with a small overshoot and rest.
+        # Chest puffed by a vertical stretch with only a slight lean back, hold, then settle with a small overshoot.
         if t < .5:
             a = smooth(t/.5)
         elif t < 1.5:
@@ -367,18 +368,58 @@ def state(action, t, c, height):
         if 1.4 <= t < 1.9:
             w = bump((t-1.4)/.5)*math.sin(2*math.pi*9*t); r[2] += c['shudder']*w; shift[0] = .006*height*w
     elif action == 'hide_face':
-        ph = 2*math.pi*t/d
-        w = 2*math.pi*c['wiggle_hz']*t
-        r = [c['lean']+c['wiggle']*math.sin(w), c['yaw']*math.sin(w), c['roll']*math.sin(w+1)]; s = [1.03, c['height'], 1.03]
+        # Crouched with the front pushed into the box: shorter in depth, wider, a gentle nose-down pitch
+        # (the rear reads as raised from the squash), and a wiggle made of yaw, a touch of roll and a
+        # small push-in pulse rather than a big pitch swing.
+        w = 2*math.pi*c['wiggle_hz']*t; sw = math.sin(w)
+        r = [c['lean']+c['wiggle']*sw, c['yaw']*sw, c['roll']*math.sin(w+1)]
+        s = [c['width']*(1+.012*sw), c['height']*(1-.01*sw), c['depth']]
+        shift = [c['sway']*height*sw, -c['push']*height*(1+.2*math.sin(w+.6))]
     elif action == 'beg':
-        q = bump((t % c['bounce_seconds'])/c['bounce_seconds'])
-        r = [c['lean']+c['lean_bounce']*q, 0., 0.]; lift = c['bounce_ratio']*height*q
-        s = [1-.02*q, 1+.04*q, 1-.02*q]
+        # Low eager crouch, body wide and flat: each bounce is a small forward hop with a slight rise
+        # and a total pitch of only a few degrees; the pleading look comes from the face.
+        q = bump((t % c['bounce_seconds'])/c['bounce_seconds']); k = c['crouch']*(1-.55*q)
+        r = [c['lean']+c['lean_bounce']*q, 0., c['sway']*math.sin(2*math.pi*t/d)]
+        s = [1+.5*k, 1-k, 1+.5*k]; lift = c['bounce_ratio']*height*q
+        shift = [0., -c['hop_shift']*height*q]
     elif action == 'bow':
         if t < .45: a = smooth(t/.45)
         elif t < .65: a = 1.
         else: a = 1-smooth((t-.65)/.55)
-        r[0] = c['bow']*a; k = c['squash']*a; s = [1+.5*k, 1-k, 1+.5*k]
+        r[0] = c['bow']*a; k = c['squash']*a; s = [1+.5*k, 1-k, 1+.5*k]; shift[1] = -c['push']*height*a
+    elif action == 'shy':
+        # Face turned away with a small sway; once per cycle it peeks back and turns away again.
+        ph = 2*math.pi*t/d; peek = max(0., math.sin(ph))**2
+        r = [-1.5-2*peek, c['turn']*(1-.6*peek), c['sway']*math.sin(ph)]
+        s = [1+.025*(1-peek), 1-.04*(1-peek), 1+.025*(1-peek)]; shift[0] = c['shift']*height*math.sin(ph)
+    elif action == 'doze_off':
+        # Starts upright and ends in the exact sleep pose (height, slump, tilt) so the sleep clip takes over unseen.
+        p = smooth(t/d); h = lerp(1., c['height'], p)
+        nod = keyed(t, [(0, 0), (.6, 0), (1., -5), (1.25, -1.5), (1.9, -1.5), (2.3, -6), (2.55, -2.5), (3.2, -2.5), (3.7, c['slump']-.5), (d, c['slump'])])
+        dip = bump((t-.75)/.7)+bump((t-2.05)/.7)
+        wide = 1+(1-h)*.6
+        s = [wide, h-.012*dip, wide]; r = [nod, 0., c['tilt']*p+1.2*math.sin(2*math.pi*t/1.5)*(1-p)]
+        shift[0] = .004*height*math.sin(2*math.pi*t/1.5)*(1-p)
+    elif action == 'struggle':
+        ph = 2*math.pi*c['wiggle_hz']*t
+        r = [-1., c['yaw']*math.sin(ph), c['roll']*math.sin(ph+1.2)]
+        sq = math.sin(2*ph+.5); s = [1+.04*sq, 1-.06*sq, 1+.04*sq]
+        q = bump((t % (d/2))/(d/2)); lift = c['hop_ratio']*height*q; shift[0] = c['shift']*height*math.sin(ph+.4)
+    elif action == 'basket_in':
+        s, lift, e = hop(t, 0, .3, .6, .8, height*c['hop_ratio'])
+        shift[1] = -c['reach']*height*smooth((t-.3)/.3); r[0] = c['lean']*e
+    elif action == 'basket_out':
+        s, lift, e = hop(t, 0, .12, .45, .75, height*c['hop_ratio'])
+        shift[1] = -c['reach']*height*bump(t/.6); r[0] = c['lean']*e
+        r[1] = keyed(t, [(0, 0), (.75, 0), (1.0, -c['look']), (1.3, c['look']), (1.55, 0), (d, 0)])
+    elif action == 'ignore':
+        r = [c['chin_up']*smooth((t-.2)/.4)*(1-smooth((t-1.2)/.4)), keyed(t, [(0, 0), (.45, c['turn']), (1.1, c['turn']), (d, c['turn']*c['return'])]), 0.]
+        up = smooth((t-.2)/.4)*(1-smooth((t-1.2)/.4)); s = [1-.01*up, 1+.025*up, 1-.01*up]
+    elif action == 'restrain':
+        # Holding back: compressed and tense, a fine shiver, a small lean back and a glance away.
+        shiver = math.sin(2*math.pi*c['shiver_hz']*t); glance = .5-.5*math.cos(2*math.pi*t/d)
+        s = [1+.5*c['squash'], 1-c['squash'], 1+.5*c['squash']]; r = [c['lean_back'], -c['glance']*glance, 1.0*shiver]
+        shift[0] = c['shiver_ratio']*height*shiver
     elif action == 'hat_brim':
         r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
         s[1] = 1.025  # upright, but no idle floating above the supporting brim
@@ -570,7 +611,7 @@ def export_distress_clips(include_pet=False):
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet else None
     names=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure')
     if include_pet:
-        names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow')
+        names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     for ident,revision in payload['models'].items():
@@ -597,7 +638,7 @@ def export_distress_clips(include_pet=False):
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    payload['revision']='pet-shop-childhood-water-20261017-v18' if include_pet else 'water-distress-20261017-v17'
+    payload['revision']='pet-shop-childhood-water-20261017-v19' if include_pet else 'water-distress-20261017-v17'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource)):

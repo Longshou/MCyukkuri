@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -2511,10 +2511,11 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "tilt": 22,
-      "turn": 4,
-      "look_up": 8,
-      "squash": 0.03,
+      "tilt": 6,
+      "turn": 8,
+      "look_up": 3.5,
+      "squash": 0.04,
+      "sway": 0.012,
       "faces": [
         [
           0,
@@ -2532,7 +2533,7 @@
           "neutral"
         ]
       ],
-      "lore": "Project design for exam thinking: slow side-to-side head tilt, slight squash, eyes up.",
+      "lore": "Project design for exam thinking: slow side-to-side tilt of at most 6 degrees, a small yaw and sideways sway, slight squash, eyes up (face does the looking up, body pitch stays about 3.5 degrees).",
       "triggers": [
         "pet exam: considering an answer"
       ]
@@ -2582,9 +2583,9 @@
       "duration": 2.0,
       "loop": false,
       "applies": "all",
-      "lean_back": 14,
-      "stretch": 0.06,
-      "chin_up": 4,
+      "lean_back": 5,
+      "stretch": 0.09,
+      "chin_up": 2,
       "faces": [
         [
           0,
@@ -2602,7 +2603,7 @@
           "smug"
         ]
       ],
-      "lore": "Project design of the ehhen (えっへん) pose: lean back, puff the chest, hold, settle (Marisa smug face, M02/EH25 style).",
+      "lore": "Project design of the ehhen (えっへん) pose: the pride is a vertical stretch of the round body with only 5-7 degrees of lean back, hold, settle with a small overshoot (Marisa smug face, M02/EH25 style).",
       "triggers": [
         "badge earned or praised"
       ]
@@ -2614,7 +2615,7 @@
       "applies": "all",
       "hop_ratio": 0.3,
       "second_hop_ratio": 0.36,
-      "look_up": 8,
+      "look_up": 4.5,
       "faces": [
         [
           0,
@@ -2632,7 +2633,7 @@
           "open_smile"
         ]
       ],
-      "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash (cf. shiawase hop, EH25 delight).",
+      "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash; the body only tips about 4.5 degrees in the air (cf. shiawase hop, EH25 delight).",
       "triggers": [
         "exam passed"
       ]
@@ -2675,12 +2676,16 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "lean": -55,
-      "wiggle": 3,
-      "yaw": 10,
-      "roll": 8,
+      "lean": -9,
+      "wiggle": 1,
+      "yaw": 6,
+      "roll": 2,
       "wiggle_hz": 2,
-      "height": 0.97,
+      "width": 1.1,
+      "height": 0.86,
+      "depth": 0.9,
+      "push": 0.07,
+      "sway": 0.01,
       "faces": [
         [
           0,
@@ -2688,7 +2693,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design of the head-hidden gag: face pressed to the ground, rear raised, tiny wiggle (the closed-eyes smile reads as squeezed eyes).",
+      "lore": "Project design of the head-hidden gag: crouched low with the front pushed into the box (forward shift, shorter in depth, wider), a gentle nose-down pitch of about 9 degrees so the rear reads as raised, wiggling by yaw of 6 degrees, roll of 2 degrees and a small push-in pulse. The closed-eyes smile reads as squeezed eyes. Total pitch and roll stay under 12 degrees.",
       "triggers": [
         "exam: hiding from the question or failure"
       ]
@@ -2698,33 +2703,36 @@
       "duration": 1.4,
       "loop": true,
       "applies": "all",
-      "lean": -16,
-      "lean_bounce": -6,
-      "bounce_ratio": 0.045,
+      "lean": -5,
+      "lean_bounce": -2,
+      "bounce_ratio": 0.03,
       "bounce_seconds": 0.7,
+      "crouch": 0.1,
+      "sway": 1.5,
+      "hop_shift": 0.04,
       "faces": [
         [
           0,
           0.35,
-          "open_smile"
+          "teary"
         ],
         [
           0.35,
           0.7,
-          "happy"
+          "open_smile"
         ],
         [
           0.7,
           1.05,
-          "open_smile"
+          "teary"
         ],
         [
           1.05,
           1.4,
-          "happy"
+          "open_smile"
         ]
       ],
-      "lore": "Project design: eager forward lean with little bounces toward the target (cf. tremble begging in special-events).",
+      "lore": "Project design of the eyes-up ground-hugging plea (贴地抬眼): body low, wide and flat, pleading eyes from the face, and each bounce a tiny forward hop with a rise of the squash. Total pitch stays within 7 degrees (cf. tremble begging in special-events).",
       "triggers": [
         "shop appeal, wild role begging"
       ]
@@ -2734,8 +2742,9 @@
       "duration": 1.2,
       "loop": false,
       "applies": "all",
-      "bow": -25,
-      "squash": 0.03,
+      "bow": -12,
+      "squash": 0.07,
+      "push": 0.02,
       "faces": [
         [
           0,
@@ -2748,9 +2757,209 @@
           "happy"
         ]
       ],
-      "lore": "Project design: polite forward bow of about 25 degrees and back up (cf. greet nod).",
+      "lore": "Project design: polite forward bow of about 12 degrees with a squash and a small forward shift, and back up (cf. greet nod).",
       "triggers": [
         "greeting the examiner, farewell"
+      ]
+    },
+    "shy": {
+      "label": "害羞",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "all",
+      "turn": -24,
+      "sway": 3,
+      "shift": 0.012,
+      "faces": [
+        [
+          0,
+          0.9,
+          "closed_smile"
+        ],
+        [
+          0.9,
+          1.4,
+          "open_smile"
+        ],
+        [
+          1.4,
+          2.0,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design: the face turns about 24 degrees away with a slight squash and a small side sway, and peeks back once per cycle; pitch stays under 4 degrees.",
+      "triggers": [
+        "matchmaking meeting, breeding permit granted, wild request"
+      ]
+    },
+    "doze_off": {
+      "label": "迷糊瘫软",
+      "duration": 4.5,
+      "loop": false,
+      "applies": "all",
+      "height": 0.94,
+      "slump": -3,
+      "tilt": 4,
+      "faces": [
+        [
+          0,
+          0.6,
+          "neutral"
+        ],
+        [
+          0.6,
+          1.5,
+          "sleepy"
+        ],
+        [
+          1.5,
+          1.9,
+          "neutral"
+        ],
+        [
+          1.9,
+          3.0,
+          "sleepy"
+        ],
+        [
+          3.0,
+          3.4,
+          "neutral"
+        ],
+        [
+          3.4,
+          64.5,
+          "sleep"
+        ]
+      ],
+      "lore": "Project design: heavy eyelids, three small nods of at most 6 degrees, slowly sinking and flattening; it ends exactly in the sleep pose (height 0.94, slump -3, tilt 4) so the sleep clip continues without a pop.",
+      "triggers": [
+        "Ramune spray taking effect (90 ticks before sleep)"
+      ]
+    },
+    "struggle": {
+      "label": "挣扎抗拒",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "yaw": 15,
+      "roll": 4,
+      "wiggle_hz": 4,
+      "hop_ratio": 0.03,
+      "shift": 0.012,
+      "faces": [
+        [
+          0,
+          0.5,
+          "angry"
+        ],
+        [
+          0.5,
+          1.0,
+          "puff"
+        ]
+      ],
+      "lore": "Project design: fast yaw wiggles of 15 degrees with squash and stretch and tiny hops, roll under 5 degrees; refusing, not falling over.",
+      "triggers": [
+        "refusing to enter the transport basket"
+      ]
+    },
+    "basket_in": {
+      "label": "钻进篮子",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "all",
+      "hop_ratio": 0.14,
+      "reach": 0.22,
+      "lean": -5,
+      "faces": [
+        [
+          0,
+          0.3,
+          "closed_smile"
+        ],
+        [
+          0.3,
+          60.8,
+          "open_smile"
+        ]
+      ],
+      "lore": "Project design: crouch, then a small forward hop with squash into the basket (the server hides the entity afterwards); pitch about 5 degrees in the air.",
+      "triggers": [
+        "entering the transport basket willingly"
+      ]
+    },
+    "basket_out": {
+      "label": "出篮张望",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "hop_ratio": 0.12,
+      "reach": 0.05,
+      "lean": -4,
+      "look": 25,
+      "faces": [
+        [
+          0,
+          0.7,
+          "surprise"
+        ],
+        [
+          0.7,
+          61.6,
+          "open_smile"
+        ]
+      ],
+      "lore": "Project design: a small hop out, a settling squash, then a look left and right (yaw 25 degrees) with surprise turning to a smile.",
+      "triggers": [
+        "released from the transport basket"
+      ]
+    },
+    "ignore": {
+      "label": "不理会",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "turn": -52,
+      "chin_up": 3,
+      "return": 0.4,
+      "faces": [
+        [
+          0,
+          61.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design: calmly turns the whole body about 50 degrees away with eyes closed and the chin up at most 3 degrees, holds, then turns back partway.",
+      "triggers": [
+        "calmly ignoring a wild yukkuri's begging or provocation"
+      ]
+    },
+    "restrain": {
+      "label": "忍住",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "squash": 0.05,
+      "lean_back": 3,
+      "glance": 18,
+      "shiver_hz": 10,
+      "shiver_ratio": 0.006,
+      "faces": [
+        [
+          0,
+          1.0,
+          "angry"
+        ],
+        [
+          1.0,
+          1.6,
+          "confused"
+        ]
+      ],
+      "lore": "Project design: a tense, slightly compressed body with a fine shiver and a lean back of only 3 degrees, glancing away; the predator holds itself back from a protected yukkuri.",
+      "triggers": [
+        "well-behaved predator restraining itself from a protected yukkuri"
       ]
     }
   },
@@ -2817,6 +3026,13 @@
     "sulk",
     "hide_face",
     "beg",
-    "bow"
+    "bow",
+    "shy",
+    "doze_off",
+    "struggle",
+    "basket_in",
+    "basket_out",
+    "ignore",
+    "restrain"
   ]
 }

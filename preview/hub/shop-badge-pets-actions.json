@@ -5,8 +5,15 @@
     {"id":"proud","title":"得意 · 抬头挺身","model":"reimu","action":"proud","duration":2,"still":0.5,"flattenStill":true},
     {"id":"joy-jump","title":"合格 · 开心跳起","model":"marisa","action":"joy_jump","duration":1.6,"still":0.4,"flattenStill":true},
     {"id":"sulk","title":"不合格 · 缩身低落","model":"reimu","action":"sulk","duration":2.4,"still":0.5,"flattenStill":true},
-    {"id":"hide-face","title":"躲猫猫 · 遮住脸","model":"marisa","action":"hide_face","duration":2,"still":0.5,"flattenStill":true},
+    {"id":"hide-face","title":"躲猫猫 · 蹲低埋头","model":"marisa","action":"hide_face","duration":2,"still":0.5,"flattenStill":true},
     {"id":"beg","title":"求买与乞讨 · 贴地抬眼","model":"reimu","action":"beg","duration":1.4,"still":0.5,"flattenStill":true},
-    {"id":"bow","title":"礼貌 · 鞠躬","model":"marisa","action":"bow","duration":1.2,"still":0.5,"flattenStill":true}
+    {"id":"bow","title":"礼貌 · 小幅鞠躬","model":"marisa","action":"bow","duration":1.2,"still":0.5,"flattenStill":true},
+    {"id":"shy","title":"害羞 · 转开脸偷看","model":"reimu","action":"shy","duration":2,"still":0.4,"flattenStill":true},
+    {"id":"doze-off","title":"迷糊瘫软 · 眼皮打架","model":"marisa","action":"doze_off","duration":4.5,"still":0.5,"flattenStill":true},
+    {"id":"struggle","title":"挣扎抗拒 · 扭动","model":"reimu","action":"struggle","duration":1,"still":0.3,"flattenStill":true},
+    {"id":"basket-in","title":"钻进篮子 · 前跳","model":"marisa","action":"basket_in","duration":0.8,"still":0.6,"flattenStill":true},
+    {"id":"basket-out","title":"出篮张望 · 左右看","model":"reimu","action":"basket_out","duration":1.6,"still":0.65,"flattenStill":true},
+    {"id":"ignore","title":"不理会 · 冷静转身","model":"marisa","action":"ignore","duration":1.6,"still":0.5,"flattenStill":true},
+    {"id":"restrain","title":"忍住 · 绷紧","model":"remilia","action":"restrain","duration":1.6,"still":0.5,"flattenStill":true}
   ]
 }
