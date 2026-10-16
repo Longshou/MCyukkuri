@@ -18,7 +18,7 @@
 
 灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑；`preview_reimu_deficient.py` 生成当前四视图和动作检查，页面检查用 `node scripts/verify_marisa_deficient_browser.cjs reimu`。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
 
-人工试玩当前使用[动作博物馆](../docs/EXPERIMENTAL_MAP.md)：`build_showcase_map.py` 读取种子 `level.dat`、注册动作与运行模型，在 `.local/experimental-map/` 新建44×32格、六展台世界的数据包和元数据；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。`launch_showcase_map.ps1` 读取本机 `showcase-runtime.json`，启动已有 CI 运行产物，不重新构建。根目录 `启动动作博物馆.cmd` 和 `启动实验地图.cmd` 均可进入；旧16区生成器及原有存档保留，新生成器拒绝覆盖既有输出目录。
+人工试玩当前使用[油库里展馆](../docs/EXPERIMENTAL_MAP.md)：`build_museum_full.py` 读取种子 `level.dat`、注册动作、运行模型与对白目录，在 `.local/experimental-map/` 新建五厅、27 个展台世界的数据包和元数据；展台与场景数据在 `museum_scenes.py`（水上救援场景单独放在 `museum_aquatic_rescue.py`），场景词汇在 `museum_dsl.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。`launch_showcase_map.ps1` 读取本机运行配置，启动已有 CI 运行产物，不重新构建。根目录 `启动动作博物馆.cmd` 和 `启动实验地图.cmd` 均可进入；`build_showcase_map.py` 是独立的生态“生活馆”生成器，旧16区生成器及原有存档保留，新生成器拒绝覆盖既有输出目录。
 
 生育资格修正复用消耗品测试中的 `fertilityRules`，消耗品、成长与联合运行器均收集 `fertility-checks`。联合运行器当前要求 43 项 GameTest 及完整报告，已加入遗体与铲子安葬检查。徽章专项运行器同时核对原有报告与 `badge-timing-checks`，报告缺失即失败。
 
