@@ -20,7 +20,7 @@ public final class PropModels {
     private static Map<String, Model> models = Map.of();
     private static void reload(ResourceManager resources) {
         Map<String, Model> loaded = new HashMap<>();
-        for(String catalog:java.util.List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index","predators-index","subspecies-index","rounded-index","family-index"))
+        for(String catalog:java.util.List.of("index","operations-index","shelters-index","facilities-index","playgrounds-index","consumables-index","predators-index","subspecies-index","rounded-index","family-index","house-ecology-index"))
         try (var index = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/"+catalog+".json")).openAsReader()) {
             for (var name : JsonParser.parseReader(index).getAsJsonObject().keySet()) {
                 try (var reader = resources.getResourceOrThrow(MCYukkuri.id("yukkuri_props/" + name + ".json")).openAsReader()) {

@@ -292,6 +292,12 @@ public final class YukkuriModel {
             if (root.get("format").getAsInt() == 1) placementFits = root.getAsJsonObject("models");
             else { placementFits = new JsonObject(); org.slf4j.LoggerFactory.getLogger(YukkuriModel.class).warn("Placement fit ignored: unsupported format {}", root.get("format")); }
         } catch (IOException error) { throw new UncheckedIOException("Cannot load placement fit", error); }
+        JsonObject houseEcology;
+        try (var reader = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/house_ecology.json")).openAsReader()) {
+            var data=JsonParser.parseReader(reader).getAsJsonObject();
+            if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported house ecology motions");
+            houseEcology=data.getAsJsonObject("models");
+        } catch(IOException error) { throw new UncheckedIOException("Cannot load house ecology motions",error); }
         var assetIds = new ArrayList<String>();
         for (YukkuriVariant variant : YukkuriVariant.values()) assetIds.add(variant.assetId());
         assetIds.addAll(io.github.longshou.mcyukkuri.subspecies.SubspeciesAssets.MODELS);
@@ -305,6 +311,8 @@ public final class YukkuriModel {
                 if (fit != null) applyFit(id,data,fit,hash);
                 JsonObject revision = motionRevisions.getAsJsonObject(id);
                 if (revision != null) applyRevision(id,data,revision);
+                JsonObject houseRevision=houseEcology.getAsJsonObject(id);
+                if(houseRevision!=null)applyRevision(id,data,houseRevision);
                 // Hash still identifies unchanged base geometry for wounds and badges.
                 loaded.put(id, new YukkuriModel(data,hash));
             } catch (IOException error) {
@@ -570,6 +578,10 @@ public final class YukkuriModel {
             if(behavior.equals("house_pickup")||behavior.equals("house_deposit")||behavior.equals("house_carry"))selected=behavior;
             else if(behavior.equals("house_crawl"))selected="house_crawl";
         }
+        // House work has an authored, synchronized pause before the next crawl.
+        // A moving body keeps its locomotion; these clips never move the real entity.
+        if(gripBones!=null&&!action.equals("waddle")&&behavior.startsWith("house_")&&clips.containsKey(behavior))selected=behavior;
+        if(gripBones!=null&&(behavior.equals("house_sleep")||behavior.equals("house_hide"))&&action.equals("idle"))selected="sleep";
         // Ecology state is more specific than the shared base action: care must never collapse
         // into ordinary nuzzling, and early learning keeps its low crawl/short-hop rig.
         if (behavior.equals("feed_child") || behavior.equals("first_toilet_assist")

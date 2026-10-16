@@ -171,7 +171,12 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood() { return readyForFood(); }
     public boolean canReceiveCareFood(ItemStack food) { return canReceiveCareFood() && acceptsFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
-    public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620; }
+    public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620 || entity.house().sleeping(); }
+    /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
+    public void restInHouse() {
+        if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && mealTicks == 0) energy = Math.min(100, energy + .5f);
+    }
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
     public void restInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
         if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
@@ -207,6 +212,7 @@ public final class YukkuriLife {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private int restThreshold() { return entity.family().needsMash() ? 65 : 35; }
     private int restInterval() { return entity.family().needsMash() ? 200 : 1200; }
+    private boolean restTime() { return entity.getVariant().isHouse() ? !level().isNight() : level().isNight(); }
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
@@ -415,6 +421,12 @@ public final class YukkuriLife {
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
+        if (entity.getVariant().isHouse()) {
+            if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
+            // A stocked nest, daytime shelter and actual egg care outrank casual food searching.
+            // An executable urgent thirst/toilet/thermal route above still interrupts the house goal.
+            if (entity.house().preferRoutine()) return false;
+        }
         if (canEat() && entity.wintering().stockedHome() != null) {
             if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
             // Activate pending care before this new food route could monopolize the higher-priority life goal.
@@ -432,7 +444,8 @@ public final class YukkuriLife {
         }
         if (bladder < 70 && planToilet()) return true;
         if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
-        if (restWait == 0 && (energy <= restThreshold() || level().isNight())) {
+        if (restWait == 0 && (energy <= restThreshold() || restTime())
+                && (!entity.getVariant().isHouse() || entity.house().homeStand() == null || energy <= 10)) {
             targetBlock = homeStand();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
@@ -485,7 +498,7 @@ public final class YukkuriLife {
         switch (task) {
             case TEMPERATURE -> {
                 if (!temperature.tickGoal()) stopGoal();
-                else if (restWait == 0 && (energy <= restThreshold() || level().isNight()) && temperature.beginSleepAtRefuge()) {
+                else if (restWait == 0 && (energy <= restThreshold() || restTime()) && temperature.beginSleepAtRefuge()) {
                     task = Task.SLEEP; sleepTicks = 0; targetBlock = null;
                 }
             }
@@ -506,7 +519,7 @@ public final class YukkuriLife {
                 if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 240 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) < .16 && restable(entity.blockPosition())) {
                     entity.getNavigation().stop();
-                    if (restWait == 0 && (energy <= restThreshold() || level().isNight())) { task = Task.SLEEP; sleepTicks = 0; }
+                    if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; sleepTicks = 0; }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks % 10 == 1 && !navigate(targetBlock, 1.15, false)) stopGoal();
@@ -551,7 +564,8 @@ public final class YukkuriLife {
                 if(drugSleep>0){drugSleep--;sleepTicks=Math.min(sleepTicks,600);}
                 if (sleepTicks == 20) entity.speak("sleep");
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
-                if (drugSleep==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15)) sleepTicks = Math.max(sleepTicks, 620);
+                if (drugSleep==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15
+                        || entity.getVariant().isHouse() && !restTime() && energy >= 70)) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
                     entity.badges().routineCompleted(2);
                     temperature.stop();
@@ -688,6 +702,7 @@ public final class YukkuriLife {
         return null;
     }
     private void maintainHome() {
+        if (entity.getVariant().isHouse() && entity.house().homeStand() != null) return;
         if(entity.habitat().hasMemory()) {
             if(entity.habitat().unavailable()||entity.habitat().homeStand()!=null)return;
             entity.habitat().release();

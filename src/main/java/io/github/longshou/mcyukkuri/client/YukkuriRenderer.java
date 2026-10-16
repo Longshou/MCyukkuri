@@ -146,6 +146,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     pose.scale(portionScale,portionScale,portionScale);
                     PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
+                String houseProp=grip==null?null:HouseScrapRenderer.smallProp(held);
+                if(houseProp!=null){
+                    // Bypass inventory display scaling: the same real lint/egg keeps its size
+                    // from the floor to the authored hair grip and back into the nest.
+                    float scale=HouseScrapRenderer.smallScale(houseProp);pose.scale(scale,scale,scale);
+                    PropModels.center(houseProp,pose,false);
+                    PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
+                }
                 if(heldIndex==1&&(behavior.startsWith("nest_")||behavior.startsWith("independence_")||behavior.equals("shelter_carry"))
                         &&(held.is(net.minecraft.tags.ItemTags.LEAVES)||held.is(net.minecraft.world.item.Items.SHORT_GRASS)||held.is(net.minecraft.world.item.Items.WHEAT))){
                     PropModels.render("bedding_bundle",0,pose,buffers,packedLight,overlay);pose.popPose();continue;

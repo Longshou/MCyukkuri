@@ -15,6 +15,10 @@ public final class EcologyPresentation {
             case "meal_finish" -> YukkuriAction.SHIAWASE;
             case "drink" -> YukkuriAction.DRINK;
             case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
+            case "house_sleep", "house_hide" -> YukkuriAction.SLEEP;
+            case "house_peek", "house_search_home" -> YukkuriAction.LOOK_AROUND;
+            case "house_tend", "house_listen" -> YukkuriAction.IDLE;
+            case "house_startled" -> YukkuriAction.STARTLE;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
             case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> YukkuriAction.BRACE;
@@ -115,6 +119,15 @@ public final class EcologyPresentation {
             case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
             case "unun_exercise" -> "happy";
             case "sleep_enter" -> "sleepy";
+            case "house_sleep" -> "sleep";
+            case "house_hide" -> e.getDeltaMovement().horizontalDistanceSqr()>.0001?"neutral":"sleepy";
+            case "house_peek" -> "neutral";
+            case "house_search_home" -> "teary";
+            case "house_startled" -> "surprise";
+            case "house_tend" -> "closed_smile";
+            case "house_listen" -> "happy";
+            case "house_pickup", "house_carry" -> "chewing_closed";
+            case "house_deposit" -> "satisfied";
             case "seek_warmth", "warm_up" -> "teary";
             case "seek_shade", "shade_rest" -> "sleepy";
             case "wake" -> "yawn";

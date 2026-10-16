@@ -11,6 +11,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 /** A food scrap is a ground-level crumb at the same size as a house lock grip. */
 public final class HouseScrapRenderer extends ItemEntityRenderer {
     static final float HELD_SCALE=.18f;
+    static String smallProp(net.minecraft.world.item.ItemStack item){
+        if(item.is(ModItems.NEST_LINT.get()))return "nest_lint";
+        if(!item.is(ModItems.HOUSE_EGG.get()))return null;
+        var data=item.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        return data.getInt("Progress")>88?"house_egg_cracked":"house_egg";
+    }
+    static float smallScale(String prop){return prop.equals("nest_lint")?.65f:1;}
     public HouseScrapRenderer(EntityRendererProvider.Context context){super(context);}
     @Override public void render(ItemEntity entity,float yaw,float partialTick,PoseStack pose,MultiBufferSource buffers,int light){
         if(io.github.longshou.mcyukkuri.life.Facilities.toy(entity.getItem())){
@@ -18,6 +25,13 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
             pose.pushPose();
             PropModels.center(name,pose,true);
             PropModels.render(name,Integer.MAX_VALUE,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+            pose.popPose();return;
+        }
+        String small=smallProp(entity.getItem());
+        if(small!=null){
+            pose.pushPose();float scale=smallScale(small);pose.scale(scale,scale,scale);
+            PropModels.center(small,pose,true);
+            PropModels.render(small,8,pose,buffers,light,OverlayTexture.NO_OVERLAY);
             pose.popPose();return;
         }
         if(!entity.getItem().is(ModItems.FOOD_SCRAP.get())){super.render(entity,yaw,partialTick,pose,buffers,light);return;}

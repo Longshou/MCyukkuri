@@ -8671,6 +8671,198 @@
         "id": "flandre.young.o_puff"
       },
       "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7"
+    },
+    {
+      "id": "reimu.adult.o_house_listen",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "たまごさんの なかで おとがするよ。",
+      "chinese": "卵里面有动静哟。",
+      "events": [
+        "house_listen"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_house_listen"
+      },
+      "source_sha256": "062832560061fafdc6756f49fff59e861f6a45d8564cb0eed96c57e7aac0ff50"
+    },
+    {
+      "id": "marisa.adult.o_house_listen",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ちいさいこが うごいているのぜ。",
+      "chinese": "小不点在里面动了惹。",
+      "events": [
+        "house_listen"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_house_listen"
+      },
+      "source_sha256": "972178011dddc74854a40d5279391fd9df030917d8e2080dda0a0f5ab382e1db"
+    },
+    {
+      "id": "reimu.adult.o_house_startled",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ！ おおきなおとだよ！ かくれるよ！",
+      "chinese": "呜！好大的声音！先躲起来哟！",
+      "events": [
+        "house_startled"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_house_startled"
+      },
+      "source_sha256": "aef459aa4ec700f36d69bb7d1cb33eb62dcd34b7bc8b63188bea269cb79c6ff7"
+    },
+    {
+      "id": "marisa.adult.o_house_startled",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "びっくりしたのぜ！ すきまに かくれるのぜ！",
+      "chinese": "吓了一跳惹！快躲到缝隙里惹！",
+      "events": [
+        "house_startled"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_house_startled"
+      },
+      "source_sha256": "b1594ceb7d96a66d274bccd3361367a39e8f4c1c9b7caddaaccb0dab54e66dd2"
+    },
+    {
+      "id": "reimu.adult.o_house_search_home",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おうちは どこ？ みんな ついてきてね。",
+      "chinese": "小窝在哪里？大家要跟上哟。",
+      "events": [
+        "house_search_home"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_house_search_home"
+      },
+      "source_sha256": "722097f4d4d7ec1be066d7f6137dc758245e4cea58c9633c421c8958523ba42e"
+    },
+    {
+      "id": "marisa.adult.o_house_search_home",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あんぜんな すきまを さがすのぜ。",
+      "chinese": "要找个安全的缝隙惹。",
+      "events": [
+        "house_search_home"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_house_search_home"
+      },
+      "source_sha256": "c3edff79e6a6b87ad59505e767d9160db38eee29c0bd5f8eda2c5a817178bdec"
+    },
+    {
+      "id": "reimu.adult.o_house_hatched",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ちいさいこ！ ゆっくり でてきてね。",
+      "chinese": "小不点，慢慢出来哟！",
+      "events": [
+        "house_hatched"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_house_hatched"
+      },
+      "source_sha256": "2c4814d50896dc29380da0a8038b54e857432b964f904be211640d2b03e6c5c6"
+    },
+    {
+      "id": "marisa.adult.o_house_hatched",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "でてきたのぜ！ ここが おうちなのぜ。",
+      "chinese": "出来了惹！这里就是小窝惹！",
+      "events": [
+        "house_hatched"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_house_hatched"
+      },
+      "source_sha256": "9b05e317b3ef630a57c804b4adb80b722c9fa429d64d613c923525f464243d7a"
+    },
+    {
+      "id": "reimu.young.o_house_startled",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっ！ おっきい おとしゃん！",
+      "chinese": "呜！好响响呀！",
+      "events": [
+        "house_startled"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_house_startled"
+      },
+      "source_sha256": "df356f9cef4f488fc7a6489f0651dfac97e4dfa5f00d01c010102f0076a14ffb"
+    },
+    {
+      "id": "marisa.young.o_house_startled",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいのじぇ！ かくれりゅのじぇ！",
+      "chinese": "怕怕惹杰！要躲起来惹杰！",
+      "events": [
+        "house_startled"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_house_startled"
+      },
+      "source_sha256": "156cc2106fad2a4189b85ba94dbb40fe518912842ea49678fce1518831f98409"
+    },
+    {
+      "id": "reimu.young.o_house_search_home",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おうちしゃんは どこ？",
+      "chinese": "窝窝在哪里呀？",
+      "events": [
+        "house_search_home"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_house_search_home"
+      },
+      "source_sha256": "623a2ab1dca3138b32e153860290d24b41b103a5516d99016801e4fd2afa46d4"
+    },
+    {
+      "id": "marisa.young.o_house_search_home",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おうちしゃん みちゅけりゅのじぇ。",
+      "chinese": "要找到窝窝惹杰。",
+      "events": [
+        "house_search_home"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_house_search_home"
+      },
+      "source_sha256": "7f16f9cf8434d536479e5d1269787a5b20f779ef83aeb7494525a6ca11e9cb35"
     }
   ]
 }

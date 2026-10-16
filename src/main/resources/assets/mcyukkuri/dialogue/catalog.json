@@ -6204,5 +6204,149 @@
     ],
     "ticks": 63,
     "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_house_listen",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_house_listen",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "house_listen"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_house_listen",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_house_listen",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "house_listen"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_house_startled",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_house_startled",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "house_startled"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_house_startled",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_house_startled",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "house_startled"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_house_search_home",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_house_search_home",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "house_search_home"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_house_search_home",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_house_search_home",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "house_search_home"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_house_hatched",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_house_hatched",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "house_hatched"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_house_hatched",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_house_hatched",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "house_hatched"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_house_startled",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_house_startled",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "house_startled"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_house_startled",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_house_startled",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "house_startled"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_house_search_home",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_house_search_home",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "house_search_home"
+    ],
+    "ticks": 59,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_house_search_home",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_house_search_home",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "house_search_home"
+    ],
+    "ticks": 83,
+    "sound": ""
   }
 ]
