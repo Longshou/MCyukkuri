@@ -133,7 +133,17 @@ public final class HumanNpc extends PathfinderMob {
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (job() == Job.FACTORY) production.tick();
+        if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
         if (job() == Job.KEEPER && tickCount % 20 == 0) io.github.longshou.mcyukkuri.shop.ShopKeeping.tick(this);
+    }
+    /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
+    private void revokeVoidBadges() {
+        for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6), v -> v.isAlive() && v.pet().voidBadge() && hasLineOfSight(v))) {
+            y.pet().revoke(); swing(InteractionHand.MAIN_HAND);
+            var near = level().getNearestPlayer(this, 16);
+            if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
+            return;
+        }
     }
     /** Staff refill nearby bowls from finite saved supplies, through their normal service aisle. */
     private void serviceFacilities() {

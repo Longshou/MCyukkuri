@@ -2169,5 +2169,11 @@
   "exam.mcyukkuri.ui.last": "前回：%s - %s",
   "exam.mcyukkuri.ui.last_scores": "点数 し %s / 学 %s / 知 %s / 応 %s",
   "exam.mcyukkuri.ui.fee": "エメラルド%s個",
-  "exam.mcyukkuri.ui.emeralds": "所持：エメラルド%s個"
+  "exam.mcyukkuri.ui.emeralds": "所持：エメラルド%s個",
+  "pet.mcyukkuri.neglect.notice": "%s はずっとあなたに会えていないようです。",
+  "pet.mcyukkuri.abandon.revoked": "%s のバッジは登録が無効のため外されました。",
+  "badge.mcyukkuri.profile.owner_line": "放置度：%s/100 · %s",
+  "badge.mcyukkuri.profile.owner_state.0": "世話されている",
+  "badge.mcyukkuri.profile.owner_state.1": "捨てられた",
+  "badge.mcyukkuri.profile.owner_state.2": "捨てられた（バッジ登録無効）"
 }

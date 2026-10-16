@@ -274,6 +274,7 @@ public final class WildEvents {
         if(old!=null)return false;
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());
         if(scene==null)return false;
+        e.pet().abandonedBy(player.getUUID());
         var owner=HumanCommerce.data(e).copy();owner.remove("Owner");owner.remove("Use");HumanCommerce.set(e,owner);
         e.life().releaseHome();e.social().stop();e.dailyLife().stop();e.setPersistenceRequired();
         data.phase(scene,Phase.WAITING);return true;
