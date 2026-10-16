@@ -49,6 +49,8 @@ public final class HouseLife {
     public boolean sleeping() { return active && phase == Phase.REST && sleepTicks >= 20 && physicallyInside(); }
     public boolean wantsCrawl() {
         return active && interaction == 0 && carrying.isEmpty() && (phase == Phase.ENTER || phase == Phase.LEAVE
+                || phase == Phase.APPROACH && nestPosition() != null
+                && entity.distanceToSqr(Vec3.atBottomCenterOf(nestPosition().north())) < 2.25
                 || target != null && target.isAlive() && entity.distanceToSqr(target) < .36);
     }
     private boolean physicallyInside() {
@@ -236,9 +238,12 @@ public final class HouseLife {
         Vec3 outside = Vec3.atBottomCenterOf(value.entrance());
         switch (phase) {
             case APPROACH -> {
-                if (entity.distanceToSqr(outside) > .09) {
-                    if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
-                } else phase(Phase.ENTER);
+                double distance = entity.distanceToSqr(outside);
+                // Block navigation accepts the entrance cell before a body is aligned with its narrow door.
+                // Finish on the open ground in front of the door before moving diagonally to a bed.
+                if (distance < .0025 && entity.onGround()) phase(Phase.ENTER);
+                else if (distance < 2.25) direct(outside, .65);
+                else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
             }
             case ENTER -> {
                 Vec3 inside = restingPlace(value);
