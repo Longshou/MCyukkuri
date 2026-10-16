@@ -108,7 +108,13 @@ public final class WinterGameTests {
             saved=parent[0].life().save();saved.putFloat("Dryness",0);saved.putFloat("Bladder",0);parent[0].life().load(saved);
         }).thenWaitUntil(()->helper.assertTrue(parent[0].life().mealTicks()==0,"Waiting for the ordinary chewing sequence to finish"))
         .thenExecute(()->{
+            // Eating is allowed within reach of the bed; optional staying requires the body itself to be warm.
+            place(helper,parent[0],home[0].bed(parent[0].getUUID()));
             vitals(parent[0],100);
+            for(int i=0;i<20;i++)parent[0].life().temperature().tick();
+            helper.assertTrue(!parent[0].life().temperature().unsafeSleep()
+                    &&parent[0].life().temperature().comfortableAt(parent[0].blockPosition()),
+                    "The staying fixture stands on actual dry bedding and has sampled its new warmth");
             var state=parent[0].life().save();state.putInt("HungerProgress",239);state.putInt("EnergyProgress",YukkuriConfig.ENERGY_INTERVAL.get()-1);parent[0].life().load(state);
             helper.assertTrue(parent[0].wintering().canUse(),"A fed, comfortable resident can choose a stocked warm nest");parent[0].wintering().start();
             parent[0].life().tick();

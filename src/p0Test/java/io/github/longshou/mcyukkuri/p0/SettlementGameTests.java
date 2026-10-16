@@ -82,6 +82,7 @@ public final class SettlementGameTests {
             var members = SettlementSpawner.spawn(level, ORIGIN, preset);
             boolean forest = preset == SettlementSpawner.Preset.FOREST || preset == SettlementSpawner.Preset.FOREST_LED;
             check(preset + " variable population", preset == SettlementSpawner.Preset.WANDERER ? members.size() == 1
+                    : preset == SettlementSpawner.Preset.BANDITS ? members.size() >= 3 && members.size() <= 4
                     : forest ? members.size() >= 12 && members.size() <= 85 : members.size() >= 2 && members.size() <= 7);
             if (members.isEmpty()) { clear(level); continue; }
             members.forEach(e -> e.setNoAi(true));
@@ -91,6 +92,23 @@ public final class SettlementGameTests {
             }
             var group = members.getFirst().settlement().group();
             check(preset + " shared durable group", group != null && members.stream().allMatch(e -> group.id.equals(e.settlement().groupId())));
+            if (preset == SettlementSpawner.Preset.BANDITS) {
+                var data = SettlementData.get(level);
+                check("BANDITS remain adult roaming members without homes or family records", group.kind == SettlementData.Kind.BANDITS && group.leader == null
+                        && members.stream().allMatch(e -> {
+                            var member = data.existingMember(group,e.getUUID());
+                            return e.family().adult() && e.life().home() == null && !e.life().naturalHome()
+                                    && e.family().mother() == null && e.family().father() == null && e.family().partner() == null
+                                    && FamilyData.get(level).person(e.getUUID()) == null && member != null && member.role == SettlementData.Role.MEMBER;
+                        }));
+                CompoundTag saved = new CompoundTag(); members.getFirst().saveWithoutId(saved);
+                var copy = ModEntities.forVariant(members.getFirst().getVariant()).create(level); copy.load(saved);
+                check("BANDITS entity NBT keeps group without a home", group.id.equals(copy.settlement().groupId()) && copy.life().home() == null);
+                var restored = SettlementData.load(data.save(new CompoundTag(), level.registryAccess()), level.registryAccess()).group(group.id);
+                check("world NBT keeps group kind center and leader", restored != null && restored.center.equals(group.center) && restored.kind == group.kind
+                        && java.util.Objects.equals(restored.leader,group.leader));
+                clear(level); continue;
+            }
             check(preset + " real covered reachable homes", members.stream().allMatch(e -> e.life().homeStand() != null && e.life().naturalHome()));
             var householdIds = new java.util.HashSet<String>();
             for (var adult : members.stream().filter(e -> e.family().adult() && !e.getUUID().equals(group.leader)).toList()) {
