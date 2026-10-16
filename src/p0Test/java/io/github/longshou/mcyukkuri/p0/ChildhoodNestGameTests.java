@@ -37,6 +37,7 @@ public final class ChildhoodNestGameTests {
         float rainLevel=level.getRainLevel(1),thunderLevel=level.getThunderLevel(1);
         var forced=new java.util.HashSet<>(level.getForcedChunks());
         var familyRecords=new java.util.HashSet<java.util.UUID>();
+        var terrain=new java.util.HashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
         ShelterBlockEntity[] home={null};
         YukkuriEntity[] parent={null},child={null};
         ItemEntity[] leaf={null};BlockPos[] grass={null};
@@ -47,6 +48,7 @@ public final class ChildhoodNestGameTests {
             if(home[0]!=null&&home[0]!=current)home[0].rollback();
             level.getEntitiesOfClass(Entity.class,new AABB(ORIGIN).inflate(20),
                     entity->entity instanceof YukkuriEntity||entity instanceof ItemEntity).forEach(Entity::discard);
+            terrain.forEach(level::setBlockAndUpdate);
             level.setDayTime(day);
             level.setWeatherParameters(12000,12000,rain,thunder);level.setRainLevel(rainLevel);level.setThunderLevel(thunderLevel);
             level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(daylight,level.getServer());
@@ -67,6 +69,12 @@ public final class ChildhoodNestGameTests {
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,171,173,-1,1)).thenExecute(()->{
             level.getEntitiesOfClass(Entity.class,new AABB(ORIGIN).inflate(20),
                     entity->entity instanceof YukkuriEntity||entity instanceof ItemEntity).forEach(Entity::discard);
+            // The nine-cell pit helper excavates existing ground; its surrounding earth provides the banks.
+            for(var pos:BlockPos.betweenClosed(ORIGIN.offset(-5,-2,-6),ORIGIN.offset(5,4,4))) {
+                terrain.put(pos.immutable(),level.getBlockState(pos));
+                if(pos.getY()==64)level.setBlockAndUpdate(pos,Blocks.GRASS_BLOCK.defaultBlockState());
+                else if(pos.getY()>64)level.setBlockAndUpdate(pos,Blocks.AIR.defaultBlockState());
+            }
             NaturalShelterFixture.pit(level,ORIGIN.below());
             var placed=ShelterPlacement.place(level,new ShelterPlacement.Plan(ORIGIN.below(),ShelterBlock.Kind.BURROW,Direction.SOUTH));
             helper.assertTrue(placed!=null,"A surveyed natural pit is available for the shared childhood nest");

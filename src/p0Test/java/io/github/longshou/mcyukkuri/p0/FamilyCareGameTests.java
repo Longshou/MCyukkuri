@@ -94,6 +94,8 @@ public final class FamilyCareGameTests {
             FamilyData.get(level).register(directParent);FamilyData.get(level).register(hungriest);FamilyData.get(level).register(sibling);
             var directStem=new ItemEntity(level,directParent.getX(),directParent.getY(),directParent.getZ(),new ItemStack(ModItems.YUKKURI_STEM.get(),2));directStem.setNoPickUpDelay();
             helper.assertTrue(level.addFreshEntity(directStem),"physical stem source inserts");items.add(directStem);
+            // Family load restores the normal forty-tick decision cooldown before a new task can start.
+            for(int i=0;i<40;i++)directParent.family().tick();
             helper.assertTrue(directParent.family().canUse(),"safe parent begins care for a reachable hungry child");directParent.family().tickGoal();
             helper.assertTrue(directParent.family().carrying().is(ModItems.YUKKURI_STEM.get())&&directParent.family().carrying().getCount()==1&&directStem.getItem().getCount()==1,
                     "caregiver picks exactly one real stem portion");
