@@ -37,7 +37,7 @@ public final class WinterGameTests {
     @GameTest(templateNamespace=P0Mod.ID, template="empty", timeoutTicks=1600, batch="winter")
     public static void realHomeAndFiniteMeals(GameTestHelper helper) {
         var level=helper.getLevel();var server=level.getServer();
-        var blocks=new HashMap<BlockPos,BlockState>();var actors=new ArrayList<YukkuriEntity>();
+        var blocks=new HashMap<BlockPos,BlockState>();var beforeBiomes=new HashMap<BlockPos,String>();var actors=new ArrayList<YukkuriEntity>();
         var forced=new HashSet<>(level.getForcedChunks());
         long time=level.getDayTime();boolean daylight=level.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT);
         boolean rain=level.isRaining(),thunder=level.isThundering();float rainLevel=level.getRainLevel(1),thunderLevel=level.getThunderLevel(1);
@@ -50,6 +50,7 @@ public final class WinterGameTests {
             actors.forEach(YukkuriEntity::discard);if(home[0]!=null)home[0].rollback();
             level.getEntitiesOfClass(ItemEntity.class,new AABB(ROOT).inflate(12)).forEach(ItemEntity::discard);
             blocks.forEach(level::setBlockAndUpdate);
+            beforeBiomes.forEach((cell,id)->fillBiome(level,cell,cell.offset(3,3,3),id));
             level.setDayTime(time);level.updateSkyBrightness();level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(daylight,server);
             level.setWeatherParameters(12000,12000,rain,thunder);level.setRainLevel(rainLevel);level.setThunderLevel(thunderLevel);
             server.overworld().getDataStorage().set(SeasonData.DATA_NAME,SeasonData.load(calendar,level.registryAccess()));
@@ -107,7 +108,69 @@ public final class WinterGameTests {
             helper.assertTrue(parent[0].wintering().canUse(),"Warm fed resident resumes optional staying after priority regression checks");parent[0].wintering().start();
             exitsAndCare(helper,parent[0],home[0],actors);
             localYield(helper,parent[0],home[0],actors);
-        }).thenExecute(cleanup).thenSucceed();
+        }).thenWaitUntil(()->helper.assertTrue(parent[0].life().mealTicks()==0,"Prior real meal finishes before rainy-home checks"))
+        .thenExecute(()->{
+            actors.stream().filter(a->a!=parent[0]).forEach(YukkuriEntity::discard);
+            // Cover every neighboring quart cell BiomeManager can select for the cave, path and roof.
+            var registry=level.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BIOME);
+            for(int x=3120;x<=3136;x+=4)for(int y=60;y<=68;y+=4)for(int z=0;z<=16;z+=4) {
+                var cell=new BlockPos(x,y,z);
+                beforeBiomes.put(cell,registry.getKey(level.getChunkAt(cell).getNoiseBiome(x>>2,y>>2,z>>2).value()).toString());
+            }
+            fillBiome(level,new BlockPos(3120,60,0),new BlockPos(3139,71,19),"minecraft:plains");
+            level.setWeatherParameters(0,12000,true,false);level.setRainLevel(1);level.setThunderLevel(0);
+            YukkuriConfig.WINTER_TEMPERATURE.set(-.2);
+            parent[0].life().stopGoal();parent[0].wintering().stop();parent[0].family().stop();
+            place(helper,parent[0],ROOT.south(4));vitals(parent[0],100);
+            helper.assertTrue(level.isRainingAt(parent[0].blockPosition())&&!parent[0].life().covered(parent[0].blockPosition()),"The grounded departure position receives actual local rain");
+            helper.assertTrue(parent[0].life().temperature().comfortableAt(home[0].bed(parent[0].getUUID())),"Rain regression uses a physically covered comfortable home");
+            helper.assertTrue(parent[0].life().plan()&&parent[0].life().activity().equals("return_home"),"An exposed awake resident starts the real rain-home route");
+        }).thenWaitUntil(()->{
+            var actor=parent[0];
+            helper.assertTrue(actor.distanceToSqr(Vec3.atBottomCenterOf(home[0].bed(actor.getUUID())))<.16,"Normal server navigation actually reaches the own bed from rain");
+            helper.assertTrue(!actor.life().activity().equals("return_home")&&!actor.life().isSleeping(),"Awake arrival releases HOME rather than resetting its pursuit forever");
+            helper.assertTrue(level.isRainingAt(level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,actor.blockPosition()))
+                    &&actor.life().covered(actor.blockPosition())&&!level.isRainingAt(actor.blockPosition()),"Rain still falls above a real roof when HOME releases");
+        }).thenExecute(()->rainHomeNeeds(helper,parent[0],home[0],actors)).thenExecute(cleanup).thenSucceed();
+    }
+    private static void rainHomeNeeds(GameTestHelper h,YukkuriEntity actor,ShelterBlockEntity home,List<YukkuriEntity> actors) {
+        var level=h.getLevel();vitals(actor,100);
+        h.assertTrue(!actor.life().plan()&&!actor.life().activity().equals("return_home"),"Covered awake resident does not reacquire HOME while external rain persists");
+        var bed=home.bed(actor.getUUID());var toilet=bed.south();var oldToilet=level.getBlockState(toilet);
+        h.assertTrue(!home.contains(toilet)&&oldToilet.isAir(),"The supplied toilet is beside the bed, outside every actual sleeping cell");
+        level.setBlockAndUpdate(toilet,io.github.longshou.mcyukkuri.registry.ModBlocks.TOILET.get().defaultBlockState());
+        vitals(actor,80);var needs=actor.life().save();needs.putFloat("Bladder",90);actor.life().load(needs);
+        h.assertTrue(actor.life().plan()&&actor.life().activity().equals("seek_toilet"),"A newly full bowel gets the actual nearby toilet under continuing rain");
+        for(int i=0;i<40;i++){actor.life().tickGoal();actor.life().tick();}
+        h.assertTrue(actor.life().bladder()<70&&level.getBlockEntity(toilet) instanceof io.github.longshou.mcyukkuri.life.CareBlockEntity care&&care.waste()>0,"The toilet receives actual waste instead of HOME holding the life goal");
+        level.setBlockAndUpdate(toilet,oldToilet);actor.life().stopGoal();
+
+        vitals(actor,80);needs=actor.life().save();needs.putFloat("Dryness",80);actor.life().load(needs);
+        h.assertTrue(!actor.life().plan(),"Unresolved thirst under cover does not restart HOME");
+        var water=bed.south().below();var oldWater=level.getBlockState(water);level.setBlockAndUpdate(water,Blocks.WATER.defaultBlockState());
+        for(int i=0;i<21;i++)actor.life().tick();
+        h.assertTrue(actor.life().plan()&&actor.life().activity().equals("seek_water"),"New reachable water can acquire the free life slot while rain continues");
+        for(int i=0;i<40;i++){actor.life().tickGoal();actor.life().tick();}
+        h.assertTrue(actor.life().dryness()<80,"Ordinary drinking actually reduces dryness");
+        level.setBlockAndUpdate(water,oldWater);actor.life().stopGoal();vitals(actor,60);
+        int stock=home.food();
+        h.assertTrue(actor.life().plan()&&actor.life().activity().equals("shelter_stock"),"Moderate winter hunger at a covered own bed selects stored food before starvation");
+        actor.life().tickGoal();
+        h.assertTrue(home.food()==stock-1&&actor.life().mouth().getCount()==1,"Rainy-home meal transfers exactly one real portion into the mouth");
+        for(int i=0;i<64;i++)actor.life().tick();
+        h.assertTrue(actor.life().mouth().isEmpty(),"The portion completes ordinary chewing before the care check");
+
+        var child=spawn(h,ROOT.south(5),actors);child.family().generatedChild(actor,null);
+        FamilyData.get(level).register(actor);FamilyData.get(level).register(child);
+        actor.family().stop();for(int i=0;i<40;i++)actor.family().tick();vitals(actor,60);
+        h.assertTrue(!actor.life().plan()&&actor.family().active(),"A covered awake parent leaves the life slot for actual child care during continuing rain");
+        actor.family().stop();actor.frightenFrom(child);
+        h.assertTrue(actor.isPanicking()&&!actor.life().plan(),"A real fright still takes precedence over the rain-home planner");
+        h.assertTrue(level.isRainingAt(level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,actor.blockPosition())),"All rainy-home demand checks ran without clearing the weather");
+    }
+    private static void fillBiome(net.minecraft.server.level.ServerLevel level,BlockPos min,BlockPos max,String id) {
+        level.getServer().getCommands().performPrefixedCommand(level.getServer().createCommandSourceStack().withLevel(level).withPermission(4),
+                "fillbiome "+min.getX()+" "+min.getY()+" "+min.getZ()+" "+max.getX()+" "+max.getY()+" "+max.getZ()+" "+id);
     }
     private static void executableNeeds(GameTestHelper h,YukkuriEntity actor,ShelterBlockEntity home) {
         var level=h.getLevel();var savedHome=home.saveWithFullMetadata(level.registryAccess());int stock=home.food();

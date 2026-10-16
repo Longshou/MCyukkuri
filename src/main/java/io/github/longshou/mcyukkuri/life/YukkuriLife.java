@@ -331,7 +331,7 @@ public final class YukkuriLife {
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
-        if (rainOutside() && nutrition >= 30) {
+        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30) {
             targetBlock = homeStand();
             if(targetBlock==null||!covered(targetBlock))targetBlock=nearestDryCover();
             if (targetBlock != null) { task = Task.HOME; pursuitTicks = 0; return true; }
@@ -429,8 +429,8 @@ public final class YukkuriLife {
                 if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) < .16 && restable(entity.blockPosition())) {
                     entity.getNavigation().stop();
                     if (restWait == 0 && (energy <= 35 || level().isNight())) { task = Task.SLEEP; sleepTicks = 0; }
-                    else if (rainOutside()) pursuitTicks = 0;
-                    else { task = Task.NONE; planWait = 40; }
+                    // Awake arrival ends the trip, even while rain continues above the roof.
+                    else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks % 10 == 1 && !navigate(targetBlock, 1.15, false)) stopGoal();
             }
             case TOILET -> {
