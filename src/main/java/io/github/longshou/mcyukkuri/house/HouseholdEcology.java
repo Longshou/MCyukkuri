@@ -20,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,9 +37,17 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class HouseholdEcology {
     public static final int SAMPLE_TICKS=200,DUST_TICKS=600,SETTLEMENT_TICKS=1200;
     public static final int CLEAN_TICKS=2400,SETTLEMENT_COOLDOWN=24000,MAX_PILES=8,MAX_SUPPLIES=24;
+    public static final int MAX_CHUNK_PILES=16,MAX_CHUNK_SUPPLIES=64;
     public static final int VILLAGER_MEAL_TICKS=1200,MAX_ACTIVITY_SOURCES=64;
-    private static final int SEARCH_RADIUS=4,ENTITY_SCAN_BUDGET=4096;
+    public static final int MAX_SOURCE_INSPECTIONS=4096,MAX_LEVELS_PER_SAMPLE=8;
+    private static final int SEARCH_RADIUS=4;
+    private static final int[] HEIGHT_OFFSETS={0,-1,1};
     private static final Map<ServerLevel,ActivitySources> SOURCES=new WeakHashMap<>();
+    private static final Map<MinecraftServer,Integer> DIMENSION_CURSORS=new WeakHashMap<>();
+    private static final class ScanBudget {
+        int remaining=MAX_SOURCE_INSPECTIONS;
+        boolean take(){if(remaining<=0)return false;remaining--;return true;}
+    }
     private static final class ActivitySources {
         final Set<UUID> loaded=new HashSet<>();
         final ArrayDeque<UUID> villagers=new ArrayDeque<>();
@@ -50,7 +59,14 @@ public final class HouseholdEcology {
     /** Register once on the game event bus. No ticker is attached to individual material piles. */
     public static void tick(ServerTickEvent.Post event){
         if(event.getServer().getTickCount()%SAMPLE_TICKS!=0)return;
-        for(var level:event.getServer().getAllLevels())sampleLoaded(level);
+        var server=event.getServer();var levels=new ArrayList<ServerLevel>();server.getAllLevels().forEach(levels::add);
+        if(levels.isEmpty())return;
+        int cursor=DIMENSION_CURSORS.getOrDefault(server,0),visited=0,remaining=MAX_ACTIVITY_SOURCES;var budget=new ScanBudget();
+        while(visited<Math.min(levels.size(),MAX_LEVELS_PER_SAMPLE)&&remaining>0&&budget.remaining>0){
+            var level=levels.get(Math.floorMod(cursor+visited++,levels.size()));
+            remaining-=sampleLoaded(level,remaining,budget);
+        }
+        DIMENSION_CURSORS.put(server,Math.floorMod(cursor+visited,levels.size()));
     }
     public static void joining(EntityJoinLevelEvent event){
         if(event.getLevel() instanceof ServerLevel level&&event.getEntity() instanceof Villager villager){
@@ -65,13 +81,14 @@ public final class HouseholdEcology {
         }
     }
     /** Round-robin loaded actors only; leave at least sixteen slots for villagers and reuse any spare budget. */
-    public static void sampleLoaded(ServerLevel level){
-        if(!enabled(level))return;
+    public static void sampleLoaded(ServerLevel level){sampleLoaded(level,MAX_ACTIVITY_SOURCES,new ScanBudget());}
+    private static int sampleLoaded(ServerLevel level,int limit,ScanBudget budget){
+        if(!enabled(level))return 0;
         var sources=SOURCES.computeIfAbsent(level,key->new ActivitySources());
         var activities=new ArrayList<BlockPos>();var villagers=new ArrayList<Villager>();var sampledPlayers=new HashSet<UUID>();
-        addPlayers(level,sources,activities,sampledPlayers,sources.villagers.isEmpty()?MAX_ACTIVITY_SOURCES:MAX_ACTIVITY_SOURCES-16);
-        int inspect=Math.min(sources.villagers.size(),ENTITY_SCAN_BUDGET);
-        while(inspect-->0&&activities.size()<MAX_ACTIVITY_SOURCES){
+        addPlayers(level,sources,activities,sampledPlayers,sources.villagers.isEmpty()?limit:Math.max(0,limit-16),budget);
+        int inspect=sources.villagers.size();
+        while(inspect-->0&&activities.size()<limit&&budget.take()){
             var id=sources.villagers.removeFirst();
             if(!(level.getEntity(id) instanceof Villager villager)||!villager.isAlive()||villager.isRemoved()){
                 sources.loaded.remove(id);continue;
@@ -80,13 +97,13 @@ public final class HouseholdEcology {
             if(HouseholdProtection.protectedAt(level,villager.blockPosition()))continue;
             activities.add(villager.blockPosition());villagers.add(villager);
         }
-        addPlayers(level,sources,activities,sampledPlayers,MAX_ACTIVITY_SOURCES);
-        sample(level,activities);villagers(level,villagers);
+        addPlayers(level,sources,activities,sampledPlayers,limit,budget);
+        sample(level,activities);villagers(level,villagers);return activities.size();
     }
-    private static void addPlayers(ServerLevel level,ActivitySources sources,List<BlockPos> activities,Set<UUID> sampled,int limit){
+    private static void addPlayers(ServerLevel level,ActivitySources sources,List<BlockPos> activities,Set<UUID> sampled,int limit,ScanBudget budget){
         var players=level.players();if(players.isEmpty())return;
-        int inspect=Math.min(players.size(),ENTITY_SCAN_BUDGET);
-        while(inspect-->0&&activities.size()<limit){
+        int inspect=players.size();
+        while(inspect-->0&&activities.size()<limit&&budget.take()){
             var player=players.get(Math.floorMod(sources.playerCursor++,players.size()));
             if(player.isAlive()&&!player.isSpectator()&&!(player instanceof FakePlayer)&&!HouseholdProtection.protectedAt(level,player.blockPosition())
                     &&sampled.add(player.getUUID()))activities.add(player.blockPosition());
@@ -109,15 +126,16 @@ public final class HouseholdEcology {
     public static void sample(ServerLevel level,Collection<BlockPos> activities){
         if(!enabled(level)||activities.isEmpty())return;
         Map<HouseholdEcologyData.Region,Set<BlockPos>> regions=new HashMap<>();
+        long now=level.getGameTime(),bucket=Math.floorDiv(now,SAMPLE_TICKS);var data=HouseholdEcologyData.get(level);
+        var origins=new HashSet<BlockPos>();var view=new SupplyPileView(level);
         int sampled=0;
         for(var activity:activities){
             if(sampled++>=MAX_ACTIVITY_SOURCES)break;
+            if(!origins.add(activity))continue;
             if(HouseholdProtection.protectedAt(level,activity))continue;
             for(var floor:reachable(level,activity,SEARCH_RADIUS))if(!HouseholdProtection.protectedAt(level,floor))
                 regions.computeIfAbsent(HouseholdEcologyData.Region.at(floor),key->new LinkedHashSet<>()).add(floor);
         }
-        long now=level.getGameTime(),bucket=Math.floorDiv(now,SAMPLE_TICKS);
-        var data=HouseholdEcologyData.get(level);
         for(var entry:regions.entrySet()){
             var floors=entry.getValue();
             if(floors.stream().noneMatch(pos->covered(level,pos)))continue;
@@ -125,14 +143,14 @@ public final class HouseholdEcology {
             if(area.lastSample>=bucket)continue;
             area.lastSample=bucket;area.lastActive=now;data.setDirty();
             if(now<area.cleanUntil)continue;
-            var stock=stock(level,entry.getKey());
-            if(stock.supplies()<MAX_SUPPLIES&&stock.piles()<=MAX_PILES){
+            var point=floors.iterator().next();var stock=view.region(point);var column=view.column(point);
+            if(stock.supplies()<MAX_SUPPLIES&&stock.piles()<=MAX_PILES&&column.supplies()<MAX_CHUNK_SUPPLIES&&column.piles()<=MAX_CHUNK_PILES){
                 area.dustTicks=Math.min(DUST_TICKS,area.dustTicks+SAMPLE_TICKS);
-                if(area.dustTicks>=DUST_TICKS&&dust(level,floors,stock))area.dustTicks=0;
+                if(area.dustTicks>=DUST_TICKS&&dust(level,floors,view))area.dustTicks=0;
             }
             if(now<area.nextSettlement)continue;
             area.settlementTicks=Math.min(SETTLEMENT_TICKS,area.settlementTicks+SAMPLE_TICKS);
-            if(area.settlementTicks>=SETTLEMENT_TICKS&&settle(level,floors)){
+            if(area.settlementTicks>=SETTLEMENT_TICKS&&settle(level,floors,view)){
                 area.settlementTicks=0;area.nextSettlement=now+SETTLEMENT_COOLDOWN;
             }
         }
@@ -144,12 +162,12 @@ public final class HouseholdEcology {
     /** Returns the amount accepted, without mutating the input. Callers debit only this real ground transfer. */
     public static int residual(ServerLevel level,BlockPos origin,ItemStack stack){
         if(!enabled(level)||!SupplyPiles.material(stack)||HouseholdProtection.protectedAt(level,origin))return 0;
-        int remaining=stack.getCount();
+        int remaining=stack.getCount();var view=new SupplyPileView(level);
         for(var pos:ranked(level,reachable(level,origin,2),stack,origin)){
             if(HouseholdProtection.protectedAt(level,pos))continue;
-            var stock=stock(level,HouseholdEcologyData.Region.at(pos));
-            if(!room(level,pos,stock))continue;
-            int added=SupplyPiles.offer(level,pos,stack,Math.min(remaining,MAX_SUPPLIES-stock.supplies()));remaining-=added;
+            int capacity=capacity(level,pos,view);if(capacity==0)continue;
+            int added=SupplyPiles.offer(level,pos,stack,Math.min(remaining,capacity));remaining-=added;
+            if(added>0)view.changed(pos);
             if(remaining==0)break;
         }
         return stack.getCount()-remaining;
@@ -199,68 +217,53 @@ public final class HouseholdEcology {
         return state.lastSample()>=0&&age>=0&&age<=SETTLEMENT_TICKS&&!suppressed(level,pos);
     }
     public static Snapshot snapshot(ServerLevel level,BlockPos pos){
-        return new Snapshot(HouseholdEcologyData.get(level).state(pos),stock(level,HouseholdEcologyData.Region.at(pos)),suppressed(level,pos),recentlyActive(level,pos));
+        var stock=new SupplyPileView(level).region(pos);
+        return new Snapshot(HouseholdEcologyData.get(level).state(pos),new Stock(stock.piles(),stock.supplies()),suppressed(level,pos),recentlyActive(level,pos));
     }
-    private static boolean dust(ServerLevel level,Collection<BlockPos> floors,Stock stock){
+    private static boolean dust(ServerLevel level,Collection<BlockPos> floors,SupplyPileView view){
         var lint=new ItemStack(ModItems.NEST_LINT.get());var origin=floors.iterator().next();
         for(var pos:ranked(level,floors,lint,origin))
-            if(!suppressed(level,pos)&&room(level,pos,stock)&&covered(level,pos)&&SupplyPiles.offer(level,pos,lint,1)==1)return true;
+            if(!suppressed(level,pos)&&capacity(level,pos,view)>0&&covered(level,pos)&&SupplyPiles.offer(level,pos,lint,1)==1){view.changed(pos);return true;}
         return false;
     }
-    private static boolean room(ServerLevel level,BlockPos pos,Stock stock){
-        return stock.supplies()<MAX_SUPPLIES&&(stock.piles()<MAX_PILES||stock.piles()==MAX_PILES&&level.getBlockEntity(pos) instanceof SupplyPileBlockEntity);
+    private static int capacity(ServerLevel level,BlockPos pos,SupplyPileView view){
+        var stock=view.region(pos);var column=view.column(pos);boolean existing=level.getBlockEntity(pos) instanceof SupplyPileBlockEntity;
+        if(stock.piles()>MAX_PILES||stock.piles()==MAX_PILES&&!existing||column.piles()>MAX_CHUNK_PILES||column.piles()==MAX_CHUNK_PILES&&!existing)return 0;
+        return Math.max(0,Math.min(MAX_SUPPLIES-stock.supplies(),MAX_CHUNK_SUPPLIES-column.supplies()));
     }
-    private static Stock stock(ServerLevel level,HouseholdEcologyData.Region region){
-        var chunk=level.getChunkSource().getChunkNow(region.x(),region.z());
-        if(chunk==null)return new Stock(0,0);
-        int piles=0,supplies=0;
-        for(var entity:chunk.getBlockEntities().values())
-            if(entity instanceof SupplyPileBlockEntity pile&&!pile.isRemoved()&&region.contains(pile.getBlockPos())&&pile.count()>0){
-                piles++;supplies+=pile.count();
-            }
-        return new Stock(piles,supplies);
-    }
-    private static boolean settle(ServerLevel level,Collection<BlockPos> floors){
+    private static boolean settle(ServerLevel level,Collection<BlockPos> floors,SupplyPileView view){
         var source=floors.stream().map(level::getBlockEntity).filter(entity->entity instanceof SupplyPileBlockEntity)
-                .map(entity->(SupplyPileBlockEntity)entity).filter(pile->{var item=pile.contents();
-                    return !item.isEmpty()&&(item.is(ModItems.NEST_LINT.get())||item.is(ModItems.FOOD_SCRAP.get()));}).findFirst().orElse(null);
+                .map(entity->(SupplyPileBlockEntity)entity).filter(pile->pile.count()>0&&(pile.is(ModItems.NEST_LINT.get())||pile.is(ModItems.FOOD_SCRAP.get())))
+                .findFirst().orElse(null);
         if(source==null)return false;
-        var candidates=new ArrayList<>(floors);candidates.sort(Comparator.<BlockPos>comparingInt(pos->wallScore(level,pos)).reversed()
-                .thenComparingDouble(pos->pos.distSqr(source.getBlockPos())).thenComparingLong(BlockPos::asLong));
-        for(var pos:candidates){
-            if(suppressed(level,pos)||!level.isEmptyBlock(pos)||!covered(level,pos)||!walkable(level,pos.north())||!covered(level,pos.north())||!nestFree(level,pos))continue;
+        var candidates=floors.stream().map(pos->new Candidate(pos,0,wallScore(level,pos),pos.distSqr(source.getBlockPos())))
+                .sorted(CANDIDATE_ORDER).toList();
+        for(var candidate:candidates){
+            var pos=candidate.pos();
+            if(suppressed(level,pos)||!level.isEmptyBlock(pos)||!covered(level,pos)||!walkable(level,pos.north())||!covered(level,pos.north())||!view.nestFree(pos,16))continue;
             if(!level.setBlockAndUpdate(pos,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState()))continue;
             if(!(level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)){level.removeBlock(pos,false);return false;}
             // The selected pile is still the sole source. Placement never creates a free first unit of bedding or food.
             var material=source.takeOne();
-            if(!material.isEmpty()&&nest.deposit(material))return true;
+            view.changed(source.getBlockPos());
+            if(!material.isEmpty()&&nest.deposit(material)){view.changed(pos);return true;}
             if(!material.isEmpty())SupplyPiles.offer(level,source.getBlockPos(),material,1);
-            level.removeBlock(pos,false);return false;
+            level.removeBlock(pos,false);view.changed(source.getBlockPos());view.changed(pos);return false;
         }
         return false;
     }
-    private static boolean nestFree(ServerLevel level,BlockPos pos){
-        int lowX=Math.floorDiv(pos.getX()-16,16),highX=Math.floorDiv(pos.getX()+16,16);
-        int lowZ=Math.floorDiv(pos.getZ()-16,16),highZ=Math.floorDiv(pos.getZ()+16,16);
-        for(int x=lowX;x<=highX;x++)for(int z=lowZ;z<=highZ;z++){
-            var chunk=level.getChunkSource().getChunkNow(x,z);
-            // If a neighboring saved nest cannot be inspected, wait instead of loading its chunk or duplicating it.
-            if(chunk==null)return false;
-            for(var entity:chunk.getBlockEntities().values())
-                if(entity instanceof HouseNestBlockEntity&&!entity.isRemoved()&&entity.getBlockPos().distSqr(pos)<=256)return false;
-        }
-        return true;
-    }
+    private record Candidate(BlockPos pos,int existing,int wall,double distance) {}
+    private static final Comparator<Candidate> CANDIDATE_ORDER=Comparator.comparingInt(Candidate::existing).reversed()
+            .thenComparing(Comparator.comparingInt(Candidate::wall).reversed()).thenComparingDouble(Candidate::distance)
+            .thenComparingLong(candidate->candidate.pos().asLong());
     private static List<BlockPos> ranked(ServerLevel level,Collection<BlockPos> floors,ItemStack material,BlockPos origin){
-        var ranked=new ArrayList<BlockPos>();
+        var ranked=new ArrayList<Candidate>();
         for(var pos:floors){
             var entity=level.getBlockEntity(pos);
-            if(level.isEmptyBlock(pos)||entity instanceof SupplyPileBlockEntity pile&&pile.accepts(material)&&pile.count()<SupplyPileBlockEntity.CAPACITY)ranked.add(pos);
+            if(level.isEmptyBlock(pos)||entity instanceof SupplyPileBlockEntity pile&&pile.accepts(material)&&pile.count()<SupplyPileBlockEntity.CAPACITY)
+                ranked.add(new Candidate(pos,entity instanceof SupplyPileBlockEntity?1:0,wallScore(level,pos),pos.distSqr(origin)));
         }
-        ranked.sort(Comparator.<BlockPos>comparingInt(pos->level.getBlockEntity(pos) instanceof SupplyPileBlockEntity?1:0).reversed()
-                .thenComparing(Comparator.<BlockPos>comparingInt(pos->wallScore(level,pos)).reversed())
-                .thenComparingDouble(pos->pos.distSqr(origin)).thenComparingLong(BlockPos::asLong));
-        return ranked;
+        ranked.sort(CANDIDATE_ORDER);return ranked.stream().map(Candidate::pos).toList();
     }
     private static int wallScore(ServerLevel level,BlockPos pos){
         int score=0;
@@ -276,10 +279,10 @@ public final class HouseholdEcology {
     /** A small local ground search keeps output on reachable floors rather than through adjacent room walls. */
     private static Set<BlockPos> reachable(ServerLevel level,BlockPos origin,int radius){
         var result=new LinkedHashSet<BlockPos>();var queue=new ArrayDeque<BlockPos>();var visited=new HashSet<BlockPos>();
-        for(int dy:new int[]{0,-1,1}){var start=origin.offset(0,dy,0);if(walkable(level,start)){queue.add(start);visited.add(start);break;}}
+        for(int dy:HEIGHT_OFFSETS){var start=origin.offset(0,dy,0);if(walkable(level,start)){queue.add(start);visited.add(start);break;}}
         while(!queue.isEmpty()){
             var pos=queue.removeFirst();result.add(pos);
-            for(var direction:Direction.Plane.HORIZONTAL)for(int dy:new int[]{0,-1,1}){
+            for(var direction:Direction.Plane.HORIZONTAL)for(int dy:HEIGHT_OFFSETS){
                 var next=pos.relative(direction).offset(0,dy,0);
                 int dx=next.getX()-origin.getX(),dz=next.getZ()-origin.getZ();
                 if(dx*dx+dz*dz>radius*radius||Math.abs(next.getY()-origin.getY())>1||visited.contains(next))continue;

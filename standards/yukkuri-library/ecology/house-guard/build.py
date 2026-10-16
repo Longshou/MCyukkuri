@@ -1,4 +1,7 @@
-"""Export the original sealed box as native block/item JSON; --check is read-only."""
+"""Export the legacy sealed-box block for save compatibility; --check is read-only.
+
+The current household_guard item belongs to house-repellent and is never written here.
+"""
 from pathlib import Path
 import argparse
 import hashlib
@@ -33,7 +36,6 @@ def outputs():
             firstperson_righthand=dict(rotation=[0, 45, 0], translation=[0, 2, 0], scale=[.7, .7, .7])))
     result = {
         ASSETS/'models/block/household_guard.json': encoded(model),
-        ASSETS/'models/item/household_guard.json': encoded(dict(parent='mcyukkuri:block/household_guard')),
         ASSETS/'blockstates/household_guard.json': encoded(dict(variants={'': dict(model='mcyukkuri:block/household_guard')})),
         SNAP/'recipe.json': raw,
     }

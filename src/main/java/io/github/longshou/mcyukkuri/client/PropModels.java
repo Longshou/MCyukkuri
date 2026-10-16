@@ -75,12 +75,16 @@ public final class PropModels {
         for(var part:model.parts){
             if(part.unit>units || part.unit>0 && (layers & (1 << (part.unit-1)))==0)continue;
             var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
-            for(int first=part.start;first<part.start+part.count;first+=3)for(int corner=0;corner<4;corner++){
-                float center=(v[first*8]+v[(first+1)*8]+v[(first+2)*8])/3;
-                if(side!=0&&(center<0?-1:1)!=side)continue;
-                int i=(first+Math.min(corner,2))*8;
-                consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
-                        .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
+            for(int first=part.start;first<part.start+part.count;first+=3){
+                if(side!=0){
+                    float center=(v[first*8]+v[(first+1)*8]+v[(first+2)*8])/3;
+                    if((center<0?-1:1)!=side)continue;
+                }
+                for(int corner=0;corner<4;corner++){
+                    int i=(first+Math.min(corner,2))*8;
+                    consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
+                            .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
+                }
             }
         }
     }

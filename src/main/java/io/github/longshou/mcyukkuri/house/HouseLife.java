@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.house;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Loaded-time house life. Residents remain real entities and carry exactly one real resource. */
 public final class HouseLife {
+    public static final int MAX_SOURCE_PATH_CHECKS = 6;
     private enum Phase { NONE, APPROACH, ENTER, REST, LEAVE, PEEK, TEND, LISTEN, STARTLED, SEARCH }
     private final YukkuriEntity entity;
     private GlobalPos nest;
@@ -30,6 +32,7 @@ public final class HouseLife {
     private boolean active, tending, rested, careContact, feeding;
     private Phase phase = Phase.NONE;
     private int interaction, interactionTicks;
+    private int sourceCursor;
     private Vec3 contactTarget, restPosition;
     private BlockPos refuge;
 
@@ -182,28 +185,39 @@ public final class HouseLife {
         return value != null && (item.is(ModItems.FOOD_SCRAP.get()) && value.food() < HouseNestBlockEntity.STOCK_CAP
                 || HouseNestBlockEntity.isMaterial(item) && !value.built());
     }
+    private boolean wantedResource(HouseNestBlockEntity value, SupplyPileBlockEntity pile) {
+        if (feeding) return pile.is(ModItems.FOOD_SCRAP.get());
+        return value != null && (pile.is(ModItems.FOOD_SCRAP.get()) && value.food() < HouseNestBlockEntity.STOCK_CAP
+                || pile.is(ModItems.NEST_LINT.get()) && !value.built());
+    }
+    private record Source(ItemEntity item, SupplyPileBlockEntity pile, BlockPos pos, double distance) {}
     private void findSource(HouseNestBlockEntity value) {
-        supplyTarget = null;
-        target = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
-                item.isAlive() && !item.hasPickUpDelay() && wantedResource(value, item.getItem()))
-                .stream().filter(item -> entity.life().reachable(item.blockPosition(), false))
-                .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        double nearest = target == null ? Double.MAX_VALUE : entity.distanceToSqr(target);
-        for (var pos : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-1,-8),entity.blockPosition().offset(8,1,8))) {
-            if (!entity.level().hasChunkAt(pos) || !(entity.level().getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)
-                    || !wantedResource(value,pile.contents())) continue;
-            double distance = entity.distanceToSqr(pile.pickupPosition());
-            if (distance >= nearest || !entity.life().reachable(pos,false)) continue;
-            supplyTarget = pile; target = null; nearest = distance;
+        clearSource(); var candidates = new ArrayList<Source>();
+        for (var item : entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
+                item.isAlive() && !item.hasPickUpDelay() && wantedResource(value, item.getItem())))
+            candidates.add(new Source(item, null, item.blockPosition(), entity.distanceToSqr(item)));
+        // The 17x3x17 search intersects at most four loaded chunks; inspect their real pile entries once.
+        for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(),8,1))
+            if (wantedResource(value,pile)) candidates.add(new Source(null,pile,pile.getBlockPos(),entity.distanceToSqr(pile.pickupPosition())));
+        candidates.sort(Comparator.comparingDouble(Source::distance).thenComparingLong(source -> source.pos().asLong()));
+        if (candidates.isEmpty()) { sourceCursor = 0; return; }
+        int start = Math.floorMod(sourceCursor,candidates.size()), attempts = Math.min(MAX_SOURCE_PATH_CHECKS,candidates.size());
+        for (int i=0;i<attempts;i++) {
+            var candidate = candidates.get((start+i)%candidates.size());
+            if (!entity.life().reachable(candidate.pos(),false)) continue;
+            target = candidate.item(); supplyTarget = candidate.pile(); sourceCursor = 0; return;
         }
+        // Unreachable nearer piles cannot hide later candidates forever, or trigger unlimited path searches.
+        sourceCursor = (start+attempts)%candidates.size();
     }
     private boolean sourceAvailable() {
         if (target != null) return target.isAlive() && !target.hasPickUpDelay() && !target.getItem().isEmpty();
         // Keep the actual block entity reference: removal or replacement must cancel an in-flight pickup.
         return supplyTarget != null && !supplyTarget.isRemoved() && entity.level().hasChunkAt(supplyTarget.getBlockPos())
-                && entity.level().getBlockEntity(supplyTarget.getBlockPos()) == supplyTarget && !supplyTarget.contents().isEmpty();
+                && entity.level().getBlockEntity(supplyTarget.getBlockPos()) == supplyTarget && supplyTarget.count()>0;
     }
     private ItemStack sourceContents() { return target != null ? target.getItem() : supplyTarget.contents(); }
+    private boolean wantedSource(HouseNestBlockEntity value) { return target != null ? wantedResource(value,target.getItem()) : wantedResource(value,supplyTarget); }
     private Vec3 sourcePosition() { return target != null ? target.position() : supplyTarget.pickupPosition(); }
     private BlockPos sourceBlock() { return target != null ? target.blockPosition() : supplyTarget.getBlockPos(); }
     private boolean canSeeSource() {
@@ -263,7 +277,7 @@ public final class HouseLife {
                 stop();
             } else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), 1, false)) stop();
         } else if (sourceAvailable()) {
-            if (!wantedResource(value, sourceContents()) || !mayTransfer()) { stop(); return; }
+            if (!wantedSource(value) || !mayTransfer()) { stop(); return; }
             if (inReach(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
             else if (entity.distanceToSqr(sourcePosition()) < 2.25 && canSeeSource() && entity.life().dryStand(sourceBlock())) approach(sourcePosition());
             else if (ticks % 10 == 1 && !entity.life().navigate(sourceBlock(), 1.1, false)) stop();
@@ -396,7 +410,7 @@ public final class HouseLife {
             if (!mayTransfer()) { stop(); return; }
             if (interaction == 1) {
                 if (!sourceAvailable() || !inReach(sourcePosition()) || !canSeeSource()
-                        || !wantedResource(value, sourceContents())) { stop(); return; }
+                        || !wantedSource(value)) { stop(); return; }
                 if (feeding && (!entity.life().canEat() || !entity.life().acceptsFood(sourceContents()))) { stop(); return; }
                 var taken = takeSource(); clearSource();
                 if (taken.isEmpty()) { stop(); return; }

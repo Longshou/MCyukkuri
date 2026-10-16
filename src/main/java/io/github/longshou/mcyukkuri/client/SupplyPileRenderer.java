@@ -9,40 +9,43 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
+import org.joml.Quaternionf;
 
-/** A single durable stock cell, shown as at most eight actual-sized scraps. */
+/** Real stock is independent of the distance-limited decoration count. */
 public final class SupplyPileRenderer implements BlockEntityRenderer<SupplyPileBlockEntity> {
     // The first piece stays at the server pickup point; additions spread around it.
     private static final double[][] CLUSTERS={
-            {0,0},{-.06,.035},{.055,-.04},{.025,.07},
-            {-.075,-.045},{.085,.025},{-.03,-.09},{.08,-.085}
+            {0,0},{-.06,.035},{.055,-.04},{.025,.07}
     };
+    private static final Quaternionf[] ROTATIONS={Axis.YP.rotationDegrees(0),Axis.YP.rotationDegrees(137.5f),
+            Axis.YP.rotationDegrees(275),Axis.YP.rotationDegrees(412.5f)};
     public SupplyPileRenderer(BlockEntityRendererProvider.Context context) {}
+    @Override public int getViewDistance(){return 12;}
 
     @Override public void render(SupplyPileBlockEntity pile,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
-        ItemStack contents=pile.contents();int count=pile.count();
-        if(contents.isEmpty()||count<=0)return;
-        String prop=contents.is(ModItems.FOOD_SCRAP.get())?"food_scrap":contents.is(ModItems.NEST_LINT.get())?"nest_lint"
-                :contents.is(ModItems.WASTE.get())?"yukkuri_waste":null;
+        int count=pile.count();if(count<=0)return;
+        double distance=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().distanceToSqr(pile.pickupPosition());
+        if(distance>144)return;
+        int clusters=Math.min(count,distance<=16?4:distance<=64?2:1);
+        String prop=pile.is(ModItems.FOOD_SCRAP.get())?"food_scrap":pile.is(ModItems.NEST_LINT.get())?"nest_lint"
+                :pile.is(ModItems.WASTE.get())?"yukkuri_waste":null;
         if(prop==null)return;
         float scale=switch(prop){case "food_scrap"->HouseScrapRenderer.HELD_SCALE*.75f;case "nest_lint"->.65f;default->.12f;};
-        var pickup=pile.pickupPosition().subtract(pile.getBlockPos().getX(),pile.getBlockPos().getY(),pile.getBlockPos().getZ());
-        for(int i=0;i<Math.min(CLUSTERS.length,count);i++) {
-            pose.pushPose();pose.translate(pickup.x+CLUSTERS[i][0],pickup.y,pickup.z+CLUSTERS[i][1]);
-            pose.mulPose(Axis.YP.rotationDegrees(i*137.5f));pose.scale(scale,scale,scale);
+        for(int i=0;i<clusters;i++) {
+            pose.pushPose();pose.translate(.5+CLUSTERS[i][0],.025,.5+CLUSTERS[i][1]);
+            pose.mulPose(ROTATIONS[i]);pose.scale(scale,scale,scale);
             PropModels.center(prop,pose,false);PropModels.render(prop,8,pose,buffers,light,overlay);pose.popPose();
         }
-        label(pile,contents,count,pose,buffers,light);
+        label(pile,count,distance,pose,buffers,light);
     }
 
-    private static void label(SupplyPileBlockEntity pile,ItemStack contents,int count,PoseStack pose,MultiBufferSource buffers,int light) {
+    private static void label(SupplyPileBlockEntity pile,int count,double distance,PoseStack pose,MultiBufferSource buffers,int light) {
         var mc=Minecraft.getInstance();
         if(mc.options.hideGui||mc.player==null||!(mc.hitResult instanceof BlockHitResult hit)||hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK
                 ||!hit.getBlockPos().equals(pile.getBlockPos())
-                ||mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(pile.pickupPosition())>16)return;
-        var text=contents.getHoverName().copy().append(" × "+count).getVisualOrderText();
+                ||distance>16)return;
+        var text=pile.displayName().copy().append(" × "+count).getVisualOrderText();
         pose.pushPose();pose.translate(.5,.25,.5);pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
         pose.scale(.014f,-.014f,.014f);
         // Depth-tested and only under the crosshair; the world remains free of permanent labels.

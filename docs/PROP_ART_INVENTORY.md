@@ -15,8 +15,9 @@
 | 食盆 `food_bowl` | 已接入 R2 宠物盆；三档油粮共用颗粒，草麦显示专用横放几何；0–8 份联动 | 八份以上外观饱和；厨余盆网格保留，但厨余食物玩法未接入 |
 | 三档油粮 | 已注册廉价、普通、高级三档油粮；袋装外观和生存合成已接入 | 分别提供 12／20／30 营养，实际吞咽后结算 |
 | 食物残渣 `food_scrap` | 已改为专用碎屑模型 | 区分整份食物、馅料与厨余，不把碎屑画成鱼骨果核 |
-| 地面散料 `house_supplies`／自然絮窝 `house_dust_nest` | 使用实际棉絮、碎食、废物与渐铺窝垫；最多显示8簇，0材料不画垫料；自然窝不画人工家具 | 2026-10-17 接入自然生活来源与清扫，库存与展示分离，沿用现有素材状态 |
-| 家居防护盒 `household_guard` | 原创低矮金属盒、过滤栅与封口纸条；用原版表面纹理作材质，无借用物品图标 | [制作源](../standards/yukkuri-library/ecology/house-guard/README.md)，2026-10-17候选造型，已导出并登记，待审阅 |
+| 地面散料 `house_supplies`／自然絮窝 `house_dust_nest` | 使用实际棉絮、碎食、废物与渐铺窝垫；近处最多4簇并随距离减少，0材料不画垫料；自然窝不画人工家具 | 2026-10-17 接入自然生活来源与清扫，单格64份数值库存与展示分离，沿用现有素材状态 |
+| 驱油喷雾 `household_guard` | 原创握持瓶身、喷嘴、扳机与油库里禁入标记；原生物品几何，使用原版表面材质，无借用物品图标 | [制作源](../standards/yukkuri-library/ecology/house-repellent/README.md)，2026-10-17候选造型，已导出并登记，待审阅；不放置方块 |
+| 旧家居防护盒方块 `household_guard` | 过滤盒几何仅保留旧存档方块兼容；当前同 ID 物品已改喷雾 | [旧制作源](../standards/yukkuri-library/ecology/house-guard/README.md)保留，标为 legacy；不再作为当前预览 |
 | 天然洞穴叶床 `forest_burrow`／结界 `nest_boundary` | 已接入零散叶床与细枝；岩土空腔来自现有地形 | [制作包](../standards/yukkuri-library/ecology/wild-shelters/README.md)，叶床／结界及浅坑布置已于 2026-09-13 确认 |
 | 流浪油纸箱 `cardboard_shelter` | 已接入开口、箱壁、折盖与原创纸板纹理 | 有真实单人睡位及受雨损耗，造型待确认 |
 | 野外便所 `wild_latrine` | 围枝土面，干净／脏污两态 | 复用有限便所容量，造型待确认 |
