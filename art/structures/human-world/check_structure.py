@@ -21,7 +21,7 @@ def transparent(name):
             name.endswith(('_door', '_sign', '_banner', '_carpet', '_pressure_plate', '_trapdoor', '_fence', '_leaves')))
 def source_level(name, props):
     if name == 'minecraft:light': return int(props.get('level', '15'))
-    return {'minecraft:lantern': 15, 'minecraft:sea_lantern': 15, 'minecraft:glowstone': 15, 'minecraft:torch': 14, 'minecraft:shroomlight': 15}.get(name, 0)
+    return {'minecraft:lantern': 15, 'minecraft:sea_lantern': 15, 'minecraft:glowstone': 15, 'minecraft:torch': 14, 'minecraft:ochre_froglight': 15, 'minecraft:shroomlight': 15}.get(name, 0)
 def name_at(b, x, y, z): return b.blocks.get((x, y, z), (AIR,))[0]
 
 def light_levels(b):

@@ -16,7 +16,12 @@
     "exam_hide_box": {
       "source": "art/structures/human-world/products/exam_hide_box.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_hide_box.png",
-      "sha256": "a85dedc5f94cb8504b7d8a777bd72f2f3b69e6546fed9487c5ae58b74f299fba"
+      "sha256": "d5f47e3ff38205533eaaf2a21f592b2e282f0c2b5bf80bd7bf252d2c51a08d9a"
+    },
+    "exam_hide_box_top": {
+      "source": "art/structures/human-world/products/exam_hide_box_top.png",
+      "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_hide_box_top.png",
+      "sha256": "36951c6036dc65623f4bfa925fe823598abee9a9752f8f2ede9b6e0fa10c69a3"
     },
     "exam_mark_room": {
       "source": "art/structures/human-world/products/exam_mark_room.png",
