@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class HumanNpc extends PathfinderMob {
     public enum Look { ONIISAN, BROTHER, SISTER }
-    public enum Job { RESIDENT, SHOPKEEPER, FACTORY }
+    public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER, KEEPER }
     public enum Attitude { CRUEL, CARING, NEUTRAL }
     private static final EntityDataAccessor<Integer> JOB = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTITUDE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
@@ -213,7 +213,7 @@ public final class HumanNpc extends PathfinderMob {
         if (questPlayer != null) t.putUUID("QuestPlayer", questPlayer); t.putBoolean("QuestComplete", questComplete);
     }
     @Override public void readAdditionalSaveData(CompoundTag t) {
-        super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, 2)]);
+        super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized"); home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         production.load(t.getCompound("FactoryProduction"));

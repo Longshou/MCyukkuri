@@ -77,6 +77,7 @@ public final class ModCreativeTabs {
                     HumanWorld.PACKING_TABLE, HumanWorld.NURSERY_STATION, HumanWorld.RECEIVING_TABLE,
                     HumanWorld.INSPECTION_TABLE, HumanWorld.WASHING_TABLE, HumanWorld.OBSERVATION_STATION,
                     HumanWorld.TRANSFER_TRAY)) event.accept(block.get());
+            event.accept(HumanWorld.EXAM_PODIUM.get()); event.accept(HumanWorld.EXAM_HIDE_BOX.get()); event.accept(HumanWorld.EXAM_MARK.get());
         }
     }
 

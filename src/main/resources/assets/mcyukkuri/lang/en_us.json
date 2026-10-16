@@ -1506,5 +1506,11 @@
   "activity.mcyukkuri.first_toilet_wait": "Waiting for parental bowel care",
   "activity.mcyukkuri.boat_toilet": "Relieving in the hat",
   "notebook.mcyukkuri.first_voyage.independent": "Living independently in own hat boat",
-  "notebook.mcyukkuri.first_voyage.leaving": "Subadult leaving the family hat"
+  "notebook.mcyukkuri.first_voyage.leaving": "Subadult leaving the family hat",
+  "item.mcyukkuri.exam_podium": "Exam Podium",
+  "block.mcyukkuri.exam_podium": "Exam Podium",
+  "item.mcyukkuri.exam_hide_box": "Exam Hiding Box",
+  "block.mcyukkuri.exam_hide_box": "Exam Hiding Box",
+  "item.mcyukkuri.exam_mark": "Exam Floor Mark",
+  "block.mcyukkuri.exam_mark": "Exam Floor Mark"
 }

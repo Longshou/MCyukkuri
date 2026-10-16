@@ -30,6 +30,9 @@ public final class HumanWorld {
     public static final DeferredBlock<FactoryStationBlock> WASHING_TABLE = station("factory_washing_table");
     public static final DeferredBlock<FactoryStationBlock> OBSERVATION_STATION = station("factory_observation_station");
     public static final DeferredBlock<FactoryStationBlock> TRANSFER_TRAY = station("factory_transfer_tray");
+    public static final DeferredBlock<ExamPodiumBlock> EXAM_PODIUM = simple("exam_podium", () -> new ExamPodiumBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(1.5f).sound(net.minecraft.world.level.block.SoundType.WOOD).noOcclusion()));
+    public static final DeferredBlock<ExamHideBoxBlock> EXAM_HIDE_BOX = simple("exam_hide_box", () -> new ExamHideBoxBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(.4f).sound(net.minecraft.world.level.block.SoundType.WOOL).noOcclusion()));
+    public static final DeferredBlock<ExamMarkBlock> EXAM_MARK = simple("exam_mark", () -> new ExamMarkBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(.2f).sound(net.minecraft.world.level.block.SoundType.WOOL).noCollission().noOcclusion()));
     public static final DeferredHolder<EntityType<?>, EntityType<FactoryTray>> TRAY = ENTITIES.register("factory_tray", () -> EntityType.Builder.<FactoryTray>of(FactoryTray::new, MobCategory.MISC)
             .sized(.95f, .25f).clientTrackingRange(10).build(MCYukkuri.id("factory_tray").toString()));
     public static final DeferredItem<Item> MANJU = ITEMS.register("yukkuri_manju", () -> new Item(new Item.Properties()
@@ -69,6 +72,9 @@ public final class HumanWorld {
     private static DeferredBlock<FactoryStationBlock> station(String id) {
         var result=BLOCKS.register(id,()->new FactoryStationBlock(id,net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().strength(3).noOcclusion()));
         ITEMS.registerSimpleBlockItem(id,result); return result;
+    }
+    private static <B extends net.minecraft.world.level.block.Block> DeferredBlock<B> simple(String id, java.util.function.Supplier<B> block) {
+        var result=BLOCKS.register(id,block); ITEMS.registerSimpleBlockItem(id,result); return result;
     }
     private static DeferredItem<DeferredSpawnEggItem> egg(String id, DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type, int a, int b) {
         return ITEMS.register(id + "_spawn_egg", () -> new DeferredSpawnEggItem(type, a, b, new Item.Properties()));

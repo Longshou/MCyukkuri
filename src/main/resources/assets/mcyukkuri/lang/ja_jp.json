@@ -1494,5 +1494,11 @@
   "activity.mcyukkuri.receive_mash": "親から柔らかい餌をもらう",
   "notebook.mcyukkuri.childhood.mash": "柔らかい餌（%s）",
   "notebook.mcyukkuri.childhood.dependent": "親が噛み砕いて与える必要がある",
-  "notebook.mcyukkuri.childhood.self_feeding": "自分で食べられる"
+  "notebook.mcyukkuri.childhood.self_feeding": "自分で食べられる",
+  "item.mcyukkuri.exam_podium": "解答台",
+  "block.mcyukkuri.exam_podium": "解答台",
+  "item.mcyukkuri.exam_hide_box": "かくれ箱",
+  "block.mcyukkuri.exam_hide_box": "かくれ箱",
+  "item.mcyukkuri.exam_mark": "試験位置マーク",
+  "block.mcyukkuri.exam_mark": "試験位置マーク"
 }

@@ -1506,5 +1506,11 @@
   "activity.mcyukkuri.first_toilet_wait": "等待亲油近身照料",
   "activity.mcyukkuri.boat_toilet": "在帽内排泄",
   "notebook.mcyukkuri.first_voyage.independent": "已独立乘自己的帽船生活",
-  "notebook.mcyukkuri.first_voyage.leaving": "亚成离家，正在驶离亲油帽船"
+  "notebook.mcyukkuri.first_voyage.leaving": "亚成离家，正在驶离亲油帽船",
+  "item.mcyukkuri.exam_podium": "答题台",
+  "block.mcyukkuri.exam_podium": "答题台",
+  "item.mcyukkuri.exam_hide_box": "躲藏箱",
+  "block.mcyukkuri.exam_hide_box": "躲藏箱",
+  "item.mcyukkuri.exam_mark": "考位标记",
+  "block.mcyukkuri.exam_mark": "考位标记"
 }
