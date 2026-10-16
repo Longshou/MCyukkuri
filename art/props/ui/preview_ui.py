@@ -98,7 +98,7 @@ def tagtext(t): return ' / '.join(tr(f'shop.mcyukkuri.tag.{k}') for k in t)
 def new_canvas(w, h, s): c = Canvas(w, h, s); c.panel(0, 0, w, h); return c
 def tabs(c, sel):
     for i in range(4): c.tab(8 + i * 82, 6, 78, 22, tr(f'shop.mcyukkuri.tab.{i}'), i, i == sel)
-def footer(c, left=True): 
+def footer(c, left=True):
     if left: button(c, 8, 224, 40, 20, '<'); button(c, 52, 224, 40, 20, '>')
     button(c, 272, 224, 60, 20, tr('gui.done'))
 

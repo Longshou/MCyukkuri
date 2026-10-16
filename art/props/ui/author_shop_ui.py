@@ -90,7 +90,7 @@ star(104, {'o': rgb(G['outline']), 'L': rgb(G['light']), 'M': rgb(G['shade'][2])
 star(113, {'o': DEEP, 'L': rgb('#cdbf9d'), 'M': rgb('#bfb08c'), 'D': rgb('#a89a78')})
 # --- ability bars: track + four fills, each a different pattern (solid / diagonal / dots / vertical stripes)
 TRACK = rgb('#4a3f30'); TRACK_IN = rgb('#2c251c')
-rect(0, 24, 8, 6, TRACK); 
+rect(0, 24, 8, 6, TRACK);
 for i in range(8): put(i, 24, OUT); put(i, 29, LIGHT)
 for j in range(6): put(0, 24 + j, OUT); put(7, 24 + j, OUT)
 for i in range(1, 7): put(i, 25, TRACK_IN)
