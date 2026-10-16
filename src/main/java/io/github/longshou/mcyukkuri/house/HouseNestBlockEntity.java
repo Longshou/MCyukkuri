@@ -29,7 +29,7 @@ import net.minecraft.world.phys.Vec3;
 public final class HouseNestBlockEntity extends BlockEntity {
     public static final int MATERIAL_COST=6,STOCK_CAP=24,EGG_CAP=4;
     private UUID identity=UUID.randomUUID(),broodId,carer;
-    private int materials,food,dirt,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
+    private int materials,food,dirt,pendingDebris,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
     private boolean destroyed,legacyEggs;
     private final HouseEggs.Ref[] eggSlots=new HouseEggs.Ref[EGG_CAP];
     private final float[] eggProgress=new float[EGG_CAP];
@@ -40,6 +40,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
 
     public HouseNestBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.HOUSE_NEST_ENTITY.get(),pos,state);}
     public UUID identity(){return identity;}
+    public boolean natural(){return getBlockState().is(ModBlocks.HOUSE_DUST_NEST.get());}
     public int materials(){return materials;}
     public int food(){return food;}
     public int dirt(){return dirt;}
@@ -87,13 +88,12 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     /** Called at the actual contact beat, not while a parent is merely walking towards the nest. */
     public boolean tend(YukkuriEntity entity){
-        if(!(level instanceof ServerLevel)||!built()||destroyed||disturbedTicks>0||!healthyCarer(entity)
+        if(!(level instanceof ServerLevel server)||HouseholdProtection.protectedAt(server,worldPosition)||!built()||destroyed||disturbedTicks>0||!healthyCarer(entity)
                 ||entity.house().nest()!=this||entity.position().distanceToSqr(eggPosition(0))>1.21
                 ||!atEggs(entity))return false;
         carer=entity.getUUID();careTicks=240;
-        if(dirt>0&&maintenanceWait==0){
+        if(dirt>0&&maintenanceWait==0&&HouseholdEcology.residual(server,entrance().north(),new ItemStack(ModItems.WASTE.get()))==1){
             dirt--;maintenanceWait=240;
-            Block.popResource(level,entrance().north(),new ItemStack(ModItems.WASTE.get()));
         }
         changed();return true;
     }
@@ -142,6 +142,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void tick(){
         if(!(level instanceof ServerLevel server)||destroyed)return;
+        boolean protectedHome=HouseholdProtection.protectedAt(server,worldPosition);
         ticks++;migrateEggs(server);
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
                 e->e.isAlive()&&e.getVariant().isHouse());
@@ -150,10 +151,18 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(disturbedTicks>0&&--disturbedTicks==0)changed();
         if(maintenanceWait>0)maintenanceWait--;
         if(hatchWait>0)hatchWait--;
-        for(int slot=0;slot<EGG_CAP;slot++)if(hatchAges[slot]>=0&&++hatchAges[slot]>=120){hatchAges[slot]=-1;changed();}
-        // At most two founders; recruitment is a quiet-night opportunity, not a hidden resident store.
-        if(FamilyConfig.HOUSE_ARRIVALS.get()&&arrivals<2&&food>=4&&dirt<6&&level.isNight()
-                &&disturbedTicks==0&&sheltered()&&residents.size()<2){
+        for(int slot=0;slot<EGG_CAP;slot++)if(hatchAges[slot]>=0&&++hatchAges[slot]>=120){
+            hatchAges[slot]=-1;
+            // A shell becomes one unit of nest debris; full nests eject the real excess.
+            if(dirt<8)dirt++;
+            else if(HouseholdEcology.residual(server,entrance().north(),new ItemStack(ModItems.WASTE.get()))==0)pendingDebris++;
+            changed();
+        }
+        if(pendingDebris>0&&dirt<8){pendingDebris--;dirt++;changed();}
+        // Existing crumbs OR nesting fibers are enough for opportunistic settlers, in daylight too.
+        if(HouseholdEcology.enabled(server)
+                &&arrivals<2&&(food>0||materials>0)&&disturbedTicks==0&&sheltered()&&residents.size()<2
+                &&HouseholdEcology.recentlyActive(server,worldPosition)&&!HouseholdEcology.suppressed(server,worldPosition)){
             if(++arrivalTicks>=FamilyConfig.HOUSE_ARRIVAL_TIME.get()){
                 arrivalTicks=0;
                 if(FamilyData.get(server).population(server,worldPosition)<FamilyConfig.POPULATION_CAP.get()){
@@ -162,7 +171,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
                         entity.moveTo(Vec3.atBottomCenterOf(entrance()));entity.setPersistenceRequired();
                         if(entity.life().dryStand(entrance()))entity.setOnGround(true);
                         if(entity.life().dryStand(entrance())&&server.noCollision(entity)&&entity.house().choose(this)&&server.addFreshEntity(entity)){
-                            food-=4;arrivals++;entity.showReaction("surprise","house_arrival",100);changed();
+                            arrivals++;entity.showReaction("surprise","house_arrival",100);changed();
                         }
                     }
                 }
@@ -170,7 +179,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         }
         if(ticks%600==0&&!residents.isEmpty()){dirt=Math.min(8,dirt+1);changed();}
         syncEggs(server);
-        boolean cared=careTicks>0&&carer!=null&&server.getEntity(carer) instanceof YukkuriEntity parent
+        boolean cared=!protectedHome&&careTicks>0&&carer!=null&&server.getEntity(carer) instanceof YukkuriEntity parent
                 &&healthyCarer(parent)&&parent.house().nest()==this&&atEggs(parent)&&parent.position().distanceToSqr(eggPosition(0))<1.5625;
         if(!cared&&careTicks>0){careTicks=0;carer=null;changed();}
         if(built()&&dirt<6&&food>0&&disturbedTicks==0&&cared&&eggs()>0){
@@ -194,7 +203,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
             FamilyData.get(server).setDirty();
         }
         // Founding a clutch needs both parents physically at home. A transferred clutch occupies real slots.
-        if(eggs()==0&&Arrays.stream(eggSlots).allMatch(java.util.Objects::isNull)
+        if(!protectedHome&&eggs()==0&&Arrays.stream(eggSlots).allMatch(java.util.Objects::isNull)
                 &&Arrays.stream(hatchAges).allMatch(age->age<0)&&ticks%100==0&&built()&&food>=4&&dirt<6&&disturbedTicks==0){
             var candidates=residents.stream().filter(this::healthyCarer)
                     .filter(e->e.position().distanceToSqr(eggPosition(0))<2.25)
@@ -227,7 +236,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     /** Gentle cleaning removes loose dirt and food. Dismantling only loses eggs still physically here. */
     public int clean(boolean dismantle){
-        int removed=dirt+food;dirt=food=0;
+        int removed=dirt+pendingDebris+food+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();dirt=food=pendingDebris=0;
+        Arrays.fill(hatchAges,-1);
         if(level instanceof ServerLevel server){
             migrateEggs(server);
             if(dismantle){
@@ -241,18 +251,21 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void destroyNest(){
         if(destroyed)return;
+        int debris=materials+dirt+pendingDebris+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();
         if(level instanceof ServerLevel server){
-            migrateEggs(server);for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
+            migrateEggs(server);syncEggs(server);debris+=eggs();
+            for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
         }
         disturb(true);destroyed=true;
         if(food>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.FOOD_SCRAP.get(),food));
-        if(materials+dirt>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),materials+dirt));
-        food=materials=dirt=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
+        if(debris>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),debris));
+        food=materials=dirt=pendingDebris=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
     }
     private void changed(){setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
         tag.putInt("Materials",materials);tag.putInt("Food",food);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);tag.putInt("ArrivalTicks",arrivalTicks);tag.putInt("Arrivals",arrivals);
+        tag.putInt("PendingDebris",pendingDebris);
         tag.putInt("CareTicks",careTicks);tag.putInt("DisturbedTicks",disturbedTicks);tag.putInt("MaintenanceWait",maintenanceWait);
         tag.putInt("HatchWait",hatchWait);tag.putInt("IncubationFoodTicks",incubationFoodTicks);
         var slots=new ListTag();
@@ -265,6 +278,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
         materials=Math.clamp(tag.getInt("Materials"),0,MATERIAL_COST);food=Math.clamp(tag.getInt("Food"),0,STOCK_CAP);dirt=Math.clamp(tag.getInt("Dirt"),0,8);
+        pendingDebris=Math.clamp(tag.getInt("PendingDebris"),0,EGG_CAP);
         ticks=Math.max(0,tag.getInt("Ticks"));arrivalTicks=Math.max(0,tag.getInt("ArrivalTicks"));arrivals=Math.clamp(tag.getInt("Arrivals"),0,2);
         careTicks=Math.clamp(tag.getInt("CareTicks"),0,240);carer=null;
         disturbedTicks=Math.clamp(tag.getInt("DisturbedTicks"),0,240);maintenanceWait=Math.clamp(tag.getInt("MaintenanceWait"),0,240);

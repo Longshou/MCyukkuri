@@ -3775,5 +3775,21 @@
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/house_ecology.json",
     "status": "pending_user_review",
     "scope": "Original peek, tend, listen, startled and lost-home motion adaptation; not a frame-by-frame reconstruction of published artwork."
+  },
+  "household_guard": {
+    "source": "standards/yukkuri-library/ecology/house-guard",
+    "recipe": "standards/yukkuri-library/ecology/house-guard/recipe.json",
+    "exporter": "standards/yukkuri-library/ecology/house-guard/build.py",
+    "snapshot": "art/source/house-guard",
+    "manifest": "art/source/house-guard/manifest.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/models/block/household_guard.json",
+      "src/main/resources/assets/mcyukkuri/models/item/household_guard.json",
+      "src/main/resources/assets/mcyukkuri/blockstates/household_guard.json"
+    ],
+    "preview_source": "standards/yukkuri-library/ecology/house-nest/render_supplies.py",
+    "preview": ".local/previews/house-supplies/house-supplies.png",
+    "status": "pending_user_review",
+    "scope": "Original small sealed filter-box geometry; Minecraft metal, dark filter, paper and red seal surface textures, no reused item icon. Native block/item models require no block entity or ticking renderer."
   }
 }

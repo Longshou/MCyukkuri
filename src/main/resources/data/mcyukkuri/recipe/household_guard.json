@@ -1,0 +1,7 @@
+{
+  "type":"minecraft:crafting_shaped",
+  "category":"misc",
+  "pattern":[" I ","PWP"," I "],
+  "key":{"I":{"item":"minecraft:iron_ingot"},"P":{"item":"minecraft:paper"},"W":{"tag":"minecraft:wool"}},
+  "result":{"id":"mcyukkuri:household_guard","count":1}
+}

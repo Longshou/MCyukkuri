@@ -11,7 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
@@ -23,8 +25,9 @@ public final class HouseLife {
     private UUID nestIdentity;
     private ItemStack carrying = ItemStack.EMPTY;
     private ItemEntity target;
+    private SupplyPileBlockEntity supplyTarget;
     private int wait, ticks, careWait, sleepTicks, startledTicks, lostTicks;
-    private boolean active, tending, rested, careContact;
+    private boolean active, tending, rested, careContact, feeding;
     private Phase phase = Phase.NONE;
     private int interaction, interactionTicks;
     private Vec3 contactTarget, restPosition;
@@ -40,7 +43,8 @@ public final class HouseLife {
         return nestIdentity == null || nestIdentity.equals(value.identity()) ? value : null;
     }
     public boolean choose(HouseNestBlockEntity value) {
-        if (!entity.getVariant().isHouse() || !value.usable(entity) || !entity.life().reachable(value.entrance(), false)) return false;
+        if (!entity.getVariant().isHouse() || !value.usable(entity) || !entity.life().reachable(value.entrance(), false)
+                || entity.level() instanceof ServerLevel level && HouseholdProtection.protectedAt(level,value.getBlockPos())) return false;
         nest = GlobalPos.of(entity.level().dimension(), value.getBlockPos()); nestIdentity = value.identity();
         lostTicks = 0; refuge = null; entity.setPersistenceRequired(); return true;
     }
@@ -48,10 +52,10 @@ public final class HouseLife {
     public boolean active() { return active; }
     public boolean sleeping() { return active && phase == Phase.REST && sleepTicks >= 20 && physicallyInside(); }
     public boolean wantsCrawl() {
-        return active && interaction == 0 && carrying.isEmpty() && (phase == Phase.ENTER || phase == Phase.LEAVE
+        return active && interaction == 0 && (phase == Phase.ENTER || phase == Phase.LEAVE
                 || phase == Phase.APPROACH && nestPosition() != null
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(nestPosition().north())) < 2.25
-                || target != null && target.isAlive() && entity.distanceToSqr(target) < .36);
+                || carrying.isEmpty() && sourceAvailable() && entity.distanceToSqr(sourcePosition()) < .36);
     }
     private boolean physicallyInside() {
         var value = nest();
@@ -107,7 +111,8 @@ public final class HouseLife {
         HouseNestBlockEntity best = null; double score = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-8, -1, -8), entity.blockPosition().offset(8, 1, 8))) {
             if (!entity.level().hasChunkAt(pos) || !(entity.level().getBlockEntity(pos) instanceof HouseNestBlockEntity candidate)
-                    || !candidate.usable(entity) || candidate.disturbedTicks() > 0) continue;
+                    || !candidate.usable(entity) || candidate.disturbedTicks() > 0
+                    || HouseholdProtection.protectedAt((ServerLevel)entity.level(),pos)) continue;
             double candidateScore = entity.distanceToSqr(Vec3.atBottomCenterOf(candidate.entrance())) - (candidate.built() ? 4 : 0);
             if (candidateScore < score && entity.life().reachable(candidate.entrance(), false)) { best = candidate; score = candidateScore; }
         }
@@ -132,13 +137,6 @@ public final class HouseLife {
     /** Called by the higher-priority life goal after executable thirst, toilet and thermal needs. */
     public boolean preferRoutine() {
         if (!available() || entity.family().active()) return false;
-        if (entity.life().nutrition() < 30) {
-            var value = nest();
-            if (value == null || value.food() == 0 || !entity.life().canEat() || !mayTransfer()) {
-                if (!carrying.isEmpty()) dropCarrying();
-                return false;
-            }
-        }
         return canUse();
     }
     public boolean canUse() {
@@ -148,6 +146,16 @@ public final class HouseLife {
         wait = 40;
         if (startledTicks > 0) return start(Phase.STARTLED);
         var value = nest();
+        // Hunger overrides daytime hiding, including before a stray has found its first nest.
+        if (entity.life().nutrition() < 30 && entity.life().canEat() && mayTransfer()) {
+            if (!carrying.isEmpty() && !carrying.is(ModItems.FOOD_SCRAP.get())) dropCarrying();
+            if (carrying.isEmpty() && value != null && value.usable(entity) && value.food() > 0) return start(Phase.NONE);
+            feeding = true;
+            if (carrying.is(ModItems.FOOD_SCRAP.get())) return start(Phase.NONE);
+            findSource(value);
+            if (sourceAvailable()) return start(Phase.NONE);
+            feeding = false;
+        }
         if (value == null || !value.usable(entity)) {
             if (lostTicks > 0 && entity.life().nutrition() >= 30 && entity.life().energy() >= 25) return start(Phase.SEARCH);
             // A carried item must remain real even when no reachable replacement home exists.
@@ -155,26 +163,62 @@ public final class HouseLife {
             return false;
         }
         if (value.disturbedTicks() > 0) return start(physicallyInside() ? Phase.LEAVE : Phase.SEARCH);
-        if (!carrying.isEmpty() && mayTransfer()) return start(Phase.NONE);
+        if (!carrying.isEmpty() && mayTransfer()) {
+            if (wantedResource(value,carrying)) return start(Phase.NONE);
+            dropCarrying(); // Retry only when planning again; a full store must not prevent rest.
+        }
         if (entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) return start(Phase.NONE);
         if (entity.life().nutrition() < 30) return false;
         tending = needsTending(value);
         if (tending || wantsShelter()) return enterHome();
-        if (mayTransfer()) {
-            target = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
-                    item.isAlive() && !item.hasPickUpDelay() && wantedResource(value, item.getItem()))
-                    .stream().filter(item -> entity.life().reachable(item.blockPosition(), false))
-                    .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-        }
-        if (target != null) return start(Phase.NONE);
+        if (carrying.isEmpty() && mayTransfer()) findSource(value);
+        if (sourceAvailable()) return start(Phase.NONE);
         // An empty search is a short watch at the entrance, then ordinary exploration may resume.
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) < 16) return start(Phase.PEEK);
         return false;
     }
     private boolean wantedResource(HouseNestBlockEntity value, ItemStack item) {
-        return item.is(ModItems.FOOD_SCRAP.get()) && value.food() < HouseNestBlockEntity.STOCK_CAP
-                || HouseNestBlockEntity.isMaterial(item) && !value.built();
+        if (feeding) return item.is(ModItems.FOOD_SCRAP.get());
+        return value != null && (item.is(ModItems.FOOD_SCRAP.get()) && value.food() < HouseNestBlockEntity.STOCK_CAP
+                || HouseNestBlockEntity.isMaterial(item) && !value.built());
     }
+    private void findSource(HouseNestBlockEntity value) {
+        supplyTarget = null;
+        target = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
+                item.isAlive() && !item.hasPickUpDelay() && wantedResource(value, item.getItem()))
+                .stream().filter(item -> entity.life().reachable(item.blockPosition(), false))
+                .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        double nearest = target == null ? Double.MAX_VALUE : entity.distanceToSqr(target);
+        for (var pos : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-1,-8),entity.blockPosition().offset(8,1,8))) {
+            if (!entity.level().hasChunkAt(pos) || !(entity.level().getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)
+                    || !wantedResource(value,pile.contents())) continue;
+            double distance = entity.distanceToSqr(pile.pickupPosition());
+            if (distance >= nearest || !entity.life().reachable(pos,false)) continue;
+            supplyTarget = pile; target = null; nearest = distance;
+        }
+    }
+    private boolean sourceAvailable() {
+        if (target != null) return target.isAlive() && !target.hasPickUpDelay() && !target.getItem().isEmpty();
+        // Keep the actual block entity reference: removal or replacement must cancel an in-flight pickup.
+        return supplyTarget != null && !supplyTarget.isRemoved() && entity.level().hasChunkAt(supplyTarget.getBlockPos())
+                && entity.level().getBlockEntity(supplyTarget.getBlockPos()) == supplyTarget && !supplyTarget.contents().isEmpty();
+    }
+    private ItemStack sourceContents() { return target != null ? target.getItem() : supplyTarget.contents(); }
+    private Vec3 sourcePosition() { return target != null ? target.position() : supplyTarget.pickupPosition(); }
+    private BlockPos sourceBlock() { return target != null ? target.blockPosition() : supplyTarget.getBlockPos(); }
+    private boolean canSeeSource() {
+        if (target != null) return entity.hasLineOfSight(target);
+        var hit = entity.level().clip(new ClipContext(entity.getEyePosition(),sourcePosition(),
+                ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,entity));
+        return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(supplyTarget.getBlockPos());
+    }
+    private ItemStack takeSource() {
+        if (target == null) return supplyTarget.takeOne();
+        var taken = target.getItem().split(1);
+        if (target.getItem().isEmpty()) target.discard();
+        return taken;
+    }
+    private void clearSource() { target = null; supplyTarget = null; }
     private boolean enterHome() {
         restPosition = null; sleepTicks = 0; rested = false;
         return start(physicallyInside() ? tending ? Phase.TEND : Phase.REST : Phase.APPROACH);
@@ -184,6 +228,7 @@ public final class HouseLife {
     public boolean canContinue() {
         if (!active || !available()) return false;
         if (phase == Phase.STARTLED || phase == Phase.SEARCH) return ticks < 160;
+        if (feeding) return ticks < 400 && (sourceAvailable() || carrying.is(ModItems.FOOD_SCRAP.get()));
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
         int limit = phase == Phase.ENTER || phase == Phase.LEAVE
@@ -201,24 +246,27 @@ public final class HouseLife {
         if (phase == Phase.SEARCH) { seekRefuge(); return; }
         if (interaction > 0) { tickInteraction(value); return; }
         if (phase != Phase.NONE) { tickHome(value); return; }
-        if (!carrying.isEmpty()) {
+        if (feeding && carrying.is(ModItems.FOOD_SCRAP.get())) {
+            if (entity.life().beginMeal(carrying, null, false)) carrying = ItemStack.EMPTY;
+            stop(); return;
+        }
+        if (!feeding && !carrying.isEmpty() && wantedResource(value,carrying)) {
             Vec3 entrance = Vec3.atBottomCenterOf(value.entrance());
             if (inReach(entrance)) beginInteraction(2, entrance);
             else if (entity.distanceToSqr(entrance) < 2.25) approach(entrance);
             else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
-        } else if (entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) {
+        } else if (value != null && entity.life().canEat() && entity.life().nutrition() < 65 && value.food() > 0 && mayTransfer()) {
             Vec3 entrance = Vec3.atBottomCenterOf(value.entrance());
             if (entity.distanceToSqr(entrance) < .36) {
                 ItemStack food = value.takeFood();
                 if (!food.isEmpty() && !entity.life().beginMeal(food, null, false)) value.deposit(food);
                 stop();
             } else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), 1, false)) stop();
-        } else if (target != null && target.isAlive()) {
-            if (!wantedResource(value, target.getItem()) || !mayTransfer()) { stop(); return; }
-            if (inReach(target.position()) && entity.hasLineOfSight(target)) {
-                if (!target.hasPickUpDelay()) beginInteraction(1, target.position()); else stop();
-            } else if (entity.distanceToSqr(target) < 2.25 && entity.hasLineOfSight(target) && entity.life().dryStand(target.blockPosition())) approach(target.position());
-            else if (ticks % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1.1, false)) stop();
+        } else if (sourceAvailable()) {
+            if (!wantedResource(value, sourceContents()) || !mayTransfer()) { stop(); return; }
+            if (inReach(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
+            else if (entity.distanceToSqr(sourcePosition()) < 2.25 && canSeeSource() && entity.life().dryStand(sourceBlock())) approach(sourcePosition());
+            else if (ticks % 10 == 1 && !entity.life().navigate(sourceBlock(), 1.1, false)) stop();
         } else stop();
     }
     private Vec3 restingPlace(HouseNestBlockEntity value) {
@@ -347,10 +395,18 @@ public final class HouseLife {
         if (interactionTicks == 13) {
             if (!mayTransfer()) { stop(); return; }
             if (interaction == 1) {
-                if (target == null || !target.isAlive() || target.hasPickUpDelay() || !inReach(target.position()) || !entity.hasLineOfSight(target)
-                        || !wantedResource(value, target.getItem())) { stop(); return; }
-                carrying = target.getItem().split(1); if (target.getItem().isEmpty()) target.discard(); target = null;
+                if (!sourceAvailable() || !inReach(sourcePosition()) || !canSeeSource()
+                        || !wantedResource(value, sourceContents())) { stop(); return; }
+                if (feeding && (!entity.life().canEat() || !entity.life().acceptsFood(sourceContents()))) { stop(); return; }
+                var taken = takeSource(); clearSource();
+                if (taken.isEmpty()) { stop(); return; }
                 entity.showReaction("happy", "house_pickup", 60);
+                if (feeding) {
+                    // All beginMeal preconditions were checked before this synchronous one-item debit.
+                    // The meal occupies life.mouth; an undepositable piece of lint stays in house.carrying.
+                    entity.life().beginMeal(taken, null, false); stop(); return;
+                }
+                carrying = taken;
             } else if (!carrying.isEmpty()) {
                 if (!inReach(Vec3.atBottomCenterOf(value.entrance()))) { stop(); return; }
                 if (value.deposit(carrying)) { carrying = ItemStack.EMPTY; entity.showReaction("happy", "house_deposit", 60); }
@@ -363,10 +419,16 @@ public final class HouseLife {
         }
     }
     public void stop() {
-        finishRest(); active = false; target = null; contactTarget = restPosition = null;
-        interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = false; wait = Math.max(wait, 40);
+        finishRest(); active = false; clearSource(); contactTarget = restPosition = null;
+        interaction = interactionTicks = ticks = 0; phase = Phase.NONE; tending = careContact = feeding = false; wait = Math.max(wait, 40);
     }
-    public void dropCarrying() { if (!carrying.isEmpty()) { entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY; } }
+    public void dropCarrying() {
+        if (carrying.isEmpty()) return;
+        if (!entity.isAlive()) { entity.spawnAtLocation(carrying.copy()); carrying = ItemStack.EMPTY; }
+        else if (entity.level() instanceof ServerLevel level) {
+            carrying.shrink(HouseholdEcology.residual(level,entity.blockPosition(),carrying));
+        }
+    }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Version", 2); FamilyData.putPosition(tag, "Nest", nest);
         if (nestIdentity != null) tag.putUUID("NestIdentity", nestIdentity);

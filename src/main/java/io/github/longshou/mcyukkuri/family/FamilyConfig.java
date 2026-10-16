@@ -29,7 +29,7 @@ public final class FamilyConfig {
         AGING = b.comment("Allow old age to cause natural death after the saved lifespan.").define("aging", true);
         EGG_INCUBATION = b.defineInRange("eggIncubationTicks", 4000, 200, 2400000);
         HOUSE_ARRIVALS=b.define("houseArrivals",true);
-        HOUSE_ARRIVAL_TIME=b.comment("Loaded ticks per founder; each crevice attracts at most two and consumes four scraps each.").defineInRange("houseArrivalTicks",1200,200,2400000);
+        HOUSE_ARRIVAL_TIME=b.comment("Loaded ticks per opportunistic founder. Any stored food or lint attracts up to two; no night or four-food requirement.").defineInRange("houseArrivalTicks",600,200,2400000);
         b.pop(); SPEC = b.build();
     }
     private FamilyConfig() {}

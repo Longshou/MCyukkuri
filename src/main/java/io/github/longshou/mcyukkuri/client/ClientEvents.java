@@ -22,6 +22,7 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(io.github.longshou.mcyukkuri.play.Playgrounds.ENTITY.get(),PlaygroundRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.SHELTER_ENTITY.get(), ShelterRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.HOUSE_NEST_ENTITY.get(),HouseNestRenderer::new);
+        event.registerBlockEntityRenderer(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),SupplyPileRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.GRAVE_ENTITY.get(),GraveRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.DETACHED_STEM_ENTITY.get(),DetachedStemRenderer::new);
     }
