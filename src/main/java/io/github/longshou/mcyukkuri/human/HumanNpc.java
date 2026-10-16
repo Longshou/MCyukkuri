@@ -81,10 +81,12 @@ public final class HumanNpc extends PathfinderMob {
     }
     public void endTrade(Player player) { if (player.getUUID().equals(customer)) customer = null; }
     public boolean isTrading() {
+        if (io.github.longshou.mcyukkuri.pet.exam.ExamSession.active(this)) return true;
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
         return player != null && (player.containerMenu instanceof HumanMenu menu && menu.target() == this
-                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this);
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.pet.exam.ExamMenu exam && exam.target() == this);
     }
     public List<YukkuriEntity> animals(String use) {
         return level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(48), y -> y.isAlive()
@@ -105,7 +107,11 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!level().isClientSide) { if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this); else HumanMenu.open(player, this); }
+        if (!level().isClientSide) {
+            if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this);
+            else if (job() == Job.EXAMINER) io.github.longshou.mcyukkuri.pet.exam.ExamMenu.open(player, this);
+            else HumanMenu.open(player, this);
+        }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
@@ -182,6 +188,7 @@ public final class HumanNpc extends PathfinderMob {
         @Override public void start() { elapsed = 0; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
+            if (io.github.longshou.mcyukkuri.pet.exam.ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
             if (isTrading()) { getNavigation().stop(); return; }
             if (resting()) {
                 if (distanceToSqr(Vec3.atBottomCenterOf(home())) > 2) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, .8);
