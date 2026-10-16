@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
+import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import java.util.List;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -39,22 +41,45 @@ public final class WashClothItem extends Item {
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
     @Override public InteractionResult useOn(UseOnContext context) {
+        if(context.getPlayer()!=null&&!context.getPlayer().mayBuild())return InteractionResult.FAIL;
         if(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest){
-            if(water(context.getItemInHand())==0)return InteractionResult.FAIL;
-            if(!context.getLevel().isClientSide){int removed=nest.clean(context.getPlayer()!=null&&context.getPlayer().isSecondaryUseActive());
-                if(removed>0){useWater(context.getItemInHand());var waste=new ItemStack(ModItems.WASTE.get(),removed);
-                    if(context.getPlayer()!=null&&!context.getPlayer().getInventory().add(waste))context.getPlayer().drop(waste,false);}}
+            if(!nest.natural()&&water(context.getItemInHand())==0)return InteractionResult.FAIL;
+            if(!context.getLevel().isClientSide){
+                boolean dismantle=context.getPlayer()!=null&&context.getPlayer().isSecondaryUseActive();
+                int removed=nest.clean(dismantle);
+                io.github.longshou.mcyukkuri.house.HouseholdEcology.cleaned((net.minecraft.server.level.ServerLevel)context.getLevel(),context.getClickedPos());
+                if(nest.natural()&&dismantle)context.getLevel().removeBlock(context.getClickedPos(),false);
+                if(removed>0){if(water(context.getItemInHand())>0)useWater(context.getItemInHand());var waste=new ItemStack(ModItems.WASTE.get(),removed);
+                    if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);
+                    else net.minecraft.world.level.block.Block.popResource(context.getLevel(),context.getClickedPos(),waste);}}
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
         if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) || care.kind()!=CareBlock.Kind.TOILET) {
             var player=context.getPlayer();
-            if(player==null||!player.isSecondaryUseActive()||water(context.getItemInHand())==0)return InteractionResult.PASS;
+            if(player==null||!player.isSecondaryUseActive())return InteractionResult.PASS;
             if(!context.getLevel().isClientSide){
-                var area=new net.minecraft.world.phys.AABB(context.getClickedPos().above()).inflate(1);
+                var level=context.getLevel();
+                var center=level.getBlockEntity(context.getClickedPos()) instanceof SupplyPileBlockEntity?context.getClickedPos():context.getClickedPos().above();
+                var area=new net.minecraft.world.phys.AABB(center).inflate(1);
+                int removed=0;
+                for(var cursor:net.minecraft.core.BlockPos.betweenClosed(center.offset(-1,0,-1),center.offset(1,0,1))){
+                    var pos=cursor.immutable();
+                    if(!level.hasChunkAt(pos)||!SupplyPiles.supported(level,pos)||!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())continue;
+                    var point=net.minecraft.world.phys.Vec3.atBottomCenterOf(pos).add(0,.025,0);
+                    if(player.getEyePosition().distanceToSqr(point)>25||level.clip(new ClipContext(player.getEyePosition(),point,
+                            ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,player)).getType()!=net.minecraft.world.phys.HitResult.Type.MISS)continue;
+                    if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)removed+=pile.takeAll().getCount();
+                    io.github.longshou.mcyukkuri.house.HouseholdEcology.cleaned((net.minecraft.server.level.ServerLevel)level,pos);
+                }
                 var loose=context.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,area,
                         item->item.isAlive()&&player.distanceToSqr(item)<=25&&player.hasLineOfSight(item)
-                                &&(item.getItem().is(ModItems.FILLING.get())||item.getItem().is(ModItems.FOOD_SCRAP.get())||item.getItem().is(ModItems.WASTE.get())));
-                if(!loose.isEmpty()){loose.forEach(net.minecraft.world.entity.Entity::discard);useWater(context.getItemInHand());}
+                                &&(item.getItem().is(ModItems.FILLING.get())||SupplyPiles.material(item.getItem())));
+                for(var item:loose){removed+=item.getItem().getCount();item.discard();}
+                io.github.longshou.mcyukkuri.house.HouseholdEcology.cleaned((net.minecraft.server.level.ServerLevel)level,center);
+                if(removed>0){
+                    SupplyPiles.give(player,new ItemStack(ModItems.WASTE.get(),removed));if(water(context.getItemInHand())>0)useWater(context.getItemInHand());
+                }
+                player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.cleaned",removed),true);
             }
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
@@ -68,5 +93,6 @@ public final class WashClothItem extends Item {
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("care.mcyukkuri.cloth.charges",water(stack)));
+        tooltip.add(Component.translatable("house.mcyukkuri.supplies.sweep"));
     }
 }

@@ -11,12 +11,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-/** A readable small home: sleep pad, separate egg cup, front pantry and recent broken shells. */
+/** Real lint forms a low home; only a placed crevice adds the surrounding furniture. */
 public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlockEntity> {
     public HouseNestRenderer(BlockEntityRendererProvider.Context context) {}
 
     @Override public void render(HouseNestBlockEntity nest,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
-        mesh("house_crevice",.5,0,.5,1,1,1,pose,buffers,light,overlay);
+        if(!nest.natural())mesh("house_crevice",.5,0,.5,1,1,1,pose,buffers,light,overlay);
         float built=Math.min(1,nest.materials()/(float)HouseNestBlockEntity.MATERIAL_COST);
         if(built>0) {
             // Lining grows in place as real lint arrives; a single strand never creates a full bed.

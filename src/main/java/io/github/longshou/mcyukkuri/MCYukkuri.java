@@ -46,6 +46,10 @@ public final class MCYukkuri {
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::leaving);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseEggs::leaving);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseholdEcology::tick);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseholdEcology::finished);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseholdEcology::joining);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseholdEcology::leaving);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.entity.YukkuriEntity::breatheInHat);
         container.registerConfig(ModConfig.Type.SERVER, YukkuriConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, io.github.longshou.mcyukkuri.family.FamilyConfig.SPEC, "mcyukkuri-family.toml");
@@ -56,6 +60,7 @@ public final class MCYukkuri {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(()->net.minecraft.world.level.block.ComposterBlock.COMPOSTABLES.put(ModItems.WASTE.get(),.3f));
         LOGGER.info("Yukkuri World initialized with nine Yukkuri entity types.");
     }
 }

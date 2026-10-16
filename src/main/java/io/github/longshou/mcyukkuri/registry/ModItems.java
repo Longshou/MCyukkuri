@@ -28,14 +28,15 @@ public final class ModItems {
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier", () -> new CarrierItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<BlockItem> HOUSEHOLD_GUARD=ITEMS.registerSimpleBlockItem("household_guard",ModBlocks.HOUSEHOLD_GUARD);
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
-    public static final DeferredItem<Item> WASTE = ITEMS.registerSimpleItem("yukkuri_waste", new Item.Properties());
-    public static final DeferredItem<Item> FOOD_SCRAP=ITEMS.registerSimpleItem("food_scrap",new Item.Properties());
-    public static final DeferredItem<Item> NEST_LINT=ITEMS.registerSimpleItem("nest_lint",new Item.Properties());
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.SupplyItem> WASTE = ITEMS.register("yukkuri_waste",()->new io.github.longshou.mcyukkuri.item.SupplyItem(new Item.Properties()));
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.SupplyItem> FOOD_SCRAP=ITEMS.register("food_scrap",()->new io.github.longshou.mcyukkuri.item.SupplyItem(new Item.Properties()));
+    public static final DeferredItem<io.github.longshou.mcyukkuri.item.SupplyItem> NEST_LINT=ITEMS.register("nest_lint",()->new io.github.longshou.mcyukkuri.item.SupplyItem(new Item.Properties()));
     public static final DeferredItem<io.github.longshou.mcyukkuri.item.HouseEggItem> HOUSE_EGG=ITEMS.register("house_egg",
             ()->new io.github.longshou.mcyukkuri.item.HouseEggItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> YUKKURI_STEM=ITEMS.registerSimpleItem("yukkuri_stem",new Item.Properties());

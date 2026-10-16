@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.p0;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
+import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -11,19 +12,25 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
@@ -31,34 +38,35 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class HouseRoutineGameTests {
     private static final BlockPos HOME = new BlockPos(1528,65,8);
+    private static final BlockPos SCRAPS = HOME.offset(-1,0,-2), LINT = HOME.offset(-2,0,-2);
 
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=2000,batch="house_ecology")
     public static void dayRestAndEggCareLeadToRealNightForaging(GameTestHelper helper) {
         var level = helper.getLevel();
+        HouseholdEcologyGameTests.acquireEnvironment(level);
         long time = level.getDayTime();
         boolean daylight = level.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT);
-        boolean grief = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
         boolean forced = level.getForcedChunks().contains(ChunkPos.asLong(HOME.getX() >> 4,HOME.getZ() >> 4));
         var actors = new ArrayList<YukkuriEntity>();
         var heldEggs = new ArrayList<ItemStack>();
         var blocks = new LinkedHashMap<BlockPos,BlockState>();
         var trace = new ArrayList<Map<String,Object>>();
         HouseNestBlockEntity[] nest = {null}; FamilyData.Brood[] brood = {null};
-        ItemEntity[] scraps = {null}, lint = {null};
         boolean[] cleaned = {false}, slept = {false,false}, tended = {false}, picked = {false}, carried = {false}, releasedCare = {false};
         int[] stage = {0}, nightStock = {0}, outsideTicks = {0};
         Runnable cleanup = () -> {
             if (cleaned[0]) return; cleaned[0] = true;
+            try {
             actors.forEach(Entity::discard);
             if (brood[0] != null) FamilyData.get(level).cancel(brood[0]);
             if (nest[0] != null) nest[0].clean(true);
-            level.getEntitiesOfClass(ItemEntity.class,new AABB(HOME).inflate(8)).forEach(Entity::discard);
             blocks.forEach(level::setBlockAndUpdate);
+            level.getEntitiesOfClass(ItemEntity.class,new AABB(HOME).inflate(8)).forEach(Entity::discard);
             level.setDayTime(time); level.updateSkyBrightness();
             level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(daylight,level.getServer());
-            level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(grief,level.getServer());
             level.setChunkForced(HOME.getX() >> 4,HOME.getZ() >> 4,forced);
             P0Control.write("house-routine-trace",trace);
+            } finally {HouseholdEcologyGameTests.releaseEnvironment(level);}
         };
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
@@ -93,7 +101,8 @@ public final class HouseRoutineGameTests {
             }
             if (helper.getTick()%20 == 0) trace.add(Map.of("tick",helper.getTick(),"phase",stage[0],
                     "actors",state(actors),
-                    "food",nest[0].food(),"care",nest[0].careTicks(),"progress",nest[0].progress()));
+                    "food",nest[0].food(),"care",nest[0].careTicks(),"progress",nest[0].progress(),
+                    "source",remaining(level,SCRAPS),"carried",carriedFood(actors)));
         });
         helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper,95,95,0,0)).thenExecute(() -> {
             for (var p : BlockPos.betweenClosed(HOME.offset(-5,-1,-5),HOME.offset(5,4,5))) {
@@ -102,7 +111,6 @@ public final class HouseRoutineGameTests {
                         ? Blocks.STONE.defaultBlockState() : Blocks.AIR.defaultBlockState());
             }
             level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());
-            level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
             level.setDayTime(6000); level.updateSkyBrightness();
             level.setBlockAndUpdate(HOME,ModBlocks.HOUSE_NEST.get().defaultBlockState());
             nest[0] = (HouseNestBlockEntity) level.getBlockEntity(HOME);
@@ -131,13 +139,16 @@ public final class HouseRoutineGameTests {
             helper.assertTrue(heldEggs.size()==brood[0].children.size() && nest[0].eggs()==0,"withdrawal moves each actual egg once without deleting its family reservation");
             level.setDayTime(18000); level.updateSkyBrightness();
             nightStock[0] = nest[0].food();
-            scraps[0] = drop(level,new Vec3(HOME.getX()-.5,HOME.getY(),HOME.getZ()-1.8),new ItemStack(ModItems.FOOD_SCRAP.get(),3));
-            lint[0] = drop(level,new Vec3(HOME.getX()-1.5,HOME.getY(),HOME.getZ()-1.8),new ItemStack(ModItems.NEST_LINT.get()));
+            placeSupplies(helper,SCRAPS,new ItemStack(ModItems.FOOD_SCRAP.get(),3));
+            placeSupplies(helper,LINT,new ItemStack(ModItems.NEST_LINT.get()));
             stage[0] = 2;
         }).thenWaitUntil(() -> {
-            helper.assertTrue(picked[0] && carried[0] && releasedCare[0] && nest[0].food()>nightStock[0],
-                    "dusk must lead to real pickup, visible carriage and a food-stock increase: pickup="+picked[0]+", carried="+carried[0]+", releasedCare="+releasedCare[0]+", food="+nest[0].food()+", care="+nest[0].careTicks()+", progress="+nest[0].progress()+" / "+state(actors));
-            helper.assertTrue(lint[0].isAlive() && lint[0].getItem().is(ModItems.NEST_LINT.get()),"a built nest leaves surplus lining as material instead of eating it as food");
+            helper.assertTrue(picked[0] && carried[0] && releasedCare[0] && nest[0].food()>nightStock[0] && remaining(level,SCRAPS)<3,
+                    "dusk must lead to real pickup from the player's pile, visible carriage and a food-stock increase: pickup="+picked[0]+", carried="+carried[0]+", releasedCare="+releasedCare[0]+", source="+remaining(level,SCRAPS)+", food="+nest[0].food()+", care="+nest[0].careTicks()+", progress="+nest[0].progress()+" / "+state(actors));
+            helper.assertTrue(nest[0].food()+remaining(level,SCRAPS)+carriedFood(actors)==nightStock[0]+3,
+                    "each supplied scrap must remain in exactly one of the pile, an actual mouth, or nest stock");
+            helper.assertTrue(level.getBlockEntity(LINT) instanceof SupplyPileBlockEntity pile && pile.contents().is(ModItems.NEST_LINT.get()) && pile.contents().getCount()==1,
+                    "a built nest leaves surplus lining in its ground pile instead of eating it as food");
         }).thenSucceed();
     }
 
@@ -150,9 +161,30 @@ public final class HouseRoutineGameTests {
         if (!level.addFreshEntity(actor)) throw new IllegalStateException("House parent insertion failed");
         return actor;
     }
-    private static ItemEntity drop(ServerLevel level,Vec3 position,ItemStack stack) {
-        var item = new ItemEntity(level,position.x,position.y,position.z,stack); item.setNoPickUpDelay(); item.setDeltaMovement(Vec3.ZERO);
-        if (!level.addFreshEntity(item)) throw new IllegalStateException("House source item insertion failed"); return item;
+    private static void placeSupplies(GameTestHelper helper,BlockPos position,ItemStack stack) {
+        var level = helper.getLevel(); int count = stack.getCount(); var item = stack.getItem();
+        var player = net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,
+                new com.mojang.authlib.GameProfile(UUID.fromString("a1bd6324-ae96-4ec5-9dc3-c399234c02a4"),"HouseSupplies"));
+        player.setGameMode(GameType.SURVIVAL); player.setShiftKeyDown(false);
+        player.moveTo(position.getX()+.5,position.getY(),position.getZ()-1,0,0);
+        player.setItemInHand(InteractionHand.MAIN_HAND,stack);
+        var hit = new BlockHitResult(Vec3.atBottomCenterOf(position),Direction.UP,position.below(),false);
+        for (int i=0;i<count;i++) {
+            var held = player.getMainHandItem(); int before = held.getCount();
+            var result = held.useOn(new UseOnContext(player,InteractionHand.MAIN_HAND,hit));
+            helper.assertTrue(result.consumesAction() && player.getMainHandItem().getCount()==before-1,
+                    "ordinary survival use-on must consume exactly one real supply per ground placement");
+        }
+        helper.assertTrue(level.getBlockEntity(position) instanceof SupplyPileBlockEntity pile
+                        && pile.contents().is(item) && pile.contents().getCount()==count,
+                "each user-placed resource must appear in the actual persistent pile before AI can take it");
+    }
+    private static int remaining(ServerLevel level,BlockPos position) {
+        return level.getBlockEntity(position) instanceof SupplyPileBlockEntity pile ? pile.contents().getCount() : 0;
+    }
+    private static int carriedFood(List<YukkuriEntity> actors) {
+        return actors.stream().map(YukkuriEntity::house).map(h -> h.carrying())
+                .filter(stack -> stack.is(ModItems.FOOD_SCRAP.get())).mapToInt(ItemStack::getCount).sum();
     }
     private static String state(List<YukkuriEntity> actors) {
         return actors.stream().map(e -> e.position()+" behavior="+e.getBehaviorId()+" phase="+e.house().activity()

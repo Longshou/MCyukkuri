@@ -151,26 +151,26 @@ public final class CoreGameTests {
     }
     private void check(String name,boolean pass,Object detail){checks.add(new Check(name,pass,String.valueOf(detail)));}
     private void founders(){
-        later(1,"founder setup",()->{clear();level.setDayTime(18000);level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);});
+        later(1,"founder setup",()->{clear();level.setDayTime(18000);level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(true,level.getServer());level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);io.github.longshou.mcyukkuri.house.HouseholdEcology.sample(level,java.util.List.of(NEST.north()));});
         later(20,"founder wait",()->{
             check("supplied crevice does not create founders instantly",level.getEntitiesOfClass(YukkuriEntity.class,AREA).isEmpty(),nest.identity());
             var data=nest.saveWithFullMetadata(level.registryAccess());data.putInt("ArrivalTicks",io.github.longshou.mcyukkuri.family.FamilyConfig.HOUSE_ARRIVAL_TIME.get()-1);nest.loadWithComponents(data,level.registryAccess());
         });
         later(3,"first founder",()->{
             var residents=level.getEntitiesOfClass(YukkuriEntity.class,AREA);
-            check("loaded attraction creates one real founder and consumes four scraps",residents.size()==1&&founderStock(residents)==8,residents.size()+" / "+founderStock(residents));
+            check("recent household activity and real stock attract one founder without charging food",residents.size()==1&&founderStock(residents)==12,residents.size()+" / "+founderStock(residents));
             residents.forEach(e->{e.setNoAi(true);e.moveTo(272,65,19,0,0);});
             var data=nest.saveWithFullMetadata(level.registryAccess());data.putInt("ArrivalTicks",io.github.longshou.mcyukkuri.family.FamilyConfig.HOUSE_ARRIVAL_TIME.get()-1);nest.loadWithComponents(data,level.registryAccess());
         });
         later(3,"second founder",()->{
             var residents=level.getEntitiesOfClass(YukkuriEntity.class,AREA);
-            check("second founder has independent identity and costs four scraps",residents.size()==2&&founderStock(residents)==4&&!residents.getFirst().getUUID().equals(residents.getLast().getUUID()),residents.size()+" / "+founderStock(residents));
+            check("second opportunistic founder has independent identity without charging food",residents.size()==2&&founderStock(residents)==12&&!residents.getFirst().getUUID().equals(residents.getLast().getUUID()),residents.size()+" / "+founderStock(residents));
             residents.forEach(e->{e.setNoAi(true);e.moveTo(272,65,19,0,0);});
             var data=nest.saveWithFullMetadata(level.registryAccess());data.putInt("ArrivalTicks",io.github.longshou.mcyukkuri.family.FamilyConfig.HOUSE_ARRIVAL_TIME.get());nest.loadWithComponents(data,level.registryAccess());
         });
         later(3,"founder limit and burial",()->{
             var residents=level.getEntitiesOfClass(YukkuriEntity.class,AREA);
-            check("saved arrival limit prevents unlimited founders",residents.size()==2&&founderStock(residents)==4,nest.saveWithFullMetadata(level.registryAccess()));
+            check("saved arrival limit prevents unlimited founders",residents.size()==2&&founderStock(residents)==12,nest.saveWithFullMetadata(level.registryAccess()));
             var player=net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,new com.mojang.authlib.GameProfile(UUID.fromString("4666b2ae-1bc7-47d3-a1cf-130132ffb487"),"CoreCare"));
             player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
             var soil=new BlockPos(270,64,17);level.setBlockAndUpdate(soil,Blocks.DIRT.defaultBlockState());player.moveTo(270,65,18,0,0);
@@ -186,6 +186,7 @@ public final class CoreGameTests {
                 check("survival shovel burial consumes body and creates an actual mound",corpse.isRemoved()&&level.getBlockState(soil.above()).is(ModBlocks.GRAVE.get()),level.getBlockState(soil.above()));
             }
             level.setBlockAndUpdate(soil.above(),Blocks.AIR.defaultBlockState());
+            level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());
         });
     }
     private int founderStock(List<YukkuriEntity> residents){return nest.food()+residents.stream().mapToInt(e->e.life().mouth().getCount()+e.house().carrying().getCount()).sum();}

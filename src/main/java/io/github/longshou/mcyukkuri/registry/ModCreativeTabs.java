@@ -38,6 +38,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.CARDBOARD_SHELTER.get());
                         output.accept(ModItems.WILD_LATRINE.get());
                         output.accept(ModItems.WASH_CLOTH.get());
+                        output.accept(ModItems.HOUSEHOLD_GUARD.get());
                         output.accept(ModItems.TOY.get());
                         output.accept(ModItems.WHISTLE.get());
                         output.accept(ModItems.COMPANION_CORD.get());
