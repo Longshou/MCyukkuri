@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.item.NotebookItem;
@@ -15,6 +16,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MCYukkuri.MOD_ID);
+    private static final java.util.Map<YukkuriVariant.Accessory, DeferredItem<AccessoryItem>> ACCESSORIES = new java.util.EnumMap<>(YukkuriVariant.Accessory.class);
+    private static final java.util.Map<YukkuriVariant, DeferredItem<DeferredSpawnEggItem>> SPAWN_EGGS = new java.util.EnumMap<>(YukkuriVariant.class);
     public static final java.util.Map<io.github.longshou.mcyukkuri.item.OperationToolItem.Tool,DeferredItem<io.github.longshou.mcyukkuri.item.OperationToolItem>> OPERATION_TOOLS=new java.util.EnumMap<>(io.github.longshou.mcyukkuri.item.OperationToolItem.Tool.class);
     static {
         for(var tool:io.github.longshou.mcyukkuri.item.OperationToolItem.Tool.values())OPERATION_TOOLS.put(tool,ITEMS.register(tool.id,()->new io.github.longshou.mcyukkuri.item.OperationToolItem(tool,
@@ -26,8 +29,8 @@ public final class ModItems {
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier", () -> new CarrierItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> RIBBON = ITEMS.register("reimu_ribbon", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> HAT = ITEMS.register("marisa_hat", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
+    public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> TOY = ITEMS.registerSimpleItem("yarn_ball", new Item.Properties().stacksTo(16));
     public static final DeferredItem<Item> WASTE = ITEMS.registerSimpleItem("yukkuri_waste", new Item.Properties());
@@ -52,42 +55,35 @@ public final class ModItems {
     public static final DeferredItem<ShelterItem> FOREST_BURROW=ITEMS.register("forest_burrow",()->new ShelterItem(io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<ShelterItem> CARDBOARD_SHELTER=ITEMS.register("cardboard_shelter",()->new ShelterItem(io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD,new Item.Properties().stacksTo(16)));
 
-    public static final DeferredItem<DeferredSpawnEggItem> REIMU_SPAWN_EGG = ITEMS.register(
-            "reimu_spawn_egg", () -> new DeferredSpawnEggItem(
-                    ModEntities.REIMU, 0xF1D5AA, 0xB52E36, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> MARISA_SPAWN_EGG = ITEMS.register(
-            "marisa_spawn_egg", () -> new DeferredSpawnEggItem(
-                    ModEntities.MARISA, 0xF1D5AA, 0x342D38, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> HOUSE_REIMU_SPAWN_EGG = ITEMS.register(
-            "house_reimu_spawn_egg", () -> new DeferredSpawnEggItem(
-                    ModEntities.HOUSE_REIMU, 0xD9C39D, 0xB52E36, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> HOUSE_MARISA_SPAWN_EGG = ITEMS.register(
-            "house_marisa_spawn_egg", () -> new DeferredSpawnEggItem(
-                    ModEntities.HOUSE_MARISA, 0xD9C39D, 0x342D38, new Item.Properties()));
+    public static final DeferredItem<DeferredSpawnEggItem> REIMU_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.REIMU);
+    public static final DeferredItem<DeferredSpawnEggItem> MARISA_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.MARISA);
+    public static final DeferredItem<DeferredSpawnEggItem> HOUSE_REIMU_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.HOUSE_REIMU);
+    public static final DeferredItem<DeferredSpawnEggItem> HOUSE_MARISA_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.HOUSE_MARISA);
 
-    public static final DeferredItem<DeferredSpawnEggItem> CHEN_SPAWN_EGG = ITEMS.register(
-            "chen_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.CHEN, 0xF1D5AA, 0x497647, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> ALICE_SPAWN_EGG = ITEMS.register(
-            "alice_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.ALICE, 0xF1D5AA, 0xC93D4E, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> PATCHOULI_SPAWN_EGG = ITEMS.register(
-            "patchouli_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.PATCHOULI, 0xF1D5AA, 0xAD87BA, new Item.Properties()));
-    public static final DeferredItem<AccessoryItem> CHEN_HAT = ITEMS.register("chen_hat", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> ALICE_HEADBAND = ITEMS.register("alice_headband", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> PATCHOULI_BONNET = ITEMS.register("patchouli_bonnet", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<DeferredSpawnEggItem> REMILIA_SPAWN_EGG = ITEMS.register(
-            "remilia_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.REMILIA, 0xA8C4E8, 0xC63642, new Item.Properties()));
-    public static final DeferredItem<DeferredSpawnEggItem> FLANDRE_SPAWN_EGG = ITEMS.register(
-            "flandre_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.FLANDRE, 0xEFCA65, 0xD03848, new Item.Properties()));
-    public static final DeferredItem<AccessoryItem> REMILIA_BONNET = ITEMS.register("remilia_bonnet", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<AccessoryItem> FLANDRE_BONNET = ITEMS.register("flandre_bonnet", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<DeferredSpawnEggItem> CHEN_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.CHEN);
+    public static final DeferredItem<DeferredSpawnEggItem> ALICE_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.ALICE);
+    public static final DeferredItem<DeferredSpawnEggItem> PATCHOULI_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.PATCHOULI);
+    public static final DeferredItem<AccessoryItem> CHEN_HAT = registerAccessory(YukkuriVariant.Accessory.CHEN_HAT);
+    public static final DeferredItem<AccessoryItem> ALICE_HEADBAND = registerAccessory(YukkuriVariant.Accessory.ALICE_HEADBAND);
+    public static final DeferredItem<AccessoryItem> PATCHOULI_BONNET = registerAccessory(YukkuriVariant.Accessory.PATCHOULI_BONNET);
+    public static final DeferredItem<DeferredSpawnEggItem> REMILIA_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.REMILIA);
+    public static final DeferredItem<DeferredSpawnEggItem> FLANDRE_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.FLANDRE);
+    public static final DeferredItem<AccessoryItem> REMILIA_BONNET = registerAccessory(YukkuriVariant.Accessory.REMILIA_BONNET);
+    public static final DeferredItem<AccessoryItem> FLANDRE_BONNET = registerAccessory(YukkuriVariant.Accessory.FLANDRE_BONNET);
     public static final DeferredItem<BlockItem> PREDATOR_NEST = ITEMS.registerSimpleBlockItem("predator_nest", ModBlocks.PREDATOR_NEST);
-    public static Item accessoryFor(io.github.longshou.mcyukkuri.entity.YukkuriVariant variant) {
-        return switch (variant) {
-            case REIMU, HOUSE_REIMU -> RIBBON.get(); case MARISA, HOUSE_MARISA -> HAT.get();
-            case CHEN -> CHEN_HAT.get(); case ALICE -> ALICE_HEADBAND.get(); case PATCHOULI -> PATCHOULI_BONNET.get();
-            case REMILIA -> REMILIA_BONNET.get(); case FLANDRE -> FLANDRE_BONNET.get();
-        };
+    private static DeferredItem<AccessoryItem> registerAccessory(YukkuriVariant.Accessory accessory) {
+        var holder = ITEMS.register(accessory.id(), () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
+        ACCESSORIES.put(accessory, holder);
+        return holder;
     }
+    private static DeferredItem<DeferredSpawnEggItem> registerSpawnEgg(YukkuriVariant variant) {
+        var holder = ITEMS.register(variant.spawnEggId(), () -> new DeferredSpawnEggItem(
+                ModEntities.holderFor(variant), variant.eggPrimaryColor(), variant.eggSecondaryColor(), new Item.Properties()));
+        SPAWN_EGGS.put(variant, holder);
+        return holder;
+    }
+    public static DeferredSpawnEggItem spawnEggFor(YukkuriVariant variant) { return SPAWN_EGGS.get(variant).get(); }
+    public static Item accessoryFor(YukkuriVariant variant) { return ACCESSORIES.get(variant.accessory()).get(); }
     public static Item accessoryFor(io.github.longshou.mcyukkuri.entity.YukkuriEntity entity) {
         return entity.subspecies().kind() == io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.SHELL_MARISA
                 ? MARISA_SHELL.get() : accessoryFor(entity.getVariant());
