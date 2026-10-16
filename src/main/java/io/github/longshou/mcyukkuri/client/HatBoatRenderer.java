@@ -32,14 +32,14 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
      *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
     @Override public void render(HatBoatEntity boat,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         if(boat.state()==HatBoatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
-        pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
-        if(boat.state()==HatBoatEntity.State.CAPSIZED)pose.mulPose(Axis.ZP.rotationDegrees(150));
+        pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-HatBoatMotion.yaw(boat,partial)));
+        HatBoatMotion.local(pose,boat,partial);
         float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();
         pose.translate(0,(ground?HatVessel.NEST_HEIGHT:HatVessel.FREEBOARD)*k,0);
         pose.pushPose();pose.scale(scale,scale*(ground?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT),scale);
         PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
-        if(boat.isAfloat()||boat.isMoored()||boat.isCradle())HatCargoRenderer.render(boat,pose,buffers,light);
+        if(boat.isAfloat()||boat.isMoored()||boat.isCradle()||boat.capsizing())HatCargoRenderer.render(boat,pose,buffers,light);
         // Enqueue the actual render transform; water-only depth follows real entity/item colors later this frame.
         HatWaterMaskPass.enqueue(boat,pose);
         pose.popPose();

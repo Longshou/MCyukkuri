@@ -50,13 +50,14 @@ public final class HatShoreForage {
         if (++elapsed > 500 || !owner.level().hasChunkAt(target.plant())
                 || !owner.level().getBlockState(target.plant()).equals(target.state())
                 || !HatBoatRoute.calmSurface(owner.level(), target.water())
+                || !owner.aquaticLife().familyLife().allowsDestination(boat,berth(target.plant(),target.water(),boat))
                 || HatBoatCargo.CAPACITY - boat.cargo().count() < fruitCount(target.state())
-                || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; stop(); return false; }
+                || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; boat.stopPaddling(); stop(); return false; }
         Vec3 berth = berth(target.plant(), target.water(),boat);
         if (boat.position().subtract(berth).horizontalDistanceSqr() > .0025) {
             reason = "sailing_to_shore";
             contact = 0; lastContactTick = Long.MIN_VALUE;
-            if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; stop(); return false; }
+            if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; boat.stopPaddling(); stop(); return false; }
             return true;
         }
         boat.holdPosition();
@@ -104,8 +105,11 @@ public final class HatShoreForage {
             var water = plant.relative(side).below();
             if (!HatBoatRoute.calmSurface(level, water)) { rejectedWater++; continue; }
             var berth = berth(plant, water, boat);
+            if (!owner.aquaticLife().familyLife().allowsDestination(boat,berth)) { rejectedRoute++; continue; }
             if (!level.noCollision(boat, boat.getBoundingBox().move(berth.subtract(boat.position())))) { rejectedCollision++; continue; }
-            if (HatBoatRoute.find(boat, berth).isEmpty() && !finalLegClear(boat,water,berth)) { rejectedRoute++; continue; }
+            var route = HatBoatRoute.find(boat, berth,p -> owner.aquaticLife().familyLife().allowsDestination(boat,p));
+            if (route.stream().anyMatch(p -> !owner.aquaticLife().familyLife().allowsDestination(boat,p))
+                    || route.isEmpty() && !finalLegClear(boat,water,berth)) { rejectedRoute++; continue; }
             return new Target(plant, water.immutable(), level.getBlockState(plant));
         }
         return null;
@@ -119,7 +123,9 @@ public final class HatShoreForage {
     }
 
     private boolean sailToBerth(HatBoatEntity boat, Vec3 berth) {
-        var route = new ArrayList<>(HatBoatRoute.find(boat, berth));
+        if (!owner.aquaticLife().familyLife().allowsDestination(boat,berth)) return false;
+        var route = new ArrayList<>(HatBoatRoute.find(boat, berth,p -> owner.aquaticLife().familyLife().allowsDestination(boat,p)));
+        if (route.stream().anyMatch(p -> !owner.aquaticLife().familyLife().allowsDestination(boat,p))) return false;
         if (route.isEmpty() && !finalLegClear(boat,target.water(),berth)) return false;
         // Surface BFS ends at a cell centre. This final waypoint stays inside that same calm water cell;
         // all movement/collisions still run through the actual hat paddling physics.
@@ -135,7 +141,8 @@ public final class HatShoreForage {
         for(int i=1;i<=steps;i++) {
             var at=boat.position().lerp(berth,(double)i/steps);
             var cell=BlockPos.containing(at.x,at.y-.12,at.z);
-            if(!HatBoatRoute.calmSurface(level,cell)||!level.noCollision(boat,boat.getBoundingBox().move(at.subtract(boat.position()))))return false;
+            if(!owner.aquaticLife().familyLife().allowsDestination(boat,at)
+                    ||!HatBoatRoute.calmSurface(level,cell)||!level.noCollision(boat,boat.getBoundingBox().move(at.subtract(boat.position()))))return false;
         }
         return true;
     }

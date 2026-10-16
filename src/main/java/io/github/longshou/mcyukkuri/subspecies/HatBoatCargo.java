@@ -47,6 +47,25 @@ public final class HatBoatCargo {
         if (!creative) source.shrink(amount);
         changed(); return amount;
     }
+    /** Share up to two actual servings with a child's own nearby hat, keeping one serving in the parent hat.
+     *  The caller arranges physical docking/launch contact before requesting this inventory handoff. */
+    public int transferProvisionsTo(HatBoatCargo receiver,YukkuriEntity eater,int limit) {
+        if(receiver==null||receiver==this||eater==null||boat.level().isClientSide
+                ||boat.level()!=receiver.boat.level()||!boat.isAfloat()||!receiver.boat.isAfloat()
+                ||!boat.young(eater)||!eater.getUUID().equals(receiver.boat.ownerYukkuri())
+                ||eater.getVehicle()!=boat&&eater.getVehicle()!=receiver.boat
+                ||!eater.childhood().canEatSolid()||boat.distanceToSqr(receiver.boat)>9)return 0;
+        int remaining=Math.min(Math.min(2,Math.max(0,limit)),Math.max(0,count()-1)),moved=0;
+        for(var stack:food){
+            if(remaining==0)break;
+            if(!eater.life().acceptsFood(stack))continue;
+            // store(false) shrinks this exact source stack only by the amount the receiver accepted.
+            int accepted=receiver.store(stack,remaining,false);
+            moved+=accepted;remaining-=accepted;
+        }
+        if(moved>0){food.removeIf(ItemStack::isEmpty);changed();}
+        return moved;
+    }
     public boolean feed(YukkuriEntity rider) {
         if (boat.level().isClientSide || rider.getVehicle() != boat || !rider.life().canEat()
                 || rider.life().isSleeping()) return false;

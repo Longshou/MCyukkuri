@@ -366,11 +366,16 @@ public final class YukkuriLife {
     }
     /** Voluntarily using one's own hat as a vessel is not an accessory theft. */
     public UUID stowAccessory() {
+        return stowAccessory(null);
+    }
+    /** A child's folded vessel retains its identity through repeated refuge and relaunch. */
+    public UUID stowAccessory(UUID retainedToken) {
         if (!accessory) return null;
-        accessory = false; accessoryToken = UUID.randomUUID(); return accessoryToken;
+        accessory = false; accessoryToken = retainedToken == null ? UUID.randomUUID() : retainedToken; return accessoryToken;
     }
     public UUID takeAccessory(UUID player,UUID token) {
         if (!accessory) return null;
+        entity.aquaticLife().firstVoyage().dropStoredCargo();
         accessory = false; accessoryToken = token; personality.accessoryTaken(player);
         entity.showReaction("surprise", "lost_accessory", 100); return accessoryToken;
     }

@@ -38,6 +38,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         float elapsed = Math.max(0,(entity.level().getGameTime()-entity.getAnimationStartTick()+partialTick)/20f);
         String expression = YukkuriModel.get(entity.subspecies().assetId())
                 .expressionFor(entity.getAnimationId(),elapsed,entity.getExpressionId());
+        // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
+        if(entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+                &&(boat.rocking()||boat.capsizing()))expression=entity.family().adult()?"surprise":"teary";
+        else if(!entity.isPassenger()&&entity.isInWaterOrBubble())expression="teary";
         return MCYukkuri.id("textures/entity/" + entity.subspecies().assetId() + "/" + expression + ".png");
     }
 
@@ -50,6 +54,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.pushPose();
             var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;
             boolean hatCarrier=entity.isVehicle()&&io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity);
+            var rockingHat=entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat?boat
+                    :hatParent!=null&&hatParent.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity carriedBoat?carriedBoat:null;
+            if(rockingHat!=null)HatBoatMotion.rider(pose,entity,rockingHat,partialTick);
             if(hatParent!=null){
                 var offset=io.github.longshou.mcyukkuri.family.HatCarry.seatWorld(hatParent,partialTick).subtract(entity.getPosition(partialTick));
                 pose.translate(offset.x,offset.y,offset.z);
@@ -106,6 +113,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();
+            if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
+                action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
+            // Water escape has no planted feet: retain a low existing motion rather than a stale flee/waddle clip.
+            if(!entity.isPassenger()&&entity.isInWaterOrBubble()&&!operated)
+                action=model.hasClip("struggle")?"struggle":"tremble";
             model.renderLiving(operated||behavior.equals("slide_down")?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?"idle":behavior, phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
@@ -132,7 +144,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var held=heldIndex==0?entity.getMouthItem():aquaticCare?entity.aquaticServing():entity.getCarriedItem();
                 if(held.isEmpty())continue;
                 boolean mash=io.github.longshou.mcyukkuri.life.InfantFood.isMash(held);
-                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!aquaticCare&&!mash?model.gripPoint():null;
+                // The parent's real pending twig is mouth-held until the server hands that same item to the child.
+                boolean givingPaddle=heldIndex==1&&behavior.equals("boat_give_paddle");
+                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!aquaticCare&&!mash&&!givingPaddle?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
                 else {
@@ -228,6 +242,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);
         float wave=(float)Math.sin(phaseTicks*Math.PI/20);
+        if(!operated&&!entity.isPassenger()&&entity.isInWaterOrBubble()){
+            // The real entity's buoyancy/escape velocity still owns translation; only a small distressed roll is visual.
+            float time=entity.tickCount+partialTick+entity.getId()*.31f;
+            pose.mulPose(Axis.ZP.rotationDegrees((float)Math.sin(time*.65)*6));
+            pose.mulPose(Axis.XP.rotationDegrees(-4+(float)Math.sin(time*.43)*3));
+        }
         if (!operated && (behavior.equals("boat_feed_young") || behavior.equals("boat_nuzzle"))
                 && entity.level().getEntity(entity.aquaticChildId()) instanceof YukkuriEntity young
                 && entity.getVehicle() != null && entity.getVehicle() == young.getVehicle()) {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -31,18 +32,25 @@ public final class HatBoatRoute {
     }
     /** Prefer quiet water near the remembered shore, without making an unreachable shortcut across land. */
     public static BlockPos restingPlace(HatBoatEntity boat, BlockPos bank) {
+        return restingPlace(boat,bank,p -> true);
+    }
+    public static BlockPos restingPlace(HatBoatEntity boat, BlockPos bank, Predicate<Vec3> allowed) {
         var level = boat.level(); var origin = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
         var candidates = new ArrayList<BlockPos>();
         for (var p : BlockPos.betweenClosed(origin.offset(-6,0,-6), origin.offset(6,0,6)))
-            if (quietSurface(level,p) && level.getWorldBorder().isWithinBounds(p)
+            if (quietSurface(level,p) && allowed.test(surface(level,p)) && level.getWorldBorder().isWithinBounds(p)
                     && level.noCollision(boat,boat.getBoundingBox().move(surface(level,p).subtract(boat.position())))) candidates.add(p.immutable());
         candidates.sort(java.util.Comparator.comparingDouble(p -> p.distSqr(origin)+(bank == null ? 0 : .4*p.distSqr(bank))));
         for (var p : candidates.stream().limit(8).toList())
-            if (p.equals(origin) || !find(boat,surface(level,p)).isEmpty()) return p;
+            if (p.equals(origin) || !find(boat,surface(level,p),allowed).isEmpty()) return p;
         return null;
     }
     /** Open-water path nearest the requested target; an unreachable target is never replaced with a straight line. */
     public static List<Vec3> find(HatBoatEntity boat, Vec3 target) {
+        return find(boat,target,p -> true);
+    }
+    /** Apply a family's allowed water area during the search, so a valid alternate route is still discoverable. */
+    public static List<Vec3> find(HatBoatEntity boat, Vec3 target, Predicate<Vec3> allowed) {
         var level = boat.level(); var origin = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
         if (!calmSurface(level, origin)) return List.of();
         Map<BlockPos, BlockPos> previous = new HashMap<>(); var queue = new ArrayDeque<BlockPos>();
@@ -54,7 +62,7 @@ public final class HatBoatRoute {
                 var next = at.relative(side);
                 if (previous.containsKey(next) || next.distSqr(origin) > RANGE*RANGE || !calmSurface(level, next)) continue;
                 var point = surface(level, next);
-                if (!level.getWorldBorder().isWithinBounds(next)
+                if (!allowed.test(point) || !level.getWorldBorder().isWithinBounds(next)
                         || !level.noCollision(boat, boat.getBoundingBox().move(point.subtract(boat.position())))) continue;
                 previous.put(next, at); queue.add(next);
                 double d = point.distanceToSqr(target);

@@ -274,6 +274,7 @@ public final class FamilyLife {
     /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
      *  a parabola. */
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){
+        if(flight!=null||hat.unsteadyMotion())return;
         var seat=hat.reserve(entity,prefer);double r=HatVessel.radius(entity.getBbWidth());
         var from=HatVessel.takeoff(entity.position(),hat.toWorld(seat),hat,r);
         flight=new Flight(hat.getUUID(),from,seat,null,HatVessel.solve(from,hat.toWorld(seat),hat,r,tmin));flightTick=0;
@@ -300,6 +301,7 @@ public final class FamilyLife {
     }
     /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
     public void embark(HatBoatEntity hat) {
+        if(flight!=null||hat.unsteadyMotion())return;
         var seat = hat.ownerSeat(entity);
         flight = new Flight(hat.getUUID(), entity.position(), seat, null,
                 HatVessel.solve(entity.position(), hat.toWorld(seat), hat, HatVessel.radius(entity.getBbWidth()), HatVessel.HOP_TMIN));
@@ -307,7 +309,8 @@ public final class FamilyLife {
     }
     /** A physical hop between two hats, clearing both brims; leave the source only after reserving the landing. */
     public boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
-        if (entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
+        if (flight!=null || from.unsteadyMotion() || to.unsteadyMotion()
+                || entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
                 || !entity.getUUID().equals(to.ownerYukkuri()) && (!to.young(entity) || !to.hasRoomFor(entity))) return false;
         var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity):to.reserve(entity,null);
         var start=entity.position(); var end=to.toWorld(seat); double r=HatVessel.radius(entity.getBbWidth());
@@ -315,22 +318,44 @@ public final class FamilyLife {
         from.holdPosition(); to.holdPosition(); entity.stopRiding();
         flight=new Flight(to.getUUID(),start,seat,null,duration); flightTick=0; entity.getNavigation().stop(); return true;
     }
+    /** A nearby parent lifts a swimming young over the brim, starting at its real water position. */
+    public boolean rescueIntoHat(HatBoatEntity hat){
+        if(entity.level().isClientSide||flight!=null||entity.isPassenger()||!entity.isInWaterOrBubble()
+                ||hat.level()!=entity.level()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()
+                ||!hat.young(entity)||!hat.hasRoomFor(entity)
+                ||!(level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent)||!hat.protects(parent))return false;
+        var local=hat.toLocal(entity.position());double radius=entity.getBbWidth()*.5;
+        double dx=Math.max(0,Math.abs(local.x)*hat.unit()-HatVessel.BRIM[0]*hat.unit()-radius);
+        double dz=Math.max(0,Math.abs(local.z)*hat.unit()-HatVessel.BRIM[1]*hat.unit()-radius);
+        if(dx*dx+dz*dz>.36||Math.abs(entity.getY()-hat.getY())>1.4||!parent.hasLineOfSight(entity))return false;
+        var seat=hat.reserve(entity,null);var start=entity.position();
+        entity.life().wakeInHat();parent.life().wakeInHat();hat.holdPosition();
+        flight=new Flight(hat.getUUID(),start,seat,null,
+                HatVessel.solve(start,hat.toWorld(seat),hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));
+        flightTick=0;entity.getNavigation().stop();entity.setDeltaMovement(Vec3.ZERO);return true;
+    }
     /** One tick along the flight; at its end a young bound for a hat boards it. */
     private boolean tickFlight(){
         if(flight==null)return false;
         var hat=flight.hat()!=null&&level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
-        if(flight.seat()!=null&&(hat==null||!hat.isAfloat()&&!hat.catches())){flight=null;return false;}  // no dry landing on a capsized hat
+        if(flight.seat()!=null&&(hat==null||hat.capsizing()||!hat.isAfloat()&&!hat.catches())){
+            if(hat!=null)hat.cancelIncoming(entity);
+            flight=null;return false; // The committed leap falls physically; never restart it in midair.
+        }
         var f=flight;var to=hat!=null?hat.toWorld(f.seat()):f.to();flightTick++;
         var at=HatVessel.arc(f.from(),to,f.ticks(),flightTick);
         entity.setPos(at.x,at.y,at.z);entity.fallDistance=0;entity.getNavigation().stop();entity.hasImpulse=true;
         if(flightTick<f.ticks()){entity.setDeltaMovement(HatVessel.arc(f.from(),to,f.ticks(),flightTick+1).subtract(at));return true;}
         flight=null;entity.setDeltaMovement(Vec3.ZERO);
-        if(hat!=null) { if (entity.getUUID().equals(hat.ownerYukkuri())) hat.board(entity); else hat.boardYoung(entity); }
+        if(hat!=null) {
+            if(hat.unsteadyMotion()){hat.cancelIncoming(entity);entity.setDeltaMovement(0,-.03,0);return true;}
+            if (entity.getUUID().equals(hat.ownerYukkuri())) hat.board(entity); else hat.boardYoung(entity);
+        }
         return true;
     }
     /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
     private HatBoatEntity nearHat(double reach){
-        return level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(reach,2,reach),b->(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))
+        return level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(reach,2,reach),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))
                 .stream().min(Comparator.comparingDouble(b->b.distanceToSqr(entity))).orElse(null);
     }
     /** A falling stem fruit meets the hat: on the floor it settles there (or bounces to its place), off the brim it
@@ -338,7 +363,7 @@ public final class FamilyLife {
     private boolean catchFalling(){
         if(flight!=null||entity.getDeltaMovement().y>0)return false;
         double r=HatVessel.radius(entity.getBbWidth());
-        for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))){
+        for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))){
             var l=hat.toLocal(entity.position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
             if(Double.isNaN(h)||l.y>h+1e-3)continue;
             var contact=hat.toWorld(new Vec3(l.x,h,l.z));entity.setPos(contact.x,contact.y,contact.z);entity.setDeltaMovement(Vec3.ZERO);
