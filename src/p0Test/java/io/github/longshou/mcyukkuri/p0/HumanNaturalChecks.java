@@ -60,7 +60,7 @@ public final class HumanNaturalChecks {
                 var humans=level.getEntitiesOfClass(HumanNpc.class,area,n->!n.siteRole().isEmpty());var animals=level.getEntitiesOfClass(YukkuriEntity.class,area,y->!HumanCommerce.data(y).getString("Use").isEmpty());
                 humans.forEach(n->n.setNoAi(true));animals.forEach(y->y.setNoAi(true));
                 require(humans.size()==(entry.getKey().equals("yukkuri_labor_factory")?2:3),"Natural resident count: "+entry.getKey()+" = "+humans.stream().map(HumanNpc::siteRole).toList());
-                require(animals.size()==(entry.getKey().equals("yukkuri_shop")?6:4),"Natural animal count: "+entry.getKey()+" = "+animals.size());
+                require(animals.size()==(entry.getKey().equals("yukkuri_shop")?14:4),"Natural animal count: "+entry.getKey()+" = "+animals.size());
                 require(animals.stream().noneMatch(y->HumanCommerce.data(y).contains("PendingRole")),"Natural animal ownership binds");
             }
             for(var entry:boxes.entrySet()) {
