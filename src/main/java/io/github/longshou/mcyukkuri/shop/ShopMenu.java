@@ -81,23 +81,38 @@ public final class ShopMenu extends AbstractContainerMenu {
     private final List<Quote> quotes = new ArrayList<>();
     private final List<UUID> mine = new ArrayList<>();
     private final Map<UUID, int[]> forecasts = new HashMap<>();
-    private final ContainerData data = new SimpleContainerData(56);
-    private int tab, page, selected, shopCount;
+    private final ContainerData data = new SimpleContainerData(57);
+    private int tab, page, selected, shopCount, focus = -1;
     private boolean penOk, custom;
 
-    public ShopMenu(int id, Inventory inventory, int entityId) {
+    public ShopMenu(int id, Inventory inventory, int entityId) { this(id, inventory, entityId, null); }
+    /** Server side only passes a focus animal (opened by clicking it): the menu starts on the LIVE page that lists it with its row highlighted (slot 56). */
+    private ShopMenu(int id, Inventory inventory, int entityId, UUID focusAnimal) {
         super(HumanWorld.SHOP_MENU.get(), id); viewer = inventory.player;
         target = viewer.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
         if (!viewer.level().isClientSide && target != null && target.job() == HumanNpc.Job.SHOPKEEPER)
             target.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y) -> -y.pet().grade().id())
                     .thenComparingInt(y -> y.getVariant().ordinal()).thenComparing(YukkuriEntity::getUUID))
                     .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), ShopPricing.price(y))));
+        if (focusAnimal != null) for (int i = 0; i < quotes.size(); i++) if (quotes.get(i).id.equals(focusAnimal)) { focus = i; page = i / 4; }
         addDataSlots(data); refresh();
     }
-    public static void open(Player p, HumanNpc npc) {
+    public static void open(Player p, HumanNpc npc) { open(p, npc, null); }
+    public static void open(Player p, HumanNpc npc, YukkuriEntity focusAnimal) {
         if (!(p instanceof ServerPlayer server) || !HumanMenu.valid(p, npc)) return;
         if (!npc.beginTrade(p)) { p.displayClientMessage(Component.translatable("human.mcyukkuri.busy"), true); return; }
-        server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ShopMenu(id, inv, npc.getId()), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
+        UUID focus = focusAnimal == null ? null : focusAnimal.getUUID();
+        server.openMenu(new SimpleMenuProvider((id, inv, owner) -> new ShopMenu(id, inv, npc.getId(), focus), npc.getDisplayName()), buf -> buf.writeVarInt(npc.getId()));
+    }
+    /** Right-click on a stock animal (empty hand, not sneaking) with its shopkeeper owner within 12 blocks: the animal appeals (bold) or bows, and that shopkeeper's menu opens on its row. */
+    public static boolean clickStock(Player p, YukkuriEntity y) {
+        if (!(p instanceof ServerPlayer) || !(y.level() instanceof ServerLevel level)) return false;
+        var commerce = HumanCommerce.data(y);
+        if (!commerce.getString("Use").equals("stock") || !commerce.hasUUID("Owner")) return false;
+        if (!(level.getEntity(commerce.getUUID("Owner")) instanceof HumanNpc npc) || npc.job() != HumanNpc.Job.SHOPKEEPER || !npc.isAlive() || npc.distanceToSqr(p) > 144) return false;
+        if (y.life().personality().trait(Trait.BOLDNESS) >= 40) { y.playAction("beg"); y.speak("shop_appeal"); } else y.playAction("bow");
+        if (!HumanMenu.valid(p, npc)) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.too_far"), true); return true; }
+        open(p, npc, y); return true;
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return data.get(index); }
@@ -162,9 +177,10 @@ public final class ShopMenu extends AbstractContainerMenu {
     // data
     private void refresh() {
         if (viewer.level().isClientSide || target == null) return;
-        for (int i = 0; i < 56; i++) data.set(i, 0);
+        for (int i = 0; i < 57; i++) data.set(i, 0);
         put(0, tab); put(1, target.remainingTrades()); put(2, target.level().isDay() ? 1 : 0); put(3, page); put(4, pageCount());
         put(5, shopCount); put(6, mine.size()); put(7, mine.isEmpty() ? 0 : selected + 1);
+        if (tab == LIVE && focus >= 0 && focus / 4 == page) put(56, focus % 4 + 1);
         if (tab == LIVE) {
             for (int i = 0; i < 4; i++) {
                 int idx = page * 4 + i; var y = quoted(idx); if (y == null) continue; int k = 8 + i * 12; var t = tags(y); var b = y.pet();
