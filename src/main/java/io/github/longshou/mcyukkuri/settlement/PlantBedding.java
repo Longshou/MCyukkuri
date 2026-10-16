@@ -33,7 +33,13 @@ public final class PlantBedding {
     public net.minecraft.nbt.CompoundTag debug(){
         var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("Candidates",candidates);tag.putInt("Supported",supportedSites);tag.putInt("Reachable",reachableSites);
         tag.putInt("Contact",contactTicks);tag.putInt("Elapsed",elapsed);
-        if(target!=null){tag.putString("Source",target.block().toShortString());tag.putString("Stand",target.stand().toString());}return tag;
+        if(target!=null){
+            tag.putString("Source",target.block().toShortString());tag.putString("Stand",target.stand().toString());
+            tag.putBoolean("Arrived",SurfaceApproach.arrived(entity,target.stand()));
+            tag.putBoolean("ClearLastStep",SurfaceApproach.clearLastStep(entity,target.stand()));
+            tag.putString("Wanted",new Vec3(entity.getMoveControl().getWantedX(),entity.getMoveControl().getWantedY(),entity.getMoveControl().getWantedZ()).toString());
+            tag.putDouble("SpeedModifier",entity.getMoveControl().getSpeedModifier());
+        }return tag;
     }
     public void stop(){target=null;contactTicks=elapsed=0;}
     public static ItemStack material(BlockState state){

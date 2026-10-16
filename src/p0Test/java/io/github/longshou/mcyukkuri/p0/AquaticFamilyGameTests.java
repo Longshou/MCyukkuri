@@ -85,6 +85,7 @@ public final class AquaticFamilyGameTests {
         // Calling tend repeatedly at one game time would never let a service berth arrive.
         int[] careStage={0}; boolean[] chewed={false}, firstMash={false}, lastTend={false}, nuzzleRelieved={false}, nuzzlePure={false};
         var lastServingTrace=new java.util.ArrayList<Map<String,Object>>();
+        float[] heldHeading={Float.NaN};
         helper.onEachTick(()->{
             if(cleaned[0])return;
             var hat=boat[0];
@@ -98,6 +99,11 @@ public final class AquaticFamilyGameTests {
                 nuzzlePure[0]=child.life().wetness()==wetBefore && child.life().hygiene()==hygieneBefore
                         && child.getHealth()==healthBefore && child.life().nutrition()==foodBefore;
             }
+            if(care.active()) {
+                if(Float.isFinite(heldHeading[0]))helper.assertTrue(Math.abs(net.minecraft.util.Mth.wrapDegrees(hat.getYRot()-heldHeading[0]))<.01,
+                        "turning a caregiving head never turns the supported hat floor beneath the pair");
+                heldHeading[0]=hat.getYRot();
+            } else heldHeading[0]=Float.NaN;
             if (careStage[0] == 4 && care.meals() == 2 && child.life().mealTicks() > 0) {
                 helper.assertTrue(care.active() && hat.careSeatReady(child), "served child retains real parent contact until swallowing finishes");
                 helper.assertTrue(care.response(child).equals("boat_eat"), "a swallowing child stops begging for its already-delivered serving");
@@ -116,9 +122,9 @@ public final class AquaticFamilyGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
-                if(careStage[0]==5&&boat[0]!=null) {
-                    var trace=lastServingDebug(level,boat[0],care,parent,sibling,lastTend[0]);
-                    trace.put("event","test_failed"); lastServingTrace.add(trace);
+                if(careStage[0]>0&&boat[0]!=null) {
+                    var trace=lastServingDebug(level,boat[0],care,parent,careStage[0]==5?sibling:child,lastTend[0]);
+                    trace.put("event","test_failed");trace.put("stage",careStage[0]);lastServingTrace.add(trace);
                     P0Control.write("aquatic-last-serving-trace",lastServingTrace);
                 }
                 cleanup.run();
@@ -213,6 +219,7 @@ public final class AquaticFamilyGameTests {
         Map<BlockPos,BlockState> terrain = new HashMap<>();
         for (var p : BlockPos.betweenClosed(x,64,0,x+15,71,15)) terrain.put(p.immutable(),level.getBlockState(p));
         boolean[] cleaned = {false};
+        YukkuriEntity[] watch={null,null};HatBoatEntity[] watchHat={null};
         Runnable cleanup = () -> {
             if (cleaned[0]) return; cleaned[0] = true;
             level.getEntitiesOfClass(Entity.class,new AABB(x,60,0,x+16,76,16),
@@ -222,7 +229,11 @@ public final class AquaticFamilyGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                if(watch[0]!=null && watch[1]!=null && watchHat[0]!=null)
+                    P0Control.write("hat-supported-care-failure",lastServingDebug(level,watchHat[0],watch[0].aquaticLife().care(),watch[0],watch[1],false));
+                cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         GameTestChunks.setForced(level,chunk,0,true); level.setDayTime(6000);
@@ -232,6 +243,7 @@ public final class AquaticFamilyGameTests {
             level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState()); level.setBlockAndUpdate(p.above(5),Blocks.STONE.defaultBlockState());
         }
         var parent = ModEntities.MARISA.get().create(level); var child = ModEntities.MARISA.get().create(level);
+        watch[0]=parent;watch[1]=child;
         for (var y : java.util.List.of(parent,child)) {
             WaddleGameTests.clearGoals(y); y.setPersistenceRequired();
             y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
@@ -244,6 +256,7 @@ public final class AquaticFamilyGameTests {
         level.addFreshEntity(parent); level.addFreshEntity(child); nutrition(parent,85); nutrition(child,20);
         var needs = child.life().save(); needs.putFloat("Bladder",20); child.life().load(needs);
         var boat = HatBoatEntity.createFor(parent,new BlockPos(x+6,65,7));
+        watchHat[0]=boat;
         helper.assertTrue(boat != null && boat.boardYoung(child),"care pair boards the real hat");
         boat.cargo().store(new ItemStack(Items.APPLE),1,false);
         var care = parent.aquaticLife().care();
@@ -289,7 +302,7 @@ public final class AquaticFamilyGameTests {
         });
         helper.startSequence().thenIdle(3).thenExecute(() -> { original[0] = boat.toLocal(child.position()); started[0] = true; })
             .thenWaitUntil(() -> helper.assertTrue(child.childhood().firstToiletDone(),"hungry newborn is fed before its assisted first toilet finishes"))
-            .thenWaitUntil(() -> helper.assertTrue(!care.active() && !boat.changingSeat(child)
+            .thenWaitUntil(() -> helper.assertTrue(!care.active() && !boat.changingSeat(child) && !boat.transportingInHat(child)
                     && boat.toLocal(child.position()).distanceTo(original[0]) < .1
                     && parent.position().distanceTo(boat.toWorld(boat.ownerSeat(parent))) < .02,"both riders finish actual return paths"))
             .thenExecute(() -> {
@@ -298,6 +311,10 @@ public final class AquaticFamilyGameTests {
                 helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16),i->wasteFrom(i,child)).size() == 1,"first toilet creates exactly one physical child waste item");
                 started[0]=false; nutrition(child,85);
                 helper.assertTrue(boat.prepareCareSeat(child,parent),"a second real assisted trip can start after returning");
+                helper.assertTrue(boat.transportingInHat(parent) && boat.hatCarrier(child)==null,"the parent first approaches instead of claiming a child remotely");
+                var approaching=boat.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+                boat.load(approaching);
+                helper.assertTrue(boat.transportingInHat(parent) && boat.hatCarrier(child)==null,"approach reload preserves the uncollected child and rebuilds the pickup route");
             }).thenWaitUntil(()->helper.assertTrue(boat.hatCarrier(child)!=null && boat.walkingInHat(parent),"reload happens during actual owned transport"))
             .thenExecute(()->{
                 Vec3 before=child.position();
@@ -462,6 +479,11 @@ public final class AquaticFamilyGameTests {
         state.put("careActivity",care.activity()); state.put("careActive",care.active()); state.put("careSave",care.save().toString());
         state.put("normalTendResult",tendResult); state.put("cargo",hat.cargo().items().toString()); state.put("cargoCount",hat.cargo().count());
         state.put("hatState",hat.state().toString()); state.put("hatTowed",hat.towed()); state.put("hatFlooding",hat.flooding()); state.put("hatIncoming",hat.hasIncoming());
+        state.put("hatYaw",hat.getYRot());state.put("parentYaw",parent.getYRot());state.put("childYaw",sibling.getYRot());state.put("childHeadYaw",sibling.getYHeadRot());
+        state.put("hatSave",hat.saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString());
+        state.put("parentTransport",hat.transportingInHat(parent));state.put("childTransport",hat.transportingInHat(sibling));
+        state.put("childCarrier",String.valueOf(hat.hatCarrier(sibling)));state.put("carryAnchor",String.valueOf(hat.hatCarryAnchor(sibling)));
+        state.put("parentLocal",hat.toLocal(parent.position()).toString());state.put("childLocal",hat.toLocal(sibling.position()).toString());
         state.put("parentProtects",hat.protects(parent)); state.put("siblingProtects",hat.protects(sibling));
         state.put("sameHat",parent.getVehicle()==hat&&sibling.getVehicle()==hat); state.put("lineOfSight",parent.hasLineOfSight(sibling));
         state.put("braidCanServe",HatVessel.braidCanServe(parent,sibling)); state.put("siblingChangingSeat",hat.changingSeat(sibling)); state.put("siblingCareSeatReady",hat.careSeatReady(sibling));

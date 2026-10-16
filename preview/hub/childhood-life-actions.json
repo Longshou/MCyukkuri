@@ -46,25 +46,25 @@
         }
       ],
       "camera": {
-        "azimuth": 1.57,
-        "elevation": 0,
-        "span": 12,
-        "centerY": 6
+        "azimuth": 1.05,
+        "elevation": -0.05,
+        "span": 14.8,
+        "centerY": 6.3
       },
       "inset": {
         "crop": [
-          165,
-          290,
-          225,
-          345
+          178,
+          268,
+          255,
+          328
         ],
         "at": [
-          440,
-          18
+          438,
+          20
         ],
         "size": [
           180,
-          165
+          140
         ]
       }
     },
@@ -122,25 +122,25 @@
         }
       ],
       "camera": {
-        "azimuth": 2.17,
-        "elevation": 0,
-        "span": 12,
-        "centerY": 6
+        "azimuth": 2.0,
+        "elevation": -0.05,
+        "span": 14.8,
+        "centerY": 6.3
       },
       "inset": {
         "crop": [
-          145,
-          270,
-          225,
-          345
+          168,
+          271,
+          240,
+          326
         ],
         "at": [
-          440,
-          18
+          438,
+          20
         ],
         "size": [
           180,
-          169
+          140
         ]
       }
     },
@@ -159,7 +159,11 @@
           "action": "first_toilet_assist",
           "face": "closed_smile",
           "careTarget": 1,
-          "careTargetOffset": [0, 0.64, 0.924]
+          "careTargetOffset": [
+            0,
+            0.64,
+            0.924
+          ]
         },
         {
           "model": "reimu",

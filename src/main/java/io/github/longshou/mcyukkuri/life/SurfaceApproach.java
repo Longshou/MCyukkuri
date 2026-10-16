@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,9 +28,23 @@ public final class SurfaceApproach {
     public static boolean clearLastStep(YukkuriEntity actor, Vec3 destination) {
         Vec3 start = actor.position();
         if (!actor.onGround() || Math.abs(start.y-destination.y) > .08 || start.distanceToSqr(destination) > 2.25) return false;
-        int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/.10));
-        for (int i=0; i<=samples; i++) if (!supported(actor, start.lerp(destination, (double)i/samples))) return false;
+        if (!supported(actor, destination)) return false;
+        int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
+        for (int i=0; i<=samples; i++) if (!supportedStep(actor, start.lerp(destination, (double)i/samples))) return false;
         return true;
+    }
+
+    /** A step may begin with the body partly over the edge it just climbed onto. */
+    private static boolean supportedStep(YukkuriEntity actor, Vec3 feet) {
+        var level = actor.level();
+        if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
+        AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
+        if (!level.noCollision(actor, body)) return false;
+        // Match the physical feet: vanilla can land while only part of the bounding box touches
+        // the bank. Requiring all four inner corners here prevents walking further onto that bank.
+        // Every sample still needs actual support, and the final standing place needs all corners.
+        var sole = new AABB(body.minX, feet.y-.08, body.minZ, body.maxX, feet.y+.005, body.maxZ);
+        return level.getBlockCollisions(actor, sole).iterator().hasNext();
     }
 
     public static boolean arrived(YukkuriEntity actor, Vec3 destination) {
@@ -44,8 +59,12 @@ public final class SurfaceApproach {
         if (clearLastStep(actor, destination)) {
             actor.getNavigation().stop();
             double remaining = actor.position().distanceTo(destination);
+            // Mob.setSpeed also sets its forward input; ground travel multiplies that input by
+            // speed again. Linear modifiers made the last few centimetres quadratically slow.
+            double movement = actor.getAttributeValue(Attributes.MOVEMENT_SPEED);
+            double modifier = Math.sqrt(Math.min(.02, remaining*.20))/Math.max(.0001, movement);
             actor.getMoveControl().setWantedPosition(destination.x, destination.y, destination.z,
-                    Math.min(speed, Math.max(.12, remaining*2)));
+                    Math.min(speed, modifier));
         } else if (actor.getNavigation().isDone() || actor.tickCount%10==0) {
             actor.life().navigate(BlockPos.containing(destination), speed, false);
         }
