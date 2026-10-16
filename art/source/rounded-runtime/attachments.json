@@ -243,6 +243,20 @@
           -1
         ],
         "diameter": 1.35
+      },
+      "marisa_tsumuri": {
+        "part": "shell_coil_0_3_0_1",
+        "point": [
+          5.3,
+          12.9,
+          -6.4
+        ],
+        "normal": [
+          0,
+          0.422618,
+          -0.906308
+        ],
+        "diameter": 0.9
       }
     },
     "detached": {
@@ -469,6 +483,20 @@
           -1
         ],
         "diameter": 1.35
+      },
+      "accessory_marisa_tsumuri": {
+        "part": "shell_coil_0_3_0_1",
+        "point": [
+          5.3,
+          12.9,
+          -6.4
+        ],
+        "normal": [
+          0,
+          0.422618,
+          -0.906308
+        ],
+        "diameter": 0.9
       }
     }
   },

@@ -10,7 +10,9 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -34,13 +36,25 @@ public final class FamilyGameTests {
     private static final AABB AREA=new AABB(160,60,0,224,85,56);
     private static final BlockPos HOME_A=new BlockPos(180,65,21),HOME_B=new BlockPos(183,65,21);
     private record Check(String name,boolean pass,String detail) {}
+    private record FallingChild(YukkuriEntity entity,Vec3 birthPosition) {}
+    private record GroundContact(long tick,Vec3 birthPosition,Vec3 position,String model,int subspeciesFlags,
+            boolean groundFlag,boolean verticalCollision,double supportTop) {}
+    private record FollowSample(long tick,UUID child,UUID mother,UUID father,String childPosition,String motherPosition,
+            String fatherPosition,String activity,String motherActivity,String fatherActivity,double distanceSquared,boolean movedInFollow) {}
     private final List<Check> checks=new ArrayList<>();
     private final List<FamilyData.Brood> batches=new ArrayList<>();
+    private final Map<UUID,FallingChild> landingSubjects=new LinkedHashMap<>();
+    private final Map<UUID,GroundContact> groundContacts=new LinkedHashMap<>();
+    private final List<FollowSample> followTrace=new ArrayList<>();
+    private boolean observingFollow,previousFollow,approachedParent;
+    private Vec3 previousFollowPosition;
+    private double closestFollowingDistance=Double.POSITIVE_INFINITY;
     private GameTestHelper helper;
     private ServerLevel level;
     private net.minecraft.gametest.framework.GameTestSequence sequence;
     private YukkuriEntity a,b,child;
     private FamilyData.Brood pregnancy;
+    private FamilyData.Brood pendingStem;
     private long naturalStartTick;
     private UUID savedId,token;
     private int growthBirthFlags;
@@ -48,6 +62,7 @@ public final class FamilyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=6000,batch="family")
     public static void familyAcceptance(GameTestHelper helper) {
         FamilyGameTests test=new FamilyGameTests();test.helper=helper;test.level=helper.getLevel();test.setup();
+        helper.onEachTick(()-> { test.observeGroundContacts();test.observeFollowing(); });
         test.sequence=helper.startSequence().thenWaitUntil(() -> {
             for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)
                 helper.assertTrue(test.level.isPositionEntityTicking(new BlockPos(x*16+8,65,z*16+8)), "Waiting for family fixture chunks");
@@ -59,7 +74,53 @@ public final class FamilyGameTests {
             if(failed.isEmpty())helper.succeed();else helper.fail(failed.size()+" family checks failed; first: "+failed.getFirst().name);
         });
     }
-    private void check(String name,boolean valid,Object detail) { checks.add(new Check(name,valid,String.valueOf(detail))); }
+    private void check(String name,boolean valid,Object detail) {
+        var result=new Check(name,valid,String.valueOf(detail));checks.add(result);
+        if(!valid)System.out.println("MCYUKKURI_P0 family check failed: "+result);
+    }
+    private void observeGroundContacts() {
+        for(var entry:landingSubjects.entrySet()) {
+            var tracked=entry.getValue();var baby=tracked.entity();
+            if(groundContacts.containsKey(entry.getKey())||!baby.isAlive()||baby.isRemoved()
+                    ||baby.family().flying()||baby.isPassenger()||baby.isInWaterOrBubble())continue;
+            if(baby.getY()>=tracked.birthPosition().y-.25||!level.noCollision(baby))continue;
+            var box=baby.getBoundingBox();double supportTop=Double.NaN;
+            // onGround may be cleared by a zero-displacement step before this observer runs.
+            // Independently require the descended, un-clipped sole to touch an actual block's top plane.
+            for(var shape:level.getBlockCollisions(baby,box.move(0,-.01,0)))for(var support:shape.toAabbs()) {
+                if(Math.abs(support.maxY-box.minY)<1.0e-6
+                        &&Math.min(support.maxX,box.maxX)-Math.max(support.minX,box.minX)>1.0e-6
+                        &&Math.min(support.maxZ,box.maxZ)-Math.max(support.minZ,box.minZ)>1.0e-6)supportTop=support.maxY;
+            }
+            if(!Double.isFinite(supportTop))continue;
+            var contact=new GroundContact(helper.getTick(),tracked.birthPosition(),baby.position(),baby.subspecies().assetId(),
+                    baby.subspeciesFlags(),baby.onGround(),baby.verticalCollision,supportTop);
+            groundContacts.put(entry.getKey(),contact);
+            System.out.println("MCYUKKURI_P0 actual newborn ground contact id="+entry.getKey()+" "+contact);
+        }
+    }
+    private List<String> landingDetails(FamilyData.Brood brood) {
+        return brood.children.stream().map(c->{
+            var entity=level.getEntity(c.id);
+            return "id="+c.id+", ledgerLanded="+c.landed+", firstContact="+groundContacts.get(c.id)
+                    +(entity instanceof YukkuriEntity baby?", position="+baby.position()+", currentGround="+baby.onGround()
+                            +", awaiting="+baby.family().awaitingLanding()+", flight="+baby.family().flying()
+                            +", velocity="+baby.getDeltaMovement()+", model="+baby.subspecies().assetId():", entity="+entity);
+        }).toList();
+    }
+    private void observeFollowing() {
+        if(!observingFollow||child==null||!child.isAlive())return;
+        var mother=level.getEntity(child.family().mother());var father=level.getEntity(child.family().father());
+        if(!(mother instanceof YukkuriEntity m)||!(father instanceof YukkuriEntity f)||!m.isAlive()||!f.isAlive())return;
+        boolean following=child.family().active()&&child.family().activity().equals("follow_parent")&&child.getBehaviorId().equals("follow_parent");
+        // The setup displacement is excluded; require actual movement during consecutive FOLLOW observations.
+        boolean moved=previousFollow&&following&&child.position().distanceToSqr(previousFollowPosition)>1.0e-6;
+        double distance=Math.min(child.distanceToSqr(m),child.distanceToSqr(f));
+        if(moved) { closestFollowingDistance=Math.min(closestFollowingDistance,distance);if(distance<9)approachedParent=true; }
+        followTrace.add(new FollowSample(helper.getTick(),child.getUUID(),m.getUUID(),f.getUUID(),child.position().toString(),
+                m.position().toString(),f.position().toString(),child.getBehaviorId(),m.getBehaviorId(),f.getBehaviorId(),distance,moved));
+        previousFollow=following;previousFollowPosition=child.position();
+    }
     private void later(int delay,String name,Runnable action) {
         sequence.thenIdle(delay).thenExecute(()-> {
             try{action.run();}catch(Throwable error){check(name,false,error.toString());}
@@ -79,6 +140,7 @@ public final class FamilyGameTests {
         clear();
     }
     private void clear() {
+        landingSubjects.clear();groundContacts.clear();
         for(var brood:batches)FamilyData.get(level).cancel(brood);batches.clear();
         level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
         level.setBlockAndUpdate(HOME_A,Blocks.AIR.defaultBlockState());level.setBlockAndUpdate(HOME_B,Blocks.AIR.defaultBlockState());
@@ -137,8 +199,40 @@ public final class FamilyGameTests {
             });
         }
         later(1,"size distribution",()-> {
-            int small=0,big=0;for(int seed=0;seed<1000;seed++){small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);}
-            check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
+            double saved=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
+            try {
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE);
+                int small=0,big=0;boolean legacy=true,bounded=true;
+                for(int seed=0;seed<1000;seed++) {
+                    small+=FamilyData.offspringCount(.8f,seed);big+=FamilyData.offspringCount(1.2f,seed);
+                    for(float scale:new float[]{.5f,.8f,.9f,1,1.1f,1.2f,2}) {
+                        var random=new java.util.Random(seed);double probability=.15+.70*Math.clamp((scale-.8)/.4,0,1);
+                        int expected=1;for(int i=0;i<4;i++)if(random.nextDouble()<probability)expected++;
+                        int actual=FamilyData.offspringCount(scale,seed);
+                        legacy&=actual==expected;bounded&=actual>=1&&actual<=5;
+                    }
+                }
+                check("default offspring probability preserves legacy seeded results",legacy,"7 scales / 1000 seeds");
+                check("larger mothers shift the count distribution",big>small+1000,small+" / "+big);
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(0.0);
+                boolean neutral=true;
+                for(int seed=0;seed<1000;seed++) {
+                    int count=FamilyData.offspringCount(1,seed);
+                    neutral&=count==FamilyData.offspringCount(.5f,seed)&&count==FamilyData.offspringCount(2,seed);
+                    bounded&=count>=1&&count<=5;
+                }
+                check("zero offspring size influence removes size differences",neutral,"same seed, small/standard/large");
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(1.4);
+                int strongerSmall=0,strongerBig=0;
+                for(int seed=0;seed<1000;seed++) {
+                    strongerSmall+=FamilyData.offspringCount(.8f,seed);strongerBig+=FamilyData.offspringCount(1.2f,seed);
+                }
+                check("higher offspring influence strengthens the size difference",strongerSmall<small&&strongerBig>big,strongerSmall+" / "+strongerBig);
+                FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(4.0);
+                boolean capped=true;
+                for(int seed=0;seed<1000;seed++)capped&=FamilyData.offspringCount(.5f,seed)==1&&FamilyData.offspringCount(2,seed)==5;
+                check("strong influence clamps extreme mothers to 1-5 offspring",capped&&bounded,"limits remain unchanged");
+            } finally { FamilyConfig.OFFSPRING_SIZE_INFLUENCE.set(saved); }
         });
         later(1,"recorded bean-body birth",()-> {
             pair();var data=FamilyData.get(level);var brood=conceive(1);
@@ -166,8 +260,20 @@ public final class FamilyGameTests {
                         &&java.util.Arrays.equals(loaded.children.getFirst().traits,brood.children.getFirst().traits),serialized.getInt("Version"));
                 brood.elapsed=brood.duration+40;
                 for(int i=0;i<count;i++) {
-                    var baby=data.birth(brood,i,level,new Vec3(176.5+i,65,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
-                    baby.setNoAi(true);
+                    if(i==count-1) {
+                        UUID last=brood.children.get(i).id;
+                        java.util.function.Consumer<net.neoforged.neoforge.event.entity.EntityJoinLevelEvent> reject=event->{if(event.getEntity().getUUID().equals(last))event.setCanceled(true);};
+                        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(reject);
+                        try {
+                            check(count+" rejected last birth cannot complete the brood",data.birth(brood,i,level,new Vec3(176.5+i,65,27.5))==null&&!brood.complete(),brood.unborn());
+                            a.family().tick();
+                            check(count+" rejected birth grants no empty stem",!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).pending(brood.id)
+                                    &&!io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level).delivered(brood.id),brood.id);
+                        } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(reject); }
+                    }
+                    var baby=data.birth(brood,i,level,new Vec3(176.5+i,66.5,27.5));if(baby==null)throw new IllegalStateException("Birth failed at "+i);
+                    landingSubjects.put(baby.getUUID(),new FallingChild(baby,baby.position()));
+                    WaddleGameTests.clearGoals(baby); // Keep real gravity and landing ticks, isolate random movement.
                     // Bean bodies keep the registered base width; rounded normal bodies use the selected .8-block mesh.
                     float expectedWidth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bean(baby.subspeciesFlags())
                             ?ModEntities.forVariant(baby.getVariant()).getDimensions().width()*.82f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM:.8f*io.github.longshou.mcyukkuri.family.GrowthSize.STEM;
@@ -177,8 +283,28 @@ public final class FamilyGameTests {
                     check(count+" child "+i+" birth idempotent",data.birth(brood,i,level,new Vec3(185,65,27))==null,baby.getUUID());
                     child=baby;
                 }
+                a.family().tick();
+                var stems=io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level);
+                a.syncFamily();
+                check(count+" successful last spawn retains mother stem until actual landing",a.family().brood()==brood&&a.broodCount()==count&&child.family().awaitingLanding()&&stems.pending(brood.id)&&!stems.ready(brood.id),a.family().save());
+                stems.deliver(level.getServer());
+                check(count+" airborne children cannot produce a stem item",level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id))==null,brood.id);
+                pendingStem=brood;
                 check(count+" complete brood leaves the same population",brood.complete()&&data.population(level,HOME_A)==population,data.population(level,HOME_A));
                 check(count+" genealogy survives appearance loss",data.related(a.getUUID(),child.getUUID()),child.getUUID());
+            });
+            later(35,"natural stem waits for actual ground landing "+count,()-> {
+                var brood=pendingStem;var stems=io.github.longshou.mcyukkuri.family.ShedStemDrops.get(level);
+                check(count+" all children physically landed",brood.children.stream().allMatch(c->c.landed&&groundContacts.containsKey(c.id)
+                        &&level.getEntity(c.id) instanceof YukkuriEntity baby&&!baby.family().awaitingLanding()),landingDetails(brood));
+                a.family().tick();stems.deliver(level.getServer());
+                check(count+" landing removes the maternal empty stem",a.family().brood()==null&&a.broodCount()==0&&!a.hasSpentStem(),a.family().save());
+                var dropped=level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id));
+                check(count+" natural completion creates one real empty stem",dropped instanceof net.minecraft.world.entity.item.ItemEntity item
+                        &&item.getItem().is(io.github.longshou.mcyukkuri.registry.ModItems.YUKKURI_STEM.get())&&item.getItem().getCount()==1,dropped);
+                a.family().load(a.family().save());a.family().tick();stems.deliver(level.getServer());
+                check(count+" mother reload cannot duplicate a completed stem",stems.delivered(brood.id)
+                        &&level.getEntity(io.github.longshou.mcyukkuri.family.ShedStemDrops.itemId(brood.id))==dropped,brood.id);
             });
         }
         later(1,"capacity and qualification",()-> {
@@ -235,10 +361,13 @@ public final class FamilyGameTests {
         // Courtship includes real navigation. Observe conception instead of assuming
         // it always finishes exactly 220 ticks after both goals become available.
         // The unchanged overall 6000-tick GameTest deadline still catches failure.
-        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null,
-                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()));
+        sequence.thenWaitUntil(()->helper.assertTrue(a.family().brood()!=null||b.family().brood()!=null,
+                "Waiting for actual family goal to conceive: "+a.getBehaviorId()+" / "+a.family().save()+" / "+b.family().save()));
         later(1,"natural court",()-> {
+            // UUID order chooses the courtship initiator, not the reproductive mother.
+            if(a.family().brood()==null&&b.family().brood()!=null){var swap=a;a=b;b=swap;}
             pregnancy=a.family().brood();check("actual family goal conceives after courtship",pregnancy!=null,a.getBehaviorId()+" / "+a.family().save());
+            check("natural birth is observed on its recorded mother",pregnancy!=null&&pregnancy.mother.equals(a.getUUID()),pregnancy==null?"missing":pregnancy.mother);
             if(pregnancy==null)return;batches.add(pregnancy);pregnancy.duration=200;pregnancy.elapsed=20;
             naturalStartTick=helper.getTick();
             life(a,t->t.putFloat("Nutrition",90));life(b,t->t.putFloat("Nutrition",90));
@@ -257,11 +386,31 @@ public final class FamilyGameTests {
                 "Waiting for newborn to land before following: "+(child==null?"missing":child.position())));
         later(1,"natural newborn landing",()-> {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
-            child.moveTo(a.getX()+5,65,a.getZ(),0,0);
+            helper.assertTrue(child!=null&&pregnancy.mother.equals(child.family().mother())&&pregnancy.father.equals(child.family().father())
+                    &&a.getUUID().equals(child.family().mother())&&b.getUUID().equals(child.family().father()),"Following uses the actual recorded biological parents");
+            Vec3 start=null;
+            for(var offset:List.of(new Vec3(5,0,0),new Vec3(-5,0,0),new Vec3(0,0,5),new Vec3(0,0,-5))) {
+                var candidate=a.position().add(offset);
+                if(candidate.distanceToSqr(a.position())<=16||candidate.distanceToSqr(b.position())<=16
+                        ||!child.life().dryStand(BlockPos.containing(candidate))
+                        ||!level.noCollision(child,child.getBoundingBox().move(candidate.subtract(child.position()))))continue;
+                start=candidate;break;
+            }
+            helper.assertTrue(start!=null,"A clear dry following start exists beyond four blocks from both actual parents");
+            child.moveTo(start.x,start.y,start.z,0,0);child.setDeltaMovement(Vec3.ZERO);child.getNavigation().stop();
+            child.move(net.minecraft.world.entity.MoverType.SELF,new Vec3(0,-.125,0));
+            helper.assertTrue(child.onGround()&&child.verticalCollision&&level.noCollision(child)
+                    &&child.distanceToSqr(a)>16&&child.distanceToSqr(b)>16&&child.distanceToSqr(a)<144
+                    &&child.life().reachable(a.blockPosition(),false),"Following starts on the real floor, outside both parent thresholds, with a reachable mother");
             life(child,t->t.putFloat("Nutrition",85));
+            followTrace.clear();previousFollow=false;previousFollowPosition=child.position();
+            closestFollowingDistance=Double.POSITIVE_INFINITY;approachedParent=false;observingFollow=true;
+            observeFollowing();
         });
         later(180,"family following",()-> {
-            check("child approaches a real parent",child!=null&&Math.min(child.distanceToSqr(a),child.distanceToSqr(b))<9,child==null?"missing":child.position());
+            observeFollowing();observingFollow=false;P0Control.write("family-follow-trace",followTrace);
+            check("child approaches a real parent",approachedParent,"closest squared distance during moving FOLLOW="+closestFollowingDistance
+                    +", samples="+followTrace.size()+", last="+(followTrace.isEmpty()?"none":followTrace.getLast()));
         });
     }
     private String pregnancyDetails() {

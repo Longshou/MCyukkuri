@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.registry.ModSounds;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +34,7 @@ public final class MCYukkuri {
         ModBlocks.BLOCK_ENTITIES.register(modBus);
         ModEntities.TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
+        ModSounds.SOUND_EVENTS.register(modBus);
         io.github.longshou.mcyukkuri.registry.ModMenus.MENUS.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
         modBus.addListener(ModEntities::registerAttributes);

@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "mcyukkuri:yukkuri_stem",
     "mcyukkuri:leaked_filling",
     "mcyukkuri:oil_grain_budget",
     "mcyukkuri:oil_grain_regular",

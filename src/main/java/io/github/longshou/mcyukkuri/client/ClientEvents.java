@@ -43,6 +43,7 @@ public final class ClientEvents {
         io.github.longshou.mcyukkuri.registry.ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.TRIMMED_HAIR.get());
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get());
+        event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.YUKKURI_STEM.get());
         io.github.longshou.mcyukkuri.life.Facilities.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         io.github.longshou.mcyukkuri.play.Playgrounds.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         io.github.longshou.mcyukkuri.life.Consumables.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));

@@ -1,6 +1,6 @@
 """Derive detachable ornaments, badges and stem mounts from the selected runtime meshes."""
 from pathlib import Path
-import copy, hashlib, json
+import argparse, copy, hashlib, json
 ROOT=Path(__file__).resolve().parents[1]
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/rounded-runtime'
@@ -10,7 +10,7 @@ def bounds(v):return [[min(v[k::8]),max(v[k::8])]for k in range(3)]
 def part(model,name):
     p=next(p for p in model['parts']if p['name']==name)
     return model['vertices'][p['start']*8:(p['start']+p['count'])*8]
-def main():
+def main(only=None):
     manifest=read(OUT/'manifest.json'); presentations={'living':read(ASSETS/'yukkuri_presentation/living.json'),'subspecies':read(ASSETS/'yukkuri_presentation/subspecies.json')}
     selections=dict(manifest['models'])
     for ident,base in [('reimu_bean','reimu'),('marisa_bean','marisa'),('remilia','remilia'),('flandre','flandre')]:selections[ident]={'base_species':base}
@@ -18,9 +18,18 @@ def main():
         if read(ASSETS/'yukkuri'/f'{ident}.json').get('revision')in ('rounded-marisa-deficient-v1','rounded-reimu-deficient-v1'):
             selections[ident]={'base_species':ident.split('_')[0]}
     source=read(ROOT/'art/props/badges/mounts.json'); mounts={'variants':{},'detached':{}};index={};sources={}
+    if only:
+        if only not in selections:raise ValueError('Unknown selected runtime model: '+only)
+        # A mount adjustment must not refresh unrelated, separately maintained accessories.
+        previous=read(OUT/'attachments.json')
+        mounts=previous['badge_mounts'];index=previous['detached'];sources=previous['sources']
+        mounts['variants'].pop(only,None);mounts['detached'].pop('accessory_'+only,None)
+        selections={only:selections[only]}
     family=read(ROOT/'art/props/family-life/recipe.json')
     for ident,record in selections.items():
-        path=ASSETS/'yukkuri'/f'{ident}.json';model=read(path);sources[str(path.relative_to(ROOT))]=hashlib.sha256(path.read_bytes()).hexdigest()
+        path=ASSETS/'yukkuri'/f'{ident}.json';model=read(path)
+        source_key=next((k for k in sources if k.replace('\\','/')==path.relative_to(ROOT).as_posix()),path.relative_to(ROOT).as_posix())
+        sources[source_key]=hashlib.sha256(path.read_bytes()).hexdigest()
         pres=presentations['living']['variants'].get(ident,presentations['subspecies'].get(ident))
         vertices=[];parts=[]
         for p in model['parts']:
@@ -50,5 +59,8 @@ def main():
     save(OUT/'attachments.json',{'sources':sources,'badge_mounts':mounts,'detached':index})
     family['rounded_source']='art/source/rounded-runtime/attachments.json'
     save(ROOT/'art/props/family-life/recipe.json',family)
-    print('Derived',len(index),'accessories,',len(mounts['variants']),'badge mounts and five forehead roots.')
-if __name__=='__main__':main()
+    print('Derived attachments for',only or 'all selected models',';',len(index),'accessories and',len(mounts['variants']),'badge mounts registered.')
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only',help='Refresh one model while preserving unrelated attachment exports.')
+    main(parser.parse_args().only)

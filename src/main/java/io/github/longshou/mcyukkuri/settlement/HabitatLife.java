@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.season.AutumnStock;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -84,13 +85,9 @@ public final class HabitatLife {
         if(quarrelCooldown>0)quarrelCooldown--;
         if(entity.tickCount%100!=0)return;
         var value=shelter();boolean inside=value!=null&&value.contains(entity.blockPosition());
-        boolean cold=level().getBiome(entity.blockPosition()).value().getBaseTemperature()<.2f;
         int wet=inside&&value.moisture()>=60?3:0;
         int hygiene=inside&&value.dirt()>=50?2:0;
-        int energy=cold&&!(inside&&value.insulated())?2:0;
-        entity.life().applyEnvironment(wet,hygiene,energy);
-        if(cold&&entity.life().wetness()>40&&!(inside&&value.insulated())&&entity.tickCount%400==0)
-            entity.hurt(level().damageSources().freeze(),1);
+        entity.life().applyEnvironment(wet,hygiene,0);
         if(value!=null&&quarrelCooldown==0&&Seasons.is(entity,Season.WINTER)&&value.food()==0&&entity.life().nutrition()<30)quarrel(value);
     }
     /** Winter famine: two starving housemates over empty stores snap at each other. Sacrifice for the family is not modelled yet (plan 2.4). */
@@ -108,43 +105,66 @@ public final class HabitatLife {
         }
     }
     private boolean autumn() { return Seasons.is(entity,Season.AUTUMN); }
-    /** Autumn regions stockpile harder: more portions per resident. */
-    private int stockGoal(ShelterBlockEntity value) {
-        return autumn()?Math.min(40,value.occupants()*YukkuriConfig.AUTUMN_STOCK_PER_RESIDENT.get()):Math.min(24,value.occupants()*3);
-    }
     private boolean ready() {
-        return !entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
+        return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
+                &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
-                &&!Migration.underway(entity);
+                &&!Migration.underway(entity)&&!entity.wintering().active();
+    }
+    private boolean wantsResource(ShelterBlockEntity value,ItemStack stack) {
+        if(!value.accepts(stack))return false;
+        if(value.needsMaterial(stack))return true;
+        return stack.is(YukkuriEntity.FOOD)&&entity.life().acceptsFood(stack)&&value.food()<AutumnStock.target(level(),value)
+                &&(!AutumnStock.autumn(level(),value.getBlockPos())||AutumnStock.fitCollector(entity));
+    }
+    private boolean outingMealAvailable() {
+        var value=shelter();
+        return entity.life().canEat()&&value!=null&&value.usable(entity)&&value.hasFoodFor(entity)
+                &&!entity.wintering().usesWinterStores();
     }
     public boolean canUse() {
         if(!ready())return false;
+        // A higher-priority goal must reject maintenance before the selector interrupts construction.
+        if(entity.independence().householdOuting()&&carrying.isEmpty()
+                &&(!outingMealAvailable()||active()&&task!=Task.FOOD))return false;
         if(active())return true;
         if(wait>0)return false;wait=autumn()?30:60;
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
-        if(housed&&entity.life().canEat()&&value.food()>0){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
-        if(seasonal(housed?value:null))return true;
-        if(!housed)return false;
+        if(!housed)return seasonal(null);
+        if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
+        if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal(value))return true;
         if(shareStart(value))return true;
-        if(!EventHooks.canEntityGrief(level(),entity)||entity.life().nutrition()<40||entity.life().energy()<35)return false;
-        if(!carrying.isEmpty()){task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;}
+        if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
+        boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
+        if(!carrying.isEmpty()) {
+            if(!mayWork){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();return false;}
+            task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;
+        }
+        if(!mayWork)return false;
         targetItem=value.wasteInside().stream().filter(item->!item.hasPickUpDelay()).findFirst().orElse(null);
         if(targetItem==null)targetItem=level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(10),item->item.isAlive()&&!item.hasPickUpDelay()
-                &&(value.needsMaterial(item.getItem())||item.getItem().is(YukkuriEntity.FOOD)&&value.food()<stockGoal(value)))
-                .stream().filter(item->entity.life().reachable(item.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                &&wantsResource(value,item.getItem()))
+                .stream().filter(item->entity.life().reachable(item.blockPosition(),false))
+                .min(Comparator.<ItemEntity>comparingInt(item->value.needsMaterial(item.getItem())?0:1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
+        if(targetItem!=null&&!targetItem.getItem().is(ModItems.WASTE.get())&&!value.needsMaterial(targetItem.getItem())
+                &&value.needsMaterial(new ItemStack(Items.SHORT_GRASS))&&planHarvest(value))return true;
         if(targetItem!=null){task=Task.PICKUP;ticks=0;return true;}
-        if(value.food()<stockGoal(value)||value.needsMaterial(new ItemStack(Items.SHORT_GRASS))) {
+        return planHarvest(value);
+    }
+    private boolean planHarvest(ShelterBlockEntity value) {
+        if(wantsResource(value,new ItemStack(Items.SHORT_GRASS))) {
             for(var pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8)))
                 if(level().hasChunkAt(pos)&&level().getBlockState(pos).is(Blocks.SHORT_GRASS)&&entity.life().dryStand(pos)&&entity.life().reachable(pos,false)){
-                    targetBlock=pos.immutable();task=Task.HARVEST;ticks=0;return true;
+                    targetBlock=pos.immutable();targetItem=null;task=Task.HARVEST;ticks=0;return true;
                 }
         }
         return false;
     }
     /** Winter closed nest and summer noon rest. Both only hold the animal in place; eating still comes first. */
     private boolean seasonal(ShelterBlockEntity value) {
-        if(!Seasons.enabled()||entity.getVariant().isPredator()||entity.family().active())return false;
-        if(value!=null&&Seasons.confined(entity)){task=Task.STAY;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
+        if(!Seasons.enabled()||entity.getVariant().isPredator()||entity.family().active()
+                ||entity.independence().householdOuting()||entity.life().hasUrgentNeed())return false;
+        if(value!=null&&!entity.wintering().usesWinterStores()&&Seasons.confined(entity)){task=Task.STAY;targetBlock=value.bed(entity.getUUID());ticks=0;arrived=false;return true;}
         long day=level().getDayTime()/24000;
         if(siestaDay==day||!Seasons.is(entity,Season.SUMMER)||!Seasons.noon(level())||level().isRaining()
                 ||entity.life().nutrition()<30||entity.life().covered(entity.blockPosition()))return false;
@@ -162,7 +182,9 @@ public final class HabitatLife {
     /** At a gathering, a household with plenty hands one real portion to the poorest other household of the group. */
     private boolean shareStart(ShelterBlockEntity value) {
         var group=entity.settlement().group();
-        if(group==null||shareCooldown>0||!carrying.isEmpty()||entity.life().nutrition()<40||Migration.moving(group)||!Seasons.assembling(level(),group)
+        if(group==null||shareCooldown>0||!carrying.isEmpty()||entity.independence().householdOuting()
+                ||entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()
+                ||!EventHooks.canEntityGrief(level(),entity)||entity.life().energy()<35||entity.life().nutrition()<40||Migration.moving(group)||!Seasons.assembling(level(),group)
                 ||value.food()<=value.occupants()*YukkuriConfig.SHARE_SURPLUS_PER_RESIDENT.get())return false;
         ShelterBlockEntity best=null;
         var members=level().getEntitiesOfClass(YukkuriEntity.class,new AABB(group.center).inflate(40),
@@ -170,7 +192,7 @@ public final class HabitatLife {
         for(var other:members) {
             var shelter=other.habitat().shelter();
             if(shelter==null||shelter.getBlockPos().equals(value.getBlockPos())||shelter.food()>=shelter.occupants()*YukkuriConfig.SHARE_NEED_PER_RESIDENT.get()
-                    ||shelter.food()>=shelter.foodLimit())continue;
+                    ||shelter.food()>=shelter.foodCapacity())continue;
             if(best==null||shelter.food()<best.food())best=shelter;
         }
         if(best==null||!entity.life().reachable(best.entrance(),false))return false;
@@ -180,9 +202,12 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         if(!active()||!ready())return false;
-        if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&Seasons.is(entity,Season.SUMMER)&&Seasons.noon(level());
-        if(task==Task.STAY)return homeStand()!=null&&Seasons.confined(entity);
-        return ticks<400&&homeStand()!=null&&(task==Task.FOOD||task==Task.SHARE||EventHooks.canEntityGrief(level(),entity));
+        if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&Seasons.is(entity,Season.SUMMER)&&Seasons.noon(level())&&!entity.life().hasUrgentNeed();
+        if(task==Task.STAY)return homeStand()!=null&&Seasons.confined(entity)&&!entity.wintering().usesWinterStores()&&!entity.life().hasUrgentNeed();
+        return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity))
+                &&(!entity.independence().householdOuting()||!carrying.isEmpty()||task==Task.FOOD&&outingMealAvailable())
+                &&(task==Task.FOOD||!carrying.isEmpty()||!entity.settlement().society().dejected())
+                &&(task==Task.FOOD||entity.life().nutrition()>=40&&entity.life().energy()>=35);
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}ticks++;
@@ -206,25 +231,33 @@ public final class HabitatLife {
         }
         if(task==Task.FOOD) {
             if(approach(value.bed(entity.getUUID()))) {
+                // Put down the existing burden before taking a meal, so a rejected meal can
+                // return its remainder without overwriting an unrelated carried resource.
+                if(!carrying.isEmpty()) {
+                    if(value.deposit(carrying))carrying=ItemStack.EMPTY;else dropCarrying();
+                    if(!carrying.isEmpty()){stop();return;}
+                }
                 var food=value.takeFood(entity);
-                if(!food.isEmpty()&&!entity.life().beginMeal(food,null,false))value.returnFood(food);
+                if(!food.isEmpty()&&!entity.life().beginMeal(food,null,false))carrying=value.returnFood(food);
                 stop();
             }
         } else if(task==Task.PICKUP) {
             if(targetItem==null||!targetItem.isAlive()||targetItem.hasPickUpDelay()
-                    ||!(targetItem.getItem().is(ModItems.WASTE.get())||value.accepts(targetItem.getItem()))){stop();return;}
+                    ||!(targetItem.getItem().is(ModItems.WASTE.get())&&value.contains(targetItem.blockPosition())
+                    ||wantsResource(value,targetItem.getItem()))){stop();return;}
             if(approach(targetItem.blockPosition())&&entity.distanceToSqr(targetItem)<2.25) {
                 carrying=targetItem.getItem().split(1);if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
-            if(targetBlock==null||!level().getBlockState(targetBlock).is(Blocks.SHORT_GRASS)){stop();return;}
+            if(targetBlock==null||!level().hasChunkAt(targetBlock)||!level().getBlockState(targetBlock).is(Blocks.SHORT_GRASS)
+                    ||!wantsResource(value,new ItemStack(Items.SHORT_GRASS))){stop();return;}
             if(approach(targetBlock)&&level().setBlock(targetBlock,Blocks.AIR.defaultBlockState(),3)) {
                 carrying=new ItemStack(Items.SHORT_GRASS);task=Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.DEPOSIT) {
             if(approach(value.bed(entity.getUUID()))) {
-                if(value.deposit(carrying))carrying=ItemStack.EMPTY;else dropCarrying();
+                if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
                 stop();
             }
         } else if(task==Task.CLEAN) {
@@ -243,7 +276,12 @@ public final class HabitatLife {
         return false;
     }
     public void stop() { task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;wait=autumn()?40:80;entity.getNavigation().stop(); }
-    public void dropCarrying() { if(!carrying.isEmpty()){var drop=entity.spawnAtLocation(carrying.copy());if(drop!=null){drop.setPickUpDelay(100);carrying=ItemStack.EMPTY;}} }
+    public void dropCarrying() {
+        if(!carrying.isEmpty()&&!entity.level().isClientSide) {
+            var drop=new ItemEntity(level(),entity.getX(),entity.getY(),entity.getZ(),carrying.copy());drop.setPickUpDelay(100);
+            if(level().addFreshEntity(drop))carrying=ItemStack.EMPTY;
+        }
+    }
     public CompoundTag save() {
         var tag=new CompoundTag();FamilyData.putPosition(tag,"Home",home);
         if(!carrying.isEmpty())tag.put("Carrying",carrying.save(entity.registryAccess()));return tag;

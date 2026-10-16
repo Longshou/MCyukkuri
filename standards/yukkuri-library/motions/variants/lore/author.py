@@ -11,7 +11,8 @@ only into the models its `applies` group names. See README.md and recipe.json.
 """
 from fnmatch import fnmatch
 from pathlib import Path
-import math, runpy
+import json, math, runpy
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[5]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
@@ -56,7 +57,39 @@ def curled(c):
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action == 'eat':
+    if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board',
+                  'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance'):
+        s = curled(c)
+        phase = 2*math.pi*t/d
+        if action == 'boat_first_balance':
+            settle = 1-smooth(t/d)
+            r = [-2, 12*bump((t-.7)/1.3), 7*settle*math.sin(phase*2)]
+            s[1] -= .04*settle
+        elif action == 'boat_feed_young':
+            reach = smooth(t/.6)*(1-smooth((t-1.2)/1.2))
+            r = [-7*reach, -4*reach, -2*reach]; s[1] -= .02*reach
+        elif action == 'boat_nuzzle':
+            lean = smooth(t/.5)*(1-smooth((t-1.9)/.5))
+            r = [-9*lean, 0, 3*math.sin(phase*2)*lean]; s[1] -= .025*lean
+        elif action == 'boat_lullaby':
+            r = [2, 0, 2.5*math.sin(phase*2)]; s[1] += .008*(1-math.cos(phase*4))
+        elif action == 'boat_paddle':
+            r = [-2-3*math.sin(phase), 3*math.sin(phase), -2+1.5*math.cos(phase)]
+            s[1] -= .015*(1-math.cos(phase))
+        elif action == 'boat_gather':
+            reach = bump(t/d); r = [-7*reach, -9*reach, -3*reach]
+            s[1] -= .025*reach
+        elif action == 'boat_eat':
+            chew = bump((t % .4)/.4); r[0] = -5-2*chew; s[1] -= .025*chew
+        elif action == 'boat_drink':
+            sip = bump(t/d); r[0] = -9*sip; r[2] = -2*sip
+        elif action == 'boat_sleep':
+            s[1] += .012*(1-math.cos(phase))/2; r = [-3, 0, 2]
+        elif action == 'boat_wake':
+            a = bump(t/d); s[1] = .91+.09*a+.04*smooth(t/d); r[0] = 4*a
+        else:
+            s = [1.03, .94, 1.03]  # physical flight supplies lift; never double the arc
+    elif action == 'eat':
         q = bump((t % c['chew_seconds'])/c['chew_seconds'])
         r[0] = c['lean']+c['chew_nod']*q
         k = c['chew_squash']; s = [1+.6*k*q, 1-k*q, 1+.6*k*q]
@@ -84,6 +117,10 @@ def state(action, t, c, height):
             r[0] = lerp(c['lean_back'], 0, a)
         else:
             r[1] = c['shake']*math.sin(2*math.pi*(t-.9)/.23)*(1-(t-.9)/(d-.9))**2
+    elif action == 'aquatic_hat_care':
+        shake = (1-smooth(t/.9))*math.sin(2*math.pi*t/.22)
+        tidy = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
+        r = [-2*tidy, 10*shake, -2*tidy]; s[1] = 1-.02*abs(shake)
     elif action == 'nuzzle':
         w = math.sin(2*math.pi*t/d)
         r = [c['lean'], 0., c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
@@ -208,6 +245,9 @@ def state(action, t, c, height):
             r[0] = (c['wail_chin']*(1-u)+c['head_down']*u)*fade; r[2] = 1.5*w*u*fade
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
+    elif action == 'hat_brim':
+        r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
+        s[1] = 1.025  # upright, but no idle floating above the supporting brim
     else:
         raise KeyError(action)
     return s, r, lift, shift
@@ -231,6 +271,14 @@ def braid_length(model, hand, parts):
 
 def flourish_tracks(model, action, samples, cfg, c):
     tracks = []
+    if action in ('boat_paddle', 'boat_gather', 'boat_drink'):
+        hand, parts = carried(model, 'hand_right')
+        if parts:
+            def rowing(t):
+                phase = 2*math.pi*t/c['duration']
+                if action == 'boat_paddle': return [18*math.sin(phase), 0, 24+6*math.cos(phase)]
+                a = bump(t/c['duration']); return [-18*a, -8*a, 12+12*a]
+            tracks.append({'bone': hand, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in rowing(t)]] for t in samples]})
     wave = cfg['flourishes']['braid_wave']
     if action in wave['clips'] and c.get('style') == 'genki':
         hand, parts = carried(model, 'hand_right')
@@ -267,6 +315,39 @@ def flourish_tracks(model, action, samples, cfg, c):
             if parts:
                 tracks.append({'bone': hand, 'channel': 'rotation', 'keys': [[round(t, 8), 0, 0, round(side*shake(t), 5)] for t in samples]})
     return tracks
+
+
+def family_braid_tracks(model, action, samples, keys, root, hat, c):
+    """Reach the child's mouth ahead of the parent, or the actual enlarged worn brim.
+
+    The same braid solver as the hat clips keeps the food at the tip. Move the braid
+    root just forward of the cheek while serving, so the strand approaches outside the face.
+    The tuft cancels length scaling as it does when carrying the hat.
+    """
+    if action not in ('boat_feed_young', 'aquatic_hat_care'): return []
+    rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
+    pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
+    anchor = np.array(metrics['anchor_worn'])
+    brim = anchor+metrics['aquatic_scale']*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
+    rows = {name: [] for name in ('position', 'rotation', 'scale', 'tip_rotation', 'tip_scale')}
+    previous = None
+    for i, t in enumerate(samples):
+        a = smooth(t/.6)*(1-smooth((t-1.2)/1.2)) if action == 'boat_feed_young' else smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
+        chain = rig.chain(tuple(keys[ch][i][1:] for ch in ('position', 'rotation', 'scale')))
+        start = (chain@np.r_[tip, 1])[:3]
+        target = np.array(c['serve_target']) if action == 'boat_feed_young' else (chain@np.r_[brim, 1])[:3]
+        offset = np.array(c.get('braid_root_offset', [0, 0, 0]))*a
+        R, sy = hat['braid_to'](np.linalg.inv(chain), start+(target-start)*a, pivot+offset, v0)
+        rotation = hat['to_euler'](R)
+        if previous is not None: rotation = [v+360*round((p-v)/360) for v, p in zip(rotation, previous)]
+        previous = rotation
+        values = {'position': offset, 'rotation': rotation, 'scale': [1, sy, 1],
+                  'tip_rotation': [0, 0, 25*a], 'tip_scale': [1, 1/sy, 1]}
+        for channel, values_at in values.items(): rows[channel].append([round(t, 8), *[round(float(v), 6) for v in values_at]])
+    out = [{'bone': rig.braid, 'channel': channel, 'keys': rows[channel]} for channel in ('position', 'rotation', 'scale')]
+    for bone in rig.tips:
+        for channel in ('rotation', 'scale'): out.append({'bone': bone, 'channel': channel, 'keys': rows['tip_'+channel]})
+    return out
 
 
 def applies(cfg, group, ident):
@@ -314,6 +395,6 @@ def compile_clips(model, cfg, root, ground, height):
             for channel, value in (('position', [shift[0], ground(s, r)+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
-        out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks+flourish_tracks(model, name, samples, cfg, c),
+        out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks+flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c),
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
     return out

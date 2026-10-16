@@ -36,6 +36,7 @@ public final class RemainsEntity extends Entity {
         var result=new ItemStack(ModItems.REMAINS.get());
         CustomData.update(DataComponents.CUSTOM_DATA,result,tag->{
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
+            tag.putInt("SubspeciesFlags",source.subspeciesFlags());
             tag.putString("Model",source.subspecies().assetId());tag.put("Body",source.body().save());
             tag.putInt("Filling",source.body().filling());tag.putFloat("RenderScale",source.growthScale()*source.getScale());
             tag.putFloat("SourceScale",source.growthScale()*source.getScale()*(source.getVariant().isHouse()?.32f:1));

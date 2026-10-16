@@ -44,6 +44,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         wastePortions.add(portion.copy());waste++; changed(); return true;
     }
     public int clean() { return cleanItems().size(); }
+    /** Transfer one real portion to a nearby worker, preserving its original components. */
+    public ItemStack takeWaste() {
+        if (kind() != CareBlock.Kind.TOILET || wastePortions.isEmpty()) return ItemStack.EMPTY;
+        ItemStack portion = wastePortions.removeFirst(); waste = wastePortions.size(); changed(); return portion;
+    }
     public java.util.List<ItemStack> cleanItems(){var result=wastePortions.stream().map(ItemStack::copy).toList();wastePortions.clear();waste=0;changed();return result;}
     public boolean hasFood() {
         return hasFood(stack -> stack.is(YukkuriEntity.FOOD));

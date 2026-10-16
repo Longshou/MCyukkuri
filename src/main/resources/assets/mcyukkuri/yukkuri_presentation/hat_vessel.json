@@ -92,6 +92,10 @@
     "length": 7.1735
   },
   "delivery": {
+    "brim_standing": {
+      "margin": 0.15,
+      "lore": "User 2026-10-16: small juveniles stand on their floating parent's brim. The whole body footprint must fit the front and forward-side brim, with space for each worn hat; eating, sleeping and danger send them inside. First solo sailing starts at juvenile scale 0.35 (project balance), from the father's hat and back to a reserved berth. Preview siblings use actual early-juvenile scales 0.20-0.25."
+    },
     "gravity": 1.28,
     "gravity_lore": "Minecraft's 0.08 blocks per tick squared, in model units",
     "tmin": 5,

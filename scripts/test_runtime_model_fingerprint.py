@@ -58,7 +58,7 @@ class ModelFingerprintTests(unittest.TestCase):
     def test_all_detached_badges_and_geometry_drift(self):
         assets = Path(__file__).resolve().parents[1] / "src/main/resources/assets/mcyukkuri"
         mounts = json.loads((assets / "yukkuri/badge_mounts.json").read_text())["detached"]
-        self.assertEqual(23, len(mounts))
+        self.assertEqual(24, len(mounts))
         for name, mount in mounts.items():
             with self.subTest(accessory=name):
                 model = (assets / "yukkuri_props" / (name + ".json")).read_bytes()

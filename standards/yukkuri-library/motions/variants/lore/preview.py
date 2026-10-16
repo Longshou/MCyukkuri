@@ -15,7 +15,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUT = ROOT/'.local/previews/lore'  # the preview page (index.html) stays local, not committed
-BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor')
+BOAT_CLIPS = ('boat_drift', 'boat_steady', 'boat_call', 'boat_brood', 'boat_labor',
+              'boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board',
+              'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance')
 # Panels: (label, model id, mode). Land forms never show the boat set; the aquatic Marisa shows only it;
 # the young panel shows a baby sitting on its mother's brim.
 PANELS = [('魔理沙', 'marisa', 'land'), ('水生魔理沙', 'marisa', 'aquatic'), ('帽中幼体', 'marisa', 'young'), ('灵梦', 'reimu', 'land'),
@@ -47,7 +49,7 @@ def sample(keys, t):
 
 
 class Posed:
-    def __init__(self, ident, corrections, aquatic=False):
+    def __init__(self, ident, corrections, aquatic=False, worn_hat_scale=1):
         self.model = m = json.loads((ASSETS/'yukkuri'/f'{ident}.json').read_text(encoding='utf-8'))
         rev = corrections['models'].get(ident, {}); index = {b['name']: i for i, b in enumerate(m['bones'])}
         remap = lambda clip: dict(clip, tracks=[dict(tr, bone=index[rev['bone_names'][tr['bone']]]) for tr in clip['tracks']])
@@ -58,6 +60,8 @@ class Posed:
         self.v, self.uv, self.n = V[keep, :3], V[keep, 3:5], V[keep, 5:8]
         self.a, self.b, self.q = W[keep, 0].astype(int), W[keep, 1].astype(int), W[keep, 2:3]
         self.ident, self.aquatic, self.boat = ident, aquatic, 0
+        self.worn_hat_scale = worn_hat_scale
+        self.hat_anchor = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))['anchor_worn']
         if aquatic:
             # Her own hat as the boat (marisa_hat_turned at the aquatic size, its crown pressed as afloat, hat_vessel.json): static,
             # its brim a freeboard over the water line, the rider on the ledge at the stern as HatBoatEntity seats her. Same atlas.
@@ -82,8 +86,12 @@ class Posed:
             p = pose.get(i, {}); m = np.eye(4)
             m[:3, :3] = euler(p.get('rotation', [0, 0, 0]))*np.array(p.get('scale', [1, 1, 1]))
             pv = np.array(b['pivot']); m[:3, 3] = pv+np.array(p.get('position', [0, 0, 0]))-m[:3, :3]@pv
+            if b['name'] == 'hat_follow' and self.worn_hat_scale != 1:
+                hat = np.eye(4); hat[:3, :3] *= self.worn_hat_scale
+                hat[:3, 3] = np.array(self.hat_anchor)*(1-self.worn_hat_scale)
+                m = m@hat  # same anchor and multiplication order as YukkuriModel
             mats.append(mats[b['parent']]@m if b['parent'] >= 0 else m)
-        M = np.array(mats); hv = np.c_[self.v, np.ones(len(self.v))]
+        M = np.array(mats); self.last_matrices = M; hv = np.c_[self.v, np.ones(len(self.v))]
         pos = np.einsum('nij,nj->ni', M[self.a], hv)[:, :3]*(1-self.q)+np.einsum('nij,nj->ni', M[self.b], hv)[:, :3]*self.q
         nrm = np.einsum('nij,nj->ni', M[self.a][:, :3, :3], self.n)
         if self.boat: pos[-self.boat:], nrm[-self.boat:] = self.v[-self.boat:], self.n[-self.boat:]

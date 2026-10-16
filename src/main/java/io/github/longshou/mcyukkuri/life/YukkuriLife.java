@@ -31,12 +31,14 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK }
+    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
     private final YukkuriEntity entity;
+    private final TemperatureLife temperature;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     private long ageTicks;
     private int metabolismTicks, energyTicks, hygieneTicks;
+    private int immersionTicks;
     private ItemStack mouth = ItemStack.EMPTY;
     private int mealTicks;
     private UUID feeder;
@@ -48,7 +50,7 @@ public final class YukkuriLife {
     private Task task = Task.NONE;
     private ItemEntity targetFood;
     private BlockPos targetBlock;
-    private int pursuitTicks, queueTicks;
+    private int pursuitTicks, queueTicks, winterNeedCheckAt;
     private boolean accessory = true;
     private UUID accessoryToken;
     private boolean goldMedal;
@@ -60,7 +62,8 @@ public final class YukkuriLife {
     private int exerciseReliefTicks;
     private boolean toiletAccident;
 
-    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; personality = new YukkuriPersonality(entity.getUUID()); }
+    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity.getUUID()); }
+    public TemperatureLife temperature() { return temperature; }
     public YukkuriPersonality personality() { return personality; }
     public float nutrition() { return nutrition; }
     public boolean spendNutrition(float amount) {
@@ -77,6 +80,7 @@ public final class YukkuriLife {
     public float bladder() { return bladder; }
     public float wetness() { return wetness; }
     public float dryness(){return dryness;}
+    void addDryness(float amount) { if (Float.isFinite(amount) && amount > 0) dryness = Math.min(100, dryness + amount); }
     public boolean constipated(){return dryness>=70 && exerciseReliefTicks==0;}
     public int exerciseReliefTicks(){return exerciseReliefTicks;}
     /** Exercise helps the young empty their bowel; it does not hydrate or remove stored waste. */
@@ -92,6 +96,7 @@ public final class YukkuriLife {
             &&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!isSleeping()&&!entity.isInWaterOrBubble()&&Consumables.applicable(entity,dose);}
     public boolean beginDose(ItemStack one,UUID player,boolean returnBottle){
         if(one.getCount()!=1||!canTakeDose(one))return false;
+        temperature.stop();
         mouth=one.copy();feeder=player;sharedMeal=true;returnDoseBottle=returnBottle;mealTicks=1;
         sleepTicks=0;task=Task.NONE;entity.family().stop();entity.social().stop();entity.groupInteraction().stop();entity.playLife().stop();
         entity.getNavigation().stop();entity.setPersistenceRequired();return true;
@@ -114,13 +119,33 @@ public final class YukkuriLife {
     public void setMedal(int tier) { goldMedal = tier == 2; silverMedal = tier == 1; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
-    public boolean canRecognize(YukkuriEntity target) { return goldMedal || target.life().hasAccessory(); }
+    public boolean canRecognize(YukkuriEntity target) { return goldMedal || target.life().hasAccessory()
+            || target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+            && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
     private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
     public boolean canEat() { return needsFood() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620; }
+    /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
+    public void restInHat(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat) {
+        if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
+                || boat.flooding() > 0 || level().isRainingAt(entity.blockPosition())) { wakeInHat(); return; }
+        if (!level().isNight() && energy > 20 && task != Task.SLEEP) return;
+        if (task != Task.SLEEP) { task = Task.SLEEP; sleepTicks = 0; targetBlock = null; targetFood = null; }
+        sleepTicks = Math.min(600, sleepTicks+1);
+        if (sleepTicks == 20) entity.speak("sleep");
+        if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
+        if (drugSleep > 0) drugSleep--;
+        if (drugSleep == 0 && (nutrition < 15 || !level().isNight() && sleepTicks >= 220 && energy >= 95)) wakeInHat();
+    }
+    public void wakeInHat() {
+        if (task != Task.SLEEP) return;
+        boolean rested = sleepTicks >= 220;
+        task = Task.NONE; sleepTicks = 0; restWait = 1200;
+        if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
+    }
     public boolean wantsCrawl() {
         return task == Task.FOOD && mealTicks == 0 && targetFood != null && targetFood.isAlive()
                 && entity.distanceToSqr(targetFood) < 1;
@@ -128,14 +153,21 @@ public final class YukkuriLife {
     public String activity() {
         if (mealTicks > 0) return mealTicks < 10 ? "take_food" : mealTicks < 45 ? "chew" : mealTicks < 53 ? "swallow" : "meal_finish";
         if (task == Task.SLEEP) return sleepTicks < 20 ? "sleep_enter" : sleepTicks >= 620 ? "wake" : "sleep";
-        return switch (task) { case FOOD -> "seek_food"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
+        return switch (task) { case FOOD -> "seek_food"; case WINTER_FOOD -> "shelter_stock"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? "toilet_accident" : "ground_toilet" : "seek_toilet";
-            case DRINK -> drinkTicks>0?"drink":"seek_water"; default -> "idle"; };
+            case DRINK -> drinkTicks>0?"drink":"seek_water"; case TEMPERATURE -> temperature.activity(); default -> "idle"; };
     }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
 
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        if (entity.level().isClientSide || !entity.isAlive()) return;
+        // Body contact with water hurts every species, even with AI disabled. A dry hat is not immersion.
+        if (!entity.isInWaterOrBubble()) immersionTicks = 0;
+        else if (++immersionTicks >= 20) {
+            immersionTicks = 0;
+            entity.hurt(level().damageSources().drown(), 1);
+        }
+        if (!entity.isAlive() || entity.isNoAi()) return;
         ageTicks++;
         personality.tick();
         if(exerciseReliefTicks>0)exerciseReliefTicks--;
@@ -154,9 +186,11 @@ public final class YukkuriLife {
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
             else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + entity.subspecies().waterGain(2));
             else wetness = Math.max(0, wetness - 3);
-            if (wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
+            if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
                 entity.hurt(level().damageSources().drown(), 1);
         }
+        temperature.tick();
+        if (!entity.isAlive()) return;
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
             if (mealTicks > 0 || task != Task.NONE || sprayDelay>0 || drugSleep>0) interrupt();
             return;
@@ -205,6 +239,7 @@ public final class YukkuriLife {
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
         if (!canEat() || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
+        temperature.stop();
         entity.dailyLife().stop();
         bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; mealTicks = 1;
         sleepTicks = 0; task = Task.NONE; entity.getNavigation().stop(); entity.setPersistenceRequired();
@@ -228,6 +263,7 @@ public final class YukkuriLife {
     }
     public void interrupt() {
         io.github.longshou.mcyukkuri.event.WildCards.mealInterrupted(entity);
+        temperature.stop();
         entity.dailyLife().stop();
         if (!mouth.isEmpty()) {
             ItemEntity dropped = entity.spawnAtLocation(mouth.copy());
@@ -246,6 +282,11 @@ public final class YukkuriLife {
     public UUID takeAccessory(UUID player) {
         return takeAccessory(player,UUID.randomUUID());
     }
+    /** Voluntarily using one's own hat as a vessel is not an accessory theft. */
+    public UUID stowAccessory() {
+        if (!accessory) return null;
+        accessory = false; accessoryToken = UUID.randomUUID(); return accessoryToken;
+    }
     public UUID takeAccessory(UUID player,UUID token) {
         if (!accessory) return null;
         accessory = false; accessoryToken = token; personality.accessoryTaken(player);
@@ -254,26 +295,55 @@ public final class YukkuriLife {
     public boolean returnAccessory(UUID owner, UUID token, UUID player) {
         if(!matchesAccessory(owner,token))return false;
         accessory = true; accessoryToken = null; personality.accessoryReturned(player);
+        entity.settlement().society().restored();
         entity.showReaction("happy", "returned_accessory", 100); return true;
     }
     public boolean matchesAccessory(UUID owner,UUID token){return !accessory&&entity.getUUID().equals(owner)&&accessoryToken!=null&&accessoryToken.equals(token);}
 
     public boolean plan() {
+        if (entity.shelteredInHat()) return false;
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks > 0) return true;
+        if (task == Task.WINTER_FOOD) {
+            if (entity.wintering().continueMeal()) {
+                if (pursuitTicks >= winterNeedCheckAt) {
+                    winterNeedCheckAt = pursuitTicks + 20;
+                    if (planWinterPriority()) return true;
+                }
+                if (!hasUrgentNeed() && entity.family().canUse()) { stopGoal(); return false; }
+                return true;
+            }
+            stopGoal(); planWait = 0;
+        }
+        if (task == Task.SLEEP && temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) {
+            stopGoal(); return false;
+        }
+        if (task == Task.TEMPERATURE) {
+            if (temperature.canContinue()) return true;
+            stopGoal(); planWait = 0;
+        }
+        if ((task == Task.SLEEP || task == Task.HOME) && drugSleep == 0 && temperature.unsafeSleep() && temperature.plan()) {
+            task = Task.TEMPERATURE; sleepTicks = 0; return true;
+        }
         if (task != Task.NONE) return true;
         if(drugSleep>0){task=Task.SLEEP;sleepTicks=20;return true;}
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
-        if (rainOutside() && nutrition >= 30) {
+        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30) {
             targetBlock = homeStand();
             if(targetBlock==null||!covered(targetBlock))targetBlock=nearestDryCover();
             if (targetBlock != null) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
+        if (needsFood() && entity.wintering().stockedHome() != null) {
+            if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
+            // Activate pending care before this new food route could monopolize the higher-priority life goal.
+            if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
+            if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
+        }
         if (needsFood() && EventHooks.canEntityGrief(level(), entity)) {
             targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
@@ -284,10 +354,26 @@ public final class YukkuriLife {
             if (targetFood != null || targetBlock != null) { task = Task.FOOD; pursuitTicks = queueTicks = 0; return true; }
         }
         if (bladder < 70 && planToilet()) return true;
+        if (temperature.plan()) { task = Task.TEMPERATURE; return true; }
         if (restWait == 0 && (energy <= 35 || level().isNight())) {
             targetBlock = homeStand();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10) { task = Task.SLEEP; sleepTicks = 0; return true; }
+        }
+        return false;
+    }
+    /** Unmet needs are not prohibitions on food: only an executable higher-priority plan takes over. */
+    private boolean planWinterPriority() {
+        if (dryness >= 40 || spicyTicks > 0) {
+            var water = nearestDrink();
+            if (water != null) {
+                entity.wintering().stopMeal(); targetBlock = water; task = Task.DRINK;
+                drinkTicks = pursuitTicks = 0; return true;
+            }
+        }
+        if (bladder >= 70 && planToilet()) { entity.wintering().stopMeal(); return true; }
+        if (temperature.unsafeSleep() && temperature.plan()) {
+            entity.wintering().stopMeal(); task = Task.TEMPERATURE; pursuitTicks = 0; return true;
         }
         return false;
     }
@@ -319,6 +405,12 @@ public final class YukkuriLife {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         pursuitTicks++;
         switch (task) {
+            case TEMPERATURE -> {
+                if (!temperature.tickGoal()) stopGoal();
+                else if (restWait == 0 && (energy <= 35 || level().isNight()) && temperature.beginSleepAtRefuge()) {
+                    task = Task.SLEEP; sleepTicks = 0; targetBlock = null;
+                }
+            }
             case DRINK -> {
                 if(targetBlock==null||!level().getFluidState(targetBlock).is(net.minecraft.tags.FluidTags.WATER)||pursuitTicks>240){stopGoal();return;}
                 if(entity.distanceToSqr(Vec3.atCenterOf(targetBlock))<2.25&&seesWater(targetBlock)){
@@ -331,13 +423,14 @@ public final class YukkuriLife {
                 }else if(pursuitTicks%10==1){var stand=drinkStand(targetBlock);if(stand==null||!navigate(stand,1,false))stopGoal();}
             }
             case FOOD -> seekFood();
+            case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
                 if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 240 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 if (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) < .16 && restable(entity.blockPosition())) {
                     entity.getNavigation().stop();
                     if (restWait == 0 && (energy <= 35 || level().isNight())) { task = Task.SLEEP; sleepTicks = 0; }
-                    else if (rainOutside()) pursuitTicks = 0;
-                    else { task = Task.NONE; planWait = 40; }
+                    // Awake arrival ends the trip, even while rain continues above the roof.
+                    else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks % 10 == 1 && !navigate(targetBlock, 1.15, false)) stopGoal();
             }
             case TOILET -> {
@@ -372,6 +465,7 @@ public final class YukkuriLife {
                 } else { toiletTicks=0; if(pursuitTicks%10==1&&!navigate(targetBlock,1,false))stopGoal(); }
             }
             case SLEEP -> {
+                if (temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) { stopGoal(); break; }
                 if(level().isRainingAt(entity.blockPosition())){drugSleep=0;stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
                 if(drugSleep>0){drugSleep--;sleepTicks=Math.min(sleepTicks,600);}
@@ -380,6 +474,7 @@ public final class YukkuriLife {
                 if (drugSleep==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15)) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
                     entity.badges().routineCompleted(2);
+                    temperature.stop();
                     task = Task.NONE; restWait = 1200; sleepTicks = 0;
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
@@ -430,6 +525,8 @@ public final class YukkuriLife {
                 || entity.blockPosition().distManhattan(pos) <= 1;
     }
     public void stopGoal() {
+        temperature.stop();
+        entity.wintering().stopMeal();
         task = Task.NONE; targetFood = null; targetBlock = null; sleepTicks = toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
@@ -568,6 +665,7 @@ public final class YukkuriLife {
         }
         return best;
     }
+    boolean hasReachableDrink() { return nearestDrink() != null; }
     private BlockPos nearestDrink(){
         BlockPos best=null;double distance=Double.MAX_VALUE;
         for(var water:BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6),entity.blockPosition().offset(6,1,6))){
@@ -590,7 +688,7 @@ public final class YukkuriLife {
         Path path;
         try { path = entity.getNavigation().createPath(target, 0); }
         finally { if (escapeWater) entity.setPathfindingMalus(PathType.WATER, old); }
-        if (path == null || !path.canReach()) return null;
+        if (path == null || !path.canReach() || !escapeWater && !entity.aquaticLife().shore().allows(path)) return null;
         boolean leftWater = !escapeWater;
         for (int i=0; i<path.getNodeCount(); i++) {
             var node = path.getNode(i);
@@ -619,10 +717,14 @@ public final class YukkuriLife {
         CompoundTag tag = new CompoundTag(); tag.putInt("Version", 1);
         tag.putFloat("Nutrition", nutrition); tag.putFloat("Energy", energy); tag.putFloat("Hygiene", hygiene);
         tag.putFloat("Bladder", bladder); tag.putFloat("Wetness", wetness); tag.putLong("AgeTicks", ageTicks);
+        tag.putInt("ImmersionTicks", immersionTicks);
+        tag.put("Temperature", temperature.save());
+        tag.put("Wintering", entity.wintering().save());
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
         tag.putFloat("Dryness",dryness);tag.putInt("SpicyTicks",spicyTicks);tag.putInt("SprayDelay",sprayDelay);tag.putInt("DrugSleep",drugSleep);tag.putBoolean("ReturnDoseBottle",returnDoseBottle);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
+        if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
@@ -636,6 +738,9 @@ public final class YukkuriLife {
     public void load(CompoundTag tag) {
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
+        immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, 19);
+        temperature.load(tag.getCompound("Temperature"));
+        entity.wintering().load(tag.getCompound("Wintering"));
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
         dryness=bounded(tag,"Dryness",0);spicyTicks=Math.clamp(tag.getInt("SpicyTicks"),0,240);sprayDelay=Math.clamp(tag.getInt("SprayDelay"),0,90);drugSleep=Math.clamp(tag.getInt("DrugSleep"),0,400);returnDoseBottle=tag.getBoolean("ReturnDoseBottle");
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
@@ -654,5 +759,6 @@ public final class YukkuriLife {
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null; goldMedal=tag.getBoolean("GoldMedal"); silverMedal=tag.getBoolean("SilverMedal");
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
+        if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
     }
 }

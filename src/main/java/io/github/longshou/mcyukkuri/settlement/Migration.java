@@ -79,7 +79,7 @@ final class Migration {
     /** Leader side. Without force the threat threshold, a retry gap and a personality roll apply; a failed site search keeps the threat. */
     static boolean start(YukkuriEntity leader, SettlementData.Group group, boolean force) {
         if (!(leader.level() instanceof ServerLevel level) || group.kind == SettlementData.Kind.BANDITS || moving(group)
-                || !leader.getUUID().equals(group.leader) || !leader.isAlive() || !leader.family().adult()
+                || !leader.getUUID().equals(SettlementData.get(level).activeLeader(group)) || !leader.isAlive() || !leader.family().adult()
                 || leader.isPanicking() || leader.life().isSleeping() || !group.id.equals(leader.settlement().groupId())
                 || !level.hasChunkAt(group.center)) return false;
         long now = level.getGameTime();
@@ -135,7 +135,7 @@ final class Migration {
     /** Adults who take part: free of a home claim and of a human owner, not outcasts or slaves, not the wild predators. */
     static boolean joins(YukkuriEntity e, SettlementData.Group group) {
         var role = group.role(e.getUUID());
-        return e.isAlive() && e.family().adult() && role != SettlementData.Role.OUTCAST && role != SettlementData.Role.SLAVE
+        return e.isAlive() && e.family().adult() && (role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER)
                 && !e.getVariant().isPredator() && !e.getVariant().isHouse() && !HomeClaim.holds(e) && WildEvents.unowned(e);
     }
 

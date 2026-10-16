@@ -52,6 +52,7 @@ public final class FamilyData extends SavedData {
         public int[] traits;
         public int[] dispositions = new int[0];
         public boolean born;
+        public boolean landed;
     }
     public static final class Brood {
         public UUID id, mother, father, detachedHolder;
@@ -123,7 +124,11 @@ public final class FamilyData extends SavedData {
     }
     /** A size-dependent distribution. The random seed is fixed until a conception actually commits. */
     public static int offspringCount(float maternalScale, long seed) {
-        Random random=new Random(seed); double probability=.15+.70*Math.clamp((maternalScale-.8)/.4,0,1);
+        Random random=new Random(seed);
+        double influence=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
+        double size=Math.clamp((maternalScale-.8)/.4,0,1);
+        // Keep the old default arithmetic exact; center other settings on p=.5 (mean three).
+        double probability=Math.clamp(.15+influence*size+(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE-influence)*.5,0,1);
         int count=1; for(int i=0;i<4;i++)if(random.nextDouble()<probability)count++;
         return count;
     }
@@ -231,10 +236,10 @@ public final class FamilyData extends SavedData {
             for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return null;
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
-            if(brood.id.equals(existing.family().birthId())) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty(); }
+            if(brood.id.equals(existing.family().birthId())) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();trackStemCompletion(brood,level); }
             return null;
         }
-        if(YukkuriWorldData.get(level).isCaptured(child.id)) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();return null; }
+        if(YukkuriWorldData.get(level).isCaptured(child.id)) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();trackStemCompletion(brood,level);return null; }
         if(!level.hasChunkAt(BlockPos.containing(position))||!relocate(brood,level,BlockPos.containing(position)))return null;
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.family().newborn(child,brood);entity.moveTo(position.x,position.y,position.z,0,0);
@@ -277,10 +282,39 @@ public final class FamilyData extends SavedData {
         if (!joined && brood.father!=null && level.getEntity(brood.father) instanceof YukkuriEntity parent) entity.settlement().inherit(parent);
         if(level.getEntity(brood.mother) instanceof YukkuriEntity parent)entity.habitat().inherit(parent);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
+        trackStemCompletion(brood,level);
         io.github.longshou.mcyukkuri.cognition.Cognition.born(entity,brood.mother,brood.father);
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
         setDirty();return entity;
+    }
+    private void trackStemCompletion(Brood brood,ServerLevel level) {
+        if(brood.complete()&&level.getEntity(brood.mother) instanceof YukkuriEntity mother)
+            ShedStemDrops.get(level).queue(mother,brood);
+    }
+    /** Landing is distinct from successful entity insertion, and survives mother or child unloading. */
+    public void landed(YukkuriEntity entity) {
+        var brood=brood(entity.family().birthId());
+        if(brood==null||!entity.isAlive()||entity.family().awaitingLanding()||entity.family().flying()
+                ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity))return;
+        for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){child.landed=true;setDirty();return;}
+    }
+    /** Unloaded ALIVE children remain pending. Only recorded landing or a known terminal outcome resolves a birth. */
+    public boolean birthsResolved(Brood brood,ServerLevel level) {
+        if(!brood.complete())return false;
+        var custody=YukkuriWorldData.get(level);
+        for(var child:brood.children) {
+            if(child.landed)continue;
+            // Reconcile older saves only against a real loaded child's completed landing state.
+            for(var dimension:level.getServer().getAllLevels())
+                if(dimension.getEntity(child.id) instanceof YukkuriEntity loaded)landed(loaded);
+            if(child.landed)continue;
+            var person=people.get(child.id);
+            if(person!=null&&(person.status==Status.DEAD||person.status==Status.REMOVED||person.status==Status.LOST))continue;
+            if(custody.isCaptured(child.id))continue;
+            return false;
+        }
+        return true;
     }
     public void cancel(Brood brood) {
         if(brood==null||brood.cancelled)return;
@@ -331,7 +365,7 @@ public final class FamilyData extends SavedData {
             for(Child child:brood.children) {
                 CompoundTag c=new CompoundTag();c.putUUID("Id",child.id);c.putString("Variant",child.variant.name());c.putFloat("AdultScale",child.adultScale);
                 c.putInt("SubspeciesFlags",child.subspeciesFlags);
-                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);c.putBoolean("Born",child.born);children.add(c);
+                c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
         }
@@ -359,7 +393,7 @@ public final class FamilyData extends SavedData {
                 for(Tag childEntry:value.getList("Children",Tag.TAG_COMPOUND)) {
                     CompoundTag c=(CompoundTag)childEntry;Child child=new Child();child.id=c.getUUID("Id");child.variant=YukkuriVariant.valueOf(c.getString("Variant"));
                     child.subspeciesFlags=Math.clamp(c.getInt("SubspeciesFlags"),0,255);
-                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");
+                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
                     child.dispositions=c.getIntArray("Dispositions");
                     if(tag.getInt("Version")<2) {
                         long oldLifespan=child.lifespan;

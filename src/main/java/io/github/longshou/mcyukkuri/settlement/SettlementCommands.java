@@ -60,7 +60,7 @@ public final class SettlementCommands {
                 e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) {
             members++;
             var role = group.role(member.getUUID());
-            if (role == SettlementData.Role.OUTCAST) outcast++; else if (role == SettlementData.Role.SLAVE) slaves++;
+            if (role == SettlementData.Role.OUTCAST) outcast++; else if (role == SettlementData.Role.UNUN_SLAVE) slaves++;
         }
         long vacant = group.vacant() && group.vacantSince > 0 ? level.getGameTime() - group.vacantSince : 0;
         final int loaded = members, cast = outcast, enslaved = slaves;

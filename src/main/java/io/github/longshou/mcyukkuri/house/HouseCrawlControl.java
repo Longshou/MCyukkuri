@@ -13,6 +13,9 @@ public final class HouseCrawlControl extends MoveControl {
     }
 
     @Override public void tick() {
+        if (hasWanted() && !entity.aquaticLife().shore().mayStepTo(net.minecraft.core.BlockPos.containing(wantedX,wantedY,wantedZ))) {
+            operation=Operation.WAIT; entity.getNavigation().stop(); entity.setSpeed(0);
+        }
         boolean wanted = hasWanted();
         super.tick();
         boolean crawl = wanted && operation != Operation.JUMPING && entity.onGround()

@@ -39,6 +39,20 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         pose.pushPose();pose.scale(scale,scale*(ground?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT),scale);
         PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
+        if (boat.isAfloat() || boat.isMoored()) {
+            var food = boat.cargo().items();
+            for (int i=0; i<food.size(); i++) {
+                pose.pushPose();
+                // Small provisions sit along the bow, away from the owner's stern seat and the young's central well.
+                pose.translate((i%2==0?-1:1)*HatVessel.OPENING[1]*k*.65, .025,
+                        (HatVessel.OPENING[2]+1+i/2f)*k);
+                pose.scale(.18f*scale,.18f*scale,.18f*scale);
+                net.minecraft.client.Minecraft.getInstance().getItemRenderer().renderStatic(food.get(i),
+                        net.minecraft.world.item.ItemDisplayContext.GROUND,light,OverlayTexture.NO_OVERLAY,
+                        pose,buffers,boat.level(),boat.getId()+i);
+                pose.popPose();
+            }
+        }
         if(boat.isAfloat()||boat.isMoored()){
             // The inside stays dry: hide the water over the opening at the water line (both windings).
             var mask=buffers.getBuffer(net.minecraft.client.renderer.RenderType.waterMask());var matrix=pose.last().pose();

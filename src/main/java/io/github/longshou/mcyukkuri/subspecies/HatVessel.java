@@ -51,8 +51,10 @@ public final class HatVessel {
     /** The opening at the water line (x, z pairs), where the water is hidden. */
     public static float[][] mask(){return MASK;}
     public static boolean aquatic(YukkuriEntity y){return y.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;}
+    /** Ancestry determines hat size in life and in saved remains; water and boat state never change it. */
+    public static float hatMultiplier(int subspeciesFlags){return (subspeciesFlags&15)==SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?AQUATIC_SCALE:1;}
     /** The size of this Marisa's hat relative to the worn standard. */
-    public static float hatScale(YukkuriEntity y){return y.growthScale()*(aquatic(y)?AQUATIC_SCALE:1);}
+    public static float hatScale(YukkuriEntity y){return y.growthScale()*hatMultiplier(y.subspeciesFlags());}
     /** Where a catcher's braid clips set the hat, relative to the catcher, and where it lies before the mother; on land
      *  also how far beyond the live exit its near brim lies (gap, model units) and how far that brim reaches from it. */
     public record Placement(Mode mode,Vec3 offset,float yaw,Vec3 hatInMother,float hatYawInMother,double gap,double nearBrim){}
@@ -119,6 +121,36 @@ public final class HatVessel {
             }
         }
         return best==null?new Vec3(px,floor(m),pz):new Vec3(best[1],best[2],best[3]);
+    }
+    /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.
+     *  This is deliberately separate from newborn delivery: a newborn still lands inside the well. */
+    public static Vec3 brimPlace(double r,List<double[]> taken){
+        return brimPlace(r,taken,false);
+    }
+    /** The launching pupil steps to the outer front edge so its small lowered hat clears the father's brim. */
+    public static Vec3 brimPlace(double r,List<double[]> taken,boolean launch){
+        double margin=DELIVERY.getAsJsonObject("brim_standing").get("margin").getAsDouble();
+        Vec3 best=null; double cost=Double.MAX_VALUE;
+        for(double x=-BRIM[0]+r+margin;x<=BRIM[0]-r-margin;x+=STEP)
+            for(double z=-BRIM[1]+r+margin;z<=-2;z+=STEP){
+                boolean supported=true;
+                for(int i=0;i<17&&supported;i++){
+                    double px=i==16?x:x+(r+margin)*Math.cos(i*Math.PI/8),pz=i==16?z:z+(r+margin)*Math.sin(i*Math.PI/8);
+                    double h=surface(Mode.FLOAT,px,pz); supported=Double.isFinite(h)&&Math.abs(h-FREEBOARD)<1e-6;
+                }
+                // The worn aquatic hat is much wider than the body circle. Keep its front-half layout
+                // clear of the captain and reserve a rectangular footprint, including the looking sway.
+                if(!supported || z+3.4*r>-1.4)continue;
+                boolean free=true;
+                for(var s:taken){
+                    boolean overlap=s[1]<FREEBOARD-.1?Math.hypot(x-s[0],z-s[2])<r+s[3]
+                            :Math.abs(x-s[0])<(r+s[3])*2.8&&Math.abs(z-s[2])<(r+s[3])*3.4;
+                    if(overlap){free=false;break;}
+                }
+                double c=launch?Math.abs(x)*.2+z:Math.abs(x)+.25*Math.abs(z-OPENING[2]);
+                if(free&&c<cost){best=new Vec3(x,FREEBOARD,z);cost=c;}
+            }
+        return best;
     }
     /** Distance from a point to the segment a-b (x, z). */
     private static double segment(double px,double pz,double ax,double az,double bx,double bz){

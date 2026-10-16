@@ -204,6 +204,8 @@ public final class SettlementGameTests {
         check("occupied site refuses entire shelter-dependent community", SettlementSpawner.spawn(level, ORIGIN, SettlementSpawner.Preset.FOREST).isEmpty());
         level.setBlockAndUpdate(ORIGIN,Blocks.AIR.defaultBlockState());
 
+        SettlementSocietyChecks.run(level, ORIGIN, this::check);
+
         var grazer = ModEntities.REIMU.get().create(level); grazer.moveTo(Vec3.atBottomCenterOf(ORIGIN)); grazer.setOnGround(true); grazer.setNoAi(true); level.addFreshEntity(grazer);
         CompoundTag life = grazer.life().save(); life.putFloat("Nutrition", 50); grazer.life().load(life);
         level.setBlockAndUpdate(ORIGIN, Blocks.SHORT_GRASS.defaultBlockState());

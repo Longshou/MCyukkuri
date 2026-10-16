@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.registry.ModCreativeTabs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.*;
@@ -92,11 +93,7 @@ public final class HumanWorld {
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
     private static void creative(BuildCreativeModeTabContentsEvent e) {
-        if (e.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS) || e.getTabKey().location().equals(MCYukkuri.id("yukkuri_world"))) {
-            e.accept(ONIISAN_EGG); e.accept(BROTHER_EGG); e.accept(SISTER_EGG);
-            for(var item:java.util.List.of(MANJU,LIVE_BAG,SILVER_BADGE,GOLD_BADGE,BADGE_HANDBOOK))e.accept(item.get());
-            for(var block:java.util.List.of(LABOR_BENCH,MANJU_STEAMER,PACKING_TABLE,NURSERY_STATION,RECEIVING_TABLE,INSPECTION_TABLE,WASHING_TABLE,OBSERVATION_STATION,TRANSFER_TRAY))e.accept(block.get());
-        }
+        ModCreativeTabs.addHumanContents(e);
     }
     private HumanWorld() {}
 }

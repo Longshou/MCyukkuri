@@ -1,5 +1,7 @@
 # 当前动作适配
 
+2026-10-16，第 11 版：只为 `marisa` 增加七段水上动作：持枝划船、收食入帽、帽内进食、扶稳饮水、帽中睡眠、醒来、登船收身。制作源在 [lore](../../../standards/yukkuri-library/motions/variants/lore/README.md)，运行行为见[水边生活](../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md)。木棒跟随辫梢，亲油保持坐姿；当前离线预览由 `aquatic_preview.py` 写入 `.local/previews/aquatic/`。状态为待用户复查，其他 18 种形态资源内容不变。
+
 2026-10-14，第 10 版：在第 9 版的世界观动作上，把魔理沙的摘帽换成用辫子摆弄帽子的 10 段（`hat_off`、`hat_hold`、`hat_on`、`hat_off_self`、`hat_on_self`，以及水生大帽的 `_aq` 版本），去掉 `doff_hat`。只有 `marisa` 的片段有增减，其他 18 种形态的片段、鼓腮形变和贴图逐字节不变，基础模型指纹不变。辫子和帽子的轨迹由 [hat.py](../../../standards/yukkuri-library/motions/variants/lore/hat.py) 按[帽子翻过来](../../../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)的站位求解；2026-10-15 起帽子倒过来放下时帽冠压扁（陆地贴地、水上略压）；同日为让新生儿沿抛物线越过帽檐落进帽里，陆上帽子改放在出口正前方，辫子动作随新站位重新求解。多毛灵梦补上呆滞与白眼哭泣两张脸（与灵梦同一张图集），其 `bereaved` 不再回落到惊讶。
 
 第 9 版：同一资源新增 27 段[世界观动作](../../../standards/yukkuri-library/motions/variants/lore/README.md)，作为新的片段名合并进 19 种形态。

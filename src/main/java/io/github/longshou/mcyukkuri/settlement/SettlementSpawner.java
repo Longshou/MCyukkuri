@@ -70,13 +70,17 @@ public final class SettlementSpawner {
         if (seedLeader) members.add(seed);
         for (var household : composition.households()) {
             List<YukkuriEntity> family = new ArrayList<>();
+            boolean aquaticFamily = members.isEmpty() && seed != null && io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(seed);
             // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
             boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
-                YukkuriVariant variant = i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
+                YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
                         : family.get(level.random.nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
+                if (aquaticFamily && member != seed && i < household.parents())
+                    member.subspecies().set(io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA,
+                            io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital.NORMAL);
                 family.add(member); members.add(member);
             }
             households.add(family);
@@ -126,6 +130,8 @@ public final class SettlementSpawner {
             }
             for (int j = plan.parents(); j < family.size(); j++) {
                 family.get(j).family().generatedChild(first, second);
+                if (io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(first))
+                    io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(family.get(j), first, second);
                 FamilyData.get(level).register(family.get(j));
             }
         }

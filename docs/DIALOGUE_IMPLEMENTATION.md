@@ -2,6 +2,16 @@
 
 2026-09-12，本轮完成八景 U 原版角色对白整理、首批台词选择、AquesTalk1 配音与头顶气泡接入。制作源和复现命令见 [对白入口](../art/dialogue/README.md)，声音可用合成脚本在本机生成的试听页收听（不入库）。当前声音与译法待用户听审。
 
+## 声音正式注册（2026-10-16）
+
+`registry/ModSounds` 在模组加载时读取模组 Jar 自带的 `assets/mcyukkuri/sounds.json`，按事件键排序后通过 `DeferredRegister<SoundEvent>` 注册，并在 `MCYukkuri` 中接入 mod event bus。当前共290个事件：288个对白事件与2个生态歌声。通用端只读取打包资源，不引用客户端类或客户端资源管理器；新增配音只要随模组更新 `sounds.json`，就会进入同一注册流程，无须维护另一份编号表。
+
+`DialogueAudio` 与 `EcologyAudio` 使用注册后的声音单例。对白序号、优先级、音量、音高、开始条件和停止条件沿用既有流程。事件ID与OGG路径保持原样，资源包仍通过同名声音定义或文件替换播放内容；如需用自己的声音列表完全替代某事件，按 Minecraft 声音定义约定设置 `"replace": true`。注册身份在启动时固定，资源重载仅更新声音定义与文件，不新增注册项。API依据见 [NeoForge 1.21.1 声音文档](https://docs.neoforged.net/docs/1.21.1/resources/client/sounds/)。
+
+可在运行环境使用 `/playsound mcyukkuri:ecology.song.reimu neutral @s ~ ~ ~ 1 1` 检查歌声，也可输入 `/playsound mcyukkuri:voice.native.marisa.adult.l0013 neutral @s ~ ~ ~ 1 1` 检查对白。新增 `DialogueGameTests.registeredSounds` 供远端环境核对服务端实际注册表、声音单例及所有已配音对白的覆盖。
+
+当前事件注册身份、声音单例与所有已配音对白的服务端引用已由受控场景核对；290 个事件键、OGG 资源及原对白时序保持原样。本机未编译或运行夹具。命令补全、实际播放、资源包替换、多人／专服声音及原有打断时机仍待游戏确认。下文历史检查不作为本次注册修改的客户端运行结果。
+
 ## 交付范围
 
 - 完整检索 34,109 条原版角色台词，独立展示 2,015 条 Mod TSV 对照；未采用 Mod 新增日文。

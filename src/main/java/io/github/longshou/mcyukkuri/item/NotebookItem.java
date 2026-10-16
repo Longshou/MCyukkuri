@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -41,7 +42,11 @@ public final class NotebookItem extends Item {
         server.connection.send(new ClientboundOpenBookPacket(hand));
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        open(player, hand, io.github.longshou.mcyukkuri.notebook.NotebookGuide.pages(player.getItemInHand(hand)));
+        if (level instanceof ServerLevel serverLevel) {
+            var pages = new java.util.ArrayList<>(io.github.longshou.mcyukkuri.notebook.NotebookGuide.pages(player.getItemInHand(hand)));
+            pages.add(0, io.github.longshou.mcyukkuri.season.SeasonCalendar.page(serverLevel, player.blockPosition()));
+            open(player, hand, pages);
+        }
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }
     @Override public InteractionResult useOn(UseOnContext context) {
@@ -83,6 +88,12 @@ public final class NotebookItem extends Item {
         var pages = new java.util.ArrayList<Component>(List.of(
                 io.github.longshou.mcyukkuri.notebook.NotebookGuide.form(entity),
                 io.github.longshou.mcyukkuri.settlement.SettlementObservation.page(entity),
+                io.github.longshou.mcyukkuri.settlement.SettlementObservation.ordersPage(entity),
+                entity.independence().observation(),
+                life.temperature().observation(),
+                io.github.longshou.mcyukkuri.season.SeasonCalendar.page((ServerLevel) entity.level(), entity.blockPosition()),
+                io.github.longshou.mcyukkuri.season.AutumnStock.observation(entity),
+                entity.wintering().observation(),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Math.round(life.nutrition()), Math.round(life.energy()),
                         Math.round(life.hygiene()), Math.round(life.wetness()), Math.round(life.bladder()),
@@ -105,9 +116,14 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName()),
                 io.github.longshou.mcyukkuri.cognition.CognitionObservation.page(entity)));
+        if (io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
+                || entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity) {
+            pages.add(1, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquatic(entity));
+            pages.add(2, io.github.longshou.mcyukkuri.notebook.NotebookGuide.aquaticFamily(entity));
+        }
         Component claim = io.github.longshou.mcyukkuri.event.HomeClaim.page(entity);
         if (claim != null) pages.add(claim);
-        return pages;
+        return List.copyOf(pages);
     }
     private static Component identity(java.util.UUID id) {
         return id==null?Component.translatable("family.mcyukkuri.unknown"):Component.literal(id.toString().substring(0,8));

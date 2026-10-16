@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.registry.ModSounds;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,7 +47,7 @@ public final class EcologyAudio {
         private final YukkuriEntity owner;
         private final long start;
         Song(YukkuriEntity e){
-            super(SoundEvent.createVariableRangeEvent(MCYukkuri.id("ecology.song."+(e.getVariant().assetId().contains("marisa")?"marisa":"reimu"))),
+            super(ModSounds.event("ecology.song."+(e.getVariant().assetId().contains("marisa")?"marisa":"reimu")),
                     SoundSource.NEUTRAL,.65f,e.isBaby()?1.12f:1,e,e.getUUID().getLeastSignificantBits());
             owner=e;start=e.getBehaviorStartTick();
         }

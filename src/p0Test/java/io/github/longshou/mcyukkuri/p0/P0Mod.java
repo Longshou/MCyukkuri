@@ -11,6 +11,13 @@ public final class P0Mod {
 
     public P0Mod(IEventBus modBus) {
         if (P0Control.enabled()) {
+            if("species_registry".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SpeciesRegistryGameTests.class));return;}
+            if("winter".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(WinterGameTests.class));return;}
+            if("succession".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SuccessionGameTests.class));return;}
+            if("autumn_stock".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(AutumnStockGameTests.class));return;}
+            if("seasons".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SeasonGameTests.class));return;}
+            if("independence".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(IndependenceGameTests.class));return;}
+            if("shed_stem".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(ShedStemGameTests.class));return;}
             if("hats".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(HatInteractionGameTests.class));return;}
             if("personality".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PersonalityDevelopmentGameTests.class));return;}
             if("growth".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(GrowthGameTests.class);event.register(FamilyGameTests.class);event.register(ConsumableGameTests.class);});return;}
@@ -18,6 +25,7 @@ public final class P0Mod {
             if("wild_events".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(WildEventGameTests.class));return;}
             if("living".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(LivingGameTests.class));return;}
             if("subspecies".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(SubspeciesGameTests.class));return;}
+            if("aquatic_family".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(AquaticFamilyGameTests.class));return;}
             if("predators".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PredatorGameTests.class));return;}
             if("dialogue".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(DialogueGameTests.class));return;}
             if("freezer".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(FreezerGameTests.class));return;}
@@ -61,6 +69,7 @@ public final class P0Mod {
             modBus.addListener((RegisterGameTestsEvent event)->event.register(WaddleGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(PredatorGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(SubspeciesGameTests.class));
+            modBus.addListener((RegisterGameTestsEvent event)->event.register(AquaticFamilyGameTests.class));
             NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event)->WaddlePreview.tick(event.getServer()));
             NeoForge.EVENT_BUS.addListener(server::started);
             NeoForge.EVENT_BUS.addListener(server::tick);

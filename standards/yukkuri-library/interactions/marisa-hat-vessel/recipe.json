@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "status": "pending_user_review",
   "note": "Marisa's own hat turned upside down with its soft crown pressed flat: the cradle on land and the boat afloat. Model units (16 per block) at growth 1. The hat is the worn hat copied box for box with a well opened in it; these are the opening's wall, how far the crown is pressed, the aquatic hat's size, the young's places, how a helper is placed, and the pregnant body used to find the live exit.",
   "lore": "user 2026-10-15: turned over, the hat's soft top gives like a nest (a likeness); just turn the hat upside down and squash its bottom, without turning it into another shape",
@@ -59,6 +59,7 @@
     "lore": "LiveBirthGeometry.deform; used for the live exit (the body's half width at a full belly)"
   },
   "delivery": {
+    "brim_standing": {"margin": 0.15, "lore": "User 2026-10-16: small juveniles stand on their floating parent's brim. The whole body footprint must fit the front and forward-side brim, with space for each worn hat; eating, sleeping and danger send them inside. First solo sailing starts at juvenile scale 0.35 (project balance), from the father's hat and back to a reserved berth. Preview siblings use actual early-juvenile scales 0.20-0.25."},
     "gravity": 1.28,
     "gravity_lore": "Minecraft's 0.08 blocks per tick squared, in model units",
     "gap": {

@@ -51,6 +51,17 @@ public enum YukkuriAction {
     BOAT_CALL("boat_call", 2.0, true),
     BOAT_BROOD("boat_brood", 4.0, true),
     BOAT_LABOR("boat_labor", 2.4, true),
+    BOAT_PADDLE("boat_paddle", 1.6, true),
+    BOAT_GATHER("boat_gather", 1.6, false),
+    BOAT_EAT("boat_eat", 1.2, true),
+    BOAT_DRINK("boat_drink", 1.6, true),
+    BOAT_SLEEP("boat_sleep", 4.0, true),
+    BOAT_WAKE("boat_wake", 1.6, false),
+    BOAT_BOARD("boat_board", .8, true),
+    BOAT_FEED_YOUNG("boat_feed_young", 2.4, false),
+    BOAT_NUZZLE("boat_nuzzle", 2.4, false),
+    BOAT_LULLABY("boat_lullaby", 4.0, true),
+    AQUATIC_HAT_CARE("aquatic_hat_care", 2.4, false),
     HAT_CRADLE("hat_cradle", 3.0, true),
     // Marisa's braid takes off, sets down, holds and puts back her own hat (lore hat.py); _AQ: the aquatic Marisa's larger hat floated at a bank.
     HAT_OFF("hat_off", 1.6, false),
@@ -64,7 +75,9 @@ public enum YukkuriAction {
     HAT_OFF_SELF_AQ("hat_off_self_aq", 1.8, false),
     HAT_ON_SELF_AQ("hat_on_self_aq", 1.8, false),
     /** Shell Marisa only; other models fall back to idle. */
-    SHELL_RETRACT("shell_retract", 6.0, true);
+    SHELL_RETRACT("shell_retract", 6.0, true),
+    HAT_BRIM("hat_brim", 3.0, true),
+    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false);
 
     private final String id;
     private final double duration;

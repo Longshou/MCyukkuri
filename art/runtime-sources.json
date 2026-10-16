@@ -2,6 +2,23 @@
   "schema_version": 2,
   "path_base": "repository_root",
   "automatic_promotion": false,
+  "shed_stem": {
+    "source": "art/props/family-life/shed-stem.json",
+    "exporter": "art/props/family-life/export_shed_stem.py",
+    "manifest": "art/props/family-life/shed-stem-provenance.json",
+    "geometry": "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json",
+    "item_model": "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json",
+    "texture": "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png",
+    "status": "pending_user_review"
+  },
+  "badge_attachments": {
+    "source": "art/props/badges/mounts.json",
+    "rounded_selection": "art/source/rounded-runtime/attachments.json",
+    "exporters": ["scripts/export_rounded_attachments.py", "scripts/export_badges.py"],
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/badge_mounts.json",
+    "offline_preview": "art/props/badges/preview.py",
+    "status": "pending_visual_approval"
+  },
   "ecology_expressions": {
     "selection": "art/source/ecology/expressions.json",
     "exporter": "scripts/export_ecology_expressions.py",
@@ -3590,7 +3607,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "contact-safe-20261014-v10",
+    "revision": "aquatic-family-afloat-20261016-v14",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3622,7 +3639,10 @@
     "current_reports": "art/source/motion-corrections/reports/current",
     "history": "preview/review/puff-v6",
     "lore_hat_source": "standards/yukkuri-library/motions/variants/lore/hat.py",
-    "births_preview": "art/source/motion-corrections/previews/current/lore/index.html"
+    "births_preview": "art/source/motion-corrections/previews/current/lore/index.html",
+    "aquatic_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_preview.py",
+    "aquatic_family_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py",
+    "first_voyage_preview_source": "standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",

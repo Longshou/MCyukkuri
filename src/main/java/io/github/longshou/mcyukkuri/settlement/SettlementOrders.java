@@ -29,7 +29,7 @@ public final class SettlementOrders {
     private static final int COOLDOWN = 3600, SUMMON_TICKS = 600, LOOKOUT_TICKS = 60; // [original] pacing
     private final YukkuriEntity entity;
     private Kind kind = Kind.NONE;
-    private long deadline, cooldownUntil, nextIssue, summonUntil, mournedFor = -1;
+    private long deadline, cooldownUntil, nextIssue, summonUntil;
     private int stage, timer, failures;
     private BlockPos dest, threatAt;
     private BlockPos foodPos;
@@ -39,17 +39,13 @@ public final class SettlementOrders {
     public SettlementOrders(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public Kind kind() { return kind; }
+    public boolean active() { return kind != Kind.NONE; }
     public boolean summoned() { return entity.level().getGameTime() < summonUntil; }
-    /** True once per vacancy so a mourner shows grief a single time. */
-    public boolean mourn(long vacantSince) {
-        if (mournedFor == vacantSince) return false;
-        mournedFor = vacantSince; return true;
-    }
-
     // ---- leader side ----
     /** Called about once a second by {@link SettlementLife}; the leader may issue one order per interval. */
     void tickLeader(SettlementData.Group group) {
-        if (!entity.getUUID().equals(group.leader) || !entity.family().adult()) return;
+        if (!entity.getUUID().equals(SettlementData.get(level()).activeLeader(group)) || !entity.family().adult()
+                || entity.settlement().duties().active() || entity.wintering().active() || entity.independence().householdOuting()) return;
         long now = level().getGameTime();
         if (nextIssue == 0) { nextIssue = now + interval(); return; }
         if (now < nextIssue) return;
@@ -78,6 +74,7 @@ public final class SettlementOrders {
     private boolean eligible(YukkuriEntity e, SettlementData.Group group) {
         return group.id.equals(e.settlement().groupId()) && e.settlement().role() == SettlementData.Role.MEMBER && e.family().adult()
                 && e.settlement().orders().free(level().getGameTime()) && WildEvents.available(e) && !WildEvents.reserved(e)
+                && !e.settlement().duties().active() && !e.wintering().active() && !e.independence().householdOuting()
                 && !e.life().hasUrgentNeed() && !Seasons.confined(e) && WildEvents.recognizes(entity, e) && entity.hasLineOfSight(e);
     }
     private boolean free(long now) { return kind == Kind.NONE && now >= cooldownUntil; }
@@ -94,7 +91,9 @@ public final class SettlementOrders {
     private boolean runnable() {
         return kind != Kind.NONE && level().getGameTime() < deadline && entity.isAlive() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.life().hasUrgentNeed() && !entity.life().isSleeping() && !WildEvents.reserved(entity) && !HomeClaim.holds(entity)
-                && !Seasons.confined(entity) && entity.settlement().group() != null && !Migration.moving(entity.settlement().group()) && entity.life().mealTicks() == 0 && !entity.isInWaterOrBubble();
+                && !Seasons.confined(entity) && !entity.settlement().duties().active() && !entity.wintering().active()
+                && !entity.independence().householdOuting() && entity.settlement().group() != null
+                && !Migration.moving(entity.settlement().group()) && entity.life().mealTicks() == 0 && !entity.isInWaterOrBubble();
     }
     public boolean canUse() {
         if (kind == Kind.NONE) return false;

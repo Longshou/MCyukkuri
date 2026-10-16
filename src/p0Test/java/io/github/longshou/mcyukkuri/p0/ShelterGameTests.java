@@ -27,6 +27,8 @@ public final class ShelterGameTests {
     private static final BlockPos ORIGIN=new BlockPos(968,65,8);
     private final List<Check> checks=new ArrayList<>();
     private void check(String name,boolean pass){checks.add(new Check(name,pass));}
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1400,batch="temperature_refuge_sleep")
+    public static void temperatureRefugeSleep(GameTestHelper helper) { TemperatureChecks.refugeSleep(helper); }
     static void daylightFixture(ServerLevel level) {
         level.setDayTime(1000);level.setWeatherParameters(12000,0,false,false);level.setRainLevel(0);level.setThunderLevel(0);
         level.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT).set(false,level.getServer());
@@ -219,5 +221,6 @@ public final class ShelterGameTests {
         var box=ShelterPlacement.place(level,new ShelterPlacement.Plan(ORIGIN,ShelterBlock.Kind.CARDBOARD,Direction.SOUTH));
         check("human placed discarded cardboard remains available",box!=null&&box.shelter().capacity()==1&&box.shelter().complete());
         if(box!=null)box.rollback(level);
+        TemperatureChecks.run(level, ORIGIN, this::check);
     }
 }

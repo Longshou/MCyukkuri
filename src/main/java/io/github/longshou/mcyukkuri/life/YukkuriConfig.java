@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/** Rates advance only while the entity is loaded and ticking. */
+/** Server-side life rates and environment settings; physiology never catches up offline. */
 public final class YukkuriConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.IntValue HUNGER_INTERVAL;
@@ -16,13 +16,18 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue FOREST_CHANCE, FAMILY_CHANCE, LEADER_CHANCE;
     public static final ModConfigSpec.IntValue FOREST_MIN_HOUSEHOLDS, FOREST_MAX_HOUSEHOLDS, HOUSEHOLD_MAX_CHILDREN;
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
-    public static final ModConfigSpec.IntValue MOURNING_TICKS, ORDER_MIN_INTERVAL, ORDER_MAX_INTERVAL, ORDER_TIMEOUT, MIGRATE_THRESHOLD, THREAT_DECAY_TICKS, MIGRATE_TIMEOUT, MIGRATE_MIN_DISTANCE, MIGRATE_MAX_DISTANCE;
+    public static final ModConfigSpec.IntValue ORDER_MIN_INTERVAL, ORDER_MAX_INTERVAL, ORDER_TIMEOUT, MIGRATE_THRESHOLD, THREAT_DECAY_TICKS, MIGRATE_TIMEOUT, MIGRATE_MIN_DISTANCE, MIGRATE_MAX_DISTANCE;
     public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
     public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT, SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
     public static final ModConfigSpec.IntValue BANDIT_CHANCE, MONOPOLY_ONE_IN, BANDIT_RAID_ONE_IN, COLLAPSE_ONE_IN, BIOME_EXPEDITION_ONE_IN;
     public static final ModConfigSpec.IntValue DEIBU_NUTRITION, DEIBU_FRIENDLINESS, DEIBU_EXPOSURE, DEIBU_SUSCEPTIBILITY;
+    public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
+    public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
+    public static final ModConfigSpec.IntValue SEASON_DAYS;
+    public static final ModConfigSpec.IntValue AUTUMN_STOCK_BUFFER;
+    public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("life");
@@ -31,8 +36,31 @@ public final class YukkuriConfig {
                 .defineInRange("hungerInterval", 240, 20, 24000);
         ENERGY_INTERVAL = builder.defineInRange("energyInterval", 160, 20, 24000);
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
-        WET_DAMAGE_THRESHOLD = builder.comment("Brief washing stays below this prolonged exposure threshold.")
+        WET_DAMAGE_THRESHOLD = builder.comment("Wetness damage outside water. Immersion always deals one health point per second, regardless of this threshold.")
                 .defineInRange("wetDamageThreshold", 60, 20, 100);
+        builder.pop().push("temperature");
+        COLD_THRESHOLD = builder.comment("Original gameplay thresholds in Minecraft biome-temperature units, not Celsius.")
+                .defineInRange("coldBelow", .2, -2.0, 1.0);
+        FREEZE_THRESHOLD = builder.comment("At or below this felt temperature, cold exposure accumulates; capped at coldBelow.")
+                .defineInRange("freezeAtOrBelow", 0.0, -2.0, 1.0);
+        HOT_THRESHOLD = builder.comment("Hot weather adds dryness. Effective threshold stays at least 0.5 above coldBelow.")
+                .defineInRange("hotAtOrAbove", 1.5, .5, 4.0);
+        NEST_INSULATION = builder.comment("Warmth from a real dry, intact, supplied nest while inside it; only in cold conditions.")
+                .defineInRange("nestInsulation", 1.0, 0.0, 3.0);
+        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Adults gain 1 per tick, juveniles 1.5, babies 2; warmth removes 2.")
+                .defineInRange("coldExposureTicks", 2400, 20, 1728000);
+        FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
+        HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);
+        builder.pop().push("seasons");
+        SEASON_DAYS = builder.comment("Autumn stock planning horizon in game days. This does not advance or select seasons; seasons follow biome tags.")
+                .defineInRange("daysPerSeason", 7, 1, 365);
+        SPRING_TEMPERATURE = builder.comment("MC biome-temperature offsets, only in dimensions with skylight and a moving sun. Not Celsius.")
+                .defineInRange("springTemperature", 0.0, -2.0, 2.0);
+        SUMMER_TEMPERATURE = builder.defineInRange("summerTemperature", .45, -2.0, 2.0);
+        AUTUMN_TEMPERATURE = builder.defineInRange("autumnTemperature", -.25, -2.0, 2.0);
+        WINTER_TEMPERATURE = builder.defineInRange("winterTemperature", -.8, -2.0, 2.0);
+        AUTUMN_STOCK_BUFFER = builder.comment("Autumn stock estimate: extra percent above ordinary-forage winter meals, plus dry household spoilage. A planning target, not guaranteed survival.")
+                .defineInRange("autumnStockBufferPercent", 25, 0, 200);
         builder.pop().push("development");
         DEIBU_NUTRITION=builder.defineInRange("deibuNutritionMinimum",75,1,100);
         DEIBU_FRIENDLINESS=builder.comment("Environmental friendliness must be strictly below this value.").defineInRange("deibuFriendlinessBelow",30,1,100);
@@ -54,7 +82,6 @@ public final class YukkuriConfig {
         COMMUNITY_POPULATION_CAP = builder.comment("Forest population including reserved unborn children; leave room above the initial budget.")
                 .defineInRange("communityPopulationCap", 128, 2, 512);
         builder.pop().push("community");
-        MOURNING_TICKS = builder.comment("Ticks a led community waits after losing its leader before a successor may be chosen.").defineInRange("mourningTicks", 2400, 0, 240000);
         ORDER_MIN_INTERVAL = builder.comment("Shortest loaded-tick gap between two orders from the same leader.").defineInRange("orderMinInterval", 1200, 200, 48000);
         ORDER_MAX_INTERVAL = builder.comment("Longest loaded-tick gap between two orders from the same leader.").defineInRange("orderMaxInterval", 2400, 200, 48000);
         ORDER_TIMEOUT = builder.comment("An order that is not finished after this many ticks is cancelled.").defineInRange("orderTimeout", 1200, 200, 12000);

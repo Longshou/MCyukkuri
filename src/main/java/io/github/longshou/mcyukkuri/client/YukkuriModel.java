@@ -143,6 +143,15 @@ public final class YukkuriModel {
     /** Root bone transform of the last posed render, in model units (16 per block). Attachments drawn
      *  outside the skinned mesh (held food, stem, delivery) follow it so whole-body motion does not detach them. */
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
+    /** The actual braid-tip bone in the current pose, in block units, for a real rowing stick. */
+    public Matrix4f paddlePose() {
+        for (int i=0; i<bones.length; i++) if (bones[i].name().equals("hand_right_tip")) {
+            var matrix = new Matrix4f(world[i]).translate(bones[i].x(), bones[i].y(), bones[i].z());
+            matrix.m30(matrix.m30()/16); matrix.m31(matrix.m31()/16); matrix.m32(matrix.m32()/16);
+            return matrix;
+        }
+        return null;
+    }
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
         float depth=0;
@@ -687,7 +696,7 @@ public final class YukkuriModel {
         setExpression(expressionFor(action,elapsed,entity.getExpressionId()));
         hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
         hatPhase=entity.contactTurn();
-        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)?io.github.longshou.mcyukkuri.subspecies.HatVessel.AQUATIC_SCALE:1;
+        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setExpression("");}
@@ -701,12 +710,13 @@ public final class YukkuriModel {
                 .filter(java.util.Objects::nonNull).filter(mesh::valid).toList();
         drawingWoundedBody=!wounds.isEmpty()&&woundGeometryCompatible();
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));
             if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;setExpression("");}
+        }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}
     }
     private void setExpression(String name){
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.
