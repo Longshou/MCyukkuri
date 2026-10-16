@@ -136,8 +136,8 @@ public final class AquaticFamilyGameTests {
         helper.assertTrue(io.github.longshou.mcyukkuri.subspecies.HatVessel.brimPlace(3,java.util.List.of())==null,"oversized young never hang beyond the brim");
         helper.succeed();
     }
-    /** Optional remote regression: five siblings, actual father-boat departure and an interrupted return. */
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=260,batch="aquatic_family")
+    /** Separate batch: this daylight voyage must not overlap the family-care fixture changing the world to night. */
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=260,batch="aquatic_family_voyage")
     public static void firstVoyageFromFather(GameTestHelper helper) {
         var level=helper.getLevel();long day=level.getDayTime();int x=X+32;
         GameTestChunks.setForced(level,x/16,0,true);level.setDayTime(1000);
