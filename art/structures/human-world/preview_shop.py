@@ -4,7 +4,7 @@ Requires Pillow, NumPy, Node and an existing Minecraft resource jar. No game or 
 Generated media stays in .local/previews/shop-badge-pets; no source assets are modified.
 """
 from pathlib import Path
-import argparse, functools, io, json, math, shutil, subprocess, sys, zipfile
+import argparse, functools, io, json, math, runpy, shutil, subprocess, sys, zipfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import build
@@ -182,10 +182,40 @@ def goods(out):
         x=10+i%3*480;y=105+i//3*380;sheet.paste(im,(x,y));d.text((x+180,y+325),title,font=font(23),fill='#273e37')
     sheet.save(out/'goods.png')
 
+def worn_badges(out):
+    from types import SimpleNamespace
+    sys.path.insert(0,str(ROOT/'standards/yukkuri-library/motions/variants/lore'))
+    from preview import Posed
+    attach=runpy.run_path(str(ROOT/'art/props/badges/preview.py'))['badge_vertices']
+    corrections=json.loads((ASSETS/'mcyukkuri/yukkuri_presentation/motion_corrections.json').read_text(encoding='utf8'))
+    mounts=json.loads((ASSETS/'mcyukkuri/yukkuri/badge_mounts.json').read_text(encoding='utf8'))['variants']
+    sheet=Image.new('RGB',(1440,600),'#edf1eb');d=ImageDraw.Draw(sheet)
+    d.text((30,20),'佩戴位置 · 正面偏右视角',font=font(30),fill='#273e37')
+    for i,(ident,title) in enumerate([('reimu','灵梦'),('marisa','魔理沙'),('chen','橙'),('patchouli','帕秋莉')]):
+        posed=Posed(ident,corrections);tri,uv,n=posed.frame('idle',0)
+        v=np.c_[tri.reshape(-1,3),uv.reshape(-1,2)*.5,np.repeat(n,3,axis=0)]
+        v=np.r_[v,attach(posed.model,posed.last_matrices,mounts[ident])]
+        atlas=Image.new('RGBA',(1024,1024));tex=Image.fromarray(posed.texture('neutral')).resize((512,512),Image.Resampling.NEAREST)
+        atlas.paste(tex,(0,0));badge=Image.open(ASSETS/'mcyukkuri/textures/item/gold_yukkuri_badge.png').convert('RGBA').resize((64,64),Image.Resampling.NEAREST);atlas.paste(badge,(512,0))
+        bounds=tri.reshape(-1,3);center=(bounds[:,1].min()+bounds[:,1].max())/2;span=max(np.ptp(bounds,axis=0))*.7
+        im=render(SimpleNamespace(atlas=atlas.resize((2048,2048),Image.Resampling.NEAREST)),v,out,'badge-'+ident,360,450,.4,.12,span,center)
+        sheet.paste(im.convert('RGB'),(i*360,80));d.text((i*360+130,540),title,font=font(24),fill='#273e37')
+    sheet.save(out/'badge-mounts.png')
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--minecraft-resources',type=Path,required=True);ap.add_argument('--out',type=Path,default=ROOT/'.local/previews/shop-badge-pets')
     args=ap.parse_args();args.out.mkdir(parents=True,exist_ok=True);a=Assets(args.minecraft_resources)
-    shop_views(a,args.out);skins(args.out);props(a,args.out);goods(args.out)
+    shop_views(a,args.out);skins(args.out);props(a,args.out);goods(args.out);worn_badges(args.out)
+    overview=Image.new('RGB',(1560,1650),'#eff2eb');d=ImageDraw.Draw(overview)
+    d.text((40,24),'宠物店、徽章考试与养成 · 分支内容预览',font=font(38),fill='#273e37')
+    d.text((42,82),'当前运行素材的离线画面；界面为示例数据，完整页面含八组动作 GIF。',font=font(20),fill='#596f65')
+    cards=[('新店外观与考场','shop-exterior.png'),('商店与考试界面','ui/shop_live_zh_cn_x2.png'),
+           ('七套 NPC 皮肤','staff.png'),('徽章佩戴位置','badge-mounts.png'),('油粮、瓶装与陪伴绳','goods.png'),('铜银金章与手帖','badges.png')]
+    for i,(title,relative) in enumerate(cards):
+        x=30+i%2*765;y=130+i//2*500;d.rounded_rectangle((x,y,x+735,y+480),14,fill='#fffdf7')
+        im=ImageOps.contain(Image.open(args.out/relative).convert('RGB'),(705,415))
+        overview.paste(im,(x+(735-im.width)//2,y+12+(415-im.height)//2));d.text((x+22,y+435),title,font=font(24),fill='#273e37')
+    overview.save(args.out/'overview.png')
     print('Rendered current shop, staff, badges and exam props:',args.out)
     print('Special block renderers omitted:',', '.join(sorted(a.missing)) or 'none')
     shutil.copy2(ROOT/'preview/hub/shop-badge-pets.html',args.out/'index.html')

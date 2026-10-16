@@ -16,6 +16,8 @@
 
 ## 宠物店（2026-10-16 重设计）
 
+分支内容的离线预览：`preview_shop.py --minecraft-resources <现有 Minecraft 资源 Jar>` 读取当前布局与运行贴图，生成商店外观、去顶布局、七套皮肤、徽章挂点和用品，输出到 `.local/previews/shop-badge-pets/`。先运行 `art/props/ui/preview_ui.py .local/previews/shop-badge-pets/ui zh_cn`，再运行 `scripts/build_preview_actions.py --manifest preview/hub/shop-badge-pets-actions.json --out .local/previews/shop-badge-pets/actions --frames 24` 准备界面和动图，最后生成场景与总览。页面模板为 `preview/hub/shop-badge-pets.html`；不启动游戏或浏览器。建筑采用原生方块模型与简化光照，省略场景实体及专用方块实体，不能作为实机效果确认。
+
 `build.py` 的 `shop()` 生成 41×16×33 的单层坡屋顶街边宠物店（原结构 ID `mcyukkuri:yukkuri_shop`，世界生成文件不变）：主材为白石英墙、桦木框架与地板、泥砖屋顶；点缀为红白遮阳篷与深色橡木／绿色招牌。正面有灵梦头像招牌（美术评审方案 G）、遮阳篷、旗帜和整面橱窗；屋顶四行、立面六行。
 
 - 销售厅（x2–22、z4–16）：四个临街展舱（内部 3×3，玻璃朝向街窗与过道；第四个是蕾米莉亚捕食种舱）、L 形柜台（店主在柜台后）、货架墙、咨询角。

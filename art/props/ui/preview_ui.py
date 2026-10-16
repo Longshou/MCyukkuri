@@ -123,12 +123,21 @@ def shop_consult(s):
     bars(c, 16, 52, [88, 72, 65, 90]); c.chip(16, 75, 3); c.stars(29, 75, 86); c.text(86, 76, tagtext((1, 2)), SOFT)
     c.text(16, 90, tr('shop.mcyukkuri.vitals3', 20, 80, 90), SOFT)
     fit(c, 16, 108, tr('badge.mcyukkuri.profile.routines', 5, 4, 6), INK, 308, 'routines'); fit(c, 16, 120, tr('badge.mcyukkuri.profile.growth', 86, 12, 30, 0), INK, 308, 'growth')
-    c.text(16, 132, tr('shop.mcyukkuri.weakest', tr('shop.mcyukkuri.ability.2'))); c.text(16, 160, tr('shop.mcyukkuri.advice_title'))
+    c.text(16, 132, tr('shop.mcyukkuri.weakest', tr('shop.mcyukkuri.ability.2'))); c.text(16, 144, tr('shop.mcyukkuri.forecast_hint'), SOFT); c.text(16, 160, tr('shop.mcyukkuri.advice_title'))
+    c.text(16, 172, '- '+tr('shop.mcyukkuri.advice.7'))
     button(c, 100, 224, 160, 20, tr('shop.mcyukkuri.forecast')); footer(c); return c
+
+def shop_buyback(s):
+    c = new_canvas(340, 250, s); tabs(c, 2); c.card(8, 32, 324, 178)
+    c.text(16, 38, tr('shop.mcyukkuri.subject', 1, 2, species('marisa'), tr('badge.mcyukkuri.profile.grade.2'), tr('human.mcyukkuri.stage.2')))
+    bars(c, 16, 52, [60, 71, 48, 55]); c.chip(16, 75, 2); c.stars(29, 75, 70); c.text(86, 76, tagtext((3,)), SOFT)
+    c.text(16, 90, tr('shop.mcyukkuri.vitals3', 20, 74, 90), SOFT)
+    c.text(16, 108, tr('shop.mcyukkuri.offer', 11)); c.text(16, 122, tr('shop.mcyukkuri.sell_state.0', 6, 12), SOFT)
+    c.text(16, 136, tr('shop.mcyukkuri.sell_hint'), SOFT); button(c, 100, 224, 160, 20, tr('shop.mcyukkuri.sell')); footer(c); return c
 
 def shop_goods(s):
     c = new_canvas(340, 250, s); tabs(c, 1); c.text(16, 36, tr('shop.mcyukkuri.category.0'))
-    for i in range(4): c.card(8, 46 + i * 34, 324, 30); c.icon(14, 53 + i * 34, 1); button(c, 36, 52 + i * 34, 290, 20, tr('human.mcyukkuri.buy_supply', 'Regular grain', 8, 1))
+    for i in range(4): c.card(8, 46 + i * 34, 324, 30); c.icon(14, 53 + i * 34, 1); button(c, 36, 52 + i * 34, 290, 20, tr('human.mcyukkuri.buy_supply', tr('item.mcyukkuri.oil_grain_regular'), 8, 1))
     c.text(16, 184, tr('shop.mcyukkuri.trades_left', 8), SOFT); footer(c); c.text(100, 230, tr('shop.mcyukkuri.page', 1, 6), SOFT); return c
 
 def exam(s, refuse=True):
@@ -140,7 +149,7 @@ def exam(s, refuse=True):
     fit(c, 16, 64, tr('exam.mcyukkuri.ui.hall') + '  ' + '  '.join(tr(f'shop.mcyukkuri.ability.{i}') + ' ✓' for i in range(4)), '#2f6b3f', 308, 'hall')
     for i in range(5):
         c.button(8, 112 + i * 22, 110, 20, tr(f'exam.mcyukkuri.btn.{i + 3}')); c.card(122, 111 + i * 22, 210, 22)
-        t = tr(f'exam.mcyukkuri.hint.{i + 3}') ; t = tr('exam.mcyukkuri.ui.fee', 5) + '  ' + t
+        t = tr(f'exam.mcyukkuri.hint.{i + 3}') ; t = tr('exam.mcyukkuri.ui.fee', [0, 9, 4, 2, 1][i]) + '  ' + t
         words = t; lines = wrap(c, words, 198)
         if len(lines) > 2: print('OVER exam hint (>2 lines)', t)
         top = 111 + i * 22 + (7 if len(lines) == 1 else 2)
@@ -196,7 +205,7 @@ if __name__ == '__main__':
     for lang in langs:
         L.clear(); L.update(json.loads((HERE.parents[2] / f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))); L.setdefault('gui.done', {'zh_cn': '完成'}.get(lang, 'Done'))
         print('==', lang)
-        for name, make, w, h in [('shop_live', shop_live, 340, 250), ('shop_goods', shop_goods, 340, 250), ('shop_consult', shop_consult, 340, 250), ('exam', exam, 340, 250), ('keeper', keeper, 300, 220), ('badge', badge, 360, 250)]:
+        for name, make, w, h in [('shop_live', shop_live, 340, 250), ('shop_goods', shop_goods, 340, 250), ('shop_buyback', shop_buyback, 340, 250), ('shop_consult', shop_consult, 340, 250), ('exam', exam, 340, 250), ('keeper', keeper, 300, 220), ('badge', badge, 360, 250)]:
             print('-', name)
             c = make(2); c.im.convert('RGB').save(out / f'{name}_{lang}_x2.png')
             viewport(make(2), w, h, 2).convert('RGB').save(out / f'{name}_{lang}_1080p-auto.png')
