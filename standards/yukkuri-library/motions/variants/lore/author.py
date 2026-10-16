@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[5]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
 DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure',
                 'boat_alarm_call','boat_alarm_wait','boat_answer_call','boat_flee','boat_calm',
-                'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle')
+                'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle',
+                'water_hat_flip','water_hat_grip','water_hat_climb')
 _BRAID_RESCUE=None
 
 
@@ -82,6 +83,15 @@ def state(action, t, c, height):
     elif action=='boat_calm':
         q=1-smooth(t/d);s=[1+.025*q,1-.055*q,1+.02*q]
         r=[-3*q,keyed(t,[(0,-13),(.6,8),(1.4,-5),(2.3,3),(4,0)]),0]
+    elif action=='water_hat_flip':
+        press=keyed(t,[(0,0),(.18,.6),(.38,1),(.60,.5),(.8,.25)])
+        s=[1+.035*press,1-.09*press,1+.04*press];r=[-8*press,0,keyed(t,[(0,0),(.38,-5),(.8,0)])]
+    elif action=='water_hat_grip':
+        breath=keyed(t,[(0,.1),(.2,.1),(.4,.7),(.65,.2),(1,.1)])
+        s=[1.025,.91+.025*breath,1.04];r=[-6-2*breath,0,keyed(t,[(0,-2),(.45,1),(1,-2)])]
+    elif action=='water_hat_climb':
+        press=keyed(t,[(0,.5),(.2,1),(.52,.8),(.8,.35),(1.2,0)])
+        s=[1+.055*press,1-.14*press,1+.04*press];r=[-9*press,0,keyed(t,[(0,-3),(.34,2),(.75,-1),(1.2,0)])]
     elif action == 'hat_stumble':
         press=keyed(t,[(0,.15),(.10,1),(.25,.45),(.40,.85),(.65,.35),(.83,.65),(1.2,.15)])
         s=[1+.065*press,1-.16*press,1+.07*press]
@@ -571,6 +581,7 @@ def compile_clips(model, cfg, root, ground, height):
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks+flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c),
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
+        if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']
     return out
 
 
@@ -614,7 +625,7 @@ def export_distress_clips(include_pet=False):
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    payload['revision']='pet-shop-braid-water-20261017-v19'
+    payload['revision']='low-edge-self-rescue-20261017-v20'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),

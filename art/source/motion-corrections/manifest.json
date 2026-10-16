@@ -8,9 +8,9 @@
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
   "author_sha256": "42704d831b30a2a22602c12bc92e1462c102e582718521b572522be25a273a8b",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "0ede6a04483f12528a6c1074d9e701acb0e79a48bafe0484b4693adaf35ac89c",
+  "lore_recipe_sha256": "ec055fd227111682c90dfec056b889e5d2f8a7c1cc2d11d52eb23ce1ce686a18",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "9ca15b909a913a9a1bd97930d111ad8c6a20a9606aa212c9e8efaae1d4f0409e",
+  "lore_author_sha256": "f6d8cba4b02178afbfb303bd78f78ebc70fa0b5aaaacc466e537bdca75802c33",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
@@ -20,7 +20,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "27b828aaff8f7082391094422b15c61e80b253135923233fff7264a60a74c6bc",
+  "runtime_sha256": "60752e9c14f189886054d389fd7ce8e7d098c0eecf5e0c8e7ec5af266cb24f36",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -656,9 +656,9 @@
     }
   },
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
-  "braid_rescue_recipe_sha256": "7872a09789721b820e4d8ebc4a95643fb9471a43cdb9cb08d0b288bbd46951df",
+  "braid_rescue_recipe_sha256": "25c3d17602957d9ad807cec4ecb0986ce11d54dd3132eef59de861ebd4976ebb",
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "06134174ebf2ffee37da5d8a11efd7dfc6998ac967ab34c746150e7a3197bc70",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "e8efdf5a15289a48ddeb5755ee096d5571d558155ed1f43503804ff9484acc47"
+  "braid_rescue_geometry_sha256": "e26e2be6d690c557040baafc9e734647ca6c2f4f182dbc1706143fbc77389441"
 }

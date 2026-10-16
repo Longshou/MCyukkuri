@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "pet-shop-braid-water-20261017-v19",
+    "revision": "low-edge-self-rescue-20261017-v20",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3809,7 +3809,7 @@
     "exporter": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
     "status": "pending_user_review",
-    "scope": "One real Marisa braid: shared fixed-length contact geometry and server-owned reach, grip, lift, placement and release.",
+    "scope": "One real Marisa braid: fixed-length contact with measured low rim clearance, near-side placement, separate settling and release.",
     "preview": ".local/previews/hat-motion/index.html"
   }
 }

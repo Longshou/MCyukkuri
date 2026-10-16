@@ -9,12 +9,13 @@ import org.joml.Vector3f;
 /** The server owns custody and the single real tip; this class only poses that existing braid. */
 final class BraidRescuePresentation {
     static boolean active(YukkuriEntity entity){
-        String phase=entity.braidRescuePhase();return entity.getBehaviorId().startsWith("braid_rescue_")&&!phase.isEmpty()&&!phase.equals("IDLE");
+        String phase=entity.braidRescuePhase(),behavior=entity.getBehaviorId();
+        return (behavior.startsWith("braid_rescue_")||behavior.equals("braid_be_rescued"))&&!phase.isEmpty()&&!phase.equals("IDLE");
     }
     static boolean parent(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ParentId")==entity.getId();}
     static boolean heldChild(YukkuriEntity entity){
         if(!active(entity)||entity.braidRescueState().getInt("ChildId")!=entity.getId())return false;
-        return switch(entity.braidRescuePhase()){case "GRIP","LIFT","PLACE","RELEASE"->true;default->false;};
+        return switch(entity.braidRescuePhase()){case "GRIP","LIFT","PLACE","SETTLE","RELEASE"->true;default->false;};
     }
     static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){
         if(heldChild(entity))return new CabinDistressPresentation.Motion("idle",0);
@@ -30,7 +31,8 @@ final class BraidRescuePresentation {
             case "CONTACT"->new CabinDistressPresentation.Motion("braid_rescue_reach",.8f+.3f*q);
             case "GRIP"->new CabinDistressPresentation.Motion("braid_rescue_hold",.3f*q);
             case "LIFT"->new CabinDistressPresentation.Motion("braid_rescue_hold",.3f+.9f*q);
-            case "PLACE"->new CabinDistressPresentation.Motion("braid_rescue_settle",.6f*q);
+            case "PLACE"->new CabinDistressPresentation.Motion("braid_rescue_hold",entity.braidRescueState().getBoolean("Travelling")?1.2f:.8f+.4f*q);
+            case "SETTLE"->new CabinDistressPresentation.Motion("braid_rescue_settle",.6f*q);
             case "RELEASE"->new CabinDistressPresentation.Motion("braid_rescue_settle",.6f+.3f*q);
             default->null;
         };

@@ -40,6 +40,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         String expression = YukkuriModel.get(entity.subspecies().assetId())
                 .expressionFor(distress!=null?distress.clip():entity.getAnimationId(),distress!=null?distress.seconds():elapsed,entity.getExpressionId());
         if(BraidRescuePresentation.heldChild(entity))expression="teary";
+        if(entity.getBehaviorId().equals("boat_rescue_approach")&&entity.aquaticRescueTargetId()>=0)expression="teary";
         if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals("boat_flee")||entity.aquaticAlarmActivity().equals("boat_return_called")))expression="teary";
         // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
         if(distress==null&&entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
@@ -125,6 +126,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
+            SelfRescueHatPresentation.configure(entity,model,partialTick,renderedBodyYaw);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=hatParent!=null?"idle":hatCarrier?io.github.longshou.mcyukkuri.family.HatCarry.carryAction(entity):entity.getAnimationId();

@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 public final class HatFamilyAlarm {
     private static final int RECALL_TICKS=240, EVENT_TICKS=420;
     private final YukkuriEntity entity;
-    private UUID source, caller, calledHat;
+    private UUID source, caller, calledHat, rescueTarget;
     private Vec3 sourcePosition;
     private long began, until, phaseAt, nextCall, nextEvent, heardAt, answerAt, heardUntil, heardEvent, nextRoute;
     private int calmTicks;
@@ -43,6 +43,7 @@ public final class HatFamilyAlarm {
     public String activity(){return phase;}
     public long phaseStart(){return phaseAt;}
     public UUID sourceId(){return source;}
+    public int rescueTargetId(){var child=person(rescueTarget);return active()&&child!=null?child.getId():-1;}
     public boolean awaiting(YukkuriEntity child){return active()&&expected.getOrDefault(child.getUUID(),0L)>now()&&child.getVehicle()!=HatBoatEntity.owned(entity);}
     public boolean preventsOuting(){return active()||responding();}
     private void set(String next){if(!phase.equals(next)){phase=next;phaseAt=now();}}
@@ -184,24 +185,29 @@ public final class HatFamilyAlarm {
         if(!active()||!controllable()||entity.getVehicle()!=boat)return false;
         entity.life().wakeInHat();
         if(boat.unsteadyMotion()){boat.holdPosition();return true;}
-        if(now()-began<24){boat.holdPosition();face(sourcePosition);return true;}
         var returning=children.stream().filter(y->awaiting(y)||y.family().flying()||y.family().braidRescueActive()
                 ||!y.isPassenger()&&y.isInWaterOrBubble()&&entity.distanceToSqr(y)<=144)
                 .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().braidRescueActive()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
                         .thenComparingDouble(entity::distanceToSqr)).toList();
+        boolean swimmer=returning.stream().anyMatch(y->!y.isPassenger()&&y.isInWaterOrBubble());
+        if(now()-began<24&&!swimmer){boat.holdPosition();face(sourcePosition);return true;}
         if(!returning.isEmpty()){
-            set("boat_alarm_wait");var child=returning.getFirst();entity.getLookControl().setLookAt(child,35,35);
+            var child=returning.getFirst();rescueTarget=child.getUUID();
+            if(!child.isInWaterOrBubble())set("boat_alarm_wait");else if(!boat.paddling())set("boat_rescue_young");
+            entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().braidRescueActive()){boat.holdPosition();return true;}
             if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.holdPosition();return true;}
             if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.holdPosition();return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
             var braidApproach=!child.isPassenger()?child.family().braidRescueApproach(boat):null;
-            if(braidApproach!=null){approachExact(boat,braidApproach);return true;}
+            if(braidApproach!=null){approachExact(boat,braidApproach);rescueApproachPose(boat,child);return true;}
             Vec3 target=child.aquaticLife().familyLife().alarm().meetingPoint();boolean shore=target!=null;
             if(target==null)target=child.position();
             if(entity.distanceToSqr(child)>2.25)approach(boat,target,shore);else boat.holdPosition();
+            if(child.isInWaterOrBubble())rescueApproachPose(boat,child);
             return true;
         }
+        rescueTarget=null;
         double distance=boat.position().subtract(sourcePosition).horizontalDistance();
         if(source==null||distance>=7){
             if(!entity.aquaticLife().familyLife().alarmSafe(boat)){
@@ -275,6 +281,11 @@ public final class HatFamilyAlarm {
         var berth=child.family().braidRescueApproach(boat);if(berth==null)return false;
         approachExact(boat,berth);return true;
     }
+    private void rescueApproachPose(HatBoatEntity boat,YukkuriEntity child){
+        if(!boat.paddling()){set("boat_rescue_young");return;}
+        if(!phase.equals("boat_rescue_approach"))stageReaction("teary","braid_rescue_offer",40);
+        set("boat_rescue_approach");entity.getLookControl().setLookAt(child,35,35);
+    }
     public CompoundTag save(){
         var t=new CompoundTag();if(source!=null)t.putUUID("Source",source);
         if(active()){t.putDouble("X",sourcePosition.x);t.putDouble("Y",sourcePosition.y);t.putDouble("Z",sourcePosition.z);t.putLong("Began",began);t.putLong("Until",until);}
@@ -288,6 +299,6 @@ public final class HatFamilyAlarm {
         caller=t.hasUUID("Caller")?t.getUUID("Caller"):null;calledHat=t.hasUUID("Hat")?t.getUUID("Hat"):null;
         heardAt=t.getLong("Heard");answerAt=t.getLong("Answer");heardUntil=t.getLong("HeardUntil");heardEvent=t.getLong("Event");answered=t.getBoolean("Answered");
         expected.clear();for(var raw:t.getList("Expected",Tag.TAG_COMPOUND)){var c=(CompoundTag)raw;if(c.hasUUID("Id"))expected.put(c.getUUID("Id"),c.getLong("Until"));}
-        shoreMeeting=null;nextCall=now()+20;nextRoute=now();
+        shoreMeeting=null;rescueTarget=null;nextCall=now()+20;nextRoute=now();
     }
 }

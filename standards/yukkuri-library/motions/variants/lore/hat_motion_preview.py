@@ -31,10 +31,32 @@ class SelectedPosed(P.Posed):
         if old is not None:
             self.v=np.r_[self.v,old[0]];self.uv=np.r_[self.uv,old[1]];self.n=np.r_[self.n,old[2]]
             self.a=np.r_[self.a,np.zeros(self.boat,int)];self.b=np.r_[self.b,np.zeros(self.boat,int)];self.q=np.r_[self.q,np.zeros((self.boat,1))]
-        self.rescue_tip=None
+        self.rescue_tip=None;self.self_hat_transfer=None
 
     def frame(self,name,t):
         result=super().frame(name,t)
+        if self.self_hat_transfer is not None:
+            destination,q,spec=self.self_hat_transfer;old=self.last_matrices.copy();M=old.copy()
+            bones=self.model['bones'];hat=next(i for i,b in enumerate(bones) if b['name']=='hat_follow')
+            anchor=np.array(json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))['anchor_worn'])
+            start=M[hat].copy();from_at=(start@np.r_[anchor,1])[:3];to_at=(destination@np.r_[anchor,1])[:3]
+            smooth=lambda x:(lambda u:u*u*(3-2*u))(min(1,max(0,x)))
+            slide=smooth((q-spec['slide_begin'])/(spec['lower_begin']-spec['slide_begin']));lower=smooth((q-spec['lower_begin'])/(1-spec['lower_begin']))
+            at=from_at+(to_at-from_at)*slide;at[1]=(from_at[1]+spec['clearance_model_units']*smooth(q/spec['slide_begin']))*(1-lower)+to_at[1]*lower
+            a_scale=np.linalg.norm(start[:3,:3],axis=0);b_scale=np.linalg.norm(destination[:3,:3],axis=0)
+            rig=runpy.run_path(str(Path(__file__).with_name('hat.py')))
+            R=rig['slerp'](start[:3,:3]/a_scale,destination[:3,:3]/b_scale,lower)
+            M[hat,:3,:3]=R*(a_scale+(b_scale-a_scale)*lower);M[hat,:3,3]=at-M[hat,:3,:3]@anchor
+            for i,b in enumerate(bones):
+                ancestor=b['parent'];follows=False
+                while ancestor>=0:
+                    if ancestor==hat:follows=True;break
+                    ancestor=bones[ancestor]['parent']
+                if follows:M[i]=M[b['parent']]@np.linalg.inv(old[b['parent']])@old[i]
+            self.last_matrices=M;hv=np.c_[self.v,np.ones(len(self.v))]
+            pos=np.einsum('nij,nj->ni',M[self.a],hv)[:,:3]*(1-self.q)+np.einsum('nij,nj->ni',M[self.b],hv)[:,:3]*self.q
+            nrm=np.einsum('nij,nj->ni',M[self.a][:,:3,:3],self.n)
+            result=pos.reshape(-1,3,3),self.uv.reshape(-1,3,2),nrm.reshape(-1,3,3)[:,0]
         if self.rescue_tip is None:return result
         bones=self.model['bones'];names={b['name']:i for i,b in enumerate(bones)};joint=names['hand_right'];tip=names['hand_right_tip']
         old=self.last_matrices.copy();M=old.copy();parent=bones[joint]['parent'];root=np.array(bones[joint]['pivot']);end=np.array(bones[tip]['pivot'])
@@ -536,10 +558,10 @@ class CausalScene(Scene):
         if elapsed>=end:phase='RECOVER';tip=None;child=p['seat']*self.k;clip='boat_reassure';time=(elapsed-end)/20
         return dict(parent=feet,tip=tip,child=child,phase=phase,clip=clip,time=time,end=end,contact=contact,lift=grip,place=move)
 
-    def person(self,scale,clip,time,atlas,face,at,yaw=0,hatless=False,tip=None):
+    def person(self,scale,clip,time,atlas,face,at,yaw=0,hatless=False,tip=None,hat_transfer=None):
         model=self.parent if hatless else self.young;duration=model.clips[clip]['duration'];time=time%duration if model.clips[clip]['loop'] else min(duration,max(0,time))
-        model.rescue_tip=tip
-        pos,uv,normals=model.frame(clip,time);model.rescue_tip=None
+        model.rescue_tip=tip;model.self_hat_transfer=hat_transfer
+        pos,uv,normals=model.frame(clip,time);model.rescue_tip=None;model.self_hat_transfer=None
         mesh=np.concatenate((pos,uv,np.repeat(normals[:,None,:],3,axis=1)),axis=2).reshape(-1,8)
         if hatless:mesh=mesh[:-model.boat]
         if clip=='boat_paddle':
@@ -1086,4 +1108,106 @@ def causal_main():
     print('CAUSAL STORIES:',json.dumps({k:v['seconds'] for k,v in schedule_note.items()}),flush=True)
 
 
-if __name__=='__main__':causal_main()
+def current_interactions():
+    """One current contact storyboard, sampled from the shared finite boarding and low-tip formulae.
+
+    This is source-driven art production, not an engine run or a successful AI scenario search.
+    Each group is an explicitly constructed calm-water parameter sample, with real model sizes.
+    """
+    OUT.mkdir(parents=True,exist_ok=True);scene=CausalScene();V=scene.vessel
+    smooth=lambda q:(lambda t:t*t*(3-2*t))(min(1,max(0,q)))
+    rig=runpy.run_path(str(Path(__file__).with_name('hat.py')))
+    config=json.loads(Path(__file__).with_name('recipe.json').read_text(encoding='utf-8'))['clips']['water_hat_flip']['hat_transfer']
+    panels=[]
+    def add(meshes,atlas,label,detail,camera):
+        mesh=np.concatenate(meshes).reshape(-1,3,8)
+        pixels,depth,view=rasterize(mesh,np.array(atlas.image),**camera)
+        picture=water_layer(pixels,depth,view,'current',0,np.eye(3),V,scene.masks)
+        panels.append((picture,label,detail));print('Current interaction panel:',len(panels),label,flush=True)
+    # A real .25-size juvenile, on the near brim of its own .375-scale hat.
+    # The .23-block foot-to-foot gap is below HatBoarding.maximumGap=.48; only 4..10 ticks are considered.
+    size=.25;own=np.array([0.,0,-20.1]);source=own+np.array([0,V['bowl']['freeboard'],8.75])*scene.k*size
+    target=np.array([0,V['bowl']['freeboard'],-8.75])*scene.k
+    distance=np.linalg.norm((target-source)[[0,2]])/16;gravity=V['delivery']['gravity']/16
+    ticks=next(t for t in range(4,11) if distance/t<=.05+.06*size and 0<=(target[1]-source[1])/16/t+gravity*t*.5<=.22+.14*size)
+    for i,t in enumerate((0,ticks*.5,ticks)):
+        atlas=Atlas();scene.masks=[];meshes=scene.vessel_mesh(atlas,1,food=2)+scene.vessel_mesh(atlas,size,own,food=0)
+        meshes.append(scene.person(1,'boat_alarm_wait',.5,atlas,'teary',scene.seats[0]*scene.k,hatless=True))
+        where=source+(target-source)*t/ticks;where[1]+=V['delivery']['gravity']*.5*t*(ticks-t)
+        meshes.append(scene.person(size,'water_hat_grip' if i==0 else 'water_hat_climb',.25 if i==0 else .35+.3*t/ticks,atlas,'teary',where,180,True))
+        add(meshes,atlas,('① 先走到两帽的近缘','② 受限短跳，保持实际重力','③ 真正落到近檐支撑')[i],
+            ('源帽足点与目标帽面均取真实几何',f'水平约 {distance:.2f} 格 · {ticks} tick，不飞越远帽','落座后才回收原帽；并非远处直接跳进帽井')[i],
+            dict(az=1.9,el=.38,span=8.5,center_y=2,center_z=-14.7))
+    # One planned deployment in empty calm water, using the server's first fixed reachable rim candidate.
+    child=np.array([0.,-.56*scene.body_height*size,0.]);distance=(.8*size*.5+1.05*size*.5+.03)*16
+    brim=[]
+    for i in range(32):
+        angle=i*math.pi/16;dx,dz=math.cos(angle),math.sin(angle);extent=0
+        while math.isfinite(scene.surface(dx*extent,dz*extent)) and extent<64:extent+=.125
+        brim.append(np.array([dx*max(0,extent-.125),V['bowl']['freeboard'],dz*max(0,extent-.125)]))
+    root=child+scene.braid_root*size;roll=P.euler([0,0,110]);planned=None
+    for i in range(8):
+        angle=math.pi+i*math.pi/4;center=np.array([math.sin(angle)*distance,0,-math.cos(angle)*distance])
+        if any(np.linalg.norm(center+roll@(p*scene.k*size)-root)<=scene.braid_length*size+.02*16 for p in brim):planned=center;break
+    if planned is None:raise RuntimeError('No finite natural-braid deployment endpoint in this single calm-water art sample.')
+    relative=(planned-child)/size;anchor=np.array(V['anchor_worn']);Mv=np.array([[0,0,-1],[0,-1,0],[-1,0,0.]])
+    transform=roll@np.diag([scene.k,scene.k*V['squash']['bowl'],scene.k])@Mv
+    destination=np.eye(4);destination[:3,:3]=transform;destination[:3,3]=relative+roll@np.array([0,V['bowl']['freeboard']*scene.k,0])-transform@anchor
+    atlas=Atlas();scene.masks=[]
+    meshes=[scene.person(size,'water_hat_flip',.8*.7,atlas,'teary',child,hat_transfer=(destination,.7,config))]
+    add(meshes,atlas,'④ 原帽离头，连续移到固定端点','同一帽骨；18 tick 后才生成该物理帽，失败反向退回',dict(az=.9,el=.32,span=5.2,center_y=1,center_z=1))
+    atlas=Atlas();scene.masks=[];u=.5;tilt=P.euler([0,0,110*(1-smooth(u))])@P.euler([7*math.sin(math.pi*u),0,0])
+    meshes=scene.vessel_mesh(atlas,size,planned,tilt=tilt,food=0)
+    meshes.append(scene.person(size,'water_gasp',.5,atlas,'cry',child,180,True))
+    add(meshes,atlas,'⑤ 同一真帽翻为船，仍在泡水','部署20 tick；旧翻覆帽则需锁定同一檐点连续扶正',dict(az=1.3,el=.38,span=5.2,center_y=1,center_z=planned[2]*.5))
+    # A near-edge own-hat climb follows HatBoarding's two smoothstep segments, never its old flight arc.
+    r=3.584;seat=np.array([-V['brim'][0]+r+round((V['brim'][0]-r)/.25)*.25,V['bowl']['freeboard'],-V['brim'][1]+r])
+    to=planned+seat*scene.k*size;crest=np.array([child[0],max(child[1],to[1],V['bowl']['freeboard']*scene.k*size+.015*16),child[2]])
+    at=crest+(to-crest)*smooth(.5)
+    atlas=Atlas();scene.masks=[];meshes=scene.vessel_mesh(atlas,size,planned,food=0)
+    meshes.append(scene.person(size,'water_hat_climb',.65+.55*.5,atlas,'teary',at,180,True))
+    add(meshes,atlas,'⑥ 贴檐抓稳后，实际爬入近支撑位','GRIP 8 → LIFT 16 → SETTLE 16；耗力、可滑脱、入水掉血',dict(az=2.7,el=.38,span=5.2,center_y=1.3,center_z=planned[2]*.5))
+    # Shared BraidRescueGeometry.lowTip/lowArc, with known supported parent/child placements.
+    wet=np.array([5.1,-.56*scene.body_height*.14,-15.8]);offset=np.array([0,scene.body_height*.14*scene.rig['grip_height'],0])
+    pickup=np.array([-.6012007706195452,-.4863,-1.6741996084474984])*scene.k
+    placement=np.array([-.400923440251366,-.4863,-.5336705508019405])*scene.k
+    seat=np.array([.38346,-.4863,-5.50824])*scene.k
+    atlas=Atlas();scene.masks=[];boat=np.array([0.,0,26.]);meshes=scene.vessel_mesh(atlas,1,boat,food=2)
+    meshes.append(scene.person(1,'boat_paddle',.4,atlas,'teary',boat+scene.seats[0]*scene.k,hatless=True))
+    meshes.append(scene.person(.14,'water_struggle',.2,atlas,'cry',wet))
+    add(meshes,atlas,'⑦ 亲油先真正操桨划近落水孩子','接近目标是孩子ID；距离不够不能隔空伸辫救起',dict(az=1.1,el=.42,span=25,center_y=2,center_z=5))
+    atlas=Atlas();scene.masks=[];meshes=scene.vessel_mesh(atlas,1,food=2);tip=wet+offset
+    meshes.append(scene.person(1,'braid_rescue_reach',1.05,atlas,'teary',pickup,hatless=True,tip=tip-pickup))
+    meshes.append(scene.person(.14,'idle',0,atlas,'teary',wet))
+    add(meshes,atlas,'⑧ 靠到真实辫长内，接触后才抓托','既有发梢接触点；孩子抓前仍在实际水面',dict(az=1.0,el=.33,span=12,center_x=2,center_y=2,center_z=-9))
+    def low_tip(root,direction,height):
+        dy=height-root[1];xz=direction.copy();xz[1]=0;xz/=np.linalg.norm(xz)
+        return root+xz*math.sqrt(scene.braid_length**2-dy*dy)+[0,dy,0]
+    clear=max(wet[1],seat[1]);samples=max(1,math.ceil(np.linalg.norm(seat-wet)/(.025*16)))
+    for q in np.linspace(0,1,samples+1):
+        local=(wet+(seat-wet)*q)/scene.k;floor=scene.foot(local[0],local[2],3.584*.14)
+        if math.isfinite(floor):clear=max(clear,floor*scene.k)
+    height=clear+.015*16+offset[1]
+    from_dir=tip-(pickup+scene.braid_root);to_dir=seat+offset-(placement+scene.braid_root)
+    a=math.atan2(from_dir[2],from_dir[0]);b=math.atan2(to_dir[2],to_dir[0]);angle=a+math.atan2(math.sin(b-a),math.cos(b-a))*smooth(.5)
+    tip=low_tip(placement+scene.braid_root,np.array([math.cos(angle),0,math.sin(angle)]),height)
+    atlas=Atlas();scene.masks=[];meshes=scene.vessel_mesh(atlas,1,food=2)
+    meshes.append(scene.person(1,'braid_rescue_hold',1,atlas,'teary',placement,hatless=True,tip=tip-placement))
+    meshes.append(scene.person(.14,'idle',0,atlas,'teary',tip-offset))
+    add(meshes,atlas,'⑨ 同梢贴近实檐低位托回，再短降放稳','只到足面最高实檐 + 0.015 格；无高举或孩子飞行弧线',dict(az=1.0,el=.35,span=11,center_x=2,center_y=2.5,center_z=-8))
+    sheet=Image.new('RGB',(1800,1640),BG);draw=ImageDraw.Draw(sheet)
+    draw.text((28,15),'近檐登船、自帽自救与亲油低位托回',font=P.preview_font(36),fill='#203e48')
+    draw.text((30,67),'当前模型 / 原体型 / 共享物理曲线的离线动作分镜 · 未启动游戏、未实测，不代表AI已自动成功',font=P.preview_font(21),fill='#4b6b74')
+    for i,(image,label,detail) in enumerate(panels):
+        x=i%3*600;y=110+i//3*490;sheet.paste(image.resize((600,396),Image.Resampling.LANCZOS),(x,y+66))
+        draw.text((x+15,y),label,font=P.preview_font(21),fill='#294e59')
+        draw.text((x+15,y+34),detail,font=P.preview_font(16),fill='#4b6b74')
+    draw.text((28,1598),'每格独立取景，保留真实遮挡；成功仍取决于空间、持续接触、体力与伤害，可滑脱或来不及脱水而死亡。',font=P.preview_font(20),fill='#4b6b74')
+    sheet.save(OUT/'current-interactions.png')
+    template=Path(__file__).with_suffix('.html');shutil.copyfile(template,OUT/'index.html')
+    print(OUT/'current-interactions.png',flush=True)
+
+
+if __name__=='__main__':
+    if any(flag in sys.argv for flag in ('--only-rock','--only-rescue','--only-recall')):causal_main()
+    else:current_interactions()

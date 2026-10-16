@@ -16,11 +16,12 @@ import net.minecraft.world.phys.Vec3;
 
 /** One child's continuous contact with one real parent's existing braid. No free-flight rescue. */
 public final class BraidRescue {
-    public enum Phase { IDLE, REACH, CONTACT, GRIP, LIFT, PLACE, RELEASE }
+    public enum Phase { IDLE, REACH, CONTACT, GRIP, LIFT, PLACE, SETTLE, RELEASE }
     private final YukkuriEntity child;
     private Phase phase=Phase.IDLE;
     private UUID parentId, hatId, abandonedHat;
-    private Vec3 seat, pickup, placement, tip, previousTip, gripOffset, fromDirection, raisedDirection;
+    private Vec3 seat, pickup, placement, tip, previousTip, gripOffset, fromDirection, carryDirection;
+    private double contactHeight,carryHeight,settleHeight;
     private Vec3 lastVelocity=Vec3.ZERO;
     private long start, lastTick=Long.MIN_VALUE;
     private float parentYaw;
@@ -32,7 +33,7 @@ public final class BraidRescue {
     private YukkuriEntity parent(){return parentId!=null&&level().getEntity(parentId) instanceof YukkuriEntity y?y:null;}
     private HatBoatEntity hat(){return hatId!=null&&level().getEntity(hatId) instanceof HatBoatEntity h?h:null;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean held(){return phase==Phase.GRIP||phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.RELEASE;}
+    public boolean held(){return phase==Phase.GRIP||phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.SETTLE||phase==Phase.RELEASE;}
     public UUID parentId(){return parentId;}
     public UUID childId(){return child.getUUID();}
     private void phase(Phase next){phase=next;start=level().getGameTime();}
@@ -64,7 +65,7 @@ public final class BraidRescue {
         parentId=parent.getUUID();hatId=home.getUUID();seat=pair.youngSeat();pickup=selected;placement=pair.parentStand();
         parentYaw=parent.yBodyRot;parent.family().rescueTarget(child.getUUID());
         tip=previousTip=BraidRescueGeometry.restTip(parent);gripOffset=null;
-        fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();raisedDirection=null;
+        fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();carryDirection=null;
         contactTicks=totalTicks=placeTicks=0;placing=false;lastVelocity=Vec3.ZERO;
         child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.REACH);
         parent.speak("braid_rescue_offer");return true;
@@ -123,7 +124,11 @@ public final class BraidRescue {
                 seat=pair.youngSeat();placement=pair.parentStand();
                 child.waterDistress().lifted();child.getNavigation().stop();
                 fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();
-                raisedDirection=new Vec3(fromDirection.x*.12,1,fromDirection.z*.12).normalize();
+                contactHeight=tip.y;
+                carryHeight=BraidRescueGeometry.rimClearance(child,home,home.toWorld(seat))+gripOffset.y;
+                var lowTip=BraidRescueGeometry.lowTip(parent,fromDirection,carryHeight);
+                if(lowTip==null){cancel();return;}
+                carryDirection=lowTip.subtract(BraidRescueGeometry.root(parent)).normalize();
                 phase(Phase.GRIP);child.speak("braid_rescue_grip");
             }
             return;
@@ -132,10 +137,10 @@ public final class BraidRescue {
             tip=BraidRescueGeometry.root(parent).add(fromDirection.scale(BraidRescueGeometry.length(parent)));
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(elapsed>=BraidRescueGeometry.ticks("GRIP")){
-                motionTicks=BraidRescueGeometry.travelTicks(parent,fromDirection,raisedDirection,"LIFT");phase(Phase.LIFT);
+                motionTicks=Math.max(BraidRescueGeometry.ticks("LIFT"),(int)Math.ceil(Math.abs(carryHeight-contactHeight)/.035));phase(Phase.LIFT);
             }
         }else if(phase==Phase.LIFT){
-            tip=BraidRescueGeometry.tip(parent,fromDirection,raisedDirection,(double)elapsed/motionTicks);
+            tip=BraidRescueGeometry.lowArc(parent,fromDirection,carryDirection,contactHeight,carryHeight,(double)elapsed/motionTicks);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(elapsed>=motionTicks){
                 if(!home.moveRescueOwner(parent,placement)){cancel();return;}
@@ -145,13 +150,22 @@ public final class BraidRescue {
             var destination=home.toWorld(seat).add(gripOffset);
             var endDirection=destination.subtract(BraidRescueGeometry.root(parent)).normalize();
             if(!placing&&home.rescueOwnerReady(parent)){
-                placing=true;placeTicks=0;motionTicks=BraidRescueGeometry.travelTicks(parent,raisedDirection,endDirection,"PLACE");
+                placing=true;placeTicks=0;start=now;
+                motionTicks=BraidRescueGeometry.travelTicks(parent,carryDirection,endDirection,"PLACE");
             }
-            tip=placing?BraidRescueGeometry.tip(parent,raisedDirection,endDirection,
-                    (double)++placeTicks/motionTicks)
-                    :BraidRescueGeometry.root(parent).add(raisedDirection.scale(BraidRescueGeometry.length(parent)));
+            tip=placing?BraidRescueGeometry.lowArc(parent,carryDirection,endDirection,carryHeight,carryHeight,
+                    (double)++placeTicks/motionTicks):BraidRescueGeometry.lowTip(parent,carryDirection,carryHeight);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(placing&&placeTicks>=motionTicks){
+                fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();settleHeight=destination.y;
+                motionTicks=Math.max(BraidRescueGeometry.ticks("SETTLE"),(int)Math.ceil(Math.abs(carryHeight-settleHeight)/.025));phase(Phase.SETTLE);
+            }
+        }else if(phase==Phase.SETTLE){
+            var destination=home.toWorld(seat).add(gripOffset);
+            var endDirection=destination.subtract(BraidRescueGeometry.root(parent)).normalize();
+            tip=BraidRescueGeometry.lowArc(parent,fromDirection,endDirection,carryHeight,settleHeight,(double)elapsed/motionTicks);
+            if(!moveHeld(parent,home,tip)){cancel();return;}
+            if(elapsed>=motionTicks){
                 var reserved=home.peekSeat(child);
                 if(reserved==null||reserved.distanceToSqr(seat)>.000001||child.position().distanceToSqr(home.toWorld(seat))>.0001
                         ||!home.boardYoung(child)){cancel();return;}
@@ -168,22 +182,25 @@ public final class BraidRescue {
     private RescuePair reservePlacement(YukkuriEntity parent,HatBoatEntity home,Vec3 offset){
         var youngSeats=home.rescueYoungCandidates(child);if(youngSeats.isEmpty())return null;
         var ownerStands=home.rescueOwnerCandidates(parent,child);var pairs=new ArrayList<RescuePair>();
-        var preferred=youngSeats.getFirst();
+        youngSeats=new ArrayList<>(youngSeats);
+        youngSeats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
         // Cheap fixed-length and body tests first. A bounded shortlist then pays for
         // real walking routes; a geometrically free but unreachable default is not final.
         int feasibleSeats=0;
         for(var youngSeat:youngSeats){
             var seatPairs=new ArrayList<RescuePair>();
             var target=home.toWorld(youngSeat).add(offset);
+            double clearance=BraidRescueGeometry.rimClearance(child,home,home.toWorld(youngSeat))+offset.y;
             var childBox=child.getBoundingBox().move(home.toWorld(youngSeat).subtract(child.position()));
             for(var candidate:ownerStands){
                 var refined=BraidRescueGeometry.stand(parent,home,target,candidate);if(refined==null)continue;
                 var parentBox=parent.getBoundingBox().move(home.toWorld(refined).subtract(parent.position()));
                 if(parentBox.deflate(.005).intersects(childBox)||!home.canPlaceRescuePair(child,parent,youngSeat,refined))continue;
+                if(Math.abs(clearance-BraidRescueGeometry.rootAt(parent,home.toWorld(refined)).y)>=BraidRescueGeometry.length(parent))continue;
                 boolean duplicate=seatPairs.stream().anyMatch(pair->pair.parentStand().distanceToSqr(refined)<.000001);
                 if(duplicate)continue;
-                double cost=youngSeat.distanceToSqr(preferred)*home.unit()*home.unit()
-                        +home.toWorld(refined).distanceToSqr(parent.position())*.25;
+                double cost=home.toWorld(youngSeat).distanceToSqr(child.position())
+                        +Math.max(0,clearance-child.getY()-offset.y)*2+home.toWorld(refined).distanceToSqr(parent.position())*.5;
                 seatPairs.add(new RescuePair(youngSeat,refined,cost));
             }
             // Preserve alternatives for several child seats, rather than letting
@@ -203,6 +220,7 @@ public final class BraidRescue {
         return hit.getType()==HitResult.Type.MISS||hit.getLocation().distanceToSqr(at)<.0004;
     }
     private boolean moveHeld(YukkuriEntity parent,HatBoatEntity home,Vec3 at){
+        if(at==null)return false;
         var wanted=at.subtract(gripOffset);var delta=wanted.subtract(child.position());
         if(delta.lengthSqr()>.12*.12||!braidClear(parent,at))return false;
         int steps=Math.max(1,(int)Math.ceil(delta.length()/.025));
@@ -248,7 +266,8 @@ public final class BraidRescue {
         var parent=parent();var home=hat();if(parent==null||home==null)return tag;
         tag.putString("Phase",phase.name());tag.putLong("Start",start);tag.putUUID("Parent",parentId);tag.putUUID("Child",child.getUUID());tag.putUUID("Hat",hatId);
         tag.putInt("ParentId",parent.getId());tag.putInt("ChildId",child.getId());tag.putInt("HatId",home.getId());tag.putFloat("Yaw",parentYaw);
-        if(phase==Phase.LIFT||phase==Phase.PLACE)tag.putInt("Duration",motionTicks);
+        if(phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.SETTLE)tag.putInt("Duration",motionTicks);
+        tag.putBoolean("Travelling",phase==Phase.PLACE&&!placing);
         put(tag,"Tip",tip);put(tag,"PrevTip",previousTip);put(tag,"Grip",gripOffset);return tag;
     }
     private static void put(CompoundTag tag,String name,Vec3 at){if(at!=null){tag.putDouble(name+"X",at.x);tag.putDouble(name+"Y",at.y);tag.putDouble(name+"Z",at.z);}}

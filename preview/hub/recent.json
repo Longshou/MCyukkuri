@@ -7,45 +7,38 @@
   "chapters": [
     {
       "id": "hat-motion",
-      "label": "呼唤与辫子救援",
-      "title": "听见亲油呼唤，赶回帽边；落水后由辫子托起。",
+      "label": "近缘登船与落水自救",
+      "title": "靠近帽缘再登船；落水翻帽自救，亲油低位托回。",
       "tag": "水生魔理沙 · 2026-10-17",
-      "summary": "摇晃受惊后远离危险；子油浮在实际水面扑腾，亲油用自然长度的单辫接触、托回与放稳。另展示呼唤、回应、返帽与争位：当前六只样本最终安全聚拢，未触发挤落。页面附同步现有配音，GIF无声。",
+      "summary": "真实靠缘、停稳和有限短跳，水中改为抓檐攀入；水生魔理沙尝试翻正自己的帽子，未脱离水面前继续受伤，疲劳时可能打滑。亲油实际划近孩子，辫子只抬到帽缘所需高度。当前为离线动作分镜，未做游戏实测。",
       "demoPage": "hat-motion/index.html",
       "model": "marisa",
       "points": [
-        "子油的浮力与扑腾分开，疲惫时仍受实际水面浮力支撑。",
-        "亲油先接近并停船，辫梢实际接触后才托起孩子。",
-        "声音发出后孩子听见回应，赶回实际座位，拥挤按真实接触处理。"
+        "起跳使用实际脚下位置和固定落点；不能远跳，也不能在水里凭空起跳。",
+        "取下或翻正同一顶帽子，抓稳、爬入；成功前持续水伤，失败会滑脱重试。",
+        "亲油边划近边呼喊，接触后低位托回近帽缘，再短降放稳。"
       ],
       "steps": [
         {
-          "title": "受惊、呼唤家人，再远离摇船者",
-          "body": "稳住身体后等待近身家人，沿水路撤离，回望并逐渐平复。",
-          "image": "hat-motion/rock-poster.png",
-          "animation": "hat-motion/rock-and-flee.gif"
+          "title": "停稳对齐，近缘登船",
+          "body": "有限短跳与水中抓檐攀入分别处理；图中阶段用于说明动作，未实际运行游戏。",
+          "image": "hat-motion/current-interactions.png"
         },
         {
-          "title": "水面扑腾，亲油伸辫托回",
-          "body": "抓前自然漂浮，接触后跟随同一辫梢抬回，落稳座位后再松开。",
-          "image": "hat-motion/rescue-poster.png",
-          "animation": "hat-motion/float-and-braid-rescue.gif"
+          "title": "翻正自己的帽子，抓稳再爬回",
+          "body": "取帽、翻正、抓缘、攀入衔接；打滑仍回水中扑腾，未安全上船前继续扣血。",
+          "image": "hat-motion/current-interactions.png"
         },
         {
-          "title": "听见呼唤、赶回与实际争位",
-          "body": "子油回应后划着自己的帽船赶回，逐个登帽并在接触中争位。当前真实六只样本安全聚拢，没有挤落；失足分支未在该样本触发。",
-          "image": "hat-motion/recall-poster.png",
-          "animation": "hat-motion/recall-and-crowding.gif"
+          "title": "亲油划近，沿帽缘低位接回",
+          "body": "真实划桨接近目标，辫梢接触后按最低净空低位转入，放稳再松开。",
+          "image": "hat-motion/current-interactions.png"
         }
       ],
       "gallery": [
         {
-          "src": "hat-motion/storyboard.png",
-          "label": "受惊撤离、辫子救援与召回争位"
-        },
-        {
-          "src": "hat-motion/distress-stages.png",
-          "label": "从实际接触到放稳松开的救援阶段"
+          "src": "hat-motion/current-interactions.png",
+          "label": "近缘登船、自救和低位救援 · 当前资源离线分镜"
         }
       ],
       "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md"

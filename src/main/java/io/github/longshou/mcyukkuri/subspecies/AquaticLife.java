@@ -26,6 +26,7 @@ public final class AquaticLife extends Goal {
     private final HatFamilyPaddle familyPaddle;
     private final AquaticFamilyLife familyLife;
     private final AquaticDailyLife daily;
+    private final AquaticSelfRescue selfRescue;
     private BlockPos bank, water, rememberedBank, paddleStand;
     private BlockPos restWater;
     private int cooldown, elapsed, launchTicks, gatherTicks, provisionTicks, familyWait, hatCareTicks, restSearchTicks;
@@ -40,6 +41,7 @@ public final class AquaticLife extends Goal {
     public AquaticLife(YukkuriEntity entity) {
         this.entity = entity; care = new HatFamilyCare(entity); firstVoyage = new FirstVoyage(entity); shore = new AquaticShore(entity); shoreForage = new HatShoreForage(entity);
         familyLife = new AquaticFamilyLife(entity); daily = new AquaticDailyLife(entity); familyPaddle = new HatFamilyPaddle(entity);
+        selfRescue=new AquaticSelfRescue(entity);
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
@@ -53,6 +55,7 @@ public final class AquaticLife extends Goal {
     public AquaticFamilyLife familyLife() { return familyLife; }
     public AquaticDailyLife daily() { return daily; }
     public HatFamilyPaddle familyPaddle() { return familyPaddle; }
+    public AquaticSelfRescue selfRescue(){return selfRescue;}
     public int provisions() { return provisions.getCount(); }
     public boolean resting() { return "boat_sleep".equals(activity) || "boat_lullaby".equals(activity); }
     public boolean awaiting(YukkuriEntity young) { return !familyDelayed && expectedYoung.contains(young.getUUID()); }
@@ -60,6 +63,7 @@ public final class AquaticLife extends Goal {
     public void landed() { cooldown = 80; nightVoyage = false; hatCareDue = true; expectedYoung.clear(); restWater = null; familyPaddle.stop(); care.cancel(); shoreForage.stop(); }
     public void clock() {
         if (cooldown > 0) cooldown--; shore.tick(); care.clock(); firstVoyage.clock(); familyLife.clock(); daily.clock();
+        selfRescue.clock();
         // A cancelled trip must not leave her starving while she still carries real provisions.
         if (!provisions.isEmpty() && available() && !entity.isPassenger() && !entity.life().isSleeping()
                 && entity.life().nutrition() < 30 && entity.life().beginMeal(provisions.copyWithCount(1),null,true)) provisions.shrink(1);
@@ -77,6 +81,7 @@ public final class AquaticLife extends Goal {
         familyWait = restSearchTicks = 0; familyDelayed = false; restWater = null;
     }
     public void dropStick() {
+        selfRescue.stop();
         familyPaddle.stop(); care.cancel(); shoreForage.stop();
         firstVoyage.dropStoredCargo();
         if (stick) { stick = false; entity.spawnAtLocation(new ItemStack(Items.STICK)); }
@@ -578,6 +583,7 @@ public final class AquaticLife extends Goal {
         tag.put("FirstVoyage",firstVoyage.save());
         tag.put("WaterFamily",familyLife.save()); tag.put("WaterDaily",daily.save());
         tag.put("FamilyPaddle",familyPaddle.save());
+        tag.put("SelfRescue",selfRescue.save());
         tag.put("Shore",shore.save());
         if (!provisions.isEmpty()) tag.put("Provisions",provisions.save(entity.registryAccess()));
         var young = new net.minecraft.nbt.ListTag();
@@ -594,6 +600,7 @@ public final class AquaticLife extends Goal {
         firstVoyage.load(tag.getCompound("FirstVoyage"));
         familyLife.load(tag.getCompound("WaterFamily")); daily.load(tag.getCompound("WaterDaily"));
         familyPaddle.load(tag.getCompound("FamilyPaddle"));
+        selfRescue.load(tag.getCompound("SelfRescue"));
         shore.load(tag.getCompound("Shore"));
         if (!provisions.isEmpty()) provisions.setCount(Math.min(4,provisions.getCount()));
         expectedYoung.clear(); restWater = null; restSearchTicks = 0;
