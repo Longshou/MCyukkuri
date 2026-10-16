@@ -10,7 +10,8 @@
       "label": "家油的一家",
       "title": "家具缝隙里，觅食、筑巢与破壳相连。",
       "tag": "家油生态",
-      "summary": "夜间探头、搬运棉絮、分区守卵与逐枚破壳。当前资源离线分镜使用真实模型及动作，家具剖视用于看清小家内部。",
+      "summary": "白日归巢、夜间探头衔絮、分区守卵与逐枚破壳。24秒连续动画可分段跳转和慢放，当前模型与动作采用家具剖视展示。",
+      "demoPage": "house-ecology/index.html",
       "model": "house_reimu",
       "gallery": [
         {
@@ -28,6 +29,12 @@
         "完整与裂壳卵保留 R2.4 认可几何；空残壳属于原创孵化演出。"
       ],
       "steps": [
+        {
+          "title": "缝隙里的一天 · 连续演示",
+          "body": "入巢、搬运、守卵与破壳四段相连；完整播放器支持分段跳转和慢放。路线与孵化时间为演示安排。",
+          "image": "house-ecology/demo-poster.png",
+          "animation": "house-ecology/house-ecology-demo.gif"
+        },
         {
           "title": "先探头，再走出藏身处",
           "body": "house_peek 动作取样；夜间觅食由服务器条件与真实目标驱动。",

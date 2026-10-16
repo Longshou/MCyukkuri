@@ -42,6 +42,7 @@ function chapter(id){
  [...$('chapter-list').children].forEach(b=>{const selected=b.dataset.id===current.id;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected);});
  $('tag').textContent=current.tag;$('title').textContent=current.title;$('summary').textContent=current.summary;
  $('points').replaceChildren(...current.points.map(p=>el('li',p)));$('source-link').href='/'+current.source;
+ $('demo-link').hidden=!current.demoPage;if(current.demoPage)$('demo-link').href=current.demoPage;
  $('steps').replaceChildren(...current.steps.map((item,i)=>{const b=el('button');b.append(el('small',item.animation||item.demo&&!item.still?'动作回放':item.kind==='expression'?'表情对照':item.kind==='logic'?'状态图':item.kind==='audio'?'音频':item.kind==='subtitles'?'字幕':'静态分镜'),el('strong',item.title));b.onclick=()=>showStep(i);return b;}));
  $('gallery').replaceChildren(...(current.gallery||[]).map(item=>{const f=el('figure'),a=el('a'),img=el('img');a.href=item.src;a.target='_blank';img.src=item.src;img.alt=item.label;img.loading='lazy';a.append(img);f.append(a,el('figcaption',item.label));return f;}));showStep(0);
 }

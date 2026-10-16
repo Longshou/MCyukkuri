@@ -12,7 +12,10 @@
 python standards/yukkuri-library/ecology/house-nest/build.py
 python standards/yukkuri-library/ecology/house-nest/build.py --check
 python standards/yukkuri-library/ecology/house-nest/render_preview.py
+python standards/yukkuri-library/ecology/house-nest/render_demo.py --ffmpeg "<ffmpeg可执行文件路径>"
 python scripts/build_preview_hub.py
 ```
 
 离线预览直接读取当前游戏网格、表情与动作，使用仓库软件光栅器；不启动游戏或浏览器、不编译。预览输出到 `.local/previews/house-ecology/`，仅证明当前美术与场景构图，游戏 AI、路径、多人同步仍需运行验证。
+
+`render_demo.py` 输出24秒、720×480、12帧/秒的连续 MP4，以及便于直接查看的短 GIF 和封面。四段从0、6、12、18秒开始，依次展示白日归巢、夜间搬运、守卵倾听和错峰破壳；移动路线、日夜色调与压缩后的孵化时长属于离线演示安排。`demo.html` 是播放器模板，生成到主题入口后支持跳段与慢放，统一预览入口也提供链接。重新生成时先出静态分镜，再出动画，最后重建总入口。
