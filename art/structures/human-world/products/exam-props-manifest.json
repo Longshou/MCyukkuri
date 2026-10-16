@@ -1,17 +1,17 @@
 {
   "status": "pending_visual_approval",
   "author": "Original procedural pixel art; no external source pixels.",
-  "geometry": "podium 3/16 slab; hide box 1/16 walls + roof, interior 14/16 wide and 15/16 high, open side = FACING; marks 1/16 mats, kind in room,promise,actor,gold,trainee,examiner",
+  "geometry": "podium 7/16 slab; hide box 1/16 walls + roof, interior 14/16 wide and 15/16 high, open side = FACING; marks 1/16 mats, kind in room,promise,actor,gold,trainee,examiner",
   "assets": {
     "exam_podium_top": {
       "source": "art/structures/human-world/products/exam_podium_top.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_podium_top.png",
-      "sha256": "2b85db92ac0a546fa0ddaadf128e18da83217c84ca0967441ac324615f56b1a7"
+      "sha256": "3bd8e375b38446d6e6863f6dfb8166a83c8769a16257cff876d2a92428611e1d"
     },
     "exam_podium_side": {
       "source": "art/structures/human-world/products/exam_podium_side.png",
       "target": "src/main/resources/assets/mcyukkuri/textures/block/exam_podium_side.png",
-      "sha256": "dead1a3889629c439b9d490d68ceada716313d37ea1f877036c1ca78e8c17f47"
+      "sha256": "61c09330a03282307b32c67609373e98357a36458024407e58a49472fb09f21f"
     },
     "exam_hide_box": {
       "source": "art/structures/human-world/products/exam_hide_box.png",

@@ -32,10 +32,10 @@ def podium_top():
     wood = [rgb(h) for h in ('#e0c690', '#d3b47a', '#c0a066', '#a98a52')]
     dark = rgb('#3c5a5f')
     def px(x, y):
-        # painted standing frame (2px stroke, inset 3px) and an arrow tab on the north edge = FACING side
+        # painted standing frame (2px stroke, inset 3px) and a 4px-wide chevron on the north edge = FACING side
         frame = 3 <= x <= 12 and 3 <= y <= 12 and not (5 <= x <= 10 and 5 <= y <= 10)
-        tab = 0 <= y <= 1 and abs(x - 7.5) <= 2.6 - y * 1.3
-        if frame or tab: return dark if (x + y) % 5 else shade(dark, 1.2)
+        chevron = (y == 0 and x in (7, 8)) or (y == 1 and x in (6, 7, 8, 9)) or (y == 2 and x in (5, 6, 9, 10))
+        if frame or chevron: return dark if (x + y) % 5 else shade(dark, 1.2)
         if 5 <= x <= 10 and 5 <= y <= 10: return rgb('#ecdfb4') if (x + y) % 4 else rgb('#e3d3a0')
         i = 1 if y % 4 < 3 else 2                      # plank face / groove
         if noise(x, y, 3 + y // 4) < 40 and i == 1: i = 0
@@ -45,13 +45,12 @@ def podium_top():
     return image(px)
 
 def podium_side():
-    wood = [rgb(h) for h in ('#d3b47a', '#c0a066', '#a98a52', '#8a6f40')]
+    teal = [rgb(h) for h in ('#527a80', '#3c5a5f', '#2f484c', '#223539')]
     def px(x, y):
-        if y >= 13: i = 0 if y == 13 else (1 if y == 14 else 2)  # top edge catches light, bottom is shadow
-        else: i = 1
-        if noise(x, y, 11) < 40 and y != 13: i = min(3, i + 1)
-        if x in (0, 15) and y >= 13: i = min(3, i + 1)
-        return wood[i]
+        # side faces are 7/16 high: rows 9..15 are visible (auto uv); lit top edge, dark foot
+        i = 0 if y == 9 else 3 if y == 15 else 1 if y < 14 else 2
+        if noise(x, y, 11) < 36 and 9 < y < 15: i = 2
+        return teal[i]
     return image(px)
 
 def cardboard():
@@ -117,7 +116,9 @@ def write_png(path, im):
     data = preserve_equivalent_png(path, stream.getvalue()); write_bytes(path, data); return data
 
 def cube(a, b, tex, faces=('north', 'south', 'east', 'west', 'up', 'down')):
-    return {'from': a, 'to': b, 'faces': {f: {'texture': '#' + tex} for f in faces}}
+    """Element with explicit uv (needed when the element leaves the 0..16 block range)."""
+    dx, dy, dz = b[0] - a[0], b[1] - a[1], b[2] - a[2]; size = {'north': (dx, dy), 'south': (dx, dy), 'east': (dz, dy), 'west': (dz, dy), 'up': (dx, dz), 'down': (dx, dz)}
+    return {'from': a, 'to': b, 'faces': {f: {'texture': '#' + tex, 'uv': [0, 0, min(16, size[f][0]), min(16, size[f][1])]} for f in faces}}
 
 def language(lang):
     """lang: zh_cn, en_us or ja_jp; the three exam props use the same names as item and block."""
@@ -140,11 +141,12 @@ def export():
     rotations = [('north', 0), ('east', 90), ('south', 180), ('west', 270)]
     # Podium: 3/16 slab, painted top (arrow tab on the north edge = FACING), wood sides.
     write(models / 'block/exam_podium.json', {'parent': 'minecraft:block/block', 'textures': {'particle': 'mcyukkuri:block/exam_podium_side', 'top': 'mcyukkuri:block/exam_podium_top', 'side': 'mcyukkuri:block/exam_podium_side'},
-        'elements': [{'from': [0, 0, 0], 'to': [16, 3, 16], 'faces': {'up': {'texture': '#top'}, 'down': {'texture': '#side'}, **{f: {'texture': '#side'} for f in ('north', 'south', 'east', 'west')}}}]})
+        'elements': [{'from': [0, 0, 0], 'to': [16, 7, 16], 'faces': {'up': {'texture': '#top'}, 'down': {'texture': '#side'}, **{f: {'texture': '#side'} for f in ('north', 'south', 'east', 'west')}}}]})
     write(ASSET / 'blockstates/exam_podium.json', {'variants': {f'facing={f}': {'model': 'mcyukkuri:block/exam_podium', 'y': y} for f, y in rotations}})
     # Hide box: open north side; two 1/16 side walls, back wall and roof, matching ExamHideBoxBlock collision.
-    parts = [cube([0, 0, 0], [1, 16, 16], 'box'), cube([15, 0, 0], [16, 16, 16], 'box'), cube([1, 0, 15], [15, 16, 16], 'box', ('north', 'south', 'east', 'west')),
-             cube([0, 15, 0], [16, 16, 16], 'box')]
+    # Visible mesh is wider than the collision (-3..19 = 22/16) so Reimu (17.4 units) and Marisa with hat (20.3) stay inside the walls.
+    parts = [cube([-3, 0, 0], [-2, 18, 19], 'box'), cube([18, 0, 0], [19, 18, 19], 'box'), cube([-2, 0, 18], [18, 18, 19], 'box', ('north', 'south', 'east', 'west')),
+             cube([-3, 17, 0], [19, 18, 19], 'box')]
     write(models / 'block/exam_hide_box.json', {'parent': 'minecraft:block/block', 'textures': {'particle': 'mcyukkuri:block/exam_hide_box', 'box': 'mcyukkuri:block/exam_hide_box'}, 'elements': parts})
     write(ASSET / 'blockstates/exam_hide_box.json', {'variants': {f'facing={f}': {'model': 'mcyukkuri:block/exam_hide_box', 'y': y} for f, y in rotations}})
     # Marks: one 1/16 mat model per kind.
@@ -158,7 +160,7 @@ def export():
     for name in ('exam_podium', 'exam_hide_box', 'exam_mark'):
         write(ROOT / 'src/main/resources/data/mcyukkuri/loot_table/blocks' / f'{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item', 'name': 'mcyukkuri:' + name}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
     write(ART / 'exam-props-manifest.json', {'status': 'pending_visual_approval', 'author': 'Original procedural pixel art; no external source pixels.',
-        'geometry': 'podium 3/16 slab; hide box 1/16 walls + roof, interior 14/16 wide and 15/16 high, open side = FACING; marks 1/16 mats, kind in ' + ','.join(KINDS), 'assets': records})
+        'geometry': 'podium 7/16 slab; hide box 1/16 walls + roof, interior 14/16 wide and 15/16 high, open side = FACING; marks 1/16 mats, kind in ' + ','.join(KINDS), 'assets': records})
     return records
 
 if __name__ == '__main__': export()

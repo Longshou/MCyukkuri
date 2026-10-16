@@ -16,8 +16,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /** Low answering platform of the exam hall; the candidate stands on top, FACING points toward the examiner desk. */
 public final class ExamPodiumBlock extends Block {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    /** 3/16 high, full footprint: a yukkuri walks onto it as a low step. */
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 3, 16);
+    /** 7/16 high, full footprint: still a single step-up for a yukkuri (step height >= 0.5). */
+    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 7, 16);
     public ExamPodiumBlock(Properties p) { super(p); registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH)); }
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) { b.add(FACING); }
     @Override public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext c) { return defaultBlockState().setValue(FACING, c.getHorizontalDirection().getOpposite()); }
