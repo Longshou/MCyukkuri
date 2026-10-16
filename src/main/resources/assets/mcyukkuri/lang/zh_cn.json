@@ -1997,6 +1997,7 @@
   "shop.mcyukkuri.sell": "卖给店里",
   "shop.mcyukkuri.forecast": "考试预测（1 绿宝石）",
   "shop.mcyukkuri.expired": "（已过期）",
+  "shop.mcyukkuri.origin.factory": "工厂出货",
   "shop.mcyukkuri.row.head": "%s %s（%s）- %s 绿宝石",
   "shop.mcyukkuri.abilities": "规矩 %s  学力 %s  知力 %s  应对 %s",
   "shop.mcyukkuri.vitals": "生命 %s  饱食 %s",

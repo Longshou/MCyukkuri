@@ -1985,6 +1985,7 @@
   "shop.mcyukkuri.sell": "お店に売る",
   "shop.mcyukkuri.forecast": "試験予想（1 エメラルド）",
   "shop.mcyukkuri.expired": "（期限切れ）",
+  "shop.mcyukkuri.origin.factory": "工場出荷",
   "shop.mcyukkuri.row.head": "%s %s（%s）- %s エメラルド",
   "shop.mcyukkuri.abilities": "躾 %s  学力 %s  知力 %s  対応 %s",
   "shop.mcyukkuri.vitals": "体力 %s  満腹 %s",

@@ -353,6 +353,7 @@
 - **设定依据**：R6 写到，个体分流到育成、加工、研究、商店四个去向（`wiki/shops-factory-npcs.md`）。
 - **改动**：在 `human/FactoryPipeline` 增加“出货”环节。定期把育成完成的个体送进最近的商店库存（`HumanCommerce`），商店的展示与后场库存随之变化。
 - **完成标准**：工厂开始生产后，附近商店里会出现对应个体。
+- **进度**：已实现（待远端 P0 `factoryShipping` 验证）。袋装／馒头线育成栏内健康、可独立的幼体被标为 `ShopCandidate`；每 2 游戏日（48000 刻，计时存入加工线 NBT `NextShip`）向 256 格内已登记的店主最多出货 2 只，经 `YukkuriWorldData.capture` 保身份入托运队列（`mcyukkuri_shop_deliveries`），满 2400 刻后由饲养员或店主 tick 放入空栏。配置 `factoryShopShipping`。研究去向、多出货年龄段尚未做。
 
 ### 5.2 工厂流水线缺口（L，拆小）
 

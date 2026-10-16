@@ -21,6 +21,8 @@ import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.KeeperMenu;
+import io.github.longshou.mcyukkuri.shop.ShopDeliveries;
+import io.github.longshou.mcyukkuri.human.FactoryPipeline;
 import io.github.longshou.mcyukkuri.shop.ShopKeeping;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.shop.ShopPens;
@@ -927,6 +929,61 @@ public final class PetShopGameTests {
             pet.setAbility(Ability.ACADEMICS, 100); double best = pet.successChance(Ability.ACADEMICS, BadgeGrade.BRONZE);
             t.check("success chance stays within 0.05..0.95", worst >= .05 - 1e-9 && best <= .95 + 1e-9 && best > worst, "worst=" + worst + " best=" + best);
             y.discard(); other.discard();
+            return true;
+        });
+        t.begin();
+    }
+
+    // ------------------------------------------------------------------ g. factory to shop shipping (DEVELOPMENT_PLAN 5.1)
+
+    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 3000, batch = "pet_shop")
+    public static void factoryShipping(GameTestHelper h) {
+        var t = new PetShopGameTests(h, "factory_shipping", 6, 110, 40);
+        t.critical("fixture chunks become entity ticking", 800, t::chunksStep);
+        t.critical("place the shop and a bag factory 60 blocks apart", 5, () -> {
+            t.level.setDayTime(6000); t.level.updateSkyBrightness(); t.clearEntities();
+            for (var id : List.of("yukkuri_shop", "yukkuri_bag_factory")) {
+                var template = t.level.getStructureManager().get(MCYukkuri.id(id)).orElseThrow();
+                var origin = new BlockPos(t.ox + (id.equals("yukkuri_shop") ? 0 : 60), 64, t.oz);
+                t.check(id + " places", template.placeInWorld(t.level, origin, origin, new StructurePlaceSettings().setIgnoreEntities(false).setFinalizeEntities(true), t.level.random, 2), "origin=" + origin);
+            }
+            t.level.getEntitiesOfClass(HumanNpc.class, t.area).forEach(n -> n.aiStep());
+            t.findCast();
+            return true;
+        });
+        t.critical("custody binds", 800, () -> t.level.getEntitiesOfClass(YukkuriEntity.class, t.area).stream().noneMatch(y -> HumanCommerce.data(y).contains("PendingRole")));
+        t.step("ship one candidate and receive it at the shop", 20, () -> {
+            t.findCast(); t.freezeShop();
+            var factory = t.level.getEntitiesOfClass(HumanNpc.class, t.area, n -> n.siteRole().equals("bag_worker")).stream().findFirst().orElse(null);
+            t.check("cast found", t.shop != null && t.keeper != null && factory != null, "shop=" + t.shop + " keeper=" + t.keeper + " factory=" + factory);
+            if (factory == null || t.shop == null || t.keeper == null) return true;
+            ShopDeliveries.register(t.shop);
+            var data = ShopDeliveries.get(t.level);
+            t.check("the shop is registered within 256 blocks of the factory", data.nearestShop(t.level, factory.blockPosition()) != null);
+            var y = ShopFixtures.spawn(t.level, ModEntities.REIMU, factory.getX() + 2, factory.getY(), factory.getZ() + 2);
+            ShopFixtures.needs(y); ShopFixtures.adult(y);
+            HumanCommerce.assign(y, factory.getUUID(), "nursery");
+            var tag = HumanCommerce.data(y).copy(); tag.putString("FactoryStage", "nursery"); tag.putBoolean("ShopCandidate", true); HumanCommerce.set(y, tag);
+            var id = y.getUUID();
+            t.check("the nursery young is shop fit", FactoryPipeline.shopFit(y), HumanCommerce.data(y).toString());
+            int stock = ShopPens.stock(t.level, t.shop);
+            t.check("shipping sends exactly the candidate", factory.production().pipeline().ship(t.level) == 1);
+            var custody = YukkuriWorldData.get(t.level); var pending = data.pending();
+            t.check("the individual is in custody and one delivery is pending", custody.isCaptured(id) && t.level.getEntity(id) == null && pending.size() == 1
+                    && pending.get(0).shopkeeper().equals(t.shop.getUUID()) && custody.hasToken(pending.get(0).token()), "pending=" + pending.size());
+            var token = pending.get(0).token(); long now = t.level.getGameTime();
+            t.check("nothing arrives before the transit time", !ShopDeliveries.arrive(t.keeper, t.level, now) && data.pending().size() == 1);
+            boolean arrived = ShopDeliveries.arrive(t.keeper, t.level, now + ShopDeliveries.TRANSIT);
+            t.check("the keeper receives the delivery after the transit time", arrived, "stock=" + stock + " pen=" + ShopPens.freePen(t.level, t.shop, null, false));
+            var in = t.level.getEntity(id);
+            t.check("the same UUID is back as shop stock owned by the shopkeeper", in instanceof YukkuriEntity s && HumanCommerce.ownedBy(s, t.shop.getUUID()) && use(s).equals("stock"), "entity=" + in);
+            if (in instanceof YukkuriEntity s) {
+                t.check("factory origin is recorded and the grade is NONE", s.getPersistentData().hasUUID("FactoryOrigin") && s.getPersistentData().getUUID("FactoryOrigin").equals(factory.getUUID()) && s.pet().grade() == BadgeGrade.NONE);
+                t.check("pedigree is set", s.pet().pedigreeKnown() && s.pet().pedigree() >= 15 && s.pet().pedigree() <= 45, "pedigree=" + s.pet().pedigree());
+                t.check("stock count grew by one", ShopPens.stock(t.level, t.shop) == stock + 1, "before=" + stock + " after=" + ShopPens.stock(t.level, t.shop));
+            }
+            t.check("the token is retired exactly once", !custody.hasToken(token) && data.pending().isEmpty() && !ShopDeliveries.arrive(t.keeper, t.level, now + 10 * ShopDeliveries.TRANSIT));
+            t.check("exactly one entity carries the UUID", t.level.getEntitiesOfClass(YukkuriEntity.class, t.area, e -> e.getUUID().equals(id)).size() == 1);
             return true;
         });
         t.begin();

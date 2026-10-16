@@ -36,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-7 buy live row; 8-11 locate row; 12/13 prev/next page;
  *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
- *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
+ *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, pedigree, 4 abilities, health, nutrition, hygiene, stress, indulgence,
  *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
  *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35). */
@@ -129,7 +129,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         return out;
     }
     private static int flags(YukkuriEntity y, boolean locked) {
-        var b = y.pet(); return b.grade().id() | (b.expired() ? 4 : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? 8 : 0) | (locked ? 16 : 0);
+        var b = y.pet(); return b.grade().id() | (b.expired() ? 4 : 0) | (b.grade().id() >= BadgeGrade.SILVER.id() ? 8 : 0) | (locked ? 16 : 0) | (ShopDeliveries.factoryOrigin(y) ? 32 : 0);
     }
     private void put(int index, int value) { data.set(index, Math.clamp(value, -32768, 32767)); }
     private int pageCount() { return tab == LIVE ? Math.max(1, (quotes.size() + 3) / 4) : tab == GOODS ? goodsPages() : 1; }
