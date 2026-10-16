@@ -128,9 +128,9 @@ public final class PredatorGameTests {
         HumanCommerce.assign(r,player.getUUID(),"companion");HumanCommerce.assign(ordinary,player.getUUID(),"companion");
         check("Purchased unbadged predator retains wild hunting",r.predator().wantsHunt()&&r.predator().mayHunt(ordinary));
         check("Unbadged predator rejects commands",!r.predator().command(player,Order.PEACEFUL));
-        r.life().setMedal(1);check("Badge without education is insufficient",!r.predator().obedient());
+        r.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER,1,null);check("Badge without education is insufficient",!r.predator().obedient());
         for(int i=0;i<3;i++)r.life().personality().lessonCompleted(player.getUUID());
-        var skills=r.badges().save();skills.putIntArray("Skills",new int[]{70,70,70});r.badges().load(skills);
+        r.pet().setAbility(io.github.longshou.mcyukkuri.pet.Ability.WITS,70);
         check("Educated silver predator respects protected companions",r.predator().obedient()&&!r.predator().mayHunt(ordinary));
         check("Owner can stop hunting",r.predator().command(player,Order.PEACEFUL)&&!r.predator().wantsHunt());
         var stored=r.predator().save();r.predator().load(stored);check("Owner order survives reload",r.predator().order()==Order.PEACEFUL);

@@ -4,7 +4,10 @@ import argparse, json, math
 from PIL import Image, ImageDraw
 from io import BytesIO
 
+import sys
 from asset_export_checks import fingerprint, provenance
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'art/props/badges'))
+import author_badges
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / 'art/props/badges'
@@ -130,12 +133,30 @@ def language(zh):
     return result
 
 def handbook_png():
-    image = Image.new('RGBA', (32,32)); draw = ImageDraw.Draw(image)
-    draw.rectangle((5,3,26,29), fill='#293d38'); draw.rectangle((7,2,27,27), fill='#527067')
-    draw.rectangle((10,4,25,25), outline='#b9c6a1'); draw.rectangle((5,4,8,26), fill='#314940')
-    draw.rectangle((8,28,26,29), fill='#e9dbb3'); draw.line((10,29,25,29), fill='#a69776')
-    draw.ellipse((11,7,22,18), fill='#996824'); draw.ellipse((13,9,20,16), fill='#e9c55b')
-    draw.ellipse((17,14,25,22), fill='#5c7380'); draw.ellipse((18,15,24,21), fill='#c5d9dd')
+    """16x16 handbook icon: green book with page block, plus mini gold/silver medallions from the locked badge palettes."""
+    G,P=author_badges.PALETTES,author_badges._rgba
+    image=Image.new('RGBA',(16,16));px=image.load()
+    def fill(x0,y0,x1,y1,c):
+        for y in range(y0,y1+1):
+            for x in range(x0,x1+1):px[x,y]=P(c)
+    ol,cover,hi,spine,deep='#17261f','#3f7a5c','#5f9d77','#2a5440','#1f3f31'
+    fill(1,0,14,14,ol)                      # outline
+    fill(2,1,13,13,cover);fill(2,1,13,1,hi);fill(2,1,2,13,hi)   # cover, top/left lit edge
+    fill(3,1,4,13,spine);fill(3,1,3,13,'#1f4030')                 # spine
+    fill(13,2,13,13,deep);fill(3,13,13,13,deep)                   # shaded right/bottom edge
+    fill(14,2,14,14,'#efe3bd');fill(3,14,14,14,'#d3c391');fill(14,14,14,14,ol)  # page block
+    px[14,1]=P(ol)
+    def medal(x0,y0,tier):
+        # 6x6 round medallion: outline only on the outer ring, 4x4 shaded domed interior, top-left light.
+        pal=G[tier];rows=['.XXXX.','XXXXXX','XXXXXX','XXXXXX','XXXXXX','.XXXX.']
+        cells={(i,j) for j,row in enumerate(rows) for i,ch in enumerate(row) if ch=='X'}
+        for i,j in cells:
+            if any(n not in cells for n in ((i+1,j),(i-1,j),(i,j+1),(i,j-1))):c=pal['outline']
+            else:
+                d=(i-1)+(j-1);c=pal['shade'][2] if d<=1 else pal['shade'][1] if d<=3 else pal['shade'][0]
+            px[x0+i,y0+j]=P(c)
+        px[x0+1,y0+1]=P(pal['spec'])
+    medal(5,2,'gold');medal(8,7,'silver')
     stream=BytesIO(); image.save(stream,format='PNG'); return stream.getvalue()
 
 def main(check=False, mounts_only=False, only=None):

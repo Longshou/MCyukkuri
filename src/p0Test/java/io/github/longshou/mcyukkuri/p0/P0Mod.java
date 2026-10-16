@@ -37,6 +37,7 @@ public final class P0Mod {
             if("house_ecology".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(HouseEcologyGameTests.class);event.register(HouseRoutineGameTests.class);event.register(HouseSuppliesGameTests.class);event.register(HouseholdEcologyGameTests.class);});return;}
             if("core".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(CoreGameTests.class));return;}
             if("playgrounds".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PlaygroundGameTests.class));return;}
+            if("pet_shop".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(PetShopGameTests.class));return;}
             if("badges".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(BadgeGameTests.class));return;}
             if("humans".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(HumanGameTests.class);event.register(HumanExpansionGameTests.class);});return;}
             if("groups".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(GroupGameTests.class));return;}

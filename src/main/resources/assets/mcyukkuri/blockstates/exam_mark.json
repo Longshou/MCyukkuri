@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "kind=room": {
+      "model": "mcyukkuri:block/exam_mark_room"
+    },
+    "kind=promise": {
+      "model": "mcyukkuri:block/exam_mark_promise"
+    },
+    "kind=actor": {
+      "model": "mcyukkuri:block/exam_mark_actor"
+    },
+    "kind=gold": {
+      "model": "mcyukkuri:block/exam_mark_gold"
+    },
+    "kind=trainee": {
+      "model": "mcyukkuri:block/exam_mark_trainee"
+    },
+    "kind=examiner": {
+      "model": "mcyukkuri:block/exam_mark_examiner"
+    }
+  }
+}

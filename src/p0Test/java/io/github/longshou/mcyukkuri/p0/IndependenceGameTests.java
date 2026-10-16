@@ -267,8 +267,8 @@ public final class IndependenceGameTests {
                 "Second revisit must begin the actual visible greeting: " + visitDiagnostics(child[0],actors.getFirst())))
         .thenExecute(() -> {
             var y = child[0]; var parent = actors.getFirst();
-            parent.life().setMedal(2); phase[0] = 3;
-            helper.assertTrue(parent.life().hasGoldMedal(),"Observer really has the gold qualification before accessory removal");
+            parent.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null); phase[0] = 3;
+            helper.assertTrue(parent.pet().grade()==io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,"Observer really has the gold qualification before accessory removal");
             helper.assertTrue(y.life().hasAccessory(),"Visitor still has its actual accessory before removal");
             removedAccessory[0] = y.life().takeAccessory(null);
             System.out.println("MCYUKKURI_P0 independence gold setup " + visitDiagnostics(y,parent));
@@ -276,14 +276,14 @@ public final class IndependenceGameTests {
             var y = child[0]; var parent = actors.getFirst();
             String state = visitDiagnostics(y,parent);
             helper.assertTrue(removedAccessory[0] != null,"Visitor accessory removal returns the real identity token: " + state);
-            helper.assertTrue(parent.life().hasGoldMedal(),"Observer retains the actual gold qualification: " + state);
+            helper.assertTrue(parent.pet().grade()==io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,"Observer retains the actual gold qualification: " + state);
             helper.assertTrue(parent.life().canRecognize(y),"Gold observer recognizes its accessory-less child: " + state);
             helper.assertTrue(y.life().canRecognize(parent),"Visitor still recognizes its adorned parent: " + state);
             helper.assertTrue(y.independence().active(),"Gold exception leaves the actual visit active: " + state);
             helper.assertTrue(independenceTask(y).equals("GREET"),"Gold exception preserves the real greeting phase: " + state);
             helper.assertTrue(y.independence().activity().equals("independence_visit"),"Gold exception retains the public visit activity: " + state);
             helper.assertTrue(y.independence().visits() == 0,"Brief gold greeting cannot prematurely count a completed visit: " + state);
-            parent.life().setMedal(0); phase[0] = 4;
+            parent.pet().revoke(); phase[0] = 4;
         }).thenIdle(2).thenExecute(() -> {
             var y = child[0]; String state = visitDiagnostics(y,actors.getFirst());
             helper.assertTrue(!actors.getFirst().life().canRecognize(y),"Removing gold really removes the observer's recognition exception: " + state);
@@ -354,7 +354,7 @@ public final class IndependenceGameTests {
         return "tick=" + visitor.tickCount + ", task=" + independenceTask(visitor) + ", active=" + visitor.independence().active()
                 + ", activity=" + visitor.independence().activity() + ", behavior=" + visitor.getBehaviorId()
                 + ", visits=" + visitor.independence().visits() + ", returning=" + visitor.independence().save().getBoolean("Returning")
-                + ", medals=" + parent.life().medal() + "/" + visitor.life().medal()
+                + ", medals=" + parent.pet().grade().id() + "/" + visitor.pet().grade().id()
                 + ", accessories=" + parent.life().hasAccessory() + "/" + visitor.life().hasAccessory()
                 + ", recognizes=" + parent.life().canRecognize(visitor) + "/" + visitor.life().canRecognize(parent)
                 + ", LOS=" + parent.hasLineOfSight(visitor) + "/" + visitor.hasLineOfSight(parent)
@@ -371,7 +371,7 @@ public final class IndependenceGameTests {
                 + ", needs=" + visitor.life().nutrition() + "/" + visitor.life().energy() + "/" + visitor.life().bladder() + "/" + visitor.life().dryness()
                 + ", urgent=" + visitor.life().hasUrgentNeed() + ", life=" + visitor.life().activity()
                 + ", panic=" + visitor.isPanicking() + ", command=" + visitor.isCommandPlaying() + ", operations=" + visitor.operations().active()
-                + ", badges=" + visitor.badges().active() + ", shell=" + visitor.shellRetraction().active()
+                + ", badges=" + visitor.pet().busy() + ", shell=" + visitor.shellRetraction().active()
                 + ", family=" + visitor.family().active() + "/recovery=" + visitor.family().recovery() + ", daily=" + visitor.dailyLife().activity()
                 + ", group=" + visitor.groupInteraction().activity() + ", play=" + visitor.playLife().activity()
                 + ", habitat=" + visitor.habitat().active() + ":" + visitor.habitat().activity()

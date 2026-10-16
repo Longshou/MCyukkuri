@@ -29,14 +29,13 @@ public final class HumanMenu extends AbstractContainerMenu {
         target = inventory.player.level().getEntity(entityId) instanceof HumanNpc n ? n : null;
         if (!inventory.player.level().isClientSide && target != null && target.job() == HumanNpc.Job.SHOPKEEPER)
             target.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y)->y.getVariant().ordinal())
-                    .thenComparing(Comparator.comparingInt((YukkuriEntity y)->y.life().medal()).reversed()).thenComparing(YukkuriEntity::getUUID))
+                    .thenComparing(Comparator.comparingInt((YukkuriEntity y)->y.pet().grade().id()).reversed()).thenComparing(YukkuriEntity::getUUID))
                     .limit(64).forEach(y -> quotes.add(new Quote(y.getUUID(), price(y))));
         addDataSlots(display); refresh();
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return display.get(index); }
-    public static int price(YukkuriEntity y) { return 6 + y.life().medal() * 12 + y.life().personality().lessons() * 2
-            + (y.getVariant().isPredator() ? 24 : y.getVariant() == YukkuriVariant.PATCHOULI ? 4 : 0); }
+    public static int price(YukkuriEntity y) { return io.github.longshou.mcyukkuri.shop.ShopPricing.price(y); }
     public static boolean valid(Player p, HumanNpc n) {
         return n != null && n.isAlive() && p.isAlive() && !p.isSpectator() && p.level() == n.level()
                 && p.distanceToSqr(n) <= 36 && p.hasLineOfSight(n);
@@ -97,7 +96,7 @@ public final class HumanMenu extends AbstractContainerMenu {
             display.set(k + 2, y == null ? 0 : Math.round(y.getHealth()));
             display.set(k + 3, y == null ? 0 : Math.round(y.life().nutrition()));
             display.set(k + 4, y == null ? 0 : !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal());
-            display.set(34+i,y==null?0:y.life().medal());
+            display.set(34+i,y==null?0:y.pet().grade().id());
             display.set(k + 5, y == null ? 0 : y.life().personality().lessons());
         }
     }
@@ -175,7 +174,7 @@ public final class HumanMenu extends AbstractContainerMenu {
         }
         if(id==16) {
             if (target.job()!=HumanNpc.Job.SHOPKEEPER) return false;
-            io.github.longshou.mcyukkuri.badge.BadgeMenu.open(p,target,null); return true;
+            io.github.longshou.mcyukkuri.badge.BadgeMenu.open(p,null); return true;
         }
         if(id==13){page=(page+1)%5;broadcastChanges();return true;}
         if(id==14){

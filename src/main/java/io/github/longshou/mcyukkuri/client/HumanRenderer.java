@@ -21,7 +21,10 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
         addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
     @Override public ResourceLocation getTextureLocation(HumanNpc npc) {
+        // EXAMINER/KEEPER are matched by name so this compiles before those Job constants land.
+        String job = npc.job().name();
         String name = npc.job() == HumanNpc.Job.SHOPKEEPER ? "shopkeeper" : npc.job() == HumanNpc.Job.FACTORY ? "factory_worker"
+                : job.equals("EXAMINER") ? "examiner" : job.equals("KEEPER") ? "keeper"
                 : npc.look().name().toLowerCase(java.util.Locale.ROOT);
         return MCYukkuri.id("textures/entity/human/" + name + ".png");
     }
@@ -55,6 +58,6 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             e.registerEntityRenderer(HumanWorld.SISTER.get(), HumanRenderer::new);
         }
         @SubscribeEvent public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); }
+        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
     }
 }

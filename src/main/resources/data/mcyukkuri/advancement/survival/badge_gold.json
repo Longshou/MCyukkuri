@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "mcyukkuri:gold_yukkuri_badge"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.badge_gold.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.badge_gold.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ],
+  "parent": "mcyukkuri:survival/badge_silver"
+}

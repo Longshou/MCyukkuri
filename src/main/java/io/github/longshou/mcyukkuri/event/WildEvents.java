@@ -44,7 +44,7 @@ public final class WildEvents {
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
                 && e.family().brood()==null && !e.family().awaitingLanding()
-                && !e.operations().active() && !e.badges().active() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
+                && !e.operations().active() && !e.pet().busy() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10
                 && e.body().wound()==0 && e.body().infection()==0 && e.life().wetness()<50;
     }
@@ -258,10 +258,13 @@ public final class WildEvents {
             }
         } else if(s==null)WildCards.fed(e,player);
     }
+    /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
+    public static boolean canAdopt(YukkuriEntity e, Player player) {
+        return !e.getVariant().isPredator()&&!e.getVariant().isHouse()&&HumanCommerce.mayCapture(player,e)
+                &&unowned(e)&&e.life().personality().trust(player.getUUID())>=10&&e.life().personality().fear(player.getUUID())<25;
+    }
     public static boolean adopt(YukkuriEntity e, Player player) {
-        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
-                ||e.getVariant().isPredator()||e.getVariant().isHouse()||!HumanCommerce.mayCapture(player,e)
-                ||!unowned(e)||e.life().personality().trust(player.getUUID())<10||e.life().personality().fear(player.getUUID())>=25)return false;
+        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;
         HumanCommerce.assign(e,player.getUUID(),"companion");
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
@@ -274,6 +277,7 @@ public final class WildEvents {
         if(old!=null)return false;
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());
         if(scene==null)return false;
+        e.pet().abandonedBy(player.getUUID());
         var owner=HumanCommerce.data(e).copy();owner.remove("Owner");owner.remove("Use");HumanCommerce.set(e,owner);
         e.life().releaseHome();e.social().stop();e.dailyLife().stop();e.setPersistenceRequired();
         data.phase(scene,Phase.WAITING);return true;

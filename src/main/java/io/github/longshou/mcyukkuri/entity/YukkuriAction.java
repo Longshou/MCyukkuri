@@ -84,7 +84,16 @@ public enum YukkuriAction {
     WATER_STRUGGLE("water_struggle", 1.6, true),
     WATER_GASP("water_gasp", 1.6, true),
     WATER_RECOVER("water_recover", 2.8, false),
-    BOAT_REASSURE("boat_reassure", 2.0, true);
+    BOAT_REASSURE("boat_reassure", 2.0, true),
+    // Pet shop, exam and raising performances (lore recipe v9, all standard forms).
+    THINK("think", 2.0, true),
+    NERVOUS("nervous", 1.5, true),
+    PROUD("proud", 2.0, false),
+    JOY_JUMP("joy_jump", 1.6, false),
+    SULK("sulk", 2.4, true),
+    HIDE_FACE("hide_face", 2.0, true),
+    BEG("beg", 1.4, true),
+    BOW("bow", 1.2, false);
 
     private final String id;
     private final double duration;

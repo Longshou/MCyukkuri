@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.p0;
 
 import io.github.longshou.mcyukkuri.badge.*;
+import io.github.longshou.mcyukkuri.pet.*;
 import io.github.longshou.mcyukkuri.entity.*;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.life.*;
@@ -27,109 +28,36 @@ public final class BadgeGameTests {
     private YukkuriEntity routines;
     private HumanNpc shop;
     private FakePlayer player;
-    private final List<Map<String,Object>> examTrace = new ArrayList<>();
-    private String examPhase = "setup";
-    private long routineStarted, examStarted;
+    private long routineStarted;
     private void check(String name, boolean pass) { checks.add(new Check(name,pass)); }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1600,batch="badges")
     public static void badgeSystem(GameTestHelper h) {
         var t=new BadgeGameTests();var l=h.getLevel();
-        t.observe(h,"badge-exam-trace");t.force(l,true);
+        t.force(l,true);
         h.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(h,X>>4,(X+24)>>4,0,0))
             .thenExecute(()->{
                 try { t.setup(l);t.checks(l);t.routines(l);t.routineStarted=l.getGameTime(); }
                 catch(Throwable e) {t.check("Setup exception: "+e,false);}
-            }).thenWaitUntil(()->h.assertTrue(t.animal!=null&&t.animal.tickCount>0&&t.animal.onGround(),"Waiting for silver candidate to tick and land"))
-            .thenExecute(()->t.liveExam(l))
-            .thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for silver examination to finish"))
-            .thenExecute(()->{
-                try {
-                    t.trace(l,"silver-check");
-                    t.check("Actual goal navigation reaches the examiner's marker and grants silver",t.animal.life().medal()==1&&t.animal.badges().result()==1&&t.animal.badges().score(4)==100);
-                    t.check("Exam certificate records examiner and completed attempt",t.animal.badges().source()==3&&t.animal.badges().attempts()==1&&t.animal.badges().save().getUUID("Issuer").equals(t.shop.getUUID()));
-                    var token=YukkuriWorldData.get(l).capture(t.animal);var stored=YukkuriWorldData.get(l).captiveSnapshot(token);
-                    t.check("Capture keeps the certificate and original individual",stored.getUUID("UUID").equals(t.animal.getUUID())&&stored.getCompound("YukkuriBadges").getInt("Source")==3);
-                    var released=YukkuriWorldData.get(l).release(token,l,new net.minecraft.world.phys.Vec3(X+8,65,5),0);
-                    t.check("Release keeps qualification and wearing state",released!=null&&released.life().medal()==1&&released.badges().worn());
-                    t.animal=released;
-                } catch(Throwable e) {t.check("Live exception: "+e,false);}
-            }).thenWaitUntil(()->h.assertTrue(t.animal!=null&&t.animal.tickCount>0&&t.animal.onGround(),"Waiting for released gold candidate to tick and land"))
-            .thenExecute(()->{
-                t.trained(t.animal,90);t.check("Live gold upgrade is admitted",t.animal.badges().exam(t.player,t.shop,2));
-                t.examPhase="gold";t.trace(l,"gold-admitted");
-            }).thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for gold examination to finish"))
-            .thenExecute(()->{
-                t.trace(l,"gold-check");
-                t.check("Live gold exam completes at the higher thresholds",t.animal.life().medal()==2&&t.animal.badges().result()==1&&t.animal.badges().score(4)==100);
             // Daily routine checks keep their original minimum observation period.
             }).thenWaitUntil(()->h.assertTrue(l.getGameTime()-t.routineStarted>=1000,"Observing actual daily routines"))
             .thenExecute(()->{
                 try {
-                    t.check("Actual bowl meal contributes once",t.routines.badges().routine(0)==1);
-                    t.check("Actual toilet use contributes only after waste transfer",t.routines.badges().routine(1)>=1);
-                    t.check("A completed natural rest contributes evidence",t.routines.badges().routine(2)>=1);
+                    t.check("Actual bowl meal contributes once",t.routines.pet().routine(0)==1);
+                    t.check("Actual toilet use contributes only after waste transfer",t.routines.pet().routine(1)>=1);
+                    t.check("A completed natural rest contributes evidence",t.routines.pet().routine(2)>=1);
                 } catch(Throwable e) {t.check("Routine exception: "+e,false);}
-                t.finish(h,"badge-checks","badge-exam-trace");
-            });
-    }
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="badge_slow_navigation")
-    public static void goldExamWithSlowNavigation(GameTestHelper h) {
-        var t=new BadgeGameTests();var l=h.getLevel();
-        t.observe(h,"badge-slow-exam-trace");t.force(l,true);
-        h.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(h,X>>4,(X+24)>>4,0,0))
-            .thenExecute(()->{
-                t.setup(l);t.animal.life().setMedal(1);t.trained(t.animal,90);
-                t.shop.setNoAi(false);
-            }).thenWaitUntil(()->h.assertTrue(t.animal.tickCount>0&&t.animal.onGround(),"Waiting for slow candidate to tick and land"))
-            .thenExecute(()->{
-                t.examStarted=l.getGameTime();t.examPhase="slow-gold";
-                t.check("Slow gold examination starts and charges eight emeralds",t.animal.badges().exam(t.player,t.shop,2)&&t.money()==56);
-                // Temporary Slowness expires naturally during the existing navigation allowance.
-                t.animal.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,520,5));
-                t.trace(l,"gold-admitted");
-            }).thenExecuteAfter(500,()->{
-                t.trace(l,"former-deadline");var b=t.animal.badges();
-                t.check("At 500 ticks valid navigation is still active without a premature gold award",b.active()&&b.stage()==4&&b.result()==0&&b.score(4)==-1&&t.animal.life().medal()==1);
-            }).thenWaitUntil(()->h.assertTrue(!t.animal.badges().active(),"Waiting for slow gold examination to finish"))
-            .thenExecute(()->{
-                t.trace(l,"gold-check");var b=t.animal.badges();long elapsed=l.getGameTime()-t.examStarted;
-                t.check("Slow navigation earns gold after 500 and within the existing 640 ticks",elapsed>500&&elapsed<=640&&b.result()==1&&b.score(4)==100&&t.animal.life().medal()==2);
-                t.check("Slow completion keeps one payment and one genuine certificate",t.money()==56&&b.attempts()==1&&b.source()==3&&b.save().getUUID("Issuer").equals(t.shop.getUUID()));
-                t.finish(h,"badge-timing-checks","badge-slow-exam-trace");
+                t.finish(h,"badge-checks");
             });
     }
     private void force(ServerLevel level,boolean force) {
         for(int x=X>>4;x<=(X+24)>>4;x++)GameTestChunks.setForced(level,x,0,force);
     }
-    private void observe(GameTestHelper helper,String report) {
-        var level=helper.getLevel();
-        helper.onEachTick(()->{
-            if(animal!=null&&!animal.isRemoved()&&level.getGameTime()%5==0) {
-                trace(level,"tick");
-                if(level.getGameTime()%100==0)P0Control.write(report,examTrace);
-            }
-        });
-    }
-    private void finish(GameTestHelper helper,String report,String traceReport) {
-        P0Control.write(report,checks);P0Control.write(traceReport,examTrace);
+    private void finish(GameTestHelper helper,String report) {
+        P0Control.write(report,checks);
         var level=helper.getLevel();
         level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof HumanNpc||e instanceof net.minecraft.world.entity.item.ItemEntity).forEach(Entity::discard);
         if(player!=null)player.discard();force(level,false);
         var failed=checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())helper.succeed();else helper.fail(failed.toString());
-    }
-    private void trace(ServerLevel level,String event) {
-        var b=animal.badges();var row=new LinkedHashMap<String,Object>();
-        row.put("event",event);row.put("phase",examPhase);row.put("gameTick",level.getGameTime());row.put("entityTick",animal.tickCount);
-        row.put("uuid",animal.getUUID().toString());row.put("session",b.session());row.put("stage",b.stage());row.put("elapsed",b.elapsed());
-        row.put("result",b.result());row.put("medal",animal.life().medal());row.put("scores",java.util.stream.IntStream.range(0,5).map(b::score).toArray());
-        row.put("position",List.of(animal.getX(),animal.getY(),animal.getZ()));row.put("velocity",List.of(animal.getDeltaMovement().x,animal.getDeltaMovement().y,animal.getDeltaMovement().z));
-        row.put("examiner",List.of(shop.getX(),shop.getY(),shop.getZ()));row.put("playerDistanceSquared",animal.distanceToSqr(player));row.put("examinerDistanceSquared",animal.distanceToSqr(shop));
-        row.put("playerVisible",player.hasLineOfSight(animal));row.put("examinerVisible",animal.hasLineOfSight(shop));row.put("day",level.isDay());
-        row.put("pathDone",animal.getNavigation().isDone());var path=animal.getNavigation().getPath();row.put("pathTarget",path==null?"none":path.getTarget().toShortString());
-        row.put("onGround",animal.onGround());row.put("panicking",animal.isPanicking());row.put("commandPlaying",animal.isCommandPlaying());row.put("hurtTime",animal.hurtTime);
-        row.put("urgentNeed",animal.life().hasUrgentNeed());row.put("sleeping",animal.life().isSleeping());row.put("mealTicks",animal.life().mealTicks());
-        row.put("bladder",animal.life().bladder());row.put("hygiene",animal.life().hygiene());row.put("behavior",animal.getBehaviorId());
-        examTrace.add(row);
     }
     private YukkuriEntity create(ServerLevel l,double x) {
         var y=ModEntities.REIMU.get().create(l);y.moveTo(x,65,5.5,0,0);y.setOnGround(true);y.setPersistenceRequired();
@@ -150,81 +78,64 @@ public final class BadgeGameTests {
         l.addFreshEntity(shop);shop.setNoAi(true);
         animal=create(l,X+5.5);
     }
-    private void trained(YukkuriEntity y,int score) {
-        var t=y.badges().save();t.putIntArray("Skills",new int[]{score,score,score});t.putIntArray("Routines",new int[]{3,3,2});
-        t.putInt("Cooldown",0);t.putInt("Attempts",0);t.putInt("Result",0);y.badges().load(t);
-        for(int i=0;i<3;i++)y.life().personality().lessonCompleted(player.getUUID());
-    }
     private int money() {return player.getInventory().items.stream().filter(s->s.is(Items.EMERALD)).mapToInt(ItemStack::getCount).sum();}
     private void checks(ServerLevel l) {
         check("Fixture has a real shopkeeper",shop.job()==HumanNpc.Job.SHOPKEEPER);
-        var b=animal.badges();
-        check("Blank gold token cannot grant qualification",!b.attach(player,new ItemStack(HumanWorld.GOLD_BADGE.get()))&&animal.life().medal()==0);
-        check("Training starts without instantly granting skill",b.train(player,0)&&b.skill(0)==0);
-        check("Repeated training packet cannot restart or stack a session",!b.train(player,0));
-        for(int i=0;i<299;i++)b.tick();
-        check("Training only awards after its full duration",b.skill(0)==0);b.tick();
-        check("Completed training grants one bounded increment and no grade",b.skill(0)==10&&!b.active()&&animal.life().medal()==0);
-        check("Training cooldown survives save/load",b.save().getInt("Cooldown")==100);
-        var snapshot=b.save();b.load(snapshot);check("Skill progression survives reload",b.skill(0)==10&&!b.train(player,0));
-        for(int i=0;i<100;i++)b.tick();b.train(player,1);snapshot=b.save();b.load(snapshot);
-        check("Reload interrupts unfinished session without free skill",!b.active()&&b.result()==2&&b.skill(1)==0&&b.cooldown()==1200);
-        trained(animal,90);int before=money();l.setDayTime(18000);l.updateSkyBrightness();
-        check("Night exam refused without charge",!b.exam(player,shop,1)&&money()==before);l.setDayTime(6000);l.updateSkyBrightness();
+        var b=animal.pet();
+        check("Companion fixture is a registered pet owned by the player",b.isPet()&&b.ownedBy(player.getUUID()));
+        check("Blank gold token cannot grant qualification",!b.attach(player,new ItemStack(HumanWorld.GOLD_BADGE.get()))&&b.grade()==BadgeGrade.NONE);
+        b.issue(BadgeGrade.SILVER,3,shop.getUUID());
+        check("Issued silver records source, issuer and a serial",b.grade()==BadgeGrade.SILVER&&b.source()==3&&shop.getUUID().equals(b.issuer())&&b.serial()!=null&&b.worn());
+        var token=YukkuriWorldData.get(l).capture(animal);var stored=YukkuriWorldData.get(l).captiveSnapshot(token);
+        check("Capture keeps the certificate and original individual",stored.getUUID("UUID").equals(animal.getUUID())&&stored.getCompound("YukkuriPet").getInt("Grade")==2);
+        var released=YukkuriWorldData.get(l).release(token,l,new net.minecraft.world.phys.Vec3(X+8,65,5),0);
+        check("Release keeps qualification and wearing state",released!=null&&released.pet().grade()==BadgeGrade.SILVER&&released.pet().worn());
+        if(released!=null){animal.discard();animal=released;b=animal.pet();}
+        check("Pet state survives save and load",roundTrip(b));
+        check("Learning applies bounded multiplier",b.learn(Ability.WITS,10)>0&&b.ability(Ability.WITS)<=100);
+        double chance=b.successChance(Ability.WITS,BadgeGrade.GOLD);check("Success chance stays within bounds",chance>=.05&&chance<=.95);
+        var legacy=new CompoundTag();legacy.putIntArray("Skills",new int[]{40,50,60});legacy.putIntArray("Routines",new int[]{3,3,2});legacy.putInt("Source",2);
+        var migrated=create(l,X+10.5);migrated.pet().migrateLegacy(legacy,BadgeGrade.GOLD);var mp=migrated.pet();
+        check("Legacy skills migrate to academics, wits and poise",mp.ability(Ability.ACADEMICS)==40&&mp.ability(Ability.WITS)==50&&mp.ability(Ability.POISE)==60&&mp.ability(Ability.MANNERS)==80);
+        check("Legacy shop stock keeps source and default pedigree",mp.grade()==BadgeGrade.GOLD&&mp.source()==2&&mp.pedigree()==60);migrated.discard();
         HumanCommerce.assign(animal,UUID.randomUUID(),"companion");
-        check("Wrong owner cannot train, examine or detach",!b.train(player,0)&&!b.exam(player,shop,1)&&!b.detach(player)&&money()==before);
+        check("Wrong owner cannot detach",!b.detach(player));
         HumanCommerce.assign(animal,player.getUUID(),"companion");
-        var menu=new BadgeMenu(2,player.getInventory(),shop.getId(),animal.getId());
-        check("Forged menu action and absent funds rejected",!menu.clickMenuButton(player,99));
-        var cash=player.getInventory().items.stream().filter(s->s.is(Items.EMERALD)).findFirst().orElseThrow();int amount=cash.getCount();cash.setCount(0);
-        check("Insufficient money cannot create a session",!b.exam(player,shop,1)&&!b.active());cash.setCount(amount);
-        check("Exam starts once and charges once",b.exam(player,shop,1)&&money()==before-3);
-        check("Repeated exam packet cannot duplicate a payment",!b.exam(player,shop,1)&&money()==before-3);
-        var other=create(l,X+6.5);trained(other,90);
-        check("Examiner cannot assess two animals concurrently",!other.badges().exam(player,shop,1));other.discard();
-        player.moveTo(X+20,65,5);b.tick();
-        check("Leaving aborts examination without certificate or refund",!b.active()&&b.result()==2&&animal.life().medal()==0&&money()==before-3);
-        player.moveTo(X+5,65,7.5);trained(animal,20);b.exam(player,shop,1);for(int i=0;i<200;i++)b.tick();
-        check("Living knowledge deficiency is reported and cannot be rerolled",b.result()==11&&b.score(1)==20&&animal.life().medal()==0&&!b.exam(player,shop,1));
-        animal.life().setMedal(1);trained(animal,60);b.exam(player,shop,2);for(int i=0;i<200;i++)b.tick();
-        check("Failed gold upgrade preserves existing silver",b.result()==11&&animal.life().medal()==1);
-        var raw=b.save();raw.putInt("Cooldown",0);b.load(raw);check("Certified silver can be detached",b.detach(player)&&animal.life().medal()==1&&b.visibleTier()==0);
+        var menu=new BadgeMenu(2,player.getInventory(),animal.getId());
+        check("Forged menu action rejected",!menu.clickMenuButton(player,99));
+        check("Certified silver can be detached",b.detach(player)&&b.grade()==BadgeGrade.SILVER&&b.visibleGrade()==BadgeGrade.NONE);
         var badge=player.getInventory().items.stream().filter(s->s.is(HumanWorld.SILVER_BADGE.get())).findFirst().orElseThrow();var old=badge.copy();
-        other=create(l,X+6.5);other.life().setMedal(1);var otherTag=other.badges().save();otherTag.putBoolean("Worn",false);other.badges().load(otherTag);
-        check("Physical badge cannot transfer qualification to another identity",!other.badges().attach(player,badge));other.discard();
-        check("Only examiner can reissue",!b.reissue(player,null));before=money();check("Reissue debits exactly one emerald",b.reissue(player,shop)&&money()==before-1);
-        check("Reissue invalidates old serial",!b.attach(player,old));
-        var replacement=player.getInventory().items.stream().filter(s->s.is(HumanWorld.SILVER_BADGE.get())&&!ItemStack.isSameItemSameComponents(s,old)).findFirst().orElseThrow();var duplicate=replacement.copy();
-        check("Current identity-bound token can be reattached",b.attach(player,replacement)&&b.visibleTier()==1);
-        check("Copied token cannot attach twice",!b.attach(player,duplicate));
-        var accessory=animal.life().takeAccessory(player.getUUID());check("Removing accessory hides badge, keeps certification",b.visibleTier()==0&&animal.life().medal()==1);
-        check("Returning exact accessory restores wearing state",animal.life().returnAccessory(animal.getUUID(),accessory,player.getUUID())&&b.visibleTier()==1);
+        var other=create(l,X+6.5);other.pet().issue(BadgeGrade.SILVER,3,shop.getUUID());other.pet().detach(player);
+        check("Physical badge cannot transfer qualification to another identity",!other.pet().attach(player,badge));other.discard();
+        var fresh=b.reissueToken();
+        check("Reissue invalidates old serial",!b.attach(player,old)&&!b.worn());
+        check("Current identity-bound token can be reattached",b.attach(player,fresh)&&b.visibleGrade()==BadgeGrade.SILVER);
+        var duplicate=fresh.copy();check("Copied token cannot attach twice",!b.attach(player,duplicate));
+        var accessory=animal.life().takeAccessory(player.getUUID());check("Removing accessory hides badge, keeps certification",b.visibleGrade()==BadgeGrade.NONE&&b.grade()==BadgeGrade.SILVER);
+        check("Returning exact accessory restores wearing state",animal.life().returnAccessory(animal.getUUID(),accessory,player.getUUID())&&b.visibleGrade()==BadgeGrade.SILVER);
         var detachedAccessory=new ItemStack(ModItems.RIBBON.get());b.markAccessory(detachedAccessory);
-        check("Accessory item retains its attached badge appearance",detachedAccessory.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag().getInt("BadgeTier")==1);
-        accessory=animal.life().takeAccessory(player.getUUID());
-        check("A badge lost with the whole accessory can be reissued",b.reissue(player,shop)&&!b.worn()&&animal.life().medal()==1);
+        var accessoryTag=detachedAccessory.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();
+        check("Accessory item retains its attached badge appearance",accessoryTag.getInt("BadgeTier")==2&&accessoryTag.getBoolean("BadgeGradeV2"));
+        accessory=animal.life().takeAccessory(player.getUUID());b.reissueToken();
         animal.life().returnAccessory(animal.getUUID(),accessory,player.getUUID());
-        check("Returning an obsolete accessory cannot re-equip its invalid badge",b.visibleTier()==0);
-        var life=animal.life().save();life.putBoolean("GoldMedal",true);animal.life().load(life);b.load(new CompoundTag());
-        check("Legacy gold loads as unreviewed rather than fabricated examination",b.source()==1&&b.attempts()==0&&animal.life().hasGoldMedal());
+        check("Returning an obsolete accessory cannot re-equip its invalid badge",b.visibleGrade()==BadgeGrade.NONE);
+        b.issue(BadgeGrade.GOLD,3,shop.getUUID());
         other=create(l,X+6.5);other.life().takeAccessory(player.getUUID());
         check("Gold recognition survives detached badge",b.detach(player)&&animal.life().canRecognize(other));other.discard();
-        var peer=create(l,X+6.5);peer.badges().initializeStock(2,shop.getUUID());
+        var peer=create(l,X+6.5);peer.pet().initializeStock(BadgeGrade.SILVER,shop.getUUID(),60);
         var envious=create(l,X+7.5);var kind=create(l,X+8.5);
         temperament(envious,20,80);temperament(kind,80,20);
         var relations=YukkuriWorldData.get(l);
-        envious.badges().reactTo(peer);kind.badges().reactTo(peer);
+        envious.pet().reactTo(peer);kind.pet().reactTo(peer);
         check("Higher badges provoke envy or admiration according to personality",relations.affinity(envious.getUUID(),peer.getUUID())<0&&relations.affinity(kind.getUUID(),peer.getUUID())>0);
-        check("Repeated meetings have a badge reaction cooldown",!envious.badges().reactTo(peer));
-        peer.badges().detach(player);var bystander=create(l,X+9.5);
-        check("A hidden badge does not advertise social rank",!bystander.badges().reactTo(peer));
+        check("Repeated meetings have a badge reaction cooldown",!envious.pet().reactTo(peer));
+        peer.pet().detach(player);var bystander=create(l,X+9.5);
+        check("A hidden badge does not advertise social rank",!bystander.pet().reactTo(peer));
         peer.discard();envious.discard();kind.discard();bystander.discard();
         animal.discard();animal=create(l,X+5.5);
     }
-    private void liveExam(ServerLevel l) {
-        trained(animal,90);shop.setNoAi(false);check("Live exam is admitted",animal.badges().exam(player,shop,1));
-        examPhase="silver";trace(l,"silver-admitted");
-        // Wait for the real session result so the entire navigation allowance remains available.
+    private boolean roundTrip(PetLife b) {
+        var grade=b.grade();var serial=b.serial();var saved=b.save();b.load(saved);return b.grade()==grade&&java.util.Objects.equals(serial,b.serial());
     }
     private void temperament(YukkuriEntity y,int care,int bold) {
         var life=y.life().save();var p=life.getCompound("Personality");PersonalityFixtures.preferences(p,new int[]{50,50,bold,care,50,50});

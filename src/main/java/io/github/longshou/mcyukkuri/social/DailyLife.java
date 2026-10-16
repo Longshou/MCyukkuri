@@ -77,7 +77,7 @@ public final class DailyLife {
                 && !e.life().hasUrgentNeed() && e.life().activity().equals("idle")
                 && e.life().nutrition() >= 40 && e.life().energy() >= 35
                 && e.body().wound() == 0 && e.body().infection() == 0 && e.life().spicyTicks() == 0
-                && !e.groupInteraction().active() && !e.playLife().active() && !e.badges().active()
+                && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy()
                 && !e.family().active() && !e.house().active() && !e.habitat().active()
                 && !io.github.longshou.mcyukkuri.settlement.Seasons.confined(e);
     }

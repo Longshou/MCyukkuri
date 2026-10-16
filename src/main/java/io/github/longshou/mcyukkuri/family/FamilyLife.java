@@ -34,6 +34,8 @@ public final class FamilyLife {
     private boolean sterile;
     private int stimulation;
     private int sexDrive;
+    /** Transient: a shop-arranged pair skips proximity, home, recognition and affinity gates; and the partner of a courtship the owner never permitted. */
+    private UUID arranged, unauthorizedWith;
     private boolean babyTalk;
     private int liveRecovery;
     private Vec3 deliveryLast;
@@ -554,20 +556,43 @@ public final class FamilyLife {
         entity.setPersistenceRequired();other.setPersistenceRequired();entity.showReaction("happy","introduced",80);other.showReaction("happy","introduced",80);
         return true;
     }
-    public boolean ready() {
+    public boolean ready() { return ready(true); }
+    public boolean ready(boolean needHome) {
         return adult()&&!sterile()&&!elder()&&recovery==0&&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()&&!entity.predator().active()
                 &&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=65&&entity.life().energy()>=50&&entity.life().hygiene()>=40
-                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&entity.life().homeStand()!=null;
+                &&entity.getHealth()>=entity.getMaxHealth()*.8&&entity.body().wound()==0&&entity.body().infection()==0&&entity.life().mealTicks()==0&&(!needHome||entity.life().homeStand()!=null);
+    }
+    public void arrange(UUID other){arranged=other;}
+    /** Shop service check: can the two mate if brought together, ignoring distance, homes, recognition and affinity. */
+    public static boolean arrangedMatch(YukkuriEntity a,YukkuriEntity b) {
+        a.family().arranged=b.getUUID();b.family().arranged=a.getUUID();
+        try { return a.family().canReproduceWith(b)&&b.family().canReproduceWith(a); }
+        finally { a.family().arranged=null;b.family().arranged=null; }
+    }
+    /** Long-lived compatibility for breeding permits: species rules and fertility, not momentary condition. */
+    public boolean compatibleWith(YukkuriEntity other) {
+        if(other==entity||entity.level()!=other.level()||!adult()||!other.family().adult()||sterile()||other.family().sterile()||elder()||other.family().elder()
+                ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||HatVessel.aquatic(entity)!=HatVessel.aquatic(other))return false;
+        var aquatic=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA;
+        return (entity.subspecies().kind()==aquatic)==(other.subspecies().kind()==aquatic)&&!FamilyData.get(level()).related(entity.getUUID(),other.getUUID());
+    }
+    /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
+    private boolean allowCourt(YukkuriEntity other) {
+        int gate=Math.max(entity.pet().courtshipGate(other),other.pet().courtshipGate(entity));
+        if(gate==2){wait=600;entity.showReaction("teary","",40);return false;}
+        unauthorizedWith=gate==1?other.getUUID():null;return true;
     }
     public boolean canReproduceWith(YukkuriEntity other) {
-        if(other==entity||entity.dailyLife().active()||other.dailyLife().active()||entity.level()!=other.level()||!ready()||!other.family().ready()||entity.distanceToSqr(other)>9
-                ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||!entity.life().canRecognize(other)||!other.life().canRecognize(entity))return false;
+        boolean arr=other.getUUID().equals(arranged)||entity.getUUID().equals(other.family().arranged);
+        if(other==entity||!arr&&(entity.dailyLife().active()||other.dailyLife().active())||entity.level()!=other.level()||!ready(!arr)||!other.family().ready(!arr)||!arr&&entity.distanceToSqr(other)>9
+                ||entity.getVariant().isHouse()!=other.getVariant().isHouse()||entity.getVariant().isPredator()!=other.getVariant().isPredator()||!arr&&(!entity.life().canRecognize(other)||!other.life().canRecognize(entity)))return false;
         if(partner!=null&&!partner.equals(other.getUUID())||other.family().partner!=null&&!other.family().partner.equals(entity.getUUID()))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
         var aquatic=io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind.AQUATIC_MARISA;
         if((entity.subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
         var data=FamilyData.get(level());var relations=YukkuriWorldData.get(level());
-        if(data.related(entity.getUUID(),other.getUUID())||relations.affinity(entity.getUUID(),other.getUUID())<12||relations.affinity(other.getUUID(),entity.getUUID())<12)return false;
+        if(data.related(entity.getUUID(),other.getUUID())||!arr&&(relations.affinity(entity.getUUID(),other.getUUID())<12||relations.affinity(other.getUUID(),entity.getUUID())<12))return false;
+        if(arr)return true;
         var a=entity.life().homeStand();var b=other.life().homeStand();
         return a!=null&&b!=null&&a.distSqr(b)<=64&&entity.life().reachable(other.blockPosition(),false);
     }
@@ -705,6 +730,7 @@ public final class FamilyLife {
                     io.github.longshou.mcyukkuri.settlement.Seasons.mayCourt(entity)&&entity.getUUID().compareTo(other.getUUID())<0&&(partner==null||partner.equals(other.getUUID()))
                             &&(other.family().partner==null||entity.getUUID().equals(other.family().partner))&&!data.busyParent(other.getUUID())&&canReproduceWith(other))
                     .stream().findFirst().orElse(null);
+            if(target!=null&&!allowCourt(target)){target=null;return false;}
             if(target!=null) { task=Task.COURT;taskTicks=0;entity.showReaction("happy","courtship",100);return true; }
         }
         return false;
@@ -890,7 +916,9 @@ public final class FamilyLife {
                     YukkuriEntity mother=entity,father=target;
                     if(entity.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&target.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.REIMU){mother=target;father=entity;}
                     var brood=FamilyData.get(level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(level().dimension(),mother.life().homeStand()));
-                    if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();mother.showReaction("happy","expecting",100); }
+                    if(brood!=null) { partner=target.getUUID();target.family().partner=entity.getUUID();mother.showReaction("happy","expecting",100);
+                        if(target.getUUID().equals(unauthorizedWith))io.github.longshou.mcyukkuri.pet.PetLife.unauthorizedConception(mother,father); }
+                    unauthorizedWith=null;
                     stop();wait=200;
                 } else entity.getNavigation().stop();
             }

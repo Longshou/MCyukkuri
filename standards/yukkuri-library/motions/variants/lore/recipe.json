@@ -1,224 +1,2822 @@
 {
-  "version": 10,
+  "version": 11,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
-  "expression_yield": ["cry"],
+  "expression_yield": [
+    "cry"
+  ],
   "face_fallback": {
-    "open_smile": ["happy"], "closed_smile": ["happy"], "satisfied": ["closed_smile", "happy"], "smug": ["open_smile", "happy"],
-    "chewing": ["drool", "neutral"], "chewing_closed": ["neutral"], "puff": ["chewing_closed", "cry", "angry"],
-    "yawn": ["sleepy", "sleep"], "sleepy": ["sleep"], "teary": ["cry"], "confused": ["neutral"], "drool": ["chewing", "neutral"],
-    "dazed": ["surprise"], "blank_cry": ["cry"]
+    "open_smile": [
+      "happy"
+    ],
+    "closed_smile": [
+      "happy"
+    ],
+    "satisfied": [
+      "closed_smile",
+      "happy"
+    ],
+    "smug": [
+      "open_smile",
+      "happy"
+    ],
+    "chewing": [
+      "drool",
+      "neutral"
+    ],
+    "chewing_closed": [
+      "neutral"
+    ],
+    "puff": [
+      "chewing_closed",
+      "cry",
+      "angry"
+    ],
+    "yawn": [
+      "sleepy",
+      "sleep"
+    ],
+    "sleepy": [
+      "sleep"
+    ],
+    "teary": [
+      "cry"
+    ],
+    "confused": [
+      "neutral"
+    ],
+    "drool": [
+      "chewing",
+      "neutral"
+    ],
+    "dazed": [
+      "surprise"
+    ],
+    "blank_cry": [
+      "cry"
+    ]
   },
   "groups": {
-    "all": ["*"],
-    "breeding": {"only": ["*"], "except": ["house_*", "*_sparse", "*_face", "*_bean"]},
-    "live_birth": {"only": ["*"], "except": ["house_*", "remilia", "flandre", "*_sparse", "*_face", "*_bean"]},
-    "not_house": {"only": ["*"], "except": ["house_*"]},
-    "marisa_midwife": ["marisa", "marisa_tsumuri"],
-    "marisa_hat": ["marisa"],
-    "aquatic_marisa": ["marisa"]
+    "all": [
+      "*"
+    ],
+    "breeding": {
+      "only": [
+        "*"
+      ],
+      "except": [
+        "house_*",
+        "*_sparse",
+        "*_face",
+        "*_bean"
+      ]
+    },
+    "live_birth": {
+      "only": [
+        "*"
+      ],
+      "except": [
+        "house_*",
+        "remilia",
+        "flandre",
+        "*_sparse",
+        "*_face",
+        "*_bean"
+      ]
+    },
+    "not_house": {
+      "only": [
+        "*"
+      ],
+      "except": [
+        "house_*"
+      ]
+    },
+    "marisa_midwife": [
+      "marisa",
+      "marisa_tsumuri"
+    ],
+    "marisa_hat": [
+      "marisa"
+    ],
+    "aquatic_marisa": [
+      "marisa"
+    ]
   },
   "clips": {
-    "hat_stumble": {"label": "帽檐失衡压低撑稳", "duration": 1.2, "loop": true, "applies": "not_house",
-      "faces": [[0, 0.2, "surprise"], [0.2, 0.7, "cry"], [0.7, 1.2, "teary"]], "lore": "Server-timed rider balance: compress, brace the hair against the brim and take small supported steps. Real seat travel, pivot and falling belong to the boat; no visual jump or enlarged newborn.", "triggers": ["hat_stumble"]},
-    "hat_jostle": {"label": "拥挤中抵住让步", "duration": 1.0, "loop": true, "applies": "not_house",
-      "faces": [[0, 0.28, "teary"], [0.28, 0.62, "surprise"], [0.62, 1.0, "cry"]], "lore": "A real contact-pressure session makes room with two low bracing beats. The server moves feet along support and alone decides whether a rider crosses the brim.", "triggers": ["hat_jostle"]},
-    "water_plunge": {"label": "落水冲击闭眼收身", "duration": 0.6, "loop": false, "applies": "all", "root_support": "free_water",
-      "faces": [[0, 0.12, "surprise"], [0.12, 0.36, "cry"], [0.36, 60.6, "teary"]], "lore": "The synchronized twelve-tick IMPACT phase: brief compression and a frightened cry, then raise the face. Root translation stays zero; no grounded correction or artificial buoyancy.", "triggers": ["water_impact"]},
-    "water_struggle": {"label": "朝救援侧抬脸扑水呼救", "duration": 1.6, "loop": true, "applies": "all", "root_support": "free_water",
-      "faces": [[0, 0.14, "teary"], [0.14, 0.3, "cry"], [0.3, 0.5, "teary"], [0.5, 1.6, "cry"]], "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity.", "triggers": ["water_struggle with synchronized effort"]},
-    "water_gasp": {"label": "力竭停顿低伏喘息", "duration": 1.6, "loop": true, "applies": "all", "root_support": "free_water",
-      "faces": [[0, 0.3, "cry"], [0.3, 0.7, "teary"], [0.7, 1.05, "cry"], [1.05, 1.6, "teary"]], "lore": "Between real attempts or in EXHAUSTED: low body, one small breath and a weak lock twitch, with no rising root track. Sinking, injury and rescue remain server physics.", "triggers": ["water_exhausted", "water_struggle between effort windows"]},
-    "water_recover": {"label": "获救后伏低喘息回望", "duration": 2.8, "loop": false, "applies": "all",
-      "faces": [[0, 0.5, "sleep"], [0.5, 1.4, "teary"], [1.4, 2.1, "neutral"], [2.1, 62.8, "closed_smile"]], "lore": "Only after a real supported recovery: crouch, take two shallow breaths and look back for family before returning to neutral. This awards no health or energy and never fakes a rescue.", "triggers": ["water_recover"]},
-    "boat_reassure": {"label": "亲友稳身轻声回应", "duration": 2.0, "loop": true, "applies": "not_house",
-      "faces": [[0, 0.45, "surprise"], [0.45, 1.25, "teary"], [1.25, 2, "cry"]], "lore": "A safely supported parent or friend faces the distressed child with concern, leans slightly and calls with a low braid gesture. Actual approach, rescue contact and relationship response stay on the server.", "triggers": ["boat_reassure"]},
-    "boat_carry_young": {"label": "扶携子油跨过帽阶", "duration": 1.2, "loop": true, "applies": "all",
-      "faces": [[0, 1.2, "chewing_closed"]], "lore": "A real parent holds its dependent child at the synchronized carry anchor while following a supported hat route. The parent stays steady until the child is set down.", "triggers": ["boat_carry_young"]},
-    "boat_be_carried": {"label": "被亲油扶携收身", "duration": 1.2, "loop": true, "applies": "all",
-      "faces": [[0, 1.2, "closed_smile"]], "lore": "A carried child tucks its body; all travel and release belong to the parent's actual server carry state, never a child jump or free flight.", "triggers": ["boat_be_carried"]},
-    "hat_walk": {"label": "帽内伏身挪步", "duration": 1.2, "loop": true, "applies": "all", "height": 0.91, "lean": -7, "wobble": 3.2, "push": 0.008,
-      "faces": [[0, 1.2, "neutral"]], "lore": "Supported short steps along the server-planned hat surface route. Root translation belongs to the route; the body compresses and releases on the same 24-tick cadence.", "triggers": ["hat_walk while actually traversing a supported route"]},
-    "learn_watch": {"label": "看亲油起跳落地", "duration": 1.4, "loop": true, "applies": "all",
-      "faces": [[0, 1.4, "surprise"]], "lore": "The child stops, faces its parent and observes an actual demonstrated landing before gaining the practice benefit.", "triggers": ["learn_watch"]},
-    "care_finish": {"label": "留在身边等照料结束", "duration": 2.4, "loop": true, "applies": "all",
-      "faces": [[0, 2.4, "closed_smile"]], "lore": "A parent remains at the contact position through swallowing or the end of toileting before either participant returns.", "triggers": ["care_finish"]},
-    "nest_harvest": {"label": "贴近叶丛衔取材料", "duration": 1.8, "loop": true, "applies": "all",
-      "faces": [[0, 0.6, "neutral"], [0.6, 1.8, "chewing_closed"]], "lore": "Reach toward a real leaf or grass block, grip and draw back; one finite portion is removed only after sustained reachable contact.", "triggers": ["nest_harvest at a reachable plant"]},
-    "nest_place": {"label": "低头放下叶束", "duration": 1.0, "loop": true, "applies": "all",
-      "faces": [[0, 1, "chewing_closed"]], "lore": "Place one carried portion on the assigned bed. Material ownership and construction progress live in the shelter.", "triggers": ["nest_place"]},
-    "nest_spread": {"label": "左右摊开铺叶", "duration": 1.0, "loop": true, "applies": "all",
-      "faces": [[0, 1, "neutral"]], "lore": "Low sideways sweeps spread the deposited leaves; additional layers appear only as actual work advances.", "triggers": ["nest_spread"]},
-    "nest_press": {"label": "伏身压实床面", "duration": 1.0, "loop": true, "applies": "all",
-      "faces": [[0, 1, "closed_smile"]], "lore": "Two shallow grounded presses settle the current bedding layer. No visual jumping or completion before the full work is done.", "triggers": ["nest_press"]},
-    "hat_brim": {"label": "子油站帽檐张望", "duration": 3.0, "loop": true, "applies": "not_house", "turn": 16, "sway": 2,
-      "faces": [[0, 1, "happy"], [1, 1.6, "open_smile"], [1.6, 3, "closed_smile"]], "lore": "User 2026-10-16: small juveniles stand on the front brim. Feet stay planted; seat transitions use the server arc.", "triggers": ["awake juvenile on a supported brim seat"]},
-    "boat_first_balance": {"label": "初航试着坐稳", "duration": 2.0, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.55, "surprise"], [0.55, 1.3, "chewing_closed"], [1.3, 62, "happy"]], "lore": "User-requested first-voyage event: a juvenile settles its weight in its own hat before rowing, then looks back toward its parent on the bank.", "triggers": ["server first-voyage balance phase, 40 ticks"]},
-    "boat_feed_young": {"label": "停桨微倾递食给子油", "duration": 2.4, "loop": false, "applies": "aquatic_marisa", "height": 0.97, "width": 1.015,
-      "faces": [[0, 0.6, "closed_smile"], [0.6, 1.05, "chewing_closed"], [1.05, 1.55, "open_smile"], [1.55, 62.4, "happy"]], "lore": "User 2026-10-16: feeding uses a slight forward inclination, calm expressions and care speech, with stable weight. The composed pose including contact tracking must stay within ten degrees. The real serving remains at its current owner's mouth until handoff; the braid never carries food.", "triggers": ["server parent reserves a meal for its own hungry child and reaches sustained mouth contact"]},
-    "boat_toilet": {"label": "帽沿向水后侧排泄", "duration": 1.4, "loop": true, "applies": "aquatic_marisa", "height": 0.91, "width": 1.03,
-      "faces": [[0, 1.4, "chewing_closed"]], "lore": "Project rule: an afloat hat owner holds position, turns the body to the water-facing rear side selected by the boat, and braces low while actual waste falls outside the hat. This is ordinary toileting, never a child-care or feeding posture.", "triggers": ["boat_toilet while the afloat owner has a real toilet need"]},
-    "boat_nuzzle": {"label": "俯身亲昵安抚子油", "duration": 2.4, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.5, "happy"], [0.5, 1.9, "closed_smile"], [1.9, 62.4, "satisfied"]], "lore": "Original seated adaptation of suri-suri (E06, N2, W2). Affection only, never washing, food or wound treatment.", "triggers": ["safe dry parent and child need companionship"]},
-    "boat_lullaby": {"label": "帽中轻哼哄睡", "duration": 4, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.65, "open_smile"], [0.65, 1, "closed_smile"], [1, 1.65, "open_smile"], [1.65, 2, "closed_smile"], [2, 2.65, "open_smile"], [2.65, 3, "closed_smile"], [3, 3.65, "open_smile"], [3.65, 4, "closed_smile"]], "lore": "Original bedtime context for wiki songs and listening (N3/W3); no fixed canonical song or copied lyrics. Actual sleep follows the song.", "triggers": ["family arrives at quiet water before night sleep"]},
-    "aquatic_hat_care": {"label": "返岸甩水理帽", "duration": 2.4, "loop": false, "applies": "aquatic_marisa",
-      "faces": [[0, 0.8, "chewing_closed"], [0.8, 1.8, "closed_smile"], [1.8, 62.4, "happy"]], "lore": "Original post-voyage care of the existing 1.5x hat. Slight drying only; never creates, repairs or changes a hat or subspecies.", "triggers": ["safe return to dry ground with the original hat"]},
-    "boat_paddle": {"label": "辫端持枝划船", "duration": 1.6, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.65, "chewing_closed"], [0.65, 1.6, "closed_smile"]], "lore": "EH22-005 braid-held twig; N09 mouth-held stick is a documented alternative. Stroke timing is project design.", "triggers": ["server surface route has a real stick and a waypoint"]},
-    "boat_gather": {"label": "收食入帽", "duration": 1.6, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.6, "drool"], [0.6, 1.05, "chewing_closed"], [1.05, 61.6, "happy"]], "lore": "EH22-006 collecting objects inside the hat; finite food storage adopted by user 2026-10-14", "triggers": ["real floating food transferred to hat cargo"]},
-    "boat_eat": {"label": "帽内低头进食", "duration": 1.2, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.2, "chewing"], [0.2, 0.4, "chewing_closed"], [0.4, 0.6, "chewing"], [0.6, 0.8, "chewing_closed"], [0.8, 1, "chewing"], [1, 1.2, "chewing_closed"]], "lore": "food in the dry hat; conservative seated movement, avoiding EH22-008 dangerous overreaching", "triggers": ["actual meal while aboard"]},
-    "boat_drink": {"label": "扶稳帽沿饮水", "duration": 1.6, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.6, "chewing_closed"], [0.6, 1.1, "chewing"], [1.1, 1.6, "closed_smile"]], "lore": "project shoreward drinking pose; body stays in the dry hat, N09 forbids treating the body as waterproof", "triggers": ["dryness while afloat"]},
-    "boat_sleep": {"label": "护着幼体帽中睡", "duration": 4, "loop": true, "applies": "aquatic_marisa", "height": 0.91, "width": 1.04,
-      "faces": [[0, 4, "sleep"]], "lore": "user-adopted night nesting: young below, parent above, hat still afloat; real server sleep", "triggers": ["hat sleep"]},
-    "boat_wake": {"label": "帽中醒来", "duration": 1.6, "loop": false, "applies": "aquatic_marisa", "height": 0.95, "width": 1.025,
-      "faces": [[0, 0.3, "sleepy"], [0.3, 0.9, "yawn"], [0.9, 61.6, "neutral"]], "lore": "project seated wake after a completed physiological sleep", "triggers": ["reaction awake aboard"]},
-    "boat_board": {"label": "跃入帽船收身", "duration": 0.8, "loop": true, "applies": "aquatic_marisa", "height": 0.94, "width": 1.03,
-      "faces": [[0, 0.4, "chewing_closed"], [0.4, 0.8, "happy"]], "lore": "N13 fixed hat before boarding; translation follows the server gravity arc, this clip only tucks the body", "triggers": ["owner boarding flight"]},
-    "eat": {"label": "进食", "duration": 1.2, "loop": true, "applies": "all", "lean": -10, "chew_seconds": 0.4, "chew_nod": -3, "chew_squash": 0.05,
-            "faces": [[0, 0.1, "chewing"], [0.1, 0.3, "chewing_closed"], [0.3, 0.5, "chewing"], [0.5, 0.7, "chewing_closed"], [0.7, 0.9, "chewing"], [0.9, 1.1, "chewing_closed"], [1.1, 1.2, "chewing"]],
-            "lore": "むーしゃむーしゃ (L03 word form; chewing faces from the project's eating stages)", "triggers": ["take_food", "chew", "swallow"]},
-    "shiawase": {"label": "しあわせー", "duration": 2.0, "loop": false, "applies": "all", "hop_ratio": 0.14, "look_up": 6, "wiggle": 7,
-                 "faces": [[0, 0.3, "closed_smile"], [0.3, 0.95, "happy"], [0.95, 62, "satisfied"]],
-                 "lore": "しあわせー after a meal (L03 word form; the hop is project design)", "triggers": ["meal_finish"]},
-    "drink": {"label": "饮水", "duration": 1.6, "loop": true, "applies": "all", "lean": -14, "sip": -4, "sip_seconds": 0.8,
-              "faces": [[0, 0.25, "chewing_closed"], [0.25, 0.55, "chewing"], [0.55, 1.05, "chewing_closed"], [1.05, 1.35, "chewing"], [1.35, 1.6, "chewing_closed"]],
-              "lore": "drinking (rules)", "triggers": ["drink"]},
-    "sleep": {"label": "睡眠", "duration": 4.0, "loop": true, "applies": "all", "height": 0.94, "breath": 0.015, "tilt": 4, "slump": -3,
-              "faces": [[0, 4, "sleep"]], "lore": "sleep (project stages sleepy, sleep, yawn)", "triggers": ["sleep_enter", "sleep"]},
-    "wake": {"label": "醒来", "duration": 1.6, "loop": false, "applies": "all", "yawn_height": 1.1, "lean_back": 5, "shake": 10,
-             "faces": [[0, 0.15, "sleep"], [0.15, 0.7, "yawn"], [0.7, 0.95, "sleepy"], [0.95, 61.6, "neutral"]],
-             "lore": "waking with a yawn (project stages)", "triggers": ["wake"]},
-    "nuzzle": {"label": "擦擦脸", "duration": 0.8, "loop": true, "applies": "all", "lean": -5, "rub": 6, "rub_shift": 0.02,
-               "faces": [[0, 0.15, "closed_smile"], [0.15, 0.3, "satisfied"], [0.3, 0.55, "closed_smile"], [0.55, 0.7, "satisfied"], [0.7, 0.8, "closed_smile"]],
-               "lore": "すーりすーり (E06, N2)", "triggers": ["nuzzle"]},
-    "feed_child": {"label": "轻微前倾递喂", "duration": 1.8, "loop": true, "applies": "all", "lean": -6, "crouch": 0.025, "settle": 0.42, "withdraw": 1.45,
-                   "faces": [[0, 0.35, "closed_smile"], [0.35, 0.75, "chewing_closed"], [0.75, 1.25, "open_smile"], [1.25, 1.8, "happy"]],
-                   "lore": "User 2026-10-16: a slight six-degree inclination and gentle settling keep the parent's weight supported. Expressions and care speech convey the handoff. Contact tracking shares a ten-degree total pitch budget with this source clip and must not add a second deep bend.", "triggers": ["feed_child while the server has a real care target and direct mouth contact"]},
-    "first_toilet_assist": {"label": "新生首便俯身照料", "duration": 1.8, "loop": true, "applies": "all", "lean": -24, "crouch": 0.075, "settle": 0.42, "withdraw": 1.45,
-                               "faces": [[0, 0.42, "neutral"], [0.42, 1.45, "closed_smile"], [1.45, 1.8, "neutral"]],
-                               "lore": "EH08-008 describes parent licking to stimulate a newborn's first defecation. Project presentation keeps this as a brief, neutral rear-side care posture; it is not affection, bathing, ordinary toileting, or exercise.", "triggers": ["newborn first-toilet assistance with a real dependent child"]},
-    "newborn_crawl": {"label": "新生短距爬行", "duration": 1.2, "loop": true, "applies": "all", "height": 0.82, "lean": -13, "wobble": 3.2, "push": 0.018,
-                        "faces": [[0, 0.3, "surprise"], [0.3, 1.2, "happy"]],
-                        "lore": "Project first locomotion: a newborn stays low and makes short supported crawls. It does not prove independent travel, adult work, or a jump capability.", "triggers": ["newborn crawl activity in a safe nearby space"]},
-    "learn_jump": {"label": "子油短跳练习", "duration": 1.2, "loop": true, "applies": "all", "hop_ratio": 0.055, "look_down": -5,
-                           "faces": [[0, 0.25, "surprise"], [0.25, 0.95, "happy"], [0.95, 1.2, "satisfied"]],
-                           "lore": "Project learning presentation: a child repeats a low, short hop after a safe demonstrated landing. This is distinct from escape movement and does not bypass nourishment or stage gates.", "triggers": ["learn_jump"]},
-    "sing": {"label": "唱歌", "duration": 2.0, "loop": true, "applies": "all", "sway": 7, "bounce_ratio": 0.03, "chin_up": 4,
-             "faces": [[0, 0.32, "open_smile"], [0.32, 0.5, "closed_smile"], [0.5, 0.82, "open_smile"], [0.82, 1.0, "closed_smile"], [1.0, 1.32, "open_smile"], [1.32, 1.5, "closed_smile"], [1.5, 1.82, "open_smile"], [1.82, 2.0, "closed_smile"]],
-             "lore": "おうた (N3, W3)", "triggers": ["sing"]},
-    "sway": {"label": "跟着摇摆", "duration": 2.4, "loop": true, "applies": "all", "sway": 4, "chin_up": 2,
-             "faces": [[0, 1.0, "closed_smile"], [1.0, 1.4, "happy"], [1.4, 2.4, "closed_smile"]],
-             "lore": "listening with a smile, adults keeping the beat (N3, W2)", "triggers": ["listen_song", "exercise_watch"]},
-    "push": {"label": "推挤", "duration": 1.2, "loop": true, "applies": "all", "windup_shift": 0.06, "lunge_shift": 0.1, "windup_lean": 4, "lunge_lean": -12,
-             "faces": [[0, 0.45, "angry"], [0.45, 0.65, "puff"], [0.65, 1.2, "angry"]],
-             "lore": "sumo and bullying pushes (special-events, N1)", "triggers": ["sumo_push", "bully_peer"]},
-    "greet": {"label": "问候", "duration": 1.4, "loop": false, "applies": "all", "hop_ratio": 0.1, "bow": -14,
-              "faces": [[0, 0.8, "happy"], [0.8, 1.3, "closed_smile"], [1.3, 61.4, "open_smile"]],
-              "variants": {"marisa": {"match": ["*marisa*"], "style": "genki", "hop_ratio": 0.16, "second_hop_ratio": 0.07, "look_up": 8,
-                                      "faces": [[0, 0.55, "happy"], [0.55, 1.1, "open_smile"], [1.1, 61.4, "smug"]]}},
-              "lore": "ゆっくりしていってね (L03, N1); Marisa as expedition captain, energetic (W, Marisa README)", "triggers": ["reaction hello / peer / known_peer / caregiver / introduced / gentle"]},
-    "tremble": {"label": "发抖", "duration": 0.5, "loop": true, "applies": "all", "lean_back": 4, "shrink": 0.05, "shiver_ratio": 0.012, "shiver_hz": 12,
-                "faces": [[0, 0.5, "teary"]], "lore": "shivering and begging, fear (special-events, events)", "triggers": ["reaction afraid / wounded"]},
-    "droop": {"label": "低落", "duration": 4.0, "loop": true, "applies": "all", "height": 0.91, "sigh": 0.02, "head_down": -8, "sway": 2,
-              "faces": [[0, 2.6, "teary"], [2.6, 3.3, "cry"], [3.3, 4, "teary"]],
-              "lore": "withdrawn after losing the accessory (TM02, personality-social)", "triggers": ["reaction lost_accessory / family_died / lost_parent / cold", "idle without accessory"]},
-    "look_around": {"label": "张望", "duration": 4.0, "loop": true, "applies": "all", "turn": 35, "stand": 1.04,
-                    "faces": [[0, 0.6, "neutral"], [0.6, 1.6, "confused"], [1.6, 2.4, "neutral"], [2.4, 3.4, "confused"], [3.4, 4, "neutral"]],
-                    "lore": "searching for family, keeping watch (events, family_follow)", "triggers": ["search_family", "wait_child"]},
-    "shake": {"label": "甩水", "duration": 1.2, "loop": false, "applies": "all", "turn": 16, "shake_seconds": 0.2,
-              "faces": [[0, 0.9, "chewing_closed"], [0.9, 61.2, "happy"]],
-              "lore": "a short wash makes it happy (rules, L01)", "triggers": ["reaction washed", "aquatic Marisa back ashore"]},
-    "brood": {"label": "安胎", "duration": 4.0, "loop": true, "applies": "breeding", "rock": 3, "look_down": -3, "breath": 0.015,
-              "faces": [[0, 1.6, "closed_smile"], [1.6, 2.4, "satisfied"], [2.4, 3.4, "closed_smile"], [3.4, 4, "teary"]],
-              "lore": "a parent tends the brood at home (project rule, CORE_GAMEPLAY)", "triggers": ["tend_brood"]},
-    "labor": {"label": "分娩", "duration": 2.4, "loop": true, "applies": "live_birth", "brace": 0.06, "lean_back": 3, "shiver_ratio": 0.006, "push_lean": -4,
-              "faces": [[0, 0.3, "teary"], [0.3, 1.3, "puff"], [1.3, 1.8, "cry"], [1.8, 2.4, "satisfied"]],
-              "lore": "straining, eyes squeezed, mouth open, one baby per push (CADあき, 無声あき, AVあき in viviparous-comics); phase-locked to the 48-tick contraction, rest at the 36-tick birth", "triggers": ["labor (live delivery)"]},
-    "midwife": {"label": "接生", "duration": 2.4, "loop": true, "applies": "marisa_midwife", "crouch": 0.07, "lean": -8, "nod": -4, "rub": 5,
-                "faces": [[0, 0.3, "neutral"], [0.3, 1.4, "open_smile"], [1.4, 1.8, "teary"], [1.8, 2.0, "happy"], [2.0, 2.4, "closed_smile"]],
-                "lore": "project design confirmed by the user: only Marisa midwifes; hatless beside her upturned hat, she cheers with each contraction and greets the newborn (すーりすーり, E06)", "triggers": ["midwife: a Marisa father, or a single Marisa mother catching her own young, live and stem births"]},
-    "hat_off": {"label": "辫子摘帽放下", "duration": 1.6, "loop": false, "applies": "marisa_hat",
-               "hat": {"variant": "land", "role": "helper"}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.15], "settle": [1.15, 1.45]}, "hover": 3.0, "hover_out": 3.0, "lift": 5.5, "swing_out": [1.0, 0.35, -0.25], "side_lean": -3, "bow": -6, "curl": 35,
-               "faces": [[0, 0.35, "neutral"], [0.35, 1.3, "closed_smile"], [1.3, 61.6, "happy"]],
-               "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)", "triggers": ["a Marisa catching for her mate reaches her place beside the outlet"]},
-    "hat_hold": {"label": "辫子扶帽接生", "duration": 2.4, "loop": true, "applies": "marisa_hat",
-                "hat": {"variant": "land", "role": "helper"}, "crouch": 0.05, "lean": -6, "nod": -4, "curl": 35,
-                "faces": [[0, 0.3, "neutral"], [0.3, 1.4, "open_smile"], [1.4, 1.8, "teary"], [1.8, 2.0, "happy"], [2.0, 2.4, "closed_smile"]],
-                "lore": "hatless, her braid holding the brim of the turned-over hat, she cheers with each contraction and greets each newborn", "triggers": ["midwife with the hat set down"]},
-    "hat_on": {"label": "辫子拿回帽子", "duration": 1.6, "loop": false, "applies": "marisa_hat",
-              "hat": {"variant": "land", "role": "helper", "reverse": true}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.15], "settle": [1.15, 1.45]}, "hover": 3.0, "hover_out": 3.0, "lift": 5.5, "swing_out": [1.0, 0.35, -0.25], "side_lean": -3, "bow": -6, "curl": 35,
-              "faces": [[0, 0.35, "neutral"], [0.35, 1.3, "closed_smile"], [1.3, 61.6, "happy"]],
-              "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)", "triggers": ["the cradle is no longer needed"]},
-    "hat_off_self": {"label": "自己摘帽放在身前", "duration": 1.8, "loop": false, "applies": "marisa_hat",
-                    "hat": {"variant": "land", "role": "self"}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.1], "settle": [1.1, 1.4], "back": [1.4, 1.8]}, "hover": 0.8, "hover_out": -0.5, "lift": 5.5, "swing_out": [1.0, 0.2, -0.6], "side_lean": -3, "bow": -14, "curl": 35,
-                    "faces": [[0, 0.35, "teary"], [0.35, 1.25, "chewing_closed"], [1.25, 61.8, "closed_smile"]],
-                    "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)", "triggers": ["a hatted Marisa mother about to deliver alone"]},
-    "hat_on_self": {"label": "自己拿回帽子", "duration": 1.8, "loop": false, "applies": "marisa_hat",
-                   "hat": {"variant": "land", "role": "self", "reverse": true}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.1], "settle": [1.1, 1.4], "back": [1.4, 1.8]}, "hover": 0.8, "hover_out": -0.5, "lift": 5.5, "swing_out": [1.0, 0.2, -0.6], "side_lean": -3, "bow": -14, "curl": 35,
-                   "faces": [[0, 0.5, "neutral"], [0.5, 61.8, "closed_smile"]],
-                   "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)", "triggers": ["the cradle is no longer needed"]},
-    "hat_off_aq": {"label": "辫子摘帽放下（水生大帽）", "duration": 1.6, "loop": false, "applies": "marisa_hat",
-                  "hat": {"variant": "aquatic", "role": "helper"}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.15], "settle": [1.15, 1.45]}, "hover": 1.5, "hover_out": 6.0, "lift": 3.5, "swing_out": [1.0, 0.35, -0.25], "side_lean": -3, "bow": -12, "curl": 35,
-                  "faces": [[0, 0.35, "neutral"], [0.35, 1.3, "closed_smile"], [1.3, 61.6, "happy"]],
-                  "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)", "triggers": ["a Marisa catching for her mate reaches her place beside the outlet"]},
-    "hat_hold_aq": {"label": "辫子扶帽接生（水生大帽）", "duration": 2.4, "loop": true, "applies": "marisa_hat",
-                   "hat": {"variant": "aquatic", "role": "helper"}, "crouch": 0.05, "lean": -12, "nod": -4, "curl": 35,
-                   "faces": [[0, 0.3, "neutral"], [0.3, 1.4, "open_smile"], [1.4, 1.8, "teary"], [1.8, 2.0, "happy"], [2.0, 2.4, "closed_smile"]],
-                   "lore": "hatless, her braid holding the brim of the turned-over hat, she cheers with each contraction and greets each newborn", "triggers": ["midwife with the hat set down"]},
-    "hat_on_aq": {"label": "辫子拿回帽子（水生大帽）", "duration": 1.6, "loop": false, "applies": "marisa_hat",
-                 "hat": {"variant": "aquatic", "role": "helper", "reverse": true}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.15], "settle": [1.15, 1.45]}, "hover": 1.5, "hover_out": 6.0, "lift": 3.5, "swing_out": [1.0, 0.35, -0.25], "side_lean": -3, "bow": -12, "curl": 35,
-                 "faces": [[0, 0.35, "neutral"], [0.35, 1.3, "closed_smile"], [1.3, 61.6, "happy"]],
-                 "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)", "triggers": ["the cradle is no longer needed"]},
-    "hat_off_self_aq": {"label": "自己摘帽放在身前（水生大帽）", "duration": 1.8, "loop": false, "applies": "marisa_hat",
-                       "hat": {"variant": "aquatic", "role": "self"}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.1], "settle": [1.1, 1.4], "back": [1.4, 1.8]}, "hover": 1.2, "hover_out": 2.0, "lift": 3.5, "swing_out": [1.0, 0.2, -0.6], "side_lean": -3, "bow": -14, "curl": 35,
-                       "faces": [[0, 0.35, "teary"], [0.35, 1.25, "chewing_closed"], [1.25, 61.8, "closed_smile"]],
-                       "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)", "triggers": ["a hatted Marisa mother about to deliver alone"]},
-    "hat_on_self_aq": {"label": "自己拿回帽子（水生大帽）", "duration": 1.8, "loop": false, "applies": "marisa_hat",
-                      "hat": {"variant": "aquatic", "role": "self", "reverse": true}, "phases": {"reach": [0, 0.35], "lift": [0.35, 0.6], "carry": [0.6, 1.1], "settle": [1.1, 1.4], "back": [1.4, 1.8]}, "hover": 1.2, "hover_out": 2.0, "lift": 3.5, "swing_out": [1.0, 0.2, -0.6], "side_lean": -3, "bow": -14, "curl": 35,
-                      "faces": [[0, 0.5, "neutral"], [0.5, 61.8, "closed_smile"]],
-                      "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)", "triggers": ["the cradle is no longer needed"]},
-    "bereaved": {"label": "呆滞后哭泣", "duration": 5.0, "loop": false, "applies": "breeding", "sink": 0.04, "wail_rise": 0.03, "wail_chin": 6, "sob": 0.02, "sob_hz": 3, "head_down": -6,
-                 "faces": [[0, 1.6, "dazed"], [1.6, 2.4, "blank_cry"], [2.4, 65, "cry"]],
-                 "lore": "a missed catch kills the newborn; the parents stare blankly, then cry (user design); line ゆっくり……ゆっくりぃ！ (family_died)", "triggers": ["reaction birth_lost (parents)"]},
-    "postpartum": {"label": "产后", "duration": 3.0, "loop": false, "applies": "breeding", "slump": 0.9, "head_down": -6, "look_up": 4,
-                   "faces": [[0, 1.4, "sleepy"], [1.4, 63, "satisfied"]],
-                   "lore": "the mother recovers after the births (viviparous-comics; joy soon meets hunger, TM09)", "triggers": ["reaction birth after delivery"]},
-    "first_wake": {"label": "初醒", "duration": 2.0, "loop": false, "applies": "all", "curl": 0.9, "stretch": 1.08, "wobble": 6,
-                   "faces": [[0, 0.5, "sleep"], [0.5, 0.9, "sleepy"], [0.9, 1.2, "surprise"], [1.2, 62, "happy"]],
-                   "lore": "unborn young sleep with closed eyes and wake on landing (Hakkei sprite, project rule)", "triggers": ["reaction newborn / hatched"]},
-    "boat_drift": {"label": "帽船漂流", "duration": 4.0, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.03, "bob": 0.24, "roll": 2, "pitch": 1.5, "glance": 14,
-                   "faces": [[0, 2.2, "closed_smile"], [2.2, 3.2, "neutral"], [3.2, 4, "closed_smile"]],
-                   "lore": "aquatic Marisa drifts curled up in her hat boat (special-events), bob and rock after the v1 aquatic clips", "triggers": ["aquatic Marisa afloat"]},
-    "boat_steady": {"label": "帽船稳船", "duration": 1.5, "loop": true, "applies": "aquatic_marisa", "height": 0.92, "width": 1.04, "roll": 2.5, "pitch": 1.5,
-                    "faces": [[0, 0.75, "chewing_closed"], [0.75, 1.5, "teary"]],
-                    "lore": "the drifter tightens her body to steady the boat, water can still get in (events, lake-steady)", "triggers": ["boat taking water, towed or hit, lake card"]},
-    "boat_call": {"label": "帽船呼唤", "duration": 2.0, "loop": true, "applies": "aquatic_marisa", "rise": 1.06, "chin_up": 6, "sway": 6, "bounce_ratio": 0.03,
-                  "faces": [[0, 0.4, "cry"], [0.4, 1.0, "teary"], [1.0, 1.4, "cry"], [1.4, 2.0, "teary"]],
-                  "lore": "a companion runs along the bank and calls; the drifter answers (special-events, events)", "triggers": ["river encounter afloat"]},
-    "boat_brood": {"label": "帽船安胎", "duration": 4.0, "loop": true, "applies": "aquatic_marisa", "height": 0.94, "width": 1.03, "rock": 2, "bob": 0.2,
-                   "faces": [[0, 1.6, "closed_smile"], [1.6, 2.4, "satisfied"], [2.4, 4, "closed_smile"]],
-                   "lore": "project design: an aquatic mother keeps low in her hat while expecting (L25 keeps body and hat dry)", "triggers": ["tend_brood afloat"]},
-    "boat_labor": {"label": "帽船分娩", "duration": 2.4, "loop": true, "applies": "aquatic_marisa", "height": 0.95, "width": 1.03, "brace": 0.04, "shiver_ratio": 0.004, "tuck_turn": 20, "tuck_lean": -8,
-                   "faces": [[0, 0.3, "teary"], [0.3, 1.3, "chewing_closed"], [1.3, 1.8, "puff"], [1.8, 2.4, "closed_smile"]],
-                   "lore": "project design: a quieter strain, curled against the crown, then she turns to gather the baby into the hat (L06 the hat carries young)", "triggers": ["labor afloat"]},
-    "hat_cradle": {"label": "帽中幼体", "duration": 3.0, "loop": true, "applies": "not_house", "sway": 3, "bob": 0.15,
-                   "faces": [[0, 1.2, "happy"], [1.2, 2.4, "closed_smile"], [2.4, 3.0, "sleepy"]],
-                   "lore": "young carried in the hat (L06)", "triggers": ["young aboard the mother's hat boat"]}
+    "hat_stumble": {
+      "label": "帽檐失衡压低撑稳",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "not_house",
+      "faces": [
+        [
+          0,
+          0.2,
+          "surprise"
+        ],
+        [
+          0.2,
+          0.7,
+          "cry"
+        ],
+        [
+          0.7,
+          1.2,
+          "teary"
+        ]
+      ],
+      "lore": "Server-timed rider balance: compress, brace the hair against the brim and take small supported steps. Real seat travel, pivot and falling belong to the boat; no visual jump or enlarged newborn.",
+      "triggers": [
+        "hat_stumble"
+      ]
+    },
+    "hat_jostle": {
+      "label": "拥挤中抵住让步",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "not_house",
+      "faces": [
+        [
+          0,
+          0.28,
+          "teary"
+        ],
+        [
+          0.28,
+          0.62,
+          "surprise"
+        ],
+        [
+          0.62,
+          1.0,
+          "cry"
+        ]
+      ],
+      "lore": "A real contact-pressure session makes room with two low bracing beats. The server moves feet along support and alone decides whether a rider crosses the brim.",
+      "triggers": [
+        "hat_jostle"
+      ]
+    },
+    "water_plunge": {
+      "label": "落水冲击闭眼收身",
+      "duration": 0.6,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.12,
+          "surprise"
+        ],
+        [
+          0.12,
+          0.36,
+          "cry"
+        ],
+        [
+          0.36,
+          60.6,
+          "teary"
+        ]
+      ],
+      "lore": "The synchronized twelve-tick IMPACT phase: brief compression and a frightened cry, then raise the face. Root translation stays zero; no grounded correction or artificial buoyancy.",
+      "triggers": [
+        "water_impact"
+      ]
+    },
+    "water_struggle": {
+      "label": "朝救援侧抬脸扑水呼救",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.14,
+          "teary"
+        ],
+        [
+          0.14,
+          0.3,
+          "cry"
+        ],
+        [
+          0.3,
+          0.5,
+          "teary"
+        ],
+        [
+          0.5,
+          1.6,
+          "cry"
+        ]
+      ],
+      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity.",
+      "triggers": [
+        "water_struggle with synchronized effort"
+      ]
+    },
+    "water_gasp": {
+      "label": "力竭停顿低伏喘息",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.3,
+          "cry"
+        ],
+        [
+          0.3,
+          0.7,
+          "teary"
+        ],
+        [
+          0.7,
+          1.05,
+          "cry"
+        ],
+        [
+          1.05,
+          1.6,
+          "teary"
+        ]
+      ],
+      "lore": "Between real attempts or in EXHAUSTED: low body, one small breath and a weak lock twitch, with no rising root track. Sinking, injury and rescue remain server physics.",
+      "triggers": [
+        "water_exhausted",
+        "water_struggle between effort windows"
+      ]
+    },
+    "water_recover": {
+      "label": "获救后伏低喘息回望",
+      "duration": 2.8,
+      "loop": false,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          0.5,
+          "sleep"
+        ],
+        [
+          0.5,
+          1.4,
+          "teary"
+        ],
+        [
+          1.4,
+          2.1,
+          "neutral"
+        ],
+        [
+          2.1,
+          62.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Only after a real supported recovery: crouch, take two shallow breaths and look back for family before returning to neutral. This awards no health or energy and never fakes a rescue.",
+      "triggers": [
+        "water_recover"
+      ]
+    },
+    "boat_reassure": {
+      "label": "亲友稳身轻声回应",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "not_house",
+      "faces": [
+        [
+          0,
+          0.45,
+          "surprise"
+        ],
+        [
+          0.45,
+          1.25,
+          "teary"
+        ],
+        [
+          1.25,
+          2,
+          "cry"
+        ]
+      ],
+      "lore": "A safely supported parent or friend faces the distressed child with concern, leans slightly and calls with a low braid gesture. Actual approach, rescue contact and relationship response stay on the server.",
+      "triggers": [
+        "boat_reassure"
+      ]
+    },
+    "boat_carry_young": {
+      "label": "扶携子油跨过帽阶",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1.2,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "A real parent holds its dependent child at the synchronized carry anchor while following a supported hat route. The parent stays steady until the child is set down.",
+      "triggers": [
+        "boat_carry_young"
+      ]
+    },
+    "boat_be_carried": {
+      "label": "被亲油扶携收身",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1.2,
+          "closed_smile"
+        ]
+      ],
+      "lore": "A carried child tucks its body; all travel and release belong to the parent's actual server carry state, never a child jump or free flight.",
+      "triggers": [
+        "boat_be_carried"
+      ]
+    },
+    "hat_walk": {
+      "label": "帽内伏身挪步",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "height": 0.91,
+      "lean": -7,
+      "wobble": 3.2,
+      "push": 0.008,
+      "faces": [
+        [
+          0,
+          1.2,
+          "neutral"
+        ]
+      ],
+      "lore": "Supported short steps along the server-planned hat surface route. Root translation belongs to the route; the body compresses and releases on the same 24-tick cadence.",
+      "triggers": [
+        "hat_walk while actually traversing a supported route"
+      ]
+    },
+    "learn_watch": {
+      "label": "看亲油起跳落地",
+      "duration": 1.4,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1.4,
+          "surprise"
+        ]
+      ],
+      "lore": "The child stops, faces its parent and observes an actual demonstrated landing before gaining the practice benefit.",
+      "triggers": [
+        "learn_watch"
+      ]
+    },
+    "care_finish": {
+      "label": "留在身边等照料结束",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "A parent remains at the contact position through swallowing or the end of toileting before either participant returns.",
+      "triggers": [
+        "care_finish"
+      ]
+    },
+    "nest_harvest": {
+      "label": "贴近叶丛衔取材料",
+      "duration": 1.8,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          0.6,
+          "neutral"
+        ],
+        [
+          0.6,
+          1.8,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "Reach toward a real leaf or grass block, grip and draw back; one finite portion is removed only after sustained reachable contact.",
+      "triggers": [
+        "nest_harvest at a reachable plant"
+      ]
+    },
+    "nest_place": {
+      "label": "低头放下叶束",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "Place one carried portion on the assigned bed. Material ownership and construction progress live in the shelter.",
+      "triggers": [
+        "nest_place"
+      ]
+    },
+    "nest_spread": {
+      "label": "左右摊开铺叶",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1,
+          "neutral"
+        ]
+      ],
+      "lore": "Low sideways sweeps spread the deposited leaves; additional layers appear only as actual work advances.",
+      "triggers": [
+        "nest_spread"
+      ]
+    },
+    "nest_press": {
+      "label": "伏身压实床面",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Two shallow grounded presses settle the current bedding layer. No visual jumping or completion before the full work is done.",
+      "triggers": [
+        "nest_press"
+      ]
+    },
+    "hat_brim": {
+      "label": "子油站帽檐张望",
+      "duration": 3.0,
+      "loop": true,
+      "applies": "not_house",
+      "turn": 16,
+      "sway": 2,
+      "faces": [
+        [
+          0,
+          1,
+          "happy"
+        ],
+        [
+          1,
+          1.6,
+          "open_smile"
+        ],
+        [
+          1.6,
+          3,
+          "closed_smile"
+        ]
+      ],
+      "lore": "User 2026-10-16: small juveniles stand on the front brim. Feet stay planted; seat transitions use the server arc.",
+      "triggers": [
+        "awake juvenile on a supported brim seat"
+      ]
+    },
+    "boat_first_balance": {
+      "label": "初航试着坐稳",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.55,
+          "surprise"
+        ],
+        [
+          0.55,
+          1.3,
+          "chewing_closed"
+        ],
+        [
+          1.3,
+          62,
+          "happy"
+        ]
+      ],
+      "lore": "User-requested first-voyage event: a juvenile settles its weight in its own hat before rowing, then looks back toward its parent on the bank.",
+      "triggers": [
+        "server first-voyage balance phase, 40 ticks"
+      ]
+    },
+    "boat_feed_young": {
+      "label": "停桨微倾递食给子油",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.97,
+      "width": 1.015,
+      "faces": [
+        [
+          0,
+          0.6,
+          "closed_smile"
+        ],
+        [
+          0.6,
+          1.05,
+          "chewing_closed"
+        ],
+        [
+          1.05,
+          1.55,
+          "open_smile"
+        ],
+        [
+          1.55,
+          62.4,
+          "happy"
+        ]
+      ],
+      "lore": "User 2026-10-16: feeding uses a slight forward inclination, calm expressions and care speech, with stable weight. The composed pose including contact tracking must stay within ten degrees. The real serving remains at its current owner's mouth until handoff; the braid never carries food.",
+      "triggers": [
+        "server parent reserves a meal for its own hungry child and reaches sustained mouth contact"
+      ]
+    },
+    "boat_toilet": {
+      "label": "帽沿向水后侧排泄",
+      "duration": 1.4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.91,
+      "width": 1.03,
+      "faces": [
+        [
+          0,
+          1.4,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "Project rule: an afloat hat owner holds position, turns the body to the water-facing rear side selected by the boat, and braces low while actual waste falls outside the hat. This is ordinary toileting, never a child-care or feeding posture.",
+      "triggers": [
+        "boat_toilet while the afloat owner has a real toilet need"
+      ]
+    },
+    "boat_nuzzle": {
+      "label": "俯身亲昵安抚子油",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.5,
+          "happy"
+        ],
+        [
+          0.5,
+          1.9,
+          "closed_smile"
+        ],
+        [
+          1.9,
+          62.4,
+          "satisfied"
+        ]
+      ],
+      "lore": "Original seated adaptation of suri-suri (E06, N2, W2). Affection only, never washing, food or wound treatment.",
+      "triggers": [
+        "safe dry parent and child need companionship"
+      ]
+    },
+    "boat_lullaby": {
+      "label": "帽中轻哼哄睡",
+      "duration": 4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.65,
+          "open_smile"
+        ],
+        [
+          0.65,
+          1,
+          "closed_smile"
+        ],
+        [
+          1,
+          1.65,
+          "open_smile"
+        ],
+        [
+          1.65,
+          2,
+          "closed_smile"
+        ],
+        [
+          2,
+          2.65,
+          "open_smile"
+        ],
+        [
+          2.65,
+          3,
+          "closed_smile"
+        ],
+        [
+          3,
+          3.65,
+          "open_smile"
+        ],
+        [
+          3.65,
+          4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Original bedtime context for wiki songs and listening (N3/W3); no fixed canonical song or copied lyrics. Actual sleep follows the song.",
+      "triggers": [
+        "family arrives at quiet water before night sleep"
+      ]
+    },
+    "aquatic_hat_care": {
+      "label": "返岸甩水理帽",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.8,
+          "chewing_closed"
+        ],
+        [
+          0.8,
+          1.8,
+          "closed_smile"
+        ],
+        [
+          1.8,
+          62.4,
+          "happy"
+        ]
+      ],
+      "lore": "Original post-voyage care of the existing 1.5x hat. Slight drying only; never creates, repairs or changes a hat or subspecies.",
+      "triggers": [
+        "safe return to dry ground with the original hat"
+      ]
+    },
+    "boat_paddle": {
+      "label": "辫端持枝划船",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.65,
+          "chewing_closed"
+        ],
+        [
+          0.65,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "EH22-005 braid-held twig; N09 mouth-held stick is a documented alternative. Stroke timing is project design.",
+      "triggers": [
+        "server surface route has a real stick and a waypoint"
+      ]
+    },
+    "boat_gather": {
+      "label": "收食入帽",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.6,
+          "drool"
+        ],
+        [
+          0.6,
+          1.05,
+          "chewing_closed"
+        ],
+        [
+          1.05,
+          61.6,
+          "happy"
+        ]
+      ],
+      "lore": "EH22-006 collecting objects inside the hat; finite food storage adopted by user 2026-10-14",
+      "triggers": [
+        "real floating food transferred to hat cargo"
+      ]
+    },
+    "boat_eat": {
+      "label": "帽内低头进食",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.2,
+          "chewing"
+        ],
+        [
+          0.2,
+          0.4,
+          "chewing_closed"
+        ],
+        [
+          0.4,
+          0.6,
+          "chewing"
+        ],
+        [
+          0.6,
+          0.8,
+          "chewing_closed"
+        ],
+        [
+          0.8,
+          1,
+          "chewing"
+        ],
+        [
+          1,
+          1.2,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "food in the dry hat; conservative seated movement, avoiding EH22-008 dangerous overreaching",
+      "triggers": [
+        "actual meal while aboard"
+      ]
+    },
+    "boat_drink": {
+      "label": "扶稳帽沿饮水",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.6,
+          "chewing_closed"
+        ],
+        [
+          0.6,
+          1.1,
+          "chewing"
+        ],
+        [
+          1.1,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "project shoreward drinking pose; body stays in the dry hat, N09 forbids treating the body as waterproof",
+      "triggers": [
+        "dryness while afloat"
+      ]
+    },
+    "boat_sleep": {
+      "label": "护着幼体帽中睡",
+      "duration": 4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.91,
+      "width": 1.04,
+      "faces": [
+        [
+          0,
+          4,
+          "sleep"
+        ]
+      ],
+      "lore": "user-adopted night nesting: young below, parent above, hat still afloat; real server sleep",
+      "triggers": [
+        "hat sleep"
+      ]
+    },
+    "boat_wake": {
+      "label": "帽中醒来",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.3,
+          "sleepy"
+        ],
+        [
+          0.3,
+          0.9,
+          "yawn"
+        ],
+        [
+          0.9,
+          61.6,
+          "neutral"
+        ]
+      ],
+      "lore": "project seated wake after a completed physiological sleep",
+      "triggers": [
+        "reaction awake aboard"
+      ]
+    },
+    "boat_board": {
+      "label": "跃入帽船收身",
+      "duration": 0.8,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.94,
+      "width": 1.03,
+      "faces": [
+        [
+          0,
+          0.4,
+          "chewing_closed"
+        ],
+        [
+          0.4,
+          0.8,
+          "happy"
+        ]
+      ],
+      "lore": "N13 fixed hat before boarding; translation follows the server gravity arc, this clip only tucks the body",
+      "triggers": [
+        "owner boarding flight"
+      ]
+    },
+    "eat": {
+      "label": "进食",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "lean": -10,
+      "chew_seconds": 0.4,
+      "chew_nod": -3,
+      "chew_squash": 0.05,
+      "faces": [
+        [
+          0,
+          0.1,
+          "chewing"
+        ],
+        [
+          0.1,
+          0.3,
+          "chewing_closed"
+        ],
+        [
+          0.3,
+          0.5,
+          "chewing"
+        ],
+        [
+          0.5,
+          0.7,
+          "chewing_closed"
+        ],
+        [
+          0.7,
+          0.9,
+          "chewing"
+        ],
+        [
+          0.9,
+          1.1,
+          "chewing_closed"
+        ],
+        [
+          1.1,
+          1.2,
+          "chewing"
+        ]
+      ],
+      "lore": "むーしゃむーしゃ (L03 word form; chewing faces from the project's eating stages)",
+      "triggers": [
+        "take_food",
+        "chew",
+        "swallow"
+      ]
+    },
+    "shiawase": {
+      "label": "しあわせー",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "all",
+      "hop_ratio": 0.14,
+      "look_up": 6,
+      "wiggle": 7,
+      "faces": [
+        [
+          0,
+          0.3,
+          "closed_smile"
+        ],
+        [
+          0.3,
+          0.95,
+          "happy"
+        ],
+        [
+          0.95,
+          62,
+          "satisfied"
+        ]
+      ],
+      "lore": "しあわせー after a meal (L03 word form; the hop is project design)",
+      "triggers": [
+        "meal_finish"
+      ]
+    },
+    "drink": {
+      "label": "饮水",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "lean": -14,
+      "sip": -4,
+      "sip_seconds": 0.8,
+      "faces": [
+        [
+          0,
+          0.25,
+          "chewing_closed"
+        ],
+        [
+          0.25,
+          0.55,
+          "chewing"
+        ],
+        [
+          0.55,
+          1.05,
+          "chewing_closed"
+        ],
+        [
+          1.05,
+          1.35,
+          "chewing"
+        ],
+        [
+          1.35,
+          1.6,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "drinking (rules)",
+      "triggers": [
+        "drink"
+      ]
+    },
+    "sleep": {
+      "label": "睡眠",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "all",
+      "height": 0.94,
+      "breath": 0.015,
+      "tilt": 4,
+      "slump": -3,
+      "faces": [
+        [
+          0,
+          4,
+          "sleep"
+        ]
+      ],
+      "lore": "sleep (project stages sleepy, sleep, yawn)",
+      "triggers": [
+        "sleep_enter",
+        "sleep"
+      ]
+    },
+    "wake": {
+      "label": "醒来",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "yawn_height": 1.1,
+      "lean_back": 5,
+      "shake": 10,
+      "faces": [
+        [
+          0,
+          0.15,
+          "sleep"
+        ],
+        [
+          0.15,
+          0.7,
+          "yawn"
+        ],
+        [
+          0.7,
+          0.95,
+          "sleepy"
+        ],
+        [
+          0.95,
+          61.6,
+          "neutral"
+        ]
+      ],
+      "lore": "waking with a yawn (project stages)",
+      "triggers": [
+        "wake"
+      ]
+    },
+    "nuzzle": {
+      "label": "擦擦脸",
+      "duration": 0.8,
+      "loop": true,
+      "applies": "all",
+      "lean": -5,
+      "rub": 6,
+      "rub_shift": 0.02,
+      "faces": [
+        [
+          0,
+          0.15,
+          "closed_smile"
+        ],
+        [
+          0.15,
+          0.3,
+          "satisfied"
+        ],
+        [
+          0.3,
+          0.55,
+          "closed_smile"
+        ],
+        [
+          0.55,
+          0.7,
+          "satisfied"
+        ],
+        [
+          0.7,
+          0.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "すーりすーり (E06, N2)",
+      "triggers": [
+        "nuzzle"
+      ]
+    },
+    "feed_child": {
+      "label": "轻微前倾递喂",
+      "duration": 1.8,
+      "loop": true,
+      "applies": "all",
+      "lean": -6,
+      "crouch": 0.025,
+      "settle": 0.42,
+      "withdraw": 1.45,
+      "faces": [
+        [
+          0,
+          0.35,
+          "closed_smile"
+        ],
+        [
+          0.35,
+          0.75,
+          "chewing_closed"
+        ],
+        [
+          0.75,
+          1.25,
+          "open_smile"
+        ],
+        [
+          1.25,
+          1.8,
+          "happy"
+        ]
+      ],
+      "lore": "User 2026-10-16: a slight six-degree inclination and gentle settling keep the parent's weight supported. Expressions and care speech convey the handoff. Contact tracking shares a ten-degree total pitch budget with this source clip and must not add a second deep bend.",
+      "triggers": [
+        "feed_child while the server has a real care target and direct mouth contact"
+      ]
+    },
+    "first_toilet_assist": {
+      "label": "新生首便俯身照料",
+      "duration": 1.8,
+      "loop": true,
+      "applies": "all",
+      "lean": -24,
+      "crouch": 0.075,
+      "settle": 0.42,
+      "withdraw": 1.45,
+      "faces": [
+        [
+          0,
+          0.42,
+          "neutral"
+        ],
+        [
+          0.42,
+          1.45,
+          "closed_smile"
+        ],
+        [
+          1.45,
+          1.8,
+          "neutral"
+        ]
+      ],
+      "lore": "EH08-008 describes parent licking to stimulate a newborn's first defecation. Project presentation keeps this as a brief, neutral rear-side care posture; it is not affection, bathing, ordinary toileting, or exercise.",
+      "triggers": [
+        "newborn first-toilet assistance with a real dependent child"
+      ]
+    },
+    "newborn_crawl": {
+      "label": "新生短距爬行",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "height": 0.82,
+      "lean": -13,
+      "wobble": 3.2,
+      "push": 0.018,
+      "faces": [
+        [
+          0,
+          0.3,
+          "surprise"
+        ],
+        [
+          0.3,
+          1.2,
+          "happy"
+        ]
+      ],
+      "lore": "Project first locomotion: a newborn stays low and makes short supported crawls. It does not prove independent travel, adult work, or a jump capability.",
+      "triggers": [
+        "newborn crawl activity in a safe nearby space"
+      ]
+    },
+    "learn_jump": {
+      "label": "子油短跳练习",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "hop_ratio": 0.055,
+      "look_down": -5,
+      "faces": [
+        [
+          0,
+          0.25,
+          "surprise"
+        ],
+        [
+          0.25,
+          0.95,
+          "happy"
+        ],
+        [
+          0.95,
+          1.2,
+          "satisfied"
+        ]
+      ],
+      "lore": "Project learning presentation: a child repeats a low, short hop after a safe demonstrated landing. This is distinct from escape movement and does not bypass nourishment or stage gates.",
+      "triggers": [
+        "learn_jump"
+      ]
+    },
+    "sing": {
+      "label": "唱歌",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "all",
+      "sway": 7,
+      "bounce_ratio": 0.03,
+      "chin_up": 4,
+      "faces": [
+        [
+          0,
+          0.32,
+          "open_smile"
+        ],
+        [
+          0.32,
+          0.5,
+          "closed_smile"
+        ],
+        [
+          0.5,
+          0.82,
+          "open_smile"
+        ],
+        [
+          0.82,
+          1.0,
+          "closed_smile"
+        ],
+        [
+          1.0,
+          1.32,
+          "open_smile"
+        ],
+        [
+          1.32,
+          1.5,
+          "closed_smile"
+        ],
+        [
+          1.5,
+          1.82,
+          "open_smile"
+        ],
+        [
+          1.82,
+          2.0,
+          "closed_smile"
+        ]
+      ],
+      "lore": "おうた (N3, W3)",
+      "triggers": [
+        "sing"
+      ]
+    },
+    "sway": {
+      "label": "跟着摇摆",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "all",
+      "sway": 4,
+      "chin_up": 2,
+      "faces": [
+        [
+          0,
+          1.0,
+          "closed_smile"
+        ],
+        [
+          1.0,
+          1.4,
+          "happy"
+        ],
+        [
+          1.4,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "listening with a smile, adults keeping the beat (N3, W2)",
+      "triggers": [
+        "listen_song",
+        "exercise_watch"
+      ]
+    },
+    "push": {
+      "label": "推挤",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "windup_shift": 0.06,
+      "lunge_shift": 0.1,
+      "windup_lean": 4,
+      "lunge_lean": -12,
+      "faces": [
+        [
+          0,
+          0.45,
+          "angry"
+        ],
+        [
+          0.45,
+          0.65,
+          "puff"
+        ],
+        [
+          0.65,
+          1.2,
+          "angry"
+        ]
+      ],
+      "lore": "sumo and bullying pushes (special-events, N1)",
+      "triggers": [
+        "sumo_push",
+        "bully_peer"
+      ]
+    },
+    "greet": {
+      "label": "问候",
+      "duration": 1.4,
+      "loop": false,
+      "applies": "all",
+      "hop_ratio": 0.1,
+      "bow": -14,
+      "faces": [
+        [
+          0,
+          0.8,
+          "happy"
+        ],
+        [
+          0.8,
+          1.3,
+          "closed_smile"
+        ],
+        [
+          1.3,
+          61.4,
+          "open_smile"
+        ]
+      ],
+      "variants": {
+        "marisa": {
+          "match": [
+            "*marisa*"
+          ],
+          "style": "genki",
+          "hop_ratio": 0.16,
+          "second_hop_ratio": 0.07,
+          "look_up": 8,
+          "faces": [
+            [
+              0,
+              0.55,
+              "happy"
+            ],
+            [
+              0.55,
+              1.1,
+              "open_smile"
+            ],
+            [
+              1.1,
+              61.4,
+              "smug"
+            ]
+          ]
+        }
+      },
+      "lore": "ゆっくりしていってね (L03, N1); Marisa as expedition captain, energetic (W, Marisa README)",
+      "triggers": [
+        "reaction hello / peer / known_peer / caregiver / introduced / gentle"
+      ]
+    },
+    "tremble": {
+      "label": "发抖",
+      "duration": 0.5,
+      "loop": true,
+      "applies": "all",
+      "lean_back": 4,
+      "shrink": 0.05,
+      "shiver_ratio": 0.012,
+      "shiver_hz": 12,
+      "faces": [
+        [
+          0,
+          0.5,
+          "teary"
+        ]
+      ],
+      "lore": "shivering and begging, fear (special-events, events)",
+      "triggers": [
+        "reaction afraid / wounded"
+      ]
+    },
+    "droop": {
+      "label": "低落",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "all",
+      "height": 0.91,
+      "sigh": 0.02,
+      "head_down": -8,
+      "sway": 2,
+      "faces": [
+        [
+          0,
+          2.6,
+          "teary"
+        ],
+        [
+          2.6,
+          3.3,
+          "cry"
+        ],
+        [
+          3.3,
+          4,
+          "teary"
+        ]
+      ],
+      "lore": "withdrawn after losing the accessory (TM02, personality-social)",
+      "triggers": [
+        "reaction lost_accessory / family_died / lost_parent / cold",
+        "idle without accessory"
+      ]
+    },
+    "look_around": {
+      "label": "张望",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "all",
+      "turn": 35,
+      "stand": 1.04,
+      "faces": [
+        [
+          0,
+          0.6,
+          "neutral"
+        ],
+        [
+          0.6,
+          1.6,
+          "confused"
+        ],
+        [
+          1.6,
+          2.4,
+          "neutral"
+        ],
+        [
+          2.4,
+          3.4,
+          "confused"
+        ],
+        [
+          3.4,
+          4,
+          "neutral"
+        ]
+      ],
+      "lore": "searching for family, keeping watch (events, family_follow)",
+      "triggers": [
+        "search_family",
+        "wait_child"
+      ]
+    },
+    "shake": {
+      "label": "甩水",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "all",
+      "turn": 16,
+      "shake_seconds": 0.2,
+      "faces": [
+        [
+          0,
+          0.9,
+          "chewing_closed"
+        ],
+        [
+          0.9,
+          61.2,
+          "happy"
+        ]
+      ],
+      "lore": "a short wash makes it happy (rules, L01)",
+      "triggers": [
+        "reaction washed",
+        "aquatic Marisa back ashore"
+      ]
+    },
+    "brood": {
+      "label": "安胎",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "breeding",
+      "rock": 3,
+      "look_down": -3,
+      "breath": 0.015,
+      "faces": [
+        [
+          0,
+          1.6,
+          "closed_smile"
+        ],
+        [
+          1.6,
+          2.4,
+          "satisfied"
+        ],
+        [
+          2.4,
+          3.4,
+          "closed_smile"
+        ],
+        [
+          3.4,
+          4,
+          "teary"
+        ]
+      ],
+      "lore": "a parent tends the brood at home (project rule, CORE_GAMEPLAY)",
+      "triggers": [
+        "tend_brood"
+      ]
+    },
+    "labor": {
+      "label": "分娩",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "live_birth",
+      "brace": 0.06,
+      "lean_back": 3,
+      "shiver_ratio": 0.006,
+      "push_lean": -4,
+      "faces": [
+        [
+          0,
+          0.3,
+          "teary"
+        ],
+        [
+          0.3,
+          1.3,
+          "puff"
+        ],
+        [
+          1.3,
+          1.8,
+          "cry"
+        ],
+        [
+          1.8,
+          2.4,
+          "satisfied"
+        ]
+      ],
+      "lore": "straining, eyes squeezed, mouth open, one baby per push (CADあき, 無声あき, AVあき in viviparous-comics); phase-locked to the 48-tick contraction, rest at the 36-tick birth",
+      "triggers": [
+        "labor (live delivery)"
+      ]
+    },
+    "midwife": {
+      "label": "接生",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "marisa_midwife",
+      "crouch": 0.07,
+      "lean": -8,
+      "nod": -4,
+      "rub": 5,
+      "faces": [
+        [
+          0,
+          0.3,
+          "neutral"
+        ],
+        [
+          0.3,
+          1.4,
+          "open_smile"
+        ],
+        [
+          1.4,
+          1.8,
+          "teary"
+        ],
+        [
+          1.8,
+          2.0,
+          "happy"
+        ],
+        [
+          2.0,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "project design confirmed by the user: only Marisa midwifes; hatless beside her upturned hat, she cheers with each contraction and greets the newborn (すーりすーり, E06)",
+      "triggers": [
+        "midwife: a Marisa father, or a single Marisa mother catching her own young, live and stem births"
+      ]
+    },
+    "hat_off": {
+      "label": "辫子摘帽放下",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "land",
+        "role": "helper"
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.15
+        ],
+        "settle": [
+          1.15,
+          1.45
+        ]
+      },
+      "hover": 3.0,
+      "hover_out": 3.0,
+      "lift": 5.5,
+      "swing_out": [
+        1.0,
+        0.35,
+        -0.25
+      ],
+      "side_lean": -3,
+      "bow": -6,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "neutral"
+        ],
+        [
+          0.35,
+          1.3,
+          "closed_smile"
+        ],
+        [
+          1.3,
+          61.6,
+          "happy"
+        ]
+      ],
+      "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)",
+      "triggers": [
+        "a Marisa catching for her mate reaches her place beside the outlet"
+      ]
+    },
+    "hat_hold": {
+      "label": "辫子扶帽接生",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "land",
+        "role": "helper"
+      },
+      "crouch": 0.05,
+      "lean": -6,
+      "nod": -4,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.3,
+          "neutral"
+        ],
+        [
+          0.3,
+          1.4,
+          "open_smile"
+        ],
+        [
+          1.4,
+          1.8,
+          "teary"
+        ],
+        [
+          1.8,
+          2.0,
+          "happy"
+        ],
+        [
+          2.0,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "hatless, her braid holding the brim of the turned-over hat, she cheers with each contraction and greets each newborn",
+      "triggers": [
+        "midwife with the hat set down"
+      ]
+    },
+    "hat_on": {
+      "label": "辫子拿回帽子",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "land",
+        "role": "helper",
+        "reverse": true
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.15
+        ],
+        "settle": [
+          1.15,
+          1.45
+        ]
+      },
+      "hover": 3.0,
+      "hover_out": 3.0,
+      "lift": 5.5,
+      "swing_out": [
+        1.0,
+        0.35,
+        -0.25
+      ],
+      "side_lean": -3,
+      "bow": -6,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "neutral"
+        ],
+        [
+          0.35,
+          1.3,
+          "closed_smile"
+        ],
+        [
+          1.3,
+          61.6,
+          "happy"
+        ]
+      ],
+      "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)",
+      "triggers": [
+        "the cradle is no longer needed"
+      ]
+    },
+    "hat_off_self": {
+      "label": "自己摘帽放在身前",
+      "duration": 1.8,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "land",
+        "role": "self"
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.1
+        ],
+        "settle": [
+          1.1,
+          1.4
+        ],
+        "back": [
+          1.4,
+          1.8
+        ]
+      },
+      "hover": 0.8,
+      "hover_out": -0.5,
+      "lift": 5.5,
+      "swing_out": [
+        1.0,
+        0.2,
+        -0.6
+      ],
+      "side_lean": -3,
+      "bow": -14,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "teary"
+        ],
+        [
+          0.35,
+          1.25,
+          "chewing_closed"
+        ],
+        [
+          1.25,
+          61.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)",
+      "triggers": [
+        "a hatted Marisa mother about to deliver alone"
+      ]
+    },
+    "hat_on_self": {
+      "label": "自己拿回帽子",
+      "duration": 1.8,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "land",
+        "role": "self",
+        "reverse": true
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.1
+        ],
+        "settle": [
+          1.1,
+          1.4
+        ],
+        "back": [
+          1.4,
+          1.8
+        ]
+      },
+      "hover": 0.8,
+      "hover_out": -0.5,
+      "lift": 5.5,
+      "swing_out": [
+        1.0,
+        0.2,
+        -0.6
+      ],
+      "side_lean": -3,
+      "bow": -14,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.5,
+          "neutral"
+        ],
+        [
+          0.5,
+          61.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)",
+      "triggers": [
+        "the cradle is no longer needed"
+      ]
+    },
+    "hat_off_aq": {
+      "label": "辫子摘帽放下（水生大帽）",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "aquatic",
+        "role": "helper"
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.15
+        ],
+        "settle": [
+          1.15,
+          1.45
+        ]
+      },
+      "hover": 1.5,
+      "hover_out": 6.0,
+      "lift": 3.5,
+      "swing_out": [
+        1.0,
+        0.35,
+        -0.25
+      ],
+      "side_lean": -3,
+      "bow": -12,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "neutral"
+        ],
+        [
+          0.35,
+          1.3,
+          "closed_smile"
+        ],
+        [
+          1.3,
+          61.6,
+          "happy"
+        ]
+      ],
+      "lore": "the braid hooks the brim, lifts the hat off, turns it over and presses it down upside down before the mother's outlet, its soft crown squashed under it (afloat, less), and keeps hold of its brim (user, 2026-10-14: the father works the hat with his braid)",
+      "triggers": [
+        "a Marisa catching for her mate reaches her place beside the outlet"
+      ]
+    },
+    "hat_hold_aq": {
+      "label": "辫子扶帽接生（水生大帽）",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "aquatic",
+        "role": "helper"
+      },
+      "crouch": 0.05,
+      "lean": -12,
+      "nod": -4,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.3,
+          "neutral"
+        ],
+        [
+          0.3,
+          1.4,
+          "open_smile"
+        ],
+        [
+          1.4,
+          1.8,
+          "teary"
+        ],
+        [
+          1.8,
+          2.0,
+          "happy"
+        ],
+        [
+          2.0,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "hatless, her braid holding the brim of the turned-over hat, she cheers with each contraction and greets each newborn",
+      "triggers": [
+        "midwife with the hat set down"
+      ]
+    },
+    "hat_on_aq": {
+      "label": "辫子拿回帽子（水生大帽）",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "aquatic",
+        "role": "helper",
+        "reverse": true
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.15
+        ],
+        "settle": [
+          1.15,
+          1.45
+        ]
+      },
+      "hover": 1.5,
+      "hover_out": 6.0,
+      "lift": 3.5,
+      "swing_out": [
+        1.0,
+        0.35,
+        -0.25
+      ],
+      "side_lean": -3,
+      "bow": -12,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "neutral"
+        ],
+        [
+          0.35,
+          1.3,
+          "closed_smile"
+        ],
+        [
+          1.3,
+          61.6,
+          "happy"
+        ]
+      ],
+      "lore": "the young have climbed out; the braid lifts the hat, turns it back and puts it on (hat_off played backwards)",
+      "triggers": [
+        "the cradle is no longer needed"
+      ]
+    },
+    "hat_off_self_aq": {
+      "label": "自己摘帽放在身前（水生大帽）",
+      "duration": 1.8,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "aquatic",
+        "role": "self"
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.1
+        ],
+        "settle": [
+          1.1,
+          1.4
+        ],
+        "back": [
+          1.4,
+          1.8
+        ]
+      },
+      "hover": 1.2,
+      "hover_out": 2.0,
+      "lift": 3.5,
+      "swing_out": [
+        1.0,
+        0.2,
+        -0.6
+      ],
+      "side_lean": -3,
+      "bow": -14,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.35,
+          "teary"
+        ],
+        [
+          0.35,
+          1.25,
+          "chewing_closed"
+        ],
+        [
+          1.25,
+          61.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "a mother with no Marisa to catch for her sets her own hat, turned over, before her outlet with her braid, presses its crown flat and lets go (user: a single parent catches by herself)",
+      "triggers": [
+        "a hatted Marisa mother about to deliver alone"
+      ]
+    },
+    "hat_on_self_aq": {
+      "label": "自己拿回帽子（水生大帽）",
+      "duration": 1.8,
+      "loop": false,
+      "applies": "marisa_hat",
+      "hat": {
+        "variant": "aquatic",
+        "role": "self",
+        "reverse": true
+      },
+      "phases": {
+        "reach": [
+          0,
+          0.35
+        ],
+        "lift": [
+          0.35,
+          0.6
+        ],
+        "carry": [
+          0.6,
+          1.1
+        ],
+        "settle": [
+          1.1,
+          1.4
+        ],
+        "back": [
+          1.4,
+          1.8
+        ]
+      },
+      "hover": 1.2,
+      "hover_out": 2.0,
+      "lift": 3.5,
+      "swing_out": [
+        1.0,
+        0.2,
+        -0.6
+      ],
+      "side_lean": -3,
+      "bow": -14,
+      "curl": 35,
+      "faces": [
+        [
+          0,
+          0.5,
+          "neutral"
+        ],
+        [
+          0.5,
+          61.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "she leans out, takes the rim with her braid and puts the hat back on (hat_off_self played backwards)",
+      "triggers": [
+        "the cradle is no longer needed"
+      ]
+    },
+    "bereaved": {
+      "label": "呆滞后哭泣",
+      "duration": 5.0,
+      "loop": false,
+      "applies": "breeding",
+      "sink": 0.04,
+      "wail_rise": 0.03,
+      "wail_chin": 6,
+      "sob": 0.02,
+      "sob_hz": 3,
+      "head_down": -6,
+      "faces": [
+        [
+          0,
+          1.6,
+          "dazed"
+        ],
+        [
+          1.6,
+          2.4,
+          "blank_cry"
+        ],
+        [
+          2.4,
+          65,
+          "cry"
+        ]
+      ],
+      "lore": "a missed catch kills the newborn; the parents stare blankly, then cry (user design); line ゆっくり……ゆっくりぃ！ (family_died)",
+      "triggers": [
+        "reaction birth_lost (parents)"
+      ]
+    },
+    "postpartum": {
+      "label": "产后",
+      "duration": 3.0,
+      "loop": false,
+      "applies": "breeding",
+      "slump": 0.9,
+      "head_down": -6,
+      "look_up": 4,
+      "faces": [
+        [
+          0,
+          1.4,
+          "sleepy"
+        ],
+        [
+          1.4,
+          63,
+          "satisfied"
+        ]
+      ],
+      "lore": "the mother recovers after the births (viviparous-comics; joy soon meets hunger, TM09)",
+      "triggers": [
+        "reaction birth after delivery"
+      ]
+    },
+    "first_wake": {
+      "label": "初醒",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "all",
+      "curl": 0.9,
+      "stretch": 1.08,
+      "wobble": 6,
+      "faces": [
+        [
+          0,
+          0.5,
+          "sleep"
+        ],
+        [
+          0.5,
+          0.9,
+          "sleepy"
+        ],
+        [
+          0.9,
+          1.2,
+          "surprise"
+        ],
+        [
+          1.2,
+          62,
+          "happy"
+        ]
+      ],
+      "lore": "unborn young sleep with closed eyes and wake on landing (Hakkei sprite, project rule)",
+      "triggers": [
+        "reaction newborn / hatched"
+      ]
+    },
+    "boat_drift": {
+      "label": "帽船漂流",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.03,
+      "bob": 0.24,
+      "roll": 2,
+      "pitch": 1.5,
+      "glance": 14,
+      "faces": [
+        [
+          0,
+          2.2,
+          "closed_smile"
+        ],
+        [
+          2.2,
+          3.2,
+          "neutral"
+        ],
+        [
+          3.2,
+          4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "aquatic Marisa drifts curled up in her hat boat (special-events), bob and rock after the v1 aquatic clips",
+      "triggers": [
+        "aquatic Marisa afloat"
+      ]
+    },
+    "boat_steady": {
+      "label": "帽船稳船",
+      "duration": 1.5,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.92,
+      "width": 1.04,
+      "roll": 2.5,
+      "pitch": 1.5,
+      "faces": [
+        [
+          0,
+          0.75,
+          "chewing_closed"
+        ],
+        [
+          0.75,
+          1.5,
+          "teary"
+        ]
+      ],
+      "lore": "the drifter tightens her body to steady the boat, water can still get in (events, lake-steady)",
+      "triggers": [
+        "boat taking water, towed or hit, lake card"
+      ]
+    },
+    "boat_call": {
+      "label": "帽船呼唤",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "rise": 1.06,
+      "chin_up": 6,
+      "sway": 6,
+      "bounce_ratio": 0.03,
+      "faces": [
+        [
+          0,
+          0.4,
+          "cry"
+        ],
+        [
+          0.4,
+          1.0,
+          "teary"
+        ],
+        [
+          1.0,
+          1.4,
+          "cry"
+        ],
+        [
+          1.4,
+          2.0,
+          "teary"
+        ]
+      ],
+      "lore": "a companion runs along the bank and calls; the drifter answers (special-events, events)",
+      "triggers": [
+        "river encounter afloat"
+      ]
+    },
+    "boat_brood": {
+      "label": "帽船安胎",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.94,
+      "width": 1.03,
+      "rock": 2,
+      "bob": 0.2,
+      "faces": [
+        [
+          0,
+          1.6,
+          "closed_smile"
+        ],
+        [
+          1.6,
+          2.4,
+          "satisfied"
+        ],
+        [
+          2.4,
+          4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "project design: an aquatic mother keeps low in her hat while expecting (L25 keeps body and hat dry)",
+      "triggers": [
+        "tend_brood afloat"
+      ]
+    },
+    "boat_labor": {
+      "label": "帽船分娩",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.03,
+      "brace": 0.04,
+      "shiver_ratio": 0.004,
+      "tuck_turn": 20,
+      "tuck_lean": -8,
+      "faces": [
+        [
+          0,
+          0.3,
+          "teary"
+        ],
+        [
+          0.3,
+          1.3,
+          "chewing_closed"
+        ],
+        [
+          1.3,
+          1.8,
+          "puff"
+        ],
+        [
+          1.8,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "project design: a quieter strain, curled against the crown, then she turns to gather the baby into the hat (L06 the hat carries young)",
+      "triggers": [
+        "labor afloat"
+      ]
+    },
+    "hat_cradle": {
+      "label": "帽中幼体",
+      "duration": 3.0,
+      "loop": true,
+      "applies": "not_house",
+      "sway": 3,
+      "bob": 0.15,
+      "faces": [
+        [
+          0,
+          1.2,
+          "happy"
+        ],
+        [
+          1.2,
+          2.4,
+          "closed_smile"
+        ],
+        [
+          2.4,
+          3.0,
+          "sleepy"
+        ]
+      ],
+      "lore": "young carried in the hat (L06)",
+      "triggers": [
+        "young aboard the mother's hat boat"
+      ]
+    },
+    "think": {
+      "label": "思考",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "all",
+      "tilt": 22,
+      "turn": 4,
+      "look_up": 8,
+      "squash": 0.03,
+      "faces": [
+        [
+          0,
+          0.5,
+          "neutral"
+        ],
+        [
+          0.5,
+          1.5,
+          "confused"
+        ],
+        [
+          1.5,
+          2.0,
+          "neutral"
+        ]
+      ],
+      "lore": "Project design for exam thinking: slow side-to-side head tilt, slight squash, eyes up.",
+      "triggers": [
+        "pet exam: considering an answer"
+      ]
+    },
+    "nervous": {
+      "label": "紧张",
+      "duration": 1.5,
+      "loop": true,
+      "applies": "all",
+      "shrink": 0.05,
+      "tremble_units": 0.6,
+      "tremble_hz": 6,
+      "glance": 15,
+      "glance_seconds": 0.75,
+      "hop_ratio": 0.03,
+      "hop_seconds": 0.375,
+      "shudder": 2,
+      "faces": [
+        [
+          0,
+          0.375,
+          "teary"
+        ],
+        [
+          0.375,
+          0.75,
+          "confused"
+        ],
+        [
+          0.75,
+          1.125,
+          "teary"
+        ],
+        [
+          1.125,
+          1.5,
+          "confused"
+        ]
+      ],
+      "lore": "Project design for pre-exam jitters: small quick left-right shuffles and tiny hops, body slightly shrunk (cf. tremble, special-events fear).",
+      "triggers": [
+        "pet exam: waiting before answering"
+      ]
+    },
+    "proud": {
+      "label": "得意",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "all",
+      "lean_back": 14,
+      "stretch": 0.06,
+      "chin_up": 4,
+      "faces": [
+        [
+          0,
+          0.9,
+          "smug"
+        ],
+        [
+          0.9,
+          1.25,
+          "closed_smile"
+        ],
+        [
+          1.25,
+          62,
+          "smug"
+        ]
+      ],
+      "lore": "Project design of the ehhen (えっへん) pose: lean back, puff the chest, hold, settle (Marisa smug face, M02/EH25 style).",
+      "triggers": [
+        "badge earned or praised"
+      ]
+    },
+    "joy_jump": {
+      "label": "欢呼跳",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "hop_ratio": 0.3,
+      "second_hop_ratio": 0.36,
+      "look_up": 8,
+      "faces": [
+        [
+          0,
+          0.55,
+          "open_smile"
+        ],
+        [
+          0.55,
+          1.05,
+          "happy"
+        ],
+        [
+          1.05,
+          61.6,
+          "open_smile"
+        ]
+      ],
+      "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash (cf. shiawase hop, EH25 delight).",
+      "triggers": [
+        "exam passed"
+      ]
+    },
+    "sulk": {
+      "label": "闹别扭",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "all",
+      "turn": 150,
+      "height": 0.9,
+      "width": 1.06,
+      "head_down": -6,
+      "tilt": 3,
+      "shudder": 3,
+      "faces": [
+        [
+          0,
+          1.4,
+          "teary"
+        ],
+        [
+          1.4,
+          1.9,
+          "cry"
+        ],
+        [
+          1.9,
+          2.4,
+          "teary"
+        ]
+      ],
+      "lore": "Project design: body turned about 150 degrees from the front, sunk and flattened, with an occasional small shudder (cf. droop, TM02).",
+      "triggers": [
+        "exam failed or scolded"
+      ]
+    },
+    "hide_face": {
+      "label": "藏头露腚",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "all",
+      "lean": -55,
+      "wiggle": 3,
+      "yaw": 10,
+      "roll": 8,
+      "wiggle_hz": 2,
+      "height": 0.97,
+      "faces": [
+        [
+          0,
+          2.0,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project design of the head-hidden gag: face pressed to the ground, rear raised, tiny wiggle (the closed-eyes smile reads as squeezed eyes).",
+      "triggers": [
+        "exam: hiding from the question or failure"
+      ]
+    },
+    "beg": {
+      "label": "乞求",
+      "duration": 1.4,
+      "loop": true,
+      "applies": "all",
+      "lean": -16,
+      "lean_bounce": -6,
+      "bounce_ratio": 0.045,
+      "bounce_seconds": 0.7,
+      "faces": [
+        [
+          0,
+          0.35,
+          "open_smile"
+        ],
+        [
+          0.35,
+          0.7,
+          "happy"
+        ],
+        [
+          0.7,
+          1.05,
+          "open_smile"
+        ],
+        [
+          1.05,
+          1.4,
+          "happy"
+        ]
+      ],
+      "lore": "Project design: eager forward lean with little bounces toward the target (cf. tremble begging in special-events).",
+      "triggers": [
+        "shop appeal, wild role begging"
+      ]
+    },
+    "bow": {
+      "label": "鞠躬",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "all",
+      "bow": -25,
+      "squash": 0.03,
+      "faces": [
+        [
+          0,
+          0.7,
+          "closed_smile"
+        ],
+        [
+          0.7,
+          61.2,
+          "happy"
+        ]
+      ],
+      "lore": "Project design: polite forward bow of about 25 degrees and back up (cf. greet nod).",
+      "triggers": [
+        "greeting the examiner, farewell"
+      ]
+    }
   },
   "flourishes": {
-    "braid_wave": {"clips": ["greet"], "raise": 118, "forward": 15, "wave": 10, "waves": 3, "root_offset": [0.05, -0.22, -0.05],
-                   "lore": "Marisa waves her braid, lifted past horizontal (saved braid interactions v2); swing and root slide keep it clear of the brim and the head",
-                   "applies": "models whose braid_lock_* parts are carried by hand_right"},
-    "sideburn_piko": {"clips": ["greet", "shiawase"], "flick": 12, "flicks": 4,
-                      "lore": "Reimu's sideburns move with her mood, ぴこぴこ (E02)", "applies": "reimu forms whose hand bones carry hair"},
-    "lock_tremble": {"clips": ["labor", "boat_labor"], "degrees": 2.5, "hz": 9,
-                     "lore": "side hair trembles while straining", "applies": "models whose hand bones carry hair"}
+    "braid_wave": {
+      "clips": [
+        "greet"
+      ],
+      "raise": 118,
+      "forward": 15,
+      "wave": 10,
+      "waves": 3,
+      "root_offset": [
+        0.05,
+        -0.22,
+        -0.05
+      ],
+      "lore": "Marisa waves her braid, lifted past horizontal (saved braid interactions v2); swing and root slide keep it clear of the brim and the head",
+      "applies": "models whose braid_lock_* parts are carried by hand_right"
+    },
+    "sideburn_piko": {
+      "clips": [
+        "greet",
+        "shiawase"
+      ],
+      "flick": 12,
+      "flicks": 4,
+      "lore": "Reimu's sideburns move with her mood, ぴこぴこ (E02)",
+      "applies": "reimu forms whose hand bones carry hair"
+    },
+    "lock_tremble": {
+      "clips": [
+        "labor",
+        "boat_labor"
+      ],
+      "degrees": 2.5,
+      "hz": 9,
+      "lore": "side hair trembles while straining",
+      "applies": "models whose hand bones carry hair"
+    }
   },
-  "braid_follow": ["eat", "drink", "sleep", "nuzzle", "sing", "sway", "push", "tremble", "droop", "shiawase", "wake", "brood", "midwife", "postpartum", "first_wake", "hat_cradle", "bereaved"]
+  "braid_follow": [
+    "eat",
+    "drink",
+    "sleep",
+    "nuzzle",
+    "sing",
+    "sway",
+    "push",
+    "tremble",
+    "droop",
+    "shiawase",
+    "wake",
+    "brood",
+    "midwife",
+    "postpartum",
+    "first_wake",
+    "hat_cradle",
+    "bereaved",
+    "think",
+    "nervous",
+    "proud",
+    "joy_jump",
+    "sulk",
+    "hide_face",
+    "beg",
+    "bow"
+  ]
 }

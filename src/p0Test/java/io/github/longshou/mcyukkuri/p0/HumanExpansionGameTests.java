@@ -106,12 +106,12 @@ public final class HumanExpansionGameTests {
         check("Both processing works have two dedicated parent pairs",manju.animals("breeder").size()==4&&bag.animals("breeder").size()==4);
         check("Parents receive actual nest homes",manju.animals("breeder").stream().allMatch(y->y.life().homeStand()!=null));
         var captive=bag.animals("input").getFirst();captive.moveTo(1338.5,67,13.5);var id=captive.getUUID();int material=bag.production().material();
-        captive.life().setMedal(2);var family=captive.family().save();
+        captive.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null);var family=captive.family().save();
         check("Input cannot bypass physical staged processing",!bag.production().process(captive)&&bag.production().outputCount()==0);
         check("Completed live packaging produces one finite sealed occupant",finishFixture(bag,captive)&&captive.isRemoved()&&bag.production().outputCount()==1&&bag.production().material()==material-1);
         var sealed=bag.production().product();var token=CarrierItem.token(sealed);var ledger=YukkuriWorldData.get(l);
         var snapshot=ledger.captiveSnapshot(token);
-        check("Package preserves UUID, family and gold qualification",snapshot.hasUUID("UUID")&&snapshot.getUUID("UUID").equals(id)&&snapshot.getCompound("YukkuriFamily").equals(family)&&snapshot.getCompound("YukkuriLife").getBoolean("GoldMedal"));
+        check("Package preserves UUID, family and gold qualification",snapshot.hasUUID("UUID")&&snapshot.getUUID("UUID").equals(id)&&snapshot.getCompound("YukkuriFamily").equals(family)&&snapshot.getCompound("YukkuriPet").getInt("Grade")==3);
         check("Processing state is saved on the live occupant",snapshot.getCompound("NeoForgeData").getCompound("HumanCommerce").getBoolean("ProcessedLive"));
         var saved=new CompoundTag();bag.save(saved);var loaded=HumanWorld.BROTHER.get().create(l);loaded.load(saved);
         check("Factory reload keeps queued token and debited materials",CarrierItem.token(loaded.production().product()).equals(token)&&loaded.production().material()==material-1);

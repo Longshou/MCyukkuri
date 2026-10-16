@@ -35,18 +35,18 @@ def language(chinese):
     zh.update({'page':'用品 %s/5 →','action.14':'购买成品','buy_product':'购成品 · %s 绿宝石','action.15':'交入原料 ×8','worker_away':'工人不在附近，请到生产线旁找工人办理。',
         'production':'成品库存 %s；生产原料 %s。每次购买队首成品一份。','ingredient.0':'此人没有生产线。','ingredient.1':'手持至少 8 根甘蔗，补充劳力工场原料。',
         'ingredient.2':'手持至少 8 份小麦，补充馒头面皮原料。','ingredient.3':'手持至少 8 张纸，补充包装材料。',
-        'medal.0':'','medal.1':'银章·','medal.2':'金章·','bag_description':'检视、清洁后封装的活体。右键地面拆袋，保留原个体身份。捕食种用途尚待该种实装。',
+        'medal.0':'','medal.1':'铜章·','medal.2':'银章·','medal.3':'金章·','bag_description':'检视、清洁后封装的活体。右键地面拆袋，保留原个体身份。捕食种用途尚待该种实装。',
         'guide.factory':'劳力工场：油库里消耗甘蔗劳动制纸，不发工资。馒头厂：小麦与个体的实际馅料制成馒头。袋装厂：检查、清洁后将同一活体封装。后两类设亲代与子油育成区，沿用成长与数量限制；需要油粮补给。成品每份 2 绿宝石，原料耗尽或库存满即停产。旧加工所保留原来的加工方式。',
         'guide.shopkeeper':'四个展舍售卖普通、银章和金章宠物，五页用品共 20 种。金银章是店内教育分级，金章保留识别无饰物个体的能力，不保证性格完美。购买保留同一只个体及徽章。稀有种尚未实装，展示位不售货。'})
     en.update({'page':'Supplies %s/5 >','action.14':'Buy product','buy_product':'Buy product / %s E','action.15':'Deposit 8 materials','worker_away':'No worker nearby. Talk to the worker beside the production line.',
         'production':'Products %s; material %s. Buys the first queued product.','ingredient.0':'No production line.','ingredient.1':'Hold at least 8 sugar cane.',
-        'ingredient.2':'Hold at least 8 wheat.','ingredient.3':'Hold at least 8 paper.','medal.0':'','medal.1':'Silver ','medal.2':'Gold ',
+        'ingredient.2':'Hold at least 8 wheat.','ingredient.3':'Hold at least 8 paper.','medal.0':'','medal.1':'Bronze ','medal.2':'Silver ','medal.3':'Gold ',
         'bag_description':'Inspected and cleaned live occupant. Use on ground to open once, preserving identity. Predator use awaits predator implementation.',
         'guide.factory':'Labor works use sugar cane and unpaid yukkuri labor to make paper. Manju works consume wheat and actual filling. Bag works inspect and clean a live individual, then seal that individual. Both processing works have parent and nursery rooms using normal growth and population limits. Feed donations sustain care. Products cost 2 emeralds. Full storage or exhausted materials pauses production. Legacy works retain their former processing.',
         'guide.shopkeeper':'Four actual pets: ordinary, silver and gold grades. Five pages offer 20 supplies. Badges represent shop education, not guaranteed perfect temperament; gold keeps accessory-independent recognition. Purchases preserve the individual and its badge. Rare species are not implemented or offered for sale.'})
     for k,v in (zh if chinese else en).items():keys['human.mcyukkuri.'+k]=v
     keys['human.mcyukkuri.guide.factory']=keys['human.mcyukkuri.guide.factory'].replace('成品每份 2 绿宝石','纸张／馒头／活体袋分别为 1／2／4 绿宝石').replace('Products cost 2 emeralds.','Paper, manju and live bags cost 1, 2 and 4 emeralds respectively.')
-    for id,cn,en_name in [('yukkuri_manju','油库里馒头','Yukkuri Manju'),('live_yukkuri_bag','袋装活体油库里','Packaged Live Yukkuri'),('silver_yukkuri_badge','油库里银章','Silver Yukkuri Badge'),('gold_yukkuri_badge','油库里金章','Gold Yukkuri Badge'),('labor_bench','油库里劳动作业台','Yukkuri Labor Bench'),('manju_steamer','油库里馒头蒸制机','Yukkuri Manju Steamer'),('live_packing_table','油库里活体封装台','Live Yukkuri Packing Table'),('nursery_station','子油育成护理台','Yukkuri Nursery Station')]:
+    for id,cn,en_name in [('yukkuri_manju','油库里馒头','Yukkuri Manju'),('live_yukkuri_bag','袋装活体油库里','Packaged Live Yukkuri'),('bronze_yukkuri_badge','油库里铜章','Bronze Yukkuri Badge'),('silver_yukkuri_badge','油库里银章','Silver Yukkuri Badge'),('gold_yukkuri_badge','油库里金章','Gold Yukkuri Badge'),('labor_bench','油库里劳动作业台','Yukkuri Labor Bench'),('manju_steamer','油库里馒头蒸制机','Yukkuri Manju Steamer'),('live_packing_table','油库里活体封装台','Live Yukkuri Packing Table'),('nursery_station','子油育成护理台','Yukkuri Nursery Station')]:
         keys['item.mcyukkuri.'+id]=cn if chinese else en_name;keys['block.mcyukkuri.'+id]=cn if chinese else en_name
     for i in range(13):
         if i<4: v='白天购买用品，需足够绿宝石及一个背包空位。' if chinese else 'Daylight supply trade; requires emeralds and a free inventory slot.'
@@ -64,6 +64,7 @@ def language(chinese):
     keys['human.mcyukkuri.help.21']='查看下一页实际可售个体，包括捕食种。' if chinese else 'Browse the next page of actual stock, including predators.'
     keys['human.mcyukkuri.animals_page']='本店活体 · %s/%s 页' if chinese else 'Animals / page %s of %s'
     keys.update(load('art/structures/human-world/pipeline_language.py','factory_pipeline_language').language(chinese))
+    keys.update(load('art/structures/human-world/author_exam_props.py','exam_props_language').language('zh_cn' if chinese else 'en_us'))
     return keys
 def main(check=False):
     manifest=ROOT/'art/structures/human-world/exports.json'
@@ -75,6 +76,9 @@ def main(check=False):
         for lang in ['zh_cn','en_us']:
             actual=json.loads((ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json').read_text(encoding='utf-8'))
             errors.extend(lang+':'+k for k,v in language(lang=='zh_cn').items() if actual.get(k)!=v)
+        actual=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json').read_text(encoding='utf-8'))
+        errors.extend('ja_jp:'+k for k,v in load('art/structures/human-world/author_exam_props.py','exam_props_language').language('ja_jp').items() if actual.get(k)!=v)
+        errors.extend('shop structure: '+e for e in load('art/structures/human-world/check_structure.py','shop_structure_check').check_shop())
         if errors:raise SystemExit('Human-world assets differ: '+', '.join(errors))
         print(f"Human-world sources and exports match ({len(record['files'])} files).")
         return
@@ -82,6 +86,11 @@ def main(check=False):
     load('standards/yukkuri-library/tools/author_human_npcs.py','build_human_textures').export()
     load('art/structures/human-world/author_products.py','build_human_products').export()
     load('art/structures/human-world/author_pipeline.py','build_factory_pipeline').export()
+    exam=load('art/structures/human-world/author_exam_props.py','build_exam_props'); exam.export()
+    problems=load('art/structures/human-world/check_structure.py','shop_structure_check').check_shop()
+    if problems: raise SystemExit('Shop structure checks failed: '+'; '.join(problems))
+    p=ROOT/'src/main/resources/assets/mcyukkuri/lang/ja_jp.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(exam.language('ja_jp'))
+    p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     for lang in ['zh_cn','en_us']:
         p=ROOT/f'src/main/resources/assets/mcyukkuri/lang/{lang}.json';data=json.loads(p.read_text(encoding='utf-8'));data.update(language(lang=='zh_cn'))
         p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -89,12 +98,16 @@ def main(check=False):
         p=ROOT/f'src/main/resources/assets/mcyukkuri/models/item/{id}_spawn_egg.json';p.write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8')
     patterns=['src/main/resources/data/mcyukkuri/structure/yukkuri_*.nbt','src/main/resources/data/mcyukkuri/worldgen/*/yukkuri_*.json',
               'src/main/resources/assets/mcyukkuri/textures/entity/human/*.png','standards/yukkuri-library/textures/human/*.png',
-              'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*']
-    paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
+              'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*',
+              'src/main/resources/assets/mcyukkuri/textures/block/exam_*.png','src/main/resources/assets/mcyukkuri/models/block/exam_*.json','src/main/resources/assets/mcyukkuri/models/item/exam_*.json',
+              'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json']
+    paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
     paths.append(ROOT/'art/structures/human-world/author_pipeline.py')
     paths.append(ROOT/'art/structures/human-world/pipeline_language.py')
+    paths.extend([ROOT/'art/structures/human-world/author_exam_props.py',ROOT/'art/structures/human-world/check_structure.py'])
+    paths.extend(ROOT.glob('src/main/java/io/github/longshou/mcyukkuri/human/Exam*Block.java'))
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java')
     paths.append(ROOT/'src/main/resources/assets/mcyukkuri/textures/block/workshop_casing.png')
     paths.append(ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/FactoryStationBlock.java')
