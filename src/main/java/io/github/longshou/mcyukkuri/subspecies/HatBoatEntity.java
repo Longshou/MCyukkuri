@@ -68,6 +68,7 @@ public final class HatBoatEntity extends Entity {
     private static final class CarryTrip {
         final UUID child;
         final Vec3 from, destination, pickup, ownerDestination, offset;
+        Vec3 facing;
         Vec3 lastAnchor;
         int phase, contact;
         long at;
@@ -75,6 +76,7 @@ public final class HatBoatEntity extends Entity {
             this.child=child; this.from=from; this.destination=destination; this.pickup=pickup;
             this.ownerDestination=ownerDestination; this.offset=offset; this.at=at;
             this.lastAnchor=from;
+            this.facing=destination.subtract(ownerDestination).multiply(1,0,1).normalize();
         }
     }
     private CarryTrip carryTrip;
@@ -109,15 +111,21 @@ public final class HatBoatEntity extends Entity {
     public HatBoatCargo cargo() { return cargo; }
     void syncCargo(CompoundTag data) { entityData.set(CARGO, data); }
     public boolean paddling() { return entityData.get(PADDLING); }
-    public void stopPaddling() { route.clear(); entityData.set(PADDLING, false); }
+    private double finalWaypointToleranceSquared = .12;
+    public void stopPaddling() { route.clear(); finalWaypointToleranceSquared = .12; entityData.set(PADDLING, false); }
     public boolean paddleTo(Vec3 destination) {
         if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed() || carryTrip != null) return false;
         return paddleAlong(destination == null ? java.util.List.of() : HatBoatRoute.find(this, destination));
     }
     /** A route already checked by the supervised first-voyage planner. */
     boolean paddleAlong(java.util.List<Vec3> path) {
+        return paddleAlong(path,.12);
+    }
+    /** Shore gathering may need a precise final berth; ordinary travel and first voyages retain their usual tolerance. */
+    boolean paddleAlong(java.util.List<Vec3> path,double finalToleranceSquared) {
         if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed()) return false;
         stopPaddling(); route.addAll(path);
+        finalWaypointToleranceSquared = Double.isFinite(finalToleranceSquared) ? Math.clamp(finalToleranceSquared,.0004,.12) : .12;
         entityData.set(PADDLING, !route.isEmpty()); return !route.isEmpty();
     }
     /** The stick holds the boat briefly during boarding; sleeping boats still drift with the current. */
@@ -734,12 +742,14 @@ public final class HatBoatEntity extends Entity {
 
     /** A service pose is usable only when the parent can also collect and transport the real child. */
     private Vec3 carryPickup(YukkuriEntity child,YukkuriEntity parent,Vec3 from,Vec3 to,Vec3 ownerDestination) {
-        Vec3 offset=to.subtract(ownerDestination).multiply(1,0,1), xz=from.subtract(offset);
+        Vec3 direction=to.subtract(ownerDestination).multiply(1,0,1).normalize();
+        Vec3 offset=HatCareAnchor.offset(parent,child,direction,unit());if(offset==null)return null;
+        Vec3 xz=from.subtract(offset);
         Vec3 pickup=new Vec3(xz.x,HatVessel.footprint(mode(),xz.x,xz.z,radiusOf(parent)),xz.z);
         if (!Double.isFinite(pickup.y) || !serviceGeometryFits(parent,child,pickup,from)) return null;
         if (toLocal(parent.position()).distanceToSqr(pickup)>.01 && walkingRoute(parent,pickup).isEmpty()) return null;
         var path=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),takenExcept(child.getUUID()),
-                offset.add(0,parent.getBbHeight()*.35/unit(),0),radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
+                offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
         return path.isEmpty() && pickup.distanceToSqr(ownerDestination)>.01?null:pickup;
     }
 
@@ -761,8 +771,9 @@ public final class HatBoatEntity extends Entity {
         if (!moveOwnerSeat(parent,pickup,false)) return false;
         seatMoves.remove(child.getUUID());
         seats.put(child.getUUID(),new double[]{from.x,from.y,from.z,radiusOf(child)});
+        Vec3 carryOffset=HatCareAnchor.offset(parent,child,to.subtract(ownerDestination).multiply(1,0,1).normalize(),unit());
         carryTrip=new CarryTrip(child.getUUID(),from,to,pickup,ownerDestination,
-                new Vec3(offset.x,parent.getBbHeight()*.35/unit(),offset.z),level().getGameTime());
+                carryOffset,level().getGameTime());
         syncSeats(); return true;
     }
 
@@ -800,15 +811,16 @@ public final class HatBoatEntity extends Entity {
             }
             return;
         }
-        Vec3 held=toWorld(ownerCarryLocal(parent).add(trip.offset));
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(parent,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(parent.position(),held));
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(child,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(held,parent.position()));
+        float carryYaw=io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(Vec3.ZERO,trip.facing.yRot(turn()));
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(parent,carryYaw);
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(child,carryYaw+180);
         if (trip.phase==1 && level().getGameTime()-trip.at>=12) {
             var path=HatSurfaceRoute.find(mode(),toLocal(parent.position()),trip.ownerDestination,radiusOf(parent),
                     takenExcept(child.getUUID()),trip.offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
             if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(trip.ownerDestination)>.01) {
                 // Nothing was handed off: lower at the pickup patch and let the retained return retry.
                 carryTrip=new CarryTrip(trip.child,trip.from,trip.from,trip.pickup,trip.pickup,trip.offset,level().getGameTime());
+                carryTrip.facing=trip.facing;
                 carryTrip.phase=3; syncSeats(); return;
             }
             ownerServiceSeat=trip.ownerDestination;
@@ -864,7 +876,7 @@ public final class HatBoatEntity extends Entity {
     private CompoundTag saveCarry(CarryTrip trip) {
         var tag=new CompoundTag();tag.putUUID("Child",trip.child);if(ownerYukkuri()!=null)tag.putUUID("Holder",ownerYukkuri());
         tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at); point(tag,"From",trip.from);point(tag,"To",trip.destination);
-        point(tag,"Pickup",trip.pickup);point(tag,"OwnerTo",trip.ownerDestination);point(tag,"Offset",trip.offset);
+        point(tag,"Pickup",trip.pickup);point(tag,"OwnerTo",trip.ownerDestination);point(tag,"Offset",trip.offset);point(tag,"Facing",trip.facing);
         var parent=getPassengers().stream().filter(p->p.getUUID().equals(ownerYukkuri())&&p instanceof YukkuriEntity).map(p->(YukkuriEntity)p).findFirst().orElse(null);
         if (parent!=null) point(tag,"OwnerNow",ownerCarryLocal(parent));
         point(tag,"ChildNow",carriedLocal(trip)); return tag;
@@ -873,7 +885,7 @@ public final class HatBoatEntity extends Entity {
         if (!level().isClientSide) return carryTrip;
         var tag=entityData.get(SEATS).getCompound("Carry"); if (!tag.hasUUID("Child")) return null;
         var trip=new CarryTrip(tag.getUUID("Child"),point(tag,"From"),point(tag,"To"),point(tag,"Pickup"),point(tag,"OwnerTo"),point(tag,"Offset"),tag.getLong("At"));
-        trip.phase=tag.getInt("Phase");trip.lastAnchor=point(tag,"ChildNow");return trip;
+        trip.phase=tag.getInt("Phase");trip.lastAnchor=point(tag,"ChildNow");if(tag.contains("FacingX"))trip.facing=point(tag,"Facing");return trip;
     }
 
     private Vec3 escortPlace(YukkuriEntity parent,YukkuriEntity child,Vec3 brim){
@@ -901,8 +913,10 @@ public final class HatBoatEntity extends Entity {
     private Vec3 walkingPosition(Entity rider,SeatMove movement,double time){
         Vec3 at=toWorld(walkingLocal(rider,movement,time));
         if(!level().isClientSide&&time>0&&time<movement.ticks()&&rider instanceof YukkuriEntity y&&at.subtract(rider.position()).horizontalDistanceSqr()>.00001) {
-            Vec3 facing=carryTrip!=null && carryTrip.phase>0 && rider.getUUID().equals(ownerYukkuri())?toWorld(walkingLocal(rider,movement,time).add(carryTrip.offset)):at;
-            io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(rider.position(),facing));
+            float yaw=carryTrip!=null && carryTrip.phase>0 && rider.getUUID().equals(ownerYukkuri())
+                    ?io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(Vec3.ZERO,carryTrip.facing.yRot(turn()))
+                    :io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(rider.position(),at);
+            io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,yaw);
         }
         return at;
     }
@@ -1372,7 +1386,7 @@ public final class HatBoatEntity extends Entity {
                     || captain.isCommandPlaying() || captain.isPanicking() || captain.life().isSleeping() || !cargo.paddle()) stopPaddling();
             if (isAfloat() && !route.isEmpty()) {
                 var next = route.peekFirst();
-                if (position().subtract(next).horizontalDistanceSqr() < .12) route.removeFirst();
+                if (position().subtract(next).horizontalDistanceSqr() < (route.size()==1 ? finalWaypointToleranceSquared : .12)) route.removeFirst();
                 if (route.isEmpty()) stopPaddling();
                 else {
                     next = route.peekFirst(); var step = BlockPos.containing(next.x, next.y-.12, next.z);
@@ -1459,6 +1473,7 @@ public final class HatBoatEntity extends Entity {
                 Vec3 offset=phase==3?now.subtract(ownerNow):point(c,"Offset");
                 carryTrip=new CarryTrip(c.getUUID("Child"),phase==1?now:original,point(c,"To"),point(c,"Pickup"),point(c,"OwnerTo"),offset,level().getGameTime());
                 carryTrip.lastAnchor=now;
+                if(c.contains("FacingX"))carryTrip.facing=point(c,"Facing");
                 carryTrip.phase=phase; recoverCarry=phase==0 || phase==2;
                 ownerServiceSeat=ownerNow;
                 for(var raw:tag.getList("CarryPassengerSeats",net.minecraft.nbt.Tag.TAG_COMPOUND)) {

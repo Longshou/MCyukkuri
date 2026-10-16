@@ -65,6 +65,7 @@ public final class HatShoreForageGameTests {
             if(stage[0]==0) {
                 if(ticks[0]<20)helper.assertTrue(boat.cargo().count()==0&&level.getBlockState(bush).equals(ripe),"a plant is never harvested remotely while sailing toward it");
                 if(forage.harvesting()&&++contacts[0]>=8) {
+                    helper.assertTrue(level.noCollision(boat,boat.getBoundingBox()),"the physical hull remains clear of the solid bank while its captain reaches the berries");
                     helper.assertTrue(boat.cargo().count()==0&&level.getBlockState(bush).equals(ripe),"partial mouth contact has reserved no berries");
                     sample.run(); forage.stop(); level.setBlock(obstacle,Blocks.STONE.defaultBlockState(),3); stage[0]=1; ticks[0]=0;
                 }

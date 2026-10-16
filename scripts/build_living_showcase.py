@@ -89,7 +89,7 @@ def cave(x, z, initialized=False):
 
 def parent(zone, role, species, x, z, maturity, aquatic=False):
     data = n.Compound({'Tags': n.List[n.String](['living_showcase', 'living_'+zone, f'living_{zone}_{role}']),
-                       'PersistenceRequired': n.Byte(1), 'CustomName': n.String(component('母油' if role=='mother' else '父油')),
+                       'PersistenceRequired': n.Byte(1), 'OnGround': n.Byte(1), 'CustomName': n.String(component('母油' if role=='mother' else '父油')),
                        'YukkuriLife': n.Compound({'Nutrition': n.Float(95), 'Energy': n.Float(95), 'Hygiene': n.Float(100), 'Accessory': n.Byte(1)}),
                        'YukkuriFamily': n.Compound({'Version': n.Int(2), 'Initialized': n.Byte(1), 'Stage': n.String('ADULT'),
                            'Age': n.Long(maturity), 'Nourishment': n.Long(maturity), 'Maturity': n.Long(maturity),
@@ -155,8 +155,8 @@ def build(world, maturity):
                      'gamerule sendCommandFeedback true', 'gamerule keepInventory true', 'gamerule spawnRadius 0',
                      'difficulty peaceful', 'time set 2000', 'weather clear', 'setworldspawn 32 65 12 0',
                      'forceload add 0 0 79 31']
-    # Load all seven small construction footprints before delayed block writes (well below the 256-chunk limit).
-    prepare += [f'forceload add {x} {z} {x+63} {z+63}' for _, _, x, z, _ in ZONES]
+    # Include both exterior boardwalks: 24 chunks per zone, plus 10 hub chunks = 178 (<256).
+    prepare += [f'forceload add {x-3} {z} {x+66} {z+63}' for _, _, x, z, _ in ZONES]
     p.fn('prepare', prepare + ['schedule function mcyliving:build/hub 2s replace'])
     hub = ['fill 0 63 0 79 64 31 minecraft:smooth_sandstone', 'fill 2 64 3 76 64 28 minecraft:oak_planks',
            label(37, 70, 3, '从出生，到自己的生活\n连续家庭  /  自然取材  /  四季聚落', 1.25),
@@ -164,7 +164,7 @@ def build(world, maturity):
     for i, (zone, title, x, z, biome) in enumerate(ZONES):
         hx = 7+i*10
         hub += control(hx, 23, 'function mcyliving:visit/'+zone, title[3:11], '前往本区')
-        p.fn('visit/'+zone, [f'forceload add {x} {z} {x+63} {z+63}', f'tp @p {x+31.5} 65 {z+4.5} 0 4', tell(title+'：在此按开始；观测通道在玻璃围栏外。')])
+        p.fn('visit/'+zone, [f'forceload add {x-3} {z} {x+66} {z+63}', f'tp @p {x+31.5} 65 {z+4.5} 0 4', tell(title+'：在此按开始；观测通道在玻璃围栏外。')])
         permanent = [f'fill {x-3} 63 {z} {x+66} 64 {z+7} minecraft:smooth_sandstone',
                      f'fill {x+2} 64 {z+1} {x+61} 64 {z+6} minecraft:oak_planks',
                      f'fill {x-3} 64 {z+8} {x-1} 64 {z+58} minecraft:oak_planks',
@@ -186,13 +186,13 @@ def build(world, maturity):
         elif zone == 'summer':
             permanent += control(x+59, z+3, 'time set 6000', '午休章节', '影响全世界时间')
         p.fn(zone+'/terrain', terrain(zone, x, z, biome))
-        p.fn('build/'+zone, [f'forceload add {x} {z} {x+63} {z+63}'] + permanent + [f'function mcyliving:{zone}/terrain',
-            f'scoreboard players set #{zone} living 0', f'forceload remove {x} {z} {x+63} {z+63}',
+        p.fn('build/'+zone, [f'forceload add {x-3} {z} {x+66} {z+63}'] + permanent + [f'function mcyliving:{zone}/terrain',
+            f'scoreboard players set #{zone} living 0', f'forceload remove {x-3} {z} {x+66} {z+63}',
             ('schedule function mcyliving:build/'+ZONES[i+1][0]+' 2s replace') if i+1<len(ZONES) else 'function mcyliving:ready'])
         p.fn(zone+'/start', [f'execute unless score #{zone} living matches 1 unless entity @e[tag=living_{zone}] run function mcyliving:{zone}/begin',
                             f'execute if score #{zone} living matches 1 run '+tell('本区正在连续生活。重置才重新出生；加速改变全世界tick速度。'),
                             f'execute unless score #{zone} living matches 1 if entity @e[tag=living_{zone}] run '+tell('上次初始化未完成，请按本区重置后再开始；不会重复生成父母。')])
-        p.fn(zone+'/reset', [f'forceload add {x} {z} {x+63} {z+63}',
+        p.fn(zone+'/reset', [f'forceload add {x-3} {z} {x+66} {z+63}',
                             f'execute store success score #reset living run yukkuri showcase reset {zone}',
                             f'execute if score #reset living matches 1 run scoreboard players set #{zone} living 0',
                             f'execute if score #reset living matches 1 run function mcyliving:{zone}/terrain',
@@ -202,7 +202,7 @@ def build(world, maturity):
         if zone in ('land', 'heights', 'water'):
             water = zone == 'water'
             mother = f'@e[tag=living_{zone}_mother,limit=1]'; father = f'@e[tag=living_{zone}_father,limit=1]'
-            begin = [f'forceload add {x} {z} {x+63} {z+63}',
+            begin = [f'forceload add {x-3} {z} {x+66} {z+63}',
                      parent(zone, 'mother', 'marisa' if water else 'reimu', x+16, z+25, maturity, water),
                      parent(zone, 'father', 'marisa', x+17, z+25, maturity, water),
                      f'execute store success score #{zone} living run yukkuri showcase pair {mother} {father} {x+16} 65 {z+25} live',
@@ -228,7 +228,7 @@ def build(world, maturity):
                                   'tellraw @p '+js({'text':'子代护理与运动记录：', 'color':'yellow', 'extra':[{'nbt':'YukkuriChildhood', 'entity':f'@e[tag=living_{zone},tag=!living_{zone}_mother,tag=!living_{zone}_father,type=!mcyukkuri:hat_boat]'}]}),
                                   tell('观察笔记能查看每只子代和住所；这里没有把计数器当成通过结论。状态命令没有对象时会直接报告。')])
         else:
-            begin = [f'forceload add {x} {z} {x+63} {z+63}',
+            begin = [f'forceload add {x-3} {z} {x+66} {z+63}',
                      f'execute store success score #{zone} living run yukkuri settlement spawn forest_led {x+28} 65 {z+32}',
                      f'execute as @e[x={x},y=60,z={z},dx=63,dy=25,dz=63,tag=!living_showcase] if data entity @s YukkuriFamily run tag @s add living_{zone}',
                      f'tag @e[tag=living_{zone}] add living_showcase',

@@ -26,6 +26,7 @@ public final class HatShoreForage {
     private int elapsed, contact, retry;
     private long lastContactTick = Long.MIN_VALUE;
     private String reason = "idle";
+    private int foundPlants, rejectedWater, rejectedCollision, rejectedRoute;
 
     public HatShoreForage(YukkuriEntity owner) { this.owner = owner; }
     public boolean active() { return target != null; }
@@ -51,8 +52,8 @@ public final class HatShoreForage {
                 || !HatBoatRoute.calmSurface(owner.level(), target.water())
                 || HatBoatCargo.CAPACITY - boat.cargo().count() < fruitCount(target.state())
                 || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; stop(); return false; }
-        Vec3 berth = berth(target.plant(), target.water());
-        if (boat.position().subtract(berth).horizontalDistanceSqr() > .16) {
+        Vec3 berth = berth(target.plant(), target.water(),boat);
+        if (boat.position().subtract(berth).horizontalDistanceSqr() > .0025) {
             reason = "sailing_to_shore";
             contact = 0; lastContactTick = Long.MIN_VALUE;
             if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; stop(); return false; }
@@ -89,6 +90,7 @@ public final class HatShoreForage {
 
     private Target find(HatBoatEntity boat) {
         var level = owner.level(); var plants = new ArrayList<BlockPos>();
+        foundPlants = rejectedWater = rejectedCollision = rejectedRoute = 0;
         for (var at : BlockPos.betweenClosed(boat.blockPosition().offset(-10, -1, -10), boat.blockPosition().offset(10, 1, 10))) {
             if (!level.hasChunkAt(at)) continue;
             var state = level.getBlockState(at);
@@ -96,34 +98,46 @@ public final class HatShoreForage {
                     && HatBoatCargo.CAPACITY - boat.cargo().count() >= fruitCount(state)
                     && boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) plants.add(at.immutable());
         }
+        foundPlants=plants.size();
         plants.sort(Comparator.comparingDouble(at -> at.distSqr(boat.blockPosition())));
         for (var plant : plants) for (var side : Direction.Plane.HORIZONTAL) {
             var water = plant.relative(side).below();
-            if (!HatBoatRoute.calmSurface(level, water)) continue;
-            var berth = berth(plant, water);
-            if (!level.noCollision(boat, boat.getBoundingBox().move(berth.subtract(boat.position())))) continue;
-            var current = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
-            if (!current.equals(water) && HatBoatRoute.find(boat, berth).isEmpty()) continue;
+            if (!HatBoatRoute.calmSurface(level, water)) { rejectedWater++; continue; }
+            var berth = berth(plant, water, boat);
+            if (!level.noCollision(boat, boat.getBoundingBox().move(berth.subtract(boat.position())))) { rejectedCollision++; continue; }
+            if (HatBoatRoute.find(boat, berth).isEmpty() && !finalLegClear(boat,water,berth)) { rejectedRoute++; continue; }
             return new Target(plant, water.immutable(), level.getBlockState(plant));
         }
         return null;
     }
 
-    /** Aim within the actual water cell beside the plant, allowing the normal route's stopping tolerance. */
-    private Vec3 berth(BlockPos plant, BlockPos water) {
+    /** Water sits below the solid bank top. Keep the entire physical hull off the bank, not just its centre. */
+    private Vec3 berth(BlockPos plant, BlockPos water,HatBoatEntity boat) {
         var surface = HatBoatRoute.surface(owner.level(), water);
         var shore = Vec3.atCenterOf(plant).subtract(surface).multiply(1,0,1).normalize();
-        return surface.add(shore.scale(.30));
+        return surface.add(shore.scale(.5-boat.getBbWidth()*.5-.03));
     }
 
     private boolean sailToBerth(HatBoatEntity boat, Vec3 berth) {
         var route = new ArrayList<>(HatBoatRoute.find(boat, berth));
-        var current = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
-        if (route.isEmpty() && !current.equals(target.water())) return false;
+        if (route.isEmpty() && !finalLegClear(boat,target.water(),berth)) return false;
         // Surface BFS ends at a cell centre. This final waypoint stays inside that same calm water cell;
         // all movement/collisions still run through the actual hat paddling physics.
         route.add(berth);
-        return boat.paddleAlong(route);
+        return boat.paddleAlong(route,.0025);
+    }
+
+    /** Grid-centre BFS may reject the shore cell's centre even though its outward-offset berth is clear. */
+    private boolean finalLegClear(HatBoatEntity boat,BlockPos water,Vec3 berth) {
+        var current=BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());
+        if(current.distManhattan(water)>1 || boat.position().subtract(berth).horizontalDistanceSqr()>2.25)return false;
+        var level=owner.level(); int steps=Math.max(1,(int)Math.ceil(boat.position().distanceTo(berth)/.10));
+        for(int i=1;i<=steps;i++) {
+            var at=boat.position().lerp(berth,(double)i/steps);
+            var cell=BlockPos.containing(at.x,at.y-.12,at.z);
+            if(!HatBoatRoute.calmSurface(level,cell)||!level.noCollision(boat,boat.getBoundingBox().move(at.subtract(boat.position()))))return false;
+        }
+        return true;
     }
 
     public java.util.Map<String,Object> debug(HatBoatEntity boat) {
@@ -135,9 +149,11 @@ public final class HatShoreForage {
         value.put("aboard",owner.getVehicle()==boat); value.put("sleeping",owner.life().isSleeping()); value.put("meal",owner.life().mealTicks());
         value.put("nutrition",owner.life().nutrition()); value.put("energy",owner.life().energy()); value.put("flooding",boat.flooding());
         value.put("mobGriefing",EventHooks.canEntityGrief(owner.level(),owner));
+        value.put("hullWidth",boat.getBbWidth()); value.put("hullCollisionFree",owner.level().noCollision(boat,boat.getBoundingBox()));
+        value.put("foundPlants",foundPlants); value.put("rejectedWater",rejectedWater); value.put("rejectedCollision",rejectedCollision); value.put("rejectedRoute",rejectedRoute);
         if(target!=null) {
             value.put("plant",target.plant().toShortString()); value.put("source",owner.level().getBlockState(target.plant()).toString());
-            value.put("berth",berth(target.plant(),target.water()).toString());
+            value.put("berth",berth(target.plant(),target.water(),boat).toString());
             Vec3 mouth=mouth(); Vec3 point=point(target.plant(),mouth);
             value.put("mouth",mouth.toString()); value.put("touch",point.toString()); value.put("mouthGap",mouth.distanceTo(point));
             value.put("contactValid",mouthTouches(target.plant()));

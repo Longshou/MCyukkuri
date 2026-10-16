@@ -590,6 +590,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
+        if (behavior.equals("hat_walk") || behavior.equals("boat_be_carried"))
+            return io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
         // Real sleep, meals and ongoing care win over a lingering newborn reaction.
         return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
                 : behavior.equals("newborn_crawl") || behavior.equals("learn_jump") || behavior.equals("boat_toilet")

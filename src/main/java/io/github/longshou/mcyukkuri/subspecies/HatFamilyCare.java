@@ -50,7 +50,7 @@ public final class HatFamilyCare {
     }
     public String response(YukkuriEntity young) {
         if(young.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(young))return "boat_be_carried";
-        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(young))return "hat_walk";
+        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(young)&&!boat.practisingMove(young))return "hat_walk";
         if (kind == Kind.LULLABY && parent.getVehicle() == young.getVehicle()) return "boat_listen";
         if (!young.getUUID().equals(child)) return "idle";
         if (finishTicks > 0) return kind == Kind.FEED && young.life().mealTicks() > 0 ? "boat_eat" : "boat_receive_care";
