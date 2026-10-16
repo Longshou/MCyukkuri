@@ -12,12 +12,14 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 
 /** Read-only pet profile. The server keeps a stable subject list; client button packets never supply an animal UUID.
- *  Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20+ reserved for lessons, 30+ for breeding. */
+ *  Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20-23 start a lesson (manners, academics, wits, poise), 30+ reserved for breeding.
+ *  Data 40-44: lesson state (0 idle, 1-4 running kind+1, 5 awaiting reaction), cooldown seconds, lessons today, precondition bitmask, ready flag. */
 public final class BadgeMenu extends AbstractContainerMenu {
     private final List<UUID> subjects = new ArrayList<>();
     private final Player viewer;
     private int selected;
-    private final ContainerData data = new SimpleContainerData(40);
+    private final ContainerData data = new SimpleContainerData(48);
+    private int maskClock, mask;
     public BadgeMenu(int id, Inventory inventory, int subjectId) {
         super(HumanWorld.BADGE_MENU.get(), id); viewer = inventory.player;
         if (!viewer.level().isClientSide) {
@@ -44,7 +46,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
     private void refresh() {
         if (viewer.level().isClientSide) return;
         var y = subject(); data.set(0, y == null ? 0 : y.getId()); data.set(1, subjects.size()); data.set(2, selected + 1);
-        for (int i = 3; i < 40; i++) data.set(i, 0);
+        for (int i = 3; i < 48; i++) data.set(i, 0);
         if (y == null) return;
         data.set(38, y.getId() & 0xffff); data.set(39, y.getId() >>> 16);
         var b = y.pet(); data.set(3, b.grade().id());
@@ -63,20 +65,29 @@ public final class BadgeMenu extends AbstractContainerMenu {
         data.set(24, b.unauthorizedBirths()); data.set(25, b.owned(viewer) ? 1 : 0); data.set(26, b.near(viewer) ? 1 : 0);
         data.set(27, y.getVariant().isPredator() ? 1 : 0); data.set(28, y.predator().obedient() ? 1 : 0); data.set(29, y.predator().order().ordinal());
         data.set(30, b.busy() ? 1 : 0); data.set(34, y.life().hasAccessory() ? 1 : 0);
+        var lessons = b.lessons();
+        data.set(40, lessons.running() ? 1 + lessons.kind().ordinal() : lessons.awaitingFeedback() ? 5 : 0);
+        data.set(41, (b.cooldown() + 19) / 20); data.set(42, lessons.today());
+        if (b.owned(viewer) && b.near(viewer)) {
+            if (maskClock-- <= 0) { maskClock = 20; mask = 0; for (var a : Ability.values()) if (lessons.preconditionOk(viewer, a)) mask |= 1 << a.ordinal(); }
+            data.set(43, mask); data.set(44, b.readyFor(viewer) && b.cooldown() == 0 ? 1 : 0);
+        }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 13) return false;
-        if (id == 8) { if (!subjects.isEmpty()) selected = (selected + 1) % subjects.size(); broadcastChanges(); return true; }
+        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 23 || id > 13 && id < 20) return false;
+        if (id == 8) { if (!subjects.isEmpty()) selected = (selected + 1) % subjects.size(); maskClock = 0; broadcastChanges(); return true; }
         var y = subject(); if (y == null || !y.pet().near(p)) return false;
         var b = y.pet();
         boolean ok = switch (id) {
             case 5 -> b.detach(p);
             case 10 -> b.attach(p, p.getMainHandItem());
+            case 20, 21, 22, 23 -> b.owned(p) && b.lessons().start(p, Ability.values()[id - 20]);
             case 11, 12, 13 -> y.predator().command(p, io.github.longshou.mcyukkuri.predator.PredatorLife.Order.values()[id - 10]);
             default -> false;
         };
-        if (!ok) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
+        if (ok && id >= 20) { p.closeContainer(); return true; } // the owner watches the lesson in the world
+        if (!ok && id < 20) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
         broadcastChanges(); return ok;
     }
 }

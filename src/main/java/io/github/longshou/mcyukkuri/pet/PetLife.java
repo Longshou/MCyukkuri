@@ -28,7 +28,9 @@ public final class PetLife {
     private UUID serial, issuer, lockedBy;
     private String lockKind;
     private Director director;
-    public PetLife(YukkuriEntity animal) { this.animal = animal; }
+    private final PetLessons lessons;
+    public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); }
+    public PetLessons lessons() { return lessons; }
 
     // ownership
     public UUID owner() { var t = HumanCommerce.data(animal); return t.hasUUID("Owner") ? t.getUUID("Owner") : null; }
@@ -208,6 +210,7 @@ public final class PetLife {
         if (animal.level().isClientSide) return;
         if (!pedigreeSet) setPedigree(15 + animal.getRandom().nextInt(31));
         if (cooldown > 0) cooldown--; if (socialCooldown > 0) socialCooldown--;
+        lessons.tick();
         stressClock += animal.life().isSleeping() ? 2 : 1;
         if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }

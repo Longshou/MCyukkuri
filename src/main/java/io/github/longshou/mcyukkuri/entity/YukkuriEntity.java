@@ -720,7 +720,9 @@ public final class YukkuriEntity extends PathfinderMob {
         }
         if (!level().isClientSide) {
             ItemStack one = stack.copyWithCount(1);
+            boolean spoiled = !prepared && pet.owned(player) && life.nutrition() > 60;
             boolean fed = prepared ? life.beginPreparedMeal(one, player.getUUID()) : life.beginMeal(one, player.getUUID(), false);
+            if (fed && spoiled) pet.addIndulgence(2);
             if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);

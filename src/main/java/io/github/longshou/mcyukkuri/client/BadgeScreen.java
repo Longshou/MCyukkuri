@@ -9,7 +9,8 @@ import net.minecraft.world.entity.player.Inventory;
 
 public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
     private static final int[] BUTTONS = {5, 10, 8, 11, 12, 13};
-    private final Button[] buttons = new Button[14];
+    private final Button[] buttons = new Button[24];
+    private final String[] lessonTip = new String[4];
     public BadgeScreen(BadgeMenu m, Inventory inv, Component title) { super(m, inv, title); imageWidth = 360; imageHeight = 250; }
     @Override protected void init() {
         super.init();
@@ -20,6 +21,12 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
             }).bounds(leftPos + 10 + n % 3 * 115, topPos + 176 + n / 3 * 24, 110, 20)
                     .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build());
         }
+        for (int k = 0; k < 4; k++) {
+            final int id = 20 + k;
+            buttons[id] = addRenderableWidget(Button.builder(Component.translatable("pet.mcyukkuri.ui.lesson." + k), b -> {
+                if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
+            }).bounds(leftPos + 10 + k * 58, topPos + 224, 55, 20).build());
+        }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos+240, topPos+224, 110, 20).build());
     }
     @Override protected void containerTick() {
@@ -27,6 +34,15 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         buttons[5].active = own && idle && menu.value(3) > 0 && menu.value(6) == 1;
         buttons[10].active = own && idle && menu.value(3) > 0 && menu.value(6) == 0 && menu.value(34) == 1;
         buttons[8].active = menu.value(1) > 1;
+        boolean free = own && idle && menu.value(40) == 0;
+        for (int k = 0; k < 4; k++) {
+            String reason = !own ? "owner" : !idle || menu.value(40) != 0 ? "busy" : menu.value(44) == 0 ? (menu.value(41) > 0 ? "cooldown" : "not_ready") : (menu.value(43) >> k & 1) == 0 ? "need_" + k : "ok";
+            buttons[20 + k].active = free && reason.equals("ok");
+            if (!reason.equals(lessonTip[k])) {
+                lessonTip[k] = reason;
+                buttons[20 + k].setTooltip(Tooltip.create(Component.translatable("pet.mcyukkuri.ui.tip." + (reason.equals("ok") ? "ok." + k : reason), menu.value(41))));
+            }
+        }
         for (int i = 11; i < 14; i++) { buttons[i].visible = menu.value(27) == 1; buttons[i].active = own && idle && menu.value(28) == 1; }
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
@@ -50,6 +66,10 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
                 Component.translatable("badge.mcyukkuri.profile.grade."+menu.value(32)));
         if (menu.value(19) != 0) line(g, 124, "scores", score(menu.value(20)), score(menu.value(21)), score(menu.value(22)), score(menu.value(23)));
         line(g, 140, menu.value(30) == 1 ? "busy" : "idle");
+        int ls = menu.value(40);
+        g.drawString(font, Component.translatable("pet.mcyukkuri.ui.status", ls == 0 ? Component.translatable("pet.mcyukkuri.ui.state.idle")
+                : ls == 5 ? Component.translatable("pet.mcyukkuri.ui.state.awaiting") : Component.translatable("pet.mcyukkuri.ui.state.running", Component.translatable("pet.mcyukkuri.ui.lesson." + (ls - 1))),
+                menu.value(41), menu.value(42)), 190, 140, 0xff34453e, false);
         if (menu.value(27) == 1)
             g.drawString(font, Component.translatable("predator.mcyukkuri.control_state", Component.translatable("predator.mcyukkuri.order."+menu.value(29)),
                     Component.translatable("predator.mcyukkuri.obedient."+menu.value(28))), 10, 156, 0xff34453e, false);
