@@ -73,8 +73,8 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
             if (menu.value(0) == 0) continue;
             Component text = code == 0 ? Component.translatable("exam.mcyukkuri.ui.fee", fee).append("  ").append(Component.translatable("exam.mcyukkuri.hint." + type))
                     : Component.translatable("exam.mcyukkuri.refuse." + ExamSession.REASONS.get(Math.min(code, ExamSession.REASONS.size() - 1)));
-            var lines = font.split(text, 198); int shown = Math.min(2, lines.size()), top = 111 + i * 22 + (shown == 1 ? 7 : 3);
-            for (int n = 0; n < shown; n++) g.drawString(font, lines.get(n), 128, top + n * 8, code == 0 ? SOFT : WARN, false);
+            var lines = font.split(text, 198); int shown = Math.min(2, lines.size()), top = 111 + i * 22 + (shown == 1 ? 7 : 2);
+            for (int n = 0; n < shown; n++) g.drawString(font, lines.get(n), 128, top + n * font.lineHeight, code == 0 ? SOFT : WARN, false);
         }
         g.drawString(font, Component.translatable("exam.mcyukkuri.ui.emeralds", menu.value(15)), 16, 230, SOFT, false);
     }

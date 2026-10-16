@@ -141,8 +141,8 @@ def exam(s, refuse=True):
         t = tr(f'exam.mcyukkuri.hint.{i + 3}') ; t = tr('exam.mcyukkuri.ui.fee', 5) + '  ' + t
         words = t; lines = wrap(c, words, 198)
         if len(lines) > 2: print('OVER exam hint (>2 lines)', t)
-        top = 111 + i * 22 + (7 if len(lines) == 1 else 3)
-        for n, ln in enumerate(lines[:2]): c.text(128, top + n * 8, ln, SOFT)
+        top = 111 + i * 22 + (7 if len(lines) == 1 else 2)
+        for n, ln in enumerate(lines[:2]): c.text(128, top + n * 9, ln, SOFT)
     c.text(16, 230, tr('exam.mcyukkuri.ui.emeralds', 12), SOFT); button(c, 150, 224, 116, 20, tr('exam.mcyukkuri.btn.log')); button(c, 272, 224, 60, 20, tr('gui.done')); return c
 
 def wrap(c, t, w):
@@ -169,7 +169,8 @@ def badge(s):
     rows = [('source', tr('badge.mcyukkuri.profile.source.1'), '3fa2'), ('abilities', 88, 72, 65, 90), ('routines', 5, 4, 6), ('growth', 86, 12, 30, 0)]
     for i, (k, *a) in enumerate(rows): fit(c, 14, 31 + i * 10, tr('badge.mcyukkuri.profile.' + k, *a), INK, 320, k)
     fit(c, 14, 71, tr('badge.mcyukkuri.profile.exam', tr('badge.mcyukkuri.profile.type.3'), tr('badge.mcyukkuri.profile.outcome.0'), tr('badge.mcyukkuri.profile.grade.2')), INK, 320, 'exam')
-    fit(c, 14, 81, tr('badge.mcyukkuri.profile.scores', 80, 70, '-', '-'), INK, 320, 'scores'); c.text(14, 91, tr('badge.mcyukkuri.profile.idle'))
+    fit(c, 14, 81, tr('badge.mcyukkuri.profile.scores', 80, 70, '-', '-'), INK, 320, 'scores'); idle = tr('badge.mcyukkuri.profile.idle'); c.text(14, 91, idle)
+    fit(c, 14 + c.width(idle) + 8, 91, tr('pet.mcyukkuri.ui.status', tr('pet.mcyukkuri.ui.state.running', tr('pet.mcyukkuri.ui.lesson.0')), 120, 3), INK, 348 - 14 - c.width(idle) - 8, 'lesson status')
     fit(c, 14, 101, tr('badge.mcyukkuri.profile.hint'), INK, 320, 'hint')
     for n in range(6): button(c, 10 + n % 3 * 115, 126 + n // 3 * 22, 110, 20, tr(f'badge.mcyukkuri.action.{[5, 10, 8, 11, 12, 13][n]}'))
     for k in range(4): button(c, 10 + k * 58, 172, 55, 20, tr(f'pet.mcyukkuri.ui.lesson.{k}'))

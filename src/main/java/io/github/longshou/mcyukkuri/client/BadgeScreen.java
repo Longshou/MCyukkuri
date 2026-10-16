@@ -79,11 +79,12 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
         else line(g, 71, "exam", Component.translatable("badge.mcyukkuri.profile.type."+menu.value(31)), Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(19)-1)),
                 GuiKit.gradeName(menu.value(32)));
         if (menu.value(19) != 0) line(g, 81, "scores", score(menu.value(20)), score(menu.value(21)), score(menu.value(22)), score(menu.value(23)));
-        line(g, 91, menu.value(30) == 1 ? "busy" : "idle");
+        var busy = Component.translatable("badge.mcyukkuri.profile." + (menu.value(30) == 1 ? "busy" : "idle"));
+        g.drawString(font, busy, 14, 91, INK, false);
         int ls = menu.value(40);
         g.drawString(font, Component.translatable("pet.mcyukkuri.ui.status", ls == 0 ? Component.translatable("pet.mcyukkuri.ui.state.idle")
                 : ls == 5 ? Component.translatable("pet.mcyukkuri.ui.state.awaiting") : Component.translatable("pet.mcyukkuri.ui.state.running", Component.translatable("pet.mcyukkuri.ui.lesson." + (ls - 1))),
-                menu.value(41), menu.value(42)), 190, 91, INK, false);
+                menu.value(41), menu.value(42)), 14 + font.width(busy) + 8, 91, INK, false);
         if (menu.value(27) == 1)
             g.drawString(font, Component.translatable("predator.mcyukkuri.control_state", Component.translatable("predator.mcyukkuri.order."+menu.value(29)),
                     Component.translatable("predator.mcyukkuri.obedient."+menu.value(28))), 14, 101, INK, false);
