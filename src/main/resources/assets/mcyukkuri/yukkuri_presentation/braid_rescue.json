@@ -1,0 +1,56 @@
+{
+  "revision": "single-braid-water-rescue-20261017-v1",
+  "status": "pending_user_review",
+  "model": "marisa",
+  "root_bone": "root",
+  "braid_bone": "hand_right",
+  "tip_bone": "hand_right_tip",
+  "ribbon_bone": "hand_right_ribbon",
+  "contact_part": "braid_lock_tuft_point_out",
+  "contact_rule": "farthest_existing_vertex_from_braid_root",
+  "root_pitch_degrees": -40,
+  "grip_height_ratio": 0.35,
+  "reach_ticks": 16,
+  "contact_ticks": 6,
+  "grip_ticks": 6,
+  "lift_ticks": 18,
+  "place_ticks": 12,
+  "release_ticks": 6,
+  "note": "One existing braid, fixed natural root-to-tip length and current selected placement. The shared server geometry owns reach, contact and child custody. Root pitch and support correction are exported together; the client neither stretches the braid nor moves the child to manufacture contact.",
+  "units_per_block": 16,
+  "bone": "hand_right",
+  "root_rotation": [
+    -40,
+    0,
+    0
+  ],
+  "grip_height": 0.35,
+  "root_pivot": [
+    0.0,
+    0.0,
+    1.2427187
+  ],
+  "braid_root": [
+    6.9333333,
+    9.328,
+    -2.52
+  ],
+  "braid_tip": [
+    8.5098,
+    0.21227,
+    -4.208
+  ],
+  "tip_joint": [
+    7.52,
+    2.222,
+    -3.3575
+  ],
+  "braid_length": 9.403782467130387,
+  "root_lift": 3.177118338525959,
+  "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+  "source_model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
+  "source_placement": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
+  "source_placement_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
+  "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
+  "source_recipe_sha256": "7872a09789721b820e4d8ebc4a95643fb9471a43cdb9cb08d0b288bbd46951df"
+}

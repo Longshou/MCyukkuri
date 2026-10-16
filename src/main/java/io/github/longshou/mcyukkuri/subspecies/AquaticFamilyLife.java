@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 public final class AquaticFamilyLife {
     private static final double FOLLOW_START=4.5, FOLLOW_STOP=3.8, WAIT_START=6, WAIT_STOP=4.2;
     private final YukkuriEntity entity;
+    private final HatFamilyAlarm alarm;
     private UUID parentId, parentHat, waitingOn, steeringHat, distressedKin;
     private GlobalPos lastParent;
     private final Set<UUID> knownFleet=new HashSet<>();
@@ -38,7 +39,13 @@ public final class AquaticFamilyLife {
     private List<YukkuriEntity> cachedChildren;
     private final Map<UUID,LivingEntity> cachedThreats=new HashMap<>();
 
-    public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;}
+    public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;alarm=new HatFamilyAlarm(entity);}
+    public HatFamilyAlarm alarm(){return alarm;}
+    public String alarmActivity(){return alarm.activity();}
+    public long alarmPhaseStart(){return alarm.phaseStart();}
+    public int alarmSourceId(){var id=alarm.sourceId();var source=id==null?null:level().getEntity(id);return source==null?-1:source.getId();}
+    boolean alarmSafe(HatBoatEntity boat){return boat.protects(entity)&&boat.flooding()==0&&!boat.towed()
+            &&HatBoatRoute.calmSurface(level(),water(boat))&&!entity.isOnFire()&&nearestThreat(entity)==null;}
     private ServerLevel level(){return (ServerLevel)entity.level();}
     private void cacheTick(){
         var current=level();long now=current.getGameTime();
@@ -59,7 +66,7 @@ public final class AquaticFamilyLife {
                 &&!entity.aquaticLife().firstVoyage().independent()&&!entity.independence().independent()
                 &&(entity.family().mother()!=null||entity.family().father()!=null);
     }
-    public boolean busy(){return following||guarding||returnRequested||gathering||waitingOn!=null;}
+    public boolean busy(){return alarm.preventsOuting()||following||guarding||returnRequested||gathering||waitingOn!=null;}
     public String activity(){return activity;}
     /** Self-rescue is an actual close-brim jump, not the parent's infant-lifting action. */
     public boolean tryWaterBoard(HatBoatEntity home){
@@ -149,6 +156,24 @@ public final class AquaticFamilyLife {
     public void clock(){
         if(entity.level().isClientSide||!HatVessel.aquatic(entity))return;
         if(routeWait>0)routeWait--;if(returnWait>0)returnWait--;if(reactionTicks>0)reactionTicks--;
+        var boat=ownHat(entity);
+        if(boat!=null&&entity.tickCount%20==0&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
+            var threat=nearestThreat(entity);
+            if(threat!=null)alarm.start(boat,threat,threat.position());
+            else if(boat.flooding()>0||loadedChildren().stream().anyMatch(child->!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=144))
+                alarm.start(boat,null,boat.position());
+            else for(var child:loadedChildren()){
+                var childThreat=nearestThreat(child);
+                if(childThreat!=null&&entity.distanceToSqr(child)<=144&&entity.hasLineOfSight(child)){alarm.start(boat,childThreat,childThreat.position());break;}
+                var childHat=ownHat(child);
+                if(childHat!=null&&childHat.rocking()&&entity.distanceToSqr(child)<=144&&entity.hasLineOfSight(child)){
+                    var sourceId=child.aquaticLife().familyLife().alarm().sourceId();var rocker=sourceId==null?null:level().getEntity(sourceId);
+                    if(rocker!=null)alarm.start(boat,rocker,rocker.position());
+                    break;
+                }
+            }
+        }
+        alarm.clock(loadedChildren());
         if(followsParent()){
             var parent=contactParent();var home=parent==null?null:ownHat(parent);
             if(home!=null){
@@ -176,6 +201,7 @@ public final class AquaticFamilyLife {
     public void beforeNeeds(HatBoatEntity boat){
         guarding=gathering=false;activity="idle";
         if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat())return;
+        if(alarm.active())return;
         var children=freeChildren();
         var selected=children.stream().max(Comparator.<YukkuriEntity>comparingInt(y->danger(y,ownHat(y))?2:y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()?1:0)
                 .thenComparingDouble(entity::distanceToSqr)).orElse(null);
@@ -206,7 +232,7 @@ public final class AquaticFamilyLife {
         if(abandoned!=null&&!abandoned.unsteadyMotion()&&abandoned.retrieveAfloat(entity,home)){
             safeTicks=0;activity="boat_return_family";return true;
         }
-        if(parent==null||safeTicks<80||level().isNight()||danger(entity,home)||danger(parent,home)
+        if(parent==null||alarm.preventsOuting()||parent.aquaticLife().familyLife().alarm.preventsOuting()||safeTicks<80||level().isNight()||danger(entity,home)||danger(parent,home)
                 ||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.life().isSleeping()
                 ||entity.life().nutrition()<65||entity.life().energy()<50||parent.life().isSleeping()||parent.life().hasUrgentNeed()
                 ||parent.aquaticLife().care().active())return false;
@@ -220,6 +246,8 @@ public final class AquaticFamilyLife {
     public boolean tickOwner(HatBoatEntity boat){
         if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||entity.aquaticLife().firstVoyage().active())return false;
         if(boat.unsteadyMotion()){hold(boat,"boat_wait_young");return true;}
+        if(alarm.responding()&&alarm.tickResponse()){activity=alarm.activity();return true;}
+        if(alarm.tickOwner(boat,loadedChildren())){guarding=true;activity=alarm.activity();return true;}
         if(followsParent()&&tickYoungOwner(boat))return true;
         if(tickParentOwner(boat))return true;
         steeringHat=null;return false;
@@ -294,13 +322,13 @@ public final class AquaticFamilyLife {
         boolean needsCare=boat.getPassengers().stream().anyMatch(passenger->passenger instanceof YukkuriEntity child
                 &&child!=entity&&!child.family().adult()&&(child.life().nutrition()<60||child.life().hasUrgentNeed()
                 ||child.childhood().needsAssistedFirstToilet()));
-        boolean rescue=children.stream().anyMatch(child->child.family().flying()||!child.isPassenger()&&child.isInWaterOrBubble()
+        boolean rescue=children.stream().anyMatch(child->child.family().flying()||child.family().braidRescueActive()||!child.isPassenger()&&child.isInWaterOrBubble()
                 ||child.isOnFire()||nearestThreat(child)!=null);
         // A sleeping flotilla must not indefinitely hide an infant's real meal or first toilet.
         // A committed rescue still has a brief, concrete physical task to finish first.
         if(needsCare&&!rescue)return yieldSteering(boat);
         if(children.isEmpty()&&missingYoung.values().stream().noneMatch(ticks->ticks<=100))return recoverNearbyHat(boat);
-        var troubled=children.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||y.getUUID().equals(waitingOn))
+        var troubled=children.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||y.family().braidRescueActive()||y.getUUID().equals(waitingOn))
                 .max(Comparator.<YukkuriEntity>comparingInt(y->y.family().flying()?4:y.isInWaterOrBubble()?3
                         :y.aquaticLife().firstVoyage().returningToParent()?2:danger(y,ownHat(y))?1:0)
                         .thenComparingDouble(y->y.isInWaterOrBubble()?-y.getHealth():0)
@@ -315,7 +343,7 @@ public final class AquaticFamilyLife {
                 return yieldSteering(boat);
             }
             entity.life().wakeInHat();entity.getLookControl().setLookAt(troubled,30,30);
-            if(troubled.aquaticLife().firstVoyage().returningToParent()||troubled.family().flying()){
+            if(troubled.aquaticLife().firstVoyage().returningToParent()||troubled.family().flying()||troubled.family().braidRescueActive()){
                 hold(boat,"boat_rescue_young");return true;
             }
             boolean alarm=danger(troubled,ownHat(troubled));guarding=alarm;waitingOn=troubled.getUUID();
@@ -324,6 +352,7 @@ public final class AquaticFamilyLife {
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
                     if(troubled.family().rescueIntoHat(boat))hold(boat,"boat_return_family");
+                    else if(alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
                     else if(horizontal(boat.position(),troubled.position())>.8)steer(boat,troubled.position(),false);
                     else hold(boat,"boat_guard_young");
                     activity="boat_rescue_young";return true;
@@ -488,6 +517,7 @@ public final class AquaticFamilyLife {
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Version",1);
+        tag.put("Alarm",alarm.save());
         if(parentId!=null)tag.putUUID("Parent",parentId);if(parentHat!=null)tag.putUUID("ParentHat",parentHat);
         FamilyData.putPosition(tag,"LastParent",lastParent);tag.putInt("MissingParent",missingParent);
         var fleet=new ListTag();for(var id:knownFleet){var entry=new CompoundTag();entry.putUUID("Id",id);fleet.add(entry);}tag.put("KnownFleet",fleet);
@@ -502,5 +532,6 @@ public final class AquaticFamilyLife {
             var entry=(CompoundTag)raw;if(entry.hasUUID("Id"))knownFleet.add(entry.getUUID("Id"));
         }
         safeTicks=returnWait=0;returnRequested=false;
+        alarm.load(tag.getCompound("Alarm"));
     }
 }

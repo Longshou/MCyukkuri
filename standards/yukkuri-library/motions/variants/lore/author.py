@@ -16,6 +16,10 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[5]
 TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
+DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure',
+                'boat_alarm_call','boat_alarm_wait','boat_answer_call','boat_flee','boat_calm',
+                'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle')
+_BRAID_RESCUE=None
 
 
 def smooth(x):
@@ -65,7 +69,20 @@ def keyed(t, keys):
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action == 'hat_stumble':
+    if action.startswith('braid_rescue_'):
+        global _BRAID_RESCUE
+        if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
+        r=list(_BRAID_RESCUE['root_rotation']);lift=_BRAID_RESCUE['root_lift']
+    elif action in ('boat_alarm_call','boat_answer_call'):
+        q=keyed(t,[(0,.1),(.16,1),(.4,.55),(.75,.3),(d,.2)])
+        s=[1+.03*q,1-.065*q,1+.025*q];r=[-3*q,keyed(t,[(0,0),(.25,-9),(.65,5),(d,0)]),0]
+    elif action in ('boat_alarm_wait','boat_flee'):
+        q=keyed(t,[(0,.3),(.4,.6),(.8,.25),(1.2,.5),(2,.3)])
+        s=[1.02,.95+.015*q,1.02];r=[-3,keyed(t,[(0,-10),(.55,-16),(1.05,8),(1.5,10),(2,-10)]),0]
+    elif action=='boat_calm':
+        q=1-smooth(t/d);s=[1+.025*q,1-.055*q,1+.02*q]
+        r=[-3*q,keyed(t,[(0,-13),(.6,8),(1.4,-5),(2.3,3),(4,0)]),0]
+    elif action == 'hat_stumble':
         press=keyed(t,[(0,.15),(.10,1),(.25,.45),(.40,.85),(.65,.35),(.83,.65),(1.2,.15)])
         s=[1+.065*press,1-.16*press,1+.07*press]
         r=[-6*press,keyed(t,[(0,0),(.25,-5),(.6,4),(1.2,0)]),keyed(t,[(0,0),(.12,-4),(.36,3),(.65,-2),(1.2,0)])]
@@ -499,7 +516,7 @@ def compile_clips(model, cfg, root, ground, height):
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
             s, r, lift, shift = state(name, t, c, height)
-            support=0 if c.get('root_support')=='free_water' else ground(s,r)
+            support=0 if c.get('root_support') in ('free_water','shared_braid') else ground(s,r)
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
@@ -517,7 +534,7 @@ def export_distress_clips():
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
-    names=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure')
+    names=DISTRESS_CLIPS
     cfg['clips']={name:cfg['clips'][name] for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     for ident,revision in payload['models'].items():
@@ -541,10 +558,13 @@ def export_distress_clips():
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported water/balance clips:',ident,flush=True)
-    payload['revision']='water-distress-20261017-v17'
+    payload['revision']='single-braid-causal-water-20261017-v18'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
-    for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource)):
+    for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
+                       ('braid_rescue_recipe',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json'),
+                       ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
+                       ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
     manifest.write_text(json.dumps(entry,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
 

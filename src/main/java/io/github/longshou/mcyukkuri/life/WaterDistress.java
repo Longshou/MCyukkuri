@@ -32,12 +32,12 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&!entity.family().flying();}
+    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&!entity.family().flying()&&!entity.family().heldByBraid();}
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
     public UUID pusherId(){return pusher;}
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
-            &&!entity.shelteredInHat()&&!entity.family().flying();}
+            &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
     public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
     public boolean canBeLifted(){return liftWait==0;}
     public void lifted(){liftWait=60;burstTicks=0;}
@@ -68,19 +68,21 @@ public final class WaterDistress {
         phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
+            if(!entity.family().heldByBraid())surfaceBuoyancy();
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&(fatigue>=160||entity.life().energy()<20))set(Phase.EXHAUSTED);
-            if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
+            if(!entity.family().heldByBraid()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
                 if(burstTicks>0)burstTicks--;else if(restTicks>0)restTicks--;
-                if(callWait==0&&phase!=Phase.IMPACT){entity.speak("afraid");callWait=phase==Phase.EXHAUSTED?90:55;alertKin();}
+                if(callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;alertKin();}
             }else burstTicks=0;
             return;
         }
         burstTicks=0;
         // An upward flight or airborne tumble is not a completed rescue.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
+            if(entity.family().braidRescueActive()){drySupportTicks=0;return;}
             if(entity.family().flying()||!entity.onGround()&&!entity.shelteredInHat()){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);shore=null;target=null;destination=null;
@@ -106,7 +108,7 @@ public final class WaterDistress {
             return;
         }
         if(entity.level().isClientSide||!entity.isInWaterOrBubble()||entity.isNoAi()
-                ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying())return;
+                ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().heldByBraid())return;
         tick();
         if(phase==Phase.IMPACT){entity.getNavigation().stop();return;}
         if(searchWait==0){findEscape();searchWait=20;}
@@ -132,13 +134,31 @@ public final class WaterDistress {
         boolean weak=phase==Phase.EXHAUSTED,canJump=entity.childhood().canJump();
         double speed=weak?.055:canJump?.13:.045;
         Vec3 push=velocity.horizontalDistanceSqr()<speed*speed?toward.scale(weak?.005:canJump?.016:.006):Vec3.ZERO;
-        double lift=0;
-        // Brief effort can raise the face at the actual surface; no continuous floating
-        // command, no upward effort while exhausted, and no infant self-launch.
-        var fluid=level().getFluidState(entity.blockPosition());
-        if(!weak&&canJump&&burstTicks>=4&&fluid.is(FluidTags.WATER)
-                &&entity.getY()<entity.blockPosition().getY()+fluid.getHeight(level(),entity.blockPosition())+.08&&velocity.y<.065)lift=.028;
-        entity.setDeltaMovement(velocity.add(push.x,lift,push.z));entity.hasImpulse=true;
+        entity.setDeltaMovement(velocity.add(push.x,0,push.z));entity.hasImpulse=true;
+    }
+    /** Five real water columns approximate displaced body volume, including shallow or flowing edges. */
+    public static double submergedFraction(YukkuriEntity actor){
+        var box=actor.getBoundingBox();double height=box.getYsize();if(height<=0)return 0;
+        double dx=actor.getBbWidth()*.35,dz=dx,total=0;
+        double[][] columns={{actor.getX(),actor.getZ()},{actor.getX()-dx,actor.getZ()-dz},{actor.getX()+dx,actor.getZ()-dz},
+                {actor.getX()-dx,actor.getZ()+dz},{actor.getX()+dx,actor.getZ()+dz}};
+        for(var column:columns)for(int y=net.minecraft.util.Mth.floor(box.minY);y<=net.minecraft.util.Mth.floor(box.maxY);y++){
+            var at=BlockPos.containing(column[0],y,column[1]);if(!actor.level().hasChunkAt(at))continue;
+            var fluid=actor.level().getFluidState(at);if(!fluid.is(FluidTags.WATER))continue;
+            double top=y+fluid.getHeight(actor.level(),at);
+            total+=Math.max(0,Math.min(box.maxY,top)-Math.max(box.minY,y));
+        }
+        return Math.clamp(total/(columns.length*height),0,1);
+    }
+    /** Neutral near 56% immersion against vanilla water gravity; effort and fatigue do not erase buoyancy. */
+    public static double buoyancyAcceleration(double fraction,double verticalVelocity){
+        return Math.clamp(.005+.045*(fraction-.56)-.08*verticalVelocity,-.018,.032);
+    }
+    private void surfaceBuoyancy(){
+        double fraction=submergedFraction(entity);if(fraction<=0)return;
+        var velocity=entity.getDeltaMovement();double force=buoyancyAcceleration(fraction,velocity.y);
+        if(force>0)force=Math.max(0,Math.min(force,.085-velocity.y));
+        entity.setDeltaMovement(velocity.add(0,force,0));entity.hasImpulse=true;
     }
     private boolean realThreat(){
         if(entity.isOnFire())return true;

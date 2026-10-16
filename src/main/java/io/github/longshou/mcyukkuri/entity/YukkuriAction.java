@@ -84,7 +84,15 @@ public enum YukkuriAction {
     WATER_STRUGGLE("water_struggle", 1.6, true),
     WATER_GASP("water_gasp", 1.6, true),
     WATER_RECOVER("water_recover", 2.8, false),
-    BOAT_REASSURE("boat_reassure", 2.0, true);
+    BOAT_REASSURE("boat_reassure", 2.0, true),
+    BOAT_ALARM_CALL("boat_alarm_call", 1.2, false),
+    BOAT_ALARM_WAIT("boat_alarm_wait", 2.0, true),
+    BOAT_FLEE("boat_flee", 2.0, true),
+    BOAT_CALM("boat_calm", 4.0, false),
+    BOAT_ANSWER_CALL("boat_answer_call", 1.0, false),
+    BRAID_RESCUE_REACH("braid_rescue_reach", 1.1, false),
+    BRAID_RESCUE_HOLD("braid_rescue_hold", 1.2, false),
+    BRAID_RESCUE_SETTLE("braid_rescue_settle", .9, false);
 
     private final String id;
     private final double duration;

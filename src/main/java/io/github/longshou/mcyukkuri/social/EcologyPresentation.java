@@ -53,6 +53,15 @@ public final class EcologyPresentation {
             case "boat_capsizing" -> YukkuriAction.BOAT_STEADY;
             case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
+            case "boat_alarm_call" -> YukkuriAction.BOAT_ALARM_CALL;
+            case "boat_alarm_wait" -> YukkuriAction.BOAT_ALARM_WAIT;
+            case "boat_flee", "boat_return_called" -> YukkuriAction.BOAT_FLEE;
+            case "boat_calm" -> YukkuriAction.BOAT_CALM;
+            case "boat_answer_call" -> YukkuriAction.BOAT_ANSWER_CALL;
+            case "braid_rescue_reach" -> YukkuriAction.BRAID_RESCUE_REACH;
+            case "braid_rescue_hold" -> YukkuriAction.BRAID_RESCUE_HOLD;
+            case "braid_rescue_settle" -> YukkuriAction.BRAID_RESCUE_SETTLE;
+            case "braid_be_rescued" -> YukkuriAction.WATER_GASP;
             case "water_impact" -> YukkuriAction.WATER_PLUNGE;
             case "escape_water", "struggle", "water_struggle" -> YukkuriAction.WATER_STRUGGLE;
             case "water_exhausted" -> YukkuriAction.WATER_GASP;
@@ -77,6 +86,10 @@ public final class EcologyPresentation {
     /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
     public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
+        if(behavior.startsWith("braid_rescue_")||behavior.equals("boat_alarm_call")||behavior.equals("boat_alarm_wait")
+                ||behavior.equals("boat_calm")||behavior.equals("boat_answer_call"))return action(behavior);
+        if(behavior.equals("boat_flee")||behavior.equals("boat_return_called"))
+            return boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
         if (behavior.equals("boat_reassure") || behavior.equals("boat_rescue_young") || behavior.equals("boat_crowd_guard"))
             return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_REASSURE;
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
@@ -115,7 +128,11 @@ public final class EcologyPresentation {
     public static YukkuriAction reaction(String event) {
         return switch (event) {
             case "hello", "peer", "known_peer", "caregiver", "introduced", "gentle" -> YukkuriAction.GREET;
-            case "afraid", "wounded" -> YukkuriAction.TREMBLE;
+            case "afraid", "wounded", "water_help", "family_alarm_flee" -> YukkuriAction.TREMBLE;
+            case "boat_rock_startle" -> YukkuriAction.STARTLE;
+            case "family_alarm_call" -> YukkuriAction.BOAT_ALARM_CALL;
+            case "family_alarm_answer" -> YukkuriAction.BOAT_ANSWER_CALL;
+            case "family_alarm_calm" -> YukkuriAction.BOAT_CALM;
             case "lost_accessory", "family_died", "lost_parent", "cold", "settlement_hurt", "settlement_submit" -> YukkuriAction.DROOP;
             case "washed" -> YukkuriAction.SHAKE;
             case "toy" -> YukkuriAction.HOP;
@@ -186,7 +203,11 @@ public final class EcologyPresentation {
             case "boat_steady" -> "surprise";
             case "boat_rocked", "hat_stumble", "hat_jostle", "hat_scramble", "hat_slipping", "boat_crowd_guard" -> "teary";
             case "boat_reassure", "boat_rescue_young" -> "teary";
-            case "water_impact" -> "chewing_closed";
+            case "boat_alarm_call", "boat_answer_call" -> "surprise";
+            case "boat_alarm_wait", "boat_flee", "boat_return_called", "braid_rescue_reach", "braid_rescue_hold", "braid_be_rescued" -> "teary";
+            case "boat_calm" -> e.level().getGameTime()-e.aquaticAlarmStartTick()<40?"teary":"neutral";
+            case "braid_rescue_settle" -> "neutral";
+            case "water_impact" -> "cry";
             case "water_struggle", "water_exhausted", "water_recover" -> "teary";
             case "chew", "family_chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case "swallow", "drink" -> "chewing_closed";

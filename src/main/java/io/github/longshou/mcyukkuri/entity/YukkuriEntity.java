@@ -87,6 +87,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.life.WaterDistress waterDistress = new io.github.longshou.mcyukkuri.life.WaterDistress(this);
     /** One server phase clock, including actual effort/rest beats, survives observer and chunk changes. */
     private static final EntityDataAccessor<CompoundTag> WATER_DISTRESS = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<CompoundTag> BRAID_RESCUE = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<CompoundTag> AQUATIC_ALARM = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private final io.github.longshou.mcyukkuri.badge.BadgeLife badges = new io.github.longshou.mcyukkuri.badge.BadgeLife(this);
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
@@ -160,6 +162,29 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public long waterDistressStartTick() { return entityData.get(WATER_DISTRESS).getLong("Start"); }
     public boolean waterDistressEffort() { return entityData.get(WATER_DISTRESS).getBoolean("Effort"); }
+    public CompoundTag braidRescueState() { return entityData.get(BRAID_RESCUE); }
+    public String braidRescuePhase() {
+        var data=braidRescueState();return data.contains("Phase")?data.getString("Phase"):"IDLE";
+    }
+    public long braidRescueStartTick() { return braidRescueState().getLong("Start"); }
+    public String aquaticAlarmActivity() {
+        var data=entityData.get(AQUATIC_ALARM);return data.contains("Activity")?data.getString("Activity"):"idle";
+    }
+    public long aquaticAlarmStartTick() { return entityData.get(AQUATIC_ALARM).getLong("Start"); }
+    public int aquaticAlarmSourceId() {
+        var data=entityData.get(AQUATIC_ALARM);return data.contains("SourceId")?data.getInt("SourceId"):-1;
+    }
+    private void syncAquaticInteraction() {
+        var rescue=family.braidRescueState();
+        if(!rescue.equals(entityData.get(BRAID_RESCUE)))entityData.set(BRAID_RESCUE,rescue);
+        var controller=aquaticLife.familyLife();var alarm=new CompoundTag();
+        String activity=controller.alarmActivity();
+        if(!activity.equals("idle")){
+            alarm.putString("Activity",activity);alarm.putLong("Start",controller.alarmPhaseStart());
+            alarm.putInt("SourceId",controller.alarmSourceId());
+        }
+        if(!alarm.equals(entityData.get(AQUATIC_ALARM)))entityData.set(AQUATIC_ALARM,alarm);
+    }
     private void syncWaterDistress() {
         var data = new CompoundTag();
         if (waterDistress.airbornePlunge()) {
@@ -407,6 +432,7 @@ public final class YukkuriEntity extends PathfinderMob {
         builder.define(BROOD_PROGRESS,0f);builder.define(BROOD_VARIATION,1f);builder.define(SPENT_STEM,false);
         builder.define(LIVE_PROGRESS,0f);builder.define(LIVE_DELIVERY,-1);builder.define(LIVE_CHILDREN,new CompoundTag());
         builder.define(WATER_DISTRESS,new CompoundTag());
+        builder.define(BRAID_RESCUE,new CompoundTag());builder.define(AQUATIC_ALARM,new CompoundTag());
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -521,6 +547,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
         subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); badges.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
+        syncAquaticInteraction();
         independence.clock();
         var familyPaddle=aquaticLife.familyPaddle().carried();
         entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
@@ -554,6 +581,20 @@ public final class YukkuriEntity extends PathfinderMob {
         if(requestedAction==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))requestedAction=null;
         shellRetraction.tick(panicTicks);
+        // Contact-driven rescue owns both participants' poses; water panic must not keep a held child paddling.
+        if(family.braidRescueActive()&&!isCommandPlaying()&&!operations.active()){
+            if(panicTicks>0)panicTicks--;
+            String phase=braidRescuePhase();boolean parent=braidRescueState().getInt("ParentId")==getId();
+            String motion=parent?switch(phase){
+                case "REACH","CONTACT"->"braid_rescue_reach";
+                case "GRIP","LIFT"->"braid_rescue_hold";
+                default->"braid_rescue_settle";
+            }:family.heldByBraid()?"braid_be_rescued":waterDistress.activity();
+            setBehavior(motion);setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
+            entityData.set(ANIMATION_START,parent||family.heldByBraid()?braidRescueStartTick():waterDistressStartTick());
+            entityData.set(EXPRESSION,phase.equals("RELEASE")?"neutral":"teary");
+            return;
+        }
         // Actual crowd contact and boat motion take precedence over leisure or a stale newborn pose.
         // These poses never change physical support or grant water protection during a capsize.
         if(getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity movingHat
@@ -578,6 +619,16 @@ public final class YukkuriEntity extends PathfinderMob {
             setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(distress), false);
             entityData.set(ANIMATION_START, waterDistressStartTick());
             entityData.set(EXPRESSION, waterDistress.phase() == io.github.longshou.mcyukkuri.life.WaterDistress.Phase.IMPACT ? "cry" : "teary");
+            return;
+        }
+        if(!aquaticAlarmActivity().equals("idle")&&!isCommandPlaying()&&!operations.active()){
+            if(panicTicks>0)panicTicks--;
+            String alarm=aquaticAlarmActivity();setBehavior(alarm);
+            YukkuriAction action=getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
+                    ?boatAction(boat,alarm):io.github.longshou.mcyukkuri.social.EcologyPresentation.action(alarm);
+            if(!isPassenger()&&onGround()&&(travelledX*travelledX+travelledZ*travelledZ)>.000001)action=YukkuriAction.WADDLE;
+            setAnimation(action,false);entityData.set(ANIMATION_START,aquaticAlarmStartTick());
+            entityData.set(EXPRESSION,io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,"teary"));
             return;
         }
         if (panicTicks > 0&&!isCommandPlaying()&&!operations.active()) {
@@ -641,6 +692,10 @@ public final class YukkuriEntity extends PathfinderMob {
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
         if(boat.rocking()||boat.capsizing())return getUUID().equals(boat.ownerYukkuri())?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE;
+        if(behavior.startsWith("boat_alarm_")||behavior.equals("boat_answer_call")||behavior.equals("boat_calm"))
+            return io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior);
+        if(behavior.equals("boat_flee")||behavior.equals("boat_return_called"))
+            return getUUID().equals(boat.ownerYukkuri())&&boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
         if(behavior.equals("boat_reassure")||behavior.equals("boat_rescue_young")||behavior.equals("boat_crowd_guard"))
             return getUUID().equals(boat.ownerYukkuri())&&boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_REASSURE;
         if (getUUID().equals(boat.ownerYukkuri()))
@@ -755,6 +810,7 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void die(DamageSource source) {
         if (!level().isClientSide) {
+            family.cancelBraidRescue();
             if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
             if(!deathRecorded)settlement.attackedBy(source,true);
             groupInteraction.stop();dailyLife.stop();playLife.stop();

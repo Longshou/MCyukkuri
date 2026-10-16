@@ -100,8 +100,16 @@ public final class AquaticLife extends Goal {
         return entity.isAlive() && !entity.isNoAi() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().flying() && entity.getVehicle() instanceof HatBoatEntity boat && boat.unsteadyMotion();
     }
+    private boolean respondingToFamilyAlarm() {
+        return entity.isAlive()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()
+                &&!entity.family().flying()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()
+                &&entity.getVehicle() instanceof HatBoatEntity boat&&boat.protects(entity)
+                &&familyLife.alarm().preventsOuting();
+    }
     @Override public boolean canUse() {
         if (reactingToBoatMotion()) return true;
+        if (respondingToFamilyAlarm()) return true;
+        if (familyLife.alarm().shoreResponse()) return true;
         if (firstVoyage.active() && eventAvailable()) return true;
         if (!available()) return false;
         if (firstVoyage.tryStart()) return true;
@@ -132,6 +140,8 @@ public final class AquaticLife extends Goal {
     }
     @Override public boolean canContinueToUse() {
         if (reactingToBoatMotion()) return true;
+        if (respondingToFamilyAlarm()) return true;
+        if (familyLife.alarm().shoreResponse()) return true;
         if (firstVoyage.active() && eventAvailable()) return true;
         if (!available()) return false;
         if (entity.getVehicle() instanceof HatBoatEntity boat) return boat.protects(entity);
@@ -146,7 +156,15 @@ public final class AquaticLife extends Goal {
     @Override public void tick() {
         elapsed++;
         if (reactingToBoatMotion() && entity.getVehicle() instanceof HatBoatEntity boat) { aboard(boat); return; }
-        if (firstVoyage.active() || firstVoyage.tryStart()) { daily.stop(); familyPaddle.stop(); care.cancel(); shoreForage.stop(); firstVoyage.tick(); activity = firstVoyage.activity(); return; }
+        if (familyLife.alarm().shoreResponse() && familyLife.alarm().tickResponse()) {
+            daily.stop();familyPaddle.stop();care.cancel();shoreForage.stop();activity=familyLife.alarmActivity();return;
+        }
+        if (familyLife.alarm().responding() && entity.getVehicle() instanceof HatBoatEntity own
+                && entity.getUUID().equals(own.ownerYukkuri()) && !firstVoyage.returningToParent()
+                && familyLife.alarm().tickResponse()) {
+            daily.yieldToOtherActivity();familyPaddle.yieldToOtherActivity();care.cancel();shoreForage.stop();activity=familyLife.alarmActivity();return;
+        }
+        if (firstVoyage.active() || firstVoyage.tryStart()) { daily.stop(); familyPaddle.stop(); care.cancel(); shoreForage.stop(); firstVoyage.tick(); activity = familyLife.alarm().responding()?familyLife.alarmActivity():firstVoyage.activity(); return; }
         if (entity.getVehicle() instanceof HatBoatEntity boat) { aboard(boat); return; }
         if (canTendHat()) {
             activity = "aquatic_hat_care"; entity.getNavigation().stop();
@@ -326,6 +344,7 @@ public final class AquaticLife extends Goal {
                 boat.cargo().feed(entity);
             if (entity.life().dryness() >= 40 && elapsed%40 == 0) entity.life().drink(30);
             if (entity.life().toiletInHat(boat)) { daily.yieldToOtherActivity(); entity.childhood().stopHatPractice(); activity = boat.walkingInHat(entity)?"hat_walk":"boat_toilet"; return; }
+            if (familyLife.alarm().tickOnboard(boat)) { daily.yieldToOtherActivity(); entity.childhood().stopHatPractice(); activity=familyLife.alarmActivity(); return; }
             if (familyLife.reactInHat(boat)) { daily.yieldToOtherActivity(); entity.childhood().stopHatPractice(); activity=familyLife.activity(); return; }
             if (captain == null || captain.aquaticLife().resting() || entity.life().isSleeping()
                     || entity.life().energy() <= (entity.family().needsMash() ? 65 : 35)) entity.life().restInHat(boat);

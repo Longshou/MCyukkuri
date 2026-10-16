@@ -102,6 +102,7 @@ public final class FirstVoyage {
     public boolean tryRoutineLaunch(){return completed&&!independent&&start(true);}
     private boolean start(boolean routine){
         if(active())return true;
+        if(child.aquaticLife().familyLife().alarm().preventsOuting())return false;
         boolean departure = !routine && completed && !independent && child.childhood().canLiveIndependently();
         if(departure&&child.getVehicle() instanceof HatBoatEntity own&&child.getUUID().equals(own.ownerYukkuri()))
             return departAfloat(own);
@@ -112,7 +113,7 @@ public final class FirstVoyage {
                 ||!(boat.ownerYukkuri().equals(child.family().father())||boat.ownerYukkuri().equals(child.family().mother()))||boat.hasIncoming())return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+80;
         var father=person(boat.ownerYukkuri());
-        if(!safeHome(boat,father)||!healthy(father)||father.aquaticLife().firstVoyage().active()
+        if(!safeHome(boat,father)||!healthy(father)||father.aquaticLife().familyLife().alarm().preventsOuting()||father.aquaticLife().firstVoyage().active()
                 ||father.aquaticLife().care().active()||!father.life().activity().equals("idle")||father.dailyLife().active()
                 ||!father.life().canRecognize(child)||!child.life().canRecognize(father)
                 ||!HatBoatRoute.quietSurface(level(),BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ()))
@@ -151,6 +152,19 @@ public final class FirstVoyage {
         return false;
     }
     /** Recall uses the real return route and inter-hat flight; it never awards the lesson or independence. */
+    public void suspendMentoring(){pupil=null;}
+    /** An audible parental recall can interrupt an unfinished lesson without marking it completed. */
+    public boolean recallFromParent(HatBoatEntity parentHat){
+        if(independent||parentHat==null||!parentHat.young(child))return false;
+        if(returningToParent()&&parentHat.getUUID().equals(homeHat)){emergencyRecall=true;return true;}
+        var own=HatBoatEntity.owned(child);
+        if(own==null||child.getVehicle()!=own||!own.isAfloat()||!own.protects(child))return false;
+        if(phase==Phase.NONE&&completed)return requestReturnToParent(parentHat,true);
+        if(homeHat!=null&&!homeHat.equals(parentHat.getUUID()))return false;
+        mentor=parentHat.ownerYukkuri();homeHat=parentHat.getUUID();reachedTurn=false;leavingHome=false;
+        emergencyRecall=true;routineSailing=false;if(completed)routineLaunch=true;
+        elapsed=0;own.stopPaddling();set(Phase.RETURN);return true;
+    }
     public boolean requestReturnToParent(HatBoatEntity parentHat){
         return requestReturnToParent(parentHat,false);
     }
@@ -174,6 +188,7 @@ public final class FirstVoyage {
         if(cooldown>0)cooldown--;
         if(loadGrace>0){loadGrace--;return;}
         if(pauseForMotion(false))return;
+        if(child.aquaticLife().familyLife().alarm().answerPending())return;
         if(pupil!=null){
             var y=person(pupil);
             if(!healthy(child)||y==null||!y.isAlive()||!child.getUUID().equals(y.aquaticLife().firstVoyage().mentor)
@@ -218,6 +233,9 @@ public final class FirstVoyage {
     }
     public void tick(){
         if(loadGrace>0)return;
+        if(child.aquaticLife().familyLife().alarm().answerPending()){
+            child.getNavigation().stop();var own=HatBoatEntity.owned(child);if(own!=null)own.holdPosition();return;
+        }
         if(pauseForMotion(true))return;
         if(pupil!=null){
             var learner=person(pupil);child.getNavigation().stop();

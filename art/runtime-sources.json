@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "water-distress-20261017-v17",
+    "revision": "single-braid-causal-water-20261017-v18",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3791,5 +3791,13 @@
     "preview": ".local/previews/house-supplies/house-supplies.png",
     "status": "pending_user_review",
     "scope": "Original small sealed filter-box geometry; Minecraft metal, dark filter, paper and red seal surface textures, no reused item icon. Native block/item models require no block entity or ticking renderer."
+  },
+  "braid_water_rescue": {
+    "source": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
+    "exporter": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
+    "status": "pending_user_review",
+    "scope": "One real Marisa braid: shared fixed-length contact geometry and server-owned reach, grip, lift, placement and release.",
+    "preview": ".local/previews/hat-motion/index.html"
   }
 }

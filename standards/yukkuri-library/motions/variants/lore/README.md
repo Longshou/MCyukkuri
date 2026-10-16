@@ -1,6 +1,6 @@
 # 世界观动作
 
-2026-10-14 新增，2026-10-17 配方第 10 版，待用户查看。依据 Wiki 中有作品或社区资料支持的身体动作，为已有生态行为补上动作，并补上分娩、接生和水生魔理沙的帽船动作。设定出处见 [Wiki 总入口](../../../../../wiki/README.md)；编号 L、E、TM、N、W 与 Wiki 一致。Wiki 没有记载的部分写明是本项目设计。
+2026-10-14 新增，2026-10-17 续补单辫救援与危机召回，待用户查看。依据 Wiki 中有作品或社区资料支持的身体动作，为已有生态行为补上动作，并补上分娩、接生和水生魔理沙的帽船动作。设定出处见 [Wiki 总入口](../../../../../wiki/README.md)；编号 L、E、TM、N、W 与 Wiki 一致。Wiki 没有记载的部分写明是本项目设计。
 
 **预览**
 - 世界观动作预览：`births.py` 在本机生成单个静态网页，输出到 `.local/previews/lore/index.html`，不入库，分两页。
@@ -23,10 +23,18 @@
 | `water_gasp` | 1.6 秒循环 | 努力间隙和衰弱时伏低喘息，不添加浮力或地面托高 |
 | `water_recover` | 2.8 秒单次 | 真正获救并得到干燥支撑后伏低喘息，逐渐回看亲友 |
 | `boat_reassure` | 2 秒循环 | 亲油和同胞小幅探身回应，不用大幅前倾；主体朝向真实呼救者 |
+| `boat_alarm_call` | 1.2 秒单次 | 惊讶后含泪呼唤孩子 |
+| `boat_alarm_wait` | 2 秒循环 | 停船等待，回望实际赶回的孩子 |
+| `boat_flee` | 2 秒循环 | 害怕撤离、回望家人；真正划桨时继续使用操桨动作 |
+| `boat_calm` | 4 秒单次 | 确认脱险后由警戒逐渐平复 |
+| `boat_answer_call` | 1 秒单次 | 子油听到亲油呼唤后回应 |
+| `braid_rescue_reach` | 1.1 秒单次 | 伸出原模型的单辫，实际接触前不搬动孩子 |
+| `braid_rescue_hold` | 1.2 秒单次 | 抓托与抬回，孩子跟随同一真实辫梢接触点 |
+| `braid_rescue_settle` | 0.9 秒单次 | 落稳可用座位后松开；辫长不随目标距离伸长 |
 
 水中动作保留实体的实际根位置，跳过陆上动作的最低点落地修正。服务端 `WaterDistress` 决定阶段与努力节奏，`HatBoatCrowding` 决定真实争位、压挤和滑落；客户端只采样相同的阶段时钟与已有骨架。伤害、体力、移动和救援都不由预览或客户端帧率结算。普通轻摇不会单凭计时随机掉人。
 
-本轮只更新这七段资源时使用 `python standards/yukkuri-library/motions/variants/lore/author.py --export-distress`；它使用同一动作求值和放置适配，将七段合入现有 `motion_corrections.json` 并同步来源指纹，不重建其他动作或几何形变。完整资源重新导出仍用原有入口。这是动作资源生成，不执行 Java 或 Gradle 编译。
+本轮只更新上述水上危险动作时使用 `python standards/yukkuri-library/motions/variants/lore/author.py --export-distress`；它使用同一动作求值和放置适配，合入现有 `motion_corrections.json` 并同步来源指纹，不重建其他动作或几何形变。单辫自然长度、根部倾角、支撑修正和阶段时长另由 `interactions/braid-water-rescue/recipe.json` 与 `author.py` 导出为 `braid_rescue.json`，服务器和客户端同读这套几何。完整资源重新导出仍用原有入口。这是动作资源生成，不执行 Java 或 Gradle 编译。
 
 ### 日常、社交与情绪
 

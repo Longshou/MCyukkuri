@@ -10,6 +10,17 @@ public final class NativeDialogue {
     public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound) {}
     private static final Map<String, Line> LINES;
     private static final Map<String, List<Line>> EVENTS;
+    /** Short, actually recorded utterances selected for each aquatic beat. Text and audio remain the same line. */
+    private static final Map<String, String> AQUATIC_EVENTS = Map.ofEntries(
+            Map.entry("boat_rock_startle", "heard"),
+            Map.entry("family_alarm_call", "wait_family"),
+            Map.entry("family_alarm_answer", "wait_learned"),
+            Map.entry("family_alarm_flee", "afraid"),
+            Map.entry("family_alarm_calm", "unrecognized"),
+            Map.entry("water_help", "afraid"),
+            Map.entry("braid_rescue_offer", "wait_family"),
+            Map.entry("braid_rescue_grip", "exercise"),
+            Map.entry("braid_rescue_safe", "wait_turn"));
     static {
         Map<String, Line> lines = new LinkedHashMap<>();
         Map<String, List<Line>> events = new HashMap<>();
@@ -28,16 +39,23 @@ public final class NativeDialogue {
     public static Set<String> events() {
         Set<String> result = new TreeSet<>();
         for (Line line : lines()) result.addAll(line.events());
+        result.addAll(AQUATIC_EVENTS.keySet());
         return result;
     }
     public static Line select(String species, boolean young, String event, net.minecraft.util.RandomSource random) {
-        var choices = EVENTS.get(species+"/"+(young ? "young" : "adult")+"/"+event);
+        String key=species+"/"+(young ? "young" : "adult")+"/";
+        var choices = EVENTS.get(key+event);
+        if(choices==null&&AQUATIC_EVENTS.containsKey(event))choices=EVENTS.get(key+AQUATIC_EVENTS.get(event));
         return choices == null ? null : choices.get(choices.size() == 1 ? 0 : random.nextInt(choices.size()));
     }
     public static int priority(String event) {
         return switch (event) {
-            case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth" -> 3;
-            case "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned" -> 2;
+            case "family_alarm_call", "family_alarm_answer" -> 4;
+            case "wounded", "afraid", "lost_accessory", "family_died", "lost_parent", "birth",
+                    "boat_rock_startle", "family_alarm_flee", "water_help",
+                    "braid_rescue_offer", "braid_rescue_grip" -> 3;
+            case "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
+                    "family_alarm_calm", "braid_rescue_safe" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             default -> 1;
         };

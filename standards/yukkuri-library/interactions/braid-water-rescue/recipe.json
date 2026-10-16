@@ -1,0 +1,20 @@
+{
+  "revision": "single-braid-water-rescue-20261017-v1",
+  "status": "pending_user_review",
+  "model": "marisa",
+  "root_bone": "root",
+  "braid_bone": "hand_right",
+  "tip_bone": "hand_right_tip",
+  "ribbon_bone": "hand_right_ribbon",
+  "contact_part": "braid_lock_tuft_point_out",
+  "contact_rule": "farthest_existing_vertex_from_braid_root",
+  "root_pitch_degrees": -40,
+  "grip_height_ratio": 0.35,
+  "reach_ticks": 16,
+  "contact_ticks": 6,
+  "grip_ticks": 6,
+  "lift_ticks": 18,
+  "place_ticks": 12,
+  "release_ticks": 6,
+  "note": "One existing braid, fixed natural root-to-tip length and current selected placement. The shared server geometry owns reach, contact and child custody. Root pitch and support correction are exported together; the client neither stretches the braid nor moves the child to manufacture contact."
+}
