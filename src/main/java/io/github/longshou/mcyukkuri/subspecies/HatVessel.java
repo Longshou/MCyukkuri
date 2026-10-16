@@ -55,6 +55,13 @@ public final class HatVessel {
     public static float hatMultiplier(int subspeciesFlags){return (subspeciesFlags&15)==SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?AQUATIC_SCALE:1;}
     /** The size of this Marisa's hat relative to the worn standard. */
     public static float hatScale(YukkuriEntity y){return y.growthScale()*hatMultiplier(y.subspeciesFlags());}
+    /** The braid can serve a protected child in the same hat only while their existing close-care boundary holds.
+     *  Young shift between the day and night seats, so a rendered braid tip is never a fixed server hit point. */
+    public static boolean braidCanServe(YukkuriEntity parent,YukkuriEntity child){
+        return parent.getVehicle() instanceof HatBoatEntity boat && child.getVehicle()==boat
+                && boat.protects(parent) && boat.protects(child) && parent.hasLineOfSight(child)
+                && parent.distanceToSqr(child)<=4;
+    }
     /** Where a catcher's braid clips set the hat, relative to the catcher, and where it lies before the mother; on land
      *  also how far beyond the live exit its near brim lies (gap, model units) and how far that brim reaches from it. */
     public record Placement(Mode mode,Vec3 offset,float yaw,Vec3 hatInMother,float hatYawInMother,double gap,double nearBrim){}

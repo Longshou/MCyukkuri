@@ -21,14 +21,14 @@
         "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
-        "role": "shared leaf-mat tile with optional outer rim layers"
+        "role": "continuous thick leaf bedding with raised outer leaf-and-grass rim layers"
       },
       "personal_leaf_nest": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
         "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
-        "role": "late juvenile individual leaf nest on the existing sleep slot"
+        "role": "small oval leaf bowl on the late juvenile existing sleep slot"
       }
     },
     "status": "pending_user_confirmation"
@@ -3721,5 +3721,14 @@
     "status": "pending_user_review",
     "scope": "Marisa's own worn hat copied box for box, opened into a well and turned upside down with its crown pressed flat (user 2026-10-15: just turn the hat over and squash its bottom): on land, where her braid presses it down to catch young, and afloat (the aquatic hat boat, larger, and the hat floated at a bank to catch); braid placements read by the lore hat clips and the game",
     "references": "wiki/art-references/ehentai/works/EH22.md"
+  },
+  "food_mash_serving": {
+    "source_exporter": "standards/yukkuri-library/drafts/consumables/build.py",
+    "editable_source": "standards/yukkuri-library/drafts/consumables/assembled/food_mash_serving/food_mash_serving.bbmodel",
+    "selected_snapshot": "art/props/consumables/selected/food_mash_serving",
+    "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/food_mash_serving.json",
+    "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/food_mash_serving.png",
+    "role": "soft food prepared by a parent; preserves the original serving and nutrition",
+    "status": "pending_user_confirmation"
   }
 }

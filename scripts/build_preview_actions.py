@@ -52,11 +52,17 @@ def normalise(raw: dict) -> list[dict]:
                 if name in actor and not isinstance(actor[name], (int, float)): raise ValueError(f'{ident}: actor.{name} must be numeric')
             if 'from' in actor and (not isinstance(actor['from'], list) or len(actor['from']) != 3): raise ValueError(f'{ident}: actor.from must be [x,y,z]')
             if 'to' in actor and (not isinstance(actor['to'], list) or len(actor['to']) != 3): raise ValueError(f'{ident}: actor.to must be [x,y,z]')
+            for phase in actor.get('phases', []):
+                if not isinstance(phase.get('start'), (int, float)) or phase['start'] < 0: raise ValueError(f'{ident}: phase.start must be non-negative')
+                if 'end' in phase and (not isinstance(phase['end'], (int, float)) or phase['end'] <= phase['start']): raise ValueError(f'{ident}: phase.end must follow its start')
+                if not isinstance(phase.get('action'), str): raise ValueError(f'{ident}: phase.action is required')
         for prop in clip.get('props', []):
             if not isinstance(prop.get('id'), str): raise ValueError(f'{ident}: prop id is required')
             if 'layers' in prop and (not isinstance(prop['layers'], int) or prop['layers'] < 0): raise ValueError(f'{ident}: prop.layers must be a non-negative integer')
             if 'from' in prop and (not isinstance(prop['from'], list) or len(prop['from']) != 3): raise ValueError(f'{ident}: prop.from must be [x,y,z]')
             if 'to' in prop and (not isinstance(prop['to'], list) or len(prop['to']) != 3): raise ValueError(f'{ident}: prop.to must be [x,y,z]')
+            if 'start' in prop and (not isinstance(prop['start'], (int, float)) or prop['start'] < 0): raise ValueError(f'{ident}: prop.start must be non-negative')
+            if 'end' in prop and (not isinstance(prop['end'], (int, float)) or prop['end'] <= prop.get('start', 0)): raise ValueError(f'{ident}: prop.end must follow its start')
         clip['actors'] = actors; result.append(clip)
     if len({item['id'] for item in result}) != len(result): raise ValueError('Action ids must be unique')
     return result

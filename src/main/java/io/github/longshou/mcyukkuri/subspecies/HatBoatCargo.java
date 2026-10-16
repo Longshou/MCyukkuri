@@ -51,10 +51,12 @@ public final class HatBoatCargo {
         }
         return false;
     }
-    /** Reserve one real serving in the parent's braid; the care session owns it until transfer or refund. */
-    public ItemStack takeMeal(YukkuriEntity rider) {
-        if (boat.level().isClientSide || rider.getVehicle() != boat || !rider.life().canEat() || rider.life().isSleeping()) return ItemStack.EMPTY;
-        for (var stack : food) if (rider.life().acceptsFood(stack)) {
+    /** Reserve one real serving for a biological parent to prepare for a protected child. */
+    public ItemStack takeCareMeal(YukkuriEntity parent, YukkuriEntity child) {
+        if (boat.level().isClientSide || parent.getVehicle() != boat || child.getVehicle() != boat
+                || !boat.protects(parent) || !boat.protects(child) || !parent.family().caresFor(child)
+                || parent.life().isSleeping() || !child.life().canReceiveCareFood()) return ItemStack.EMPTY;
+        for (var stack : food) if (parent.life().acceptsFood(stack) && child.life().canReceiveCareFood(stack)) {
             var one = stack.split(1); food.removeIf(ItemStack::isEmpty); changed(); return one;
         }
         return ItemStack.EMPTY;

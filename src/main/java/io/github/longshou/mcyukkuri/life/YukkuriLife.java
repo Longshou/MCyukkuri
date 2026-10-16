@@ -42,7 +42,7 @@ public final class YukkuriLife {
     private ItemStack mouth = ItemStack.EMPTY;
     private int mealTicks;
     private UUID feeder;
-    private boolean sharedMeal;
+    private boolean sharedMeal, preparedMeal;
     private boolean bowlMeal;
     private GlobalPos home;
     private boolean naturalHome;
@@ -125,7 +125,12 @@ public final class YukkuriLife {
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
     private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
-    public boolean canEat() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
+    private boolean readyForFood() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
+    /** Food gathered or offered as a normal meal is for a child that can chew independently. */
+    public boolean canEat() { return readyForFood() && entity.family().canEatIndependently(); }
+    /** A parent may select this child for a real serving even while ordinary self-feeding is unavailable. */
+    public boolean canReceiveCareFood() { return readyForFood(); }
+    public boolean canReceiveCareFood(ItemStack food) { return canReceiveCareFood() && acceptsFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620; }
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
@@ -151,7 +156,10 @@ public final class YukkuriLife {
                 && entity.distanceToSqr(targetFood) < 1;
     }
     public String activity() {
-        if (mealTicks > 0) return mealTicks < 10 ? "take_food" : mealTicks < 45 ? "chew" : mealTicks < 53 ? "swallow" : "meal_finish";
+        if (mealTicks > 0) {
+            if (preparedMeal) return mealTicks < 53 ? "receive_mash" : "meal_finish";
+            return mealTicks < 10 ? "take_food" : mealTicks < 45 ? "chew" : mealTicks < 53 ? "swallow" : "meal_finish";
+        }
         if (task == Task.SLEEP) return sleepTicks < 20 ? "sleep_enter" : sleepTicks >= 620 ? "wake" : "sleep";
         return switch (task) { case FOOD -> "seek_food"; case WINTER_FOOD -> "shelter_stock"; case HOME -> "return_home"; case TOILET -> toiletTicks > 0 ? "toilet" : "seek_toilet";
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? "toilet_accident" : "ground_toilet" : "seek_toilet";
@@ -231,7 +239,7 @@ public final class YukkuriLife {
                 if(!spicy)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);
                 }
             }
-            if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; task = Task.NONE; planWait = 20; }
+            if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; preparedMeal = false; task = Task.NONE; planWait = 20; }
         }
         if (homeWait == 0) { homeWait = 200; maintainHome(); }
     }
@@ -239,11 +247,39 @@ public final class YukkuriLife {
     /** Caller transfers exactly one real item before invoking this method. */
     public boolean beginMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared) {
         if (!canEat() || transferred.isEmpty() || !acceptsFood(transferred) || transferred.getCount() != 1) return false;
+        return startMeal(transferred, fromPlayer, alreadyShared, "take_food");
+    }
+    /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
+    public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer) {
+        var player = fromPlayer == null ? null : level().getPlayerByUUID(fromPlayer);
+        if (player == null || !player.isAlive() || player.distanceToSqr(entity) > 9 || !player.hasLineOfSight(entity)
+                || !entity.family().needsMash() || !canReceiveCareFood(prepared) || !InfantFood.isMash(prepared) || prepared.getCount() != 1) return false;
+        return startMeal(prepared, fromPlayer, true, "receive_mash");
+    }
+    /** A biological parent must physically reach the child before transferring its prepared serving. */
+    public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared) {
+        if (caregiver == null || caregiver.level() != entity.level() || !caregiver.family().caresFor(entity)
+                || !caregiver.hasLineOfSight(entity)) return false;
+        double reach = (caregiver.getBbWidth() + entity.getBbWidth()) * .5 + .18;
+        return caregiver.distanceToSqr(entity) <= reach * reach && entity.family().needsMash()
+                && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
+                && startMeal(prepared, null, true, "receive_mash");
+    }
+    /** The aquatic parent's braid has its own authored service target inside the shared hat boat. */
+    public boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared) {
+        if (caregiver == null || caregiver.level() != entity.level() || !caregiver.family().caresFor(entity)
+                || !(caregiver.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat)
+                || entity.getVehicle() != boat || !boat.protects(caregiver) || !boat.protects(entity)
+                || !caregiver.hasLineOfSight(entity) || !io.github.longshou.mcyukkuri.subspecies.HatVessel.braidCanServe(caregiver,entity)) return false;
+        return entity.family().needsMash() && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
+                && startMeal(prepared, null, true, "receive_mash");
+    }
+    private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction) {
         temperature.stop();
         entity.dailyLife().stop();
-        bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; mealTicks = 1;
+        bowlMeal = false; mouth = transferred.copy(); feeder = fromPlayer; sharedMeal = alreadyShared; preparedMeal = InfantFood.isMash(transferred); mealTicks = 1;
         sleepTicks = 0; task = Task.NONE; entity.getNavigation().stop(); entity.setPersistenceRequired();
-        entity.showReaction("happy", "take_food", 60); return true;
+        entity.showReaction("happy", reaction, 60); return true;
     }
     private void tryShare() {
         var peer = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(1.5), other ->
@@ -255,7 +291,7 @@ public final class YukkuriLife {
         if(score<50){personality.decided("keep_food");return;}
         ItemStack transferred = mouth.copy();
         if (peer.life().beginMeal(transferred, feeder, true)) {
-            mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false;
+            mouth = ItemStack.EMPTY; feeder = null; mealTicks = 0; sharedMeal = false; preparedMeal = false;
             YukkuriWorldData.get(level()).relate(peer.getUUID(), entity.getUUID(), 8);
             personality.experienced(Trait.CARE, 1); entity.showReaction("happy", "share", 100);
             personality.decided("share_food");peer.life().personality().environment().record(entity.getUUID(),"shared_food",4);
@@ -269,7 +305,7 @@ public final class YukkuriLife {
             ItemEntity dropped = entity.spawnAtLocation(mouth.copy());
             if (dropped != null) dropped.setPickUpDelay(60);
         }
-        mouth = ItemStack.EMPTY; mealTicks = 0; feeder = null; sharedMeal = false;returnDoseBottle=false;
+        mouth = ItemStack.EMPTY; mealTicks = 0; feeder = null; sharedMeal = false;preparedMeal=false;returnDoseBottle=false;
         sprayDelay=drugSleep=drinkTicks=0;
         sleepTicks = toiletTicks = 0; task = Task.NONE; targetFood = null; targetBlock = null;
         planWait = 20; entity.getNavigation().stop();
@@ -338,13 +374,13 @@ public final class YukkuriLife {
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
-        if (needsFood() && entity.wintering().stockedHome() != null) {
+        if (canEat() && entity.wintering().stockedHome() != null) {
             if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
             // Activate pending care before this new food route could monopolize the higher-priority life goal.
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (needsFood() && EventHooks.canEntityGrief(level(), entity)) {
+        if (canEat() && EventHooks.canEntityGrief(level(), entity)) {
             targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
                     .sorted(Comparator.comparingDouble(entity::distanceToSqr))
@@ -726,7 +762,7 @@ public final class YukkuriLife {
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
         if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         if (!mouth.isEmpty()) tag.put("Mouth", mouth.save(entity.registryAccess()));
-        tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
+        tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
         tag.putBoolean("Accessory", accessory); if (accessoryToken != null) tag.putUUID("AccessoryToken", accessoryToken);
         tag.putBoolean("GoldMedal", goldMedal); tag.putBoolean("SilverMedal", silverMedal); tag.put("Personality", personality.save()); return tag;
@@ -751,7 +787,7 @@ public final class YukkuriLife {
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
         if (!mouth.isEmpty()) mealTicks = Math.clamp(mealTicks,1,44);
         else if (mealTicks < 45) mealTicks=0;
-        sharedMeal=tag.getBoolean("SharedMeal"); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
+        sharedMeal=tag.getBoolean("SharedMeal"); preparedMeal=tag.getBoolean("PreparedMeal") || InfantFood.isMash(mouth); bowlMeal=tag.getBoolean("BowlMeal"); feeder=tag.hasUUID("Feeder")?tag.getUUID("Feeder"):null;
         home = null;
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));
         if (dimension!=null && tag.contains("HomePos")) home=GlobalPos.of(ResourceKey.create(Registries.DIMENSION,dimension),BlockPos.of(tag.getLong("HomePos")));

@@ -52,7 +52,7 @@ def render_overview():
     draw.text((54, 30), '看得到的动作与场景', font=font(44), fill='#253c35')
     draw.text((56, 98), '从出生到离家 · 当前运行资源离线演示', font=font(22), fill='#66796c')
     cards = [('亲子共住大叶巢', 'actions/family-shared-sleep.gif', 12),
-             ('空茎与亲代送食', 'actions/family-young-feed.gif', 9),
+             ('亲油嚼糜与新生受喂', 'actions/family-young-feed.gif', 9),
              ('长大后铺个人小巢', 'actions/family-small-build.gif', 10),
              ('成年后另筑新居', 'actions/build-nest.gif', 10),
              ('返访家人', 'actions/greet-family.gif', 12),

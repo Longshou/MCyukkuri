@@ -14,6 +14,7 @@ on:
           - shed_stem
           - independence
           - childhood
+          - aquatic_family
           - seasons
           - autumn_stock
           - winter
@@ -51,7 +52,7 @@ jobs:
           P0_SUITE: ${{ inputs.suite }}
         run: |
           case "$P0_SUITE" in
-            core|species_registry|growth|shed_stem|independence|childhood|seasons|autumn_stock|winter|succession|settlements|subspecies|dialogue|integration) ;;
+            core|species_registry|growth|shed_stem|independence|childhood|aquatic_family|seasons|autumn_stock|winter|succession|settlements|subspecies|dialogue|integration) ;;
             *) echo "Unsupported P0 suite" >&2; exit 2 ;;
           esac
           ./gradlew runP0GameTest --no-daemon "-Pp0Suite=$P0_SUITE"

@@ -584,7 +584,7 @@ public final class YukkuriModel {
             // Carry survives interruption; only the lock joints override another body action.
             for(Track track:clips.get("house_carry").tracks)if(track.bone==gripBones[0]||track.bone==gripBones[1])track.sample(0,pose[track.bone]);
         }
-        if (behavior.equals("chew") || behavior.equals("sing")) {
+        if (behavior.equals("chew") || behavior.equals("family_chew") || behavior.equals("sing")) {
             float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / LivingPresentation.chewPeriod));
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;

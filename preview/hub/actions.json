@@ -335,98 +335,171 @@
         {
           "model": "reimu",
           "action": "sleep",
-          "x": -13,
-          "yaw": 0
+          "x": -7,
+          "z": 6
         },
         {
           "model": "marisa",
           "action": "sleep",
-          "x": 0,
-          "scale": 0.9,
-          "yaw": 0
+          "x": 7,
+          "z": 6,
+          "scale": 0.9
         },
         {
           "model": "reimu",
           "action": "sleep",
-          "x": 13,
-          "scale": 0.55,
-          "yaw": 0
+          "x": -6,
+          "z": -7,
+          "scale": 0.22
+        },
+        {
+          "model": "marisa",
+          "action": "sleep",
+          "x": 6,
+          "z": -7,
+          "scale": 0.3
         }
       ],
       "props": [
         {
           "id": "forest_burrow",
-          "x": -16,
-          "layers": 27
+          "x": -8,
+          "z": -8,
+          "layers": 19
         },
         {
           "id": "forest_burrow",
-          "layers": 11
+          "x": 8,
+          "z": -8,
+          "layers": 7
         },
         {
           "id": "forest_burrow",
-          "x": 16,
-          "layers": 15
+          "x": -8,
+          "z": 8,
+          "layers": 25
+        },
+        {
+          "id": "forest_burrow",
+          "x": 8,
+          "z": 8,
+          "layers": 13
         }
       ],
       "camera": {
-        "azimuth": 0.42,
-        "elevation": 0.3,
-        "span": 39,
-        "centerY": 5
+        "azimuth": 0.4,
+        "elevation": 0.4,
+        "span": 20,
+        "centerY": 4
       }
     },
     {
       "id": "family-young-feed",
-      "title": "亲代照料：子体吃掉一根真茎",
-      "model": "chen",
+      "title": "亲油嚼糜、近身递喂、幼油吞咽",
+      "model": "reimu",
       "action": "eat",
-      "duration": 2.8,
+      "duration": 6,
       "background": "#e5ecd7",
       "actors": [
         {
           "model": "reimu",
-          "action": "look_around",
-          "x": -14,
-          "yaw": 0
+          "action": "idle",
+          "x": -6,
+          "yaw": -40,
+          "phases": [
+            {
+              "start": 0,
+              "end": 2,
+              "action": "eat"
+            },
+            {
+              "start": 2,
+              "end": 3.2,
+              "action": "nuzzle",
+              "face": "happy"
+            },
+            {
+              "start": 3.2,
+              "action": "idle",
+              "face": "happy"
+            }
+          ],
+          "z": 2
         },
         {
           "model": "reimu",
-          "action": "eat",
-          "x": 10,
-          "scale": 0.55,
-          "yaw": 0
+          "action": "idle",
+          "face": "drool",
+          "x": 4,
+          "yaw": 20,
+          "scale": 0.22,
+          "phases": [
+            {
+              "start": 3.2,
+              "end": 5.2,
+              "action": "drink",
+              "face": "open_smile"
+            },
+            {
+              "start": 5.2,
+              "action": "shiawase",
+              "face": "satisfied"
+            }
+          ],
+          "z": -5
         }
       ],
       "props": [
         {
           "id": "forest_burrow",
-          "x": -16,
+          "x": -8,
           "layers": 27
         },
         {
           "id": "forest_burrow",
-          "layers": 11
-        },
-        {
-          "id": "forest_burrow",
-          "x": 16,
+          "x": 8,
           "layers": 15
         },
         {
           "id": "yukkuri_stem",
-          "x": 10,
-          "z": -4,
-          "y": 0.25,
-          "scale": 0.85,
-          "yaw": 18
+          "x": -2.5,
+          "z": -2.6,
+          "y": 2.2,
+          "scale": 0.45,
+          "yaw": -40,
+          "end": 2
+        },
+        {
+          "id": "food_mash_serving",
+          "from": [
+            -2.5,
+            2.2,
+            -2.6
+          ],
+          "to": [
+            3.6,
+            0.44,
+            -6.0
+          ],
+          "start": 2,
+          "end": 3.2,
+          "scale": 0.65
+        },
+        {
+          "id": "food_mash_serving",
+          "x": 3.6,
+          "z": -6,
+          "y": 0.44,
+          "start": 3.2,
+          "end": 5.2,
+          "scale": 0.22
         }
       ],
       "camera": {
-        "azimuth": 0.35,
-        "elevation": 0.27,
-        "span": 37,
-        "centerY": 6
+        "azimuth": 0.12,
+        "elevation": 0.5,
+        "span": 14,
+        "centerY": 4
       }
     },
     {
@@ -471,7 +544,7 @@
       "camera": {
         "azimuth": 0.4,
         "elevation": 0.29,
-        "span": 37,
+        "span": 25,
         "centerY": 5
       }
     }

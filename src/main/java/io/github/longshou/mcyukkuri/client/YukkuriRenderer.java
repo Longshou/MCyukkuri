@@ -114,7 +114,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 if (grip != null) {
                     pose.pushPose(); pose.translate(grip.m30(),grip.m31()+.04,grip.m32()-.06);
                     pose.mulPose(Axis.XP.rotationDegrees(-20)); pose.scale(.28f,.28f,.28f);
-                    Minecraft.getInstance().getItemRenderer().renderStatic(entity.aquaticServing(),ItemDisplayContext.FIXED,
+                    if(io.github.longshou.mcyukkuri.life.InfantFood.isMash(entity.aquaticServing())) {
+                        pose.scale(3.5f,3.5f,3.5f);
+                        PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);
+                    } else Minecraft.getInstance().getItemRenderer().renderStatic(entity.aquaticServing(),ItemDisplayContext.FIXED,
                             packedLight,overlay,pose,buffers,entity.level(),entity.getId());
                     pose.popPose();
                 }
@@ -133,9 +136,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){
-                var held=heldIndex==0?entity.getMouthItem():entity.getCarriedItem();
+                var held=heldIndex==0?entity.getMouthItem():!entity.aquaticServing().isEmpty()&&behavior.equals("family_chew")?entity.aquaticServing():entity.getCarriedItem();
                 if(held.isEmpty())continue;
-                var grip=heldIndex==1?model.gripPoint():null;
+                boolean mash=io.github.longshou.mcyukkuri.life.InfantFood.isMash(held);
+                var grip=heldIndex==1&&!behavior.equals("family_chew")&&!mash?model.gripPoint():null;
                 pose.pushPose();
                 if(grip!=null)pose.translate(grip.x,grip.y,grip.z);
                 else {
@@ -143,6 +147,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(mouth,entity.livePregnancyProgress(),0);
                     root.transformPosition(mouth);  // the food stays in the mouth while the body leans or bobs
                     pose.translate(mouth.x/16,mouth.y/16,mouth.z/16);
+                }
+                if(mash){
+                    float portionScale=entity.getVariant().isHouse()?.35f:1;
+                    pose.scale(portionScale,portionScale,portionScale);
+                    PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
                 if(heldIndex==0&&io.github.longshou.mcyukkuri.life.Consumables.oral(held)){
                     String serving=io.github.longshou.mcyukkuri.life.Consumables.water(held)?"water_serving":switch(io.github.longshou.mcyukkuri.life.Consumables.kind(held)){

@@ -10,14 +10,16 @@ public final class EcologyPresentation {
         return switch (behavior) {
             case "unun_exercise" -> YukkuriAction.TAISO;
             case "toilet", "ground_toilet", "toilet_accident" -> YukkuriAction.BRACE;
-            case "take_food", "chew", "swallow" -> YukkuriAction.EAT;
+            case "take_food", "chew", "family_chew", "swallow" -> YukkuriAction.EAT;
+            case "receive_mash" -> YukkuriAction.DRINK;
             case "meal_finish" -> YukkuriAction.SHIAWASE;
             case "drink" -> YukkuriAction.DRINK;
             case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
             case "independence_build", "nest_build" -> YukkuriAction.BRACE;
-            case "feed_child", "nest_gather" -> YukkuriAction.LOOK_AROUND;
+            case "feed_child" -> YukkuriAction.NUZZLE;
+            case "nest_gather" -> YukkuriAction.LOOK_AROUND;
             case "independence_farewell", "independence_visit" -> YukkuriAction.GREET;
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
             case "wake" -> YukkuriAction.WAKE;
@@ -53,9 +55,10 @@ public final class EcologyPresentation {
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
         if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
         if (owner.life().mealTicks() > 0) return YukkuriAction.BOAT_EAT;
+        if (behavior.equals("family_chew")) return YukkuriAction.BOAT_EAT;
         if (behavior.equals("voyage_balance")) return YukkuriAction.BOAT_FIRST_BALANCE;
         if (behavior.equals("voyage_praise")) return YukkuriAction.BOAT_NUZZLE;
-        if (behavior.equals("boat_feed_young")) return YukkuriAction.BOAT_FEED_YOUNG;
+        if (behavior.equals("boat_feed_young") || behavior.equals("feed_child")) return YukkuriAction.BOAT_FEED_YOUNG;
         if (behavior.equals("boat_nuzzle")) return YukkuriAction.BOAT_NUZZLE;
         if (behavior.equals("boat_lullaby")) return YukkuriAction.BOAT_LULLABY;
         if (reaction.equals("awake")) return YukkuriAction.BOAT_WAKE;
@@ -95,6 +98,7 @@ public final class EcologyPresentation {
             case "independence_farewell", "independence_visit" -> "happy";
             case "independence_build", "nest_build" -> "chewing_closed";
             case "feed_child" -> "happy";
+            case "receive_mash" -> "open_smile";
             case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
             case "unun_exercise" -> "happy";
             case "sleep_enter" -> "sleepy";
@@ -116,7 +120,7 @@ public final class EcologyPresentation {
             case "boat_drink" -> "chewing_closed";
             case "boat_call", "boat_wait_young" -> "teary";
             case "boat_steady" -> "surprise";
-            case "chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
+            case "chew", "family_chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case "swallow", "drink" -> "chewing_closed";
             case "bully_peer", "protect_peer", "sumo_push" -> "angry";
             default -> e.contactPose().equals("RUB") ? "closed_smile"

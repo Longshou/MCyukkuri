@@ -1,6 +1,6 @@
 # 消耗品选用与导出
 
-本包接入酸奶饮品、兴奋药、幼语药、助眠喷雾、超辣油粮和生殖用馅六件原创道具，并为清水、酸奶和两种口服药提供四种一口份量。造型状态为待用户确认的游戏适配，不沿用既有角色标准的确认指纹。
+本包接入酸奶饮品、兴奋药、幼语药、助眠喷雾、超辣油粮和生殖用馅六件原创道具，并提供清水、酸奶、两种口服药及新生食糜的口中份量。造型状态为待用户确认的游戏适配，不沿用既有角色标准的确认指纹。
 
 制作入口是 [build.py](../../../standards/yukkuri-library/drafts/consumables/build.py)，配方与形状参数保存在同目录 `recipe.json`，可编辑模型和三角网格导出位于 `assembled/<id>/`。`selected/<id>/` 保存本次选用的 `.bbmodel`、`.mesh.json` 与贴图，`manifest.json` 记录制作脚本、基础几何工具和全部输出的 SHA-256。
 
@@ -10,7 +10,8 @@
 | 道具贴图 | `src/main/resources/assets/mcyukkuri/textures/props/<id>.png` | 原创配色条，网格 UV 选择色块 |
 | 物品入口 | `src/main/resources/assets/mcyukkuri/models/item/<id>.json` | `PropModels` 动态渲染六件道具 |
 | 合成 | `src/main/resources/data/mcyukkuri/recipe/<id>.json` | 游戏适配配方；一份产物 |
-| 口中份量 | 四件 `*_serving` 网格及贴图 | 使用当前模型的嘴部挂点，与孕体变形同步 |
+| 口中份量 | 五件 `*_serving` 网格及贴图 | 使用当前模型的嘴部挂点，与孕体变形同步 |
+| 新生食糜 | `food_mash_serving` 网格及贴图 | 亲油加工后与幼油受喂时显示柔软小团；原食材、份数和营养保留，不注册另一份食品 |
 | 生殖投药 | `reproductive_filling` 网格及贴图 | `LiveBirthRenderer.renderDose` 将管嘴朝向后部；短时操作由服务器控制 |
 
 原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/CONSUMABLES_AND_BIRTH.md)。清水仍使用原版真实清水药水瓶；其他六件物品没有借用不相符的原版图标。

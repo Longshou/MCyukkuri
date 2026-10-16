@@ -382,8 +382,8 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.event.HomeClaimGoal(this));
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.human.FactoryWorkGoal(this));
         goalSelector.addGoal(4, new TemptGoal(this, 1.15, Ingredient.of(FOOD), false) {
-            @Override public boolean canUse() { return life.needsFood() && super.canUse() && life.personality().fear(player.getUUID()) < 30; }
-            @Override public boolean canContinueToUse() { return life.needsFood() && super.canContinueToUse(); }
+            @Override public boolean canUse() { return life.canEat() && super.canUse() && life.personality().fear(player.getUUID()) < 30; }
+            @Override public boolean canContinueToUse() { return life.canEat() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(5, new FamilyGoal());
         goalSelector.addGoal(5, new HouseGoal());
@@ -545,7 +545,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
         // Real sleep, meals and ongoing care win over a lingering newborn reaction.
-        return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? YukkuriAction.EAT
+        return life.isSleeping() ? YukkuriAction.SLEEP : life.mealTicks() > 0 ? io.github.longshou.mcyukkuri.social.EcologyPresentation.action(behavior)
                 : behavior.equals("boat_listen") ? YukkuriAction.SWAY
                 : behavior.equals("boat_receive_care") ? YukkuriAction.NUZZLE
                 : behavior.equals("voyage_launch") ? YukkuriAction.HAT_OFF_SELF_AQ
@@ -674,12 +674,16 @@ public final class YukkuriEntity extends PathfinderMob {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
-        if (!life.acceptsFood(stack) || !life.canEat()) {
+        boolean prepared = family.needsMash() && io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack);
+        boolean mayFeed = prepared ? life.canReceiveCareFood(stack) && player.distanceToSqr(this) <= 9 && player.hasLineOfSight(this)
+                : life.acceptsFood(stack) && life.canEat();
+        if (!mayFeed) {
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide) {
             ItemStack one = stack.copyWithCount(1);
-            if (life.beginMeal(one, player.getUUID(), false) && !player.getAbilities().instabuild) stack.shrink(1);
+            boolean fed = prepared ? life.beginPreparedMeal(one, player.getUUID()) : life.beginMeal(one, player.getUUID(), false);
+            if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }

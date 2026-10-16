@@ -52,13 +52,20 @@ function propVertices(prop,tile,q){
 }
 function sceneEntries(clip,time){
  const q=clip.duration?Math.min(1,Math.max(0,time/clip.duration)):0,entries=[];
- for(const actor of clip.actors){
+ for(const baseActor of clip.actors){
+  const phase=(baseActor.phases||[]).find(p=>time>=p.start&&(p.end===undefined||time<p.end));
+  const actor=phase?{...baseActor,...phase}:baseActor;
+  const localTime=phase?time-phase.start:time;
   const pose=poseFor(actor.model);if(!pose.clips[actor.action])throw Error('Unknown action '+actor.model+'/'+actor.action);
-  const actionTime=Math.min(actor.maxTime??Infinity,time*(actor.speed??1)+(actor.timeOffset??0)),face=actor.face||clip.face||pose.expressionFor(actor.action,actionTime);
+  const actionTime=Math.min(actor.maxTime??Infinity,localTime*(actor.speed??1)+(actor.timeOffset??0)),face=actor.face||clip.face||pose.expressionFor(actor.action,actionTime);
   const key='entity:'+actor.model+':'+face;rawTexture(key);pose.expression(face);
   entries.push({vertices:pose.frame(actor.action,actionTime).slice(),translation:interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key});
  }
- for(const prop of clip.props||[]){rawTexture(prop.textureKey);entries.push({prop,key:prop.textureKey,q});}
+ for(const prop of clip.props||[]){
+  if(time<(prop.start??0)||time>=(prop.end??Infinity))continue;
+  const progress=prop.start!==undefined||prop.end!==undefined?Math.min(1,Math.max(0,(time-(prop.start??0))/Math.max(.001,(prop.end??clip.duration)-(prop.start??0)))):q;
+  rawTexture(prop.textureKey);entries.push({prop,key:prop.textureKey,q:progress});
+ }
  return entries;
 }
 function buildAtlas(entries){

@@ -46,7 +46,7 @@ public final class FamilyCareGameTests {
         var items=new ArrayList<ItemEntity>();
         ShelterPlacement.Placed[] childHome={null};
         YukkuriEntity[] parent={null},child={null}; ItemEntity[] source={null}; Vec3[] parentStart={null};
-        boolean[] picked={false},delivered={false},moved={false},swallowed={false},duplicated={false},cleaned={false};
+        boolean[] picked={false},mashed={false},delivered={false},moved={false},swallowed={false},duplicated={false},cleaned={false};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
             if(childHome[0]!=null)childHome[0].rollback(level);
@@ -74,7 +74,8 @@ public final class FamilyCareGameTests {
             int portions=(source[0].isAlive()?source[0].getItem().getCount():0)+parent[0].family().carrying().getCount()+child[0].life().mouth().getCount();
             if(portions>1)duplicated[0]=true;
             picked[0]|=!source[0].isAlive()&&parent[0].family().carrying().is(ModItems.YUKKURI_STEM.get());
-            delivered[0]|=child[0].life().mouth().is(ModItems.YUKKURI_STEM.get());
+            mashed[0]|=io.github.longshou.mcyukkuri.life.InfantFood.isMash(parent[0].family().carrying());
+            delivered[0]|=child[0].life().mouth().is(ModItems.YUKKURI_STEM.get())&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child[0].life().mouth());
             moved[0]|=parentStart[0]!=null&&parent[0].position().distanceToSqr(parentStart[0])>4;
             swallowed[0]|=child[0].life().nutrition()>=40&&child[0].life().mouth().isEmpty();
         });
@@ -88,12 +89,14 @@ public final class FamilyCareGameTests {
             level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());YukkuriConfig.HUNGER_INTERVAL.set(24000);
 
             // This immediate path remains the precise one-portion/reload regression: it also proves lower nutrition wins.
-            var directParent=spawn(level,X+4.5,2.5,90);var hungriest=spawn(level,X+5.4,2.5,20);var sibling=spawn(level,X+5.8,2.5,55);
+            var directParent=spawn(level,X+4.5,2.5,90);var hungriest=spawn(level,X+4.9,2.5,20);var sibling=spawn(level,X+5.8,2.5,55);
             actors.add(directParent);actors.add(hungriest);actors.add(sibling);
-            hungriest.family().generatedChild(directParent,null);sibling.family().generatedChild(directParent,null);
+            dependent(hungriest,directParent);sibling.family().generatedChild(directParent,null);
             FamilyData.get(level).register(directParent);FamilyData.get(level).register(hungriest);FamilyData.get(level).register(sibling);
             var directStem=new ItemEntity(level,directParent.getX(),directParent.getY(),directParent.getZ(),new ItemStack(ModItems.YUKKURI_STEM.get(),2));directStem.setNoPickUpDelay();
             helper.assertTrue(level.addFreshEntity(directStem),"physical stem source inserts");items.add(directStem);
+            helper.assertTrue(hungriest.family().needsMash()&&!hungriest.life().canEat()
+                    &&!hungriest.life().beginMeal(new ItemStack(ModItems.YUKKURI_STEM.get()),null,false),"newborn refuses a complete stem as an independent meal");
             // Family load restores the normal forty-tick decision cooldown before a new task can start.
             for(int i=0;i<40;i++)directParent.family().tick();
             helper.assertTrue(directParent.family().canUse(),"safe parent begins care for a reachable hungry child");directParent.family().tickGoal();
@@ -101,8 +104,18 @@ public final class FamilyCareGameTests {
                     "caregiver picks exactly one real stem portion");
             directParent.family().load(directParent.family().save());for(int i=0;i<40;i++)directParent.family().tick();
             helper.assertTrue(directParent.family().canUse(),"reloaded caregiver resumes only when a hungry child remains");directParent.family().tickGoal();
-            helper.assertTrue(hungriest.life().mealTicks()==1&&sibling.life().mealTicks()==0&&directParent.family().carrying().isEmpty()&&directStem.getItem().getCount()==1,
-                    "reload delivers the portion to the lower-nutrition child without duplicating its source");
+            for(int i=0;i<39;i++)directParent.family().tickGoal();
+            helper.assertTrue(io.github.longshou.mcyukkuri.life.InfantFood.isMash(directParent.family().carrying())&&directParent.family().careChewTicks()==40
+                    &&directParent.life().nutrition()==90,"caregiver turns the original stem into mash without eating it");
+            directParent.family().load(directParent.family().save());
+            helper.assertTrue(io.github.longshou.mcyukkuri.life.InfantFood.isMash(directParent.family().carrying())&&directParent.family().careChewTicks()==40,
+                    "reload preserves the prepared serving and completed chew progress");
+            for(int i=0;i<40;i++)directParent.family().tick();
+            helper.assertTrue(directParent.family().canUse(),"reloaded prepared serving starts a fresh, close delivery task");
+            directParent.family().tickGoal();for(int i=0;i<19;i++)directParent.family().tickGoal();
+            helper.assertTrue(hungriest.life().mealTicks()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(hungriest.life().mouth())
+                    &&sibling.life().mealTicks()==0&&directParent.family().carrying().isEmpty()&&directStem.getItem().getCount()==1,
+                    "twenty close delivery ticks hand the saved mash to the lower-nutrition child without duplicating its source");
             directStem.discard();
             var stocked=ShelterPlacement.place(level,new ShelterPlacement.Plan(new BlockPos(X+12,65,8),ShelterBlock.Kind.CARDBOARD,Direction.SOUTH));
             helper.assertTrue(stocked!=null,"a real resident store is available for the care food selection check");childHome[0]=stocked;
@@ -129,14 +142,16 @@ public final class FamilyCareGameTests {
             var entrance=childHome[0].shelter().entrance();
             child[0]=spawn(level,entrance.getX()+.5,entrance.getZ()+.5,20);actors.add(child[0]);
             parent[0]=spawn(level,X+2.5,8.5,90);actors.add(parent[0]);
-            child[0].family().generatedChild(parent[0],null);FamilyData.get(level).register(parent[0]);FamilyData.get(level).register(child[0]);
+            dependent(child[0],parent[0]);FamilyData.get(level).register(parent[0]);FamilyData.get(level).register(child[0]);
+            helper.assertTrue(child[0].family().needsMash()&&!child[0].life().canEat(),"real AI target is a dependent newborn, not an autonomous juvenile fixture");
             helper.assertTrue(child[0].habitat().choose(childHome[0].shelter()),"hungry child claims its real nearby bed and stays there");
             child[0].moveTo(Vec3.atBottomCenterOf(childHome[0].shelter().bed(child[0].getUUID())));child[0].setOnGround(true);
             BlockPos sourcePos=childHome[0].shelter().bed(child[0].getUUID()).west(10);parent[0].moveTo(Vec3.atBottomCenterOf(sourcePos));parent[0].setOnGround(true);parentStart[0]=parent[0].position();
             source[0]=new ItemEntity(level,parent[0].getX(),parent[0].getY(),parent[0].getZ(),new ItemStack(ModItems.YUKKURI_STEM.get()));source[0].setNoPickUpDelay();
             helper.assertTrue(level.addFreshEntity(source[0]),"one physical stem is available only at the parent");items.add(source[0]);
         }).thenWaitUntil(()->helper.assertTrue(picked[0],"Full AI caregiver must pick the only stem before leaving its source"))
-        .thenWaitUntil(()->helper.assertTrue(delivered[0],"Full AI caregiver walks the portion to the child and begins the child's real meal"))
+        .thenWaitUntil(()->helper.assertTrue(mashed[0],"Full AI caregiver must chew the carried stem into mash before approaching the child"))
+        .thenWaitUntil(()->helper.assertTrue(delivered[0],"Full AI caregiver walks the prepared serving to the child and begins the child's real meal"))
         .thenWaitUntil(()->helper.assertTrue(swallowed[0],"The child reaches the stem's ordinary twenty-nutrition swallow result"))
         .thenExecute(()->helper.assertTrue(moved[0]&&!duplicated[0]&&!source[0].isAlive(),
                 "Parent moved toward the child; the one source portion was neither left behind nor duplicated"))
@@ -149,6 +164,11 @@ public final class FamilyCareGameTests {
         var family=entity.family().save();family.putBoolean("Initialized",true);family.putString("Stage","ADULT");entity.family().load(family);
         var life=entity.life().save();life.putFloat("Nutrition",nutrition);life.putFloat("Energy",100);life.putFloat("Hygiene",100);life.putFloat("Bladder",0);life.putInt("RestWait",1200);life.putInt("SocialWait",1200);entity.life().load(life);
         if(!level.addFreshEntity(entity))throw new IllegalStateException("Family-care fixture spawn rejected");return entity;
+    }
+    private static void dependent(YukkuriEntity child,YukkuriEntity parent) {
+        child.family().generatedChild(parent,null);
+        var data=child.family().save();data.putString("Stage","BABY");data.putLong("Age",0);data.putLong("Nourishment",0);data.putFloat("Scale",.14f);
+        data.putBoolean("AwaitingLanding",false);child.family().load(data);
     }
     private FamilyCareGameTests() {}
 }
