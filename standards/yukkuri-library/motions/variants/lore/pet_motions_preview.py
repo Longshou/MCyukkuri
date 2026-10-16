@@ -1,4 +1,4 @@
-"""Static contact sheets for the pet-shop clips (lore recipe v9): six evenly spaced frames per clip.
+"""Static contact sheets for the pet-shop clips (lore recipe v12): six evenly spaced frames per clip.
 
 Renders the actual runtime meshes and clips with the repository's offline rasterizer; no browser or game.
 Output: .local/previews/pet-motions/<model>.png (not committed). Needs numpy, Pillow and node.
@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import preview as P
 
-CLIPS = ('think', 'nervous', 'proud', 'joy_jump', 'sulk', 'hide_face', 'beg', 'bow')
+CLIPS = ('think', 'nervous', 'proud', 'joy_jump', 'sulk', 'hide_face', 'beg', 'bow', 'shy', 'doze_off', 'struggle', 'basket_in', 'basket_out', 'ignore', 'restrain')
 MODELS = ('reimu', 'marisa', 'alice', 'chen', 'patchouli', 'house_reimu')
 FRAMES, CELL = 6, 300
 OUT = P.ROOT/'.local/previews/pet-motions'

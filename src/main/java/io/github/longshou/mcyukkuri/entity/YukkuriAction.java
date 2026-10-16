@@ -93,7 +93,7 @@ public enum YukkuriAction {
     BRAID_RESCUE_REACH("braid_rescue_reach", 1.1, false),
     BRAID_RESCUE_HOLD("braid_rescue_hold", 1.2, false),
     BRAID_RESCUE_SETTLE("braid_rescue_settle", .9, false),
-    // Pet shop, exam and raising performances (lore recipe v9, all standard forms).
+    // Pet shop, exam and raising performances (lore recipe v13, all standard forms).
     THINK("think", 2.0, true),
     NERVOUS("nervous", 1.5, true),
     PROUD("proud", 2.0, false),
@@ -101,7 +101,14 @@ public enum YukkuriAction {
     SULK("sulk", 2.4, true),
     HIDE_FACE("hide_face", 2.0, true),
     BEG("beg", 1.4, true),
-    BOW("bow", 1.2, false);
+    BOW("bow", 1.2, false),
+    SHY("shy", 2.0, true),
+    DOZE_OFF("doze_off", 4.5, false),
+    STRUGGLE("struggle", 1.0, true),
+    BASKET_IN("basket_in", 0.8, false),
+    BASKET_OUT("basket_out", 1.6, false),
+    IGNORE("ignore", 1.6, false),
+    RESTRAIN("restrain", 1.6, true);
 
     private final String id;
     private final double duration;

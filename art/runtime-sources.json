@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "pet-shop-braid-water-20261017-v19",
+    "revision": "pet-shop-braid-water-20261017-v20",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
