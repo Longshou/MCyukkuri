@@ -25,6 +25,7 @@ public final class HatShoreForage {
     private Target target;
     private int elapsed, contact, retry;
     private long lastContactTick = Long.MIN_VALUE;
+    private String reason = "idle";
 
     public HatShoreForage(YukkuriEntity owner) { this.owner = owner; }
     public boolean active() { return target != null; }
@@ -39,21 +40,22 @@ public final class HatShoreForage {
                 || owner.life().isSleeping() || owner.life().mealTicks() > 0 || owner.family().laboring()
                 || owner.getVehicle() != boat || !owner.getUUID().equals(boat.ownerYukkuri())
                 || !HatVessel.aquatic(owner) || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
-                || !boat.cargo().paddle() || !EventHooks.canEntityGrief(owner.level(), owner)) { stop(); return false; }
+                || !boat.cargo().paddle() || !EventHooks.canEntityGrief(owner.level(), owner)) { reason = "unavailable"; stop(); return false; }
         if (target == null) {
-            if (retry-- > 0) return false;
+            if (retry-- > 0) { reason = "retry"; return false; }
             retry = 40; target = find(boat); elapsed = contact = 0;
-            if (target == null) return false;
+            if (target == null) { reason = "no_reachable_crop"; return false; }
         }
         if (++elapsed > 500 || !owner.level().hasChunkAt(target.plant())
                 || !owner.level().getBlockState(target.plant()).equals(target.state())
                 || !HatBoatRoute.calmSurface(owner.level(), target.water())
                 || HatBoatCargo.CAPACITY - boat.cargo().count() < fruitCount(target.state())
-                || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { stop(); return false; }
-        Vec3 berth = HatBoatRoute.surface(owner.level(), target.water());
-        if (boat.position().subtract(berth).horizontalDistanceSqr() > .36) {
+                || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; stop(); return false; }
+        Vec3 berth = berth(target.plant(), target.water());
+        if (boat.position().subtract(berth).horizontalDistanceSqr() > .16) {
+            reason = "sailing_to_shore";
             contact = 0; lastContactTick = Long.MIN_VALUE;
-            if (elapsed % 20 == 1 && !boat.paddleTo(berth)) { stop(); return false; }
+            if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; stop(); return false; }
             return true;
         }
         boat.holdPosition();
@@ -63,7 +65,11 @@ public final class HatShoreForage {
         float turn = Mth.clamp(Mth.wrapDegrees(stern - boat.getYRot()), -4, 4);
         boat.setYRot(boat.getYRot() + turn);
         SurfaceApproach.face(owner, SurfaceApproach.yaw(owner.position(), Vec3.atCenterOf(target.plant())));
-        if (Math.abs(Mth.wrapDegrees(stern - boat.getYRot())) > 5 || !mouthTouches(target.plant())) { contact = 0; lastContactTick = Long.MIN_VALUE; return true; }
+        if (Math.abs(Mth.wrapDegrees(stern - boat.getYRot())) > 5 || !mouthTouches(target.plant())) {
+            reason = Math.abs(Mth.wrapDegrees(stern - boat.getYRot())) > 5 ? "turning_stern" : "mouth_out_of_reach_or_occluded";
+            contact = 0; lastContactTick = Long.MIN_VALUE; return true;
+        }
+        reason = "mouth_contact";
         long now = owner.level().getGameTime();
         if (now == lastContactTick) return true;
         contact = lastContactTick != Long.MIN_VALUE && now == lastContactTick + 1 ? contact + 1 : 1;
@@ -77,6 +83,7 @@ public final class HatShoreForage {
         if (stored == 0) level.setBlock(picked, before, 3);
         else if (!fruit.isEmpty()) owner.spawnAtLocation(fruit); // Defend conservation if capacity ever changes mid-operation.
         if (stored > 0) owner.speak("take_food");
+        reason = stored > 0 ? "picked_real_fruit" : "cargo_rejected_rollback";
         stop(); retry = 40; return stored > 0;
     }
 
@@ -93,24 +100,64 @@ public final class HatShoreForage {
         for (var plant : plants) for (var side : Direction.Plane.HORIZONTAL) {
             var water = plant.relative(side).below();
             if (!HatBoatRoute.calmSurface(level, water)) continue;
-            var berth = HatBoatRoute.surface(level, water);
+            var berth = berth(plant, water);
             if (!level.noCollision(boat, boat.getBoundingBox().move(berth.subtract(boat.position())))) continue;
-            if (boat.position().subtract(berth).horizontalDistanceSqr() > .36 && HatBoatRoute.find(boat, berth).isEmpty()) continue;
+            var current = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
+            if (!current.equals(water) && HatBoatRoute.find(boat, berth).isEmpty()) continue;
             return new Target(plant, water.immutable(), level.getBlockState(plant));
         }
         return null;
     }
 
+    /** Aim within the actual water cell beside the plant, allowing the normal route's stopping tolerance. */
+    private Vec3 berth(BlockPos plant, BlockPos water) {
+        var surface = HatBoatRoute.surface(owner.level(), water);
+        var shore = Vec3.atCenterOf(plant).subtract(surface).multiply(1,0,1).normalize();
+        return surface.add(shore.scale(.30));
+    }
+
+    private boolean sailToBerth(HatBoatEntity boat, Vec3 berth) {
+        var route = new ArrayList<>(HatBoatRoute.find(boat, berth));
+        var current = BlockPos.containing(boat.getX(), boat.getY()-.12, boat.getZ());
+        if (route.isEmpty() && !current.equals(target.water())) return false;
+        // Surface BFS ends at a cell centre. This final waypoint stays inside that same calm water cell;
+        // all movement/collisions still run through the actual hat paddling physics.
+        route.add(berth);
+        return boat.paddleAlong(route);
+    }
+
+    public java.util.Map<String,Object> debug(HatBoatEntity boat) {
+        var value = new java.util.LinkedHashMap<String,Object>();
+        value.put("reason",reason); value.put("elapsed",elapsed); value.put("contact",contact); value.put("retry",retry);
+        value.put("boat",java.util.List.of(boat.getX(),boat.getY(),boat.getZ())); value.put("boatYaw",boat.getYRot());
+        value.put("parent",java.util.List.of(owner.getX(),owner.getY(),owner.getZ())); value.put("bodyYaw",owner.yBodyRot); value.put("headYaw",owner.getYHeadRot());
+        value.put("paddling",boat.paddling()); value.put("paddle",boat.cargo().paddle()); value.put("cargo",boat.cargo().count());
+        value.put("aboard",owner.getVehicle()==boat); value.put("sleeping",owner.life().isSleeping()); value.put("meal",owner.life().mealTicks());
+        value.put("nutrition",owner.life().nutrition()); value.put("energy",owner.life().energy()); value.put("flooding",boat.flooding());
+        value.put("mobGriefing",EventHooks.canEntityGrief(owner.level(),owner));
+        if(target!=null) {
+            value.put("plant",target.plant().toShortString()); value.put("source",owner.level().getBlockState(target.plant()).toString());
+            value.put("berth",berth(target.plant(),target.water()).toString());
+            Vec3 mouth=mouth(); Vec3 point=point(target.plant(),mouth);
+            value.put("mouth",mouth.toString()); value.put("touch",point.toString()); value.put("mouthGap",mouth.distanceTo(point));
+            value.put("contactValid",mouthTouches(target.plant()));
+        }
+        return value;
+    }
+
     /** Mouth envelope and ray use the current rider position; the boat centre alone can never harvest a plant. */
     private boolean mouthTouches(BlockPos plant) {
-        Vec3 facing = Vec3.directionFromRotation(0, owner.getYHeadRot());
-        Vec3 mouth = owner.position().add(facing.scale(owner.getBbWidth() * .5)).add(0, owner.getBbHeight() * .5, 0);
-        Vec3 point = new Vec3(Mth.clamp(mouth.x, plant.getX() + .1, plant.getX() + .9),
-                Mth.clamp(mouth.y, plant.getY() + .1, plant.getY() + .85),
-                Mth.clamp(mouth.z, plant.getZ() + .1, plant.getZ() + .9));
+        Vec3 mouth=mouth(),point=point(plant,mouth);
         if (mouth.distanceToSqr(point) > .20 * .20) return false;
         var hit = owner.level().clip(new ClipContext(owner.position().add(0, owner.getBbHeight() * .5, 0), point,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, owner));
         return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(plant);
+    }
+    private Vec3 mouth() {
+        Vec3 facing = Vec3.directionFromRotation(0, owner.getYHeadRot());
+        return owner.position().add(facing.scale(owner.getBbWidth() * .5)).add(0, owner.getBbHeight() * .5, 0);
+    }
+    private Vec3 point(BlockPos plant,Vec3 mouth) {
+        return new Vec3(Mth.clamp(mouth.x,plant.getX()+.1,plant.getX()+.9),Mth.clamp(mouth.y,plant.getY()+.1,plant.getY()+.85),Mth.clamp(mouth.z,plant.getZ()+.1,plant.getZ()+.9));
     }
 }

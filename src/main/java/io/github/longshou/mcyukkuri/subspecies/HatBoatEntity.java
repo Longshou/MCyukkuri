@@ -598,33 +598,39 @@ public final class HatBoatEntity extends Entity {
                 double y=HatVessel.footprint(mode(),x,z,r);
                 if(Double.isFinite(y)&&Double.isFinite(HatVessel.surface(mode(),x,z)))childPlaces.add(new Vec3(x,y,z));
             }
-        ServiceSeat best=null;double bestCost=Double.MAX_VALUE;
+        record CarePose(Vec3 ownerAt,Vec3 childAt,double cost) {}
+        var candidates=new java.util.ArrayList<CarePose>();
+        double min=FamilyFeedingContact.minimumMouthDistance(parent,child)/unit(), max=FamilyFeedingContact.mouthDistance(parent,child)/unit();
         for(double x=HatVessel.OPENING[0];x<=HatVessel.OPENING[1];x+=.5)
             for(double z=HatVessel.OPENING[2];z<=HatVessel.OPENING[3];z+=.5){
                 double y=HatVessel.footprint(mode(),x,z,radiusOf(parent));
                 if(!Double.isFinite(y)||!Double.isFinite(HatVessel.surface(mode(),x,z)))continue;
                 Vec3 ownerAt=new Vec3(x,y,z);
                 for(var candidate:childPlaces){
-                    // Use a real patch at the parent's feet; the tiny child's head cannot bridge the well wall.
                     if(Math.abs(candidate.y-ownerAt.y)>.001)continue;
+                    double dx=candidate.x-x,dz=candidate.z-z,distance=dx*dx+dz*dz;
+                    if(distance<min*min || distance>max*max || !serviceGeometryFits(parent,child,ownerAt,candidate))continue;
                     double cost=candidate.distanceToSqr(from)+ownerAt.distanceToSqr(parentFrom)*.5+ownerAt.distanceToSqr(base)*.25;
-                    if(cost>=bestCost)continue;
-                    if(!serviceGeometryFits(parent,child,ownerAt,candidate))continue;
-                    var path=walkingRoute(child,candidate);
-                    boolean assisted=!child.childhood().canJump()&&(hasStep(path)||Math.abs(candidate.y-from.y)>.01);
-                    if(assisted){if(carryPickup(child,parent,from,candidate,ownerAt)==null)continue;}
-                    else{
-                        if(from.distanceToSqr(candidate)>.01&&path.isEmpty())continue;
-                        var obstacles=takenExcept(child.getUUID());
-                        obstacles.add(new double[]{candidate.x,candidate.y,candidate.z,r,child.getBbHeight()/unit()});
-                        if(parentFrom.distanceToSqr(ownerAt)>.01&&HatSurfaceRoute.find(mode(),parentFrom,ownerAt,
-                                radiusOf(parent),obstacles,parent.getBbHeight()/unit()).isEmpty())continue;
-                    }
-                    bestCost=cost;
-                    best=new ServiceSeat(original.clone(),region(),new double[]{candidate.x,candidate.y,candidate.z,r},ownerAt,rearCare,false);
+                    candidates.add(new CarePose(ownerAt,candidate,cost));
                 }
             }
-        return best;
+        candidates.sort(java.util.Comparator.comparingDouble(CarePose::cost));
+        // Cheap geometry and travel costs precede routing: stop at the first fully reachable pair.
+        for(var pose:candidates){
+            Vec3 ownerAt=pose.ownerAt(), candidate=pose.childAt();
+            var path=walkingRoute(child,candidate);
+            boolean assisted=!child.childhood().canJump()&&(hasStep(path)||Math.abs(candidate.y-from.y)>.01);
+            if(assisted){if(carryPickup(child,parent,from,candidate,ownerAt)==null)continue;}
+            else{
+                if(from.distanceToSqr(candidate)>.01&&path.isEmpty())continue;
+                var obstacles=takenExcept(child.getUUID());
+                obstacles.add(new double[]{candidate.x,candidate.y,candidate.z,r,child.getBbHeight()/unit()});
+                if(parentFrom.distanceToSqr(ownerAt)>.01&&HatSurfaceRoute.find(mode(),parentFrom,ownerAt,
+                        radiusOf(parent),obstacles,parent.getBbHeight()/unit()).isEmpty())continue;
+            }
+            return new ServiceSeat(original.clone(),region(),new double[]{candidate.x,candidate.y,candidate.z,r},ownerAt,rearCare,false);
+        }
+        return null;
     }
 
     private boolean serviceGeometryFits(YukkuriEntity parent, YukkuriEntity child, Vec3 ownerAt, Vec3 childAt) {
@@ -777,10 +783,11 @@ public final class HatBoatEntity extends Entity {
         }
         stopPaddling();
         if (recoverCarry) {
-            var path=HatSurfaceRoute.find(mode(),toLocal(parent.position()),trip.ownerDestination,radiusOf(parent),
+            Vec3 target=trip.phase==0?trip.pickup:trip.ownerDestination;
+            var path=trip.phase==0?walkingRoute(parent,target):HatSurfaceRoute.find(mode(),toLocal(parent.position()),target,radiusOf(parent),
                     takenExcept(child.getUUID()),trip.offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
-            if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(trip.ownerDestination)>.01) return;
-            recoverCarry=false; ownerServiceSeat=trip.ownerDestination;
+            if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(target)>.01) return;
+            recoverCarry=false; ownerServiceSeat=target;
             ownerSeatMove=path.isEmpty()?null:new SeatMove(toLocal(parent.position()),level().getGameTime(),
                     Math.max(16,(int)Math.ceil(HatSurfaceRoute.length(path)/.20)),false,path);
             syncSeats();
@@ -893,7 +900,7 @@ public final class HatBoatEntity extends Entity {
     }
     private Vec3 walkingPosition(Entity rider,SeatMove movement,double time){
         Vec3 at=toWorld(walkingLocal(rider,movement,time));
-        if(!level().isClientSide&&rider instanceof YukkuriEntity y&&at.subtract(rider.position()).horizontalDistanceSqr()>.00001) {
+        if(!level().isClientSide&&time>0&&time<movement.ticks()&&rider instanceof YukkuriEntity y&&at.subtract(rider.position()).horizontalDistanceSqr()>.00001) {
             Vec3 facing=carryTrip!=null && carryTrip.phase>0 && rider.getUUID().equals(ownerYukkuri())?toWorld(walkingLocal(rider,movement,time).add(carryTrip.offset)):at;
             io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(rider.position(),facing));
         }
@@ -1396,7 +1403,13 @@ public final class HatBoatEntity extends Entity {
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
         var y = owner();
         if (y!=null && y.getVehicle()==this) {
-            entityData.set(SCALE,HatVessel.hatScale(y)); if (!paddling() && voyageYoung==null) setYRot(y.yBodyRot);
+            entityData.set(SCALE,HatVessel.hatScale(y));
+            // Looking at a child must not rotate the floor beneath that same child every tick.
+            // A held boat also owns its heading while its stern is being aligned with a shore plant.
+            boolean interiorBusy=carryTrip!=null || !serviceSeats.isEmpty() || !returningSeats.isEmpty()
+                    || ownerToiletSeat || changingOwnerSeat() || y.aquaticLife().care().active()
+                    || youngPassengers().stream().anyMatch(this::changingSeat);
+            if (!paddling() && heldTicks==0 && voyageYoung==null && !interiorBusy) setYRot(y.yBodyRot);
             if (pullTicks > 0 && pullTarget != null && position().subtract(pullTarget).horizontalDistanceSqr() < 3.25)
                 rescue(BlockPos.containing(pullTarget), null);
             if (state()==State.BEACHED && tickCount%20==0) {
@@ -1413,7 +1426,15 @@ public final class HatBoatEntity extends Entity {
         tag.putString("State",state().name());tag.putInt("Flooding",flooding);tag.putFloat("HullScale",hullScale());
         tag.putString("Role",role.name());if(mooring!=null){tag.putDouble("MooringX",mooring.x);tag.putDouble("MooringZ",mooring.z);}
         tag.put("Cargo", cargo.save());
-        if (carryTrip!=null) tag.put("CarryTrip",saveCarry(carryTrip));
+        if (carryTrip!=null) {
+            tag.put("CarryTrip",saveCarry(carryTrip));
+            var places=new net.minecraft.nbt.ListTag();
+            for(var passenger:youngPassengers()) {
+                Vec3 at=toLocal(passenger.position());var saved=new CompoundTag();saved.putUUID("Id",passenger.getUUID());
+                point(saved,"Seat",at);saved.putDouble("Radius",radiusOf(passenger));places.add(saved);
+            }
+            tag.put("CarryPassengerSeats",places);
+        }
         if(voyageYoung!=null&&voyageBerth!=null){
             tag.putUUID("VoyageYoung",voyageYoung);var berth=new CompoundTag();
             berth.putDouble("X",voyageBerth[0]);berth.putDouble("Y",voyageBerth[1]);berth.putDouble("Z",voyageBerth[2]);berth.putDouble("R",voyageBerth[3]);tag.put("VoyageBerth",berth);
@@ -1438,8 +1459,15 @@ public final class HatBoatEntity extends Entity {
                 Vec3 offset=phase==3?now.subtract(ownerNow):point(c,"Offset");
                 carryTrip=new CarryTrip(c.getUUID("Child"),phase==1?now:original,point(c,"To"),point(c,"Pickup"),point(c,"OwnerTo"),offset,level().getGameTime());
                 carryTrip.lastAnchor=now;
-                carryTrip.phase=phase; recoverCarry=phase==2;
+                carryTrip.phase=phase; recoverCarry=phase==0 || phase==2;
                 ownerServiceSeat=ownerNow;
+                for(var raw:tag.getList("CarryPassengerSeats",net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+                    var saved=(CompoundTag)raw;
+                    if(saved.hasUUID("Id")) {
+                        Vec3 seat=point(saved,"Seat");
+                        seats.put(saved.getUUID("Id"),new double[]{seat.x,seat.y,seat.z,saved.getDouble("Radius")});
+                    }
+                }
                 // Loaded interactions earn no care rewards. Safely finish the owned transport, then restore normal seating.
                 returningSeats.put(carryTrip.child,new ServiceSeat(new double[]{original.x,original.y,original.z,0},"",
                         new double[]{carryTrip.destination.x,carryTrip.destination.y,carryTrip.destination.z,0},null,false,false));

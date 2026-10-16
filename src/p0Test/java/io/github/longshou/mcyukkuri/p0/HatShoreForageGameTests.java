@@ -30,7 +30,7 @@ public final class HatShoreForageGameTests {
         level.setBlock(bush,ripe,3);
         var parent = ModEntities.MARISA.get().create(level);
         helper.assertTrue(parent!=null,"a real aquatic parent can be allocated");
-        WaddleGameTests.clearGoals(parent); parent.setPersistenceRequired();
+        WaddleGameTests.clearGoals(parent); parent.setPersistenceRequired(); parent.setInvulnerable(true);
         parent.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
         parent.moveTo(X+4.5,66,8.5,0,0); parent.setOnGround(true); level.addFreshEntity(parent);
         var boat = HatBoatEntity.createFor(parent,new BlockPos(X+5,65,8));
@@ -40,6 +40,13 @@ public final class HatShoreForageGameTests {
         boat.setPos(X+10.5,66.025,8.5);
         var forage = new HatShoreForage(parent);
         int[] stage={0}, ticks={0}, contacts={0}; boolean[] cleaned={false}, travelled={false};
+        var trace = new java.util.ArrayList<java.util.Map<String,Object>>();
+        Runnable sample = () -> {
+            var value = new java.util.LinkedHashMap<String,Object>(forage.debug(boat));
+            value.put("stage",stage[0]); value.put("stageTicks",ticks[0]); value.put("gameTime",level.getGameTime());
+            value.put("bush",level.getBlockState(bush).toString()); value.put("obstacle",level.getBlockState(obstacle).toString());
+            trace.add(value); if(trace.size()>32)trace.remove(0);
+        };
         Runnable cleanup = () -> {
             if(cleaned[0])return; cleaned[0]=true; forage.stop(); parent.discard(); boat.discard();
             level.setChunkForced(X >> 4,0,false); level.setChunkForced((X+15) >> 4,0,false);
@@ -47,27 +54,29 @@ public final class HatShoreForageGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener(){
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){cleanup.run();}
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){cleanup.run();}
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner){sample.run();P0Control.write("aquatic-shore-forage-trace",trace);cleanup.run();}
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         helper.onEachTick(() -> {
             if(cleaned[0])return; ticks[0]++;
             forage.tick(boat);
+            if(ticks[0]%20==1)sample.run();
             if(boat.getX()<X+9)travelled[0]=true;
             if(stage[0]==0) {
                 if(ticks[0]<20)helper.assertTrue(boat.cargo().count()==0&&level.getBlockState(bush).equals(ripe),"a plant is never harvested remotely while sailing toward it");
                 if(forage.harvesting()&&++contacts[0]>=8) {
                     helper.assertTrue(boat.cargo().count()==0&&level.getBlockState(bush).equals(ripe),"partial mouth contact has reserved no berries");
-                    forage.stop(); level.setBlock(obstacle,Blocks.STONE.defaultBlockState(),3); stage[0]=1; ticks[0]=0;
+                    sample.run(); forage.stop(); level.setBlock(obstacle,Blocks.STONE.defaultBlockState(),3); stage[0]=1; ticks[0]=0;
                 }
             } else if(stage[0]==1) {
                 helper.assertTrue(boat.cargo().count()==0&&level.getBlockState(bush).equals(ripe),"a blocked water berth cannot harvest through the bank");
-                if(ticks[0]>=25){level.setBlock(obstacle,Blocks.AIR.defaultBlockState(),3);stage[0]=2;ticks[0]=0;}
+                // Keep the berth blocked beyond the helper's search retry, so it must actually reject it.
+                if(ticks[0]>=80){sample.run();level.setBlock(obstacle,Blocks.AIR.defaultBlockState(),3);stage[0]=2;ticks[0]=0;}
             } else if(stage[0]==2&&boat.cargo().count()>0) {
                 helper.assertTrue(travelled[0]&&parent.getVehicle()==boat,"the same parent physically travelled to shore and remained aboard");
                 helper.assertTrue(boat.cargo().count()==2&&level.getBlockState(bush).getValue(SweetBerryBushBlock.AGE)==1,"one ripe bush becomes exactly two real stored berries and a harvested bush");
                 helper.assertTrue(boat.cargo().items().stream().allMatch(s->s.is(Items.SWEET_BERRIES)),"the source fruit identity is preserved");
-                boat.cargo().store(new ItemStack(Items.APPLE,5),5,false); level.setBlock(bush,ripe,3); forage.stop(); stage[0]=3;ticks[0]=0;
+                sample.run();boat.cargo().store(new ItemStack(Items.APPLE,5),5,false); level.setBlock(bush,ripe,3); forage.stop(); stage[0]=3;ticks[0]=0;
             } else if(stage[0]==3) {
                 helper.assertTrue(boat.cargo().count()==7&&level.getBlockState(bush).equals(ripe),"one empty cargo place cannot consume a two-berry harvest");
                 if(ticks[0]>=60) {
