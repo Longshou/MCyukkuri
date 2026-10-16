@@ -8671,6 +8671,6278 @@
         "id": "flandre.young.o_puff"
       },
       "source_sha256": "31993fabf178f2d8153eff28eb1c4606d323182805bf38e44ce4e6f5fe396fc7"
+    },
+    {
+      "id": "reimu.adult.o_exam_nervous",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ、バッジ、もらえるかな……ドキドキするよ。",
+      "chinese": "油油，能拿到徽章吗……心跳得好厉害。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_nervous"
+      },
+      "source_sha256": "33bb80d9f4d29cd6af05fcd9942231532eb62632d146968bcd0c7cb433a52d6f"
+    },
+    {
+      "id": "reimu.adult.o_exam_nervous2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きんちょうするけど、れいむ、がんばるよ！",
+      "chinese": "虽然很紧张，但灵梦会加油的！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_nervous2"
+      },
+      "source_sha256": "1bae1b7bc83365c823aa3de960595b36e50c9d204aa03df66b50e0a07a7c9ef6"
+    },
+    {
+      "id": "reimu.adult.o_exam_answer",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はいっ、れいむ、わかるよ！",
+      "chinese": "好的，灵梦知道哦！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_answer"
+      },
+      "source_sha256": "61a743d5db86d953a5f3afc29a01e125671b00a6110233c81e54b357de104819"
+    },
+    {
+      "id": "reimu.adult.o_exam_unsure",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "えーと……あれ……？ れいむ、どうだったかな……。",
+      "chinese": "嗯……咦……？灵梦，是怎么来着……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_unsure"
+      },
+      "source_sha256": "e55744c8a711b8d4a0702d7ecfb80d5a0309cdc86506a497eed888e02d7029d7"
+    },
+    {
+      "id": "reimu.adult.o_exam_hide_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむはいないよ！ ここにはだれもいないよ！",
+      "chinese": "灵梦不在哦！这里谁也没有哦！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "d9fea32cd301d9e2ce7d0202e7c4c0edd14da9724707443654923a128a5236f4"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_wait",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "がまん……がまんだよ……。おやつ、まってるよ……。",
+      "chinese": "忍耐……要忍耐哦……。灵梦在等点心……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "27d489eb4914edcd2ac105df449090b8ba71b639eeb56ae2010df0f880a47206"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_wait2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっくり まつよ……。おやつさん、まだかな……。",
+      "chinese": "慢慢等哦……。点心先生，还没来吗……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "8dd850281ea5c07dbd7e8d90472d63f92609f729f42678207e3b1c88722a3bae"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ずるいよ！ どうしてれいむじゃないの！",
+      "chinese": "太狡猾啦！为什么不是灵梦！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "79f9e09e6285e679fbde6a74bc249a089f6eee115e4393e1e47def9a7098590a"
+    },
+    {
+      "id": "reimu.adult.o_exam_promise_fail2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむもまってたのに！ ぷんぷん！",
+      "chinese": "灵梦也一直在等呀！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "64205651619e70e23a17354bd84354fd4beb9c9a0f2c054376706d5a6f2142ca"
+    },
+    {
+      "id": "reimu.adult.o_exam_report",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらのゆっくりがいるよ！",
+      "chinese": "人类先生，有野生的油库里在那边哦！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_report"
+      },
+      "source_sha256": "c038174db1572ada71a3c22c9af408da429e964a5bf004e64680804ab34e664a"
+    },
+    {
+      "id": "reimu.adult.o_exam_sorry",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごめんなさい……。れいむ、まちがえちゃったよ……。",
+      "chinese": "对不起……灵梦弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_sorry"
+      },
+      "source_sha256": "aba02f83674ebed6c99e423d13f9f9c018fc34a8a842947e31c95fea2ed168a3"
+    },
+    {
+      "id": "reimu.adult.o_exam_pass",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "やったあ！ バッジだよ！ れいむ、ゆっくりできるよ！",
+      "chinese": "太好啦！是徽章哦！灵梦可以安心油库里啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_pass"
+      },
+      "source_sha256": "06ede902654cc725b4f49ae60b327de619361df71a6c48b7eaae2a99bf6ba974"
+    },
+    {
+      "id": "reimu.adult.o_exam_pass2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ れいむ、とってもしあわせー！",
+      "chinese": "谢谢人类先生！灵梦好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_pass2"
+      },
+      "source_sha256": "b061c8440518e2d2c7372548c0999244b3b368508c154773cb7040a8115d8875"
+    },
+    {
+      "id": "reimu.adult.o_exam_fail",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どぼじで……どぼじでなのおおお……！",
+      "chinese": "为什么……为什么会这样啊啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_fail"
+      },
+      "source_sha256": "f64c302f6bfcda96bad77fa19455cc380a965372890ce0ad143ef606dcc630a3"
+    },
+    {
+      "id": "reimu.adult.o_exam_fail2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむ、ふごうかく……？ ゆええん……。",
+      "chinese": "灵梦，不合格……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_exam_fail2"
+      },
+      "source_sha256": "948275260d85b8dc019841b6c896c76b895c4a6005d3cb51cd6f0a4509542d9a"
+    },
+    {
+      "id": "reimu.adult.o_badge_proud",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむのバッジ、すごいでしょ！ ゆっくり みていってね！",
+      "chinese": "灵梦的徽章，很厉害吧！请慢慢看哦！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_proud"
+      },
+      "source_sha256": "be3403936b50dfecdcf63627e827c7f187b451af0d4bb02ee36fbf3ea0d4f6f9"
+    },
+    {
+      "id": "reimu.adult.o_shop_appeal",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむを かってね！ いっしょに ゆっくりしようね！",
+      "chinese": "请买下灵梦吧！一起慢慢油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_shop_appeal"
+      },
+      "source_sha256": "1b2213b344d4edb0b8782f386d8c6e4289aa017a1492fe278b8cc15c9655d998"
+    },
+    {
+      "id": "reimu.adult.o_shop_appeal2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ここだよ、ここ！ れいむ、とってもいい子だよ！",
+      "chinese": "在这里哦，在这里！灵梦是很乖的孩子哦！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_shop_appeal2"
+      },
+      "source_sha256": "9ff59d3ce9bb67861f21f48c4d50075624f1a4f6eed2b51869bb42b68e60850d"
+    },
+    {
+      "id": "reimu.adult.o_shop_bought",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆゆっ、あたらしいおうち！ よろしくおねがいします！",
+      "chinese": "油油，新的家！请多多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_shop_bought"
+      },
+      "source_sha256": "cac07fec5911506c4ed0ae277669a168a0c7844c1efe601ede6d4d5c4878daf3"
+    },
+    {
+      "id": "reimu.adult.o_shop_sold_sad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "どうしてなの……？ れいむのこと、わすれないでね……。",
+      "chinese": "为什么啊……？不要忘记灵梦哦……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "a92ff9aa1fc590f639d1d272ce44a4bb584ba3aed1f77aa2b08713217a5d7704"
+    },
+    {
+      "id": "reimu.adult.o_shop_sold_proud",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむは、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "灵梦要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "3393c30c2ec0d23caca91f258ae6b32985d63660b1f695babae3e3c0bd869d21"
+    },
+    {
+      "id": "reimu.adult.o_wild_role_beg",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おいしいもの、ちょうだい！ ここ、あけてね！",
+      "chinese": "把好吃的给我！把这里打开哦！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_wild_role_beg"
+      },
+      "source_sha256": "124b5752c74c9c6722dd21c9b752a004a5804b52833ff73dbe04a7c0470ea973"
+    },
+    {
+      "id": "reimu.adult.o_wild_role_provoke",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "そんなバッジ、れいむにはかんけいないよ！ ゆっくりできないね！",
+      "chinese": "那种徽章，跟灵梦才没关系呢！真让人没法安心哦！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "beae943e1c0aa8e63af1f3028fac02a93ee2f074084101e87baf16230e1454c5"
+    },
+    {
+      "id": "reimu.adult.o_lesson_praised",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "えへへ、ほめられたよ！ れいむ、うれしいな！",
+      "chinese": "嘿嘿，被夸奖啦！灵梦好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_lesson_praised"
+      },
+      "source_sha256": "4622be66dbf770c820c47a077a2aa68c1e56f45f139900f1a4d445f5efe8a415"
+    },
+    {
+      "id": "reimu.adult.o_lesson_praised2",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もっとゆっくりおぼえるよ！ ありがとう、にんげんさん！",
+      "chinese": "灵梦会再慢慢学的！谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_lesson_praised2"
+      },
+      "source_sha256": "d3009e1607d1132bd4962c535ec15d8ea87d52693fdbc00dea4140da7709644a"
+    },
+    {
+      "id": "reimu.adult.o_lesson_scolded",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごめんなさい……。れいむ、ちゃんとなおすよ……。",
+      "chinese": "对不起……灵梦会好好改正的……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_lesson_scolded"
+      },
+      "source_sha256": "751ab0979d9d3fc241f0248277f3830ac87313cb873009d83f1b3a00fe0cde5f"
+    },
+    {
+      "id": "reimu.adult.o_badge_envy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "いいなあ……れいむも、そのバッジがほしいな。",
+      "chinese": "真好呀……灵梦也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_envy"
+      },
+      "source_sha256": "72deb533985ab7aa7017370c0a707bda3fe5a29bf6079428a9d8212943bac638"
+    },
+    {
+      "id": "reimu.adult.o_badge_admire",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "すごいね！ れいむにも、おしえてほしいな！",
+      "chinese": "好厉害哦！也教教灵梦吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_badge_admire"
+      },
+      "source_sha256": "521e2a165785abda6dd22232f4f101a5dfa2d927ab14989213f861dcf908bcba"
+    },
+    {
+      "id": "reimu.young.o_exam_nervous",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、もらえるかなぁ……どきどきしゅるよ。",
+      "chinese": "徽章，能拿到吗……心扑通扑通的惹哟。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_nervous"
+      },
+      "source_sha256": "bec5ac6910884cfeeee1eb6dff3b766640c05be8e1cbc4b39379a9bb4ad391f8"
+    },
+    {
+      "id": "reimu.young.o_exam_nervous2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こわいけど、れいみゅ、がんばりゅよ！",
+      "chinese": "虽然怕怕，窝会加油惹哟！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_nervous2"
+      },
+      "source_sha256": "582ee1ee3bb97dc2ae9c0af637718cc1d4ce784fb706a7812e00754d833b13de"
+    },
+    {
+      "id": "reimu.young.o_exam_answer",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はいっ、れいみゅ、わかりゅよ！",
+      "chinese": "好的，窝知道惹哟！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_answer"
+      },
+      "source_sha256": "ef2885193992e62272f252c54c86170c4b7ed039e1b5971a28ab0f7db29743f8"
+    },
+    {
+      "id": "reimu.young.o_exam_unsure",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "えーと……あれぇ……？ れいみゅ、わかんにゃいよ……。",
+      "chinese": "嗯……咦……？窝不知道惹哟……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_unsure"
+      },
+      "source_sha256": "31651e6a055661379dd3397ddb2bfab9f96ed11771d1f018a01b62a675dc1636"
+    },
+    {
+      "id": "reimu.young.o_exam_hide_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅはいにゃいよ！ だぁれもいにゃいよ！",
+      "chinese": "窝不在惹哟！谁也没有惹哟！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_hide_fail"
+      },
+      "source_sha256": "64587681234ec85684e88b67c38f101fb399f58be2b2401626604b6d653e0c84"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_wait",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "がまん、がまん……おやつ、まっちぇるよ……。",
+      "chinese": "忍耐，忍耐……窝在等点心惹哟……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_promise_wait"
+      },
+      "source_sha256": "2029b681e03b85095102dcddfc32533cf5961dba2cb83b6bd448f37d263dae72"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_wait2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっくち まつよ……まだかにゃ……。",
+      "chinese": "油库里等着惹哟……还没好吗……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "e5879837d9846414c479a2d06e1568b472c4a7a1ad2ccd5d8008684e88cacc59"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ずるいよぉ！ れいみゅのばんだよぉ！",
+      "chinese": "狡猾惹哟！明明是窝的份惹哟！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_promise_fail"
+      },
+      "source_sha256": "dba27349ad7ec09fbae9ea202f333334b54b10ba2a3456240129be169fe929fc"
+    },
+    {
+      "id": "reimu.young.o_exam_promise_fail2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅも まっちぇたのにぃ！ ぷんぷん！",
+      "chinese": "窝也等着的惹哟！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "b10a1d1efff63db6dcf1c4290dc96cbfaa55fa86267b0cbb69c3d67d1b427e14"
+    },
+    {
+      "id": "reimu.young.o_exam_report",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらのゆっくちがいるよぉ！",
+      "chinese": "人类先生，有野生的油库里在惹哟！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_report"
+      },
+      "source_sha256": "8fc034637dcce322604ee65633e0ddcc331bc1de6fb0c4264f921f782666fc30"
+    },
+    {
+      "id": "reimu.young.o_exam_sorry",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……れいみゅ、まちがえちゃった……。",
+      "chinese": "对不起惹……窝弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_sorry"
+      },
+      "source_sha256": "b0aa1ea8175b37722b7d132564f6c493e2a2d446dfeb16a3e0e7fbd4a5279fcb"
+    },
+    {
+      "id": "reimu.young.o_exam_pass",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "やったぁ！ ばっじだよ！ れいみゅ、しあわちぇー！",
+      "chinese": "太好啦！是徽章惹哟！窝好幸福惹——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_pass"
+      },
+      "source_sha256": "0da93b32c967aeffdf25c5089a4366838b01ccb05f3ebb4caca01376fb088749"
+    },
+    {
+      "id": "reimu.young.o_exam_pass2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ ゆっくちできりゅね！",
+      "chinese": "谢谢人类先生惹！可以油库里啦惹哟！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_pass2"
+      },
+      "source_sha256": "85a8223c856d1dde205059dea82c957fb0469d19e00985997b697ac2209b25aa"
+    },
+    {
+      "id": "reimu.young.o_exam_fail",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "どぼちて……どぼちてぇぇ……！",
+      "chinese": "为什么……为什么惹哟啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_fail"
+      },
+      "source_sha256": "3df28a86ad16e4995dfb66f46985876d03cdba0eff8e0127b07d00a17ea2555d"
+    },
+    {
+      "id": "reimu.young.o_exam_fail2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅ、だめだったの……？ ゆえぇん……。",
+      "chinese": "窝，不行吗……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_exam_fail2"
+      },
+      "source_sha256": "a42717c669344257cbdd1f8562e03c50016a815d8ee113fe911dc89bcb5d1de1"
+    },
+    {
+      "id": "reimu.young.o_badge_proud",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅのばっじ、きらきらでしょ！ みちぇね！",
+      "chinese": "窝的徽章，亮晶晶吧！快看惹哟！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_proud"
+      },
+      "source_sha256": "ec79142aaf974eec1fe67876ac266539aa475802076f6ac2ff2d5c29b555267a"
+    },
+    {
+      "id": "reimu.young.o_shop_appeal",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅをかっちぇね！ いっちょにゆっくちしようね！",
+      "chinese": "买下窝惹哟！一起油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_shop_appeal"
+      },
+      "source_sha256": "8d79cc246a1bfd8ca4ad14adb1eac15316b11544304fb2254e305997eaac9532"
+    },
+    {
+      "id": "reimu.young.o_shop_appeal2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ここだよぉ！ れいみゅ、いいこだよぉ！",
+      "chinese": "在这里惹哟！窝是乖孩子惹哟！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_shop_appeal2"
+      },
+      "source_sha256": "14428da9444dca03f709da63b52d3802cae6bf19710a897fafb23035889072ad"
+    },
+    {
+      "id": "reimu.young.o_shop_bought",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆゆっ、あたらちいおうち！ よろちくね！",
+      "chinese": "油油，新的家！请多关照惹哟！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_shop_bought"
+      },
+      "source_sha256": "5759cfd74001c3642390c8cd8707e1835daf19ae935b5a2eb6f4d11688b044a7"
+    },
+    {
+      "id": "reimu.young.o_shop_sold_sad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "どうちて……れいみゅをわすれにゃいでね……。",
+      "chinese": "为什么……不要忘了窝惹哟……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_shop_sold_sad"
+      },
+      "source_sha256": "792735c6ac1a2ee49fe6aeede97e09d57419b2f30cbd59ccb5f167dace84011e"
+    },
+    {
+      "id": "reimu.young.o_shop_sold_proud",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅ、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "窝要去更好的家惹哟！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_shop_sold_proud"
+      },
+      "source_sha256": "7165515f7452215438dd89e37342676e08a8b8941ef55af512eadb55ed6c6745"
+    },
+    {
+      "id": "reimu.young.o_wild_role_beg",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あまあま、ちょうだい！ あけちぇね！",
+      "chinese": "给窝甜甜惹哟！快打开惹哟！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_wild_role_beg"
+      },
+      "source_sha256": "9a3119da9a3e400b4ba353d06593a044bb910bc73dbb084267e6ca7631dcd862"
+    },
+    {
+      "id": "reimu.young.o_wild_role_provoke",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "そんなばっじ、れいみゅはいらにゃいよ！ ゆっくちできにゃいね！",
+      "chinese": "那种徽章，窝才不要惹哟！真不能油库里惹哟！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_wild_role_provoke"
+      },
+      "source_sha256": "69799e99347aab79c85e86f94180a01c263f9e6f64724207fba4a9ff401634be"
+    },
+    {
+      "id": "reimu.young.o_lesson_praised",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "えへへ、ほめられちゃった！ れいみゅ、うれちいよ！",
+      "chinese": "嘿嘿，被夸奖惹！窝好开心惹哟！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_lesson_praised"
+      },
+      "source_sha256": "4804e0c67868c2e6fe4e000437b2849f860845d35984f5855ceffb26ac241348"
+    },
+    {
+      "id": "reimu.young.o_lesson_praised2",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅね！ ありがちょう！",
+      "chinese": "窝会再慢慢学的惹哟！谢谢惹！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_lesson_praised2"
+      },
+      "source_sha256": "4ab73c28e9ccfd1a24610dba881f96ddabb1d4187f666a6d8f01b3431dc5fc46"
+    },
+    {
+      "id": "reimu.young.o_lesson_scolded",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……れいみゅ、なおしゅよ……。",
+      "chinese": "对不起惹……窝会改的惹哟……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_lesson_scolded"
+      },
+      "source_sha256": "03ee78fc72e00c0ebbf9e2bba104372a45bcdcd0c2c48705405aba96535117e1"
+    },
+    {
+      "id": "reimu.young.o_badge_envy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "いいにゃあ……れいみゅも、そのばっじほちいよ。",
+      "chinese": "真好惹……窝也想要那个徽章惹哟。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_envy"
+      },
+      "source_sha256": "dc5468ab046c74318ba77df64d650b2eff6f8829634ba7bd65c5975c73157b0b"
+    },
+    {
+      "id": "reimu.young.o_badge_admire",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しゅごいにぇ！ れいみゅにも おしえちぇ！",
+      "chinese": "好厉害惹！也教教窝惹哟！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_badge_admire"
+      },
+      "source_sha256": "84a92eb05442270943172456af65058e126e6beb5578a7861054aed87df6c428"
+    },
+    {
+      "id": "marisa.adult.o_exam_nervous",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジ、とれるかのぜ……。ちょっと きんちょうするのぜ。",
+      "chinese": "徽章，拿得到吗贼……。有点紧张贼。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_nervous"
+      },
+      "source_sha256": "8163a27f86c0aed003e32355fdf3af888bb28611b0fff561486422eb5c1ac408"
+    },
+    {
+      "id": "marisa.adult.o_exam_nervous2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさ、ここでがんばるのぜ！ しっぱいはゆるされないのぜ！",
+      "chinese": "魔理沙要在这里加油贼！可不能失败贼！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_nervous2"
+      },
+      "source_sha256": "056124d76ed3f88db960c354e05359e692738a83a8c0d3fd73d44e24cc504b35"
+    },
+    {
+      "id": "marisa.adult.o_exam_answer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はいなのぜ！ まりさ、わかってるのぜ！",
+      "chinese": "是贼！魔理沙明白贼！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_answer"
+      },
+      "source_sha256": "d27016252e26ad653f8cf2243c67938d11c7825e0cf337ec26b077892e3c8b56"
+    },
+    {
+      "id": "marisa.adult.o_exam_unsure",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "えーと……あれ……？ まりさ、わすれちゃったのぜ……。",
+      "chinese": "嗯……咦……？魔理沙忘掉了贼……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_unsure"
+      },
+      "source_sha256": "f4273d103ec291dc2b11286338e9c0bb64d2c708625022777cc0e3ab547acc71"
+    },
+    {
+      "id": "marisa.adult.o_exam_hide_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさはいないのぜ！ だれもいないのぜ！",
+      "chinese": "魔理沙不在贼！谁也没有贼！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "1ed213b1e3b3b46d742db767c2e7bf2c8ec5c5fd34a2c7971c3b28f987415907"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_wait",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "がまんなのぜ……まりさは、まてるのぜ……。",
+      "chinese": "要忍耐贼……魔理沙等得住贼……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "ad62f77d55d744850cd4fdbc66ee6c1758f9b7061db018dfe3225195dc00f0cc"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_wait2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おやつは、まだなのぜ……。ゆっくり まつのぜ。",
+      "chinese": "点心还没来贼……。慢慢等着贼。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "6fa23439134fe11bbb7c5047bd1a16f9c4bed16988810011cb6a6396e2aae0f4"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
+      "chinese": "狡猾贼！没有魔理沙的份贼！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "b6d9d3a7207b8377324a43ecd875dc8b33f9907d5b26f05273e2e7bb96991d77"
+    },
+    {
+      "id": "marisa.adult.o_exam_promise_fail2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいのぜ！",
+      "chinese": "抢先拿走，太狡猾贼！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "32c1a32474ff37f8c79ea749d05d584b75038eeefd6ac827aea14e2181bc55f0"
+    },
+    {
+      "id": "marisa.adult.o_exam_report",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらがいるのぜ！",
+      "chinese": "人类先生，那边有野生的在贼！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_report"
+      },
+      "source_sha256": "5d8821561ad3b76ffc73971c44ec4fe285a1dfa04cb7cd1f01be87808c2b91bc"
+    },
+    {
+      "id": "marisa.adult.o_exam_sorry",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すまないのぜ……。まりさ、まちがえたのぜ。",
+      "chinese": "对不起贼……。魔理沙弄错了贼。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_sorry"
+      },
+      "source_sha256": "7628eeda2bf690727d720cbaf1d81d5aacb53651f9f0fba8bef126716862b00d"
+    },
+    {
+      "id": "marisa.adult.o_exam_pass",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "やったのぜ！ バッジなのぜ！ まりさはすごいのぜ！",
+      "chinese": "太好了贼！是徽章贼！魔理沙好厉害贼！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_pass"
+      },
+      "source_sha256": "2324bfa730407ba186ebe60368ac20fe6f5f68a5dee56aae5daeccbb9fee1a64"
+    },
+    {
+      "id": "marisa.adult.o_exam_pass2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうなのぜ！ まりさ、しあわせなのぜ！",
+      "chinese": "谢谢人类先生贼！魔理沙好幸福贼！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_pass2"
+      },
+      "source_sha256": "285ebc3686fa7f620938afec57921ef5a4b631c63766f485c22a39baab567fa8"
+    },
+    {
+      "id": "marisa.adult.o_exam_fail",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どぼじて……どぼじてなのぜええ……！",
+      "chinese": "为什么……为什么会这样贼啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_fail"
+      },
+      "source_sha256": "06391b8eb15eca51e1b0691b10f79e8c37a3b7dae2fe2f8373bbe292c838d711"
+    },
+    {
+      "id": "marisa.adult.o_exam_fail2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさ、ふごうかくなのぜ……？ ゆぐっ……ゆぐっ……。",
+      "chinese": "魔理沙，不合格贼……？呜……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_exam_fail2"
+      },
+      "source_sha256": "b0d227ee8c0d456895ff89ee304439a8945f5296a4198d63d680006c1f4de32b"
+    },
+    {
+      "id": "marisa.adult.o_badge_proud",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうなのぜ、まりさのバッジは！ えっへんなのぜ！",
+      "chinese": "怎么样贼，魔理沙的徽章！得意贼！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_proud"
+      },
+      "source_sha256": "056066cb6a9e9bb9bdd60b2b122b43b440471ba75a3b2fddcdc320c7866eb610"
+    },
+    {
+      "id": "marisa.adult.o_shop_appeal",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさを かうのぜ！ いっしょにゆっくりするのぜ！",
+      "chinese": "买下魔理沙贼！一起慢慢来贼！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_shop_appeal"
+      },
+      "source_sha256": "b9d4e07c0f0c935ea2c60a9246cc309499cc2a979e5c8bbd96321659c075ea24"
+    },
+    {
+      "id": "marisa.adult.o_shop_appeal2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさは つよくてかしこいのぜ！ みてくれなのぜ！",
+      "chinese": "魔理沙又强又聪明贼！看看我贼！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_shop_appeal2"
+      },
+      "source_sha256": "f278343ec426d29394896c7005b6abecef6284b93fae24a672684d0a34560cf0"
+    },
+    {
+      "id": "marisa.adult.o_shop_bought",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あたらしいおうちなのぜ！ よろしくなのぜ！",
+      "chinese": "新的家贼！请多关照贼！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_shop_bought"
+      },
+      "source_sha256": "0d8aabe1953a1fc8ec2634098065949fcbadad0fc1132adbd4db8873102be6b2"
+    },
+    {
+      "id": "marisa.adult.o_shop_sold_sad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "どうしてなのぜ……まりさをおいていかないでほしいのぜ……。",
+      "chinese": "为什么贼……不要把魔理沙丢下贼……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "c20054a9a40827e57a19dcc533de8653353ef2ea23ebda6b911ff1cd86078822"
+    },
+    {
+      "id": "marisa.adult.o_shop_sold_proud",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさは、もっといいおうちにいくのぜ！ さらばなのぜ！",
+      "chinese": "魔理沙要去更好的家贼！再见贼！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "a006480e78ea90f0916322eba1198aa887c4adcf905ea36c51607d613c9fe5df"
+    },
+    {
+      "id": "marisa.adult.o_wild_role_beg",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあまを よこすのぜ！ ここをあけるのぜ！",
+      "chinese": "把甜甜交出来贼！把这里打开贼！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_wild_role_beg"
+      },
+      "source_sha256": "c4e2ada0672a1f88d42473b989c8aa14e9e96aa756de927543340857386f997f"
+    },
+    {
+      "id": "marisa.adult.o_wild_role_provoke",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "そんなバッジ、まりさにはなんでもないのぜ！ おまえ、ゆっくりできないのぜ！",
+      "chinese": "那种徽章，对魔理沙来说什么都不是贼！你真不让人安心贼！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "19752a549da850e51419fe94e61362e24a30de1dfa030f42b3c92d4e2b3c3f67"
+    },
+    {
+      "id": "marisa.adult.o_lesson_praised",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ほめられたのぜ！ まりさ、うれしいのぜ！",
+      "chinese": "被夸奖了贼！魔理沙好开心贼！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_lesson_praised"
+      },
+      "source_sha256": "82c5e8bb6a8556b10ff6e070bb765a1238547db1e75568672699d48cd7f869a2"
+    },
+    {
+      "id": "marisa.adult.o_lesson_praised2",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もっとおぼえるのぜ！ ありがとうなのぜ、にんげんさん！",
+      "chinese": "还要再学贼！谢谢你贼，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_lesson_praised2"
+      },
+      "source_sha256": "9f24dafe2be5c740846406be3f9c3438e76654da8008100bb75fab18e2b88b2d"
+    },
+    {
+      "id": "marisa.adult.o_lesson_scolded",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すまないのぜ……。まりさ、ちゃんと なおすのぜ……。",
+      "chinese": "对不起贼……。魔理沙会好好改正贼……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_lesson_scolded"
+      },
+      "source_sha256": "f47d2ffb894982c55661d5d5cf28994c866c2ec31c2487f0930411cecf904d50"
+    },
+    {
+      "id": "marisa.adult.o_badge_envy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いいのぜ……まりさも、あのバッジがほしいのぜ。",
+      "chinese": "真好贼……魔理沙也想要那个徽章贼。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_envy"
+      },
+      "source_sha256": "a0b43f075f8873a27813ff47adb483b265189db896325004cd243eb2e5329365"
+    },
+    {
+      "id": "marisa.adult.o_badge_admire",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "すごいのぜ！ まりさにも、おしえてほしいのぜ！",
+      "chinese": "好厉害贼！也教教魔理沙贼！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_badge_admire"
+      },
+      "source_sha256": "49364e96f146f0a46c63914b643f23a22691f7e4720700e98cc71412efcc51a3"
+    },
+    {
+      "id": "marisa.young.o_exam_nervous",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかにゃ……どきどきなのじぇ。",
+      "chinese": "徽章，能拿到吗……扑通扑通惹杰。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_nervous"
+      },
+      "source_sha256": "827143d9adc195a9005605cfebcd984a6828d5ef11e1e77d81456977aed14a08"
+    },
+    {
+      "id": "marisa.young.o_exam_nervous2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいけど、まりちゃ、がんばりゅのじぇ！",
+      "chinese": "虽然怕怕，窝会加油惹杰！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_nervous2"
+      },
+      "source_sha256": "93d5c985087e85d5da7d18f5e7e7f0827758a15a53a490de7e9ca8fda3a45c6a"
+    },
+    {
+      "id": "marisa.young.o_exam_answer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はいなのじぇ！ まりちゃ、わかりゅのじぇ！",
+      "chinese": "是惹杰！窝知道惹杰！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_answer"
+      },
+      "source_sha256": "09d33247bd6b56a68f73481f4cd5fd268272f32bdf4142e10989dc765c77e8a3"
+    },
+    {
+      "id": "marisa.young.o_exam_unsure",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "えーと……あれぇ……？ まりちゃ、わかんにゃいのじぇ……。",
+      "chinese": "嗯……咦……？窝不知道惹杰……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_unsure"
+      },
+      "source_sha256": "79838e75e3d7372b434338183a8c71aa318f7146b17bb89f94d4efddcb61d4f0"
+    },
+    {
+      "id": "marisa.young.o_exam_hide_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃはいにゃいのじぇ！ だぁれもいにゃいのじぇ！",
+      "chinese": "窝不在惹杰！谁也没有惹杰！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_hide_fail"
+      },
+      "source_sha256": "278b65923fd3060592a646413641610b5a0df4c50cc010ac785a47f0859c2927"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_wait",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "がまん、がまんなのじぇ……おやちゅ、まってりゅのじぇ……。",
+      "chinese": "忍耐，忍耐惹杰……窝在等点心惹杰……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_promise_wait"
+      },
+      "source_sha256": "6f3fd6daded56425eb12aea6a7497f7f7d17a4e07c92cbea7a5665bfe3095a96"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_wait2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっくち まつのじぇ……まだにゃのじぇ……。",
+      "chinese": "油库里等着惹杰……还没好惹杰……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "e24c4a587456cc07a67d1cc82b131e0b7764a24b24b4f63fb117b292920a443b"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ずるいのじぇぇ！ まりちゃのばんなのじぇぇ！",
+      "chinese": "狡猾惹杰！明明是窝的份惹杰！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_promise_fail"
+      },
+      "source_sha256": "f4d29f211fc7db5c4ede33d21ba050e3480078259b898f801449ba328d8b93d5"
+    },
+    {
+      "id": "marisa.young.o_exam_promise_fail2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃも まってたのじぇ！ ぷんぷんなのじぇ！",
+      "chinese": "窝也等着的惹杰！气鼓鼓惹杰！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "20d8ec762bd6f2a970d5eb24201953e3d04440727cd680a988c269372792784d"
+    },
+    {
+      "id": "marisa.young.o_exam_report",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらがいるのじぇぇ！",
+      "chinese": "人类先生，有野生的在惹杰！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_report"
+      },
+      "source_sha256": "cff60a503e36a7b469450a200129a81091d106217fe46dc5e202b46f01eb9dba"
+    },
+    {
+      "id": "marisa.young.o_exam_sorry",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいなのじぇ……まりちゃ、まちがえちゃったのじぇ……。",
+      "chinese": "对不起惹杰……窝弄错惹杰……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_sorry"
+      },
+      "source_sha256": "60d8939e044b2335a3345238e44ef9222028fa4a136a35514db081fad6da67b5"
+    },
+    {
+      "id": "marisa.young.o_exam_pass",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "やったのじぇ！ ばっじなのじぇ！ まりちゃ、しあわちぇー！",
+      "chinese": "太好惹杰！是徽章惹杰！窝好幸福惹杰——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_pass"
+      },
+      "source_sha256": "e591573cb06855cf4770866c4a381136beca283701e085fbc5f445a714378aad"
+    },
+    {
+      "id": "marisa.young.o_exam_pass2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうなのじぇ！",
+      "chinese": "谢谢人类先生惹杰！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_pass2"
+      },
+      "source_sha256": "5c810289174c7e7d3958ea31db527aef543e193da1b69ba3eacb86e81015e330"
+    },
+    {
+      "id": "marisa.young.o_exam_fail",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "どぼちてなのじぇぇ……！",
+      "chinese": "为什么惹杰啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_fail"
+      },
+      "source_sha256": "b9a179544037c6fff96e1094c81ef057ca7ac3e775e09c14f9b7f00ce8ea4653"
+    },
+    {
+      "id": "marisa.young.o_exam_fail2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、だめだったのじぇ……？ ゆえぇん……。",
+      "chinese": "窝，不行惹杰……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_exam_fail2"
+      },
+      "source_sha256": "80781074d758aab650ac40573cc32cb043838707e1de5e2d3c25e02892af99b1"
+    },
+    {
+      "id": "marisa.young.o_badge_proud",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃのばっじ、きらきらなのじぇ！ すごいのじぇ！",
+      "chinese": "窝的徽章，亮晶晶惹杰！很厉害惹杰！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_proud"
+      },
+      "source_sha256": "c482a1379e19483e314e7493e0f26e95f5dad80f19a1295feb9556241dd7129b"
+    },
+    {
+      "id": "marisa.young.o_shop_appeal",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃを かうのじぇ！ いっちょにゆっくちしゅるのじぇ！",
+      "chinese": "买下窝惹杰！一起油库里惹杰！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_shop_appeal"
+      },
+      "source_sha256": "f650d6466db09751d9bca8729c9b8a9d5c43646072e931b3c9af5ef5213b6018"
+    },
+    {
+      "id": "marisa.young.o_shop_appeal2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、いいこなのじぇ！ みちぇなのじぇ！",
+      "chinese": "窝是乖孩子惹杰！看看窝惹杰！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_shop_appeal2"
+      },
+      "source_sha256": "205e90262750eea1bfe9fe5b8586375f6dfc64a595621b3628166a8e43d7b2f6"
+    },
+    {
+      "id": "marisa.young.o_shop_bought",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あたらちいおうちなのじぇ！ よろちくなのじぇ！",
+      "chinese": "新的家惹杰！请多关照惹杰！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_shop_bought"
+      },
+      "source_sha256": "209614344550a81cb97ce595b14a3389e890e3dcbec60095edace0a06313e006"
+    },
+    {
+      "id": "marisa.young.o_shop_sold_sad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "どうちてなのじぇ……まりちゃを わすれないでほちいのじぇ……。",
+      "chinese": "为什么惹杰……不要忘了窝惹杰……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_shop_sold_sad"
+      },
+      "source_sha256": "555ff8c3197b2f31a478d35f8652d700f23604d00f297c13a1e5b8576d5f5cdf"
+    },
+    {
+      "id": "marisa.young.o_shop_sold_proud",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃ、もっといいおうちにいくのじぇ！ ばいばいなのじぇ！",
+      "chinese": "窝要去更好的家惹杰！拜拜惹杰！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_shop_sold_proud"
+      },
+      "source_sha256": "a2126a0912c37a0412a8ce8e00012c5261f11fb37a14d953dac75d585b125345"
+    },
+    {
+      "id": "marisa.young.o_wild_role_beg",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あまあま、ちょうだいなのじぇ！ あけちぇなのじぇ！",
+      "chinese": "给窝甜甜惹杰！快打开惹杰！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_wild_role_beg"
+      },
+      "source_sha256": "16b091d1701cf25434f4cf9c93452d53463070ba89f1f2bef0baa5228d07d8d3"
+    },
+    {
+      "id": "marisa.young.o_wild_role_provoke",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "そんなばっじ、まりちゃはいらにゃいのじぇ！ ゆっくちできにゃいのじぇ！",
+      "chinese": "那种徽章，窝才不要惹杰！真不能油库里惹杰！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_wild_role_provoke"
+      },
+      "source_sha256": "38bba93e906132de6269b64664e199aac0636d802ef0f19c2edc1f6ccc27d541"
+    },
+    {
+      "id": "marisa.young.o_lesson_praised",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "えへへ、ほめられたのじぇ！ まりちゃ、うれちいのじぇ！",
+      "chinese": "嘿嘿，被夸奖惹杰！窝好开心惹杰！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_lesson_praised"
+      },
+      "source_sha256": "0c58463b2789edbcec56d8c46176574f83855b8cda4e8fdbc51714bb78755ae2"
+    },
+    {
+      "id": "marisa.young.o_lesson_praised2",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅのじぇ！ ありがちょうなのじぇ！",
+      "chinese": "窝还要慢慢学惹杰！谢谢惹杰！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_lesson_praised2"
+      },
+      "source_sha256": "4cac53216f8a960965581c43d7fdc6c1ad3cf86dc349e8f93d640a2714eb2e3b"
+    },
+    {
+      "id": "marisa.young.o_lesson_scolded",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいなのじぇ……まりちゃ、なおしゅのじぇ……。",
+      "chinese": "对不起惹杰……窝会改惹杰……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_lesson_scolded"
+      },
+      "source_sha256": "cee73e07cf4983a09dc216a1dfaac7aa87d26f739a0bddb729118869734ed401"
+    },
+    {
+      "id": "marisa.young.o_badge_envy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いいにゃあなのじぇ……まりちゃも そのばっじほちいのじぇ。",
+      "chinese": "真好惹杰……窝也想要那个徽章惹杰。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_envy"
+      },
+      "source_sha256": "af4ae524ea776c77c5da99dc9c05f7c1c3796d83f0c448873285da8e0823ef3f"
+    },
+    {
+      "id": "marisa.young.o_badge_admire",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しゅごいのじぇ！ まりちゃにも おしえちぇなのじぇ！",
+      "chinese": "好厉害惹杰！也教教窝惹杰！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_badge_admire"
+      },
+      "source_sha256": "8a337f853a49817b4abb4c549e783da15b7982f81e7bbc217a5dcf6367543a21"
+    },
+    {
+      "id": "alice.adult.o_exam_nervous",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジ、もらえるかしら……ありす、すこしふあんだわ。",
+      "chinese": "徽章，能拿到吗……爱丽丝有点不安哇。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_nervous"
+      },
+      "source_sha256": "616fadc73ba2ee1c862cebf95825f0ca2644fa9c4f894abb1aba2dbd5e1bb5f9"
+    },
+    {
+      "id": "alice.adult.o_exam_nervous2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "とかいはなありすでも、きんちょうはするのよ……。",
+      "chinese": "就算是都会派的爱丽丝，也是会紧张的哇……。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_nervous2"
+      },
+      "source_sha256": "170517dbf927dd340bcf18fa19cf4a3691add9adced62711ec743129648b1e24"
+    },
+    {
+      "id": "alice.adult.o_exam_answer",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "はい、ありすはわかっているわ！",
+      "chinese": "是的，爱丽丝明白哇！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_answer"
+      },
+      "source_sha256": "f83682d2f4e066e7e8f21d8a660c2128d81b55293904945b39d03c10434bb016"
+    },
+    {
+      "id": "alice.adult.o_exam_unsure",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "えーと……あら……？ ありす、どうだったかしら……。",
+      "chinese": "嗯……咦……？爱丽丝，是怎么来着哇……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_unsure"
+      },
+      "source_sha256": "87120d44e4a29d8632880932607fa2004998ab554f14ae181c4e0138ec28f4f7"
+    },
+    {
+      "id": "alice.adult.o_exam_hide_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすはいないわよ！ ここにはだれもいないわ！",
+      "chinese": "爱丽丝不在哇！这里谁也没有哇！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "3dd61341a6067e9b5cc8424bacea33c48f84df1357da6432aeb2d2445e9a3c10"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_wait",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "がまんよ……とかいはは、まてるのよ……。",
+      "chinese": "要忍耐哇……都会派是等得住的哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "d45b642a86990b43da5d6d81bf47e3f30c85b0acf6940e040af0d253094af014"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_wait2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おやつは、もうすこし……ゆっくりまつわ……。",
+      "chinese": "点心再等一下……慢慢等着哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "b3088c24fbb0e290ec807b451c68c9600c10be5340029cec83d2e909fdd89297"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ずるいわ！ ありすのぶんはどこなの！",
+      "chinese": "太狡猾了哇！爱丽丝的那份在哪里！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "78ec9433e04201ee4dd1d1613cfedd3ba4893734f153b4c3d1143d692657275e"
+    },
+    {
+      "id": "alice.adult.o_exam_promise_fail2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、とかいはじゃないわ！",
+      "chinese": "抢先拿走，才不是都会派的做法哇！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "68d47a88d4ed5696829f4ca8809d0f1e915e5e34748e0397a1e164b542e7e697"
+    },
+    {
+      "id": "alice.adult.o_exam_report",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらのゆっくりがいるわ。",
+      "chinese": "人类先生，那里有野生的油库里哇。",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_report"
+      },
+      "source_sha256": "91f5b0aee399599ea0878aca27839611274a9f4dcbde661c994e1490ebf0096f"
+    },
+    {
+      "id": "alice.adult.o_exam_sorry",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごめんなさい……。ありす、まちがえてしまったわ……。",
+      "chinese": "对不起……。爱丽丝弄错了哇……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_sorry"
+      },
+      "source_sha256": "9732702bb98e6e95ce9b3a3b5b58066b19dc37108db814d470175a33ffbbe4fe"
+    },
+    {
+      "id": "alice.adult.o_exam_pass",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "やったわ！ バッジよ！ ありす、とかいはでしょう！",
+      "chinese": "太好了哇！是徽章哇！爱丽丝是都会派吧！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_pass"
+      },
+      "source_sha256": "2a1c328cb16d27e7c07002571a2e3970f99c4bdeaf0d4eead4cb4cdefed199e8"
+    },
+    {
+      "id": "alice.adult.o_exam_pass2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ ありす、とってもしあわせよ！",
+      "chinese": "谢谢人类先生！爱丽丝好幸福哇！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_pass2"
+      },
+      "source_sha256": "12943ac1a17c57d49eba4e10cd992ad692b67f1883bf96a8e99f709ab286b4e4"
+    },
+    {
+      "id": "alice.adult.o_exam_fail",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして……どぼじてなのおおお……！",
+      "chinese": "为什么……为什么会这样啊啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_fail"
+      },
+      "source_sha256": "d19409016aba1df13f64558910c8be21a43c3c982a4b11194d8becbb28c91f17"
+    },
+    {
+      "id": "alice.adult.o_exam_fail2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありす、ふごうかくなの……？ そんな……ぐすっ……。",
+      "chinese": "爱丽丝，不合格吗……？怎么会……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_exam_fail2"
+      },
+      "source_sha256": "240a42493e65823355473c3e9f2ea809dbc11ae8fd1ebc4ddeadf29bc3684c11"
+    },
+    {
+      "id": "alice.adult.o_badge_proud",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすのバッジ、とかいはでしょう？ ゆっくり みていってね！",
+      "chinese": "爱丽丝的徽章，很都会派吧？请慢慢看哇！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_proud"
+      },
+      "source_sha256": "248f63504ed342cd3a15f07957616e31af7a23c68eba8acab569de708b7b9a4b"
+    },
+    {
+      "id": "alice.adult.o_shop_appeal",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすを かってちょうだい！ とかいはに おせわしてあげるわ！",
+      "chinese": "请买下爱丽丝哇！会都会派地照顾你的哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_shop_appeal"
+      },
+      "source_sha256": "77cddc159d370a6de1c40565da6e0f7e5ccf67d54e0f2b7bc7f6618d946141df"
+    },
+    {
+      "id": "alice.adult.o_shop_appeal2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ここよ、ここ！ ありす、とってもいい子よ！",
+      "chinese": "在这里哇，在这里！爱丽丝是很乖的孩子哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_shop_appeal2"
+      },
+      "source_sha256": "5dd3fbded3498d10b1f6460cce5a9fdfa8eb7f3b408e1938966d24aa9c6258b3"
+    },
+    {
+      "id": "alice.adult.o_shop_bought",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あたらしいおうちね！ よろしくおねがいするわ！",
+      "chinese": "新的家哇！请多多关照哇！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_shop_bought"
+      },
+      "source_sha256": "d89054ec03bbbfee55afc183778e1f6a3aeb4edc0daeeeaf72f6a33a64f91a2a"
+    },
+    {
+      "id": "alice.adult.o_shop_sold_sad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "どうして……ありすのこと、わすれないでちょうだい……。",
+      "chinese": "为什么……请不要忘记爱丽丝哇……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "ad08cef3c54f143d3b817596fdfd20dba397db9f3648808d672cbbfa005003a9"
+    },
+    {
+      "id": "alice.adult.o_shop_sold_proud",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすは、もっととかいはなおうちにいくわ！ さようなら！",
+      "chinese": "爱丽丝要去更都会派的家哇！再见！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "b2dbb940c93a54e3dcb0a3a7bb0d6d25a5b14864d79b6852eb5439856c6de9ec"
+    },
+    {
+      "id": "alice.adult.o_wild_role_beg",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあまを ちょうだい！ ここをあけてちょうだい！",
+      "chinese": "把甜甜给我！把这里打开哇！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_wild_role_beg"
+      },
+      "source_sha256": "9af3ca083600be24ab908684fadac88b812318c74ace88c509754781525a60db"
+    },
+    {
+      "id": "alice.adult.o_wild_role_provoke",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "そんなバッジ、ありすにはかんけいないわ！ ちっともとかいはじゃないわね！",
+      "chinese": "那种徽章，跟爱丽丝没关系哇！一点也不都会派哇！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "0abf2e0cf9c4a8060a92b945705d32deaa6564311dee3959f7e36d118932d6ba"
+    },
+    {
+      "id": "alice.adult.o_lesson_praised",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ほめられたわ！ ありす、うれしいわ！",
+      "chinese": "被夸奖了哇！爱丽丝好开心哇！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_lesson_praised"
+      },
+      "source_sha256": "89c7081f77eb4b48371b819bb4db41a6096cfc8e86be0a678bc1d859e5716333"
+    },
+    {
+      "id": "alice.adult.o_lesson_praised2",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もっとおぼえるわ。ありがとう、にんげんさん！",
+      "chinese": "还要再学哇。谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_lesson_praised2"
+      },
+      "source_sha256": "35ee59033696e33ed308009d5e4aaa414845f76c3062059d2c831334a9042734"
+    },
+    {
+      "id": "alice.adult.o_lesson_scolded",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごめんなさい……。ありす、ちゃんとなおすわ……。",
+      "chinese": "对不起……。爱丽丝会好好改正哇……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_lesson_scolded"
+      },
+      "source_sha256": "7ce1dfa9df17bbd64b94b875ffe928c71d6bf2d1a0d4717547b47abba06475b6"
+    },
+    {
+      "id": "alice.adult.o_badge_envy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うらやましいわ……ありすも、あのバッジがほしいわ。",
+      "chinese": "好羡慕哇……爱丽丝也想要那个徽章哇。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_envy"
+      },
+      "source_sha256": "f8ac5b5bc2ee158ff63b5f2ec5b6c040dc92ce42922d4448f26335fb52fc3d2a"
+    },
+    {
+      "id": "alice.adult.o_badge_admire",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "すてきだわ！ ありすにも、おしえてちょうだい！",
+      "chinese": "好棒哇！也教教爱丽丝吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_badge_admire"
+      },
+      "source_sha256": "1d78a460f2d3afaa00379625bf079a254a2bdc45189ceafda5b960015426c13b"
+    },
+    {
+      "id": "alice.young.o_exam_nervous",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかちら……ありちゅ、どきどきしゅるわ。",
+      "chinese": "徽章，能拿到吗哇……爱丽丝扑通扑通的哇。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_nervous"
+      },
+      "source_sha256": "6420d37fb77fdc94d072ab18175a3b39b510f687f1f51da6e4cf77807cc60630"
+    },
+    {
+      "id": "alice.young.o_exam_nervous2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こわいけど、ありちゅ、がんばりゅわ！",
+      "chinese": "虽然怕怕，窝会加油哇！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_nervous2"
+      },
+      "source_sha256": "b022a2e074a104ad49b5400f9ff77ea28428c72ad79a6c5fbf527ebbd405d66c"
+    },
+    {
+      "id": "alice.young.o_exam_answer",
+      "species": "alice",
+      "age": "young",
+      "japanese": "はいっ、ありちゅ、わかりゅわ！",
+      "chinese": "好的，窝知道哇！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_answer"
+      },
+      "source_sha256": "cf98a3bbb9cf591d760021fac009d99b41f74e0390b1ed70785d06f5aa963251"
+    },
+    {
+      "id": "alice.young.o_exam_unsure",
+      "species": "alice",
+      "age": "young",
+      "japanese": "えーと……あらぁ……？ ありちゅ、わかんにゃいわ……。",
+      "chinese": "嗯……咦……？窝不知道哇……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_unsure"
+      },
+      "source_sha256": "93624a5d4804209e048c159a0b7e121556228b8290c4e95646b994a114adaa96"
+    },
+    {
+      "id": "alice.young.o_exam_hide_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅはいにゃいわ！ だぁれもいにゃいわ！",
+      "chinese": "窝不在哇！谁也没有哇！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_hide_fail"
+      },
+      "source_sha256": "17514660323ed79a3bed7a0911a15b0093549c2dc0098fd8057c74aa721b3b32"
+    },
+    {
+      "id": "alice.young.o_exam_promise_wait",
+      "species": "alice",
+      "age": "young",
+      "japanese": "がまんよ、がまん……ありちゅ、まてりゅわ……。",
+      "chinese": "忍耐哇，忍耐……窝等得住哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_promise_wait"
+      },
+      "source_sha256": "a18fba01e7964b11a7270f67bde5b0f93fcee32f523c70d8ac17606f96c23d6d"
+    },
+    {
+      "id": "alice.young.o_exam_promise_wait2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おやちゅ、まだかちら……ゆっくち まつわ……。",
+      "chinese": "点心还没来吗哇……慢慢等着哇……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "4cbe407c9584de0ae977b1d1af7e18639709ac5b9ea88babfb4d0f7af6a5f550"
+    },
+    {
+      "id": "alice.young.o_exam_promise_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ずるいわぁ！ ありちゅのばんよぉ！",
+      "chinese": "狡猾哇！明明是窝的份哇！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_promise_fail"
+      },
+      "source_sha256": "b87ccab608e1b741928f122934e200a240591f72b8fb49da01abc5f97cf881e6"
+    },
+    {
+      "id": "alice.young.o_exam_promise_fail2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅも まってたのにぃ！ ぷんぷん！",
+      "chinese": "窝也等着的哇！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "acd0dae5be0830298fd5d24fc781732858489cc3fa82621b77113f720ee95716"
+    },
+    {
+      "id": "alice.young.o_exam_report",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらのゆっくちがいるわぁ！",
+      "chinese": "人类先生，有野生的油库里在哇！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_report"
+      },
+      "source_sha256": "79072ad588c46e8f595dbefe82e08722b38591348d6183b92afc8bf00160d7f1"
+    },
+    {
+      "id": "alice.young.o_exam_sorry",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……ありちゅ、まちがえちゃったわ……。",
+      "chinese": "对不起哇……窝弄错了哇……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_sorry"
+      },
+      "source_sha256": "d4bc459db4f7c749c2036bb5fcc2c1bd85d0fdd30e1ea0dd385cc5eeb76738a2"
+    },
+    {
+      "id": "alice.young.o_exam_pass",
+      "species": "alice",
+      "age": "young",
+      "japanese": "やったぁ！ ばっじよ！ ありちゅ、ときゃいはでしょ！",
+      "chinese": "太好啦！是徽章哇！窝是都会派吧！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_pass"
+      },
+      "source_sha256": "e7a9e84585e7cd15bf85c3f45fb7d6c0590f434bd05aaac99889025575b50092"
+    },
+    {
+      "id": "alice.young.o_exam_pass2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ しあわちぇー！",
+      "chinese": "谢谢人类先生！好幸福哇——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_pass2"
+      },
+      "source_sha256": "99c15fa3f6ee8268b5e1db6a777c2b723b0e31976746758890959141e41b16c9"
+    },
+    {
+      "id": "alice.young.o_exam_fail",
+      "species": "alice",
+      "age": "young",
+      "japanese": "どぼちて……どぼちてなのぉぉ……！",
+      "chinese": "为什么……为什么哇啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_fail"
+      },
+      "source_sha256": "2cc9895b8c85249067818964db8295a227e00e01d3d5e0e9a80256754846c43b"
+    },
+    {
+      "id": "alice.young.o_exam_fail2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅ、だめだったの……？ ふえぇん……。",
+      "chinese": "窝，不行吗……？呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_exam_fail2"
+      },
+      "source_sha256": "46303f515d719e78701542865c5ab255021e8ebc486327111fcf4563f058ad7c"
+    },
+    {
+      "id": "alice.young.o_badge_proud",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅのばっじ、きらきらでしょ！ ときゃいはでしょ！",
+      "chinese": "窝的徽章，亮晶晶吧！很都会派吧！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_proud"
+      },
+      "source_sha256": "b754bba84377b76f82774f55f757680d0c7ced00418658240c189ebdcdc652de"
+    },
+    {
+      "id": "alice.young.o_shop_appeal",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅを かっちぇ！ いっちょに ゆっくちしようね！",
+      "chinese": "买下窝哇！一起油库里吧！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_shop_appeal"
+      },
+      "source_sha256": "7bea6d2684e51557f5b7b637c91b64abddd281d0b7a88d462c1650cfd47ea5ec"
+    },
+    {
+      "id": "alice.young.o_shop_appeal2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ここよぉ！ ありちゅ、いいこよぉ！",
+      "chinese": "在这里哇！窝是乖孩子哇！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_shop_appeal2"
+      },
+      "source_sha256": "05b9afec50474fe1c548dc5bd593e7496a67e9365b63deb58b01ac16993975b3"
+    },
+    {
+      "id": "alice.young.o_shop_bought",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あたらちいおうちね！ よろちくね！",
+      "chinese": "新的家哇！请多关照哇！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_shop_bought"
+      },
+      "source_sha256": "2ff3777ea612785d3c54470befa78a0043558d720e360666c0f6c0e89691ecd7"
+    },
+    {
+      "id": "alice.young.o_shop_sold_sad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "どうちて……ありちゅを わすれにゃいでぇ……。",
+      "chinese": "为什么……不要忘了窝哇……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_shop_sold_sad"
+      },
+      "source_sha256": "7d34067794fc6d0c1b76a7c1190d3b78dbab337764c5d69c99b7b2d7dc2dbb75"
+    },
+    {
+      "id": "alice.young.o_shop_sold_proud",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅ、もっとときゃいはなおうちにいくわ！ ばいばい！",
+      "chinese": "窝要去更都会派的家哇！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_shop_sold_proud"
+      },
+      "source_sha256": "5c0457528717377860d9902d0bcd2ff14c8d61ce9fb1b24dde27f776a92c440a"
+    },
+    {
+      "id": "alice.young.o_wild_role_beg",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あまあま、ちょうだい！ あけちぇ！",
+      "chinese": "给窝甜甜哇！快打开哇！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_wild_role_beg"
+      },
+      "source_sha256": "de04be7561857066bdb1bfa713b81563765f99606640cbdbee4aa8e65d4300f9"
+    },
+    {
+      "id": "alice.young.o_wild_role_provoke",
+      "species": "alice",
+      "age": "young",
+      "japanese": "そんなばっじ、ありちゅはいらにゃいわ！ ときゃいはじゃにゃいわ！",
+      "chinese": "那种徽章，窝才不要哇！一点也不都会派哇！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_wild_role_provoke"
+      },
+      "source_sha256": "f84b3eaf5f620d66b12592ca3bc44e8d15b80c5784a0ad0a1fbb6cc2b5afd98d"
+    },
+    {
+      "id": "alice.young.o_lesson_praised",
+      "species": "alice",
+      "age": "young",
+      "japanese": "えへへ、ほめられちゃった！ ありちゅ、うれちいわ！",
+      "chinese": "嘿嘿，被夸奖啦！窝好开心哇！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_lesson_praised"
+      },
+      "source_sha256": "746c23b6c4e492fa326afedd4a7e85eac2075c5fbf1865965a5a6836d2a80c0c"
+    },
+    {
+      "id": "alice.young.o_lesson_praised2",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅわ！ ありがちょう！",
+      "chinese": "窝会再慢慢学哇！谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_lesson_praised2"
+      },
+      "source_sha256": "38d0979cce6614cf9ea41d63c5ee2213d24fc14386953aa7cd35f8be14cca610"
+    },
+    {
+      "id": "alice.young.o_lesson_scolded",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごめんにゃしゃい……ありちゅ、なおしゅわ……。",
+      "chinese": "对不起哇……窝会改哇……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_lesson_scolded"
+      },
+      "source_sha256": "eb1424abeaca3039d76eba75c72ceed6a8b21243976f5e99756a4d1d0c4e229f"
+    },
+    {
+      "id": "alice.young.o_badge_envy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いいにゃあ……ありちゅも そのばっじほちいわ。",
+      "chinese": "真好哇……窝也想要那个徽章哇。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_envy"
+      },
+      "source_sha256": "d2b104fa5dc5fcf20489488d4709044eba049a4dd66bd1f17b941b7bfec5db9c"
+    },
+    {
+      "id": "alice.young.o_badge_admire",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しゅてき！ ありちゅにも おしえちぇ！",
+      "chinese": "好棒哇！也教教窝哇！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_badge_admire"
+      },
+      "source_sha256": "790ce02dbc7037997d8dfd04043cc6501ef3826d0c3ddbbfbd652823158eb50f"
+    },
+    {
+      "id": "chen.adult.o_exam_nervous",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "バッジ、もらえるかなー……ちぇん、どきどきするよー。",
+      "chinese": "徽章，能拿到吗——……橙，心跳得好快哟——。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_nervous"
+      },
+      "source_sha256": "d813af9ad8e636afa4aa5f52c2da26e71c61898c2032ea922f0c775cff15f0f1"
+    },
+    {
+      "id": "chen.adult.o_exam_nervous2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "きんちょうするけど、ちぇん、がんばるよー！",
+      "chinese": "虽然紧张，橙会加油哟——！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_nervous2"
+      },
+      "source_sha256": "d7c8e3e7061edcf1190d92cd334c32808750003b3d2769c962f7ff7274b71da2"
+    },
+    {
+      "id": "chen.adult.o_exam_answer",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "はいっ、わかるよー！ ちぇん、わかるよー！",
+      "chinese": "好的，瓦卡鲁哟——！橙，瓦卡鲁哟——！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_answer"
+      },
+      "source_sha256": "fa9eae9ab8bd64155fada0184eadc5e0d249a198a13c40f810a848544cc03f88"
+    },
+    {
+      "id": "chen.adult.o_exam_unsure",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "えーと……あれー……？ ちぇん、わからないよー……。",
+      "chinese": "嗯……咦——……？橙，瓦卡拉奈哟——……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_unsure"
+      },
+      "source_sha256": "90f2f8df79cf37e65399f1849973d7137406ccbc40b3c3f1c3bb255150847871"
+    },
+    {
+      "id": "chen.adult.o_exam_hide_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんはいないよー！ だれもいないんだよー！",
+      "chinese": "橙不在哟——！谁也没有哟——！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "5b29fd1873ce86cf154fbd876efb66f662e16d8e7dd4bea7241603167a2cc7bb"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_wait",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "がまんするよー……ちぇんは、まてるんだよー……。",
+      "chinese": "会忍耐哟——……橙是等得住的哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "5e6f9f3dd7d622bd4a33f7af6191f9ddaee93105556a095b38e36a1d14d03624"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_wait2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おやつ、まだかなー……ゆっくり まつよー……。",
+      "chinese": "点心，还没来吗——……慢慢等哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "e0d22b43b7d3764d037f4359f227259b2a3c16c32aea28caa379283768a98e3e"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
+      "chinese": "狡猾哟——！没有橙的份哟——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "e726b39c9343f345dcc71f808ce54bfba2f5fa2a7d1526f06a75d6cd022ef2d2"
+    },
+    {
+      "id": "chen.adult.o_exam_promise_fail2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんも まってたんだよー！ ぷんぷん！",
+      "chinese": "橙也一直在等哟——！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "d7114613e17f74de2ab4ae9cdefbf97d6ba130c6c066ed706532bee541246783"
+    },
+    {
+      "id": "chen.adult.o_exam_report",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、そこにのらがいるよー。",
+      "chinese": "人类先生，那边有野生的在哟——。",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_report"
+      },
+      "source_sha256": "339eb5c226014dac35958b2d7a153a45b0803ff8b1a7ac4a6bfb00d372b04874"
+    },
+    {
+      "id": "chen.adult.o_exam_sorry",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごめんなさいだよー……。ちぇん、まちがえたよー……。",
+      "chinese": "对不起哟——……。橙弄错了哟——……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_sorry"
+      },
+      "source_sha256": "ae2502cd3004610d1d10a1765c8fa13c2c0826c832be18f16267d30b206ce76d"
+    },
+    {
+      "id": "chen.adult.o_exam_pass",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "やったー！ バッジだよー！ ちぇん、わかったよー！",
+      "chinese": "太好啦——！是徽章哟——！橙做到啦哟——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_pass"
+      },
+      "source_sha256": "8bdf6a3d75c8fd58a86e2e60e0782d23975fe0768a0d0b0912746238a09feeb6"
+    },
+    {
+      "id": "chen.adult.o_exam_pass2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうだよー！ しあわせー！",
+      "chinese": "谢谢人类先生哟——！好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_pass2"
+      },
+      "source_sha256": "0f87993ff7c84086dadbff71fdc683e3ec10279fd1703c6a761a77a8d30c603f"
+    },
+    {
+      "id": "chen.adult.o_exam_fail",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "どうしてー……どぼじてなのー……！",
+      "chinese": "为什么——……为什么会这样啊——……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_fail"
+      },
+      "source_sha256": "9da77d6f6227d4b3e21bdb061f3b703b734f8f138874e93b6f9cb42183ad0dcb"
+    },
+    {
+      "id": "chen.adult.o_exam_fail2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇん、ふごうかくなのー……？ わからないよー……。",
+      "chinese": "橙，不合格吗——……？瓦卡拉奈哟——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_exam_fail2"
+      },
+      "source_sha256": "6a4197177b0b16ec3453657bf4ed6c40922239fec5bfe19972378a145fb2426f"
+    },
+    {
+      "id": "chen.adult.o_badge_proud",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんのバッジ、みてみてー！ すごいでしょー！",
+      "chinese": "看看橙的徽章——！很厉害吧——！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_proud"
+      },
+      "source_sha256": "1932ee96e17cfc2302b56e3289e84cb648a6062ad88f9ad1d254f4407ca757ef"
+    },
+    {
+      "id": "chen.adult.o_shop_appeal",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんを かってねー！ いっしょにゆっくりするよー！",
+      "chinese": "请买下橙哟——！一起慢慢来哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_shop_appeal"
+      },
+      "source_sha256": "e4dd3055f01f383500e3c987ed8a74c137cb9516c10a0579367765aebfe27aac"
+    },
+    {
+      "id": "chen.adult.o_shop_appeal2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ここだよー、ここー！ ちぇん、いいこだよー！",
+      "chinese": "在这里哟——，这里——！橙是乖孩子哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_shop_appeal2"
+      },
+      "source_sha256": "118f9956dcec6d2615e184c369c3da3175eea9b6b52770dced638a84eec9c83a"
+    },
+    {
+      "id": "chen.adult.o_shop_bought",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あたらしいおうちだよー！ よろしくだよー！",
+      "chinese": "新的家哟——！请多关照哟——！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_shop_bought"
+      },
+      "source_sha256": "1b0fa3adf50e9e6312e8e5464be7a0432c7806f2dba348d559e662074b8022cf"
+    },
+    {
+      "id": "chen.adult.o_shop_sold_sad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "どうしてなのー……ちぇんのこと、わすれないでねー……。",
+      "chinese": "为什么啊——……不要忘记橙哟——……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "699d31ddc53ea2fd58e60c1aec7085ba1912d08d197d5a75158b5432d47c6c26"
+    },
+    {
+      "id": "chen.adult.o_shop_sold_proud",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんは、もっといいおうちにいくよー！ ばいばいだよー！",
+      "chinese": "橙要去更好的家哟——！拜拜哟——！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "d84629e51fc5a06b2a6d8cb5738e6456dea2c5df76db96399d44dd044972eef2"
+    },
+    {
+      "id": "chen.adult.o_wild_role_beg",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあま、ちょうだいー！ ここ、あけてよー！",
+      "chinese": "给橙甜甜——！把这里打开哟——！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_wild_role_beg"
+      },
+      "source_sha256": "74ffd6baeefb6c8604e9b26b1a4e850d8b77e524ed9344b04241b2ae0d988c30"
+    },
+    {
+      "id": "chen.adult.o_wild_role_provoke",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "そんなバッジ、ちぇんにはいらないよー！ ゆっくりできないよー！",
+      "chinese": "那种徽章，橙才不要哟——！真没法安心哟——！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "1202ebc6d37737f5388a02d5f59b6524b3c54f8f1e0d201de7de0c02450ad18c"
+    },
+    {
+      "id": "chen.adult.o_lesson_praised",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ほめられたよー！ ちぇん、うれしいよー！",
+      "chinese": "被夸奖啦哟——！橙好开心哟——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_lesson_praised"
+      },
+      "source_sha256": "6a184e9389debd16a6412cd9893afaaaabb6643516f31dac7b8f594e0d15cb4b"
+    },
+    {
+      "id": "chen.adult.o_lesson_praised2",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もっとおぼえるよー！ わかるよー、ありがとうー！",
+      "chinese": "还要再学哟——！瓦卡鲁哟——，谢谢——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_lesson_praised2"
+      },
+      "source_sha256": "1db7629c9437ebd5d5a38410cbdd8006e29f61747eddca94e020d30344d05f91"
+    },
+    {
+      "id": "chen.adult.o_lesson_scolded",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごめんなさいだよー……。ちぇん、なおすよー……。",
+      "chinese": "对不起哟——……。橙会改正哟——……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_lesson_scolded"
+      },
+      "source_sha256": "e838d6394d507fc80f8b4eea0d8afae8d31bf55cdf5a35a0300a551f8b9fca4e"
+    },
+    {
+      "id": "chen.adult.o_badge_envy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いいなー……ちぇんも、あのバッジがほしいよー。",
+      "chinese": "真好呀——……橙也想要那个徽章哟——。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_envy"
+      },
+      "source_sha256": "6b314d6bc435bed7b90ae7a2afb20f61dc347c410275ce221d70415e0210a634"
+    },
+    {
+      "id": "chen.adult.o_badge_admire",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "すごいよー！ ちぇんにも、おしえてほしいよー！",
+      "chinese": "好厉害哟——！也教教橙哟——！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_badge_admire"
+      },
+      "source_sha256": "0187cdcef648296ef8cf3d9c53650e07ca9f6c1ab4d76dff67a59fa84d157793"
+    },
+    {
+      "id": "chen.young.o_exam_nervous",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ、もらえりゅかにゃー……どきどきしゅるよー。",
+      "chinese": "徽章，能拿到吗——……心扑通扑通哟——。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_nervous"
+      },
+      "source_sha256": "44ad2497672bc6bd766d973471b680800156fd4e46b138b5cccb8b577d4df5a4"
+    },
+    {
+      "id": "chen.young.o_exam_nervous2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こわいけど、ちぇん、がんばりゅよー！",
+      "chinese": "虽然怕怕，橙会加油哟——！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_nervous2"
+      },
+      "source_sha256": "494d31432b74182ff19807a7802d973963c4f884f1cc71aa9767da9f4ad4b385"
+    },
+    {
+      "id": "chen.young.o_exam_answer",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はいっ、わかうよー！ ちぇん、わかうよー！",
+      "chinese": "好的，瓦卡呜哟——！橙，瓦卡呜哟——！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_answer"
+      },
+      "source_sha256": "10a502ca7d4b8977d4bfdc94fbd00bf2fc9a9ec135be8e22dd43ebae9d09be2f"
+    },
+    {
+      "id": "chen.young.o_exam_unsure",
+      "species": "chen",
+      "age": "young",
+      "japanese": "えーと……あれー……？ ちぇん、わかんにゃいよー……。",
+      "chinese": "嗯……咦——……？橙，瓦卡呐奈哟——……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_unsure"
+      },
+      "source_sha256": "c6c77c90ea3d5e01a5ac6fa5443f9114f39f930ac5505cbb6db443d508407a6e"
+    },
+    {
+      "id": "chen.young.o_exam_hide_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんはいにゃいよー！ だぁれもいにゃいよー！",
+      "chinese": "橙不在哟——！谁也没有哟——！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_hide_fail"
+      },
+      "source_sha256": "77c11e120d61e0f16541c80facecc9ef2e43fa60634a6212dca0101c3000d5cc"
+    },
+    {
+      "id": "chen.young.o_exam_promise_wait",
+      "species": "chen",
+      "age": "young",
+      "japanese": "がまんしゅるよー……まってりゅよー……。",
+      "chinese": "会忍耐哟——……在等着哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_promise_wait"
+      },
+      "source_sha256": "e4ccd873e50b4cf2667b138ac195d61d165fe718b4f5040c22a01efaf0527dac"
+    },
+    {
+      "id": "chen.young.o_exam_promise_wait2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃー……ゆっくち まつよー……。",
+      "chinese": "点心，还没来吗——……慢慢等哟——……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "deddbfc065fd1ca93cbffdf279bca549188bf6ac05c791014e3a6de26fded8d2"
+    },
+    {
+      "id": "chen.young.o_exam_promise_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ずるいよぉー！ ちぇんのばんだよぉー！",
+      "chinese": "狡猾哟——！明明是橙的份哟——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_promise_fail"
+      },
+      "source_sha256": "9d01281a569885dcb20db865b0dda4c0e39d53c307046abc18b0a3aecd136aa7"
+    },
+    {
+      "id": "chen.young.o_exam_promise_fail2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんも まってたよぉー！ ぷんぷん！",
+      "chinese": "橙也等着的哟——！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "8380044ed238bf9f6dca68993fbb939d27dcbb830736cc404327f6c83912fe0e"
+    },
+    {
+      "id": "chen.young.o_exam_report",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらがいるよぉー！",
+      "chinese": "人类先生，有野生的在哟——！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_report"
+      },
+      "source_sha256": "e589eb88ed7f61a0d0dc87d54901a73149637bf949850c5e0d5af8d016cffa4a"
+    },
+    {
+      "id": "chen.young.o_exam_sorry",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいー……ちぇん、まちがえちゃったよー……。",
+      "chinese": "对不起——……橙弄错了哟——……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_sorry"
+      },
+      "source_sha256": "57f435d007e4bf12afe47941622d4e349294925759b132db2365c85d779c76a9"
+    },
+    {
+      "id": "chen.young.o_exam_pass",
+      "species": "chen",
+      "age": "young",
+      "japanese": "やったぁー！ ばっじだよー！ ちぇん、わかうよー！",
+      "chinese": "太好啦——！是徽章哟——！橙，瓦卡呜哟——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_pass"
+      },
+      "source_sha256": "aebfbd6568010b08f5f458d560d4ea6dab6e92948e250a922cd094b2e6cb462b"
+    },
+    {
+      "id": "chen.young.o_exam_pass2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうー！ しあわちぇー！",
+      "chinese": "谢谢人类先生——！好幸福——！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_pass2"
+      },
+      "source_sha256": "9ca471ff734792145fa7c1cb872e6ce8bcd0e57d0362548524af274606e4ce0c"
+    },
+    {
+      "id": "chen.young.o_exam_fail",
+      "species": "chen",
+      "age": "young",
+      "japanese": "どぼちてぇー……！",
+      "chinese": "为什么呀——……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_fail"
+      },
+      "source_sha256": "52c1f2568162892f3b1744bb17e8642185657151e92666984bee97376d2c0ba1"
+    },
+    {
+      "id": "chen.young.o_exam_fail2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇん、だめだったにょー……？ わかんにゃいよー……ゆえーん……。",
+      "chinese": "橙，不行吗——……？瓦卡呐奈哟——……呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_exam_fail2"
+      },
+      "source_sha256": "6e5e5f4347e63dd965ba032b708a57154872fa2a15cdfe1354f18816f2754079"
+    },
+    {
+      "id": "chen.young.o_badge_proud",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんのばっじ、みてみてー！ きらきらだよー！",
+      "chinese": "看看橙的徽章——！亮晶晶哟——！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_proud"
+      },
+      "source_sha256": "0f795473d3a263baa855d91101b251be02d9557312f77a9d1f6628417e52c8ea"
+    },
+    {
+      "id": "chen.young.o_shop_appeal",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんを かっちぇー！ いっちょに ゆっくちしようよー！",
+      "chinese": "买下橙哟——！一起油库里哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_shop_appeal"
+      },
+      "source_sha256": "ef65f2b3fd50f66cf4075d696db786fd1645284ead42186cc423dde578a1728e"
+    },
+    {
+      "id": "chen.young.o_shop_appeal2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ここだよぉー！ ちぇん、いいこだよぉー！",
+      "chinese": "在这里哟——！橙是乖孩子哟——！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_shop_appeal2"
+      },
+      "source_sha256": "facf7c4374ac28edfad22753c204dbbd58227272fbf99bc429a9f8e899c79a54"
+    },
+    {
+      "id": "chen.young.o_shop_bought",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あたらちいおうちだよー！ よろちくねー！",
+      "chinese": "新的家哟——！请多关照哟——！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_shop_bought"
+      },
+      "source_sha256": "46f77e7b73a682fc1ccd9931125e12500e6396f4a02a57433a40c0bba9c12faa"
+    },
+    {
+      "id": "chen.young.o_shop_sold_sad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "どうちてー……ちぇんを わすれにゃいでぇー……。",
+      "chinese": "为什么——……不要忘了橙哟——……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_shop_sold_sad"
+      },
+      "source_sha256": "361cafebfe771ab5b64e4a051b8dd40b3752fa55d2e46a8791ca7deb3fab1f45"
+    },
+    {
+      "id": "chen.young.o_shop_sold_proud",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇん、もっといいおうちにいくよー！ ばいばいー！",
+      "chinese": "橙要去更好的家哟——！拜拜——！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_shop_sold_proud"
+      },
+      "source_sha256": "666f3f0f0abda3398dabdc45147ba208af73fc1943fa073d797faa755a5cfdcc"
+    },
+    {
+      "id": "chen.young.o_wild_role_beg",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あまあま、ちょうだいー！ あけちぇー！",
+      "chinese": "给橙甜甜——！快打开——！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_wild_role_beg"
+      },
+      "source_sha256": "a7e53836ef6e5b56d9351349860eb71eafd973b31a2027871595421d78908765"
+    },
+    {
+      "id": "chen.young.o_wild_role_provoke",
+      "species": "chen",
+      "age": "young",
+      "japanese": "そんなばっじ、ちぇんはいらにゃいよー！ ゆっくちできにゃいよー！",
+      "chinese": "那种徽章，橙才不要哟——！真不能油库里哟——！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_wild_role_provoke"
+      },
+      "source_sha256": "113aee0aa807c02daecfeb6a5f1d31721613162f0111279111894e6bf11de2a7"
+    },
+    {
+      "id": "chen.young.o_lesson_praised",
+      "species": "chen",
+      "age": "young",
+      "japanese": "えへへー、ほめられたー！ ちぇん、うれちいよー！",
+      "chinese": "嘿嘿——，被夸奖啦——！橙好开心哟——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_lesson_praised"
+      },
+      "source_sha256": "5075c32118747e8ac958cef96815d927300befe89f1e1849873e35ff2d3cd454"
+    },
+    {
+      "id": "chen.young.o_lesson_praised2",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もっとゆっくち おぼえりゅよー！ ありがちょうー！",
+      "chinese": "橙会再慢慢学哟——！谢谢——！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_lesson_praised2"
+      },
+      "source_sha256": "cb2d475c57afdc05afcf099d5e3925eb5cf221a576ba96eed552e33a838d8e10"
+    },
+    {
+      "id": "chen.young.o_lesson_scolded",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごめんにゃしゃいー……ちぇん、なおしゅよー……。",
+      "chinese": "对不起——……橙会改哟——……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_lesson_scolded"
+      },
+      "source_sha256": "f7db07e245f91a7a194b8fa199dc76a3e4330327f760487b1a18a470710ff85a"
+    },
+    {
+      "id": "chen.young.o_badge_envy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いいにゃー……ちぇんも そのばっじほちいよー。",
+      "chinese": "真好呀——……橙也想要那个徽章哟——。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_envy"
+      },
+      "source_sha256": "8923bd8f5b737d1076770389f5e794dd1651efa792ab079cdf525b159e88d6a8"
+    },
+    {
+      "id": "chen.young.o_badge_admire",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しゅごいよー！ ちぇんにも おしえちぇー！",
+      "chinese": "好厉害哟——！也教教橙哟——！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_badge_admire"
+      },
+      "source_sha256": "792da0862b4fcbe7fcb29e7f8afd46b7c49c8f9ee83e812997d89d69268a63f5"
+    },
+    {
+      "id": "patchouli.adult.o_exam_nervous",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……バッジ、もらえるかしら。ぱちゅりー、すこし ふあんだわ。",
+      "chinese": "姆啾……徽章，能拿到吗。帕秋莉，有点不安呢。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_nervous"
+      },
+      "source_sha256": "552b9dd95139d8d33e62187d62eb30c58f97304b613f4447b09eb71bbd6702a9"
+    },
+    {
+      "id": "patchouli.adult.o_exam_nervous2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、きんちょうするけれど……ぱちゅりー、おちついて やるわ。",
+      "chinese": "姆啾，虽然紧张……帕秋莉会冷静地去做。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_nervous2"
+      },
+      "source_sha256": "0380c475dfcb39cfdf3e099f6501480260c3ed98044ffc84219917b29b1fd078"
+    },
+    {
+      "id": "patchouli.adult.o_exam_answer",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、わかるわ。ぱちゅりーが こたえるわ。",
+      "chinese": "姆啾，我知道。由帕秋莉来回答。",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_answer"
+      },
+      "source_sha256": "52dbebb1da51a3a0964526f090ed385f5f84a3e2d7f6a4d779e05f3c686c6c60"
+    },
+    {
+      "id": "patchouli.adult.o_exam_unsure",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……えーと……あれ……？ ぱちゅりー、わすれたかしら……。",
+      "chinese": "姆啾……嗯……咦……？帕秋莉，忘掉了吗……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_unsure"
+      },
+      "source_sha256": "cd468a21ec5581f2fba33ffa8cd357dffa31dfc1ad2df682bec33ba040d735d3"
+    },
+    {
+      "id": "patchouli.adult.o_exam_hide_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ ぱちゅりーは いないわ！ だれもいないのよ！",
+      "chinese": "姆啾！帕秋莉不在！这里谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "c0232182d34f162bf0742f46ecb0c9c3d48dc3a6fa75ab542e29b19d41d2e9ab"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_wait",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……がまんよ。ぱちゅりーは、おとなしく まつわ……。",
+      "chinese": "姆啾……要忍耐。帕秋莉会安静地等……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "90f56b4368f6de6dd6020a8a3f84b13f8ad70125e8fc8c58f6e9e652675e4b21"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_wait2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "おやつは、もうすこし……むきゅ、じっと まつわ。",
+      "chinese": "点心再等一会儿……姆啾，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "eaee2079eadc526db1e2339ee76c22b454eb5d629f1e0195cdbdaa60be0be7e1"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
+      "chinese": "姆啾！太狡猾了！没有帕秋莉的份啊！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "06454449dead7195eb7d25e8cfa84ca440772717acb0b418cfa62f27edb32bc8"
+    },
+    {
+      "id": "patchouli.adult.o_exam_promise_fail2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいわ……むきゅー！",
+      "chinese": "抢先拿走，太狡猾了……姆啾——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "8f8488a1495dc84958062c1b53c460b2d8caa5529d3fac0cd6d6a2f84dcadf8c"
+    },
+    {
+      "id": "patchouli.adult.o_exam_report",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、にんげんさん。そこに のらのゆっくりが いるわ。",
+      "chinese": "姆啾，人类先生。那里有野生的油库里。",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_report"
+      },
+      "source_sha256": "670a032f2d558a04eaa464e4b8ad623c102a5dde59f74a7a65cea8193a959137"
+    },
+    {
+      "id": "patchouli.adult.o_exam_sorry",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ごめんなさい。ぱちゅりー、まちがえたわ。",
+      "chinese": "姆啾……对不起。帕秋莉弄错了。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_sorry"
+      },
+      "source_sha256": "2addd2fc0400e5701e9fea6482f0a589f4277175a634a43fac185cd6eec94ee4"
+    },
+    {
+      "id": "patchouli.adult.o_exam_pass",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅー！ バッジよ！ ぱちゅりー、がんばったわ！",
+      "chinese": "姆啾——！是徽章！帕秋莉努力过了！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_pass"
+      },
+      "source_sha256": "ec8fd31e867e9531dacef8be7fe735d4c9871a211009c2f61c1f5789dbcc8ed8"
+    },
+    {
+      "id": "patchouli.adult.o_exam_pass2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう。むきゅ、しあわせだわ。",
+      "chinese": "谢谢人类先生。姆啾，好幸福。",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_pass2"
+      },
+      "source_sha256": "bd032e37c489b79098605368e98909c39aca86ab5b1c0fb65d3c7aff566242c3"
+    },
+    {
+      "id": "patchouli.adult.o_exam_fail",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……どぼじて……どぼじてなのおお……！",
+      "chinese": "姆啾……为什么……为什么会这样啊啊……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_fail"
+      },
+      "source_sha256": "af3f0682e952d5508667ea2952eaa7803faa5447a65908c002a338d39abf2a12"
+    },
+    {
+      "id": "patchouli.adult.o_exam_fail2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ぱちゅりー、ふごうかく……？ むきゅう……ぐすっ……。",
+      "chinese": "帕秋莉，不合格……？姆啾……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_exam_fail2"
+      },
+      "source_sha256": "71b27bad4f8ea59ee3e7b672d6a65cd9cc26bfb6e517e1b546d5753d5da8e333"
+    },
+    {
+      "id": "patchouli.adult.o_badge_proud",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぱちゅりーの バッジよ。ゆっくり みてね。",
+      "chinese": "姆啾。这是帕秋莉的徽章。请慢慢看。",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_proud"
+      },
+      "source_sha256": "a1249789d90f558cd30be7841dd952311ba2228710dd22f60371ff35c193b69d"
+    },
+    {
+      "id": "patchouli.adult.o_shop_appeal",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ぱちゅりーを かってね。しずかに おせわしてあげるわ。",
+      "chinese": "姆啾，请买下帕秋莉。我会安静地照顾你。",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_shop_appeal"
+      },
+      "source_sha256": "1db8adceab263e8b0f1d721e43ef88c9e40dc2a874a142ba9decdcb389392bae"
+    },
+    {
+      "id": "patchouli.adult.o_shop_appeal2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "ここよ、むきゅ。ぱちゅりー、ものしりで いい子よ。",
+      "chinese": "在这里，姆啾。帕秋莉很博学，是乖孩子。",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_shop_appeal2"
+      },
+      "source_sha256": "f3fcd3040bf915de61cbce78e4f4534b320fea2eaae9ef71215b498298fe4d4b"
+    },
+    {
+      "id": "patchouli.adult.o_shop_bought",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、あたらしいおうちね。よろしくおねがいするわ。",
+      "chinese": "姆啾，新的家呢。请多多关照。",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_shop_bought"
+      },
+      "source_sha256": "6640c872b60b98829911a1c3866bfa0acf8f132f9345fbcfbc55558457f8afa6"
+    },
+    {
+      "id": "patchouli.adult.o_shop_sold_sad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……どうして……ぱちゅりーのこと、わすれないでね……。",
+      "chinese": "姆啾……为什么……请不要忘记帕秋莉……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "bd5aa5a891592ce9a9b092b60c000ac28d8e2ae3064381d702849794248937cd"
+    },
+    {
+      "id": "patchouli.adult.o_shop_sold_proud",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぱちゅりーは、もっといいおうちに いくわ。さようなら。",
+      "chinese": "姆啾。帕秋莉要去更好的家。再见。",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "f86b7157a722faaafac926366efa7d0eabfb7faf6194298cdb115e7958567628"
+    },
+    {
+      "id": "patchouli.adult.o_wild_role_beg",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ あまあまを ちょうだい！ ここを あけてちょうだい！",
+      "chinese": "姆啾！给我甜甜！请把这里打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_wild_role_beg"
+      },
+      "source_sha256": "e133812c8595e67e02f5d3c1d4f6e663b5836877fedb9fbbeea945457a97791b"
+    },
+    {
+      "id": "patchouli.adult.o_wild_role_provoke",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、そんなバッジ、ぱちゅりーには いみがないわ。ゆっくりできないわね。",
+      "chinese": "姆啾，那种徽章，对帕秋莉没有意义。真让人没法安心呢。",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "1b31615596fb6a3bc54c2bebe3729107661fa60d6ea1d394cf7ec02224f166b4"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_praised",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ほめられたわ。ぱちゅりー、うれしいわ。",
+      "chinese": "姆啾，被夸奖了。帕秋莉很开心。",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_lesson_praised"
+      },
+      "source_sha256": "46b54a55c45e7b33b4ab0c739d44c91546481c0ff8a25aa3d547afe4707b3343"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_praised2",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "もっと おぼえるわ。ありがとう、にんげんさん。",
+      "chinese": "还要再学。谢谢你，人类先生。",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_lesson_praised2"
+      },
+      "source_sha256": "e78814fcad4cf5c3c71d9d8cff1b60c762161126e28dd57854ac8962d584a4e6"
+    },
+    {
+      "id": "patchouli.adult.o_lesson_scolded",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ごめんなさい。ぱちゅりー、ちゃんと なおすわ……。",
+      "chinese": "姆啾……对不起。帕秋莉会好好改正……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_lesson_scolded"
+      },
+      "source_sha256": "c818b34d11acd1956f3bfbef642aa02805053fc1723b93437177215d4ee51609"
+    },
+    {
+      "id": "patchouli.adult.o_badge_envy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……いいわね。ぱちゅりーも、あのバッジがほしいわ。",
+      "chinese": "姆啾……真好呢。帕秋莉也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_envy"
+      },
+      "source_sha256": "1ebefd4ba9d6d8e44a84d96066e838316901ece11aa4ab61a67f1c70be9daafe"
+    },
+    {
+      "id": "patchouli.adult.o_badge_admire",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、すごいわ。ぱちゅりーにも、おしえてほしいわ。",
+      "chinese": "姆啾，好厉害。也请教教帕秋莉。",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_badge_admire"
+      },
+      "source_sha256": "331876bb471355d858473954774d7d020c6c964ca9da0e4c7f52fe7369073122"
+    },
+    {
+      "id": "patchouli.young.o_exam_nervous",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ばっじ、もらえりゅかちら……どきどきしゅるわ。",
+      "chinese": "姆啾……徽章，能拿到吗……心扑通扑通的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_nervous"
+      },
+      "source_sha256": "69d39661cd8e7206d37dded0a16495dc014c246976525ba103a242db13a65083"
+    },
+    {
+      "id": "patchouli.young.o_exam_nervous2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、こわいけど……ぱちゅ、がんばりゅわ。",
+      "chinese": "姆啾，虽然怕怕……帕秋会加油的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_nervous2"
+      },
+      "source_sha256": "921a6353fd53207dee3e34942759267df38413b2f4f89a8f402d377b8d329bc3"
+    },
+    {
+      "id": "patchouli.young.o_exam_answer",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、わかりゅわ！ ぱちゅが こたえりゅ！",
+      "chinese": "姆啾，窝知道！由帕秋回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_answer"
+      },
+      "source_sha256": "23e457449ef6ce99296d2c76a918fd211e98855a2915b0a15ec2de8b35597374"
+    },
+    {
+      "id": "patchouli.young.o_exam_unsure",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……えーと……あれぇ……？ ぱちゅ、わかんにゃいわ……。",
+      "chinese": "姆啾……嗯……咦……？帕秋不知道……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_unsure"
+      },
+      "source_sha256": "b90db3940b98ff2152e7e0e169516b1311c8ead26aa6288554dfbd2aa2ac5df1"
+    },
+    {
+      "id": "patchouli.young.o_exam_hide_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ ぱちゅはいにゃいわ！ だぁれもいにゃいの！",
+      "chinese": "姆啾！帕秋不在！谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_hide_fail"
+      },
+      "source_sha256": "5e21020cf854ab0f175a6a47d628beb8dcf77310a9040f4832547694342dfc4e"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_wait",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……がまんよ。ぱちゅ、おとなちく まっちぇりゅわ……。",
+      "chinese": "姆啾……要忍耐。帕秋乖乖等着……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_promise_wait"
+      },
+      "source_sha256": "9259fbe5d50c53f2245ba2f0bdbc4d4c3195ac89c5c0b4f18fdf432f2c04ec2d"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_wait2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "おやちゅ、まだかちら……むきゅ、じっと まつわ。",
+      "chinese": "点心还没来吗……姆啾，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "17d56a37aacea7a65bf06580345373b1b88c180b6d702a0c1257fd8523be86be"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ ずるいわぁ！ ぱちゅのばんよぉ！",
+      "chinese": "姆啾——！狡猾！明明是帕秋的份！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_promise_fail"
+      },
+      "source_sha256": "96777c749d4e0f86313fd203cede36404baa0015c247f383d7ee300bb0d08db0"
+    },
+    {
+      "id": "patchouli.young.o_exam_promise_fail2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ぱちゅも まってたのにぃ……むきゅー！",
+      "chinese": "帕秋也等着的……姆啾——！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "2f17a0c9cfa9c7f3157e7d343e31dffc5e6e0996f1381ebdbbd74e24a8704dc8"
+    },
+    {
+      "id": "patchouli.young.o_exam_report",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、にんげんしゃん。のらがいりゅわ！",
+      "chinese": "姆啾，人类先生。有野生的在！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_report"
+      },
+      "source_sha256": "2c8a36e685470aa365246fec5b521c4d4c4ac1a5772381c7ebd94b9159676470"
+    },
+    {
+      "id": "patchouli.young.o_exam_sorry",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ごめんにゃしゃい。ぱちゅ、まちがえちゃったわ。",
+      "chinese": "姆啾……对不起。帕秋弄错了。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_sorry"
+      },
+      "source_sha256": "ecbe085e0adc0a92a58ebacd5053cc04e9d1b334f03367958dfc360150bd1ae4"
+    },
+    {
+      "id": "patchouli.young.o_exam_pass",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ ばっじよ！ ぱちゅ、がんばったわ！",
+      "chinese": "姆啾——！是徽章！帕秋努力过啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_pass"
+      },
+      "source_sha256": "bf3c44e6287f37a719efe34d7f409befa293cbf1dfd864486be2e2673c61ec35"
+    },
+    {
+      "id": "patchouli.young.o_exam_pass2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう。しあわちぇよ！",
+      "chinese": "谢谢人类先生。好幸福！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_pass2"
+      },
+      "source_sha256": "b76dbd161843292676d5e1209567f5cd3fde8cf39925436b9a4f46a87ef3d433"
+    },
+    {
+      "id": "patchouli.young.o_exam_fail",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……どぼちて……どぼちてぇぇ……！",
+      "chinese": "姆啾……为什么……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_fail"
+      },
+      "source_sha256": "6958ea78108a95043a8cd062c51b876a7457d00cbccb301445b2338f55f8012c"
+    },
+    {
+      "id": "patchouli.young.o_exam_fail2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ぱちゅ、だめだったの……？ むきゅぅ……ふえぇん……。",
+      "chinese": "帕秋，不行吗……？姆啾……呜哇哇……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_exam_fail2"
+      },
+      "source_sha256": "ea91f63fd43bfaf4c783242f27d7106350cbd5194fbdd88edf4c41cdb91a1b20"
+    },
+    {
+      "id": "patchouli.young.o_badge_proud",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぱちゅのばっじよ。みちぇね！",
+      "chinese": "姆啾。这是帕秋的徽章。快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_proud"
+      },
+      "source_sha256": "31f5c1ef5c8ecbc2c1e2f2676b2d694cf1135ae2e5b2ad8760415a4624fa8c33"
+    },
+    {
+      "id": "patchouli.young.o_shop_appeal",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ぱちゅを かっちぇ。おとなちく ちてるわ。",
+      "chinese": "姆啾，买下帕秋。会乖乖的。",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_shop_appeal"
+      },
+      "source_sha256": "4996f619810f7d8e8fcceeb69415452025ac1ebd30db4fbdc0ae8e0aaaa7bb8e"
+    },
+    {
+      "id": "patchouli.young.o_shop_appeal2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "ここよ、むきゅ。ぱちゅ、いいこよぉ。",
+      "chinese": "在这里，姆啾。帕秋是乖孩子。",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_shop_appeal2"
+      },
+      "source_sha256": "68af64bce3c26a583e7ec34d05af2edefe37eb94d2a05ce4b0a4ac6ae8d89dae"
+    },
+    {
+      "id": "patchouli.young.o_shop_bought",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、あたらちいおうちね。よろちくね！",
+      "chinese": "姆啾，新的家呢。请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_shop_bought"
+      },
+      "source_sha256": "36f83ec23d5b658d4530826d8261f4f44f908b77ae00a6c2f1be17ce819b3eb7"
+    },
+    {
+      "id": "patchouli.young.o_shop_sold_sad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……どうちて……ぱちゅを わすれにゃいでぇ……。",
+      "chinese": "姆啾……为什么……不要忘了帕秋……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_shop_sold_sad"
+      },
+      "source_sha256": "33b30980716015c9d96b5504e3e074ff68e06f1a9db092af74ff3bcb6e4f61e5"
+    },
+    {
+      "id": "patchouli.young.o_shop_sold_proud",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぱちゅ、もっといいおうちにいくわ。ばいばい！",
+      "chinese": "姆啾。帕秋要去更好的家。拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_shop_sold_proud"
+      },
+      "source_sha256": "a990eca21ffa01d14927b5e4a534d5dc85eb9278ca4f3822db572af75a8ab1b0"
+    },
+    {
+      "id": "patchouli.young.o_wild_role_beg",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅー！ あまあま、ちょうだい！ あけちぇ！",
+      "chinese": "姆啾——！给帕秋甜甜！快打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_wild_role_beg"
+      },
+      "source_sha256": "23af801f852b9b818cb4a3b4b07a99ea9c716a46c720093219db8986710345d4"
+    },
+    {
+      "id": "patchouli.young.o_wild_role_provoke",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、そんなばっじ、ぱちゅはいらにゃいわ。ゆっくちできにゃいわ。",
+      "chinese": "姆啾，那种徽章，帕秋才不要。真不能安心。",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_wild_role_provoke"
+      },
+      "source_sha256": "30f172bc1065f7a47e4a8a64a4dc5cd688e36f5915bef6cad01442c10551b2dd"
+    },
+    {
+      "id": "patchouli.young.o_lesson_praised",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ほめられちゃった。ぱちゅ、うれちいわ！",
+      "chinese": "姆啾，被夸奖了。帕秋好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_lesson_praised"
+      },
+      "source_sha256": "708bf50663e4aec16db824f3b00078daa20d1339107b56b232c1757bca259296"
+    },
+    {
+      "id": "patchouli.young.o_lesson_praised2",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "もっと おぼえりゅわ。ありがちょう！",
+      "chinese": "还要再学。谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_lesson_praised2"
+      },
+      "source_sha256": "93673773fa7b475f04a815f653df2adca38e2ccd9cf314390ddeb5049d856312"
+    },
+    {
+      "id": "patchouli.young.o_lesson_scolded",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ごめんにゃしゃい。ぱちゅ、なおしゅわ……。",
+      "chinese": "姆啾……对不起。帕秋会改……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_lesson_scolded"
+      },
+      "source_sha256": "8bfa2ff225fa3d7cb63d452369516289b97fbac536e9ae00b196a4fe040e3c0f"
+    },
+    {
+      "id": "patchouli.young.o_badge_envy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……いいにゃあ。ぱちゅも そのばっじほちいわ。",
+      "chinese": "姆啾……真好呀。帕秋也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_envy"
+      },
+      "source_sha256": "c6af917db6c37060bb0fafb1d2496b0dc8e93a6b4d3e8d39ef94d4a552dfa67b"
+    },
+    {
+      "id": "patchouli.young.o_badge_admire",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、しゅごいわ。ぱちゅにも おしえちぇ！",
+      "chinese": "姆啾，好厉害。也教教帕秋！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_badge_admire"
+      },
+      "source_sha256": "fc122d69e45f6a93565f282cd67a6888a8c015c8ae4166493bd3994446659974"
+    },
+    {
+      "id": "remilia.adult.o_exam_nervous",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジ、もらえるかのだ……。れみりあ、ちょっとこわいのだ。",
+      "chinese": "呜——，徽章，拿得到吗呀……。蕾米莉亚有点怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_nervous"
+      },
+      "source_sha256": "44cd137526ed06a7ecbae26b09b73b99d0bceb20847663d88927893c22b48d11"
+    },
+    {
+      "id": "remilia.adult.o_exam_nervous2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きんちょうするのだ……でも がんばるのだ。",
+      "chinese": "呜——，好紧张呀……不过会加油的呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_nervous2"
+      },
+      "source_sha256": "73d13f1b2e1be63a022de7c5f759e636fbf2938c0a194ec36ef8b24efb81ff51"
+    },
+    {
+      "id": "remilia.adult.o_exam_answer",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、わかるのだ！ れみりあが こたえるのだ！",
+      "chinese": "呜——，知道呀！由蕾米莉亚来回答呀！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_answer"
+      },
+      "source_sha256": "44355f8c1e0c24cbb0c60ef61a66af5dc584de186c7fb22ba70be8b6f5a80646"
+    },
+    {
+      "id": "remilia.adult.o_exam_unsure",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……えーと……あれ……？ れみりあ、わからないのだ……。",
+      "chinese": "呜——……嗯……咦……？蕾米莉亚，不知道呀……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_unsure"
+      },
+      "source_sha256": "14d1d54bf516d319158bab64a4a4fb2b5e4c72bc6252cc365f7b23a080da00f0"
+    },
+    {
+      "id": "remilia.adult.o_exam_hide_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあはいないのだ！ だれもいないのだ！",
+      "chinese": "呜——！蕾米莉亚不在呀！谁也没有呀！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "4cb55d0a278ad7a995b68eb5370d7dc3f423d19e73c03872c009998e52f775a3"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_wait",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……がまんするのだ。れみりあは、まてるのだ……。",
+      "chinese": "呜——……会忍耐的呀。蕾米莉亚等得住呀……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "065c8aeb6992bbd3f658fbeb9241b3cddf6db8d9ec5ad2b6918565e7c89a1cfb"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_wait2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "おやつは、まだなのだ……うー、じっと まつのだ。",
+      "chinese": "点心还没来呀……呜——，静静等着呀。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "274e100a73de0657774e2498c8dcebed9c4bb37a0ce4d48258fb68ed2da8eb1b"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
+      "chinese": "呜——！狡猾呀！没有蕾米莉亚的份呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "a3958392e1c08ef1d2cb137124fb7362e19c4286e570cd5be51617116c283450"
+    },
+    {
+      "id": "remilia.adult.o_exam_promise_fail2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるいのだぁ！",
+      "chinese": "抢先拿走，太狡猾呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "104ef70bf74bd61f4eef8485d390e6486bf225b7f9c850380b518d9c0cb399c8"
+    },
+    {
+      "id": "remilia.adult.o_exam_report",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。そこに のらがいるのだ。",
+      "chinese": "呜——，人类先生。那边有野生的呀。",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_report"
+      },
+      "source_sha256": "4a12d0a47c62e1adf18a1ff7bb43c5870b674655a172eb772850d9590249e153"
+    },
+    {
+      "id": "remilia.adult.o_exam_sorry",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ごめんなさいなのだ。れみりあ、まちがえたのだ。",
+      "chinese": "呜——……对不起呀。蕾米莉亚弄错了呀。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_sorry"
+      },
+      "source_sha256": "0aaac949e95dbe7d6211114be88f938f5b5d107f81c2450f2f12f0c71e0a2097"
+    },
+    {
+      "id": "remilia.adult.o_exam_pass",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ バッジなのだ！ れみりあ、すごいのだ！",
+      "chinese": "呜——！是徽章呀！蕾米莉亚好厉害呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_pass"
+      },
+      "source_sha256": "290afbfc73172407a3ac78d0be9a635f8c9c3be542d6e814f32a659dc224871e"
+    },
+    {
+      "id": "remilia.adult.o_exam_pass2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとうなのだ！ うれしいのだぁ！",
+      "chinese": "谢谢人类先生呀！好开心呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_pass2"
+      },
+      "source_sha256": "0f3be3444d949d15b7692a141e8fc4a3cb6f4d893757eb018cf873b32447e605"
+    },
+    {
+      "id": "remilia.adult.o_exam_fail",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……どぼじてなのだぁ……！",
+      "chinese": "呜——……为什么会这样呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_fail"
+      },
+      "source_sha256": "ebf79051b5e3ee6b50a141e647c35eef529446c98edec2f255abe08eaa95f4c7"
+    },
+    {
+      "id": "remilia.adult.o_exam_fail2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "れみりあ、ふごうかくなのだ……？ うー……ぐすっ……。",
+      "chinese": "蕾米莉亚，不合格吗……？呜——……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_exam_fail2"
+      },
+      "source_sha256": "5b9805f3b33d2f8b676265947be902b4cae0629a1d2f0fd38f6a34266fd37e68"
+    },
+    {
+      "id": "remilia.adult.o_badge_proud",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあのバッジなのだ！ えっへんなのだ！",
+      "chinese": "呜——，蕾米莉亚的徽章呀！得意呀！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_proud"
+      },
+      "source_sha256": "f593d1e6a78f1cff584ba229b9fcf13942c94b850eb71783534c721ce7e23d8a"
+    },
+    {
+      "id": "remilia.adult.o_shop_appeal",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあを かうのだ！ いっしょに ゆっくりするのだ！",
+      "chinese": "呜——，买下蕾米莉亚呀！一起慢慢来呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shop_appeal"
+      },
+      "source_sha256": "4f9c6c2c762168aa47084cdf83e24b531d625b3ef7e947fe8d1527f552e87070"
+    },
+    {
+      "id": "remilia.adult.o_shop_appeal2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "ここなのだ、ここ！ れみりあ、いい子なのだ！",
+      "chinese": "在这里呀，这里！蕾米莉亚是乖孩子呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shop_appeal2"
+      },
+      "source_sha256": "42ac3bc90210f68d79c6f9f1303d3107b1635ef994c0821adaf765bcafd64c07"
+    },
+    {
+      "id": "remilia.adult.o_shop_bought",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あたらしいおうちなのだ！ よろしくなのだ！",
+      "chinese": "呜——，新的家呀！请多关照呀！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shop_bought"
+      },
+      "source_sha256": "c3562fb308000b0d6f1f54d3d626f2a410c27784256c9be2262fe30fc9ec816d"
+    },
+    {
+      "id": "remilia.adult.o_shop_sold_sad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……どうしてなのだ……れみりあを わすれないでほしいのだ……。",
+      "chinese": "呜——……为什么呀……不要忘了蕾米莉亚呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "a45d50fa82c01ce85dd1dd8afdc84ee6110a711193681508b6e7a94ae882837a"
+    },
+    {
+      "id": "remilia.adult.o_shop_sold_proud",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ れみりあは、もっといいおうちにいくのだ！ さらばなのだ！",
+      "chinese": "呜——！蕾米莉亚要去更好的家呀！再见呀！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "52ef0eb9b1f9ea565dc1fa7ee541691c9a8fc064ce8d7ea8de4afad2c3da0642"
+    },
+    {
+      "id": "remilia.adult.o_wild_role_beg",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ あまあまを ちょうだいなのだ！ ここを あけるのだ！",
+      "chinese": "呜——！把甜甜给我呀！把这里打开呀！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_wild_role_beg"
+      },
+      "source_sha256": "5cc45c3c212d169a7f41fb697a3806deab2e79e051620e1af96b3f853e2d4084"
+    },
+    {
+      "id": "remilia.adult.o_wild_role_provoke",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、そんなバッジ、れみりあにはいらないのだ！ ゆっくりできないのだ！",
+      "chinese": "呜——，那种徽章，蕾米莉亚才不要呀！真没法安心呀！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "8c2fb4bcb81bdb4777463417c2fc5aa8b1f506587c205f6dc44f16648f60965f"
+    },
+    {
+      "id": "remilia.adult.o_lesson_praised",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ほめられたのだ！ れみりあ、うれしいのだ！",
+      "chinese": "呜——，被夸奖了呀！蕾米莉亚好开心呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_lesson_praised"
+      },
+      "source_sha256": "d694483261a4be12157c9b7af1ee098291e37ba701b1de9dab56fb770180eae4"
+    },
+    {
+      "id": "remilia.adult.o_lesson_praised2",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "もっと おぼえるのだ。ありがとうなのだ、にんげんさん！",
+      "chinese": "还要再学呀。谢谢你呀，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_lesson_praised2"
+      },
+      "source_sha256": "8da9cf1e6cc90d4217fcc3ab09c99220eb5483c9a7d612c4381c028063d331bf"
+    },
+    {
+      "id": "remilia.adult.o_lesson_scolded",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ごめんなさいなのだ。れみりあ、ちゃんと なおすのだ……。",
+      "chinese": "呜——……对不起呀。蕾米莉亚会好好改正呀……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_lesson_scolded"
+      },
+      "source_sha256": "30f3fc0b1feb4620a97ab785b77125ce014fbc936e2dded9441bb29e800e1734"
+    },
+    {
+      "id": "remilia.adult.o_badge_envy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……いいのだ。れみりあも、あのバッジがほしいのだ。",
+      "chinese": "呜——……真好呀。蕾米莉亚也想要那个徽章呀。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_envy"
+      },
+      "source_sha256": "e4c939a4388a68849692e6b150d55ccfac0b2cb5c469c1645dc28c15dc6619de"
+    },
+    {
+      "id": "remilia.adult.o_badge_admire",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、すごいのだ！ れみりあにも、おしえてほしいのだ！",
+      "chinese": "呜——，好厉害呀！也教教蕾米莉亚呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_badge_admire"
+      },
+      "source_sha256": "ca56f90e25a4a7a174658f10a62f7ec1c892b893b327f4bbf9584fbd9f8f448b"
+    },
+    {
+      "id": "remilia.young.o_exam_nervous",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじ、もらえりゅかにゃ……こわいのだぁ。",
+      "chinese": "呜——，徽章，能拿到吗……怕怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_nervous"
+      },
+      "source_sha256": "d645edad00db4eaab4f81a7c7b5fa42beb1cfbb8310fd38015d55876e7c17156"
+    },
+    {
+      "id": "remilia.young.o_exam_nervous2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、どきどきしゅるのだ……がんばりゅのだ！",
+      "chinese": "呜——，扑通扑通呀……要加油呀！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_nervous2"
+      },
+      "source_sha256": "6f9071a9c600ee1f4ef472bdb934b283c98988a205ff45fcbc8e529d3b7b270e"
+    },
+    {
+      "id": "remilia.young.o_exam_answer",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、わかりゅのだ！ れみぃが こたえりゅのだ！",
+      "chinese": "呜——，知道呀！蕾米来回答呀！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_answer"
+      },
+      "source_sha256": "6d9d251d2a7601176dc9fbca7587ce55e0cddffce40758d590a280da1f6ac4a0"
+    },
+    {
+      "id": "remilia.young.o_exam_unsure",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……えーと……あれぇ……？ れみぃ、わかんにゃいのだ……。",
+      "chinese": "呜——……嗯……咦……？蕾米不知道呀……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_unsure"
+      },
+      "source_sha256": "3234227e84da0ab11fad20a3189bc4b8ee4ca25a683f6a4ef187f7b100e72ee6"
+    },
+    {
+      "id": "remilia.young.o_exam_hide_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみぃはいにゃいのだ！ だぁれもいにゃいのだ！",
+      "chinese": "呜——！蕾米不在呀！谁也没有呀！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_hide_fail"
+      },
+      "source_sha256": "7dcb4ea83380021e4d6c2dad6e697292249c180c883731b546cc20885637c55f"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_wait",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……がまんなのだ。れみぃ、まってりゅのだ……。",
+      "chinese": "呜——……要忍耐呀。蕾米等着呀……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_promise_wait"
+      },
+      "source_sha256": "3c1b60770a90ed5c4272d545a19fe15b6e8eeafac98af9eddfdc109aaee82553"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_wait2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃ……うー、じっと まつのだ。",
+      "chinese": "点心还没来吗……呜——，静静等着呀。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "cc5c8b3dda21fbbb47fe4d0d363c1cd08ea5c8bd684f14ffc56f5c43ed62f367"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ ずるいのだぁ！ れみぃのばんなのだぁ！",
+      "chinese": "呜——！狡猾呀！明明是蕾米的份呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_promise_fail"
+      },
+      "source_sha256": "16edaf2e0505655cf285191df20b3b3db802f71a1c977084ff541d549e8753de"
+    },
+    {
+      "id": "remilia.young.o_exam_promise_fail2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "れみぃも まってたのだぁ！ ぷんぷんなのだ！",
+      "chinese": "蕾米也等着的呀！气鼓鼓呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "5eb69b8af1ade570315218df8225856530f4b6cf33708f39da85788ea4f35932"
+    },
+    {
+      "id": "remilia.young.o_exam_report",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらがいりゅのだぁ！",
+      "chinese": "呜——，人类先生。有野生的在呀！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_report"
+      },
+      "source_sha256": "fc479145d5cda8c9698754cd4223f6815ca863e4f331bf83d5b0c6bc9ad44172"
+    },
+    {
+      "id": "remilia.young.o_exam_sorry",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃいなのだ。れみぃ、まちがえちゃったのだ。",
+      "chinese": "呜——……对不起呀。蕾米弄错了呀。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_sorry"
+      },
+      "source_sha256": "77617f63986a79ad64abb4763c94b2ce4b197b8521df738236b28226dab8cec0"
+    },
+    {
+      "id": "remilia.young.o_exam_pass",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ ばっじなのだ！ れみぃ、しゅごいのだ！",
+      "chinese": "呜——！是徽章呀！蕾米好厉害呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_pass"
+      },
+      "source_sha256": "bfeb78c9b231de0261cecd908eee7b3264b0797afd86252bbfd5f143c2811adb"
+    },
+    {
+      "id": "remilia.young.o_exam_pass2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょうなのだ！ うれちいのだぁ！",
+      "chinese": "谢谢人类先生呀！好开心呀！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_pass2"
+      },
+      "source_sha256": "1e8e070a82cab94387d0b31bc350b34d4d0404e77908ea233b777cef09803463"
+    },
+    {
+      "id": "remilia.young.o_exam_fail",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……どぼちてなのだぁ……！",
+      "chinese": "呜——……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_fail"
+      },
+      "source_sha256": "888da00829965cfb33f86e5e4521138e172436d54bff611851adb123cbc12006"
+    },
+    {
+      "id": "remilia.young.o_exam_fail2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "れみぃ、だめだったのだ……？ うぇーん……。",
+      "chinese": "蕾米，不行吗……？呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_exam_fail2"
+      },
+      "source_sha256": "2f50bbf1ca9da29f1b11c036943d6a3be8cf761e4e6fa499ac8e4d2b90c228a6"
+    },
+    {
+      "id": "remilia.young.o_badge_proud",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃのばっじなのだ！ きらきらなのだ！",
+      "chinese": "呜——，蕾米的徽章呀！亮晶晶呀！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_proud"
+      },
+      "source_sha256": "3d46a97859ea9c81bd14fcaa99cd30deeccb9b78e2c2481c250f92ed0156c9c5"
+    },
+    {
+      "id": "remilia.young.o_shop_appeal",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃを かっちぇなのだ！ いっちょに ゆっくちしゅるのだ！",
+      "chinese": "呜——，买下蕾米呀！一起慢慢来呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shop_appeal"
+      },
+      "source_sha256": "435446770b4d1b5afe63ca81d4f2470ca2a30dec436f7d3a10aeaa136556e776"
+    },
+    {
+      "id": "remilia.young.o_shop_appeal2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "ここなのだぁ！ れみぃ、いいこなのだぁ！",
+      "chinese": "在这里呀！蕾米是乖孩子呀！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shop_appeal2"
+      },
+      "source_sha256": "891330414df31fb5e1570999d6dca932c1a28c98e8113629b71654bee8126ee7"
+    },
+    {
+      "id": "remilia.young.o_shop_bought",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あたらちいおうちなのだ！ よろちくなのだ！",
+      "chinese": "呜——，新的家呀！请多关照呀！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shop_bought"
+      },
+      "source_sha256": "c32dee21ec314ba7c70ca288b96c782d10f6d9c32849ec26b29b72f3b700c361"
+    },
+    {
+      "id": "remilia.young.o_shop_sold_sad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……どうちて……れみぃを わすれにゃいでぇなのだ……。",
+      "chinese": "呜——……为什么……不要忘了蕾米呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shop_sold_sad"
+      },
+      "source_sha256": "eb4530c71840ff6a50d6abaa93ad84220aee60d5e90b3d30f033992ce10dd660"
+    },
+    {
+      "id": "remilia.young.o_shop_sold_proud",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ れみぃ、もっといいおうちにいくのだ！ ばいばいなのだ！",
+      "chinese": "呜——！蕾米要去更好的家呀！拜拜呀！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_shop_sold_proud"
+      },
+      "source_sha256": "1ec1a049fd5bcfc72bb1a32ab91ad060287eddb6b0544d0da71636fec49b54ea"
+    },
+    {
+      "id": "remilia.young.o_wild_role_beg",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ あまあま、ちょうだいなのだ！ あけちぇなのだ！",
+      "chinese": "呜——！给蕾米甜甜呀！快打开呀！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_wild_role_beg"
+      },
+      "source_sha256": "8eabdeaff65178696177d63f4d9edc91601d8b6ca748d38fdc89a14dcc7cbae8"
+    },
+    {
+      "id": "remilia.young.o_wild_role_provoke",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、そんなばっじ、れみぃはいらにゃいのだ！ ゆっくちできにゃいのだ！",
+      "chinese": "呜——，那种徽章，蕾米才不要呀！真不能安心呀！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_wild_role_provoke"
+      },
+      "source_sha256": "15d23166fe8e865bb91c2b402d943009414094ee07a5a881aa409232bd87d560"
+    },
+    {
+      "id": "remilia.young.o_lesson_praised",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ほめられたのだ！ れみぃ、うれちいのだ！",
+      "chinese": "呜——，被夸奖啦！蕾米好开心呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_lesson_praised"
+      },
+      "source_sha256": "dd48f58ddc18530411fe3e1a2a65f720e190a0df902231e61db5a93ad385c4d7"
+    },
+    {
+      "id": "remilia.young.o_lesson_praised2",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "もっと おぼえりゅのだ！ ありがちょうなのだ！",
+      "chinese": "还要再学呀！谢谢呀！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_lesson_praised2"
+      },
+      "source_sha256": "b88e7f78f1c3e74439c4dc3879a63de97dbfc7731dc11e55a0462235bf57a4cc"
+    },
+    {
+      "id": "remilia.young.o_lesson_scolded",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃいなのだ。れみぃ、なおしゅのだ……。",
+      "chinese": "呜——……对不起呀。蕾米会改呀……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_lesson_scolded"
+      },
+      "source_sha256": "efa4350f5b60a3e961bb46a169aa0d07d2207bc52242276ca2a7c2a90ec8e136"
+    },
+    {
+      "id": "remilia.young.o_badge_envy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……いいにゃあなのだ。れみぃも そのばっじほちいのだ。",
+      "chinese": "呜——……真好呀。蕾米也想要那个徽章呀。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_envy"
+      },
+      "source_sha256": "e153cfdad34b4e4af966b32a0f7bd7d2f87afe85e51af27b909df558cfd2c5d3"
+    },
+    {
+      "id": "remilia.young.o_badge_admire",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、しゅごいのだ！ れみぃにも おしえちぇなのだ！",
+      "chinese": "呜——，好厉害呀！也教教蕾米呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_badge_admire"
+      },
+      "source_sha256": "619fe834006cc7faebdb501b96a8c95208ab07b4b1aefb1c00909f37092a9ae9"
+    },
+    {
+      "id": "flandre.adult.o_exam_nervous",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ、もらえるかな……。ふらん、ちょっとこわいよ。",
+      "chinese": "呜——，徽章，拿得到吗……。芙兰有点怕呀。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_nervous"
+      },
+      "source_sha256": "9e0b21795f9994aa04a742725c354d78ce94f8a6a3bc1b75f06bfc65151ea5d9"
+    },
+    {
+      "id": "flandre.adult.o_exam_nervous2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きんちょうするけど……ふらん、がんばるね。",
+      "chinese": "呜——，虽然紧张……芙兰会加油的。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_nervous2"
+      },
+      "source_sha256": "f3127ff09546b5f9b3735d67bf2ea176b9b57fa8876d8291e72215d4ca249717"
+    },
+    {
+      "id": "flandre.adult.o_exam_answer",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、わかるよ！ ふらんが こたえるね！",
+      "chinese": "呜——，知道哦！由芙兰来回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_answer"
+      },
+      "source_sha256": "e171faeb0f9260a15f64f43b2234d2330cb5b40ad569ae94b7947b786320d360"
+    },
+    {
+      "id": "flandre.adult.o_exam_unsure",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……えっと……あれ……？ ふらん、わからなくなっちゃった……。",
+      "chinese": "呜——……嗯……咦……？芙兰，不明白了……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_unsure"
+      },
+      "source_sha256": "7cac9dbfc9a854df35f673b6f94c92cdc7587f38050b4cc09e0fe8a747e59638"
+    },
+    {
+      "id": "flandre.adult.o_exam_hide_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんはいないよ！ ここにはだれもいないよ！",
+      "chinese": "呜——！芙兰不在哦！这里谁也没有哦！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_hide_fail"
+      },
+      "source_sha256": "9ef619981ba45729b333cdc4556ece603f64ef79373c9b70ce97a79e536a2066"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_wait",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……がまんするね。ふらん、まてるよ……。",
+      "chinese": "呜——……会忍耐的。芙兰等得住哦……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_promise_wait"
+      },
+      "source_sha256": "42cf7760099fde1ba9cf14b295128a8d0a44f2ad55cfd1034f635d48c831c1d5"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_wait2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "おやつ、まだかな……うー、じっと まつよ。",
+      "chinese": "点心，还没来吗……呜——，静静等着哦。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_promise_wait2"
+      },
+      "source_sha256": "87397bb73683824e6d89af20530c45ddc7c7fa64b9e72a7fa790250020725dc5"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
+      "chinese": "呜——！狡猾！没有芙兰的份哦！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_promise_fail"
+      },
+      "source_sha256": "6ab3561971d999f66839742d615a60144dc81acfbde65c850c6c2b6f306d5ed1"
+    },
+    {
+      "id": "flandre.adult.o_exam_promise_fail2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "さきにもらうなんて、ずるい……ふらんだって まってたのに！",
+      "chinese": "抢先拿走，太狡猾……芙兰也一直在等呀！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_promise_fail2"
+      },
+      "source_sha256": "eeadea708a9f48cedcdeb0e98440d3cc01aaad01f1ed84f253d0075a21c532fa"
+    },
+    {
+      "id": "flandre.adult.o_exam_report",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。あそこに のらのゆっくりがいるよ。",
+      "chinese": "呜——，人类先生。那边有野生的油库里哦。",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_report"
+      },
+      "source_sha256": "6e7c9baa36a6f4cec036a1920509c2480d92a15e2ebdcadf2d2dff971a4cb7e2"
+    },
+    {
+      "id": "flandre.adult.o_exam_sorry",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ごめんなさい。ふらん、まちがえちゃった……。",
+      "chinese": "呜——……对不起。芙兰弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_sorry"
+      },
+      "source_sha256": "f8fb0a298abf00f7efefe5609287c23b2cb60dcdec14ca60673b344fcc94ff70"
+    },
+    {
+      "id": "flandre.adult.o_exam_pass",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ バッジだ！ ふらん、やったよ！",
+      "chinese": "呜——！是徽章！芙兰做到啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_pass"
+      },
+      "source_sha256": "2941f1fe4c55495e5904d28d74230bd250393ec4702b774534291f635d330513"
+    },
+    {
+      "id": "flandre.adult.o_exam_pass2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "にんげんさん、ありがとう！ ふらん、すっごくうれしい！",
+      "chinese": "谢谢人类先生！芙兰好开心！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_pass2"
+      },
+      "source_sha256": "e1fd524526dd8ebed6896f356eff4cf3b52541b6f4ca23cb05be19d043c0e1da"
+    },
+    {
+      "id": "flandre.adult.o_exam_fail",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……どうして……どぼじてなの……！",
+      "chinese": "呜——……为什么……为什么会这样……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_fail"
+      },
+      "source_sha256": "c9b078d3ce786c27108a3343ab50ef3b080d7edbc87ce1df0192ea2eaa625405"
+    },
+    {
+      "id": "flandre.adult.o_exam_fail2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ふらん、ふごうかく……？ うー……ぐすっ……。",
+      "chinese": "芙兰，不合格……？呜——……呜……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_exam_fail2"
+      },
+      "source_sha256": "99f8f1349c2f7738cdf73db2020cf3dc2bfc6b53c0e6e7a4011bdceaa6b33f54"
+    },
+    {
+      "id": "flandre.adult.o_badge_proud",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんのバッジだよ！ みて、みて！",
+      "chinese": "呜——，这是芙兰的徽章哦！看，快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_proud"
+      },
+      "source_sha256": "41d2bac5ba4b70bc7f665a556345563978bd3014a374f10ad18fe80c82047d8f"
+    },
+    {
+      "id": "flandre.adult.o_shop_appeal",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんを かってね！ いっしょに あそぼう？",
+      "chinese": "呜——，请买下芙兰！一起玩吧？",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shop_appeal"
+      },
+      "source_sha256": "59c31f61c49e084fa172d644775c755df2a57da122895ba4d15d6ec383e9d43a"
+    },
+    {
+      "id": "flandre.adult.o_shop_appeal2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "ここだよ、ここ！ ふらん、いい子にするよ！",
+      "chinese": "在这里哦，这里！芙兰会乖乖的！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shop_appeal2"
+      },
+      "source_sha256": "feffdb609fcfdf3c96bc40cf30aecd54a58346e7787b7317c6e1f787cca62ee6"
+    },
+    {
+      "id": "flandre.adult.o_shop_bought",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あたらしいおうちだ！ よろしくね！",
+      "chinese": "呜——，新的家！请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shop_bought"
+      },
+      "source_sha256": "24e5cd11ac6431fcafcc5450eef10233dea68968f025f70af33b1a41ef78f188"
+    },
+    {
+      "id": "flandre.adult.o_shop_sold_sad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……どうして……ふらんのこと、わすれないでね……。",
+      "chinese": "呜——……为什么……不要忘记芙兰哦……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shop_sold_sad"
+      },
+      "source_sha256": "417043b08b728e0ecfcfcda746eca731d0bd582bcb2fc1137b2bff95b202dee0"
+    },
+    {
+      "id": "flandre.adult.o_shop_sold_proud",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ ふらんは、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "呜——！芙兰要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_shop_sold_proud"
+      },
+      "source_sha256": "4a511a98c0bc239b21b3aca26bee1cd35812a74e1edc1c05348ea794c8803877"
+    },
+    {
+      "id": "flandre.adult.o_wild_role_beg",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ あまあまちょうだい！ ここ、あけて！",
+      "chinese": "呜——！给我甜甜！把这里打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_wild_role_beg"
+      },
+      "source_sha256": "d390d49c94b7789a1e45f52da107dd229b1f1776634098e646ffe82d8170b642"
+    },
+    {
+      "id": "flandre.adult.o_wild_role_provoke",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、そんなバッジ、ふらんにはいらないよ！ ゆっくりできないね！",
+      "chinese": "呜——，那种徽章，芙兰才不要呢！真没法安心呢！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_wild_role_provoke"
+      },
+      "source_sha256": "1d798eec69291d352d7133b6b6116725ee8c42be0779e85c00fdbf219f83684b"
+    },
+    {
+      "id": "flandre.adult.o_lesson_praised",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ほめられたよ！ ふらん、うれしい！",
+      "chinese": "呜——，被夸奖啦！芙兰好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_lesson_praised"
+      },
+      "source_sha256": "f1e2acfad872b22db60965c3a123a3f940b4d86cc37acbb9b21c5dc70398a354"
+    },
+    {
+      "id": "flandre.adult.o_lesson_praised2",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "もっと おぼえるね。ありがとう、にんげんさん！",
+      "chinese": "还要再学哦。谢谢你，人类先生！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_lesson_praised2"
+      },
+      "source_sha256": "5e2f5b0faf4d9c5b75c47cce36c727593eaef7721f8ca1978ba7cbda300bc161"
+    },
+    {
+      "id": "flandre.adult.o_lesson_scolded",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ごめんなさい。ふらん、ちゃんと なおすね……。",
+      "chinese": "呜——……对不起。芙兰会好好改正的……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_lesson_scolded"
+      },
+      "source_sha256": "fba4a9f372f6eacd43d624606a0f326c500f7e59b986d1db11f2fc4e9cfab4b5"
+    },
+    {
+      "id": "flandre.adult.o_badge_envy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……いいなあ。ふらんも、あのバッジがほしいな。",
+      "chinese": "呜——……真好呀。芙兰也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_envy"
+      },
+      "source_sha256": "9267d59eefcca4a3be7b7709479185a862cd1cf82925a9ec3b95d97072b1dbf7"
+    },
+    {
+      "id": "flandre.adult.o_badge_admire",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、すごいね！ ふらんにも、おしえてほしいな！",
+      "chinese": "呜——，好厉害！也教教芙兰吧！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_badge_admire"
+      },
+      "source_sha256": "d808db2e14804e8045c4eb22ed3d7badd1e276b9ecd6a7ac840bae5476484fe7"
+    },
+    {
+      "id": "flandre.young.o_exam_nervous",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ、もらえりゅかにゃ……ふりゃん、こわいよ。",
+      "chinese": "呜——，徽章，能拿到吗……芙呀怕怕。",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_nervous"
+      },
+      "source_sha256": "5ba8d592d58196810dc22f2cfccfa2cb988106a887b43785ded3a0e7f8568393"
+    },
+    {
+      "id": "flandre.young.o_exam_nervous2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、どきどきしゅるけど……ふりゃん、がんばりゅ！",
+      "chinese": "呜——，虽然扑通扑通……芙呀会加油！",
+      "events": [
+        "exam_nervous"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_nervous2"
+      },
+      "source_sha256": "70d327219240de753b272d1d509053b7e99b65e473334505423fa82014a26e9f"
+    },
+    {
+      "id": "flandre.young.o_exam_answer",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、わかりゅよ！ ふりゃんが こたえりゅ！",
+      "chinese": "呜——，知道！由芙呀回答！",
+      "events": [
+        "exam_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_answer"
+      },
+      "source_sha256": "719e5ca3398b4ce4613fba6bb9b1b1e8b0b1fe04abf3f652dfcac5734a40a9e8"
+    },
+    {
+      "id": "flandre.young.o_exam_unsure",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……えっと……あれぇ……？ ふりゃん、わかんにゃい……。",
+      "chinese": "呜——……嗯……咦……？芙呀不明白……。",
+      "events": [
+        "exam_unsure"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_unsure"
+      },
+      "source_sha256": "862b89143971d4708c89e8374675bc50aa109742bae3905a24fd354839febb12"
+    },
+    {
+      "id": "flandre.young.o_exam_hide_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃんはいにゃいよ！ だぁれもいにゃいよ！",
+      "chinese": "呜——！芙呀不在！谁也没有！",
+      "events": [
+        "exam_hide_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_hide_fail"
+      },
+      "source_sha256": "57ba3a9b874cf0d8075af2c4bd3ef7fdc5e244aec515a6d9fda8963bbadec9c7"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_wait",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……がまんしゅる。ふりゃん、まってりゅよ……。",
+      "chinese": "呜——……会忍耐。芙呀等着……。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_promise_wait"
+      },
+      "source_sha256": "4ad3360af33d3d03cebde10001fd8ecad48e4b7afe7784b868afa99797ec8e02"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_wait2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "おやちゅ、まだかにゃ……うー、じっと まつよ。",
+      "chinese": "点心还没来吗……呜——，静静等着。",
+      "events": [
+        "exam_promise_wait"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_promise_wait2"
+      },
+      "source_sha256": "f3df470aa160e90c7e6922cf166c606cb088de1f4c34eedb70a99251e9cc9430"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ずるいよぉ！ ふりゃんのばんだよぉ！",
+      "chinese": "呜——！狡猾！明明是芙呀的份！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_promise_fail"
+      },
+      "source_sha256": "f5f8440ca3a9b9beea2737389f6e4be6e4a995264ffa8ff71dc7d39f125d39ba"
+    },
+    {
+      "id": "flandre.young.o_exam_promise_fail2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ふりゃんも まってたのにぃ！ ぷんぷん！",
+      "chinese": "芙呀也等着的！气鼓鼓！",
+      "events": [
+        "exam_promise_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_promise_fail2"
+      },
+      "source_sha256": "4527ec3d33ff51a4501723c5979413b77fa07c7a9ee015453588d17a7e983ded"
+    },
+    {
+      "id": "flandre.young.o_exam_report",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。あしょこに のらがいりゅよぉ！",
+      "chinese": "呜——，人类先生。那边有野生的！",
+      "events": [
+        "exam_report"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_report"
+      },
+      "source_sha256": "3429cec573b00ecd39582eba642226f6925b001e6b47b1fd6991360315851551"
+    },
+    {
+      "id": "flandre.young.o_exam_sorry",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃい。ふりゃん、まちがえちゃった……。",
+      "chinese": "呜——……对不起。芙呀弄错了……。",
+      "events": [
+        "exam_sorry"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_sorry"
+      },
+      "source_sha256": "052197a56316b77b043527387cc1b6cc2fbdc317b4d82260e5ade72c4b59a801"
+    },
+    {
+      "id": "flandre.young.o_exam_pass",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ばっじだぁ！ ふりゃん、やったぁ！",
+      "chinese": "呜——！是徽章！芙呀做到啦！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_pass"
+      },
+      "source_sha256": "21d95c3f4e1996fac30391b25ba292eaaf84474d07a506d9bc0d85fc5aa8718f"
+    },
+    {
+      "id": "flandre.young.o_exam_pass2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "にんげんしゃん、ありがちょう！ うれちいよぉ！",
+      "chinese": "谢谢人类先生！好开心！",
+      "events": [
+        "exam_pass"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_pass2"
+      },
+      "source_sha256": "2a3738eeb2c309b047635f4ab1a622a509525d1a705a4bc398ab8e6885c4132b"
+    },
+    {
+      "id": "flandre.young.o_exam_fail",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……どぼちて……どぼちてぇぇ……！",
+      "chinese": "呜——……为什么……为什么呀……！",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_fail"
+      },
+      "source_sha256": "c9a9f9ce6fea54f86b2c5edac5a4999f00255d665b2e2492f35c6931753e7069"
+    },
+    {
+      "id": "flandre.young.o_exam_fail2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ふりゃん、だめだったの……？ うぇーん……。",
+      "chinese": "芙呀，不行吗……？呜哇——……。",
+      "events": [
+        "exam_fail"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_exam_fail2"
+      },
+      "source_sha256": "8d76577c9cf2a4409a9f69b2790b9dc8ee089738fa4bf1418623e4ec75e8827d"
+    },
+    {
+      "id": "flandre.young.o_badge_proud",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんのばっじだよ！ みちぇ、みちぇ！",
+      "chinese": "呜——，这是芙呀的徽章！看，快看！",
+      "events": [
+        "badge_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_proud"
+      },
+      "source_sha256": "270236bb8ed1432555d8e4d791e46eb86f83e63ce9d22291bb56df787104119f"
+    },
+    {
+      "id": "flandre.young.o_shop_appeal",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんを かっちぇ！ いっちょに あしょぼ？",
+      "chinese": "呜——，买下芙呀！一起玩吧？",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shop_appeal"
+      },
+      "source_sha256": "6ad7cbc89dbf9032efedffd430b60fb02b3b474aa0744dcf3c4ff7c79b9b9c5f"
+    },
+    {
+      "id": "flandre.young.o_shop_appeal2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "ここだよぉ！ ふりゃん、いいこにしゅるよ！",
+      "chinese": "在这里！芙呀会乖乖的！",
+      "events": [
+        "shop_appeal"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shop_appeal2"
+      },
+      "source_sha256": "4774deb45c900c629a8ec827f624a237962e8c4168d4b619e5b0d44f40809190"
+    },
+    {
+      "id": "flandre.young.o_shop_bought",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あたらちいおうちだぁ！ よろちくね！",
+      "chinese": "呜——，新的家！请多关照！",
+      "events": [
+        "shop_bought"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shop_bought"
+      },
+      "source_sha256": "fe29f5a2190f801d93c1c948de705dcee771c34efce1d1946b95d8376240d7ca"
+    },
+    {
+      "id": "flandre.young.o_shop_sold_sad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……どうちて……ふりゃんを わすれにゃいでぇ……。",
+      "chinese": "呜——……为什么……不要忘了芙呀……。",
+      "events": [
+        "shop_sold_sad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shop_sold_sad"
+      },
+      "source_sha256": "63d3dfa22c474ffa3cc780608e718243adc01e66d34488643e0f36704d331979"
+    },
+    {
+      "id": "flandre.young.o_shop_sold_proud",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ ふりゃん、もっといいおうちにいくよ！ ばいばい！",
+      "chinese": "呜——！芙呀要去更好的家啦！拜拜！",
+      "events": [
+        "shop_sold_proud"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_shop_sold_proud"
+      },
+      "source_sha256": "f3119a0f5307749c13ae5d6da1fbf73a85dbbc6ff377af43fa5a33e30908742f"
+    },
+    {
+      "id": "flandre.young.o_wild_role_beg",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ あまあまちょうだい！ あけちぇ！",
+      "chinese": "呜——！给芙呀甜甜！快打开！",
+      "events": [
+        "wild_role_beg"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_wild_role_beg"
+      },
+      "source_sha256": "8e17c258425407e5d1dfa10eece8e40cbaf5d65a4e6811334a0cca50a1b5eb6c"
+    },
+    {
+      "id": "flandre.young.o_wild_role_provoke",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、そんなばっじ、ふりゃんはいらにゃい！ ゆっくちできにゃい！",
+      "chinese": "呜——，那种徽章，芙呀才不要！真不能安心！",
+      "events": [
+        "wild_role_provoke"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_wild_role_provoke"
+      },
+      "source_sha256": "4c2136c0576aaab1f3596d1ebaf31cb13d058c61d3c229824e3d25cacb69141d"
+    },
+    {
+      "id": "flandre.young.o_lesson_praised",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ほめられちゃった！ ふりゃん、うれちい！",
+      "chinese": "呜——，被夸奖啦！芙呀好开心！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_lesson_praised"
+      },
+      "source_sha256": "601619acf3bad86924672c6b51e36fcc448c9cfab74b2b3f52effc4712eebb56"
+    },
+    {
+      "id": "flandre.young.o_lesson_praised2",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "もっと おぼえりゅね！ ありがちょう！",
+      "chinese": "还要再学！谢谢！",
+      "events": [
+        "lesson_praised"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_lesson_praised2"
+      },
+      "source_sha256": "c084d359bada9e7ffe9453bf113ffa6f86ae17c631a6d192ada0b307fada91da"
+    },
+    {
+      "id": "flandre.young.o_lesson_scolded",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ごめんにゃしゃい。ふりゃん、なおしゅね……。",
+      "chinese": "呜——……对不起。芙呀会改……。",
+      "events": [
+        "lesson_scolded"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_lesson_scolded"
+      },
+      "source_sha256": "8cebf2f1aa3ece452f8a1ac9d22c032eb316a587551eb6d98d0fa470ecad5025"
+    },
+    {
+      "id": "flandre.young.o_badge_envy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……いいにゃあ。ふりゃんも そのばっじほちい。",
+      "chinese": "呜——……真好呀。芙呀也想要那个徽章。",
+      "events": [
+        "badge_envy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_envy"
+      },
+      "source_sha256": "8378bdc956f47cde7f8f0b61926b938f3e12c1f3748ac4c6f814dc1fef2801a7"
+    },
+    {
+      "id": "flandre.young.o_badge_admire",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、しゅごい！ ふりゃんにも おしえちぇ！",
+      "chinese": "呜——，好厉害！也教教芙呀！",
+      "events": [
+        "badge_admire"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_badge_admire"
+      },
+      "source_sha256": "258b40462a2ecb053c02819815ee63aceaa3e01aeb0b47a4b95a36818c51ccda"
     }
   ]
 }
