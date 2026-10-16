@@ -1,5 +1,5 @@
 $root=Split-Path $PSScriptRoot -Parent
-$record=Join-Path $root '.local/review/server.json'
+$record=Join-Path $root '.local/previews/_server/server.json'
 if(Test-Path $record){
     $saved=Get-Content $record -Raw | ConvertFrom-Json
     $server=Get-Process -Id $saved.pid -ErrorAction SilentlyContinue

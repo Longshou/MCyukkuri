@@ -11,7 +11,8 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[3]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 sys.path.insert(0, str(ROOT/'standards/yukkuri-library/motions/variants/lore'))
-from preview import Posed
+from preview import Posed, preview_font
+
 
 
 def badge_vertices(model, matrices, mount):
@@ -63,12 +64,13 @@ def main():
     runner = out/'render.cjs'; runner.write_text(code,encoding='utf-8')
     subprocess.run([args.node,str(runner)],check=True)
     sheet = Image.new('RGB',(1080,1240),(240,238,230)); draw = ImageDraw.Draw(sheet)
-    font = ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',24)
+    font = preview_font(24)
     draw.text((20,12),'螺壳魔理沙 · 当前运行模型徽章挂点（离线 / 待用户确认）',font=font,fill='#34362c')
     for i,(label,*_) in enumerate(panels):
         x,y=i%2*540,56+i//2*580
         draw.text((x+20,y),label,font=font,fill='#34362c')
         image=Image.frombytes('RGBA',(540,540),(out/f'{i}-render.rgba').read_bytes())
+        image.save(out/f'panel-{i + 1}.png')
         sheet.paste(image,(x,y+32),image)
     result=out/'tsumuri-badge.png'; sheet.save(result); print(result)
 

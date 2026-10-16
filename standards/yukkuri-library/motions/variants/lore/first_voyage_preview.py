@@ -4,11 +4,12 @@ The six panels and looping GIF illustrate the server event; they are not a gamep
 All generated geometry, images and the Node runner stay in .local/previews/first-voyage.
 """
 from pathlib import Path
-import argparse, json, math, runpy, subprocess
+import argparse, io, json, math, runpy, subprocess, zipfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import preview as P
 from aquatic_family_preview import vertices
+
 
 
 def plane(x0, x1, z0, z1, y, color):
@@ -17,7 +18,12 @@ def plane(x0, x1, z0, z1, y, color):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__); ap.add_argument('--node', default='node')
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument('--node', default='node')
+    ap.add_argument('--minecraft-resources', type=Path, required=True,
+                    help='Local Minecraft client resource JAR used only for the stick sprite.')
+    ap.add_argument('--quick', action='store_true',
+                    help='Render a compact 24-frame GIF while retaining all six voyage phases.')
     args = ap.parse_args(); out=P.ROOT/'.local/previews/first-voyage'; out.mkdir(parents=True, exist_ok=True)
     data=json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
     V=json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
@@ -113,10 +119,9 @@ def main():
         if index>=2:combined[:,2]+=18 if index in (3,4) else 10
         return combined.astype('<f4'),texture
 
-    # Native item texture from the already installed local resources, never fetched or copied into runtime.
-    import zipfile,io
-    jar=P.ROOT/'.local/setup/preload/build/moddev/artifacts/neoforge-21.1.250-client-extra-aka-minecraft-resources.jar'
-    with zipfile.ZipFile(jar) as z:stick=Image.open(io.BytesIO(z.read('assets/minecraft/textures/item/stick.png'))).convert('RGBA').resize((64,64),Image.Resampling.NEAREST)
+    # Native item texture from the supplied local resources JAR, never fetched or copied into runtime.
+    with zipfile.ZipFile(args.minecraft_resources) as z:
+        stick = Image.open(io.BytesIO(z.read('assets/minecraft/textures/item/stick.png'))).convert('RGBA').resize((64,64), Image.Resampling.NEAREST)
     runner=out/'render.cjs'
     runner.write_text("const fs=require('fs');\n"+(P.ROOT/'standards/yukkuri-library/runtime/render.js').read_text(encoding='utf-8')+'''
     const dir=process.argv[2], tasks=JSON.parse(fs.readFileSync(dir+'/tasks.json'));
@@ -132,19 +137,23 @@ def main():
         mesh,tex=scene(index,time,progress); mesh.tofile(out/f'{ident}.bin');(out/f'{ident}.rgba').write_bytes(tex.tobytes())
         tasks.append(dict(id=ident,span=20 if index<2 or index==5 else 27,cy=4,colors=colors))
     for i,t in enumerate([.45,.50,1.15,.75,.45,.5]):add(f'panel-{i}',i,t,.8 if i in (3,4) else 1)
-    stages=[(0,i*.16,1) for i in range(14)]
-    stages += [(1,i*.2,1) for i in range(10)]+[(2,i*.2,1) for i in range(10)]
-    stages += [(3,i*.16,i/11) for i in range(12)]+[(4,i*.16,i/11) for i in range(12)]+[(5,i*.16,min(1,i/8)) for i in range(16)]
+    if args.quick:
+        stages = [(phase, frame * (.6 if phase in (1, 2) else .4), frame / 3 if phase >= 3 else 1)
+                  for phase in range(6) for frame in range(4)]
+    else:
+        stages=[(0,i*.16,1) for i in range(14)]
+        stages += [(1,i*.2,1) for i in range(10)]+[(2,i*.2,1) for i in range(10)]
+        stages += [(3,i*.16,i/11) for i in range(12)]+[(4,i*.16,i/11) for i in range(12)]+[(5,i*.16,min(1,i/8)) for i in range(16)]
     for f,(i,t,q) in enumerate(stages):add(f'frame-{f}',i,t,q)
     (out/'tasks.json').write_text(json.dumps(tasks),encoding='utf-8');subprocess.run([args.node,str(runner),str(out)],check=True)
-    fontpath='C:/Windows/Fonts/msyh.ttc';font=ImageFont.truetype(fontpath,22);small=ImageFont.truetype(fontpath,18);title=ImageFont.truetype(fontpath,32)
+    font=P.preview_font(22);small=P.preview_font(18);title=P.preview_font(32)
     def rendered(ident):return Image.frombytes('RGBA',(720,490),(out/f'{ident}-render.rgba').read_bytes())
     sheet=Image.new('RGB',(2160,1260),(239,245,245));draw=ImageDraw.Draw(sheet)
     draw.text((30,15),'水生魔理沙 · 五子同船，从父油帽檐开始初航',font=title,fill=(25,57,65))
     draw.text((30,62),'当前模型离线预览  /  父油 100% · 小子油 20%～25% · 初航子油 35% · 帽子仍为 1.5 倍',font=small,fill=(66,96,101))
     for i,(label,sub) in enumerate(labels):
         x=i%3*720;y=102+i//3*565
-        frame=rendered(f'panel-{i}');sheet.paste(frame,(x,y+64),frame)
+        frame=rendered(f'panel-{i}');frame.save(out/f'panel-{i + 1}.png');sheet.paste(frame,(x,y+64),frame)
         draw.text((x+20,y),label,font=font,fill=(25,57,65));draw.text((x+20,y+29),sub,font=small,fill=(50,87,95))
     draw.text((30,1230),'主体在水上生活，岸边只作短暂停留；此图为当前模型的离线分镜，完整事件仍需游戏实测。',font=small,fill=(60,87,94))
     sheet.save(out/'first-voyage.png')
@@ -153,7 +162,7 @@ def main():
         frame=Image.new('RGB',(720,562),(239,245,245));d=ImageDraw.Draw(frame);image=rendered(f'frame-{f}')
         frame.paste(image,(0,65),image);d.text((18,7),labels[i][0],font=font,fill=(25,57,65));d.text((18,37),labels[i][1]+' · 离线动作示意',font=small,fill=(50,87,95))
         frames.append(frame)
-    frames[0].save(out/'first-voyage.gif',save_all=True,append_images=frames[1:],duration=160,loop=0,disposal=2)
+    frames[0].save(out/'first-voyage.gif',save_all=True,append_images=frames[1:],duration=280 if args.quick else 160,loop=0,disposal=2)
     print(out/'first-voyage.png');print(out/'first-voyage.gif')
 
 

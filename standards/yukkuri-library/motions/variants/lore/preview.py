@@ -9,7 +9,7 @@ aquatic Marisa is drawn without her hat, sitting low in her own larger hat turne
 from pathlib import Path
 import json, math
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFont
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[4]
@@ -24,6 +24,14 @@ PANELS = [('魔理沙', 'marisa', 'land'), ('水生魔理沙', 'marisa', 'aquati
           ('家油魔理沙', 'house_marisa', 'land'), ('豆形魔理沙', 'marisa_bean', 'land'), ('蕾米莉亚', 'remilia', 'land'),
           ('螺壳魔理沙', 'marisa_tsumuri', 'land')]
 FALLBACK_FACE = {'hop': 'happy', 'shell_retract': 'surprise'}
+
+
+def preview_font(size):
+    for path in ('/System/Library/Fonts/STHeiti Light.ttc', 'C:/Windows/Fonts/msyh.ttc',
+                 '/Library/Fonts/Arial Unicode.ttf', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'):
+        if Path(path).is_file():
+            return ImageFont.truetype(path, size)
+    raise RuntimeError('A Chinese font is required for preview labels.')
 
 
 def shown(mode, clip):

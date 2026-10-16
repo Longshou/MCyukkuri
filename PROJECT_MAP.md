@@ -22,7 +22,8 @@
 | 音频制作 | `art/audio/` | AquesTalk 配音与生态音效的制作源和来源登记；游戏 OGG 位于 `src/main/resources/assets/mcyukkuri/sounds/` |
 | 原版对白整理 | `art/dialogue/` | 八景 U 原版角色台词检索、Mod 对照、选用原句与译文；仅选中的台词进入游戏 |
 | 成长与出生规格 | `standards/yukkuri-v1/` | 只保留仍被读取的成长规格、茎、出生行为与对应运行脚本；其余旧原型已删除 |
-| 素材检查室 | `preview/review/`、根目录 `打开素材检查.cmd`／`关闭素材检查.cmd` | 本机查看全部形态、动作和表情的工具，读取游戏资源 |
+| 集中预览 | `.local/previews/index.html` | 本次更新、分镜、全部模型动作和声音的统一入口；同主题只保留当前版本，不提交产物 |
+| 预览工具源码 | `preview/hub/`、`preview/review/`、根目录 `打开素材检查.cmd`／`关闭素材检查.cmd` | 页面模板和当前模型查看工具，读取游戏资源；由 `scripts/build_preview_hub.py` 生成集中入口 |
 | 浏览器检查依赖 | `tools/browser-check/` | 各 `verify*.cjs` 使用的 Playwright 安装位置 |
 | 设定与作品来源 | `wiki/` | 设定、出处与核读资料；`reference-library/` 按实体、情景、情绪和制作目标索引游戏图文参考，`art-references/` 保存图像原文件与出处（`art-references/game/` 为建模时收集的游戏与网页素材），`novel-reading/` 保存阅读卡；不作为运行资源或素材导出目录 |
 | 开发文档 | `docs/` | 环境说明、阶段计划和各系统的实现说明 |
@@ -50,7 +51,7 @@
 - 角色目录使用稳定的英文 ID，如 `patchouli`；文件名说明内容，如 `patchouli.geo.json`，不以“最终版”“新版2”表示版本。
 - 同一素材包的制作脚本、运行预览支持代码和测试脚本保留在包内，避免移动后破坏相对引用。跨项目目录的脚本放 `scripts/`，并登记在其 README 中。
 - 当前可用导出保留在各包的 `assembled/`；待确认方案放 `drafts/<主题>/`。被替代的方案直接删除，不另设 `archive/`。
-- 预览、截图和检查报告不入库：出图脚本写到 `.local/`（或被 `.gitignore` 忽略的 `previews/`、`reports/`、`screenshots/`），需要给用户看时在回复里贴图。
+- 预览统一生成到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。每个主题保留当前版本，生成脚本和必要制作输入留在原位；截图和检查报告分别放 `.local/screenshots/`、`.local/reports/`，均不入库。
 - 认可状态写在制作源的登记字段里，不另存批准记录、冻结快照或截图。
 - 导出脚本 `--check` 读取的 `manifest.json`、`provenance.json` 等来源登记是数据，随源文件维护。
 - 目录中已有的制作模块和相对引用优先保留。整理不改模型形状、运行行为或未经本任务授权的素材确认状态。

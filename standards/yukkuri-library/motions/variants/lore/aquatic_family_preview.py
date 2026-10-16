@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 import preview as P
 
 
+
 def vertices(model, clip, time, scale=1, yaw=0, offset=(0, 0, 0), atlas=(0, 0)):
     triangles, uv, normals = model.frame(clip, time)
     rot = P.euler([0, yaw, 0])
@@ -102,13 +103,13 @@ def main():
     }'''
     runner = out/'render.cjs'; runner.write_text(code, encoding='utf-8'); subprocess.run([args.node, str(runner)], check=True)
     sheet = Image.new('RGB', (1620, 990), (233, 241, 243)); draw = ImageDraw.Draw(sheet)
-    font_path = Path('C:/Windows/Fonts/msyh.ttc')
-    font = ImageFont.truetype(str(font_path), 22) if font_path.exists() else ImageFont.load_default()
+    font = P.preview_font(22)
     draw.text((28, 16), '水生魔理沙 · 亲子日常与理帽（当前运行资源的离线预览）', font=font, fill=(32, 57, 64))
     for i, panel in enumerate(panels):
         x, y = i%3*540, 58+i//3*446
         draw.rounded_rectangle((x+8, y, x+532, y+432), radius=16, fill=(250, 252, 251))
         frame = Image.frombytes('RGBA', (540, 400), (out/f'{i}-render.rgba').read_bytes())
+        frame.save(out/f'panel-{i + 1}.png')
         sheet.paste(frame, (x, y+30), frame); draw.text((x+18, y+10), panel[-1], font=font, fill=(32, 57, 64))
     draw.text((28, 958), '动作与食物挂接示意；游戏中的路径、多人同步和完整昼夜生活仍需实测。', font=font, fill=(57, 80, 85))
     result = out/'aquatic-family.png'; sheet.save(result); print(result)

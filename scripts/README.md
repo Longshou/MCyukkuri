@@ -1,6 +1,8 @@
 # 项目脚本
 
-脚本写到 `.local/` 或各包 `previews/`、`reports/`、`screenshots/` 的预览、截图与检查报告只留在本机，不入库（见 `.gitignore`）。
+所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
+
+`python scripts/build_preview_hub.py --render` 生成集中入口、当前模型缩略图与总览图；需要 Pillow 和 Node.js。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`。生成流程不启动浏览器、游戏或 Java 编译。
 
 `python scripts/test_runtime_atlas.py` 检查原生方块／物品模型引用的模组贴图是否存在，并核对 `textures/props/` 已通过 `assets/minecraft/atlases/blocks.json` 加入方块图集；真实客户端重载后仍须检查缺图警告与实际外观。
 

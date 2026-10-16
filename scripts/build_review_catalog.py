@@ -2,10 +2,11 @@
 from pathlib import Path
 import hashlib
 import json
+import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
-OUT = ROOT / 'preview/review'
+OUT = ROOT / '.local/previews/models'
 ROLES = [
     ('reimu','灵梦','普通种'),('marisa','魔理沙','普通种'),('chen','橙','普通种'),
     ('alice','爱丽丝','普通种'),('patchouli','帕秋莉','普通种'),
@@ -25,8 +26,11 @@ def url(path):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    for name in ('index.html', 'style.css', 'app.js', 'pose.js'):
+        shutil.copy2(ROOT / 'preview/review' / name, OUT / name)
     models=[]
     motion_path=ASSETS/'yukkuri_presentation/motion_corrections.json'
+    motions=read(motion_path)['models']
     motion_hash=hashlib.sha256(motion_path.read_bytes()).hexdigest()
     # Placement fit is spliced before the motion revision; both identify what a note was written against.
     fit_path=ASSETS/'yukkuri_presentation/placement_fit.json'
@@ -39,12 +43,17 @@ def main():
         models.append(dict(id=ident,name=name,group=group,url=url(path),
             hash=hashlib.sha256(raw+motion_hash.encode()+fit_hash.encode()).hexdigest(),geometryHash=hashlib.sha256(raw).hexdigest(),textures=textures,
             formScale=1.5 if ident in ('reimu_deibu','reimu_wasa_deibu') else 1,
-            actions=list(model['clips'])+list(model.get('behavior_clips',{})),
+            actions=list(dict.fromkeys([*model['clips'], *model.get('behavior_clips',{}), *motions.get(ident,{}).get('clips',{})])),
             textureSize=model.get('texture_size',128)))
     zh=read(ASSETS/'lang/zh_cn.json'); ja=read(ASSETS/'lang/ja_jp.json')
     sounds=read(ASSETS/'sounds.json'); manifest=read(ROOT/'art/audio/aquestalk/manifest.json')['clips']
     audio=[]
+    subtitles=[]
     for entry in read(ASSETS/'dialogue/catalog.json'):
+        if not entry['sound']:
+            subtitles.append(dict(id=entry['id'],species=entry['species'],events=entry['events'],
+                                  zh=zh.get(entry['key'],''),ja=ja.get(entry['key'],'')))
+            continue
         sound=sounds[entry['sound']]['sounds'][0]
         soundname=sound['name'] if isinstance(sound,dict) else sound
         path=ASSETS/'sounds'/(soundname.split(':',1)[-1]+'.ogg')
@@ -59,7 +68,7 @@ def main():
         assert path.is_file()
         audio.append(dict(id=f'ecology.song.{species}',species=species,age='song',events=['song'],origin='project-original',
             zh='生态原创哼唱',ja='',url=url(path),duration=songs[species]['duration_seconds'],hash=hashlib.sha256(path.read_bytes()).hexdigest()))
-    catalog=dict(models=models,audio=audio,motions=url(motion_path),motionHash=motion_hash,fit=url(fit_path),fitHash=fit_hash)
+    catalog=dict(models=models,audio=audio,subtitles=subtitles,motions=url(motion_path),motionHash=motion_hash,fit=url(fit_path),fitHash=fit_hash)
     (OUT/'catalog.js').write_text('window.REVIEW_CATALOG='+json.dumps(catalog,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
     print(f'Indexed {len(models)} current models, {len(audio)} playable sounds.')
 

@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 import preview as P
 
 
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--node', default='node')
@@ -54,13 +55,13 @@ def main():
     }'''
     runner = out/'render.cjs'; runner.write_text(code,encoding='utf-8'); subprocess.run([args.node,str(runner)],check=True)
     sheet = Image.new('RGB',(1380,860),(233,241,243)); draw = ImageDraw.Draw(sheet)
-    font_path = Path('C:/Windows/Fonts/msyh.ttc')
-    font = ImageFont.truetype(str(font_path),23) if font_path.exists() else ImageFont.load_default()
+    font = P.preview_font(23)
     draw.text((28,16),'水生魔理沙 · 当前运行模型与动作（离线预览）',font=font,fill=(32,57,64))
     for row in frames:
         i=row['index']; x=i%3*460; y=58+i//3*400
         draw.rounded_rectangle((x+8,y,x+452,y+388),radius=16,fill=(250,252,251))
         image=Image.frombytes('RGBA',(460,360),(out/f'{i}-render.rgba').read_bytes())
+        image.save(out/f'panel-{i + 1}.png')
         sheet.paste(image,(x,y+26),image); draw.text((x+22,y+12),row['label'],font=font,fill=(32,57,64))
     result=out/'aquatic-motions.png'; sheet.save(result); print(result)
 

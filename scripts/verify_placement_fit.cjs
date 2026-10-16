@@ -22,7 +22,8 @@ const checksOnly=process.argv.includes('--checks-only'),steps=+(process.env.FIT_
 const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 const fitPath=path.join(assets,'yukkuri_presentation/placement_fit.json'),motionPath=path.join(assets,'yukkuri_presentation/motion_corrections.json');
 const fits=JSON.parse(fs.readFileSync(fitPath)).models,revisions=JSON.parse(fs.readFileSync(motionPath)).models;
-const ctx={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'preview/review/catalog.js'),'utf8'),ctx);const catalog=ctx.window.REVIEW_CATALOG;
+cp.execFileSync(python,[path.join(root,'scripts/build_review_catalog.py')],{cwd:root,stdio:'inherit'});
+const ctx={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'.local/previews/models/catalog.js'),'utf8'),ctx);const catalog=ctx.window.REVIEW_CATALOG;
 
 const categoryRaster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),categoryRaster);
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];

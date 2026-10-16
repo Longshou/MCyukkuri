@@ -5,7 +5,8 @@ const {RuntimePose,spliceFit}=require('../preview/review/pose.js');
 const fits=JSON.parse(fs.readFileSync(path.join(__dirname,'../src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json'))).models;
 const root=path.resolve(__dirname,'..'),out=path.join(root,'.local/review/verification');fs.mkdirSync(out,{recursive:true});
 const python=process.env.REVIEW_PYTHON||path.join(os.homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe');
-const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'preview/review/catalog.js'),'utf8'),context);const catalog=context.window.REVIEW_CATALOG;
+cp.execFileSync(python,[path.join(root,'scripts/build_review_catalog.py')],{cwd:root,stdio:'inherit'});
+const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'.local/previews/models/catalog.js'),'utf8'),context);const catalog=context.window.REVIEW_CATALOG;
 const revisions=JSON.parse(fs.readFileSync(path.join(root,catalog.motions),'utf8')).models;
 cp.execFileSync(python,['-c',String.raw`
 from PIL import Image
@@ -67,7 +68,7 @@ cp.execFileSync(python,['-c',String.raw`
 from PIL import Image,ImageDraw,ImageFont
 from pathlib import Path
 import json
-r=Path.cwd();o=r/'.local/review/verification';thumbs=r/'preview/review/thumbs';thumbs.mkdir(exist_ok=True)
+r=Path.cwd();o=r/'.local/review/verification';thumbs=r/'.local/previews/models/thumbs';thumbs.mkdir(exist_ok=True)
 rows=json.loads((o/'checks.json').read_text(encoding='utf-8'))['models'];sheet=Image.new('RGB',(1600,1416),'#f5f3ed');d=ImageDraw.Draw(sheet)
 font=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',22);small=ImageFont.truetype('C:/Windows/Fonts/msyh.ttc',14)
 for i,row in enumerate(rows):

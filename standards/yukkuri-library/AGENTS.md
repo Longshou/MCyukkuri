@@ -32,5 +32,5 @@
 
 - 标准表情集合以 `provenance/standard-expressions.json` 和 `expressions/index.json` 的 `standard_set` 为准；角色标准记录在 `provenance/standard-species.json`。
 - 用户说“保存 xx”即确认为标准，同步登记与导出；未确认的新造型标为待确认即可。
-- 改完在本机出一张当前预览（正面／侧面按需）贴在回复里，重点看轮廓、穿插和饰品挂接。预览、检查报告和批准记录都不入库；包内脚本写到 `previews/`、`reports/` 的产物已被 `.gitignore` 忽略。
+- 改完在本机出一张当前预览（正面／侧面按需）贴在回复里，重点看轮廓、穿插和饰品挂接。预览统一写到根目录 `.local/previews/<主题>/` 并收录到总入口，同主题只保留当前版本；生成脚本留在制作包内。预览、检查报告和批准记录都不入库。
 - 外部游戏提取物与作品参考不进入正式贴图或导出包；来源说明放 `provenance/` 或 Wiki，提取的参考素材放 `wiki/art-references/game/`。
