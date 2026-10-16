@@ -32,6 +32,18 @@ public final class AquaticFamilyGameTests {
         growth.putBoolean("Initialized",true); growth.putString("Stage","JUVENILE"); growth.putFloat("Scale",scale);
         growth.putLong("Age",maturity*3/4); growth.putLong("Nourishment",maturity*9/16); y.family().load(growth);
     }
+    /** Model an already-completed lesson so a late juvenile uses the real departure path, not an orphaned berth. */
+    private static void readyForDeparture(YukkuriEntity y) {
+        var voyage=y.aquaticLife().firstVoyage().save();
+        voyage.putBoolean("Completed",true); voyage.putBoolean("Independent",false); voyage.putBoolean("InterruptedTrip",false);
+        voyage.putInt("Cooldown",0); voyage.remove("Mentor"); voyage.remove("HomeHat");
+        y.aquaticLife().firstVoyage().load(voyage);
+    }
+    private static void clearPupil(YukkuriEntity parent) {
+        var voyage=parent.aquaticLife().firstVoyage().save();
+        voyage.putBoolean("InterruptedTrip",false); voyage.remove("Pupil");
+        parent.aquaticLife().firstVoyage().load(voyage);
+    }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=680,batch="aquatic_family")
     public static void realServingsAndComfort(GameTestHelper helper) {
         var level=helper.getLevel(); long daytime=level.getDayTime();
@@ -145,7 +157,14 @@ public final class AquaticFamilyGameTests {
             .thenIdle(70).thenExecute(()->{
                 var hat=boat[0];
                 helper.assertTrue(child.life().mouth().isEmpty(),"second mash also reaches a real swallowing tick");
-                hat.cargo().store(new ItemStack(Items.APPLE),1,false); nutrition(sibling,20); careStage[0]=5;
+                // The night feed above is already proven. Begin this final reservation case from an
+                // idle, awake daytime manifest so a prior completed service cannot mask it.
+                careStage[0]=0; care.cancel(); level.setDayTime(6000);
+                parent.life().wakeInHat(); child.life().wakeInHat(); sibling.life().wakeInHat();
+                nutrition(parent,85); nutrition(child,85); nutrition(sibling,20);
+                helper.assertTrue(!care.active()&&hat.cargo().count()==0&&HatVessel.braidCanServe(parent,sibling),
+                        "the final sibling serving starts from an idle protected hat");
+                hat.cargo().store(new ItemStack(Items.APPLE),1,false); careStage[0]=5;
             }).thenWaitUntil(()->helper.assertTrue(care.active()&&care.serving().getCount()==1&&boat[0].cargo().count()==0,
                     "last serving is physically reserved before it can be handed off"))
             .thenExecute(()->{
@@ -254,15 +273,17 @@ public final class AquaticFamilyGameTests {
             double r=HatVessel.radius(child.getBbWidth())/home.unit();
             helper.assertTrue(child.childhood().canLiveIndependently(),"0.60 late juvenile meets the separate independence capability gate");
             helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.60 subadult no longer fits the small-juvenile full-body brim strip");
-            helper.assertTrue(home.keepDepartureBerth(child),"0.60 subadult reserves the supported departure edge without using the juvenile brim berth");
+            readyForDeparture(child);
+            helper.assertTrue(child.aquaticLife().firstVoyage().tryStart(),"0.60 subadult reserves the supported departure edge through its real departure path");
         }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.60 departure berth finishes its actual rider SeatMove"))
         .thenExecute(()->{
             helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"large subadult reaches the dedicated supported departure seat after its real move");
-            home.releaseVoyageBerth(child.getUUID()); lateJuvenile(child,.70f);
+            home.releaseVoyageBerth(child.getUUID()); clearPupil(father); readyForDeparture(child); lateJuvenile(child,.70f);
+        }).thenIdle(80).thenExecute(()->{
             double r=HatVessel.radius(child.getBbWidth())/home.unit();
             helper.assertTrue(child.childhood().canLiveIndependently(),"0.70 late juvenile remains eligible before adult stage");
             helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.70 subadult likewise cannot use the narrow full-body brim strip");
-            helper.assertTrue(home.keepDepartureBerth(child),"0.70 subadult can still reserve the dedicated front-edge departure seat");
+            helper.assertTrue(child.aquaticLife().firstVoyage().tryStart(),"0.70 subadult can reserve the dedicated front-edge departure seat through its real departure path");
         }).thenWaitUntil(()->helper.assertTrue(home.onVoyageBerth(child),"0.70 departure berth also finishes physical rider movement"))
         .thenExecute(()->{
             helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"departure remains at the dedicated supported edge after the second real move");

@@ -793,12 +793,12 @@ public final class FamilyLife {
         }
         careOfferTicks=0;
         Vec3 contact=FamilyFeedingContact.approachSpot(entity,target);
-        if(entity.distanceToSqr(target)<=4) {
+        if(entity.distanceToSqr(target)<=4&&entity.hasLineOfSight(target)&&target.hasLineOfSight(entity)) {
             // Path navigation stops at a block-sized tolerance.  The last fraction must be a real
             // precise approach, or the two mouths can remain permanently just outside contact.
             entity.getNavigation().stop();
             entity.getMoveControl().setWantedPosition(contact.x,contact.y,contact.z,.8);
-        } else if(taskTicks%5==1&&!entity.getNavigation().moveTo(contact.x,contact.y,contact.z,1.1))stop();
+        } else if(taskTicks%5==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
     }
     public boolean canContinue() {
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
