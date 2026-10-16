@@ -18,6 +18,9 @@ public final class BraidRescueGeometry {
     private static final JsonObject DATA=read();
     private static final Vec3 POSED_ROOT=posed("braid_root"), POSED_TIP=posed("braid_tip");
     private static final Vec3 MODEL_JOINT=vector("tip_joint");
+    /** Project-original bite grip (not canon): the mouth anchor in model units and its contact reach in blocks of a standard adult. */
+    private static final Vec3 MOUTH_ROOT=DATA.has("mouth_root")?vector("mouth_root"):new Vec3(0,2.0034,-5.215);
+    private static final double MOUTH_REACH=DATA.has("mouth_reach")?DATA.get("mouth_reach").getAsDouble():.03;
     private static JsonObject read(){
         try(var stream=BraidRescueGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
             if(stream==null)throw new IllegalStateException("Missing selected braid rescue geometry");
@@ -74,6 +77,21 @@ public final class BraidRescueGeometry {
         return feet.add(at.scale(actor.growthScale()*actor.getScale()/16).yRot((float)Math.toRadians(180-yaw)));
     }
     public static Vec3 boardingRoot(YukkuriEntity actor,Vec3 feet,double pitch,double roll){return boardingPoint(actor,feet,modelRoot(),pitch,roll);}
+    /** The mouth of an upright body standing at these feet, turned to this body yaw. */
+    public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,0,0,yawDeg);}
+    /** The mouth at the boarding pose's pitch and roll (they rotate about the same root pivot as the body envelope). */
+    public static Vec3 mouthPoint(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yawDeg){return boardingPoint(actor,feet,MOUTH_ROOT,pitch,roll,yawDeg);}
+    /** Allowed mouth-to-rim contact distance in blocks, scaled with this body. */
+    public static double biteReach(YukkuriEntity actor){return MOUTH_REACH*actor.growthScale()*actor.getScale();}
+    /** Looser distance within which the teeth stay hooked while the body lunges, still measured from the mouth. */
+    public static double holdReach(YukkuriEntity actor){return biteReach(actor)+.40*actor.growthScale()*actor.getScale();}
+    /** Mouth distance to the visible rim wall: a vertical segment from the lip down to the waterline. */
+    public static double rimDistance(Vec3 mouth,Vec3 lip,double wall){
+        double y=Math.clamp(mouth.y,lip.y-Math.max(0,wall),lip.y);
+        return mouth.distanceTo(new Vec3(lip.x,y,lip.z));
+    }
+    public static boolean bites(YukkuriEntity actor,Vec3 mouth,Vec3 lip,double wall){return rimDistance(mouth,lip,wall)<=biteReach(actor)+1e-6;}
+    public static boolean holds(YukkuriEntity actor,Vec3 mouth,Vec3 lip,double wall){return rimDistance(mouth,lip,wall)<=holdReach(actor);}
     public static Vec3 boardingRoot(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw){return boardingPoint(actor,feet,modelRoot(),pitch,roll,yaw);}
     public static Vec3 boardingRestJoint(YukkuriEntity actor,Vec3 feet,double pitch,double roll){return boardingPoint(actor,feet,modelJoint(),pitch,roll);}
     private static AABB boardingBox(YukkuriEntity actor,Vec3 feet,Vec3 min,Vec3 max,double pitch,double roll){
@@ -95,13 +113,18 @@ public final class BraidRescueGeometry {
         var boxes=new java.util.ArrayList<AABB>();
         if(DATA.has("boarding_body_bounds")){
             var rows=DATA.getAsJsonArray("boarding_body_bounds");AABB body=null;
-            for(int p:new int[]{(int)Math.floor(Math.clamp(pitch,-18,0)),(int)Math.ceil(Math.clamp(pitch,-18,0))})
-                for(int r:new int[]{(int)Math.floor(Math.clamp(roll,-3,3)),(int)Math.ceil(Math.clamp(roll,-3,3))}){
-                    var bounds=rows.get(p+18).getAsJsonArray().get(r+3).getAsJsonArray();
+            // The exported table spans its own pitch/roll grid (default -18..0 / -3..3); a pose beyond it is that edge row turned rigidly.
+            int pitchLow=DATA.has("boarding_body_pitch_min")?DATA.get("boarding_body_pitch_min").getAsInt():-18;
+            int rollLow=-(rows.get(0).getAsJsonArray().size()-1)/2;
+            double wanted=Math.clamp(pitch,-8,6),row=Math.clamp(wanted,pitchLow,pitchLow+rows.size()-1);
+            double column=Math.clamp(roll,rollLow,rollLow+rows.get(0).getAsJsonArray().size()-1);
+            for(int p:new int[]{(int)Math.floor(row),(int)Math.ceil(row)})
+                for(int r:new int[]{(int)Math.floor(column),(int)Math.ceil(column)}){
+                    var bounds=rows.get(p-pitchLow).getAsJsonArray().get(r-rollLow).getAsJsonArray();
                     var low=bounds.get(0).getAsJsonArray();var high=bounds.get(1).getAsJsonArray();
                     var min=new Vec3(low.get(0).getAsDouble(),low.get(1).getAsDouble(),low.get(2).getAsDouble());
                     var max=new Vec3(high.get(0).getAsDouble(),high.get(1).getAsDouble(),high.get(2).getAsDouble());
-                    var box=boardingBox(actor,feet,min,max,0,0,yaw);body=body==null?box:body.minmax(box);
+                    var box=boardingBox(actor,feet,min,max,wanted-row,0,yaw);body=body==null?box:body.minmax(box);
                 }
             boxes.add(body);
         }else boxes.add(boardingBox(actor,feet,vector("body_min"),vector("body_max"),pitch,roll,yaw));
@@ -112,6 +135,53 @@ public final class BraidRescueGeometry {
                     new Vec3(HatVessel.BRIM[0]*multiplier,base+height,HatVessel.BRIM[1]*multiplier),pitch,roll,yaw));
         }
         return boxes;
+    }
+    /** Model-space bounds {min,max} of the posed body, from the same exported pitch/roll table the envelope uses. */
+    private static Vec3[] bodyBounds(double pitch,double roll){
+        if(!DATA.has("boarding_body_bounds"))return rotatedBounds(vector("body_min"),vector("body_max"),pitch,roll);
+        var rows=DATA.getAsJsonArray("boarding_body_bounds");
+        int pitchLow=DATA.has("boarding_body_pitch_min")?DATA.get("boarding_body_pitch_min").getAsInt():-18;
+        int rollLow=-(rows.get(0).getAsJsonArray().size()-1)/2;
+        double wanted=Math.clamp(pitch,-8,6),row=Math.clamp(wanted,pitchLow,pitchLow+rows.size()-1);
+        double column=Math.clamp(roll,rollLow,rollLow+rows.get(0).getAsJsonArray().size()-1);
+        Vec3 min=null,max=null;
+        for(int p:new int[]{(int)Math.floor(row),(int)Math.ceil(row)})
+            for(int r:new int[]{(int)Math.floor(column),(int)Math.ceil(column)}){
+                var bounds=rows.get(p-pitchLow).getAsJsonArray().get(r-rollLow).getAsJsonArray();
+                var low=bounds.get(0).getAsJsonArray();var high=bounds.get(1).getAsJsonArray();
+                var a=new Vec3(low.get(0).getAsDouble(),low.get(1).getAsDouble(),low.get(2).getAsDouble());
+                var b=new Vec3(high.get(0).getAsDouble(),high.get(1).getAsDouble(),high.get(2).getAsDouble());
+                min=min==null?a:new Vec3(Math.min(min.x,a.x),Math.min(min.y,a.y),Math.min(min.z,a.z));
+                max=max==null?b:new Vec3(Math.max(max.x,b.x),Math.max(max.y,b.y),Math.max(max.z,b.z));
+            }
+        return wanted==row?new Vec3[]{min,max}:rotatedBounds(min,max,wanted-row,0);
+    }
+    private static Vec3[] rotatedBounds(Vec3 min,Vec3 max,double pitch,double roll){
+        var pivot=vector("root_pivot");var rotation=new Quaternionf().rotationZYX((float)Math.toRadians(roll),0,(float)Math.toRadians(pitch));
+        Vec3 low=null,high=null;
+        for(int i=0;i<8;i++){
+            var corner=new Vec3((i&1)==0?min.x:max.x,(i&2)==0?min.y:max.y,(i&4)==0?min.z:max.z).subtract(pivot);
+            var v=new Vector3f((float)corner.x,(float)corner.y,(float)corner.z);rotation.transform(v);
+            var at=new Vec3(v.x,v.y,v.z).add(pivot);
+            low=low==null?at:new Vec3(Math.min(low.x,at.x),Math.min(low.y,at.y),Math.min(low.z,at.z));
+            high=high==null?at:new Vec3(Math.max(high.x,at.x),Math.max(high.y,at.y),Math.max(high.z,at.z));
+        }
+        return new Vec3[]{low,high};
+    }
+    /** Lowest feet height at which the posed body clears this hull: the underside is sampled on its real turned
+     *  footprint rather than the world-aligned box (whose corners would overlap the hat at any oblique heading). */
+    public static double poseClearance(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
+        var boxes=boardingEnvelope(actor,feet,pitch,roll,yaw);
+        if(actor.getVariant()!=io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeClearance(boxes,hat,feet,dip);
+        double required=envelopeClearance(boxes.subList(1,boxes.size()),hat,feet,dip);
+        var tilt=dip==null?hat.dip():dip;var bounds=bodyBounds(pitch,roll);
+        for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
+            var model=new Vec3(bounds[0].x+(bounds[1].x-bounds[0].x)*x/2,bounds[0].y,bounds[0].z+(bounds[1].z-bounds[0].z)*z/2);
+            var at=boardingPoint(actor,feet,model,0,0,yaw);var p=hat.toLocal(at);
+            double floor=HatVessel.surface(hat.mode(),p.x,p.z);
+            if(Double.isFinite(floor))required=Math.max(required,hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-(at.y-feet.y));
+        }
+        return required;
     }
     public static boolean reachable(YukkuriEntity parent,Vec3 root,Vec3 tip){
         double reach=root.distanceTo(tip);return reach>=minimumReach(parent)&&reach<=maximumReach(parent);
@@ -192,7 +262,7 @@ public final class BraidRescueGeometry {
         for(int i=0;i<=samples;i++){
             var local=hat.toLocal(child.position().lerp(destination,(double)i/samples));
             double floor=HatVessel.footprint(hat.mode(),local.x,local.z,r);
-            if(Double.isFinite(floor))height=Math.max(height,hat.toWorld(new Vec3(local.x,floor,local.z)).y);
+            if(Double.isFinite(floor))height=Math.max(height,hat.toWorld(new Vec3(local.x,floor,local.z)).y-hat.rimLift(local));
         }
         return height+.008*child.growthScale()*child.getScale();
     }
@@ -200,13 +270,17 @@ public final class BraidRescueGeometry {
         return envelopeClearance(envelope(child,feet),hat,feet);
     }
     public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet){
-        double required=feet.y;
+        return envelopeClearance(boxes,hat,feet,null);
+    }
+    /** As above, with the hull's near rim lowered by this dip (null means the hat's current one). */
+    public static double envelopeClearance(java.util.List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
+        var tilt=dip==null?hat.dip():dip;double required=feet.y;
         for(var box:boxes){
             double offset=box.minY-feet.y;
             for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
                 var p=hat.toLocal(new Vec3(box.minX+(box.maxX-box.minX)*x/2,feet.y,box.minZ+(box.maxZ-box.minZ)*z/2));
                 double floor=HatVessel.surface(hat.mode(),p.x,p.z);
-                if(Double.isFinite(floor))required=Math.max(required,hat.toWorld(new Vec3(p.x,floor,p.z)).y-offset);
+                if(Double.isFinite(floor))required=Math.max(required,hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-offset);
             }
         }
         return required;
