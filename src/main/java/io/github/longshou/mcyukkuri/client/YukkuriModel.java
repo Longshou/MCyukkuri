@@ -69,13 +69,12 @@ public final class YukkuriModel {
      * stopped the two bodies at its real mouth envelope; this uses their synchronized mouth
      * anchors to close the last visible gap without translating a parent below the ground.
      */
-    private float careReach,careTargetMouthY=Float.NaN,careBlend;
+    private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
     private String hatMotion="";
     private float hatPhase;
     public void setCarrying(boolean value){carrying=value;}
-    void setCareContact(float forwardBlocks,float targetMouthY,float progress){
-        careReach=Math.clamp(forwardBlocks,0,.12f);
-        careTargetMouthY=targetMouthY;
+    void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
+        careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
         careBlend=Math.clamp(progress,0,1);
     }
     private final Map<String, Clip> clips = new HashMap<>();
@@ -623,13 +622,18 @@ public final class YukkuriModel {
             float floor=bodyMinimumY();float[] root=pose[rootBone()];
             float basePitch=root[3],baseMouth=mouthY();
             float target=baseMouth+(careTargetMouthY-baseMouth)*careBlend;
-            float low=0,high=42;
+            float low=0,high=50;
             if(baseMouth>target)for(int i=0;i<7;i++){
                 float pitch=(low+high)*.5f;root[3]=basePitch-pitch;composeWorld();
                 float lifted=Math.max(0,floor-bodyMinimumY());
                 if(mouthY()+lifted>target)low=pitch;else high=pitch;
             }
-            root[3]=basePitch-(baseMouth>target?high:0);root[2]-=careReach*16;
+            root[3]=basePitch-(baseMouth>target?high:0);composeWorld();
+            // Pitch changes the mouth's depth. Align the composed anchor, rather than estimating
+            // reach from the upright face mesh; keep the extra lean small and tied to real contact.
+            var mouth=mouthPoint();
+            root[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-.04f*16,.04f*16);
+            root[2]+=Math.clamp((careTargetMouthZ-mouth.z)*careBlend,-.18f*16,.18f*16);
             composeWorld();float lowered=bodyMinimumY();
             if(lowered<floor)raiseWorld(floor-lowered);
         }
@@ -734,10 +738,13 @@ public final class YukkuriModel {
 
     /** Current rendered mouth height in the same model units as the root and body floor. */
     private float mouthY(){
-        var mouth=LivingPresentation.variants.get(id);if(mouth==null)return 0;
+        return mouthPoint().y;
+    }
+    private Vector3f mouthPoint(){
+        var mouth=LivingPresentation.variants.get(id);if(mouth==null)return new Vector3f();
         var point=new Vector3f(mouth.x()*16,mouth.y()*16,mouth.z()*16);
         io.github.longshou.mcyukkuri.family.LiveBirthGeometry.deform(point,pregnancyBelly,0);
-        world[rootBone()].transformPosition(point);return point.y;
+        world[rootBone()].transformPosition(point);return point;
     }
 
     /** Apply a world-space model-unit lift to every bone so child attachments follow the landed body. */
@@ -757,7 +764,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0);setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

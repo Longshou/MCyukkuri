@@ -189,22 +189,23 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     private static void configureCareContact(YukkuriEntity parent,String behavior,float partialTick,YukkuriModel model) {
         if (!(behavior.equals("feed_child") || behavior.equals("boat_feed_young")) || parent.carePartnerId() < 0
                 || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)) {
-            model.setCareContact(0,Float.NaN,0);
+            model.setCareContact(0,Float.NaN,0,0);
             return;
         }
         var parentPresentation=LivingPresentation.variants.get(parent.subspecies().assetId());
         var childPresentation=LivingPresentation.variants.get(child.subspecies().assetId());
-        if (parentPresentation == null || childPresentation == null) { model.setCareContact(0,Float.NaN,0); return; }
+        if (parentPresentation == null || childPresentation == null) { model.setCareContact(0,Float.NaN,0,0); return; }
         float parentScale=parent.getScale()*parent.growthScale();
         float childScale=child.getScale()*child.growthScale();
         var parentAt=parent.getPosition(partialTick); var childAt=child.getPosition(partialTick);
-        double dx=parentAt.x-childAt.x,dz=parentAt.z-childAt.z;
-        double horizontal=Math.sqrt(dx*dx+dz*dz);
-        float renderedReach=Math.max(0,(float)(horizontal-model.faceDepth()*parentScale
-                -YukkuriModel.get(child.subspecies().assetId()).faceDepth()*childScale-.01));
+        float parentYaw=(180-Mth.rotLerp(partialTick,parent.yBodyRotO,parent.yBodyRot))*Mth.DEG_TO_RAD;
+        float childYaw=(180-Mth.rotLerp(partialTick,child.yBodyRotO,child.yBodyRot))*Mth.DEG_TO_RAD;
+        var target=new org.joml.Vector3f(childPresentation.x(),childPresentation.y(),childPresentation.z())
+                .mul(childScale).rotateY(childYaw)
+                .add((float)(childAt.x-parentAt.x),(float)(childAt.y-parentAt.y),(float)(childAt.z-parentAt.z))
+                .rotateY(-parentYaw).mul(16/Math.max(.001f,parentScale));
         float blend=.35f+.65f*Mth.clamp(parent.careContactProgress(),0,1);
-        float targetMouthY=(float)((childAt.y+childPresentation.y()*childScale-parentAt.y)*16/Math.max(.001f,parentScale));
-        model.setCareContact(renderedReach*blend,targetMouthY,blend);
+        model.setCareContact(target.x,target.y,target.z,blend);
     }
 
     private static void dailyMotion(YukkuriEntity entity,float partialTick,PoseStack pose) {
