@@ -2085,6 +2085,7 @@
   "shop.mcyukkuri.keeper.state.8": "The pet is too hungry right now. Feed it first.",
   "shop.mcyukkuri.keeper.matched": "%s is expecting.",
   "shop.mcyukkuri.keeper.failed": "The match did not take. The fee is returned.",
+  "shop.mcyukkuri.keeper.failed_reason": "The match did not work out (%s). The fee was refunded.",
   "exam.mcyukkuri.started": "Exam started for %s. Please watch.",
   "exam.mcyukkuri.stay_near": "Stay within 12 blocks of the candidate!",
   "exam.mcyukkuri.interrupted": "Exam interrupted: %s. No refund; the animal needs a short rest.",

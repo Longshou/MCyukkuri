@@ -2085,6 +2085,7 @@
   "shop.mcyukkuri.keeper.state.8": "它现在太饿了，先喂饱再来。",
   "shop.mcyukkuri.keeper.matched": "%s 怀上了。",
   "shop.mcyukkuri.keeper.failed": "相亲没有成功，费用已退还。",
+  "shop.mcyukkuri.keeper.failed_reason": "相亲没有成功（%s），费用已退还。",
   "exam.mcyukkuri.started": "已为 %s 开考，请在旁观看。",
   "exam.mcyukkuri.stay_near": "请留在考生 12 格以内！",
   "exam.mcyukkuri.interrupted": "考试中断：%s。不退费，个体需要休息一会儿。",

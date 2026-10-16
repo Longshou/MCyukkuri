@@ -816,7 +816,7 @@ public final class PetShopGameTests {
             int cashNow = ShopFixtures.emeralds(player);
             MCYukkuri.LOGGER.info("[pet_shop/{}] matchmaking outcome: {}", label, pregnant ? "CONCEIVED (brood exists)" : "REFUNDED (conceive returned null)");
             check("matchmaking conceived at the pet's own home: brood exists, fee kept and permits recorded both ways", pregnant && cashNow == cash - KeeperMenu.FEE && permit,
-                    "pregnant=" + pregnant + " cash " + cash + " -> " + cashNow + " permit=" + permit + " busyParent=" + FamilyData.get(level).busyParent(subject.getUUID()) + " mother conceptions=" + subject.family().conceptions());
+                    "pregnant=" + pregnant + " refusal-after-scene=" + ShopKeeping.refusal(level, subject, spare) + " commandPlaying=" + subject.isCommandPlaying() + "/" + spare.isCommandPlaying() + " cash " + cash + " -> " + cashNow + " permit=" + permit + " busyParent=" + FamilyData.get(level).busyParent(subject.getUUID()) + " mother conceptions=" + subject.family().conceptions());
             return true;
         });
         step("keeper night refusal", 5, () -> {
