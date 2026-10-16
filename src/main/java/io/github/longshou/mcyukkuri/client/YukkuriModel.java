@@ -612,11 +612,11 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young"));
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young")||behavior.equals("first_toilet_assist"));
         composeWorld();
         if(careContact){
             // The source clip's root lift already lands its body.  Measure that exact body floor,
-            // solve a root pitch toward the synchronized target mouth, then restore the same
+            // solve a root pitch toward the synchronized care point, then restore the same
             // floor in model space. This keeps the caregiving mouth free to meet a smaller child
             // while its feet remain supported.
             float floor=bodyMinimumY();float[] root=pose[rootBone()];

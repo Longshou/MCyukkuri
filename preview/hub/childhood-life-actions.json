@@ -1,0 +1,305 @@
+{
+  "clips": [
+    {
+      "id": "childhood-land-feed",
+      "title": "陆地亲油贴近赤油嘴边喂糜",
+      "model": "reimu",
+      "action": "feed_child",
+      "duration": 1.2,
+      "still": 0.65,
+      "flattenStill": true,
+      "background": "#e9e4cf",
+      "actors": [
+        {
+          "model": "reimu",
+          "action": "feed_child",
+          "face": "happy",
+          "careTarget": 1
+        },
+        {
+          "model": "reimu",
+          "action": "idle",
+          "face": "open_smile",
+          "scale": 0.14,
+          "yaw": 180,
+          "z": -7.296
+        }
+      ],
+      "props": [
+        {
+          "id": "food_mash_serving",
+          "scale": 0.2,
+          "end": 0.7,
+          "mouthActor": 0
+        },
+        {
+          "id": "food_mash_serving",
+          "scale": 0.14,
+          "start": 0.7,
+          "mouthActor": 1
+        },
+        {
+          "id": "forest_burrow",
+          "layers": 27,
+          "y": -0.45,
+          "z": 1
+        }
+      ],
+      "camera": {
+        "azimuth": 1.57,
+        "elevation": 0,
+        "span": 12,
+        "centerY": 6
+      },
+      "inset": {
+        "crop": [
+          165,
+          290,
+          225,
+          345
+        ],
+        "at": [
+          440,
+          18
+        ],
+        "size": [
+          180,
+          165
+        ]
+      }
+    },
+    {
+      "id": "childhood-water-feed",
+      "title": "帽船同层内沿贴嘴喂养",
+      "model": "marisa",
+      "action": "boat_feed_young",
+      "duration": 1.2,
+      "still": 0.65,
+      "flattenStill": true,
+      "background": "#b8d8e3",
+      "actors": [
+        {
+          "model": "marisa",
+          "action": "boat_feed_young",
+          "face": "happy",
+          "yaw": -34.24,
+          "accessory": false,
+          "careTarget": 1
+        },
+        {
+          "model": "marisa",
+          "action": "hat_cradle",
+          "face": "surprise",
+          "scale": 0.14,
+          "x": 4.325,
+          "yaw": 145.76,
+          "z": -6.352
+        }
+      ],
+      "props": [
+        {
+          "id": "marisa_hat_turned",
+          "textureFile": "entity/marisa/neutral.png",
+          "boat": true,
+          "parts": [
+            "hat_base_lining",
+            "brim_back"
+          ],
+          "scale": 1,
+          "y": -0.2
+        },
+        {
+          "id": "food_mash_serving",
+          "scale": 0.2,
+          "end": 0.7,
+          "mouthActor": 0
+        },
+        {
+          "id": "food_mash_serving",
+          "scale": 0.14,
+          "start": 0.7,
+          "mouthActor": 1
+        }
+      ],
+      "camera": {
+        "azimuth": 2.17,
+        "elevation": 0,
+        "span": 12,
+        "centerY": 6
+      },
+      "inset": {
+        "crop": [
+          145,
+          270,
+          225,
+          345
+        ],
+        "at": [
+          440,
+          18
+        ],
+        "size": [
+          180,
+          169
+        ]
+      }
+    },
+    {
+      "id": "childhood-first-toilet",
+      "title": "亲油在赤油后侧做首次排便照料",
+      "model": "reimu",
+      "action": "first_toilet_assist",
+      "duration": 1.5,
+      "still": 0.65,
+      "flattenStill": true,
+      "background": "#e6e3ce",
+      "actors": [
+        {
+          "model": "reimu",
+          "action": "first_toilet_assist",
+          "face": "closed_smile",
+          "careTarget": 1,
+          "careTargetOffset": [0, 0.64, 0.924]
+        },
+        {
+          "model": "reimu",
+          "action": "idle",
+          "face": "neutral",
+          "scale": 0.14,
+          "z": -8.12
+        }
+      ],
+      "props": [
+        {
+          "id": "forest_burrow",
+          "layers": 27,
+          "y": -0.45,
+          "z": 1
+        }
+      ],
+      "camera": {
+        "azimuth": 0.62,
+        "elevation": 0.24,
+        "span": 13,
+        "centerY": 3
+      }
+    },
+    {
+      "id": "childhood-locomotion",
+      "title": "赤油先爬行，再做短跳练习",
+      "model": "reimu",
+      "action": "newborn_crawl",
+      "duration": 2.4,
+      "background": "#e5ead8",
+      "actors": [
+        {
+          "model": "reimu",
+          "action": "newborn_crawl",
+          "face": "happy",
+          "scale": 0.14,
+          "from": [
+            -5,
+            0,
+            -1
+          ],
+          "to": [
+            5,
+            0,
+            -1
+          ],
+          "phases": [
+            {
+              "start": 0,
+              "end": 1.2,
+              "action": "newborn_crawl"
+            },
+            {
+              "start": 1.2,
+              "action": "learn_jump"
+            }
+          ]
+        },
+        {
+          "model": "reimu",
+          "action": "sway",
+          "face": "happy",
+          "x": -4,
+          "z": 7,
+          "scale": 0.85
+        }
+      ],
+      "props": [
+        {
+          "id": "forest_burrow",
+          "layers": 27,
+          "x": -7,
+          "y": -0.45,
+          "z": 2
+        }
+      ],
+      "camera": {
+        "azimuth": 0.52,
+        "elevation": 0.24,
+        "span": 17,
+        "centerY": 3
+      }
+    },
+    {
+      "id": "childhood-boat-toilet",
+      "title": "在帽沿向水中排泄",
+      "model": "marisa",
+      "action": "boat_toilet",
+      "duration": 1.6,
+      "still": 0.52,
+      "flattenStill": true,
+      "background": "#b7d6e3",
+      "actors": [
+        {
+          "model": "marisa",
+          "action": "boat_toilet",
+          "face": "chewing_closed",
+          "accessory": false,
+          "yaw": 180
+        }
+      ],
+      "props": [
+        {
+          "id": "marisa_hat_turned",
+          "textureFile": "entity/marisa/neutral.png",
+          "boat": true,
+          "parts": [
+            "hat_base_lining",
+            "hat_base",
+            "hat_band_lining",
+            "hat_band",
+            "brim_front",
+            "brim_back"
+          ],
+          "scale": 1,
+          "y": -0.2
+        },
+        {
+          "id": "yukkuri_waste",
+          "from": [
+            0,
+            0.35,
+            8.2
+          ],
+          "to": [
+            0,
+            -8,
+            10.5
+          ],
+          "scale": 0.68,
+          "start": 0.35
+        }
+      ],
+      "camera": {
+        "azimuth": 1.5,
+        "elevation": -0.08,
+        "span": 12,
+        "centerY": 1.7
+      }
+    }
+  ]
+}

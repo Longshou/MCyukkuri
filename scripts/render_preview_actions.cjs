@@ -9,6 +9,7 @@ if(!taskFile)throw Error('Usage: node scripts/render_preview_actions.cjs --tasks
 const tasks=JSON.parse(fs.readFileSync(taskFile,'utf8'));
 const motions=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'),'utf8')).models;
 const fits=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json'),'utf8')).models;
+const presentations=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json'),'utf8')).variants;
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const poses=new Map(),models=new Map(),textures=new Map();
 function readJson(relative){return JSON.parse(fs.readFileSync(path.join(root,relative),'utf8'));}
@@ -25,6 +26,13 @@ function rawTexture(key){
  const value={...info,raw};textures.set(key,value);return value;
 }
 function interpolate(from,to,q){return (from||[0,0,0]).map((v,i)=>v+((to||from||[0,0,0])[i]-v)*q);}
+function rotateXZ(x,z,yaw){const c=Math.cos(yaw),s=Math.sin(yaw);return [x*c+z*s,-x*s+z*c];}
+function inverseRotateXZ(x,z,yaw){const c=Math.cos(yaw),s=Math.sin(yaw);return [x*c-z*s,x*s+z*c];}
+function actorPosition(actor,q){return interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q);}
+function scenePoint(actor,point,q){
+ const at=actorPosition(actor,q),scale=actor.scale===undefined?1:actor.scale,yaw=(actor.yaw||0)*Math.PI/180;
+ const [x,z]=rotateXZ(point[0]*scale,point[2]*scale,yaw);return [at[0]+x,at[1]+point[1]*scale,at[2]+z];
+}
 function transform(vertices,translation,scale,yaw,tile){
  const out=new Float64Array(vertices.length),c=Math.cos(yaw),s=Math.sin(yaw);
  for(let i=0;i<vertices.length;i+=8){
@@ -38,27 +46,65 @@ function transform(vertices,translation,scale,yaw,tile){
 }
 function bodyFloor(model,vertices){
  let minimum=Infinity;
- for(const part of model.parts||[])if(part.name==='rounded_body_surface'||part.name==='house_body_surface'||part.name==='predator_body_surface'||part.name==='deficient_body_surface'){
+ for(const part of model.parts||[])if(part.name.startsWith('soft_head_slice_')||part.name==='rounded_body_surface'||part.name==='house_body_surface'||part.name==='predator_body_surface'||part.name==='deficient_body_surface'){
   for(let index=part.start;index<part.start+part.count;index++)minimum=Math.min(minimum,vertices[index*8+1]);
  }
  return Number.isFinite(minimum)?minimum:0;
 }
-function groundedCarePose(model,vertices,pitch,reach){
- // Mirrors YukkuriModel's client contact correction: the extra pitch/reach is
- // evaluated against the actual sampled source pose, then the body floor is
- // restored before the mouth-held serving is drawn.
- const floor=bodyFloor(model,vertices),angle=-pitch*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),out=new Float64Array(vertices.length);
- for(let i=0;i<vertices.length;i+=8){
-  const y=vertices[i+1],z=vertices[i+2];out[i]=vertices[i];out[i+1]=y*c-z*s;out[i+2]=y*s+z*c-reach*16;
-  out[i+3]=vertices[i+3];out[i+4]=vertices[i+4];out[i+5]=vertices[i+5];out[i+6]=vertices[i+6]*c-vertices[i+7]*s;out[i+7]=vertices[i+6]*s+vertices[i+7]*c;
+function careTarget(parent,child,q){
+ const parentMouth=presentations[parent.model]?.mouth,childMouth=presentations[child.model]?.mouth;
+ if(!parentMouth||!childMouth)throw Error('Care contact needs living.json mouth anchors');
+ const parentScale=parent.scale===undefined?1:parent.scale,childScale=child.scale===undefined?1:child.scale;
+ const parentYaw=(parent.yaw||0)*Math.PI/180,childYaw=(child.yaw||0)*Math.PI/180;
+ const parentAt=actorPosition(parent,q),childAt=actorPosition(child,q);
+ // Explicit offsets are in scene model units after the child's scale; first-toilet
+ // assistance uses the physical rear point instead of the child's mouth.
+ const point=parent.careTargetOffset||childMouth.map(value=>value*childScale);
+ const [mouthX,mouthZ]=rotateXZ(point[0],point[2],childYaw);
+ const [x,z]=inverseRotateXZ(childAt[0]+mouthX-parentAt[0],childAt[2]+mouthZ-parentAt[2],parentYaw);
+ return {anchor:parentMouth,target:[x/parentScale,(childAt[1]+point[1]-parentAt[1])/parentScale,z/parentScale]};
+}
+function groundedCarePose(pose,action,time,anchor,target,blend=1){
+ // Mirrors YukkuriModel: use the exact root-bone matrix, binary-search the
+ // bounded 50-degree pitch against the synchronized child mouth, then apply
+ // only the runtime's capped X/Z correction and restore the original floor.
+ const model=pose.model,baseline=pose.frame(action,time),floor=bodyFloor(model,baseline),baseMouth=pose.rootPoint(anchor);
+ const goal=baseMouth.map((value,index)=>value+(target[index]-value)*blend);
+ let pitch=0;
+ if(baseMouth[1]>goal[1]){
+  let low=0,high=50;
+  for(let i=0;i<7;i++){
+   const candidate=(low+high)*.5;pose.frame(action,time,{pitch:-candidate});
+   const lifted=Math.max(0,floor-bodyFloor(model,pose.output));
+   if(pose.rootPoint(anchor)[1]+lifted>goal[1])low=candidate;else high=candidate;
+  }
+  pitch=high;
  }
- const lift=Math.max(0,floor-bodyFloor(model,out));if(lift)for(let i=1;i<out.length;i+=8)out[i]+=lift;
+ pose.frame(action,time,{pitch:-pitch});
+ const mouth=pose.rootPoint(anchor),x=Math.max(-.04*16,Math.min(.04*16,(target[0]-mouth[0])*blend)),z=Math.max(-.18*16,Math.min(.18*16,(target[2]-mouth[2])*blend));
+ pose.frame(action,time,{pitch:-pitch,translation:[x,0,z]});
+ const lift=Math.max(0,floor-bodyFloor(model,pose.output));
+ return pose.frame(action,time,{pitch:-pitch,translation:[x,lift,z]});
+}
+function withoutAccessory(model,vertices){
+ // A HatBoat holds the owner's one real hat.  Preview the owner bare-headed,
+ // matching the stowed-accessory state used while the turned hat is afloat.
+ const prefixes=presentations[model.id]?.accessory_prefixes||[];
+ const kept=[];
+ for(const part of model.parts||[])if(!prefixes.some(prefix=>part.name.startsWith(prefix)))kept.push(vertices.slice(part.start*8,(part.start+part.count)*8));
+ const out=new Float64Array(kept.reduce((length,part)=>length+part.length,0));
+ let offset=0;for(const part of kept){out.set(part,offset);offset+=part.length;}
  return out;
 }
 function propVertices(prop,tile,q){
  const data=readJson(prop.source),raw=Float64Array.from(data.vertices),position=interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q);
  let base=raw;
- if(Number.isInteger(prop.layers)){
+ if(Array.isArray(prop.parts)){
+  const wanted=new Set(prop.parts),visible=[];
+  for(const part of data.parts||[])if(wanted.has(part.name))visible.push(raw.slice(part.start*8,(part.start+part.count)*8));
+  base=new Float64Array(visible.reduce((length,part)=>length+part.length,0));
+  let offset=0;for(const part of visible){base.set(part,offset);offset+=part.length;}
+ } else if(Number.isInteger(prop.layers)){
   const visible=[];
   for(const part of data.parts||[]){
    const unit=part.unit||0;
@@ -92,14 +138,26 @@ function sceneEntries(clip,time){
   const pose=poseFor(actor.model);if(!pose.clips[actor.action])throw Error('Unknown action '+actor.model+'/'+actor.action);
   const actionTime=Math.min(actor.maxTime??Infinity,localTime*(actor.speed??1)+(actor.timeOffset??0)),face=actor.face||clip.face||pose.expressionFor(actor.action,actionTime);
   const key='entity:'+actor.model+':'+face;rawTexture(key);pose.expression(face);
-  let vertices=pose.frame(actor.action,actionTime).slice();
-  if(actor.carePitch||actor.careReach)vertices=groundedCarePose(models.get(actor.model),vertices,actor.carePitch||0,actor.careReach||0);
-  entries.push({vertices,translation:interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key});
+  let vertices,anchor=presentations[actor.model]?.mouth;
+  if(Number.isInteger(actor.careTarget)){
+   const child=clip.actors[actor.careTarget];if(!child)throw Error(`Unknown care target ${actor.careTarget}`);
+   const contact=careTarget(actor,child,q);anchor=contact.anchor;vertices=groundedCarePose(pose,actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
+  }else vertices=pose.frame(actor.action,actionTime).slice();
+  // RuntimePose owns one output buffer per model; keep this actor's sampled
+  // result before the next actor with the same model samples into that buffer.
+  vertices=vertices.slice();
+  if(actor.accessory===false)vertices=withoutAccessory(pose.model,vertices);
+  entries.push({vertices,translation:actorPosition(actor,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key,mouth:anchor?scenePoint(actor,pose.rootPoint(anchor),q):null});
  }
  for(const prop of clip.props||[]){
   if(time<(prop.start??0)||time>=(prop.end??Infinity))continue;
   const progress=prop.start!==undefined||prop.end!==undefined?Math.min(1,Math.max(0,(time-(prop.start??0))/Math.max(.001,(prop.end??clip.duration)-(prop.start??0)))):q;
-  rawTexture(prop.textureKey);entries.push({prop,key:prop.textureKey,q:progress});
+  let placed=prop;
+  if(Number.isInteger(prop.mouthActor)){
+   const mouth=entries[prop.mouthActor]?.mouth;if(!mouth)throw Error(`Missing mouth anchor for actor ${prop.mouthActor}`);
+   const {from,to,...anchored}=prop;placed={...anchored,x:mouth[0],y:mouth[1],z:mouth[2]};
+  }
+  rawTexture(placed.textureKey);entries.push({prop:placed,key:placed.textureKey,q:progress});
  }
  return entries;
 }

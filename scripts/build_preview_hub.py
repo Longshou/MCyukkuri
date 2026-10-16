@@ -51,12 +51,12 @@ def render_overview():
     draw = ImageDraw.Draw(sheet)
     draw.text((54, 30), '看得到的动作与场景', font=font(44), fill='#253c35')
     draw.text((56, 98), '从出生到离家 · 当前运行资源离线演示', font=font(22), fill='#66796c')
-    cards = [('亲子共住大叶巢', 'actions/family-shared-sleep.gif', 12),
-             ('亲油嚼糜与新生受喂', 'actions/family-young-feed.gif', 9),
+    cards = [('亲油俯身贴嘴喂糜', 'childhood-life/childhood-land-feed.png', 0),
+             ('首次排便由亲油照料', 'childhood-life/childhood-first-toilet.gif', 12),
+             ('先爬行，再练习短跳', 'childhood-life/childhood-locomotion.gif', 15),
              ('长大后铺个人小巢', 'actions/family-small-build.gif', 10),
-             ('成年后另筑新居', 'actions/build-nest.gif', 10),
-             ('返访家人', 'actions/greet-family.gif', 12),
-             ('帽船家庭的独立路线', 'first-voyage/first-voyage.gif', 18)]
+             ('亚成油另筑新居', 'actions/build-nest.gif', 10),
+             ('在帽沿向水中排泄', 'childhood-life/childhood-boat-toilet.png', 0)]
     for i, (title, source, frame) in enumerate(cards):
         x, y = 48 + i % 3 * 508, 158 + i // 3 * 462
         draw.rounded_rectangle((x, y, x+488, y+438), 18, fill='#fffef9')
@@ -103,6 +103,12 @@ def main():
     if args.render:
         command.append('--force')
     subprocess.run(command, check=True, cwd=ROOT)
+    childhood = [sys.executable, str(ROOT / 'scripts/build_preview_actions.py'), '--node', args.node,
+                 '--manifest', str(ROOT / 'preview/hub/childhood-life-actions.json'),
+                 '--out', str(OUT / 'childhood-life')]
+    if args.render:
+        childhood.append('--force')
+    subprocess.run(childhood, check=True, cwd=ROOT)
     actions = {item['id']: item for item in json.loads((ROOT / 'preview/hub/actions.json').read_text(encoding='utf-8'))['clips']}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {

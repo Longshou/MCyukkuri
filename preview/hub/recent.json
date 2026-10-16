@@ -1,16 +1,16 @@
 {
   "title": "油库里的新一天",
   "since": "2026-10-15T20:00:00+08:00",
-  "sourceRevision": "dca59bf29732a65974bad558b0f9ebab0c84bf6a",
+  "sourceRevision": "743493b2be2c606f45d4bbae9c0807697751f993",
   "baseRevision": "1d6bc8b6e9dcaba700bf75f94e6bca24b1dd55a5",
-  "commitCount": 39,
+  "commitCount": 56,
   "chapters": [
     {
       "id": "water",
       "label": "帽船一家",
       "title": "在一顶帽子上，过一家人的日子。",
       "tag": "水生魔理沙",
-      "summary": "帽船成为水上生活的中心。吃饭、育幼、夜宿，直到小子油第一次自己划出去，再回到亲油身边。",
+      "summary": "帽船承接生育、喂养、向水中排泄、夜宿与行动学习。子油先做往返练习，具备亚成独立能力后驾驶自己的帽船离家。",
       "model": "marisa",
       "gallery": [
         {
@@ -23,11 +23,27 @@
         }
       ],
       "points": [
-        "真实食物存入帽粮；新生幼油由亲油先嚼成糜再喂，长大后才能自己咀嚼。",
-        "幼体可以坐帽檐；第一次航行从父帽出发，短程练习后回船。",
-        "帽内干燥保护仅作用于实际乘员；身体真正入水仍会受伤。"
+        "亲油在帽内实际移位、俯身对嘴喂糜；有限船粮不凭空补充。",
+        "在帽沿受支撑的位置向水中排泄，完成后回位；日常照料不要求返岸。",
+        "初航往返是练习；达到亚成独立门槛后实际驶离，才保留自己的帽船。"
       ],
       "steps": [
+        {
+          "title": "帽内贴嘴喂糜",
+          "body": "剖视离线预览展示同层照料位置与亲子口部关系；完整移动和食物交接仍由服务端实际动作决定。",
+          "image": "childhood-life/childhood-water-feed.png",
+          "animation": "childhood-life/childhood-water-feed.gif",
+          "model": "marisa",
+          "action": "boat_feed_young"
+        },
+        {
+          "title": "在帽沿向水中排泄",
+          "body": "身体仍受帽沿支撑，后侧朝水，废物从真实位置落入水中，随后回到原席位。帽体剖视便于看清支撑关系。",
+          "image": "childhood-life/childhood-boat-toilet.png",
+          "animation": "childhood-life/childhood-boat-toilet.gif",
+          "model": "marisa",
+          "action": "boat_toilet"
+        },
         {
           "title": "初航全过程",
           "body": "从帽檐放下小帽，坐稳、划出，再回到亲油身边。当前资源离线分镜；航线与镜头为演示安排。",
@@ -137,13 +153,13 @@
       "id": "family",
       "label": "从出生到离家",
       "title": "先和父母共巢，再慢慢有自己的家。",
-      "tag": "初食 · 照料 · 共巢 · 分床 · 离家",
-      "summary": "空茎由亲油嚼成糜后喂给新生幼油。幼体在厚实的家庭大叶巢里接受照料，长大一些后在原家铺个人小巢；成年后再选址筑居，独立后仍可探亲。",
-      "model": "chen",
+      "tag": "出生 · 喂糜 · 首便 · 爬跳 · 亚成独立",
+      "summary": "新生由亲油贴嘴喂糜、帮助首次排便，从实际爬行和短跳中学会行动。子油在原家铺个人小巢，亚成期具备独立能力后另筑新居，独立后仍可探亲。",
+      "model": "reimu",
       "points": [
-        "亲油取一份真实食物或空茎，先咀嚼成糜，再近身喂给新生幼油；处理时不增加亲油营养。",
-        "早期亲子共住连续叶巢；年龄与营养成长都达到门槛后，消耗两份植物铺材在原家铺小巢。",
-        "分床保留家庭和库存归属；成年后新居建成并认领成功，才释放旧床、离家独立。"
+        "亲油取一份真实食物，嚼糜后靠近并俯身，双方嘴部接触才交接；幼体吞咽后结算营养。",
+        "首便由亲油在后侧辅助，爬行与起落都记录实际动作；喂养、排泄、行动和学习能力分别保存。",
+        "共巢与分床保留亲缘和库存归属；亚成油新居建成并认领成功后才释放旧床，繁殖仍需成年。"
       ],
       "steps": [
         {
@@ -152,9 +168,28 @@
           "demo": "family-shared-sleep"
         },
         {
-          "title": "亲油嚼糜与新生受喂",
-          "body": "同一根空茎依次经历亲油咀嚼、软糜递送和幼油受喂吞咽；新生幼油不再直接咬整根茎。离线分镜按这三个阶段展示。",
-          "demo": "family-young-feed"
+          "title": "亲油贴嘴喂糜",
+          "body": "当前运行模型的离线动作预览。亲油俯身贴近赤油，食糜随当前持有者嘴部运动；完整交接由服务端实际接触决定。",
+          "image": "childhood-life/childhood-land-feed.png",
+          "animation": "childhood-life/childhood-land-feed.gif",
+          "model": "reimu",
+          "action": "feed_child"
+        },
+        {
+          "title": "首次排便照料",
+          "body": "亲油到赤油后侧进行照料；实际接触完成才排出，保存重载不补发废物。",
+          "image": "childhood-life/childhood-first-toilet.png",
+          "animation": "childhood-life/childhood-first-toilet.gif",
+          "model": "reimu",
+          "action": "first_toilet_assist"
+        },
+        {
+          "title": "先爬行，再练习短跳",
+          "body": "爬行距离与真实起落分别积累，船体漂移和离线等待不增加练习进度；壳型继续爬行。",
+          "image": "childhood-life/childhood-locomotion.png",
+          "animation": "childhood-life/childhood-locomotion.gif",
+          "model": "reimu",
+          "action": "newborn_crawl"
         },
         {
           "title": "长大后铺小巢",
@@ -162,7 +197,7 @@
           "demo": "family-small-build"
         },
         {
-          "title": "成年后另筑新居",
+          "title": "亚成油另筑新居",
           "body": "离家施工沿用实际 brace 动作。先选址、采集、搬运，只有新居可用并认领成功后才释放原床位。",
           "demo": "build-nest"
         },
@@ -177,9 +212,9 @@
           "kind": "logic",
           "states": [
             "真实出生并落定 → 继承可用亲代住所",
-            "厚叶共巢、亲油嚼糜与新生受喂",
-            "年龄和营养成长达标 → 收集两份植物铺材 → 原家分床",
-            "成年且状态合适 → 真实筑居认领 → 离家，亲缘保留"
+            "近身喂糜、首便照料、实际爬行与短跳",
+            "年龄和营养成长达标 → 取真实铺材 → 原家分床",
+            "亚成且具备独立能力 → 真实筑居认领 → 离家，亲缘保留"
           ]
         }
       ],

@@ -71,6 +71,11 @@ class RuntimePose{
   if(extra.length)model={...model,vertices:model.vertices.concat(...extra.map(e=>e.vertices)),weights:model.weights.concat(...extra.map(e=>e.weights))};
   if(revision?.expression_patches)model={...model,expression_patches:{...model.expression_patches,...revision.expression_patches}};
   this.model=model;this.scale=scale;this.clips={...model.clips,...model.behavior_clips};this.puffSurface=surface;
+  // Runtime contact correction targets the authored `root` bone, which may
+  // itself sit below a world-motion parent. Fall back only for older sources.
+  this.rootBone=model.bones.findIndex(b=>b.name==='root');
+  if(this.rootBone<0)this.rootBone=model.bones.findIndex(b=>b.parent<0);
+  if(this.rootBone<0)throw Error('Model has no root bone');
   if(revision){if(JSON.stringify(revision.bone_names)!==JSON.stringify(model.bones.map(b=>b.name)))throw Error('动作骨架与模型不匹配');Object.assign(this.clips,revision.clips);}
   // One morph target: every displaced vertex owns a full rest-space offset.
   this.puffOffsets=new Float64Array(model.vertices.length/8*3);let cursor=(model.vertices.length-extra.reduce((n,e)=>n+e.vertices.length,0))/8;
@@ -87,9 +92,15 @@ class RuntimePose{
   this.src=Float64Array.from(this.model.vertices);
   for(const p of patches[name]||[]){const part=this.model.parts[p.index];if(!part||p.vertices.length!==part.count*8)throw Error('Invalid expression part');this.src.set(p.vertices,part.start*8);}
  }
- frame(action,t){
+ frame(action,t,rootAdjustment=null){
   const model=this.model,poses=model.bones.map(()=>[0,0,0,0,0,0,1,1,1]),world=[];
   sample(this.clips.idle,0,poses);sample(this.clips[action],t,poses);
+  if(rootAdjustment){
+   const adjustment=poses[this.rootBone],translation=rootAdjustment.translation||[0,0,0];
+   if(!Array.isArray(translation)||translation.length!==3)throw Error('Invalid root translation');
+   for(let i=0;i<3;i++)adjustment[i]+=translation[i];
+   adjustment[3]+=rootAdjustment.pitch||0;
+  }
   for(let i=0;i<model.bones.length;i++){
    const p=model.bones[i].pivot,v=poses[i],[x,y,z]=v.slice(3,6).map(a=>a*Math.PI/180);
    const cx=Math.cos(x),sx=Math.sin(x),cy=Math.cos(y),sy=Math.sin(y),cz=Math.cos(z),sz=Math.sin(z),[a,b,d]=v.slice(6);
@@ -97,6 +108,7 @@ class RuntimePose{
    for(let r=0;r<3;r++)m[r*4+3]=p[r]+v[r]-m[r*4]*p[0]-m[r*4+1]*p[1]-m[r*4+2]*p[2];
    const parent=model.bones[i].parent;if(parent>=0)m=multiply(world[parent],m);world.push(m);
   }
+  this.world=world;
   const out=this.output,src=this.src,offsets=this.puffOffsets,puff=puffAmount(this.clips[action],t);out.fill(0);
   for(let pi=0;pi<model.parts.length;pi++){
    const part=puff>0?(this.puffSurface?.part_index===pi?this.puffSurface:this.puffAttachments.get(pi)||model.parts[pi]):model.parts[pi];
@@ -121,6 +133,10 @@ class RuntimePose{
    }
    if(puff>0&&part===this.puffSurface)smoothSurface(out,part,this.puffGroups,puff);
   }return out;
+ }
+ rootPoint(point){
+  if(!this.world)throw Error('Sample a frame before reading its root point');
+  return transform(this.world[this.rootBone],point[0],point[1],point[2]);
  }
 }
 root.RuntimePose=RuntimePose;root.spliceFit=spliceFit;if(typeof module!=='undefined')module.exports={RuntimePose,puffAmount,spliceFit};

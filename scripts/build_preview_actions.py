@@ -44,12 +44,19 @@ def normalise(raw: dict) -> list[dict]:
         if not isinstance(ident, str) or not SAFE_ID.fullmatch(ident): raise ValueError(f'Invalid clip id: {ident!r}')
         if not isinstance(clip.get('model'), str) or not isinstance(clip.get('action'), str): raise ValueError(f'{ident}: model and action are required')
         if not isinstance(clip.get('duration'), (int, float)) or clip['duration'] <= 0: raise ValueError(f'{ident}: positive duration is required')
+        if 'still' in clip and (not isinstance(clip['still'], (int, float)) or not 0 <= clip['still'] <= 1): raise ValueError(f'{ident}: still must be a 0..1 frame fraction')
+        if 'flattenStill' in clip and not isinstance(clip['flattenStill'], bool): raise ValueError(f'{ident}: flattenStill must be boolean')
+        if 'inset' in clip:
+            inset = clip['inset']
+            if not isinstance(inset, dict) or any(not isinstance(inset.get(key), list) for key in ('crop', 'at', 'size')) or len(inset['crop']) != 4 or len(inset['at']) != 2 or len(inset['size']) != 2:
+                raise ValueError(f'{ident}: inset needs crop [left, top, right, bottom], at [x, y], and size [width, height]')
         actors = clip.get('actors') or [dict(model=clip['model'], action=clip['action'])]
         for actor in actors:
             actor.setdefault('model', clip['model']); actor.setdefault('action', clip['action'])
             if not isinstance(actor['model'], str) or not isinstance(actor['action'], str): raise ValueError(f'{ident}: actor model/action must be strings')
             for name in ('speed', 'timeOffset', 'maxTime'):
                 if name in actor and not isinstance(actor[name], (int, float)): raise ValueError(f'{ident}: actor.{name} must be numeric')
+            if 'careTargetOffset' in actor and (not isinstance(actor['careTargetOffset'], list) or len(actor['careTargetOffset']) != 3 or not all(isinstance(value, (int, float)) for value in actor['careTargetOffset'])): raise ValueError(f'{ident}: actor.careTargetOffset must be [x,y,z] in scene model units')
             if 'from' in actor and (not isinstance(actor['from'], list) or len(actor['from']) != 3): raise ValueError(f'{ident}: actor.from must be [x,y,z]')
             if 'to' in actor and (not isinstance(actor['to'], list) or len(actor['to']) != 3): raise ValueError(f'{ident}: actor.to must be [x,y,z]')
             for phase in actor.get('phases', []):
@@ -58,6 +65,8 @@ def normalise(raw: dict) -> list[dict]:
                 if not isinstance(phase.get('action'), str): raise ValueError(f'{ident}: phase.action is required')
         for prop in clip.get('props', []):
             if not isinstance(prop.get('id'), str): raise ValueError(f'{ident}: prop id is required')
+            if 'mouthActor' in prop and (not isinstance(prop['mouthActor'], int) or not 0 <= prop['mouthActor'] < len(actors)): raise ValueError(f'{ident}: prop.mouthActor must name an actor index')
+            if 'textureFile' in prop and (not isinstance(prop['textureFile'], str) or prop['textureFile'].startswith('/') or '..' in Path(prop['textureFile']).parts): raise ValueError(f'{ident}: prop.textureFile must stay below textures/')
             if 'layers' in prop and (not isinstance(prop['layers'], int) or prop['layers'] < 0): raise ValueError(f'{ident}: prop.layers must be a non-negative integer')
             if 'from' in prop and (not isinstance(prop['from'], list) or len(prop['from']) != 3): raise ValueError(f'{ident}: prop.from must be [x,y,z]')
             if 'to' in prop and (not isinstance(prop['to'], list) or len(prop['to']) != 3): raise ValueError(f'{ident}: prop.to must be [x,y,z]')
@@ -80,7 +89,9 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
             textures[f'entity:{model}:{source.stem}'] = {'file': str(target), 'width': width, 'height': height}; sources.append(source)
     for clip in clips:
         for prop in clip.get('props', []):
-            ident = prop['id']; source = ASSETS / 'yukkuri_props' / f'{ident}.json'; image = ASSETS / 'textures/props' / f'{ident}.png'
+            ident = prop['id']; texture_id = prop.get('texture', ident)
+            source = ASSETS / 'yukkuri_props' / f'{ident}.json'
+            image = ASSETS / 'textures' / prop.get('textureFile', f'props/{texture_id}.png')
             if not source.is_file() or not image.is_file(): raise FileNotFoundError(f'{clip["id"]}: unsupported prop {ident}; expected {source} and {image}')
             texture = Image.open(image).convert('RGBA'); width, height = texture.size
             target = texture_dir / f'prop-{ident}.rgba'; target.write_bytes(texture.tobytes())
@@ -91,7 +102,7 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
 
 def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
     digest = hashlib.sha256(json.dumps({'clip': clip, 'frames': frames}, ensure_ascii=False, sort_keys=True).encode())
-    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', *sources]:
+    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', *sources]:
         digest.update(source.relative_to(ROOT).as_posix().encode()); digest.update(source.read_bytes())
     return digest.hexdigest()
 
@@ -123,7 +134,13 @@ def main() -> None:
         for clip, digest in dirty:
             raw_frames = [Path(p).read_bytes() for p in rendered[clip['id']]['frames']]
             frames = [Image.frombytes('RGBA', (task['width'], task['height']), frame) for frame in raw_frames]
-            frames[0].save(out/f'{clip["id"]}.png')
+            still = round((len(frames)-1) * clip.get('still', 0))
+            image = flatten(frames[still], clip.get('background', '#f3f0e8')) if clip.get('flattenStill') else frames[still]
+            if inset := clip.get('inset'):
+                crop = image.crop(tuple(inset['crop'])).resize(tuple(inset['size']), Image.Resampling.NEAREST)
+                x, y = inset['at']; border = Image.new(image.mode, (crop.width + 4, crop.height + 4), '#2d3c46')
+                border.paste(crop, (2, 2)); image.paste(border, (x - 2, y - 2))
+            image.save(out/f'{clip["id"]}.png')
             flattened = [flatten(frame, clip.get('background', '#f3f0e8')) for frame in frames]
             palette = flattened[0].quantize(colors=256, method=Image.Quantize.MEDIANCUT)
             indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in flattened]

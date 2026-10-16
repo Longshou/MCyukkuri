@@ -181,13 +181,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     /**
-     * The server keeps the two bodies in a real face-to-face envelope and only increments the
-     * synchronized progress while their mouths meet.  Model-space mouth anchors differ with age,
-     * so close the remaining rendered gap from that same target instead of inventing a flying food
-     * trajectory.  The model applies this as a root pitch/forward reach around its landed feet.
+     * Follow the server's care partner: feeding reaches the child's mouth, while first-toilet
+     * assistance reaches its rear. Model-space anchors differ with age, so close the rendered
+     * gap with a bounded root lean while keeping the caregiver's body supported.
      */
     private static void configureCareContact(YukkuriEntity parent,String behavior,float partialTick,YukkuriModel model) {
-        if (!(behavior.equals("feed_child") || behavior.equals("boat_feed_young")) || parent.carePartnerId() < 0
+        boolean firstToilet=behavior.equals("first_toilet_assist");
+        if (!(behavior.equals("feed_child") || behavior.equals("boat_feed_young") || firstToilet) || parent.carePartnerId() < 0
                 || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)) {
             model.setCareContact(0,Float.NaN,0,0);
             return;
@@ -200,8 +200,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         var parentAt=parent.getPosition(partialTick); var childAt=child.getPosition(partialTick);
         float parentYaw=(180-Mth.rotLerp(partialTick,parent.yBodyRotO,parent.yBodyRot))*Mth.DEG_TO_RAD;
         float childYaw=(180-Mth.rotLerp(partialTick,child.yBodyRotO,child.yBodyRot))*Mth.DEG_TO_RAD;
-        var target=new org.joml.Vector3f(childPresentation.x(),childPresentation.y(),childPresentation.z())
-                .mul(childScale).rotateY(childYaw)
+        // The first-toilet rear uses the same body-width offset and height as its physical
+        // land drop. In a hat this is the assistance point, before the child moves to the brim.
+        var target=firstToilet?new org.joml.Vector3f(0,.04f,child.getBbWidth()*.55f)
+                :new org.joml.Vector3f(childPresentation.x(),childPresentation.y(),childPresentation.z()).mul(childScale);
+        target.rotateY(childYaw)
                 .add((float)(childAt.x-parentAt.x),(float)(childAt.y-parentAt.y),(float)(childAt.z-parentAt.z))
                 .rotateY(-parentYaw).mul(16/Math.max(.001f,parentScale));
         float blend=.35f+.65f*Mth.clamp(parent.careContactProgress(),0,1);
