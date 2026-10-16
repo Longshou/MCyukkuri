@@ -140,8 +140,14 @@ public final class YukkuriLife {
     }
     public boolean canSpray(){return entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
             &&!isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&sprayDelay==0&&drugSleep==0;}
+    /** Waiting for or deep in the spray's drugged sleep: it cannot resist being handled. */
+    public boolean sedated(){return sprayDelay>0||drugSleep>0;}
+    /** A keeper's drop-off lets a sedated animal sleep only a little longer in its pen. */
+    public void shortenDrugSleep(int ticks){if(drugSleep>ticks)drugSleep=Math.max(ticks,0);}
     public boolean spray(){
-        if(!canSpray())return false;interrupt();sprayDelay=90;entity.setPersistenceRequired();
+        if(!canSpray())return false;
+        entity.playAction("doze_off");// playing an action resets the life state, so the delay is set after it
+        interrupt();sprayDelay=90;entity.setPersistenceRequired();entity.showReaction("sleepy","spray_drowsy",90);
         level().sendParticles(ParticleTypes.CLOUD,entity.getX(),entity.getEyeY(),entity.getZ(),8,.15,.08,.15,.015);return true;
     }
     public void poolRinse(){hygiene=Math.min(100,hygiene+15);wetness=Math.min(100,wetness+5);}

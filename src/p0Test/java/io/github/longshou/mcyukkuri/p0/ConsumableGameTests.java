@@ -157,6 +157,7 @@ public final class ConsumableGameTests {
         check("repeat spray cannot reset onset",!e.life().spray());tick(e,45);e.life().load(e.life().save());
         check("onset remaining survives save/load",e.life().sprayDelay()==45);tick(e,45);
         check("spray creates sleep without a claimed home",e.life().drugSleep()==400&&e.life().home()==null);
+        e.load(e.saveWithoutId(new net.minecraft.nbt.CompoundTag())); // the spray starts the doze-off clip as a running action; this entity is not ticked, so a reload ends it as its expiry would
         for(int i=0;i<25;i++){e.life().plan();e.life().tickGoal();}
         check("actual sleep begins and spends loaded duration",e.life().isSleeping()&&e.life().drugSleep()==375);
         e.life().load(e.life().save());check("sleep remains resumable after load",e.life().drugSleep()==375&&e.life().plan());

@@ -37,7 +37,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
     public static void open(Player player, YukkuriEntity subject) {
         if (!(player instanceof ServerPlayer p) || subject != null && !subject.pet().near(p)) return;
         p.openMenu(new SimpleMenuProvider((id, inv, owner) -> new BadgeMenu(id, inv, subject == null ? -1 : subject.getId()),
-                Component.translatable("badge.mcyukkuri.profile.title")), buf -> buf.writeVarInt(subject == null ? -1 : subject.getId()));
+                Component.translatable("badge.mcyukkuri.title")), buf -> buf.writeVarInt(subject == null ? -1 : subject.getId()));
     }
     public int value(int index) { return data.get(index); }
     public int subjectEntityId() { return (data.get(38) & 0xffff) | (data.get(39) << 16); }
@@ -114,12 +114,14 @@ public final class BadgeMenu extends AbstractContainerMenu {
                 scanPartners(y); var c = candidate();
                 if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c)) {
                     long until = y.level().getGameTime() + 24000; b.permitBreeding(c.getUUID(), until); c.pet().permitBreeding(y.getUUID(), until); done = true;
+                    io.github.longshou.mcyukkuri.pet.PetScenes.permitGranted(y, c, p);
                 }
             } else {
                 var pp = b.permitPartner();
                 if (pp != null && b.owned(p)) {
-                    b.revokeBreeding(pp);
-                    if (p.level() instanceof net.minecraft.server.level.ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) o.pet().revokeBreeding(y.getUUID());
+                    b.revokeBreeding(pp); YukkuriEntity other = null;
+                    if (p.level() instanceof net.minecraft.server.level.ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) { o.pet().revokeBreeding(y.getUUID()); other = o; }
+                    io.github.longshou.mcyukkuri.pet.PetScenes.permitRevoked(y, other, p);
                     done = true;
                 }
             }

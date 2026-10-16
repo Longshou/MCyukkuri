@@ -26,7 +26,7 @@ public final class PetLife {
     private long issuedAt, expiresAt = -1;
     private int source, pedigree, stress, indulgence, cooldown, unauthorized, socialCooldown, stressClock, indulgenceClock, dayClock, lockGone;
     private UUID serial, issuer, lockedBy, formerOwner;
-    private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay;
+    private int neglect, neglectClock, searchClock, abandonedGrade, abandonStage, joyDelay, wildPoise;
     private long lastContact, abandonedAt, dropPos;
     private boolean voidBadge, reunionDue, noticeSent, waits;
     private String lockKind;
@@ -89,14 +89,14 @@ public final class PetLife {
     }
     public boolean detach(Player p) {
         if (!near(p) || !owned(p) || busy() || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
-        var stack = token(); worn = false; give(p, stack); return true;
+        var stack = token(); worn = false; give(p, stack); PetScenes.taken(animal, p); return true;
     }
     public boolean attach(Player p, ItemStack stack) {
         if (!near(p) || !owned(p) || busy() || worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         if (!stack.is(item(grade)) || !tag.hasUUID("BadgeAnimal") || !tag.getUUID("BadgeAnimal").equals(animal.getUUID()) || !tag.hasUUID("BadgeSerial")
                 || serial == null || !serial.equals(tag.getUUID("BadgeSerial"))) return false;
-        worn = true; stack.shrink(1); return true;
+        worn = true; stack.shrink(1); PetScenes.pinned(animal, p); return true;
     }
     /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
     /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */
@@ -117,6 +117,11 @@ public final class PetLife {
         int old = ability(a); setAbility(a, old + Math.round(base * learningMultiplier())); return ability(a) - old;
     }
     public int routine(int kind) { return routines[kind]; }
+    /** Poise earned by calmly ignoring a wild yukkuri in front of the owner: at most 3 a game day. Returns whether anything was gained. */
+    public boolean wildPoiseGain() {
+        if (wildPoise >= 3) return false;
+        wildPoise++; return learn(Ability.POISE, 1) > 0;
+    }
     public void routineCompleted(int kind) { if (!animal.level().isClientSide) routines[kind] = Math.min(100, routines[kind] + 1); }
     public int pedigree() { return pedigree; }
     public void setPedigree(int v) { pedigree = Math.clamp(v, 0, 100); pedigreeSet = true; }
@@ -254,6 +259,15 @@ public final class PetLife {
         else { animal.playAction("droop"); animal.showReaction("cry", "lost_parent", 100); }
     }
 
+    /** A pet chased by a predator runs to its owner when the owner is close enough to help (called by the flee goal). */
+    public boolean fleeToOwner() {
+        if (!isPet() || !(animal.getLastHurtByMob() instanceof YukkuriEntity threat) || !threat.getVariant().isPredator()) return false;
+        var o = animal.level().getPlayerByUUID(owner());
+        if (o == null || !o.isAlive() || o.isSpectator() || o.distanceToSqr(animal) > 256) return false;
+        if (o.distanceToSqr(animal) > 6.25) animal.getNavigation().moveTo(o, 1.7); else animal.getNavigation().stop();
+        return true;
+    }
+
     // sessions
     public boolean busy() { return lockKind != null; }
     public String busyWith() { return lockKind == null ? "" : lockKind; }
@@ -309,7 +323,7 @@ public final class PetLife {
     private UUID stareAt, faceAt;
     private int stareTicks, faceTicks;
     /** Nothing that a badge performance may interrupt: sleep, meals, sessions, panic, family or daily tasks, command actions. */
-    private boolean calm() {
+    public boolean calm() {
         return !busy() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking() && !animal.isCommandPlaying()
                 && !animal.operations().active() && !animal.life().isSleeping() && !animal.life().hasUrgentNeed() && animal.life().mealTicks() == 0
                 && !animal.dailyLife().active() && !animal.groupInteraction().active() && !animal.playLife().active() && animal.hurtTime == 0
@@ -375,6 +389,7 @@ public final class PetLife {
             if (y == null || !calm() || !animal.hasLineOfSight(y)) { stareTicks = 0; return; }
             if (stareTicks == 0 && socialCooldown == 0) react(y);
         } else if (animal.tickCount % 40 == 7) scanBadges();
+        else if (animal.tickCount % 40 == 27 && owner() == null && socialCooldown == 0) WildEncounter.scan(animal);
     }
 
     public void tick() {
@@ -386,7 +401,7 @@ public final class PetLife {
         if (stressClock >= 1200) { stressClock = 0; addStress(-1); }
         if (++indulgenceClock >= 6000) { indulgenceClock = 0; addIndulgence(-1); }
         if (++dayClock >= 24000) {
-            dayClock = 0;
+            dayClock = 0; wildPoise = 0;
             if (indulgence > 60) { var p = animal.life().personality(); p.experienced(Disposition.SELFISHNESS, 1); p.experienced(Disposition.SELF_CONTROL, -1); }
             permits.values().removeIf(until -> until < now());
             if (neglect >= 60 && isPet()) { var p = animal.life().personality(); p.experienced(Disposition.ATTACHMENT, -1); p.experienced(Disposition.SELFISHNESS, 1); }
@@ -404,7 +419,7 @@ public final class PetLife {
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
-        tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday", lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
+        tag.putInt("Cooldown", cooldown); tag.putInt("WildPoise", wildPoise); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday", lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
@@ -417,7 +432,7 @@ public final class PetLife {
         issuedAt = tag.getLong("IssuedAt"); expiresAt = tag.contains("ExpiresAt") ? tag.getLong("ExpiresAt") : -1; source = Math.clamp(tag.getInt("Source"), 0, 6);
         pedigree = Math.clamp(tag.getInt("Pedigree"), 0, 100); pedigreeSet = tag.getBoolean("PedigreeSet");
         stress = Math.clamp(tag.getInt("Stress"), 0, 100); indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100);
-        cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
+        cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); wildPoise = Math.clamp(tag.getInt("WildPoise"), 0, 3); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
         lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;
         history.clear(); for (var e : tag.getList("History", 10)) { history.add(ExamRecord.load((CompoundTag)e)); }

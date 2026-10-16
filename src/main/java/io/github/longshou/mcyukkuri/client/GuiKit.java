@@ -58,6 +58,14 @@ public final class GuiKit {
     public static void expiredChip(GuiGraphics g, int x, int y) { blit(g, x, y, 27, 48, 9, 9); }
     public static final int CHIP_WIDTH = 11;
 
+    /** 0-100 values shown as words (Low / Mid / High); the thresholds live only here. */
+    public static final int LEVEL_MID = 30, LEVEL_HIGH = 60;
+    public static MutableComponent level(int value) {
+        return Component.translatable("shop.mcyukkuri.level." + (value < LEVEL_MID ? 0 : value < LEVEL_HIGH ? 1 : 2));
+    }
+    /** Mouse inside the rectangle (all in the same, absolute screen coordinates). */
+    public static boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
+
     /** Grade name in its badge colour. */
     public static MutableComponent gradeName(int grade) {
         int id = Math.max(0, Math.min(3, grade));

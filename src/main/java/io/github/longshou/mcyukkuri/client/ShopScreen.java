@@ -13,7 +13,7 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
-    private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224;
+    private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224, LOW_HEALTH = 6, LOW_NUTRITION = 30;
     private final Button[] actions = new Button[25];
     public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 250; }
     @Override protected void init() {
@@ -89,13 +89,13 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         var c = Component.translatable("shop.mcyukkuri.tag." + (packed & 15)); int second = packed >> 4 & 15;
         return second == 15 ? c : c.append(" / ").append(Component.translatable("shop.mcyukkuri.tag." + second));
     }
-    /** Four labelled ability bars (name, value, pattern-coded bar) starting at x, y; each cell is 60 wide. */
-    private void abilityBars(GuiGraphics g, int x, int y, int base) {
+    /** Four labelled ability bars (name, pattern-coded bar, value when nums) starting at x, y; each cell is cell wide. */
+    private void abilityBars(GuiGraphics g, int x, int y, int base, int cell, boolean nums) {
         for (int i = 0; i < 4; i++) {
-            int cx = x + i * 60, v = menu.value(base + i), w = font.width(Integer.toString(v));
+            int cx = x + i * cell, v = menu.value(base + i), w = font.width(Integer.toString(v));
             g.drawString(font, Component.translatable("shop.mcyukkuri.ab." + i), cx, y, INK, false);
-            g.drawString(font, Integer.toString(v), cx + 54 - w, y, INK, false);
-            bar(g, cx, y + 10, 54, i, v);
+            if (nums) g.drawString(font, Integer.toString(v), cx + cell - 6 - w, y, INK, false);
+            bar(g, cx, y + 10, cell - 6, i, v);
         }
     }
     private void drawRow(GuiGraphics g, int k, int y) {
@@ -103,11 +103,18 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         if (expired) expiredChip(g, ROW_X + 6, y + 4); else chip(g, ROW_X + 6, y + 4, f & 3);
         g.drawString(font, Component.translatable("shop.mcyukkuri.row.head2", expired ? GuiKit.expiredGradeName(f & 3) : GuiKit.gradeName(f & 3), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." + menu.value(k + 1))), ROW_X + 6 + CHIP_WIDTH, y + 5, INK, false);
         stars(g, ROW_X + ROW_W - 6 - STARS_WIDTH, y + 4, menu.value(k + 3));
-        abilityBars(g, ROW_X + 6, y + 17, k + 4);
-        g.drawString(font, tags(menu.value(k + 8)).append("  ").append(Component.translatable("shop.mcyukkuri.vitals", menu.value(k + 9), menu.value(k + 10))), ROW_X + 6, y + 35, SOFT, false);
-        var zone = Component.translatable((f & 16) != 0 ? "shop.mcyukkuri.zone.sold" : (f & 8) != 0 ? "shop.mcyukkuri.zone.display" : "shop.mcyukkuri.zone.back");
-        if ((f & 32) != 0) zone.append("  ").append(Component.translatable("shop.mcyukkuri.origin.factory"));
-        g.drawString(font, zone, ROW_X + 6, y + 44, (f & 16) != 0 ? WARN : SOFT, false);
+        abilityBars(g, ROW_X + 6, y + 17, k + 4, 60, false);
+        var tag = tags(menu.value(k + 8)); int tx = ROW_X + 6;
+        g.drawString(font, tag, tx, y + 35, SOFT, false); tx += font.width(tag) + 10;
+        if (menu.value(k + 9) < LOW_HEALTH) { var w = Component.translatable("shop.mcyukkuri.warn.hurt"); g.drawString(font, w, tx, y + 35, WARN, false); tx += font.width(w) + 8; }
+        if (menu.value(k + 10) < LOW_NUTRITION) g.drawString(font, Component.translatable("shop.mcyukkuri.warn.hungry"), tx, y + 35, WARN, false);
+        boolean sold = (f & 16) != 0, factory = (f & 32) != 0;
+        if (sold || (f & 8) != 0 || factory) {
+            MutableComponent zone = Component.empty();
+            if (sold || (f & 8) != 0) zone.append(Component.translatable(sold ? "shop.mcyukkuri.zone.sold" : "shop.mcyukkuri.zone.display"));
+            if (factory) { if (sold || (f & 8) != 0) zone.append("  "); zone.append(Component.translatable("shop.mcyukkuri.origin.factory")); }
+            g.drawString(font, zone, ROW_X + 6, y + 44, sold ? WARN : SOFT, false);
+        }
     }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         int tab = menu.value(0);
@@ -126,28 +133,38 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             if (menu.value(6) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(10);
             line(g, 38, INK, Component.translatable("shop.mcyukkuri.subject", menu.value(7), menu.value(6), species(menu.value(8)), grade(f), Component.translatable("human.mcyukkuri.stage." + menu.value(9))));
-            abilityBars(g, 16, 52, 12);
+            abilityBars(g, 16, 52, 12, 78, true);
             chip(g, 16, 75, f & 3); stars(g, 29, 75, menu.value(11));
             g.drawString(font, tags(menu.value(35)), 86, 76, SOFT, false);
-            line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", menu.value(16), menu.value(17), menu.value(18)));
+            line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(16) * 10)), level(menu.value(17)), level(menu.value(18))));
             if (buy) {
                 line(g, 108, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(29)));
                 line(g, 122, menu.value(34) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(34), menu.value(5), ShopMenu.STOCK_CAPACITY));
                 line(g, 136, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
                 return;
             }
-            line(g, 108, INK, Component.translatable("badge.mcyukkuri.profile.routines", menu.value(21), menu.value(22), menu.value(23)));
-            line(g, 120, INK, Component.translatable("badge.mcyukkuri.profile.growth", menu.value(11), menu.value(19), menu.value(20), menu.value(24)));
-            line(g, 132, INK, Component.translatable("shop.mcyukkuri.weakest", Component.translatable("shop.mcyukkuri.ability." + menu.value(25))));
-            if (menu.value(33) == 0) line(g, 144, SOFT, Component.translatable("shop.mcyukkuri.forecast_hint"));
-            else line(g, 144, INK, Component.translatable("shop.mcyukkuri.forecast_result", Component.translatable("shop.mcyukkuri.forecast." + menu.value(30)),
+            line(g, 106, INK, Component.translatable("badge.mcyukkuri.profile.routines", menu.value(21), menu.value(22), menu.value(23)));
+            var growth = Component.translatable("badge.mcyukkuri.profile.growth", level(menu.value(19)), level(menu.value(20)));
+            if (menu.value(24) > 0) growth.append("  ").append(Component.translatable("badge.mcyukkuri.profile.unauthorized", menu.value(24)));
+            line(g, 118, INK, growth);
+            if (menu.value(33) == 0) line(g, 134, SOFT, Component.translatable("shop.mcyukkuri.forecast_hint"));
+            else line(g, 134, INK, Component.translatable("shop.mcyukkuri.forecast_result", Component.translatable("shop.mcyukkuri.forecast." + menu.value(30)),
                     Component.translatable("shop.mcyukkuri.forecast." + menu.value(31)), Component.translatable("shop.mcyukkuri.forecast." + menu.value(32))));
-            line(g, 160, INK, Component.translatable("shop.mcyukkuri.advice_title"));
+            line(g, 154, INK, Component.translatable("shop.mcyukkuri.advice_title"));
             boolean any = false;
-            for (int i = 0; i < 3; i++) if (menu.value(26 + i) > 0) { any = true; line(g, 172 + i * 12, INK, Component.literal("- ").append(Component.translatable("shop.mcyukkuri.advice." + menu.value(26 + i)))); }
-            if (!any) line(g, 172, SOFT, Component.translatable("shop.mcyukkuri.advice.0"));
-            if (menu.value(36) > 0) g.drawString(font, Component.translatable("shop.mcyukkuri.title", Component.translatable("title.mcyukkuri.pet." + menu.value(36))), 130, 160, menu.value(36) == 2 ? GOOD : INK, false);
+            for (int i = 0; i < 3; i++) if (menu.value(26 + i) > 0) { any = true; line(g, 166 + i * 12, INK, Component.literal("- ").append(Component.translatable("shop.mcyukkuri.advice." + menu.value(26 + i)))); }
+            if (!any) line(g, 166, SOFT, Component.translatable("shop.mcyukkuri.advice.0"));
+            if (menu.value(36) > 0) g.drawString(font, Component.translatable("shop.mcyukkuri.title", Component.translatable("title.mcyukkuri.pet." + menu.value(36))), 130, 154, menu.value(36) == 2 ? GOOD : INK, false);
         }
     }
-    @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }
+    /** Hover text on the pedigree stars (live rows and the consult/buyback subject). */
+    private void pedigreeTip(GuiGraphics g, int mx, int my) {
+        int tab = menu.value(0); boolean hit = false;
+        if (tab == ShopMenu.LIVE) {
+            for (int i = 0; i < ShopMenu.PAGE_ROWS; i++)
+                if (menu.value(8 + i * 12) > 0 && over(mx, my, leftPos + ROW_X + ROW_W - 6 - STARS_WIDTH, topPos + TOP + i * ROW + 4, STARS_WIDTH, 9)) hit = true;
+        } else if (tab >= ShopMenu.BUYBACK && menu.value(6) > 0) hit = over(mx, my, leftPos + 29, topPos + 75, STARS_WIDTH, 9);
+        if (hit) g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), mx, my);
+    }
+    @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); pedigreeTip(g, x, y); }
 }

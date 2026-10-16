@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -235,10 +236,17 @@ public final class ShopMenu extends AbstractContainerMenu {
             if (o.pet().grade().id() < animal.pet().grade().id()) o.showReaction("teary", "badge_envy", 60);
             else { o.playAction("beg"); o.speak("shop_appeal"); }
         }
-        UUID id = animal.getUUID(), buyer = p.getUUID(); Vec3 at = animal.position();
+        UUID id = animal.getUUID(), buyer = p.getUUID(); Vec3 at = animal.position(); HumanNpc clerk = target;
         ShopPerformance.schedule(level, age -> {
             if (age < 30) return false;
-            if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) { deliverEmeralds(level, buyer, at, price); return true; }
+            if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) { handBack(clerk); deliverEmeralds(level, buyer, at, price); return true; }
+            if (age == 30) { // handover: the clerk holds out an empty basket and the animal climbs in
+                a.playAction("basket_in"); a.speak("basket_enter"); clerk.swing(InteractionHand.MAIN_HAND);
+                if (clerk.getMainHandItem().isEmpty()) clerk.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
+                return false;
+            }
+            if (age < 46) return false;
+            handBack(clerk);
             a.pet().unlock("sale");
             var previous = HumanCommerce.data(a).copy();
             HumanCommerce.assign(a, buyer, "companion");
@@ -250,6 +258,11 @@ public final class ShopMenu extends AbstractContainerMenu {
             return true;
         });
         return true;
+    }
+    /** The clerk puts an empty basket away. */
+    private static void handBack(HumanNpc clerk) {
+        var held = clerk.getMainHandItem();
+        if (held.is(ModItems.CARRIER.get()) && io.github.longshou.mcyukkuri.item.CarrierItem.token(held) == null) clerk.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
     private boolean locate(Player p, int row) {
         if (row < 0 || row >= PAGE_ROWS) return false;
@@ -297,9 +310,13 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= 20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
         else if (pers.selfishness() >= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }
         else a.playAction("bow");
-        UUID id = a.getUUID();
+        UUID id = a.getUUID(); HumanNpc clerk = target;
         ShopPerformance.schedule(level, age -> {
             if (age < 60) return false;
+            // After the farewell a keeper fetches the animal, it climbs into a basket and is carried to its pen; busy keepers are waited for (up to 20 seconds), no keeper means the direct move.
+            int courier = ShopCourier.dispatchSale(level, clerk, id, pen);
+            if (courier > 0) return true;
+            if (courier == 0 && age < 460) return false;
             ShopPerformance.RESERVED.remove(pen.asLong());
             if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
                 y.pet().unlock("sale");

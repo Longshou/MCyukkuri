@@ -1003,6 +1003,7 @@ public final class YukkuriEntity extends PathfinderMob {
             if (panicTicks > 100) { navigation.stop(); return; }
             if (navigation.isDone() || tickCount % 10 == 0) {
                 if (getLastHurtByMob() instanceof YukkuriEntity threat && threat.getVariant().isPredator()) {
+                    if (pet.fleeToOwner()) return;
                     var safe = life.homeStand();
                     if (safe != null && life.navigate(safe, 1.7, false)) return;
                 }

@@ -11052,5 +11052,2501 @@
     ],
     "ticks": 103,
     "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_date_meet",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_date_fond",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_date_meet",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_date_fond",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_date_meet",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_date_fond",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_date_meet",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_date_fond",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_date_meet",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_date_fond",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 131,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_predator_restrain",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_predator_restrain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "predator_restrain"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_predator_obey",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_predator_obey",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "predator_obey"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_predator_defy",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_predator_defy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "predator_defy"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_date_meet",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_date_fond",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_predator_restrain",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_predator_restrain",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "predator_restrain"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_predator_obey",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_predator_obey",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "predator_obey"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_predator_defy",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_predator_defy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "predator_defy"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_date_meet",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_date_fond",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_permit_glad",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_courtship_held",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_badge_pinned",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_badge_taken",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_basket_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_basket_enter",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_basket_exit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_predator_restrain",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_predator_restrain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "predator_restrain"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_predator_obey",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_predator_obey",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "predator_obey"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_predator_defy",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_predator_defy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "predator_defy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_date_meet",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_date_meet",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "date_meet"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_date_fond",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_date_fond",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "date_fond"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_permit_glad",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_permit_glad",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "permit_glad"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_courtship_held",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_courtship_held",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "courtship_held"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_badge_pinned",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_badge_pinned",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "badge_pinned"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_badge_taken",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_badge_taken",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "badge_taken"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_spray_drowsy",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_spray_drowsy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_spray_drowsy2",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_spray_drowsy2",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "spray_drowsy"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_basket_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_basket_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_basket_refuse2",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_basket_refuse2",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "basket_refuse"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_basket_enter",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_basket_enter",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "basket_enter"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_basket_exit",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_basket_exit",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "basket_exit"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_wild_plea_keep",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_wild_plea_keep",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "wild_plea_keep"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_pet_report_owner",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_pet_report_owner",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "pet_report_owner"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_predator_restrain",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_predator_restrain",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "predator_restrain"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_predator_obey",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_predator_obey",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "predator_obey"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_predator_defy",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_predator_defy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "predator_defy"
+    ],
+    "ticks": 79,
+    "sound": ""
   }
 ]

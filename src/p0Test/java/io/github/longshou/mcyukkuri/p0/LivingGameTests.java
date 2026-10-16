@@ -69,6 +69,7 @@ public final class LivingGameTests {
     private ItemEntity item;
     private UUID identity, token, accessoryToken;
     private ItemStack carrier;
+    private float[] paused;
     private CompoundTag before;
     private Vec3 position;
 
@@ -349,7 +350,12 @@ public final class LivingGameTests {
             fresh();life(a,d->{d.putFloat("Nutrition",43);d.putFloat("Energy",62);d.putFloat("Hygiene",71);});
             identity=a.getUUID();carrier=new ItemStack(ModItems.CARRIER.get());
             alice.setItemInHand(InteractionHand.MAIN_HAND,carrier);
-            ModItems.CARRIER.get().interactLivingEntity(carrier,alice,a,InteractionHand.MAIN_HAND);token=CarrierItem.token(carrier);
+            // A wild animal resists the basket: a pet of the player climbs in by itself after a short entry scene.
+            io.github.longshou.mcyukkuri.human.HumanCommerce.assign(a,alice.getUUID(),"companion");
+            ModItems.CARRIER.get().interactLivingEntity(carrier,alice,a,InteractionHand.MAIN_HAND);
+        });
+        later(30,"capture completes",()-> {
+            token=CarrierItem.token(carrier);paused=new float[]{a.life().nutrition(),a.life().energy(),a.life().hygiene()}; // the removed entity keeps its last values
             check("capture gives custody of one UUID",a.isRemoved()&&token!=null&&YukkuriWorldData.get(level).hasToken(token),token);
             before=YukkuriWorldData.get(level).save(new CompoundTag(),level.registryAccess());
             check("custody survives SavedData serialization",YukkuriWorldData.load(before,level.registryAccess()).hasToken(token),before);
@@ -359,7 +365,7 @@ public final class LivingGameTests {
         });
         later(300,"release without offline metabolism",()-> {
             a=YukkuriWorldData.get(level).release(token,level,new Vec3(96.5,65,24.5),0);
-            check("release preserves identity and paused physiology",a!=null&&a.getUUID().equals(identity)&&a.life().nutrition()==43&&a.life().energy()==62&&a.life().hygiene()==71,state());
+            check("release preserves identity and paused physiology",a!=null&&a.getUUID().equals(identity)&&a.life().nutrition()==paused[0]&&a.life().energy()==paused[1]&&a.life().hygiene()==paused[2],state());
             check("copied used token cannot duplicate an entity",YukkuriWorldData.get(level).release(token,level,new Vec3(97.5,65,24.5),0)==null&&!YukkuriWorldData.get(level).hasToken(token),token);
         });
     }

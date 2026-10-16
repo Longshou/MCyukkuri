@@ -638,7 +638,7 @@ public final class FamilyLife {
     /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
     private boolean allowCourt(YukkuriEntity other) {
         int gate=Math.max(entity.pet().courtshipGate(other),other.pet().courtshipGate(entity));
-        if(gate==2){wait=600;entity.showReaction("teary","",40);return false;}
+        if(gate==2){wait=600;io.github.longshou.mcyukkuri.pet.PetScenes.courtshipHeld(entity,other);return false;}
         unauthorizedWith=gate==1?other.getUUID():null;return true;
     }
     public boolean canReproduceWith(YukkuriEntity other) {

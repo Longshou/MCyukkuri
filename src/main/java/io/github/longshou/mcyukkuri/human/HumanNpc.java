@@ -100,6 +100,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new PanicGoal(this, 1.25));
+        goalSelector.addGoal(1, new CourierGoal());
         goalSelector.addGoal(2, new RoutineGoal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
@@ -141,7 +142,7 @@ public final class HumanNpc extends PathfinderMob {
     /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
     private void revokeVoidBadges() {
         for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6), v -> v.isAlive() && v.pet().voidBadge() && hasLineOfSight(v))) {
-            y.pet().revoke(); swing(InteractionHand.MAIN_HAND);
+            y.pet().revoke(); swing(InteractionHand.MAIN_HAND); io.github.longshou.mcyukkuri.pet.PetScenes.revoked(y);
             var near = level().getNearestPlayer(this, 16);
             if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
             return;
@@ -188,6 +189,12 @@ public final class HumanNpc extends PathfinderMob {
             y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
         }
         return false;
+    }
+    /** While a keeper runs a courier job (ShopCourier steers the walk), this holds the move and look flags so the routine, strolling and restriction goals stand aside. */
+    private final class CourierGoal extends Goal {
+        CourierGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return job() == Job.KEEPER && io.github.longshou.mcyukkuri.shop.ShopCourier.active(HumanNpc.this); }
+        @Override public boolean canContinueToUse() { return canUse(); }
     }
     private final class RoutineGoal extends Goal {
         private int elapsed;
