@@ -257,8 +257,10 @@ public final class YukkuriModel {
         float half = badgeMount.get("diameter").getAsFloat()*.5f;
         emitBadge(tier,center,right,up,outward,half,stack,buffers,light,overlay);
     }
+    /** Old data stored 1 silver / 2 gold; new data (BadgeGradeV2) stores 1 bronze / 2 silver / 3 gold. */
+    public static int legacyTier(net.minecraft.nbt.CompoundTag data,String key){int t=data.getInt(key);return t>0&&!data.getBoolean("BadgeGradeV2")?t+1:t;}
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay) {
-        var mount=detachedBadges.get(name);if(mount==null||tier<1||tier>2)return;
+        var mount=detachedBadges.get(name);if(mount==null||tier<1||tier>3)return;
         var center=new Vector3f(floats(mount.getAsJsonArray("rest_point"))).div(16);
         var outward=new Vector3f(floats(mount.getAsJsonArray("rest_normal"))).normalize();
         var right=new Vector3f(0,1,0).cross(outward).normalize();var up=new Vector3f(outward).cross(right).normalize();
@@ -270,7 +272,7 @@ public final class YukkuriModel {
     private static void emitBadge(int tier,Vector3f center,Vector3f right,Vector3f up,Vector3f outward,float half,
             PoseStack stack,net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay) {
         center.fma(Math.max(.0007f,half*.025f),outward);
-        var buffer=buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(MCYukkuri.id("textures/item/"+(tier==2?"gold":"silver")+"_yukkuri_badge.png")));
+        var buffer=buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(MCYukkuri.id("textures/item/"+(tier>=3?"gold":tier==2?"silver":"bronze")+"_yukkuri_badge.png")));
         float[][] corners={{-1,-1,0,1},{1,-1,1,1},{1,1,1,0},{-1,1,0,0}};
         for(var corner:corners){
             var point=new Vector3f(center).fma(corner[0]*half,right).fma(corner[1]*half,up);
@@ -773,7 +775,7 @@ public final class YukkuriModel {
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,"idle",0,body.getInt("HairLoss"));
             if(drawingWoundedBody)WoundRenderer.render(key,id,"sleep",wounds,0,body.getInt("Bandage")>0,data.getInt("Filling"),id.startsWith("house_"),world,stack,buffer,buffers,light,overlay);
-            if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
+            if(accessory)renderBadge(legacyTier(data,"Medal"),stack,buffers,light,overlay);
         }finally{drawingWoundedBody=false;hatScale=1;setExpression("");}
     }
     private void setExpression(String name){

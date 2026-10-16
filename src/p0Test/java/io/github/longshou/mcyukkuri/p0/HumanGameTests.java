@@ -69,7 +69,7 @@ public final class HumanGameTests {
         var oni=humans.stream().filter(n->n.look()==HumanNpc.Look.ONIISAN).findFirst().orElseThrow();
         check("Profession and attitude are separate",shop.attitude()==HumanNpc.Attitude.NEUTRAL&&worker.attitude()==HumanNpc.Attitude.NEUTRAL&&oni.attitude()==HumanNpc.Attitude.CRUEL);
         check("Rotated structure stock binds all six real animals to its keeper ("+shop.animals("stock").size()+")",shop.animals("stock").size()==6);
-        check("Shop stocks ordinary, silver and gold education grades",shop.animals("stock").stream().map(y->y.life().medal()).collect(java.util.stream.Collectors.toSet()).equals(Set.of(0,1,2)));
+        check("Shop stocks ordinary, silver and gold education grades",shop.animals("stock").stream().map(y->y.pet().grade().id()).collect(java.util.stream.Collectors.toSet()).equals(Set.of(0,2,3)));
         check("Factory reserves are not silently processed",worker.animals("reserve").size()==4&&worker.animals("input").isEmpty());
         check("Missing companion has a persistent exact identity",sister.lostAnimal()!=null);
         var p=FakePlayerFactory.get(level,new com.mojang.authlib.GameProfile(UUID.fromString("ce1a6418-fdea-46fd-b797-c8ad9daf17ed"),"HumanAcceptance"));
@@ -78,7 +78,7 @@ public final class HumanGameTests {
         // This rotated gallery position is kept free, on the keeper's side of the counter.
         p.moveTo(shop.position().add(0,0,-1));
         var animal=shop.animals("stock").stream().sorted(Comparator.comparingInt((YukkuriEntity y)->y.getVariant().ordinal())
-                .thenComparing(Comparator.comparingInt((YukkuriEntity y)->y.life().medal()).reversed()).thenComparing(YukkuriEntity::getUUID)).findFirst().orElseThrow();UUID identity=animal.getUUID();
+                .thenComparing(Comparator.comparingInt((YukkuriEntity y)->y.pet().grade().id()).reversed()).thenComparing(YukkuriEntity::getUUID)).findFirst().orElseThrow();UUID identity=animal.getUUID();
         check("Unsold stock cannot be taken with a free carrier",!HumanCommerce.mayCapture(p,animal));
         var originalFamily=animal.family().save();var originalPersonality=animal.life().personality().save();
         var menu=new HumanMenu(1,p.getInventory(),shop.getId());p.containerMenu=menu;

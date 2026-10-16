@@ -8,55 +8,52 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
+    private static final int[] BUTTONS = {5, 10, 8, 11, 12, 13};
     private final Button[] buttons = new Button[14];
-    public BadgeScreen(BadgeMenu m, Inventory inv, Component title) { super(m, inv, title); imageWidth = 360; imageHeight = 314; }
+    public BadgeScreen(BadgeMenu m, Inventory inv, Component title) { super(m, inv, title); imageWidth = 360; imageHeight = 250; }
     @Override protected void init() {
         super.init();
-        for (int i = 0; i < buttons.length; i++) {
-            final int id = i;
-            buttons[i] = addRenderableWidget(Button.builder(Component.translatable("badge.mcyukkuri.action." + i), b -> {
+        for (int n = 0; n < BUTTONS.length; n++) {
+            final int id = BUTTONS[n];
+            buttons[id] = addRenderableWidget(Button.builder(Component.translatable("badge.mcyukkuri.action." + id), b -> {
                 if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id);
-            }).bounds(leftPos + 10 + (i < 11 ? i%3 : i-11)*115, topPos + (i < 11 ? 190 + i/3*24 : 286), 110, 20)
-                    .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + i))).build());
+            }).bounds(leftPos + 10 + n % 3 * 115, topPos + 176 + n / 3 * 24, 110, 20)
+                    .tooltip(Tooltip.create(Component.translatable("badge.mcyukkuri.help." + id))).build());
         }
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos+240, topPos+262, 110, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos+240, topPos+224, 110, 20).build());
     }
     @Override protected void containerTick() {
-        super.containerTick(); boolean idle = menu.value(13) == 0, own = menu.value(19) == 1 && menu.value(27) == 1;
-        for (var b : buttons) b.active = own && idle;
-        for (int i = 0; i < 3; i++) buttons[i].active &= menu.value(16) == 0 && menu.value(7+i) < 100;
-        buttons[3].active &= menu.value(3) == 1 && menu.value(4) < 1 && menu.value(16) == 0;
-        buttons[4].active &= menu.value(3) == 1 && menu.value(4) < 2 && menu.value(16) == 0;
-        buttons[5].active &= menu.value(4) > 0 && menu.value(5) == 1 && menu.value(20) == 1;
-        buttons[6].active &= menu.value(3) == 1 && menu.value(4) > 0 && (menu.value(5) == 0 || menu.value(20) == 0);
-        buttons[7].active = !own && menu.subjectEntityId() != 0 && idle;
+        super.containerTick(); boolean own = menu.value(25) == 1 && menu.value(26) == 1, idle = menu.value(30) == 0;
+        buttons[5].active = own && idle && menu.value(3) > 0 && menu.value(6) == 1;
+        buttons[10].active = own && idle && menu.value(3) > 0 && menu.value(6) == 0 && menu.value(34) == 1;
         buttons[8].active = menu.value(1) > 1;
-        buttons[9].active = own && !idle;
-        buttons[10].active &= menu.value(4) > 0 && menu.value(5) == 0 && menu.value(20) == 1;
-        for (int i = 11; i < 14; i++) { buttons[i].visible = menu.value(29) == 1; buttons[i].active &= menu.value(30) == 1; }
+        for (int i = 11; i < 14; i++) { buttons[i].visible = menu.value(27) == 1; buttons[i].active = own && idle && menu.value(28) == 1; }
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
         g.fill(leftPos, topPos, leftPos+imageWidth, topPos+imageHeight, 0xff334740);
         g.fill(leftPos+3, topPos+3, leftPos+imageWidth-3, topPos+imageHeight-3, 0xfff4ead5);
     }
-    private void line(GuiGraphics g, int y, String key, Object... args) { g.drawString(font, Component.translatable("badge.mcyukkuri."+key, args), 10, y, 0xff34453e, false); }
+    private void line(GuiGraphics g, int y, String key, Object... args) { g.drawString(font, Component.translatable("badge.mcyukkuri.profile."+key, args), 10, y, 0xff34453e, false); }
+    private static String score(int v) { return v < 0 ? "-" : Integer.toString(v); }
     @Override protected void renderLabels(GuiGraphics g, int x, int y) {
         var entity = minecraft.level == null ? null : minecraft.level.getEntity(menu.subjectEntityId());
-        line(g, 10, "subject", entity == null ? Component.translatable("badge.mcyukkuri.no_subject") : entity.getDisplayName(), menu.value(2), menu.value(1));
-        line(g, 26, "certificate", Component.translatable("human.mcyukkuri.medal."+menu.value(4)), Component.translatable("badge.mcyukkuri.source."+menu.value(6)),
-                Component.translatable("badge.mcyukkuri.wear."+(menu.value(20)==0?2:menu.value(5))));
-        line(g, 43, "skills", menu.value(7), menu.value(8), menu.value(9));
-        line(g, 59, "routines", menu.value(10), menu.value(11), menu.value(12), menu.value(21));
-        line(g, 76, "requirements");
-        line(g, 92, "thresholds");
-        line(g, 108, "session", Component.translatable("badge.mcyukkuri.session."+menu.value(13)), menu.value(13)==4?Component.translatable("badge.mcyukkuri.stage."+menu.value(14)):Component.literal(""), menu.value(15)/20, menu.value(16));
-        line(g, 124, "result", Component.translatable("badge.mcyukkuri.result."+menu.value(17)), menu.value(18));
-        line(g, 140, "scores", menu.value(22), menu.value(23), menu.value(24), menu.value(25), menu.value(26));
-        line(g, 157, menu.value(3)==1 ? "examiner_hint" : "home_hint");
-        if (menu.value(29) == 1 && menu.value(13) != 4)
-            g.drawString(font, Component.translatable("predator.mcyukkuri.control_state", Component.translatable("predator.mcyukkuri.order."+menu.value(31)),
-                    Component.translatable("predator.mcyukkuri.obedient."+menu.value(30))), 10, 173, 0xff34453e, false);
-        else line(g, 173, menu.value(13)==4 ? "question."+menu.value(28)+"."+menu.value(14) : "condition_hint");
+        g.drawString(font, Component.translatable("badge.mcyukkuri.subject", entity == null ? Component.translatable("badge.mcyukkuri.no_subject") : entity.getDisplayName(), menu.value(2), menu.value(1)), 10, 10, 0xff34453e, false);
+        Component validity = menu.value(3) < 2 || menu.value(4) == 0 && menu.value(5) == 0 ? Component.translatable("badge.mcyukkuri.profile.validity.never")
+                : menu.value(4) == 2 ? Component.translatable("badge.mcyukkuri.profile.validity.expired") : Component.translatable("badge.mcyukkuri.profile.validity.days", menu.value(5));
+        line(g, 26, "grade", Component.translatable("badge.mcyukkuri.profile.grade."+menu.value(3)), validity, Component.translatable("badge.mcyukkuri.wear."+menu.value(6)));
+        line(g, 43, "source", Component.translatable("badge.mcyukkuri.profile.source."+menu.value(7)), String.format("%04x", menu.value(8) & 0xffff));
+        line(g, 59, "abilities", menu.value(9), menu.value(10), menu.value(11), menu.value(12));
+        line(g, 76, "routines", menu.value(13), menu.value(14), menu.value(15));
+        line(g, 92, "growth", menu.value(16), menu.value(17), menu.value(18), menu.value(24));
+        if (menu.value(19) == 0) line(g, 108, "exam_none");
+        else line(g, 108, "exam", Component.translatable("badge.mcyukkuri.profile.type."+menu.value(31)), Component.translatable("badge.mcyukkuri.profile.outcome."+(menu.value(19)-1)),
+                Component.translatable("badge.mcyukkuri.profile.grade."+menu.value(32)));
+        if (menu.value(19) != 0) line(g, 124, "scores", score(menu.value(20)), score(menu.value(21)), score(menu.value(22)), score(menu.value(23)));
+        line(g, 140, menu.value(30) == 1 ? "busy" : "idle");
+        if (menu.value(27) == 1)
+            g.drawString(font, Component.translatable("predator.mcyukkuri.control_state", Component.translatable("predator.mcyukkuri.order."+menu.value(29)),
+                    Component.translatable("predator.mcyukkuri.obedient."+menu.value(28))), 10, 156, 0xff34453e, false);
+        else line(g, 156, "hint");
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g,x,y,partial); renderTooltip(g,x,y); }
 }

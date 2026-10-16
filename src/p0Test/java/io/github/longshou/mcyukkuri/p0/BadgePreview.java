@@ -52,7 +52,7 @@ public final class BadgePreview {
                     p.closeContainer();p.setGameMode(GameType.CREATIVE);p.teleportTo(level,y.getX(),65,y.getZ()+2,180,10);
                     HumanCommerce.assign(y,p.getUUID(),"companion");
                     var npc=level.getEntitiesOfClass(HumanNpc.class,AREA).getFirst();npc.moveTo(y.getX()+1,65,y.getZ(),0,0);
-                    BadgeMenu.open(p,npc,y);
+                    BadgeMenu.open(p,y);
                 }
             } else if(op.equals("badge-camera")) {
                 for(var p:server.getPlayerList().getPlayers()) {
@@ -61,7 +61,7 @@ public final class BadgePreview {
             } else if(op.equals("badge-detached")) {
                 var y=subject(level,request.get("index").getAsInt());
                 var stack=new ItemStack(io.github.longshou.mcyukkuri.registry.ModItems.accessoryFor(y.getVariant()));
-                y.badges().markAccessory(stack);
+                y.pet().markAccessory(stack);
                 var display=EntityType.ITEM_DISPLAY.create(level);display.moveTo(y.getX(),65.65,7,180,0);
                 var tag=new net.minecraft.nbt.CompoundTag();display.saveWithoutId(tag);
                 tag.put("item",stack.save(level.registryAccess()));tag.putString("item_display","fixed");display.load(tag);level.addFreshEntity(display);
@@ -72,7 +72,7 @@ public final class BadgePreview {
             } else if(op.equals("badge-cleanup")) {
                 for(int x=X>>4;x<=(X+47)>>4;x++)for(int z=-1;z<=1;z++)level.setChunkForced(x,z,false);
             } else if(!op.equals("badge-snapshot"))throw new IllegalArgumentException(op);
-            var data=level.getEntitiesOfClass(YukkuriEntity.class,AREA).stream().map(y->Map.of("variant",y.getVariant().assetId(),"uuid",y.getUUID().toString(),"visibleTier",y.visibleMedal(),"accessory",y.hasVisibleAccessory(),"action",y.getAnimationId(),"scale",y.growthScale(),"badge",y.badges().save().toString())).toList();
+            var data=level.getEntitiesOfClass(YukkuriEntity.class,AREA).stream().map(y->Map.of("variant",y.getVariant().assetId(),"uuid",y.getUUID().toString(),"visibleTier",y.visibleMedal(),"accessory",y.hasVisibleAccessory(),"action",y.getAnimationId(),"scale",y.growthScale(),"badge",y.pet().save().toString())).toList();
             P0Control.reply(request,true,data);
         } catch(Throwable e) {P0Control.reply(request,false,e.toString());}
     }
@@ -93,7 +93,7 @@ public final class BadgePreview {
         for(var variant:YukkuriVariant.values()) {
             var type=BuiltInRegistries.ENTITY_TYPE.get(io.github.longshou.mcyukkuri.MCYukkuri.id(variant.assetId()));
             var y=(YukkuriEntity)type.create(level);y.moveTo(X+2+index*3.5,65,4,0,0);y.setNoAi(true);y.setPersistenceRequired();
-            y.addTag("badge_subject_"+index);y.badges().initializeStock(index%2==0?2:1,shop.getUUID());level.addFreshEntity(y);y.aiStep();index++;
+            y.addTag("badge_subject_"+index);y.pet().initializeStock(io.github.longshou.mcyukkuri.pet.BadgeGrade.of(index%2==0?3:2),shop.getUUID(),60);level.addFreshEntity(y);y.aiStep();index++;
         }
     }
 }

@@ -35,18 +35,18 @@ def language(chinese):
     zh.update({'page':'用品 %s/5 →','action.14':'购买成品','buy_product':'购成品 · %s 绿宝石','action.15':'交入原料 ×8','worker_away':'工人不在附近，请到生产线旁找工人办理。',
         'production':'成品库存 %s；生产原料 %s。每次购买队首成品一份。','ingredient.0':'此人没有生产线。','ingredient.1':'手持至少 8 根甘蔗，补充劳力工场原料。',
         'ingredient.2':'手持至少 8 份小麦，补充馒头面皮原料。','ingredient.3':'手持至少 8 张纸，补充包装材料。',
-        'medal.0':'','medal.1':'银章·','medal.2':'金章·','bag_description':'检视、清洁后封装的活体。右键地面拆袋，保留原个体身份。捕食种用途尚待该种实装。',
+        'medal.0':'','medal.1':'铜章·','medal.2':'银章·','medal.3':'金章·','bag_description':'检视、清洁后封装的活体。右键地面拆袋，保留原个体身份。捕食种用途尚待该种实装。',
         'guide.factory':'劳力工场：油库里消耗甘蔗劳动制纸，不发工资。馒头厂：小麦与个体的实际馅料制成馒头。袋装厂：检查、清洁后将同一活体封装。后两类设亲代与子油育成区，沿用成长与数量限制；需要油粮补给。成品每份 2 绿宝石，原料耗尽或库存满即停产。旧加工所保留原来的加工方式。',
         'guide.shopkeeper':'四个展舍售卖普通、银章和金章宠物，五页用品共 20 种。金银章是店内教育分级，金章保留识别无饰物个体的能力，不保证性格完美。购买保留同一只个体及徽章。稀有种尚未实装，展示位不售货。'})
     en.update({'page':'Supplies %s/5 >','action.14':'Buy product','buy_product':'Buy product / %s E','action.15':'Deposit 8 materials','worker_away':'No worker nearby. Talk to the worker beside the production line.',
         'production':'Products %s; material %s. Buys the first queued product.','ingredient.0':'No production line.','ingredient.1':'Hold at least 8 sugar cane.',
-        'ingredient.2':'Hold at least 8 wheat.','ingredient.3':'Hold at least 8 paper.','medal.0':'','medal.1':'Silver ','medal.2':'Gold ',
+        'ingredient.2':'Hold at least 8 wheat.','ingredient.3':'Hold at least 8 paper.','medal.0':'','medal.1':'Bronze ','medal.2':'Silver ','medal.3':'Gold ',
         'bag_description':'Inspected and cleaned live occupant. Use on ground to open once, preserving identity. Predator use awaits predator implementation.',
         'guide.factory':'Labor works use sugar cane and unpaid yukkuri labor to make paper. Manju works consume wheat and actual filling. Bag works inspect and clean a live individual, then seal that individual. Both processing works have parent and nursery rooms using normal growth and population limits. Feed donations sustain care. Products cost 2 emeralds. Full storage or exhausted materials pauses production. Legacy works retain their former processing.',
         'guide.shopkeeper':'Four actual pets: ordinary, silver and gold grades. Five pages offer 20 supplies. Badges represent shop education, not guaranteed perfect temperament; gold keeps accessory-independent recognition. Purchases preserve the individual and its badge. Rare species are not implemented or offered for sale.'})
     for k,v in (zh if chinese else en).items():keys['human.mcyukkuri.'+k]=v
     keys['human.mcyukkuri.guide.factory']=keys['human.mcyukkuri.guide.factory'].replace('成品每份 2 绿宝石','纸张／馒头／活体袋分别为 1／2／4 绿宝石').replace('Products cost 2 emeralds.','Paper, manju and live bags cost 1, 2 and 4 emeralds respectively.')
-    for id,cn,en_name in [('yukkuri_manju','油库里馒头','Yukkuri Manju'),('live_yukkuri_bag','袋装活体油库里','Packaged Live Yukkuri'),('silver_yukkuri_badge','油库里银章','Silver Yukkuri Badge'),('gold_yukkuri_badge','油库里金章','Gold Yukkuri Badge'),('labor_bench','油库里劳动作业台','Yukkuri Labor Bench'),('manju_steamer','油库里馒头蒸制机','Yukkuri Manju Steamer'),('live_packing_table','油库里活体封装台','Live Yukkuri Packing Table'),('nursery_station','子油育成护理台','Yukkuri Nursery Station')]:
+    for id,cn,en_name in [('yukkuri_manju','油库里馒头','Yukkuri Manju'),('live_yukkuri_bag','袋装活体油库里','Packaged Live Yukkuri'),('bronze_yukkuri_badge','油库里铜章','Bronze Yukkuri Badge'),('silver_yukkuri_badge','油库里银章','Silver Yukkuri Badge'),('gold_yukkuri_badge','油库里金章','Gold Yukkuri Badge'),('labor_bench','油库里劳动作业台','Yukkuri Labor Bench'),('manju_steamer','油库里馒头蒸制机','Yukkuri Manju Steamer'),('live_packing_table','油库里活体封装台','Live Yukkuri Packing Table'),('nursery_station','子油育成护理台','Yukkuri Nursery Station')]:
         keys['item.mcyukkuri.'+id]=cn if chinese else en_name;keys['block.mcyukkuri.'+id]=cn if chinese else en_name
     for i in range(13):
         if i<4: v='白天购买用品，需足够绿宝石及一个背包空位。' if chinese else 'Daylight supply trade; requires emeralds and a free inventory slot.'

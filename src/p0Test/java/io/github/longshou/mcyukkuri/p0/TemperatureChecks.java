@@ -161,7 +161,7 @@ final class TemperatureChecks {
             if (actor[0] == null || cleaned[0]) return;
             trace.add(java.util.Map.of("tick", helper.getTick(), "position", actor[0].position().toString(),
                     "activity", actor[0].life().activity(), "temporarySleep", actor[0].life().temperature().hasTemporarySleepSite(),
-                    "sleepCompletions", actor[0].badges().routine(2)));
+                    "sleepCompletions", actor[0].pet().routine(2)));
         });
         helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper, 59, 61, -1, 1)).thenExecute(() -> {
             for (var pos : BlockPos.betweenClosed(origin.offset(-7, -1, -7), origin.offset(7, 3, 7))) {
@@ -187,16 +187,16 @@ final class TemperatureChecks {
                 "Waiting for real walk from cold home and normal sleep at warmth"))
         .thenExecute(() -> {
             helper.assertTrue(actor[0].distanceToSqr(Vec3.atBottomCenterOf(origin)) > 1, "Sleep happens after actually leaving the cold home");
-            helper.assertTrue(actor[0].badges().routine(2) == 0, "Arrival and brief pause grant no completed-sleep credit");
+            helper.assertTrue(actor[0].pet().routine(2) == 0, "Arrival and brief pause grant no completed-sleep credit");
         }).thenIdle(60).thenExecute(() -> level.setBlockAndUpdate(torch, Blocks.AIR.defaultBlockState()))
         .thenWaitUntil(() -> helper.assertTrue(!actor[0].life().isSleeping(), "Losing actual warmth interrupts temporary sleep"))
         .thenExecute(() -> {
-            helper.assertTrue(actor[0].badges().routine(2) == 0, "Interrupted partial sleep grants no sleep credit");
+            helper.assertTrue(actor[0].pet().routine(2) == 0, "Interrupted partial sleep grants no sleep credit");
             level.setBlockAndUpdate(torch, Blocks.TORCH.defaultBlockState());
         }).thenWaitUntil(() -> helper.assertTrue(actor[0].life().isSleeping() && actor[0].life().temperature().hasTemporarySleepSite(),
                 "Waiting for a fresh full sleep after warmth is restored"))
-        .thenIdle(160).thenExecute(() -> helper.assertTrue(actor[0].badges().routine(2) == 0, "Fresh sleep still observes the normal minimum duration"))
-        .thenWaitUntil(() -> helper.assertTrue(actor[0].badges().routine(2) == 1, "Warm refuge permits one normally completed sleep without home oscillation"))
+        .thenIdle(160).thenExecute(() -> helper.assertTrue(actor[0].pet().routine(2) == 0, "Fresh sleep still observes the normal minimum duration"))
+        .thenWaitUntil(() -> helper.assertTrue(actor[0].pet().routine(2) == 1, "Warm refuge permits one normally completed sleep without home oscillation"))
         .thenExecute(() -> {
             helper.assertTrue(home[0].shelter().owns(actor[0].getUUID()) && actor[0].life().home().pos().equals(origin),
                     "Temporary sleep does not change permanent home or resident ownership");

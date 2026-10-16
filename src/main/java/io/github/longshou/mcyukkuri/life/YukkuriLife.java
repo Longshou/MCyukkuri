@@ -53,8 +53,6 @@ public final class YukkuriLife {
     private int pursuitTicks, queueTicks, winterNeedCheckAt;
     private boolean accessory = true;
     private UUID accessoryToken;
-    private boolean goldMedal;
-    private boolean silverMedal;
     private int socialWait;
     private float dryness;
     private int spicyTicks, sprayDelay, drugSleep, drinkTicks;
@@ -153,12 +151,9 @@ public final class YukkuriLife {
     public ItemStack mouth() { return mouth; }
     public int mealTicks() { return mealTicks; }
     public boolean hasAccessory() { return accessory; }
-    public boolean hasGoldMedal() { return goldMedal; }
-    public int medal() { return goldMedal ? 2 : silverMedal ? 1 : 0; }
-    public void setMedal(int tier) { goldMedal = tier == 2; silverMedal = tier == 1; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
-    public boolean canRecognize(YukkuriEntity target) { return goldMedal || target.life().hasAccessory()
+    public boolean canRecognize(YukkuriEntity target) { return entity.pet().grade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD || target.life().hasAccessory()
             || target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
             && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
@@ -275,7 +270,7 @@ public final class YukkuriLife {
                 mouth = ItemStack.EMPTY;
                 nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
                 if(!filling&&!spicy)entity.heal(2); personality.fed(feeder); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); feeder = null;
-                if (bowlMeal) { entity.badges().routineCompleted(0); bowlMeal = false; }
+                if (bowlMeal) { entity.pet().routineCompleted(0); bowlMeal = false; }
                 entity.gameEvent(GameEvent.EAT); entity.showReaction(spicy?"surprise":"happy", spicy?"hurt":"fed", 100);
                 if(!spicy)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);
                 }
@@ -519,7 +514,7 @@ public final class YukkuriLife {
                     entity.getNavigation().stop(); toiletTicks++;
                     if (toiletTicks == 1) entity.speak("need_toilet");
                     if (toiletTicks >= 40) {
-                        if (bladder >= 40 && !constipated() && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) { bladder -= 40; entity.badges().routineCompleted(1); entity.showReaction("happy","toilet_done",60); }
+                        if (bladder >= 40 && !constipated() && care.relieve(io.github.longshou.mcyukkuri.body.DetachedItems.waste(entity))) { bladder -= 40; entity.pet().routineCompleted(1); entity.showReaction("happy","toilet_done",60); }
                         toiletTicks = 0; task = Task.NONE;
                     }
                 } else if (pursuitTicks % 10 == 1 && !navigateNear(targetBlock, 1)) stopGoal();
@@ -553,7 +548,7 @@ public final class YukkuriLife {
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15)) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
-                    entity.badges().routineCompleted(2);
+                    entity.pet().routineCompleted(2);
                     temperature.stop();
                     task = Task.NONE; restWait = restInterval(); sleepTicks = 0;
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
@@ -809,7 +804,7 @@ public final class YukkuriLife {
         tag.putInt("MealTicks", mealTicks); tag.putBoolean("SharedMeal", sharedMeal); tag.putBoolean("PreparedMeal",preparedMeal); tag.putBoolean("BowlMeal", bowlMeal); if (feeder != null) tag.putUUID("Feeder", feeder);
         if (home != null) { tag.putString("HomeDimension", home.dimension().location().toString()); tag.putLong("HomePos", home.pos().asLong()); tag.putBoolean("NaturalHome", naturalHome); }
         tag.putBoolean("Accessory", accessory); if (accessoryToken != null) tag.putUUID("AccessoryToken", accessoryToken);
-        tag.putBoolean("GoldMedal", goldMedal); tag.putBoolean("SilverMedal", silverMedal); tag.put("Personality", personality.save()); return tag;
+        tag.put("Personality", personality.save()); return tag;
     }
     private static float bounded(CompoundTag tag, String name, float fallback) {
         float value = tag.contains(name, Tag.TAG_ANY_NUMERIC) ? tag.getFloat(name) : fallback;
@@ -836,7 +831,7 @@ public final class YukkuriLife {
         ResourceLocation dimension = ResourceLocation.tryParse(tag.getString("HomeDimension"));
         if (dimension!=null && tag.contains("HomePos")) home=GlobalPos.of(ResourceKey.create(Registries.DIMENSION,dimension),BlockPos.of(tag.getLong("HomePos")));
         naturalHome=tag.getBoolean("NaturalHome"); accessory=!tag.contains("Accessory")||tag.getBoolean("Accessory");
-        accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null; goldMedal=tag.getBoolean("GoldMedal"); silverMedal=tag.getBoolean("SilverMedal");
+        accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
         personality=new YukkuriPersonality(entity.getUUID()); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
         if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }

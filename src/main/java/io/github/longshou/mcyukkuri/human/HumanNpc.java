@@ -79,18 +79,8 @@ public final class HumanNpc extends PathfinderMob {
         if (isTrading() && !player.getUUID().equals(customer)) return false;
         customer = player.getUUID(); getNavigation().stop(); return true;
     }
-    private UUID badgeCandidate;
-    public boolean beginBadgeExam(Player player, YukkuriEntity animal) {
-        if (badgeCandidate != null && level() instanceof ServerLevel l && l.getEntity(badgeCandidate) instanceof YukkuriEntity prior
-                && prior.badges().examinedBy(getUUID())) return false;
-        if (!beginTrade(player)) return false;
-        badgeCandidate = animal.getUUID(); getNavigation().stop(); return true;
-    }
-    public void endBadgeExam(YukkuriEntity animal) { if (animal.getUUID().equals(badgeCandidate)) { badgeCandidate = null; } }
     public void endTrade(Player player) { if (player.getUUID().equals(customer)) customer = null; }
     public boolean isTrading() {
-        if (badgeCandidate != null && level() instanceof ServerLevel l && l.getEntity(badgeCandidate) instanceof YukkuriEntity y
-                && y.badges().examinedBy(getUUID())) return true;
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
         return player != null && player.containerMenu instanceof HumanMenu menu && menu.target() == this;

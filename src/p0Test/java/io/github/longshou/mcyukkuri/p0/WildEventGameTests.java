@@ -220,11 +220,11 @@ public final class WildEventGameTests {
         UUID id=first.getUUID();UUID token=YukkuriWorldData.get(level).capture(first);
         var released=YukkuriWorldData.get(level).release(token,level,new Vec3(center.getX()+.5,65,center.getZ()+.5),0);actors.add(released);first=released;
         check("ordinary carrier release preserves owner and never abandons",released!=null&&released.getUUID().equals(id)&&HumanCommerce.ownedBy(released,player.getUUID())&&WildEventData.get(level).forMember(id)==null,"same UUID");
-        first.setOnGround(true);for(int i=0;i<21;i++)first.operations().tick();var baseline=first.badges().save();var newMenu=new CareMenu(3,player.getInventory(),first.getId());
+        first.setOnGround(true);for(int i=0;i<21;i++)first.operations().tick();var baseline=first.pet().save();var newMenu=new CareMenu(3,player.getInventory(),first.getId());
         check("explicit abandonment menu removes only actual ownership",newMenu.clickMenuButton(player,CareAction.ABANDON.ordinal())&&!HumanCommerce.data(first).hasUUID("Owner"),HumanCommerce.data(first));
         scene=WildEventData.get(level).forMember(id);for(int i=0;i<205;i++)WildEvents.advance(level,scene);
         check("remembered former owner produces completed lament",scene.phase==Phase.COMPLETE&&scene.result.equals("former_owner_lament"),scene.result);
-        check("abandonment keeps badge record intact",baseline.equals(first.badges().save()),"badge NBT");
+        check("abandonment keeps badge record intact",baseline.equals(first.pet().save()),"badge NBT");
         check("repeat abandonment cannot replay without new ownership",!WildEvents.abandon(first,player),"no owner");
     }
     private void interruptionRules() {
@@ -283,7 +283,7 @@ public final class WildEventGameTests {
         next();first=spawn(false,.5,.5);second=spawn(true,3.5,.5);life(second,40,45);
         for(int z=-3;z<=3;z++)for(int y=0;y<4;y++)level.setBlockAndUpdate(center.offset(2,y,z),Blocks.STONE.defaultBlockState());
         check("solid inaccessible wall rejects companionship scene",WildCards.begin("weak-escort",first,List.of(second),null)==null,"actual collision wall");
-        next();first=spawn(false,.5,.5);second=spawn(true,1.4,.5);first.life().setMedal(2);
+        next();first=spawn(false,.5,.5);second=spawn(true,1.4,.5);first.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null);
         UUID token=second.life().takeAccessory(player.getUUID());
         var stack=new ItemStack(io.github.longshou.mcyukkuri.registry.ModItems.accessoryFor(second));
         net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",second.getUUID());tag.putUUID("Token",token);});

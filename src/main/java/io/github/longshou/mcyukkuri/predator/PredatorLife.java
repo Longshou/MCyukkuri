@@ -60,13 +60,13 @@ public final class PredatorLife {
     }
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
-        return animal.getVariant().isPredator() && animal.life().medal() > 0
-                && animal.life().personality().knowsWait() && animal.badges().skill(1) >= 60;
+        return animal.getVariant().isPredator() && animal.pet().grade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
+                && animal.life().personality().knowsWait() && animal.pet().ability(io.github.longshou.mcyukkuri.pet.Ability.WITS) >= 60;
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
     public boolean command(Player player, Order requested) {
-        if (!obedient() || !animal.badges().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
-                || animal.badges().active() || animal.operations().active() || animal.isCommandPlaying()) return false;
+        if (!obedient() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
+                || animal.pet().busy() || animal.operations().active() || animal.isCommandPlaying()) return false;
         if (requested == Order.RETURN && animal.life().homeStand() == null) return false;
         stop(); order = requested; commander = player.getUUID(); cooldown = 0;
         animal.setPersistenceRequired(); return true;
@@ -75,7 +75,7 @@ public final class PredatorLife {
     private boolean ready() {
         return animal.getVariant().isPredator() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
-                && !animal.badges().active() && !animal.life().isSleeping() && animal.life().mealTicks() == 0
+                && !animal.pet().busy() && !animal.life().isSleeping() && animal.life().mealTicks() == 0
                 && !animal.family().active() && animal.family().brood() == null
                 && !animal.isInWaterOrBubble() && !animal.isOnFire();
     }

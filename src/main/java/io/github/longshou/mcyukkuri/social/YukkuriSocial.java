@@ -197,7 +197,7 @@ public final class YukkuriSocial {
                     if (relations.affinity(entity.getUUID(),peer.getUUID()) < 0) {
                         entity.showReaction("angry","unrecognized",60);stop();return;
                     }
-                    if (!entity.badges().reactTo(peer)) {
+                    if (!entity.pet().reactTo(peer)) {
                         entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= 10 ? "known_peer" : "peer", 80);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                     }

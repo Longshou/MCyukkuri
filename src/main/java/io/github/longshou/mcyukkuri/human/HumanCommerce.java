@@ -76,9 +76,12 @@ public final class HumanCommerce {
                     assign(animal, npc.getUUID(), tag.getString("Use"));
                     if (tag.getString("Use").equals("lost")) npc.setLostAnimal(animal.getUUID(), animal.blockPosition());
                     if (tag.getString("Use").equals("stock")) {
-                        int tier = Math.clamp(tag.getInt("Medal"),0,2);
-                        if (tier == 0) animal.life().personality().lessonCompleted(npc.getUUID());
-                        else animal.badges().initializeStock(tier, npc.getUUID());
+                        int gradeId = tag.contains("Grade") ? tag.getInt("Grade") : tag.getInt("Medal") > 0 ? tag.getInt("Medal") + 1 : 0;
+                        var grade = io.github.longshou.mcyukkuri.pet.BadgeGrade.of(gradeId);
+                        if (grade == io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE) {
+                            animal.life().personality().lessonCompleted(npc.getUUID());
+                            animal.pet().setPedigree(tag.contains("Pedigree") ? tag.getInt("Pedigree") : 30);
+                        } else animal.pet().initializeStock(grade, npc.getUUID(), tag.contains("Pedigree") ? tag.getInt("Pedigree") : 60);
                     }
                     if (tag.getString("Use").equals("breeder")) {
                         prepareBreederHome(animal);

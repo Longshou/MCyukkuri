@@ -35,6 +35,7 @@ public final class HumanWorld {
     public static final DeferredItem<Item> MANJU = ITEMS.register("yukkuri_manju", () -> new Item(new Item.Properties()
             .food(new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(.4f).build())));
     public static final DeferredItem<LiveBagItem> LIVE_BAG = ITEMS.register("live_yukkuri_bag", () -> new LiveBagItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> BRONZE_BADGE = ITEMS.register("bronze_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
     public static final DeferredItem<Item> SILVER_BADGE = ITEMS.register("silver_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
     public static final DeferredItem<Item> GOLD_BADGE = ITEMS.register("gold_yukkuri_badge", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(false));
     public static final DeferredItem<io.github.longshou.mcyukkuri.badge.BadgeItem> BADGE_HANDBOOK = ITEMS.register("badge_handbook", () -> new io.github.longshou.mcyukkuri.badge.BadgeItem(true));
@@ -50,16 +51,17 @@ public final class HumanWorld {
     public static final DeferredHolder<MenuType<?>, MenuType<HumanMenu>> MENU = MENUS.register("human_trades",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new HumanMenu(id, inv, buf.readVarInt())));
     public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.badge.BadgeMenu>> BADGE_MENU = MENUS.register("badge_assessment",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.badge.BadgeMenu(id, inv, buf.readVarInt(), buf.readVarInt())));
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.badge.BadgeMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
-    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES;
+    public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS;
     static {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
         CRUELTY = b.comment("Oniisan may harm unclaimed wild yukkuri. Factory processing requires a delivered input.").define("oniisanCruelty", true);
         TRADE_DAY_LIMIT = b.defineInRange("supplyTradesPerDay", 8, 1, 64);
         CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
+        BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
         SPEC = b.build();
     }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look) {

@@ -153,7 +153,7 @@ public final class SubspeciesLife {
         if(!entity.onGround()||entity.isPassenger()||entity.isPanicking()||entity.isCommandPlaying()||entity.life().isSleeping()||entity.life().mealTicks()>0
                 ||entity.operations().active()||entity.family().active()||entity.family().brood()!=null||entity.groupInteraction().active()
                 ||entity.social().active()||entity.dailyLife().active()||entity.playLife().active()||entity.house().active()||entity.habitat().active()
-                ||entity.badges().active()||entity.predator().active()||io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity))return;
+                ||entity.pet().busy()||entity.predator().active()||io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity))return;
         var dimensions=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.bodyDimensions(entity,entity.family().scale()*1.5f,0).scale(entity.getScale());
         var box=dimensions.makeBoundingBox(entity.position());
         if(!entity.level().getWorldBorder().isWithinBounds(box)||!entity.level().noCollision(entity,box)||entity.level().containsAnyLiquid(box)

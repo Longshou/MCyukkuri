@@ -71,7 +71,7 @@ public final class ModCreativeTabs {
             event.accept(HumanWorld.ONIISAN_EGG);
             event.accept(HumanWorld.BROTHER_EGG);
             event.accept(HumanWorld.SISTER_EGG);
-            for (var item : java.util.List.of(HumanWorld.MANJU, HumanWorld.LIVE_BAG, HumanWorld.SILVER_BADGE,
+            for (var item : java.util.List.of(HumanWorld.MANJU, HumanWorld.LIVE_BAG, HumanWorld.BRONZE_BADGE, HumanWorld.SILVER_BADGE,
                     HumanWorld.GOLD_BADGE, HumanWorld.BADGE_HANDBOOK)) event.accept(item.get());
             for (var block : java.util.List.of(HumanWorld.LABOR_BENCH, HumanWorld.MANJU_STEAMER,
                     HumanWorld.PACKING_TABLE, HumanWorld.NURSERY_STATION, HumanWorld.RECEIVING_TABLE,

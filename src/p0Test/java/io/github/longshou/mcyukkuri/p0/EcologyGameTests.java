@@ -84,7 +84,7 @@ public final class EcologyGameTests {
         check("needs and completion persist without replay",a.dailyLife().nuzzles()==1&&!a.dailyLife().active()&&a.dailyLife().affectionNeed()==0);
         reset(a);reset(b);b.life().takeAccessory(null);
         check("lost accessory prevents friend recognition",!a.dailyLife().nuzzle(b));
-        a.life().setMedal(2);check("gold recognition preserves identity",a.dailyLife().nuzzle(b));
+        a.pet().issue(io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD,1,null);check("gold recognition preserves identity",a.dailyLife().nuzzle(b));
         var token=YukkuriWorldData.get(level).capture(b);a.dailyLife().clock();
         check("capture releases partner without reward",token!=null&&!a.dailyLife().active()&&a.dailyLife().nuzzles()==0);
         reset(a);var far=spawn(level,2060,5.5);friends(level,a,far);

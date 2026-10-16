@@ -84,7 +84,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies = new io.github.longshou.mcyukkuri.subspecies.SubspeciesLife(this);
     private io.github.longshou.mcyukkuri.subspecies.AquaticLife aquaticLife;
     private final YukkuriLife life;
-    private final io.github.longshou.mcyukkuri.badge.BadgeLife badges = new io.github.longshou.mcyukkuri.badge.BadgeLife(this);
+    private final io.github.longshou.mcyukkuri.pet.PetLife pet = new io.github.longshou.mcyukkuri.pet.PetLife(this);
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
     private final io.github.longshou.mcyukkuri.social.GroupInteractionGoal groupInteraction = new io.github.longshou.mcyukkuri.social.GroupInteractionGoal(this);
@@ -234,7 +234,7 @@ public final class YukkuriEntity extends PathfinderMob {
     public io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction() { return shellRetraction; }
     public boolean isCommandPlaying() { return requestedAction != null; }
     public YukkuriLife life() { return life; }
-    public io.github.longshou.mcyukkuri.badge.BadgeLife badges() { return badges; }
+    public io.github.longshou.mcyukkuri.pet.PetLife pet() { return pet; }
     public void sayBadge(String event) {
         if (level().isClientSide || !isAlive()) return;
         long now = level().getGameTime();
@@ -393,7 +393,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(1, new FleeGoal());
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
-        goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.badge.BadgeLife.SessionGoal(this));
+        goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.pet.PetLife.SessionGoal(this));
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
         aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
         goalSelector.addGoal(3, aquaticLife);
@@ -486,7 +486,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick(); badges.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick(); pet.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
         independence.clock();
         entityData.set(CARRYING,(!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
         entityData.set(NUZZLE_PARTNER,dailyLife.nuzzlePartnerId());
@@ -510,7 +510,7 @@ public final class YukkuriEntity extends PathfinderMob {
         surfaceLife.tick();
         if(!isAlive())return;
         if (!ItemStack.matches(entityData.get(MOUTH), life.mouth())) entityData.set(MOUTH, life.mouth().copy());
-        entityData.set(MEDAL, badges.visibleTier()); entityData.set(ACCESSORY, life.hasAccessory());
+        entityData.set(MEDAL, pet.visibleGrade().id()); entityData.set(ACCESSORY, life.hasAccessory());
         if (isOnFire() && panicTicks < 100) {
             panicTicks = 100;
             requestedAction = null;
@@ -733,7 +733,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.putInt("YukkuriRestDelay", restDelay);
         tag.put("YukkuriLife", life.save());
         tag.put("YukkuriSubspecies", subspecies.save());
-        tag.put("YukkuriBadges", badges.save());
+        tag.put("YukkuriPet", pet.save());
         tag.put("YukkuriDailyLife",dailyLife.save());
         tag.put("YukkuriGroupInteraction",groupInteraction.save());
         tag.put("YukkuriSurface",surfaceLife.save());
@@ -765,14 +765,19 @@ public final class YukkuriEntity extends PathfinderMob {
         requestedAction = null;
         panicTicks = reactionTicks = 0;
         shellRetraction.reset();
-        badges.load(tag.getCompound("YukkuriBadges"));
+        if (tag.contains("YukkuriPet")) pet.load(tag.getCompound("YukkuriPet"));
+        else {
+            var legacyLife = tag.getCompound("YukkuriLife");
+            pet.migrateLegacy(tag.getCompound("YukkuriBadges"), legacyLife.getBoolean("GoldMedal") ? io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD
+                    : legacyLife.getBoolean("SilverMedal") ? io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER : io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE);
+        }
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));
         playLife.load(tag.getCompound("YukkuriPlay"));
         setAnimation(YukkuriAction.IDLE, true);
         entityData.set(EXPRESSION, "neutral");
-        entityData.set(MEDAL, badges.visibleTier()); entityData.set(ACCESSORY, life.hasAccessory()); entityData.set(MOUTH, life.mouth().copy());
+        entityData.set(MEDAL, pet.visibleGrade().id()); entityData.set(ACCESSORY, life.hasAccessory()); entityData.set(MOUTH, life.mouth().copy());
         if(tag.contains("YukkuriFamily"))family.load(tag.getCompound("YukkuriFamily"));
         childhood.load(tag.getCompound("YukkuriChildhood"));
         deathRecorded=tag.getBoolean("FamilyDeathRecorded");

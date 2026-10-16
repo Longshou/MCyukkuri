@@ -42,7 +42,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         else PropModels.render(name,name.equals("leaked_filling")?Math.min(12,stack.getCount()):8,pose,buffers,light,overlay);
         if(stack.getItem() instanceof io.github.longshou.mcyukkuri.item.AccessoryItem){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            YukkuriModel.renderDetachedBadge(name,tag.getInt("BadgeTier"),tag.getBoolean("Cut"),pose,buffers,light,overlay);
+            YukkuriModel.renderDetachedBadge(name,YukkuriModel.legacyTier(tag,"BadgeTier"),tag.getBoolean("Cut"),pose,buffers,light,overlay);
         }
         pose.popPose();
     }
