@@ -134,6 +134,8 @@ public final class HumanNpc extends PathfinderMob {
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (job() == Job.FACTORY) production.tick();
         if ((job() == Job.EXAMINER || job() == Job.SHOPKEEPER) && tickCount % 40 == 5 && !resting()) revokeVoidBadges();
+        if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) io.github.longshou.mcyukkuri.shop.ShopDeliveries.register(this);
+        if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) io.github.longshou.mcyukkuri.shop.ShopDeliveries.arrive(this, (net.minecraft.server.level.ServerLevel) level(), level().getGameTime());
         if (job() == Job.KEEPER && tickCount % 20 == 0) io.github.longshou.mcyukkuri.shop.ShopKeeping.tick(this);
     }
     /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */

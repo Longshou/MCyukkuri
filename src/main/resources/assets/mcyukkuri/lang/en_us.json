@@ -1997,6 +1997,7 @@
   "shop.mcyukkuri.sell": "Sell to shop",
   "shop.mcyukkuri.forecast": "Exam forecast (1 E)",
   "shop.mcyukkuri.expired": " (expired)",
+  "shop.mcyukkuri.origin.factory": "Factory shipment",
   "shop.mcyukkuri.row.head": "%s %s (%s) - %s E",
   "shop.mcyukkuri.abilities": "Man %s  Aca %s  Wit %s  Poi %s",
   "shop.mcyukkuri.vitals": "HP %s  Food %s",

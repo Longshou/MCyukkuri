@@ -22,6 +22,7 @@ public final class ShopKeeping {
         if (!(keeper.level() instanceof ServerLevel level) || !keeper.isAlive()) return;
         for (var y : keeper.animals("shop_nursery")) if ((y.family().adult() || y.childhood().canLiveIndependently()) && !y.pet().busy() && !y.isPassenger()) train(keeper, level, y);
         long now = level.getGameTime();
+        ShopDeliveries.arrive(keeper, level, now);
         if (keeper.nextBreed() == 0) { keeper.setNextBreed(now + INTERVAL); return; }
         if (now < keeper.nextBreed()) return;
         keeper.setNextBreed(now + (breed(keeper, level) ? INTERVAL : RETRY));

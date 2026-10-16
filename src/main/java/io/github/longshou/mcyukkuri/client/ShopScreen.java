@@ -77,7 +77,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 line(g, y, INK, Component.translatable("shop.mcyukkuri.row.head", grade(f), species(menu.value(k)), Component.translatable("human.mcyukkuri.stage." + menu.value(k + 1)), menu.value(k + 11)));
                 line(g, y + 11, INK, Component.literal(stars(menu.value(k + 3)) + "  ").append(abilities(k + 4)));
                 line(g, y + 22, SOFT, tags(menu.value(k + 8)).append("  ").append(Component.translatable("shop.mcyukkuri.vitals", menu.value(k + 9), menu.value(k + 10))));
-                line(g, y + 33, (f & 16) != 0 ? WARN : SOFT, Component.translatable((f & 16) != 0 ? "shop.mcyukkuri.zone.sold" : (f & 8) != 0 ? "shop.mcyukkuri.zone.display" : "shop.mcyukkuri.zone.back"));
+                var zone = Component.translatable((f & 16) != 0 ? "shop.mcyukkuri.zone.sold" : (f & 8) != 0 ? "shop.mcyukkuri.zone.display" : "shop.mcyukkuri.zone.back");
+                if ((f & 32) != 0) zone.append("  ").append(Component.translatable("shop.mcyukkuri.origin.factory"));
+                line(g, y + 33, (f & 16) != 0 ? WARN : SOFT, zone);
             }
             line(g, 228, SOFT, Component.translatable("shop.mcyukkuri.page", menu.value(3) + 1, menu.value(4)));
         } else if (tab == ShopMenu.GOODS) {

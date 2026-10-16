@@ -64,6 +64,7 @@ public final class HumanWorld {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
     public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS;
+    public static final ModConfigSpec.BooleanValue FACTORY_SHOP_SHIPPING;
     static {
         var b = new ModConfigSpec.Builder();
         ROAMING = b.comment("Allow rare daylight human encounters; structure residents are independent.").define("roamingResidents", true);
@@ -71,6 +72,7 @@ public final class HumanWorld {
         TRADE_DAY_LIMIT = b.defineInRange("supplyTradesPerDay", 8, 1, 64);
         CARE_SUPPLIES = b.defineInRange("initialCareFood", 32, 0, 256);
         BADGE_VALIDITY_DAYS = b.comment("Game days a silver or gold badge stays valid; 0 means never expires.").defineInRange("badgeValidityDays", 20, 0, 1000);
+        FACTORY_SHOP_SHIPPING = b.comment("Factories ship suitable nursery young to a shop within 256 blocks every two game days.").define("factoryShopShipping", true);
         SPEC = b.build();
     }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look) {
