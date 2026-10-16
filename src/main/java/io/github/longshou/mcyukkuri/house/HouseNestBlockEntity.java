@@ -70,6 +70,18 @@ public final class HouseNestBlockEntity extends BlockEntity {
         return entity.getVariant().isHouse()&&!destroyed&&entity.life().dryStand(entrance())&&entity.life().covered(entrance());
     }
     public BlockPos entrance(){return worldPosition.north();}
+    private boolean sheltered(){
+        // Match living-entity shelter checks: actual roof blocks, not delayed skylight propagation.
+        return level!=null&&level.hasChunkAt(entrance())
+                &&level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                entrance().getX(),entrance().getZ())>entrance().getY();
+    }
+    private boolean atEggs(YukkuriEntity entity){
+        if(!entity.onGround()||!entity.blockPosition().equals(worldPosition)||entity.getY()>worldPosition.getY()+.3)return false;
+        return level.clip(new net.minecraft.world.level.ClipContext(entity.getEyePosition(),eggPosition(0).add(0,.06,0),
+                net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,entity))
+                .getType()==net.minecraft.world.phys.HitResult.Type.MISS;
+    }
     private List<YukkuriEntity> residents(){
         return nearby.stream().filter(e->e.isAlive()&&worldPosition.equals(e.house().nestPosition())&&e.house().nest()==this).toList();
     }
@@ -77,7 +89,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     public boolean tend(YukkuriEntity entity){
         if(!(level instanceof ServerLevel)||!built()||destroyed||disturbedTicks>0||!healthyCarer(entity)
                 ||entity.house().nest()!=this||entity.position().distanceToSqr(eggPosition(0))>1.21
-                ||!entity.onGround())return false;
+                ||!atEggs(entity))return false;
         carer=entity.getUUID();careTicks=240;
         if(dirt>0&&maintenanceWait==0){
             dirt--;maintenanceWait=240;
@@ -95,7 +107,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         return ItemStack.EMPTY;
     }
     public boolean insertEgg(ItemStack stack){
-        if(!(level instanceof ServerLevel server)||destroyed||!built()||level.canSeeSky(entrance())
+        if(!(level instanceof ServerLevel server)||destroyed||!built()||!sheltered()
                 ||!level.getFluidState(entrance()).isEmpty()||!level.getFluidState(worldPosition).isEmpty())return false;
         migrateEggs(server);syncEggs(server);
         for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0){
@@ -141,7 +153,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         for(int slot=0;slot<EGG_CAP;slot++)if(hatchAges[slot]>=0&&++hatchAges[slot]>=120){hatchAges[slot]=-1;changed();}
         // At most two founders; recruitment is a quiet-night opportunity, not a hidden resident store.
         if(FamilyConfig.HOUSE_ARRIVALS.get()&&arrivals<2&&food>=4&&dirt<6&&level.isNight()
-                &&disturbedTicks==0&&!level.canSeeSky(entrance())&&residents.size()<2){
+                &&disturbedTicks==0&&sheltered()&&residents.size()<2){
             if(++arrivalTicks>=FamilyConfig.HOUSE_ARRIVAL_TIME.get()){
                 arrivalTicks=0;
                 if(FamilyData.get(server).population(server,worldPosition)<FamilyConfig.POPULATION_CAP.get()){
@@ -159,7 +171,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(ticks%600==0&&!residents.isEmpty()){dirt=Math.min(8,dirt+1);changed();}
         syncEggs(server);
         boolean cared=careTicks>0&&carer!=null&&server.getEntity(carer) instanceof YukkuriEntity parent
-                &&healthyCarer(parent)&&parent.house().nest()==this&&parent.position().distanceToSqr(eggPosition(0))<1.5625;
+                &&healthyCarer(parent)&&parent.house().nest()==this&&atEggs(parent)&&parent.position().distanceToSqr(eggPosition(0))<1.5625;
         if(built()&&dirt<6&&food>0&&disturbedTicks==0&&cared&&eggs()>0){
             for(int slot=0;slot<EGG_CAP;slot++){
                 var entry=HouseEggs.resolve(server,eggSlots[slot]);if(!HouseEggs.belongs(entry,this))continue;
