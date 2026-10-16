@@ -1478,5 +1478,16 @@
   "commands.mcyukkuri.settlement.info": "Community %s at %s, leader %s, led: %s, vacant for %s s; loaded members %s (outcasts %s, slaves %s), threat reports %s.",
   "notebook.mcyukkuri.chapter.season": "Biomes and seasons\n\nPlains: spring. Forests: autumn. Snow: winter. Tropics: summer. Days do not change seasons.\n\nSpring sharing, summer shade, autumn stocks and winter shelter follow the local biome.\n\nFood cannot replace warmth.",
   "notebook.mcyukkuri.settlement_orders": "Community activity\n\nSeason: %s\nOrder: %s\nThreat: %s\nMigration: %s",
-  "notebook.mcyukkuri.biome_season": "Biome season\n\nSeason: %s\nTemperature shift: %s\n\nDetermined by the current biome, not elapsed days."
+  "notebook.mcyukkuri.biome_season": "Biome season\n\nSeason: %s\nTemperature shift: %s\n\nDetermined by the current biome, not elapsed days.",
+  "activity.mcyukkuri.feed_child": "Bringing food to a child",
+  "activity.mcyukkuri.nest_build": "Making a personal leaf nest",
+  "activity.mcyukkuri.nest_gather": "Collecting nest bedding",
+  "notebook.mcyukkuri.chapter.childhood": "Growing up\n\nAn empty stem is one real meal. Parents also bring food to hungry young.\n\nThe family shares a large leaf nest. At half maturity age and 3/8 nourishment, a child can use two plant bedding items for a small nest at home.\n\nLeaving home comes after adulthood.",
+  "notebook.mcyukkuri.childhood": "Growth and nesting\n\nHome: %s\nMaturity age: %s%%\nNourished growth: %s%%\nFood being delivered: %s\n\nA small nest needs real bedding. Leaving home also needs adulthood and a usable new shelter.",
+  "notebook.mcyukkuri.childhood.shared": "Shared family leaf nest",
+  "notebook.mcyukkuri.childhood.ready": "Ready to make a small nest at home",
+  "notebook.mcyukkuri.childhood.private": "Personal leaf nest in the family home",
+  "notebook.mcyukkuri.childhood.independent": "Independent home",
+  "notebook.mcyukkuri.childhood.other": "Current home or searching for shelter",
+  "activity.mcyukkuri.stay_home": "Returning to the family nest"
 }

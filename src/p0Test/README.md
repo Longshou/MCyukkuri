@@ -10,6 +10,8 @@
 
 `mcyukkuri.p0.suite=growth` 注册 `GrowthGameTests`、`FamilyGameTests` 与 `ConsumableGameTests`，检查独立成长时钟、30小时成年寿命、旧档与未出生子代迁移，以及原有家庭／胎生流程。年龄边界由受控数值推进，实际睡眠和出生由原有引擎 tick 场景覆盖；不等同于连续30小时游玩。
 
+`mcyukkuri.p0.suite=childhood` 注册 `FamilyCareGameTests` 与 `ChildhoodNestGameTests`，核对亲代真实送食、库存食物选择、共巢睡位、分床门槛、材料消耗和保存恢复。通过远端 `Optional P0 GameTest` 选择 `childhood` 运行；本机不编译或启动游戏。完整生态规则见[子代生命周期](../../docs/CHILDHOOD_LIFECYCLE.md)。
+
 `ConsumableGameTests` 由 `mcyukkuri.p0.suite=consumables` 选择，覆盖口服、自然饮水、辅助投药、固定胎次、保存收纳与普通 LIVE 出生；真实 tick 场景使用外层 `Player.interactOn`，核对一次扣除至幼体落地。`ConsumablePreview` 的 `consumable-*` 命令生成独立实机场景。隔离构建、报告与未验多人边界见 [消耗品与胎生](../../docs/CONSUMABLES_AND_BIRTH.md)。
 
 `WaddleGameTests` 通过 `-Dmcyukkuri.p0.suite=waddle` 检查普通移动、慢走、静止和离地时的动作选择。`waddle-setup` 使用真实物理移动录制七种角色与家油搬运，`waddle-assets` 核对客户端步态、持物叠加及待机恢复。

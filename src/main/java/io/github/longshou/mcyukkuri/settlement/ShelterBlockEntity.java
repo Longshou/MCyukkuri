@@ -8,8 +8,10 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,6 +38,8 @@ import net.minecraft.world.phys.AABB;
 public final class ShelterBlockEntity extends BlockEntity {
     private final NonNullList<ItemStack> stock=NonNullList.withSize(9,ItemStack.EMPTY);
     private final Map<UUID,Integer> residents=new LinkedHashMap<>();
+    /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
+    private final Set<UUID> privateNests=new LinkedHashSet<>();
     private int condition=100, moisture, lining, dirt, ticks;
     private boolean dismantling;
     private int displayFood;
@@ -62,6 +66,17 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean contains(BlockPos pos) { return beds().contains(pos); }
     public boolean owns(UUID id) { return residents.containsKey(id); }
     public List<BlockPos> beds() { return kind()==ShelterBlock.Kind.BURROW?naturalBeds:List.of(worldPosition); }
+    public boolean privateNest(UUID id) { return owns(id)&&privateNests.contains(id); }
+    /** Occupied common nest cells, ordered by their surveyed sleeping slot for client-side grouping. */
+    public List<BlockPos> sharedBeds() { return residentBeds(false); }
+    /** Occupied cells whose resident has made a personal leaf nest, ordered by sleeping slot. */
+    public List<BlockPos> privateBeds() { return residentBeds(true); }
+    private List<BlockPos> residentBeds(boolean personal) {
+        var beds=beds();
+        return residents.entrySet().stream().filter(entry->privateNests.contains(entry.getKey())==personal)
+                .sorted(Map.Entry.comparingByValue()).map(entry->entry.getValue()<beds.size()?beds.get(entry.getValue()):null)
+                .filter(java.util.Objects::nonNull).toList();
+    }
     public int branches() { return branches; }
     public void setNaturalSite(NaturalShelter.Site site) { naturalBeds=site==null?List.of():site.beds();naturalEntrance=site==null?null:site.entrance();changed(); }
     public boolean rainSheltered(BlockPos pos) {
@@ -75,15 +90,36 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(!(level instanceof ServerLevel server)||!sound()||entity.getVariant().isHouse())return false;
         var families=FamilyData.get(server);
         var person=families.person(entity.getUUID());
-        boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN&&residents.containsKey(person.mother);
+        boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN
+                &&(residents.containsKey(person.mother)||residents.containsKey(person.father));
         int incoming=families.reservedForResidents(entity.getUUID()::equals);
         if(residents.size()+families.reservedForResidents(residents::containsKey)+incoming+(reservedChild?0:1)>capacity())return false;
         if(!residents.isEmpty() && residents.keySet().stream().noneMatch(id->id.equals(entity.family().partner())
                 ||FamilyData.get((ServerLevel)level).related(id,entity.getUUID())))return false;
-        for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)){residents.put(entity.getUUID(),slot);changed();return true;}
+        int chosen=-1;double nearest=Double.MAX_VALUE;
+        var beds=beds();
+        for(int slot=0;slot<capacity();slot++)if(!residents.containsValue(slot)) {
+            double distance=Double.MAX_VALUE;
+            for(var parent:new UUID[]{entity.family().mother(),entity.family().father()}) {
+                if(parent==null)continue;
+                var parentBed=bed(parent);
+                if(parentBed!=null)distance=Math.min(distance,beds.get(slot).distSqr(parentBed));
+            }
+            if(chosen<0||distance<nearest){chosen=slot;nearest=distance;}
+        }
+        if(chosen>=0){residents.put(entity.getUUID(),chosen);changed();return true;}
         return false;
     }
-    public void release(UUID id) { if(residents.remove(id)!=null)changed(); }
+    /** The caller has already verified the two real bedding portions at this resident's own usable bed. */
+    public boolean completePrivateNest(YukkuriEntity entity) {
+        if(level==null||level.isClientSide||kind()!=ShelterBlock.Kind.BURROW||!owns(entity.getUUID())||privateNest(entity.getUUID())||!usable(entity))return false;
+        privateNests.add(entity.getUUID());changed();return true;
+    }
+    public void release(UUID id) {
+        boolean released=residents.remove(id)!=null;
+        boolean removedPrivate=privateNests.remove(id);
+        if(released||removedPrivate)changed();
+    }
     public boolean complete() {
         if(level==null)return false;
         for(var pos:ShelterPlacement.positions(worldPosition,kind())) {
@@ -137,8 +173,12 @@ public final class ShelterBlockEntity extends BlockEntity {
         return returnFood(stack).isEmpty();
     }
     public ItemStack takeFood(YukkuriEntity entity) {
-        if(!owns(entity.getUUID()))return ItemStack.EMPTY;
-        for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&entity.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
+        return takeFood(entity,entity);
+    }
+    /** A resident may collect a real portion for a child; selection follows the actual eater's acceptance. */
+    public ItemStack takeFood(YukkuriEntity resident,YukkuriEntity eater) {
+        if(!owns(resident.getUUID()))return ItemStack.EMPTY;
+        for(int i=0;i<stock.size();i++)if(!stock.get(i).isEmpty()&&eater.life().acceptsFood(stock.get(i))){var item=stock.get(i).split(1);changed();return item;}
         return ItemStack.EMPTY;
     }
     /** A raider takes one existing portion without being a resident. */
@@ -148,11 +188,15 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     /** Preview never reserves or transfers stock; the caller cannot mutate the stored stack. */
     public ItemStack foodFor(YukkuriEntity entity) {
-        if(!owns(entity.getUUID()))return ItemStack.EMPTY;
-        for(var stack:stock)if(!stack.isEmpty()&&entity.life().acceptsFood(stack))return stack.copyWithCount(1);
+        return foodFor(entity,entity);
+    }
+    private ItemStack foodFor(YukkuriEntity resident,YukkuriEntity eater) {
+        if(!owns(resident.getUUID()))return ItemStack.EMPTY;
+        for(var stack:stock)if(!stack.isEmpty()&&eater.life().acceptsFood(stack))return stack.copyWithCount(1);
         return ItemStack.EMPTY;
     }
     public boolean hasFoodFor(YukkuriEntity entity) { return !foodFor(entity).isEmpty(); }
+    public boolean hasFoodFor(YukkuriEntity resident,YukkuriEntity eater) { return !foodFor(resident,eater).isEmpty(); }
     /** One synchronous ownership transfer, only at the resident's actual reachable sleeping place. */
     public boolean beginStoredMeal(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());
@@ -202,7 +246,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         ticks++;if(ticks%100!=0)return;
         if(kind()==ShelterBlock.Kind.BURROW&&naturalBeds.isEmpty()){dismantle();return;}
         var families=FamilyData.get((ServerLevel)level);
-        residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED);});
+        if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED);})) {
+            privateNests.retainAll(residents.keySet());changed();
+        }
         if(!complete()) {
             if(ShelterPlacement.positions(worldPosition,kind()).stream().allMatch(level::hasChunkAt))dismantle();
             return;
@@ -246,6 +292,7 @@ public final class ShelterBlockEntity extends BlockEntity {
                     new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
         }
         stock.clear();
+        residents.clear();privateNests.clear();
         var positions=new ArrayList<>(ShelterPlacement.positions(worldPosition,kind()));positions.remove(worldPosition);positions.add(worldPosition);
         for(var pos:positions)if(level.hasChunkAt(pos)){
             var state=level.getBlockState(pos);
@@ -256,12 +303,20 @@ public final class ShelterBlockEntity extends BlockEntity {
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.saveAdditional(tag,registries);tag.putInt("Version",2);saveSite(tag);ContainerHelper.saveAllItems(tag,stock,registries);
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
-        ListTag list=new ListTag();residents.forEach((id,slot)->{var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Bed",slot);list.add(entry);});tag.put("Residents",list);
+        saveResidents(tag);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.loadAdditional(tag,registries);loadSite(tag);stock.clear();ContainerHelper.loadAllItems(tag,stock,registries);
         condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
+        loadResidents(tag);
+    }
+    private void saveResidents(CompoundTag tag) {
+        ListTag residentsTag=new ListTag();residents.forEach((id,slot)->{var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Bed",slot);residentsTag.add(entry);});tag.put("Residents",residentsTag);
+        ListTag privateTag=new ListTag();privateNests.forEach(id->{var entry=new CompoundTag();entry.putUUID("Id",id);privateTag.add(entry);});tag.put("PrivateNests",privateTag);
+    }
+    private void loadResidents(CompoundTag tag) {
         residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0&&slot<capacity()&&!residents.containsValue(slot))residents.put(entry.getUUID("Id"),slot);}
+        privateNests.clear();for(Tag raw:tag.getList("PrivateNests",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Id")&&residents.containsKey(entry.getUUID("Id")))privateNests.add(entry.getUUID("Id"));}
     }
     private void saveSite(CompoundTag tag) {
         tag.putLongArray("NaturalBeds",naturalBeds.stream().mapToLong(BlockPos::asLong).toArray());tag.putInt("Branches",branches);
@@ -276,8 +331,8 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||naturalEntrance.getY()<worldPosition.getY()||naturalEntrance.getY()>worldPosition.getY()+1))naturalEntrance=null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=super.getUpdateTag(registries);saveSite(tag);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Food",food());return tag;
+        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Food",food());return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");displayFood=tag.getInt("Food"); }
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");displayFood=tag.getInt("Food"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
 }

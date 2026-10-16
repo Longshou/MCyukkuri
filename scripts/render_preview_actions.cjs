@@ -37,7 +37,17 @@ function transform(vertices,translation,scale,yaw,tile){
  return out;
 }
 function propVertices(prop,tile,q){
- const data=readJson(prop.source),base=Float64Array.from(data.vertices),position=interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q);
+ const data=readJson(prop.source),raw=Float64Array.from(data.vertices),position=interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q);
+ let base=raw;
+ if(Number.isInteger(prop.layers)){
+  const visible=[];
+  for(const part of data.parts||[]){
+   const unit=part.unit||0;
+   if(unit===0||(prop.layers&(1<<(unit-1)))!==0)visible.push(raw.slice(part.start*8,(part.start+part.count)*8));
+  }
+  base=new Float64Array(visible.reduce((length,part)=>length+part.length,0));
+  let offset=0;for(const part of visible){base.set(part,offset);offset+=part.length;}
+ }
  return transform(base,position,prop.scale===undefined?1:prop.scale,(prop.yaw||0)*Math.PI/180,tile);
 }
 function sceneEntries(clip,time){

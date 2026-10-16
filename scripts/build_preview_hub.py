@@ -50,13 +50,13 @@ def render_overview():
     sheet = Image.new('RGB', (1600, 1160), '#f3f0e8')
     draw = ImageDraw.Draw(sheet)
     draw.text((54, 30), '看得到的动作与场景', font=font(44), fill='#253c35')
-    draw.text((56, 98), '10 月 15 日 20:00 起的更新 · 当前运行资源离线演示', font=font(22), fill='#66796c')
-    cards = [('帽船初航', 'first-voyage/first-voyage.gif', 12),
-             ('受冷发抖', 'actions/cold.gif', 6),
-             ('在窝里进食', 'actions/winter-eat.gif', 9),
-             ('施工整理', 'actions/build-nest.gif', 10),
-             ('群体步行迁址', 'actions/migration.gif', 12),
-             ('螺壳缩壳', 'actions/shell-retract.gif', 18)]
+    draw.text((56, 98), '从出生到离家 · 当前运行资源离线演示', font=font(22), fill='#66796c')
+    cards = [('亲子共住大叶巢', 'actions/family-shared-sleep.gif', 12),
+             ('空茎与亲代送食', 'actions/family-young-feed.gif', 9),
+             ('长大后铺个人小巢', 'actions/family-small-build.gif', 10),
+             ('成年后另筑新居', 'actions/build-nest.gif', 10),
+             ('返访家人', 'actions/greet-family.gif', 12),
+             ('帽船家庭的独立路线', 'first-voyage/first-voyage.gif', 18)]
     for i, (title, source, frame) in enumerate(cards):
         x, y = 48 + i % 3 * 508, 158 + i // 3 * 462
         draw.rounded_rectangle((x, y, x+488, y+438), 18, fill='#fffef9')
@@ -81,6 +81,9 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     build_review_catalog.main()
     manifest = json.loads((ROOT / 'preview/hub/recent.json').read_text(encoding='utf-8'))
+    manifest['sourceRevision'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    manifest['workingChanges'] = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
+    manifest['commitCount'] = int(subprocess.check_output(['git', 'rev-list', '--count', manifest['baseRevision']+'..HEAD'], cwd=ROOT, text=True).strip())
     manifest['generatedAt'] = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     manifest['assetFingerprint'] = hashlib.sha256((ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_bytes()).hexdigest()
     digest = hashlib.sha256((OUT / 'models/catalog.js').read_bytes())

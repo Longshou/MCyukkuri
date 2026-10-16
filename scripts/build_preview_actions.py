@@ -54,6 +54,7 @@ def normalise(raw: dict) -> list[dict]:
             if 'to' in actor and (not isinstance(actor['to'], list) or len(actor['to']) != 3): raise ValueError(f'{ident}: actor.to must be [x,y,z]')
         for prop in clip.get('props', []):
             if not isinstance(prop.get('id'), str): raise ValueError(f'{ident}: prop id is required')
+            if 'layers' in prop and (not isinstance(prop['layers'], int) or prop['layers'] < 0): raise ValueError(f'{ident}: prop.layers must be a non-negative integer')
             if 'from' in prop and (not isinstance(prop['from'], list) or len(prop['from']) != 3): raise ValueError(f'{ident}: prop.from must be [x,y,z]')
             if 'to' in prop and (not isinstance(prop['to'], list) or len(prop['to']) != 3): raise ValueError(f'{ident}: prop.to must be [x,y,z]')
         clip['actors'] = actors; result.append(clip)

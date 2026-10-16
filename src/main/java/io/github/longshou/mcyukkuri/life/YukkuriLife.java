@@ -125,7 +125,7 @@ public final class YukkuriLife {
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }
     private boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Consumables.kind(food)==Consumables.Kind.SPICY||FillingResource.isFilling(food)||entity.getVariant().isHouse()&&food.is(ModItems.FOOD_SCRAP.get());}
     public boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(entity,food));}
-    public boolean canEat() { return needsFood() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
+    public boolean canEat() { return needsFood() && !entity.family().awaitingLanding() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.isAlive(); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620; }
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */

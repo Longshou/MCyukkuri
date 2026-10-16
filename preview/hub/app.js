@@ -51,8 +51,8 @@ $('back').onclick=()=>mode('recent');document.querySelector('.brand').onclick=e=
 $('main-image').onerror=()=>{$('media-caption').textContent='此动作文件尚未生成，请重新运行预览生成脚本。';};
 fetch('recent.json').then(r=>{if(!r.ok)throw Error('预览索引读取失败');return r.json();}).then(value=>{
  data=value;$('chapter-list').replaceChildren(...data.chapters.map((c,i)=>{const b=el('button');b.dataset.id=c.id;b.setAttribute('role','tab');b.append(el('small',String(i+1).padStart(2,'0')),document.createTextNode(c.label));b.onclick=()=>chapter(c.id);return b;}));
- $('period').textContent='2026.10.15 20:00 → '+data.sourceRevision.slice(0,8);
- $('version').textContent='更新范围：北京时间 2026 年 10 月 15 日 20:00 起，共 '+data.commitCount+' 个提交（含合并与修复）。内容版本 '+data.sourceRevision.slice(0,8)+'；页面按最终有效行为整理。';
+ $('period').textContent='2026.10.15 20:00 → '+data.sourceRevision.slice(0,8)+(data.workingChanges?' + 本地更新':'');
+ $('version').textContent='更新范围：北京时间 2026 年 10 月 15 日 20:00 起，共 '+data.commitCount+' 个提交（含合并与修复）。素材基线 '+data.sourceRevision.slice(0,8)+(data.workingChanges?'，含当前本地修改':'')+'；页面按当前有效行为整理。';
  $('generated').textContent='生成于 '+data.generatedAt.replace('T',' ').replace('+08:00','')+'（北京时间）';
  chapter(new URLSearchParams(location.search).get('topic')||data.chapters[0].id);if(location.hash==='#audio')mode('audio');else if(location.hash==='#models')mode('models');
 }).catch(error=>{$('error').hidden=false;$('error').textContent=error.message+'。请通过本地预览服务打开。';});

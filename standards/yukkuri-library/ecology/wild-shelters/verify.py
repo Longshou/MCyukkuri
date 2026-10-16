@@ -21,6 +21,6 @@ for name,entry in manifest['exports'].items():
     checks.append({'model':name,'vertices':len(v)//8,'source_selected_runtime_match':True,'finite_normalized_vertices':True,'model_sha256':sha(source)})
 report={'date':datetime.now(timezone.utc).isoformat(),'checks':checks,'authoring_sha256':sha(HERE/'build.py'),
         'scope':'File identity, finite mesh values, normalized normals and valid UVs; does not establish aesthetic approval.'}
-out=HERE/'reports/current';out.mkdir(parents=True,exist_ok=True)
+out=ROOT/'.local/reports/wild-shelters';out.mkdir(parents=True,exist_ok=True)
 (out/'static-consistency.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print('Verified',len(checks),'current source/selected/runtime models')

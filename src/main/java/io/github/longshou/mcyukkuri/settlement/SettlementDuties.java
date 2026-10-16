@@ -46,6 +46,7 @@ public final class SettlementDuties {
                 && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity);
     }
     private YukkuriEntity assigner() {
+        if (!entity.family().adult() && !entity.family().readyForOwnNest()) return null;
         if (entity.settlement().society().role() != SettlementData.Role.UNUN_SLAVE) return null;
         var record = entity.settlement().society().record();
         if (record == null || record.assignedBy == null || record.assignedUntil <= level().getGameTime()) return null;

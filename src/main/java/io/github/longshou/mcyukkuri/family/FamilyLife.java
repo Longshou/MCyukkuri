@@ -12,19 +12,22 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.EventHooks;
 
 /** Individual growth and interruptible family goals; durable births live in FamilyData. */
 public final class FamilyLife {
     public enum Stage { BABY, JUVENILE, ADULT }
-    private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE }
+    private enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.DEFAULT_MATURITY, age=maturity+1, nourishment=maturity,
             lifespan=maturity+GrowthTiming.DEFAULT_ADULT_LIFESPAN;
     private float adultScale=1, scale=1;
     private UUID mother, father, birthId, gestation, partner;
-    private int conceptions, recovery, wait, taskTicks, spentStemCount;
+    private int conceptions, recovery, wait, taskTicks, spentStemCount, careCarryTicks;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
     private boolean sterile;
@@ -63,10 +66,15 @@ public final class FamilyLife {
     private Task task=Task.NONE;
     private YukkuriEntity target;
     private Vec3 searchAt;
+    /** A single real portion reserved for a hungry child. It survives an interrupted trip and reload. */
+    private ItemStack carrying=ItemStack.EMPTY;
+    private ItemEntity foodSource;
+    private BlockPos foodStore;
     public FamilyLife(YukkuriEntity entity) { this.entity=entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public Stage stage() { return stage; }
     public long age() { return age; }
+    public long nourishment() { return nourishment; }
     public long lifespan() { return lifespan; }
     public long maturityAge() { return maturity; }
     public float adultScale() { return adultScale; }
@@ -80,6 +88,9 @@ public final class FamilyLife {
     public int spentStemCount() { return spentStemCount; }
     public float spentStemVariation() { return spentStemVariation; }
     public boolean awaitingLanding() { return awaitingLanding; }
+    /** Late-child gate for a personal nest; stem-born juveniles still start at age and nourishment zero. */
+    public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8; }
+    public ItemStack carrying() { return carrying; }
     public boolean youngVoice() { return stage!=Stage.ADULT||juvenileVoice||babyTalk; }
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}
@@ -103,7 +114,8 @@ public final class FamilyLife {
         return switch(task) {
             case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
             case WAIT_CHILD -> "wait_child"; case SEARCH -> "search_family";
-            case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife"; default -> awaitingLanding?"newborn_fall":"idle";
+            case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife"; case FEED_CHILD -> "feed_child";
+            case STAY_HOME -> "stay_home"; default -> awaitingLanding?"newborn_fall":"idle";
         };
     }
     /** A live delivery is under way (server side). */
@@ -377,6 +389,8 @@ public final class FamilyLife {
         if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
         if(handleLanding(true))return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
+        settleCareFood();
+        if(entity.tickCount%40==0)retryMotherBurrow();
         // AquaticLife owns life afloat, boarding flights, real sleep and short shore visits.
         var pendingBrood=brood();var afloat=boatHome();
         if(afloat==null)shoreBound=false;
@@ -592,6 +606,11 @@ public final class FamilyLife {
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
+            var home=earlyHomeStand();
+            if(home!=null) {
+                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
+                return false;
+            }
             target=closestParent();
             if(target!=null&&entity.distanceToSqr(target)>2.25) { task=Task.FOLLOW;taskTicks=0;return true; }
             if(target==null) {
@@ -607,6 +626,7 @@ public final class FamilyLife {
         }
         var mate=mateInLabor();
         if(mate!=null) { task=Task.MIDWIFE;target=mate;taskTicks=0;entity.showReaction("happy","caregiver",60);return true; }
+        if(startCare())return true;
         var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                 &&(entity.getUUID().equals(other.family().mother)||entity.getUUID().equals(other.family().father))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -651,9 +671,121 @@ public final class FamilyLife {
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
+    /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
+    private BlockPos earlyHomeStand() {
+        if(readyForOwnNest())return null;
+        var home=entity.habitat().shelter();
+        return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
+    }
+    /** A failed conception-time path does not move either parent; retry only while this father's brood is pending. */
+    private void retryMotherBurrow() {
+        if(partner==null||!(level().getEntity(partner) instanceof YukkuriEntity mother)||mother==entity)return;
+        var brood=mother.family().brood();
+        if(brood==null||brood.cancelled||brood.complete()||!entity.getUUID().equals(brood.father))return;
+        var home=mother.habitat().shelter();
+        if(FamilyData.ordinaryWildBurrow(mother,entity,home)&&!home.owns(entity.getUUID()))entity.habitat().choose(home);
+    }
+    private boolean careReady() {
+        return adult()&&!awaitingLanding&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.getVariant().isPredator()
+                &&!HatVessel.aquatic(entity)&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&!entity.operations().active()&&!entity.predator().active()
+                &&!entity.life().isSleeping()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!entity.independence().active()
+                &&entity.habitat().carrying().isEmpty()&&entity.independence().carrying().isEmpty()
+                &&entity.settlement().duties().carrying().isEmpty()&&entity.house().carrying().isEmpty();
+    }
+    private boolean hungryOwnChild(YukkuriEntity child) {
+        return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
+                &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canEat()
+                &&(carrying.isEmpty()||child.life().acceptsFood(carrying))
+                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.life().reachable(child.blockPosition(),false);
+    }
+    private YukkuriEntity hungriestOwnChild() {
+        return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),this::hungryOwnChild).stream()
+                .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(entity::distanceToSqr)).orElse(null);
+    }
+    private boolean startCare() {
+        if(!careReady())return false;
+        target=hungriestOwnChild();
+        if(target==null)return false;
+        foodSource=null;foodStore=null;
+        if(carrying.isEmpty())selectFoodSource();
+        if(carrying.isEmpty()&&foodSource==null&&foodStore==null){target=null;return false;}
+        task=Task.FEED_CHILD;taskTicks=0;return true;
+    }
+    /** Choose a real nearby drop or the caregiver's own stocked shelter, without reserving either. */
+    private void selectFoodSource() {
+        foodSource=null;foodStore=null;
+        ItemEntity nearby=EventHooks.canEntityGrief(level(),entity)
+                ?level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()&&!item.hasPickUpDelay()
+                        &&entity.life().acceptsFood(item.getItem())&&target!=null&&target.life().acceptsFood(item.getItem())
+                        &&entity.life().reachable(item.blockPosition(),false)).stream()
+                        .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null):null;
+        var shelter=entity.habitat().shelter();
+        BlockPos bed=shelter==null?null:shelter.bed(entity.getUUID());
+        boolean stocked=shelter!=null&&shelter.usable(entity)&&target!=null&&shelter.hasFoodFor(entity,target)&&bed!=null&&entity.life().reachable(bed,false);
+        if(nearby!=null&&(!stocked||entity.distanceToSqr(nearby)<=entity.distanceToSqr(Vec3.atBottomCenterOf(bed))))foodSource=nearby;
+        else if(stocked)foodStore=shelter.getBlockPos();
+    }
+    private boolean validCareTarget() { return target!=null&&hungryOwnChild(target); }
+    /** A cancelled handoff does not mint or erase food: return the held portion or leave it where the parent stands. */
+    private void settleCareFood() {
+        if(carrying.isEmpty()){careCarryTicks=0;return;}
+        if(task==Task.FEED_CHILD){careCarryTicks=0;return;}
+        if(++careCarryTicks<200)return;
+        var home=entity.habitat().shelter();var bed=home==null?null:home.bed(entity.getUUID());
+        if(home!=null&&bed!=null&&home.usable(entity)&&entity.distanceToSqr(Vec3.atBottomCenterOf(bed))<.64) {
+            carrying=home.returnFood(carrying);
+            if(carrying.isEmpty()){careCarryTicks=0;return;}
+        }
+        if(entity.life().dryStand(entity.blockPosition())) {
+            var food=entity.spawnAtLocation(carrying.copy());
+            if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;careCarryTicks=0;}
+        }
+    }
+    private void tickCare() {
+        if(!validCareTarget()) {
+            target=hungriestOwnChild();foodSource=null;foodStore=null;
+            if(target==null){stop();return;}
+        }
+        if(carrying.isEmpty()) {
+            if(foodSource==null&&foodStore==null)selectFoodSource();
+            if(foodSource!=null) {
+                if(!foodSource.isAlive()||foodSource.hasPickUpDelay()||!entity.life().acceptsFood(foodSource.getItem())) { foodSource=null;return; }
+                entity.getLookControl().setLookAt(foodSource,20,20);
+                if(entity.distanceToSqr(foodSource)<.5&&entity.hasLineOfSight(foodSource)) {
+                    ItemStack remaining=foodSource.getItem().copy();carrying=remaining.split(1);
+                    if(remaining.isEmpty())foodSource.discard();else foodSource.setItem(remaining);
+                    foodSource=null;
+                } else if(taskTicks%10==1&&!entity.life().navigate(foodSource.blockPosition(),1.1,false))foodSource=null;
+                return;
+            }
+            if(foodStore!=null) {
+                var home=level().getBlockEntity(foodStore) instanceof io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity shelter?shelter:null;
+                var bed=home==null?null:home.bed(entity.getUUID());
+                if(home==null||bed==null||!home.usable(entity)||!home.hasFoodFor(entity,target)) { foodStore=null;return; }
+                if(entity.distanceToSqr(Vec3.atBottomCenterOf(bed))<.64) {
+                    var food=home.takeFood(entity,target);
+                    if(!food.isEmpty()&&target.life().acceptsFood(food))carrying=food;
+                    else if(!food.isEmpty()){carrying=home.returnFood(food);foodStore=null;}
+                }
+                else if(taskTicks%10==1&&!entity.life().navigate(bed,.9,false))foodStore=null;
+                return;
+            }
+            stop();return;
+        }
+        entity.getLookControl().setLookAt(target,20,20);
+        if(entity.distanceToSqr(target)<2.25&&entity.hasLineOfSight(target)) {
+            if(target.life().beginMeal(carrying,null,true)) { carrying=ItemStack.EMPTY;entity.showReaction("happy","share",80); }
+            stop();return;
+        }
+        if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
+    }
     public boolean canContinue() {
-        return task!=Task.NONE&&!entity.isPanicking()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!entity.isCommandPlaying()
-                &&(taskTicks<240||task==Task.MIDWIFE)&&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
+        if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
+        if(task==Task.STAY_HOME) {
+            var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
+        }
+        if(task==Task.FEED_CHILD)return careReady()&&validCareTarget()&&taskTicks<480;
+        return (taskTicks<240||task==Task.MIDWIFE)&&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
@@ -694,6 +826,14 @@ public final class FamilyLife {
                 entity.getLookControl().setLookAt(target,20,20);
                 if(taskTicks%10==1&&!entity.life().navigate(bank==null?target.blockPosition():bank,1.15,false))stop();
             }
+            case STAY_HOME -> {
+                var home=earlyHomeStand();
+                if(home==null){stop();return;}
+                if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) {
+                    if(taskTicks%10==1&&!entity.life().navigate(home,1.0,false))stop();
+                } else entity.getNavigation().stop();
+            }
+            case FEED_CHILD -> tickCare();
             case WAIT_CHILD -> {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
@@ -730,8 +870,12 @@ public final class FamilyLife {
             default -> { }
         }
     }
-    public void stop() { task=Task.NONE;target=null;searchAt=null;taskTicks=0;wait=Math.max(wait,40); }
+    public void stop() { task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;wait=Math.max(wait,40); }
     public void died() {
+        if(!carrying.isEmpty()) {
+            var food=entity.spawnAtLocation(carrying.copy());
+            if(food!=null){food.setPickUpDelay(40);carrying=ItemStack.EMPTY;}
+        }
         var data=FamilyData.get(level());data.died(entity);stop();
         for(var other:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),other->other!=entity&&other.isAlive()))
             if(age<1200&&(other.getUUID().equals(mother)||other.getUUID().equals(father))) {
@@ -754,6 +898,8 @@ public final class FamilyLife {
             f.putInt("Ticks",flight.ticks()); f.putInt("Elapsed",flightTick); tag.put("HatFlight",f);
         }
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
+        if(!carrying.isEmpty())tag.put("CareFood",carrying.save(entity.registryAccess()));
+        tag.putInt("CareFoodTicks",careCarryTicks);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
     }
@@ -784,6 +930,9 @@ public final class FamilyLife {
         }
         // Legacy permanent dry stems disappear; they do not mint retrospective items.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
+        carrying=tag.contains("CareFood")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
+        if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;
+        careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
         stop();entity.syncFamily();

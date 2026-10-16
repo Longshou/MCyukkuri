@@ -2,8 +2,11 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -141,6 +144,16 @@ public final class FamilyData extends SavedData {
         }
         return new PopulationBudget(position, FamilyConfig.POPULATION_CAP.get());
     }
+    /** Wild land parents may consolidate only in the mother's ordinary natural burrow. */
+    public static boolean ordinaryWildBurrow(YukkuriEntity mother, YukkuriEntity father, ShelterBlockEntity shelter) {
+        return shelter != null && shelter.kind() == ShelterBlock.Kind.BURROW
+                && !mother.getVariant().isHouse() && !father.getVariant().isHouse()
+                && !mother.getVariant().isPredator() && !father.getVariant().isPredator()
+                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(mother)
+                && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(father)
+                && !HumanCommerce.data(mother).hasUUID("Owner") && !HumanCommerce.data(father).hasUUID("Owner")
+                && !HumanCommerce.data(mother).contains("PendingRole") && !HumanCommerce.data(father).contains("PendingRole");
+    }
     public Brood conceive(YukkuriEntity mother, YukkuriEntity father, BirthKind kind, GlobalPos anchor) {
         ServerLevel level=(ServerLevel)mother.level();register(mother);register(father);
         if(!mother.family().canReproduceWith(father)||busyParent(mother.getUUID())||busyParent(father.getUUID()))return null;
@@ -150,7 +163,11 @@ public final class FamilyData extends SavedData {
         int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed):2+new Random(seed).nextInt(3);
         if(!io.github.longshou.mcyukkuri.human.FactoryProduction.reproductionAllowed(mother,father,count))return null;
         var shelter=mother.habitat().shelter();
-        if(shelter!=null&&!shelter.suitableForYoung(count))return null;
+        boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
+        if(joinMother) {
+            int incoming=count+(shelter.owns(father.getUUID())?0:1);
+            if(!shelter.suitableForYoung(incoming))return null;
+        } else if(shelter!=null&&!shelter.suitableForYoung(count))return null;
         var budget = birthBudget(level, anchor.pos(), mother.getUUID());
         if(population(level,budget.center())+count>budget.limit())return null;
         float cost=10+count*2;
@@ -178,6 +195,9 @@ public final class FamilyData extends SavedData {
         var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(mother);
         if(custody.getString("Use").equals("breeder") && custody.hasUUID("Owner") && level.getEntity(custody.getUUID("Owner")) instanceof io.github.longshou.mcyukkuri.human.HumanNpc worker)
             worker.production().breeding().conceived(mother,father);
+        // This is a normal reachability-checked claim.  A failed path leaves both homes intact;
+        // the father retries while the brood is pending from FamilyLife.tick().
+        if(joinMother&&!shelter.owns(father.getUUID()))father.habitat().choose(shelter);
         setDirty();return brood;
     }
     /** A manufactured dose has no known individual father. Never substitute a nearby animal. */
@@ -280,7 +300,8 @@ public final class FamilyData extends SavedData {
         }
         boolean joined = level.getEntity(brood.mother) instanceof YukkuriEntity parent && entity.settlement().inherit(parent);
         if (!joined && brood.father!=null && level.getEntity(brood.father) instanceof YukkuriEntity parent) entity.settlement().inherit(parent);
-        if(level.getEntity(brood.mother) instanceof YukkuriEntity parent)entity.habitat().inherit(parent);
+        boolean inheritedHome=actualMother!=null&&entity.habitat().inherit(actualMother);
+        if(!inheritedHome&&actualFather!=null)entity.habitat().inherit(actualFather);
         child.born=true;Person person=people.get(child.id);person.status=Status.ALIVE;person.position=GlobalPos.of(level.dimension(),entity.blockPosition());
         trackStemCompletion(brood,level);
         io.github.longshou.mcyukkuri.cognition.Cognition.born(entity,brood.mother,brood.father);

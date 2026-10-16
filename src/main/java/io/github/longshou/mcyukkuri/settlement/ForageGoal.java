@@ -23,7 +23,7 @@ public final class ForageGoal extends Goal {
         return state.is(Blocks.SHORT_GRASS) && entity.life().acceptsFood(new ItemStack(state.getBlock().asItem()));
     }
     @Override public boolean canUse() {
-        if (entity.getVariant().isHouse() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
+        if (entity.getVariant().isHouse() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         if (cooldown-- > 0) return false;
         cooldown = Seasons.is(entity, Season.AUTUMN) ? 20 : 40; // autumn foragers are keener
@@ -38,7 +38,7 @@ public final class ForageGoal extends Goal {
         elapsed = 0; return target != null;
     }
     @Override public boolean canContinueToUse() {
-        return target != null && elapsed < 200 && edible(target) && entity.life().canEat()
+        return target != null && elapsed < 200 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

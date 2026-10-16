@@ -16,14 +16,15 @@ public final class EcologyPresentation {
             case "sleep_enter", "sleep", "shade_rest" -> YukkuriAction.SLEEP;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
-            case "independence_build" -> YukkuriAction.BRACE;
+            case "independence_build", "nest_build" -> YukkuriAction.BRACE;
+            case "feed_child", "nest_gather" -> YukkuriAction.LOOK_AROUND;
             case "independence_farewell", "independence_visit" -> YukkuriAction.GREET;
             case "independence_gather", "independence_return" -> YukkuriAction.LOOK_AROUND;
             case "wake" -> YukkuriAction.WAKE;
             case "nuzzle" -> YukkuriAction.NUZZLE;
             case "sing" -> YukkuriAction.SING;
             case "listen_song", "exercise_watch" -> YukkuriAction.SWAY;
-            case "search_family", "wait_child" -> YukkuriAction.LOOK_AROUND;
+            case "search_family", "wait_child", "stay_home" -> YukkuriAction.LOOK_AROUND;
             case "tend_brood" -> YukkuriAction.BROOD;
             case "labor" -> YukkuriAction.LABOR;
             case "midwife" -> YukkuriAction.MIDWIFE;
@@ -92,7 +93,8 @@ public final class EcologyPresentation {
             case "nuzzle", "listen_song", "exercise_watch", "boat_nuzzle", "boat_receive_care", "boat_listen" -> "closed_smile";
             case "meal_finish" -> "satisfied";
             case "independence_farewell", "independence_visit" -> "happy";
-            case "independence_build" -> "chewing_closed";
+            case "independence_build", "nest_build" -> "chewing_closed";
+            case "feed_child" -> "happy";
             case "sing" -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
             case "unun_exercise" -> "happy";
             case "sleep_enter" -> "sleepy";

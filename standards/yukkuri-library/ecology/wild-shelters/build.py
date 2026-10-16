@@ -2,7 +2,7 @@
 Run with Python + Pillow. Coordinate units: 16/block, +Z entrance, ground Y=0.
 """
 from pathlib import Path
-import base64, hashlib, io, json, math, random, shutil, uuid, subprocess
+import base64, hashlib, json, math, random, shutil, uuid, subprocess
 from PIL import Image, ImageDraw, ImageFont
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
@@ -18,9 +18,36 @@ for k,h in enumerate(COLORS.values()):
         for x in range(64):
             d=rng.choice([-8,-3,0,0,3,6])+(2 if y%9==0 else 0)
             atlas.putpixel(((k%4)*64+x,(k//4)*64+y),tuple(max(0,min(255,c+d)) for c in rgb)+(255,))
-atlas.save(HERE/'palette.png')
+def close_enough(before,after):
+    if isinstance(before,(int,float)) and isinstance(after,(int,float)):
+        return abs(before-after)<=1e-12*max(1,abs(before),abs(after))
+    if isinstance(before,list) and isinstance(after,list):
+        return len(before)==len(after) and all(close_enough(a,b) for a,b in zip(before,after))
+    if isinstance(before,dict) and isinstance(after,dict):
+        return before.keys()==after.keys() and all(close_enough(before[key],after[key]) for key in before)
+    return before==after
 def write(p,d):
-    p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(d,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+    p.parent.mkdir(parents=True,exist_ok=True)
+    if p.exists():
+        try:
+            if close_enough(json.loads(p.read_text(encoding='utf-8')),d):
+                return
+        except (OSError,json.JSONDecodeError):
+            pass
+    p.write_text(json.dumps(d,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+def save_image(image,p):
+    """Keep byte-stable exports when the authored palette pixels did not change."""
+    p.parent.mkdir(parents=True,exist_ok=True)
+    if p.exists():
+        try:
+            with Image.open(p) as current:
+                if current.convert('RGBA').size==image.size and current.convert('RGBA').tobytes()==image.tobytes():
+                    return
+        except OSError:
+            pass
+    image.save(p)
+save_image(atlas,HERE/'palette.png')
+PALETTE_BYTES=(HERE/'palette.png').read_bytes()
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 class Model:
     def __init__(self,name): self.name=name;self.meshes=[];self.collision=[]
@@ -55,24 +82,55 @@ class Model:
         bounds=[[min(vertices[k::8]),max(vertices[k::8])] for k in range(3)]
         model={'format':1,'units_per_block':16,'vertices':vertices,'parts':parts,'bounds':bounds}
         write(OUT/(self.name+'.json'),model)
-        b=io.BytesIO();atlas.save(b,format='PNG')
-        write(OUT/(self.name+'.bbmodel'),{'meta':{'format_version':'4.10','model_format':'free'},'name':self.name,'resolution':{'width':256,'height':256},'elements':elements,'outliner':[e['uuid'] for e in elements],'textures':[{'name':'palette.png','id':'0','width':256,'height':256,'source':'data:image/png;base64,'+base64.b64encode(b.getvalue()).decode()}]})
-        atlas.save(OUT/(self.name+'.png'))
+        write(OUT/(self.name+'.bbmodel'),{'meta':{'format_version':'4.10','model_format':'free'},'name':self.name,'resolution':{'width':256,'height':256},'elements':elements,'outliner':[e['uuid'] for e in elements],'textures':[{'name':'palette.png','id':'0','width':256,'height':256,'source':'data:image/png;base64,'+base64.b64encode(PALETTE_BYTES).decode()}]})
+        save_image(atlas,OUT/(self.name+'.png'))
         for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(self.name+suffix),SNAP/(self.name+suffix))
         shutil.copy2(OUT/(self.name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(self.name+'.json'))
-        tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);atlas.save(tex/(self.name+'.png'))
+        tex=RUN/'assets/mcyukkuri/textures/props';tex.mkdir(parents=True,exist_ok=True);save_image(atlas,tex/(self.name+'.png'))
         if self.collision:write(RUN/'data/mcyukkuri/shelters'/(self.name+'.json'),{'units_per_block':16,'collision':self.collision})
         return model
 
-m=Model('forest_burrow')
-# Only loose bedding is authored. Existing Minecraft terrain supplies the entire cavity.
-for i in range(32):
-    x=rng.uniform(-5.3,5.3);z=rng.uniform(-5.3,5.3);y=.08+(i%4)*.09
-    angle=rng.uniform(0,math.tau);length=rng.uniform(1.6,2.6);width=.65
+def leaf(model,name,x,z,y,angle,length,width,material,unit):
     raw=[(-length,0),(0,-width),(length,0),(0,width)]
     points=[[x+a*math.cos(angle)-b*math.sin(angle),y+(.16 if j%2 else 0),z+a*math.sin(angle)+b*math.cos(angle)] for j,(a,b) in enumerate(raw)]
-    m.mesh('loose_leaf_'+str(i),points,[(2,1,0),(3,2,0)],'leaf_dry' if i%3 else 'leaf',unit=1)
-models=[m]
+    model.mesh(name,points,[(2,1,0),(3,2,0)],material,unit=unit)
+
+def outer_rim(model,name,unit,axis,sign):
+    """Loose leaves and two fallen twigs only along an exposed shared-nest edge."""
+    for i in range(7):
+        along=-6.2+i*2.05+rng.uniform(-.24,.24);outer=sign*(7.05+rng.uniform(-.22,.22))
+        x,z=(along,outer) if axis=='z' else (outer,along)
+        angle=(0 if axis=='z' else math.pi/2)+rng.uniform(-.55,.55)
+        leaf(model,name+'_leaf_'+str(i),x,z,.32+(i%3)*.055,angle,rng.uniform(1.05,1.65),rng.uniform(.42,.7),'leaf' if i%3 else 'leaf_dry',unit)
+    for i,along in enumerate((-3.6,3.1)):
+        outer=sign*7.55
+        a,b=((along-.8,.24,outer),(along+1.05,.34,outer+sign*.18)) if axis=='z' else ((outer,.24,along-.8),(outer+sign*.18,.34,along+1.05))
+        model.beam(name+'_twig_'+str(i),a,b,.075,'bark')
+        part,points,faces,material,_=model.meshes[-1];model.meshes[-1]=(part,points,faces,material,unit)
+
+m=Model('forest_burrow')
+# A leaf tile is repeated only over actual shared sleeping cells; terrain still supplies the cavity.
+for i in range(48):
+    x=rng.uniform(-6.6,6.6);z=rng.uniform(-6.6,6.6);y=.08+(i%4)*.075
+    leaf(m,'shared_leaf_'+str(i),x,z,y,rng.uniform(0,math.tau),rng.uniform(1.8,3.0),rng.uniform(.56,.82),'leaf_dry' if i%3 else 'leaf',1)
+outer_rim(m,'rim_north',2,'z',-1)
+outer_rim(m,'rim_east',3,'x',1)
+outer_rim(m,'rim_south',4,'z',1)
+outer_rim(m,'rim_west',5,'x',-1)
+
+personal=Model('personal_leaf_nest')
+# A later juvenile's own bed stays within its assigned sleeping cell and never implies a new shelter shell.
+for i in range(24):
+    leaf(personal,'personal_leaf_'+str(i),rng.uniform(-4.35,4.35),rng.uniform(-3.45,3.45),.08+(i%4)*.075,
+         rng.uniform(0,math.tau),rng.uniform(1.15,1.85),rng.uniform(.42,.62),'leaf_dry' if i%3 else 'leaf',0)
+for i in range(12):
+    angle=math.tau*i/12+rng.uniform(-.13,.13);radius=rng.uniform(4.0,4.65)
+    leaf(personal,'personal_rim_'+str(i),math.cos(angle)*radius,math.sin(angle)*radius*.72,.34+(i%3)*.05,
+         angle+math.pi/2+rng.uniform(-.3,.3),rng.uniform(.75,1.18),rng.uniform(.34,.5),'leaf',0)
+for i,angle in enumerate((.3,2.7,4.4)):
+    x,z=math.cos(angle)*4.45,math.sin(angle)*3.2
+    personal.beam('personal_twig_'+str(i),(x,.22,z),(x+math.cos(angle+.9)*1.35,.32,z+math.sin(angle+.9)*1.35),.065,'bark')
+models=[m,personal]
 boundary=Model('nest_boundary')
 for i,(a,b,r) in enumerate([((-5.8,0,-7),(-8.1,9,-8.1),.24),((5.8,0,-7),(8.1,7,-8.1),.2),((-5.5,.2,-7),(4.2,.2,-7.5),.17)]):
     boundary.beam('loose_twig_'+str(i),a,b,r,'bark')
@@ -130,7 +188,8 @@ for name,data in exports.items():
   for k in range(2,len(twigs),8):twigs[k]+=16
   data['vertices']=data['vertices']+twigs
  for az,el,title in [(math.pi,.15,'front'),(math.pi-.65,.3,'quarter'),(.65,.3,'back')]:
-  entries.append(dict(id=name+'-'+title,vertices=data['vertices'],az=az,el=el,span=16 if name=='forest_burrow' else 34,center=3 if name=='forest_burrow' else 14))
+  leaf_bed=name in {'forest_burrow','personal_leaf_nest'}
+  entries.append(dict(id=name+'-'+title,vertices=data['vertices'],az=az,el=el,span=16 if leaf_bed else 34,center=3 if leaf_bed else 14))
 write(scratch/'input.json',entries)
 subprocess.run(['node','-e',node,str(ROOT/'standards/yukkuri-library/runtime/render.js'),str(scratch)],check=True)
 sheet=Image.new('RGB',(1400,910),'#e9e6dc');draw=ImageDraw.Draw(sheet)

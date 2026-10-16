@@ -34,6 +34,8 @@
 
 开发规则以 [AGENTS.md](AGENTS.md) 为准，人工协作说明见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+子油的出生、第一顿、家庭大巢、成长分床与离家规则见[子代生命周期](docs/CHILDHOOD_LIFECYCLE.md)。
+
 ## 素材从制作到游戏接入
 
 `standards/yukkuri-library/` 内的组件、角色登记与配方共同定义制作源，`assembled/<角色>/` 保存与源同步的可编辑模型、几何、动画和贴图。新造型从这里制作，并在角色或资产包的登记中标明确认状态。

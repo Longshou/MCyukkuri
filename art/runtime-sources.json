@@ -11,6 +11,28 @@
     "texture": "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png",
     "status": "pending_user_review"
   },
+  "wild_shelters": {
+    "source_exporter": "standards/yukkuri-library/ecology/wild-shelters/build.py",
+    "selected_snapshot": "art/props/wild-shelters",
+    "manifest": "standards/yukkuri-library/ecology/wild-shelters/manifest.json",
+    "exports": {
+      "forest_burrow": {
+        "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/forest_burrow.bbmodel",
+        "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
+        "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
+        "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
+        "role": "shared leaf-mat tile with optional outer rim layers"
+      },
+      "personal_leaf_nest": {
+        "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
+        "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
+        "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
+        "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
+        "role": "late juvenile individual leaf nest on the existing sleep slot"
+      }
+    },
+    "status": "pending_user_confirmation"
+  },
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",

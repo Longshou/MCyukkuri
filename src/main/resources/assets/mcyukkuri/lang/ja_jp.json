@@ -1478,5 +1478,16 @@
   "commands.mcyukkuri.settlement.info.none": "近くに登録された群れはない。",
   "commands.mcyukkuri.settlement.info": "群れ %s、中心 %s、リーダー %s、リーダー制：%s、空席 %s 秒、読み込み済み %s 匹（のけ者 %s、奴隷 %s）、脅威報告 %s 回。",
   "notebook.mcyukkuri.settlement_orders": "群れの活動\n\n季節：%s\n指示：%s\n脅威：%s\n移住：%s",
-  "notebook.mcyukkuri.biome_season": "バイオームの季節\n\n季節：%s\n体感温度差：%s\n\n現在のバイオームで決まり、日数では変わりません。"
+  "notebook.mcyukkuri.biome_season": "バイオームの季節\n\n季節：%s\n体感温度差：%s\n\n現在のバイオームで決まり、日数では変わりません。",
+  "activity.mcyukkuri.feed_child": "子どもに食べ物を届ける",
+  "activity.mcyukkuri.nest_build": "自分の小さな葉の巣を作る",
+  "activity.mcyukkuri.nest_gather": "巣の敷き材を集める",
+  "notebook.mcyukkuri.chapter.childhood": "子ゆっくりの成長\n\n空の茎は一食分の食べ物。親は空腹の子に実物の食べ物を届ける。\n\n幼い間は家族で大きな葉の巣を共有する。成熟年齢の半分、栄養成長の 3/8 に達すると、植物の敷き材二個で家の中に小さな巣を作れる。\n\n巣分けと独立は別。独立は成体になってから。",
+  "notebook.mcyukkuri.childhood": "成長と巣\n\n住まい：%s\n成熟年齢の進捗：%s%%\n栄養成長の進捗：%s%%\n届ける食べ物：%s\n\n巣分けには実物の敷き材が必要。独立には成体であることと使える新居が必要。",
+  "notebook.mcyukkuri.childhood.shared": "家族で共有する葉の巣",
+  "notebook.mcyukkuri.childhood.ready": "家の中に小さな巣を作れる",
+  "notebook.mcyukkuri.childhood.private": "家族の家にある自分の葉の巣",
+  "notebook.mcyukkuri.childhood.independent": "独立した自分の住まい",
+  "notebook.mcyukkuri.childhood.other": "現在の住まい、または住居探し",
+  "activity.mcyukkuri.stay_home": "家族の巣の近くへ戻る"
 }

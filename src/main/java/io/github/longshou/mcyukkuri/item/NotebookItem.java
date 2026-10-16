@@ -111,6 +111,7 @@ public final class NotebookItem extends Item {
                 Component.translatable("notebook.mcyukkuri.family",identity(entity.family().mother()),identity(entity.family().father()),
                         identity(entity.family().partner()),entity.family().brood()==null?0:entity.family().brood().unborn(),entity.family().recovery()/20),
                 io.github.longshou.mcyukkuri.notebook.NotebookGuide.pregnancy(entity),
+                io.github.longshou.mcyukkuri.notebook.NotebookGuide.childhood(entity),
                 Component.translatable("notebook.mcyukkuri.body",entity.body().wound(),entity.body().infection(),entity.body().filling(),entity.body().mold()),
                 Component.translatable("notebook.mcyukkuri.consumables",Math.round(life.dryness()),life.constipated()?"✓":"—",life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
