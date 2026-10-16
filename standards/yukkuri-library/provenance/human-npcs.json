@@ -43,7 +43,7 @@
         "art/source/human-runtime/textures/shopkeeper.png",
         "src/main/resources/assets/mcyukkuri/textures/entity/human/shopkeeper.png"
       ],
-      "sha256": "caa5daf29c5d9e879713754587d1c9e550aa8f593fafbec0223314fea5c9a7cd"
+      "sha256": "35133755117ec7b333a7c3a0aca847947396e12462f648051fa0c2a6f8cb3b6b"
     },
     "factory_worker": {
       "source": "standards/yukkuri-library/textures/human/factory_worker.png",
@@ -53,6 +53,24 @@
         "src/main/resources/assets/mcyukkuri/textures/entity/human/factory_worker.png"
       ],
       "sha256": "3ce2f68f567b0d07f255084177491ef056a7af28acc1f5323b51065db10b59c0"
+    },
+    "examiner": {
+      "source": "standards/yukkuri-library/textures/human/examiner.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/examiner.png",
+        "art/source/human-runtime/textures/examiner.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/examiner.png"
+      ],
+      "sha256": "88ffddb54ac54112b3f0139ec4e3054b44e2669127712be0661dce7efb763ab2"
+    },
+    "keeper": {
+      "source": "standards/yukkuri-library/textures/human/keeper.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/keeper.png",
+        "art/source/human-runtime/textures/keeper.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/keeper.png"
+      ],
+      "sha256": "ed8bac2ff0deabbe58e2aefd63dd8956c426712260474301c547b5e3db699d67"
     }
   }
 }

@@ -1,13 +1,16 @@
 """Original pixel clothing for the Java humanoid rig. No external image inputs."""
 from pathlib import Path
-import hashlib, json
+import hashlib, json, sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from author_staff_skins import ROLES as STAFF
 from PIL import Image, ImageDraw
 LIB=Path(__file__).resolve().parents[1]
 ROOT=LIB.parents[1]
 def export():
     palette={'oniisan':('#303d4c','#a05042','#302623'),'brother':('#48786e','#ddd3a5','#553b29'),
              'sister':('#a2556d','#f2d2ad','#4a2c21'),'shopkeeper':('#446a68','#e2d7b8','#503829'),
-             'factory_worker':('#849596','#e7e4dc','#463b31')}
+             'factory_worker':('#849596','#e7e4dc','#463b31'),
+             'examiner':('#393c46','#f2f0ea','#3b3b46'),'keeper':('#6e8a3c','#eef0ea','#3a2d26')}
     result={}
     for name,(coat,apron,hair) in palette.items():
         im=Image.new('RGBA',(64,64)); d=ImageDraw.Draw(im);skin='#eac09b';dark='#373b41'
@@ -38,6 +41,7 @@ def export():
             d.rectangle((32,0,63,9),fill='#e8e4d7');d.rectangle((8,13,15,15),fill='#e8e4d7')
             d.rectangle((40,27,55,31),fill='#ddc78e')
         if name=='sister':d.rectangle((8,10,8,13),fill=hair);d.rectangle((15,9,15,13),fill=hair)
+        if name in STAFF: im=STAFF[name]()  # staff skins are drawn in author_staff_skins.py
         source=LIB/'textures/human'/f'{name}.png';source.parent.mkdir(parents=True,exist_ok=True);im.save(source)
         targets=[LIB/'assembled/humans/textures'/source.name, ROOT/'art/source/human-runtime/textures'/source.name,
                  ROOT/'src/main/resources/assets/mcyukkuri/textures/entity/human'/source.name]

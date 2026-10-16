@@ -101,7 +101,7 @@ def main(check=False):
               'standards/yukkuri-library/assembled/humans/textures/*.png','art/source/human-runtime/textures/*.png','art/structures/human-world/products/*',
               'src/main/resources/assets/mcyukkuri/textures/block/exam_*.png','src/main/resources/assets/mcyukkuri/models/block/exam_*.json','src/main/resources/assets/mcyukkuri/models/item/exam_*.json',
               'src/main/resources/assets/mcyukkuri/blockstates/exam_*.json','src/main/resources/data/mcyukkuri/loot_table/blocks/exam_*.json']
-    paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
+    paths=[ROOT/'art/structures/human-world/build.py',ROOT/'standards/yukkuri-library/tools/author_human_npcs.py',ROOT/'standards/yukkuri-library/tools/author_staff_skins.py',ROOT/'src/main/java/io/github/longshou/mcyukkuri/human/HumanBuildingStructure.java',
            ROOT/'src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java',ROOT/'scripts/export_human_world.py']
     paths.append(ROOT/'art/structures/human-world/author_products.py')
     paths.append(ROOT/'art/structures/human-world/author_pipeline.py')
