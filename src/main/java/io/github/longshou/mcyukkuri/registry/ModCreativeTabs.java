@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.freezer.FreezerModule;
+import io.github.longshou.mcyukkuri.human.HumanWorld;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -60,6 +62,27 @@ public final class ModCreativeTabs {
         event.accept(ModItems.REMILIA_SPAWN_EGG.get()); event.accept(ModItems.FLANDRE_SPAWN_EGG.get());
         event.accept(ModItems.HOUSE_REIMU_SPAWN_EGG.get());
         event.accept(ModItems.HOUSE_MARISA_SPAWN_EGG.get());
+    }
+
+    /** Called through HumanWorld's original listener so its event registration order stays unchanged. */
+    public static void addHumanContents(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)
+                || event.getTabKey().location().equals(MCYukkuri.id("yukkuri_world"))) {
+            event.accept(HumanWorld.ONIISAN_EGG);
+            event.accept(HumanWorld.BROTHER_EGG);
+            event.accept(HumanWorld.SISTER_EGG);
+            for (var item : java.util.List.of(HumanWorld.MANJU, HumanWorld.LIVE_BAG, HumanWorld.SILVER_BADGE,
+                    HumanWorld.GOLD_BADGE, HumanWorld.BADGE_HANDBOOK)) event.accept(item.get());
+            for (var block : java.util.List.of(HumanWorld.LABOR_BENCH, HumanWorld.MANJU_STEAMER,
+                    HumanWorld.PACKING_TABLE, HumanWorld.NURSERY_STATION, HumanWorld.RECEIVING_TABLE,
+                    HumanWorld.INSPECTION_TABLE, HumanWorld.WASHING_TABLE, HumanWorld.OBSERVATION_STATION,
+                    HumanWorld.TRANSFER_TRAY)) event.accept(block.get());
+        }
+    }
+
+    /** Called through FreezerModule's existing automatic MOD-bus subscriber. */
+    public static void addFreezerContents(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(YUKKURI_WORLD.getKey())) event.accept(FreezerModule.ITEM.get());
     }
 
     private ModCreativeTabs() {}

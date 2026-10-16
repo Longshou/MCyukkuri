@@ -22,7 +22,7 @@ public final class FreezerModule {
             new BlockItem(CABINET.get(), new Item.Properties()));
     public static void init() {}
     @SubscribeEvent public static void creative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey().equals(ModCreativeTabs.YUKKURI_WORLD.getKey())) event.accept(ITEM.get());
+        ModCreativeTabs.addFreezerContents(event);
     }
     private FreezerModule() {}
 }
