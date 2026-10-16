@@ -23,11 +23,12 @@ public final class HumanCommerce {
         if(use.equals("companion")||use.equals("stock")||use.equals("reserve_parent")) {
             var clean=data(animal).copy();for(String key:java.util.List.of("FactoryStage","StageWork","LastFactoryWork","FactoryYoung","HoldReason"))clean.remove(key);set(animal,clean);
         }
-        animal.setPersistenceRequired();
+        animal.setPersistenceRequired(); animal.pet().newOwner(owner);
     }
     public static boolean protectedAnimal(YukkuriEntity animal) {
         var t = data(animal);
         if (t.hasUUID("Owner") || t.contains("PendingRole") || animal.life().home() != null && !animal.life().naturalHome()) return true;
+        if (animal.pet().abandoned() || animal.pet().voidBadge()) return false; // abandoned or registry-void: no keeper stands behind it
         for (var v : animal.life().personality().save().getList("Players", 10))
             if (((CompoundTag)v).getInt("Trust") >= 10) return true;
         return false;

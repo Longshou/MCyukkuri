@@ -133,6 +133,7 @@ public final class OperationLife {
         };
         if(done){
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
+            entity.pet().contact(player.getUUID(),!java.util.EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
         }
         return done;

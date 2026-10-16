@@ -55,6 +55,7 @@ public final class YukkuriSocial {
         entity.getLookControl().setLookAt(player, 30, 30);
         entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
         io.github.longshou.mcyukkuri.event.WildCards.talked(entity,player.getUUID(),gentle);
+        entity.pet().contact(player.getUUID(), gentle);
         return true;
     }
     public boolean teach(Player player) {

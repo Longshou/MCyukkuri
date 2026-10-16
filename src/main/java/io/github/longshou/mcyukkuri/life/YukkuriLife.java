@@ -269,7 +269,7 @@ public final class YukkuriLife {
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
                 nutrition = Math.min(100, nutrition + gain); bladder = Math.min(100, bladder + gain * .5f);
-                if(!filling&&!spicy)entity.heal(2); personality.fed(feeder); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); feeder = null;
+                if(!filling&&!spicy)entity.heal(2); personality.fed(feeder); entity.pet().contact(feeder, true); io.github.longshou.mcyukkuri.event.WildEvents.fed(entity,feeder); feeder = null;
                 if (bowlMeal) { entity.pet().routineCompleted(0); bowlMeal = false; }
                 entity.gameEvent(GameEvent.EAT); entity.showReaction(spicy?"surprise":"happy", spicy?"hurt":"fed", 100);
                 if(!spicy)level().sendParticles(ParticleTypes.HEART, entity.getX(), entity.getY()+entity.getBbHeight(), entity.getZ(), 3, .1, .05, .1, 0);

@@ -2181,5 +2181,11 @@
   "exam.mcyukkuri.ui.last": "上次：%s - %s",
   "exam.mcyukkuri.ui.last_scores": "分数 规 %s / 学 %s / 知 %s / 应 %s",
   "exam.mcyukkuri.ui.fee": "%s 绿宝石",
-  "exam.mcyukkuri.ui.emeralds": "持有：%s 绿宝石"
+  "exam.mcyukkuri.ui.emeralds": "持有：%s 绿宝石",
+  "pet.mcyukkuri.neglect.notice": "%s 好像很久没见到你了",
+  "pet.mcyukkuri.abandon.revoked": "%s 身上的徽章已无登记，被取下了。",
+  "badge.mcyukkuri.profile.owner_line": "冷落程度：%s/100 · %s",
+  "badge.mcyukkuri.profile.owner_state.0": "有人照料",
+  "badge.mcyukkuri.profile.owner_state.1": "已被弃养",
+  "badge.mcyukkuri.profile.owner_state.2": "已被弃养，徽章登记作废"
 }

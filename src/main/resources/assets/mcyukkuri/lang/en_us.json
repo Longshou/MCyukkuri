@@ -2181,5 +2181,11 @@
   "exam.mcyukkuri.ui.last": "Last: %s - %s",
   "exam.mcyukkuri.ui.last_scores": "Scores M %s / A %s / W %s / P %s",
   "exam.mcyukkuri.ui.fee": "%s emerald(s)",
-  "exam.mcyukkuri.ui.emeralds": "Carrying: %s emeralds"
+  "exam.mcyukkuri.ui.emeralds": "Carrying: %s emeralds",
+  "pet.mcyukkuri.neglect.notice": "%s hasn't seen you for a long time.",
+  "pet.mcyukkuri.abandon.revoked": "The badge on %s no longer has a registry entry and was taken off.",
+  "badge.mcyukkuri.profile.owner_line": "Neglect: %s/100 · %s",
+  "badge.mcyukkuri.profile.owner_state.0": "cared for",
+  "badge.mcyukkuri.profile.owner_state.1": "abandoned",
+  "badge.mcyukkuri.profile.owner_state.2": "abandoned, badge registry void"
 }
