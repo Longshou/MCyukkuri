@@ -30,13 +30,14 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
         for(int i=0;i<(nest.dirt()+2)/3;i++)
             draw(new ItemStack(ModItems.WASTE.get()),.78+(i%2)*.045,.035,.27+(i/2)*.06,.16f,nest,pose,buffers,light,overlay);
         double clock=nest.getLevel()==null?0:nest.getLevel().getGameTime()+(double)partial;
+        boolean incubating=nest.built()&&nest.careTicks()>0&&nest.disturbedTicks()==0&&nest.food()>0&&nest.dirt()<6;
         for(int slot=0;slot<4;slot++) {
             var point=nest.eggPosition(slot).subtract(nest.getBlockPos().getX(),nest.getBlockPos().getY(),nest.getBlockPos().getZ());
             if(nest.eggPresent(slot)) {
                 float progress=nest.eggProgress(slot);
                 // Short efforts separated by a pause, staggered by egg slot; all clients use world time.
                 float phase=(float)((clock+slot*11)%46);
-                float effort=progress>.75f&&phase<12?(float)Math.sin(phase*Math.PI/12):0;
+                float effort=incubating&&progress>.75f&&phase<12?(float)Math.sin(phase*Math.PI/12):0;
                 float tilt=(float)Math.sin(phase*Math.PI/3)*effort*(2+5*Math.clamp((progress-.75f)/.25f,0,1));
                 pose.pushPose();pose.translate(point.x,point.y,point.z);
                 pose.translate(0,.025,0);pose.mulPose(Axis.ZP.rotationDegrees(tilt));pose.translate(0,-.025,0);

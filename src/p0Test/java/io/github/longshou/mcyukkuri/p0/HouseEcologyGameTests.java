@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.p0;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.house.HouseEggs;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /** Remote-only transaction checks using the real family ledger, physical nests and actual births. */
@@ -43,7 +45,8 @@ public final class HouseEcologyGameTests {
             var copied=ticket.copy();
             h.assertTrue(ticket.is(ModItems.HOUSE_EGG.get())&&f.source.eggs()==1,
                     "extract skips the born child and withdraws exactly one remaining real egg");
-            h.assertTrue(f.target.insertEgg(ticket)&&f.target.eggs()==1,"one ticket transfers the same unborn identity to a second physical nest");
+            f.assertInsert(h,ticket,"one ticket transfers the same unborn identity to a second physical nest");
+            h.assertTrue(f.target.eggs()==1,"successful transfer fills exactly one target egg slot");
             h.assertTrue(!f.source.insertEgg(copied)&&HouseEggs.ticket(f.level,copied)==null,
                     "insertion revokes copied item tickets instead of duplicating an egg");
             var transferred=brood.children.get(1);
@@ -90,7 +93,14 @@ public final class HouseEcologyGameTests {
                     "a fresh icon without a real custody ticket cannot create an egg");
             h.assertTrue(!f.target.insertEgg(ticket.copyWithCount(2))&&HouseEggs.ticket(f.level,ticket)!=null,
                     "an invalid multi-item request fails without revoking the legitimate ticket");
-            h.assertTrue(f.target.insertEgg(ticket),"the same restored ticket is still insertable once");
+            var roof=f.target.entrance().above(2);
+            f.level.setBlockAndUpdate(roof,Blocks.AIR.defaultBlockState());
+            h.assertTrue(!f.covered(f.target),"fixture roof removal immediately opens the entrance's real heightmap; "+f.insertionState(ticket));
+            h.assertTrue(!f.target.insertEgg(ticket)&&HouseEggs.ticket(f.level,ticket)!=null,
+                    "removing the real roof rejects insertion in that same tick without consuming the ticket; "+f.insertionState(ticket));
+            f.level.setBlockAndUpdate(roof,Blocks.STONE.defaultBlockState());
+            h.assertTrue(f.covered(f.target),"replacing the roof immediately restores physical shelter; "+f.insertionState(ticket));
+            f.assertInsert(h,ticket,"the restored ticket is insertable immediately after roof replacement, without waiting for skylight");
             var savedSource=f.source.saveWithFullMetadata(f.level.registryAccess());
             var savedTarget=f.target.saveWithFullMetadata(f.level.registryAccess());
             var identity=f.target.identity();
@@ -145,7 +155,7 @@ public final class HouseEcologyGameTests {
             f.source.tick();
             var ticket=f.source.extractEgg();
             var copied=ticket.copy();
-            h.assertTrue(f.target.insertEgg(ticket),"a real egg is first moved into the second nest");
+            f.assertInsert(h,ticket,"a real egg is first moved into the second nest");
             var stale=f.loose(copied);stale.discard();
             h.assertTrue(!f.brood().children.getFirst().eggLost&&f.target.eggs()==1,
                     "discarding an obsolete copied ticket cannot harm the egg now in a nest");
@@ -185,6 +195,8 @@ public final class HouseEcologyGameTests {
                 level.setBlockAndUpdate(pos,pos.getY()==origin.getY()-1?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
             }
             source=nest(origin);target=nest(origin.east(4));
+            h.assertTrue(source.built()&&target.built()&&covered(source)&&covered(target),
+                    "fixture creates complete nests with real stone roofs before any egg transaction; "+insertionState(ItemStack.EMPTY));
             var snapshot=previous.save(new CompoundTag(),level.registryAccess());
             var people=snapshot.getList("People",Tag.TAG_COMPOUND);
             var children=new ListTag();
@@ -218,6 +230,23 @@ public final class HouseEcologyGameTests {
         }
         FamilyData data(){return FamilyData.get(level);}
         FamilyData.Brood brood(){return data().brood(broodId);}
+        boolean covered(HouseNestBlockEntity nest) {
+            var entrance=nest.entrance();
+            return level.hasChunkAt(entrance)&&level.getHeight(Heightmap.Types.MOTION_BLOCKING,entrance.getX(),entrance.getZ())>entrance.getY();
+        }
+        String insertionState(ItemStack stack) {
+            var entrance=target.entrance();var entry=HouseEggs.ticket(level,stack);
+            return "target="+target.getBlockPos()+", built="+target.built()+", eggs="+target.eggs()
+                    +", roof="+level.getBlockState(entrance.above(2))+", entranceY="+entrance.getY()
+                    +", roofHeight="+level.getHeight(Heightmap.Types.MOTION_BLOCKING,entrance.getX(),entrance.getZ())
+                    +", canSeeSky="+level.canSeeSky(entrance)+", entranceFluid="+level.getFluidState(entrance)
+                    +", nestFluid="+level.getFluidState(target.getBlockPos())+", ticket="+(entry==null?"invalid":entry.child().id)
+                    +", population="+data().population(level,target.getBlockPos())+", cap="+FamilyConfig.POPULATION_CAP.get();
+        }
+        void assertInsert(GameTestHelper h,ItemStack stack,String message) {
+            var before=insertionState(stack);
+            h.assertTrue(target.insertEgg(stack),message+"; "+before);
+        }
         void install(FamilyData data){level.getServer().overworld().getDataStorage().set("mcyukkuri_families",data);}
         void reloadLedger(){install(FamilyData.load(data().save(new CompoundTag(),level.registryAccess()),level.registryAccess()));}
         ItemEntity loose(ItemStack stack) {

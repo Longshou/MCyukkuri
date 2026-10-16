@@ -146,8 +146,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
                 e->e.isAlive()&&e.getVariant().isHouse());
         var residents=residents();
-        if(careTicks>0)careTicks--;
-        if(disturbedTicks>0)disturbedTicks--;
+        if(careTicks>0&&--careTicks==0){carer=null;changed();}
+        if(disturbedTicks>0&&--disturbedTicks==0)changed();
         if(maintenanceWait>0)maintenanceWait--;
         if(hatchWait>0)hatchWait--;
         for(int slot=0;slot<EGG_CAP;slot++)if(hatchAges[slot]>=0&&++hatchAges[slot]>=120){hatchAges[slot]=-1;changed();}
@@ -172,6 +172,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         syncEggs(server);
         boolean cared=careTicks>0&&carer!=null&&server.getEntity(carer) instanceof YukkuriEntity parent
                 &&healthyCarer(parent)&&parent.house().nest()==this&&atEggs(parent)&&parent.position().distanceToSqr(eggPosition(0))<1.5625;
+        if(!cared&&careTicks>0){careTicks=0;carer=null;changed();}
         if(built()&&dirt<6&&food>0&&disturbedTicks==0&&cared&&eggs()>0){
             for(int slot=0;slot<EGG_CAP;slot++){
                 var entry=HouseEggs.resolve(server,eggSlots[slot]);if(!HouseEggs.belongs(entry,this))continue;

@@ -222,10 +222,13 @@ public final class HouseLife {
     private Vec3 restingPlace(HouseNestBlockEntity value) {
         if (restPosition == null) {
             var residents = entity.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(value.getBlockPos()).inflate(2),
-                    other -> other.isAlive() && value.getBlockPos().equals(other.house().nestPosition())).stream()
-                    .sorted(Comparator.comparing(YukkuriEntity::getUUID)).toList();
-            int slot = Math.max(0, residents.indexOf(entity)) % 2;
-            restPosition = Vec3.atBottomCenterOf(value.getBlockPos()).add(-.11, .025, slot == 0 ? -.12 : .15);
+                    other -> other != entity && other.isAlive() && other.house().nest() == value);
+            // Reserve the back bed first so a sleeper at the entrance cannot block the next arrival.
+            // The .38 gap also leaves separate body boxes for two maximum-size (.324 wide) adults.
+            Vec3 back = Vec3.atBottomCenterOf(value.getBlockPos()).add(-.11, .025, .19);
+            boolean backReserved = residents.stream().anyMatch(other -> other.house().restPosition != null
+                    && other.house().restPosition.distanceToSqr(back) < .01);
+            restPosition = backReserved ? Vec3.atBottomCenterOf(value.getBlockPos()).add(-.11, .025, -.19) : back;
         }
         return restPosition;
     }
@@ -239,7 +242,7 @@ public final class HouseLife {
             }
             case ENTER -> {
                 Vec3 inside = restingPlace(value);
-                if (entity.distanceToSqr(inside) < .025 && entity.onGround()) {
+                if (entity.distanceToSqr(inside) < .0025 && entity.onGround()) {
                     entity.getNavigation().stop(); phase(tending ? Phase.TEND : Phase.REST);
                 } else direct(inside, .65);
             }
