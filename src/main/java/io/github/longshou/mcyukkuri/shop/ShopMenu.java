@@ -152,32 +152,13 @@ public final class ShopMenu extends AbstractContainerMenu {
         selected = mine.isEmpty() ? 0 : Math.min(selected, mine.size() - 1); evaluate();
     }
     private int population(ServerLevel level) {
-        return level.getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(48), y -> y.isAlive()
-                && HumanCommerce.data(y).hasUUID("Owner") && level.getEntity(HumanCommerce.data(y).getUUID("Owner")) instanceof HumanNpc).size();
+        return ShopPens.population(level, target);
     }
     private void evaluate() {
         shopCount = 0; penOk = false;
         if (tab != BUYBACK || target == null || !(viewer.level() instanceof ServerLevel level)) return;
-        shopCount = population(level); var y = subject(); penOk = y != null && freePen(level, y) != null;
+        shopCount = population(level); var y = subject(); penOk = y != null && ShopPens.freePen(level, target, y) != null;
     }
-    private static boolean glassNear(ServerLevel level, BlockPos pos) {
-        for (int dx = -2; dx <= 2; dx++) for (int dy = 0; dy <= 2; dy++) for (int dz = -2; dz <= 2; dz++)
-            if (level.getBlockState(pos.offset(dx, dy, dz)).is(BlockTags.IMPERMEABLE)) return true;
-        return false;
-    }
-    /** Nearest unoccupied nest near the shopkeeper; display grades prefer a glass-side nest, the rest a glass-free one, but any free nest will do. */
-    private BlockPos freePen(ServerLevel level, YukkuriEntity animal) {
-        BlockPos origin = target.blockPosition(), best = null; double bestScore = Double.MAX_VALUE; boolean display = animal.pet().grade().id() >= BadgeGrade.SILVER.id();
-        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-24, -6, -24), origin.offset(24, 6, 24))) {
-            if (!level.hasChunkAt(pos) || !(level.getBlockState(pos).getBlock() instanceof CareBlock care) || care.kind() != CareBlock.Kind.NEST
-                    || ShopPerformance.RESERVED.contains(pos.asLong())) continue;
-            if (!level.getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(1.5), o -> o != animal && o.isAlive() && stockOf(o, target.getUUID())).isEmpty()) continue;
-            double score = pos.distSqr(origin) + (glassNear(level, pos) == display ? 0 : 1_000_000);
-            if (score < bestScore) { bestScore = score; best = pos.immutable(); }
-        }
-        return best;
-    }
-
     // data
     private void refresh() {
         if (viewer.level().isClientSide || target == null) return;
@@ -264,7 +245,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         var a = subject(); if (a == null || !mayHandle(a, p) || !(p.level() instanceof ServerLevel level)) return false;
         shopCount = population(level);
         if (shopCount >= CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return false; }
-        BlockPos pen = freePen(level, a);
+        BlockPos pen = ShopPens.freePen(level, target, a);
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return false; }
         if (!a.pet().lock("sale", p.getUUID())) return false;
         ShopPerformance.RESERVED.add(pen.asLong());
