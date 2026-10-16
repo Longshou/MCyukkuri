@@ -188,7 +188,7 @@ public final class PetShopGameTests {
             var animals = level.getEntitiesOfClass(YukkuriEntity.class, area);
             long pending = animals.stream().filter(y -> HumanCommerce.data(y).contains("PendingRole")).count();
             note = animals.size() + " animals in the arena, " + pending + " still pending";
-            return animals.size() >= 14 && pending == 0;
+            return animals.size() >= 15 && pending == 0;
         });
         critical("residents are discoverable", 2, () -> { findCast(); return shop != null && examiner != null && keeper != null; });
     }
@@ -256,7 +256,7 @@ public final class PetShopGameTests {
         check("residents carry their site roles", "shopkeeper".equals(shop.siteRole()) && "shop_examiner".equals(examiner.siteRole()) && "shop_keeper".equals(keeper.siteRole()),
                 shop.siteRole() + "/" + examiner.siteRole() + "/" + keeper.siteRole());
         var all = level.getEntitiesOfClass(YukkuriEntity.class, area);
-        check("the template spawns exactly fourteen animals", all.size() == 14, "animals=" + all.size());
+        check("the template spawns exactly fifteen animals (8 stock, 2 studs, 3 trainees, 1 actor, 1 lost)", all.size() == 15, "animals=" + all.size());
 
         var stock = shop.animals("stock");
         var grades = new TreeMap<Integer, Integer>();
@@ -278,6 +278,13 @@ public final class PetShopGameTests {
         var actor = examiner.animals("exam_actor");
         check("examiner owns three trainees and one actor", trainees.size() == 3 && actor.size() == 1, "trainees=" + trainees.size() + " actors=" + actor.size());
 
+        var sisters = npcs.stream().filter(n -> n.siteRole().equals("shop_sister")).toList();
+        var lostAnimals = all.stream().filter(y -> use(y).equals("lost")).toList();
+        check("the customer caretaker sister exists", sisters.size() == 1 && sisters.get(0).job() == HumanNpc.Job.RESIDENT, "sisters=" + sisters.size());
+        check("exactly one lost marisa is bound to the sister", lostAnimals.size() == 1 && !sisters.isEmpty() && HumanCommerce.ownedBy(lostAnimals.get(0), sisters.get(0).getUUID()),
+                "lost=" + lostAnimals.size() + " owner=" + (lostAnimals.isEmpty() ? "none" : ownerOf(lostAnimals.get(0))));
+        check("the sister holds the lost-animal quest for that marisa", !sisters.isEmpty() && !lostAnimals.isEmpty() && lostAnimals.get(0).getUUID().equals(sisters.get(0).lostAnimal()),
+                "quest=" + (sisters.isEmpty() ? "none" : String.valueOf(sisters.get(0).lostAnimal())));
         var hall = ExamHall.find(level, examiner.home());
         check("ExamHall.find from the examiner returns a hall", hall != null, "home=" + examiner.home());
         if (hall != null) {

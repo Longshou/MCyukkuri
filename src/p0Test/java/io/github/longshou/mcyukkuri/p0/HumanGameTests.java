@@ -45,9 +45,6 @@ public final class HumanGameTests {
                 var settings = new StructurePlaceSettings().setRotation(Rotation.CLOCKWISE_90).setIgnoreEntities(false).setFinalizeEntities(true);
                 t.check("Rotated shop places through vanilla StructureTemplate",shop.placeInWorld(level,new BlockPos(1030,64,0),new BlockPos(1030,64,0),settings,level.random,2));
                 t.check("Factory places through vanilla StructureTemplate",factory.placeInWorld(level,new BlockPos(1060,64,36),new BlockPos(1060,64,36),new StructurePlaceSettings().setIgnoreEntities(false).setFinalizeEntities(true),level.random,2));
-                // The redesigned pet shop no longer houses the missing-companion caretaker; the quest NPC and its lost animal are
-                // added beside the shopkeeper so that the caretaker, rescue and NBT checks below keep covering the unchanged HumanMenu path.
-                t.addCaretaker(level);
                 level.getEntitiesOfClass(HumanNpc.class,AREA).forEach(n->{n.aiStep();n.setNoAi(true);});
                 level.getEntitiesOfClass(YukkuriEntity.class,AREA).forEach(y->y.setNoAi(true));
             }).thenWaitUntil(() -> h.assertTrue(level.getEntitiesOfClass(YukkuriEntity.class,AREA).stream()
@@ -62,20 +59,10 @@ public final class HumanGameTests {
                 var failed=t.checks.stream().filter(c->!c.pass).toList();if(failed.isEmpty())h.succeed();else h.fail(failed.toString());
             });
     }
-    private void addCaretaker(ServerLevel level) {
-        var keeper=level.getEntitiesOfClass(HumanNpc.class,AREA).stream().filter(n->n.job()==HumanNpc.Job.SHOPKEEPER).findFirst().orElseThrow();
-        var spots=ShopFixtures.spots(level,keeper.position(),2.5,6);
-        check("Open floor exists beside the shopkeeper for the caretaker and her lost animal ("+spots.size()+")",spots.size()>=3);
-        var sister=HumanWorld.SISTER.get().create(level);var tag=new CompoundTag();sister.addAdditionalSaveData(tag);
-        tag.putInt("HumanJob",0);tag.putInt("HumanAttitude",1);tag.putString("SiteRole","shop_sister");sister.readAdditionalSaveData(tag);
-        sister.moveTo(spots.get(0).getX()+.5,spots.get(0).getY(),spots.get(0).getZ()+.5,0,0);level.addFreshEntity(sister);
-        var lost=ModEntities.MARISA.get().create(level);var custody=new CompoundTag();custody.putString("PendingRole","shop_sister");custody.putString("Use","lost");
-        HumanCommerce.set(lost,custody);lost.moveTo(spots.get(2).getX()+.5,spots.get(2).getY(),spots.get(2).getZ()+.5,0,0);lost.setPersistenceRequired();level.addFreshEntity(lost);
-    }
     private void run(ServerLevel level) {
         level.setDayTime(6000);
         var humans=level.getEntitiesOfClass(HumanNpc.class,AREA);
-        check("Both structures contain six finite human residents: three shop staff, the caretaker and two factory staff ("+humans.size()+")",humans.size()==6);
+        check("Both structures contain six finite human residents: shopkeeper, keeper, examiner, caretaker sister, factory worker and oniisan ("+humans.stream().map(n->n.job()+"/"+n.siteRole()).sorted().toList()+")",humans.size()==6);
         var shop=humans.stream().filter(n->n.job()==HumanNpc.Job.SHOPKEEPER).findFirst().orElseThrow();
         var worker=humans.stream().filter(n->n.job()==HumanNpc.Job.FACTORY).findFirst().orElseThrow();
         var sister=humans.stream().filter(n->n.siteRole().equals("shop_sister")).findFirst().orElseThrow();
