@@ -1,8 +1,13 @@
-param([switch]$Menu)
+# Starts the showcase museum (or, with -Manifest, another prepared map) on an already prepared CI runtime. Never builds.
+# Runtime manifest: .local/experimental-map/museum-runtime.json (the full museum); falls back to showcase-runtime.json.
+# The game window is visible; -Hidden exists only for scripted checks.
+param([switch]$Menu, [switch]$Hidden, [string]$Manifest = '')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
-$manifestFile = Join-Path $taskRoot 'showcase-runtime.json'
+if ($Manifest) { $manifestFile = if ([System.IO.Path]::IsPathRooted($Manifest)) { $Manifest } else { Join-Path $taskRoot $Manifest } }
+elseif (Test-Path -LiteralPath (Join-Path $taskRoot 'museum-runtime.json')) { $manifestFile = Join-Path $taskRoot 'museum-runtime.json' }
+else { $manifestFile = Join-Path $taskRoot 'showcase-runtime.json' }
 if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Showcase runtime is missing. See docs/EXPERIMENTAL_MAP.md.' }
 $manifest = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeRoot = Join-Path $projectRoot $manifest.runtime
@@ -34,6 +39,7 @@ $arguments = @(
 )
 if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$manifest.world) }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
+$style = if ($Hidden) { 'Hidden' } else { 'Normal' }
+$client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle $style -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
 @{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$manifest.world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
-Write-Host "Starting the Yukkuri ecology museum (PID $($client.Id))."
+Write-Host "Starting the Yukkuri showcase museum (PID $($client.Id)). First entry builds the halls (about 30 s)."
