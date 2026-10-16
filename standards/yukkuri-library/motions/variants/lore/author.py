@@ -139,15 +139,39 @@ def state(action, t, c, height):
         r[0] = c['lean']*reach
         if 'crouch' in c:
             k = c['crouch']*reach; s = [1+.45*k, 1-k, 1+.45*k]
-    elif action == 'newborn_crawl':
+    elif action == 'boat_carry_young':
+        r[0] = -6; s = [1.015, .97, 1.015]
+    elif action == 'boat_be_carried':
+        s = [1.04, .90, 1.04]
+    elif action in ('newborn_crawl', 'hat_walk'):
         phase = 2*math.pi*t/d
         s = [1.04, c['height'], 1.07]
         r = [c['lean'], 0., c['wobble']*math.sin(phase)]
         shift[1] = -c['push']*height*(.5+.5*math.sin(phase))
     elif action in ('learn_jump',):
-        # One low, grounded hop: a demonstration/practice signal rather than escape or adult work.
-        s, lift, airborne = hop(t, 0, .18, .62, .84, height*c['hop_ratio'])
-        r[0] = c['look_down']*airborne
+        # The server owns the actual launch and landing; do not add a second visual jump.
+        tuck = bump(t/d)
+        s = [1+.025*tuck, 1-.04*tuck, 1+.025*tuck]
+        r[0] = c['look_down']*tuck
+    elif action == 'learn_watch':
+        r[0] = 4+2*math.sin(math.tau*t/d)
+    elif action == 'care_finish':
+        r[0] = -3; s[1] = .985+.006*math.sin(math.tau*t/d)
+    elif action == 'nest_harvest':
+        reach = smooth(t/.55)*(1-smooth((t-1.25)/.55))
+        r[0] = -13*reach; s = [1+.025*reach, 1-.06*reach, 1+.025*reach]
+        shift[1] = -.018*height*reach
+    elif action == 'nest_place':
+        bend = bump(t/d)
+        r[0] = -18*bend; s[1] = 1-.08*bend
+    elif action == 'nest_spread':
+        sweep = math.sin(math.tau*t/d)
+        r = [-12, 8*sweep, 4*sweep]; s[1] = .94
+        shift[0] = .025*height*sweep
+    elif action == 'nest_press':
+        press = .5-.5*math.cos(4*math.pi*t/d)
+        s = [1+.055*press, 1-.11*press, 1+.055*press]
+        r[0] = -5*press
     elif action == 'sing':
         q = bump((2*t/d) % 1)
         r = [c['chin_up'], 0., c['sway']*math.sin(2*math.pi*t/d)]

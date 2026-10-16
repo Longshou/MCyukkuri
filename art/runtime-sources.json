@@ -28,7 +28,14 @@
         "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
-        "role": "small oval leaf bowl on the late juvenile existing sleep slot"
+        "role": "small oval leaf bowl on the late juvenile existing sleep slot; three layers follow persisted construction progress"
+      },
+      "bedding_bundle": {
+        "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/bedding_bundle.bbmodel",
+        "selected": "art/props/wild-shelters/bedding_bundle.bbmodel",
+        "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/bedding_bundle.json",
+        "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/bedding_bundle.png",
+        "role": "finite harvested leaves and grass held at the mouth and placed before spreading"
       }
     },
     "status": "pending_user_confirmation"

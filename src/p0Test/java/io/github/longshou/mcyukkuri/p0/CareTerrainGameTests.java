@@ -80,7 +80,7 @@ public final class CareTerrainGameTests {
             actors[1].family().generatedChild(actors[0],null);
             var family=actors[1].family().save();family.putLong("Age",18000);family.putLong("Nourishment",16000);family.putString("Stage","JUVENILE");family.putFloat("Scale",.42f);actors[1].family().load(family);actors[1].syncFamily();actors[1].refreshDimensions();
             FamilyData.get(level).register(actors[0]);FamilyData.get(level).register(actors[1]);
-            var parentState=actors[0].family().save();parentState.put("Carrying",new ItemStack(ModItems.YUKKURI_STEM.get()).save(level.registryAccess()));actors[0].family().load(parentState);
+            var parentState=actors[0].family().save();parentState.put("CareFood",new ItemStack(ModItems.YUKKURI_STEM.get()).save(level.registryAccess()));actors[0].family().load(parentState);
             for(int i=0;i<40;i++)actors[0].family().tick();
             helper.assertTrue(actors[0].family().canUse(),"parent starts with one real carried serving");
             actors[0].family().tickGoal();
@@ -112,7 +112,7 @@ public final class CareTerrainGameTests {
           .thenExecute(cleanup).thenSucceed();
     }
     private static YukkuriEntity spawn(ServerLevel level,double x,double y,double z,float nutrition){
-        var actor=ModEntities.REIMU.get().create(level);actor.moveTo(x,y,z,0,0);actor.setPersistenceRequired();actor.setInvulnerable(true);
+        var actor=ModEntities.REIMU.get().create(level);actor.moveTo(x,y,z,0,0);actor.setOnGround(true);actor.setPersistenceRequired();actor.setInvulnerable(true);
         var life=actor.life().save();life.putFloat("Nutrition",nutrition);life.putFloat("Energy",95);life.putFloat("Bladder",0);life.putFloat("Dryness",0);life.putInt("RestWait",2000);actor.life().load(life);
         var daily=actor.dailyLife().save();daily.putInt("Cooldown",2000);daily.putInt("Boredom",0);daily.putInt("Affection",0);actor.dailyLife().load(daily);
         level.addFreshEntity(actor);return actor;

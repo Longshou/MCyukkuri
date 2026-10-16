@@ -39,6 +39,7 @@ public final class HatFamilyCare {
         return child != null && level().getEntity(child) instanceof YukkuriEntity y ? y : null;
     }
     public String activity() {
+        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(parent))return "boat_carry_young";
         if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(parent))return "hat_walk";
         if(finishTicks>0)return "care_finish";
         return switch (kind) { case FEED -> {
@@ -48,6 +49,7 @@ public final class HatFamilyCare {
             case LULLABY -> "boat_lullaby"; default -> "idle"; };
     }
     public String response(YukkuriEntity young) {
+        if(young.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(young))return "boat_be_carried";
         if(young.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(young))return "hat_walk";
         if (kind == Kind.LULLABY && parent.getVehicle() == young.getVehicle()) return "boat_listen";
         if (!young.getUUID().equals(child)) return "idle";
@@ -86,6 +88,7 @@ public final class HatFamilyCare {
     /** Feeding has priority over affection. Bedtime singing begins only after reaching quiet water. */
     public boolean tend(HatBoatEntity boat, boolean bedtime) {
         if (!available(boat)) { cancel(); return false; }
+        if (boat.transportingInHat(parent)) return active();
         var children = children(boat);
         if (!active()) {
             var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping()&&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
@@ -136,8 +139,11 @@ public final class HatFamilyCare {
             if (kind != Kind.FIRST_TOILET) young.getLookControl().setLookAt(parent, 20, 20);
         }
         if (kind == Kind.FEED) {
+            if (young.family().needsMash() && !InfantFood.isMash(serving)) {
+                if (ticks < 40) return true;
+                serving=InfantFood.mash(serving,parent.getUUID());
+            }
             if (!boat.prepareCareSeat(young, parent)) { fail(); return false; }
-            if (young.family().needsMash() && ticks == 40) serving=InfantFood.mash(serving,parent.getUUID());
             boolean prepared=!young.family().needsMash()||InfantFood.isMash(serving);
             if (prepared && boat.careSeatReady(young)) FamilyFeedingContact.faceEachOther(parent, young);
             if (prepared && boat.careSeatReady(young) && FamilyFeedingContact.mouthsMeet(parent,young)) deliveryTicks++; else deliveryTicks=0;

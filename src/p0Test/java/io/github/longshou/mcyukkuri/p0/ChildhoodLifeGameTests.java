@@ -189,6 +189,7 @@ public final class ChildhoodLifeGameTests {
             terrain.put(p.immutable(), level.getBlockState(p));
             level.setBlockAndUpdate(p, Blocks.WATER.defaultBlockState());
         }
+        YukkuriEntity[] parent = {null}, child = {null}; HatBoatEntity[] boat = {null};
         boolean[] cleaned = {false};
         Runnable cleanup = () -> {
             if (cleaned[0]) return;
@@ -201,11 +202,26 @@ public final class ChildhoodLifeGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) { }
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) {
+                if(parent[0]!=null && child[0]!=null && boat[0]!=null){
+                    var debug=new java.util.LinkedHashMap<String,Object>();
+                    debug.put("parent",parent[0].saveWithoutId(new CompoundTag()).toString());
+                    debug.put("child",child[0].saveWithoutId(new CompoundTag()).toString());
+                    debug.put("hat",boat[0].saveWithoutId(new CompoundTag()).toString());
+                    debug.put("activity",parent[0].aquaticLife().care().activity());
+                    debug.put("careReady",boat[0].careSeatReady(child[0]));debug.put("toiletReady",boat[0].toiletSeatReady(child[0]));
+                    debug.put("parentTransport",boat[0].transportingInHat(parent[0]));
+                    debug.put("parentLocal",boat[0].toLocal(parent[0].position()).toString());
+                    debug.put("childLocal",boat[0].toLocal(child[0].position()).toString());
+                    debug.put("mouthsMeet",io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(parent[0],child[0]));
+                    debug.put("rearContact",io.github.longshou.mcyukkuri.family.ChildhoodLife.toiletContact(parent[0],child[0]));
+                    P0Control.write("aquatic-newborn-care-failure",debug);
+                }
+                cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo, net.minecraft.gametest.framework.GameTestInfo newInfo, net.minecraft.gametest.framework.GameTestRunner runner) { }
         });
         for (int chunk = firstChunk; chunk <= lastChunk; chunk++) GameTestChunks.setForced(level, chunk, 0, true);
-        YukkuriEntity[] parent = {null}, child = {null}; HatBoatEntity[] boat = {null};
         ItemEntity[] firstWaste = {null};
         Vec3[] firstWastePosition = {null}, jumpStart = {null};
         AtomicBoolean reachedWater = new AtomicBoolean(), sawHatCrawl = new AtomicBoolean();

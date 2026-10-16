@@ -506,7 +506,7 @@
       "id": "family-small-build",
       "title": "后期子体：原睡位铺个人小叶巢",
       "model": "chen",
-      "action": "brace",
+      "action": "nest_spread",
       "duration": 2.8,
       "background": "#e8e1cf",
       "actors": [
@@ -518,7 +518,7 @@
         },
         {
           "model": "reimu",
-          "action": "brace",
+          "action": "nest_press",
           "x": 16,
           "scale": 0.6,
           "yaw": 0,
@@ -538,7 +538,8 @@
         {
           "id": "personal_leaf_nest",
           "x": 16,
-          "y": -0.05
+          "y": -0.05,
+          "layers": 3
         }
       ],
       "camera": {

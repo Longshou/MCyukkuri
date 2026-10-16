@@ -154,6 +154,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     PropModels.center(houseProp,pose,false);
                     PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
+                if(heldIndex==1&&(behavior.startsWith("nest_")||behavior.startsWith("independence_")||behavior.equals("shelter_carry"))
+                        &&(held.is(net.minecraft.tags.ItemTags.LEAVES)||held.is(net.minecraft.world.item.Items.SHORT_GRASS)||held.is(net.minecraft.world.item.Items.WHEAT))){
+                    PropModels.render("bedding_bundle",0,pose,buffers,packedLight,overlay);pose.popPose();continue;
+                }
                 if(heldIndex==0&&io.github.longshou.mcyukkuri.life.Consumables.oral(held)){
                     String serving=io.github.longshou.mcyukkuri.life.Consumables.water(held)?"water_serving":switch(io.github.longshou.mcyukkuri.life.Consumables.kind(held)){
                         case YOGURT->"yogurt_serving";case STIMULANT->"stimulant_serving";default->"sitataran_serving";

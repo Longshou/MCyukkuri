@@ -203,24 +203,24 @@ for row in range(6):
         x=-3.65+col*1.45+(row%2)*.34+rng.uniform(-.16,.16)
         if x*x/18+z*z/8.6>1.12:continue
         edge=min(1,x*x/15+z*z/7.6)
-        leaf(personal,'personal_under_%02d_%02d'%(row,col),x,z,.3+.35*edge+rng.uniform(-.04,.06),rng.uniform(-.3,.3),rng.uniform(1.36,1.88),rng.uniform(.62,.84),'leaf_dry' if (row+col)%3 else 'leaf',0,rng.uniform(.04,.13))
+        leaf(personal,'personal_under_%02d_%02d'%(row,col),x,z,.3+.35*edge+rng.uniform(-.04,.06),rng.uniform(-.3,.3),rng.uniform(1.36,1.88),rng.uniform(.62,.84),'leaf_dry' if (row+col)%3 else 'leaf',1,rng.uniform(.04,.13))
 for row in range(5):
     z=-2.4+row*1.2+rng.uniform(-.12,.12)
     for col in range(6):
         x=-3.6+col*1.45+(row%2)*.58+rng.uniform(-.15,.15)
         if x*x/18+z*z/8.6>1.12:continue
         edge=min(1,x*x/15+z*z/7.6)
-        leaf(personal,'personal_cover_%02d_%02d'%(row,col),x,z,.52+.4*edge+rng.uniform(-.04,.07),math.pi/2+rng.uniform(-.3,.3),rng.uniform(1.22,1.68),rng.uniform(.57,.77),'leaf' if (row+col)%3 else 'leaf_dry',0,rng.uniform(.08,.18))
+        leaf(personal,'personal_cover_%02d_%02d'%(row,col),x,z,.52+.4*edge+rng.uniform(-.04,.07),math.pi/2+rng.uniform(-.3,.3),rng.uniform(1.22,1.68),rng.uniform(.57,.77),'leaf' if (row+col)%3 else 'leaf_dry',2,rng.uniform(.08,.18))
 for i in range(22):
     angle=math.tau*i/22+rng.uniform(-.08,.08)
     x,z=math.cos(angle)*4.35,math.sin(angle)*3.25
-    leaf(personal,'personal_rim_'+str(i),x,z,1.08+(i%3)*.2,angle+rng.uniform(-.18,.18),rng.uniform(1.18,1.7),rng.uniform(.7,.98),'leaf' if i%3 else 'leaf_dry',0,.22,.34)
+    leaf(personal,'personal_rim_'+str(i),x,z,1.08+(i%3)*.2,angle+rng.uniform(-.18,.18),rng.uniform(1.18,1.7),rng.uniform(.7,.98),'leaf' if i%3 else 'leaf_dry',3,.22,.34)
 for i in range(9):
     angle=rng.uniform(0,math.tau);radius=rng.uniform(.6,1)
-    grass_tuft(personal,'personal_grass_'+str(i),math.cos(angle)*3.55*radius,math.sin(angle)*2.55*radius,.62,0,.42,1.25)
+    grass_tuft(personal,'personal_grass_'+str(i),math.cos(angle)*3.55*radius,math.sin(angle)*2.55*radius,.62,3,.42,1.25)
 for i,angle in enumerate((.18,1.75,3.0,4.45,5.45)):
     x,z=math.cos(angle)*4.35,math.sin(angle)*3.1
-    personal.beam('personal_twig_'+str(i),(x,.8,z),(x+math.cos(angle+.95)*1.45,1.22,z+math.sin(angle+.95)*1.45),.07,'bark')
+    personal.beam('personal_twig_'+str(i),(x,.8,z),(x+math.cos(angle+.95)*1.45,1.22,z+math.sin(angle+.95)*1.45),.07,'bark',unit=3)
 align_sleeping_bed(m)
 align_sleeping_bed(personal)
 models=[m,personal]
@@ -259,6 +259,13 @@ for dirty in (False,True):
     if dirty:
         for i in range(3):m.box('waste_'+str(i),[-2+i,.3,-1],[i,1.2+i*.2,1],'waste')
     models.append(m)
+bundle=Model('bedding_bundle')
+for i in range(7):
+    leaf(bundle,'gathered_leaf_'+str(i),(i%3-1)*.65,(i//3-1)*.6,.12+i*.08,
+         -.7+i*.23,2.4,.95,'leaf_dry' if i%3==0 else 'leaf',0,.16,.12)
+for i in range(4):
+    grass_tuft(bundle,'gathered_grass_'+str(i),-.6+i*.4,-.2,.25,0,.22,.65)
+models.append(bundle)
 exports={m.name:m.export() for m in models}
 write(RUN/'assets/mcyukkuri/yukkuri_props/shelters-index.json',{name:{} for name in exports})
 # Depth-buffered views use the library's actual triangle rasterizer.
@@ -281,7 +288,7 @@ for name,data in exports.items():
   for k in range(2,len(twigs),8):twigs[k]+=16
   data['vertices']=data['vertices']+twigs
  for az,el,title in [(math.pi,.15,'front'),(math.pi-.65,.3,'quarter'),(.65,.3,'back')]:
-  leaf_bed=name in {'forest_burrow','personal_leaf_nest'}
+  leaf_bed=name in {'forest_burrow','personal_leaf_nest','bedding_bundle'}
   entries.append(dict(id=name+'-'+title,vertices=data['vertices'],az=az,el=el,span=16 if leaf_bed else 34,center=3 if leaf_bed else 14))
 
 def selected_layers(data,mask,shift_x=0,shift_z=0):
@@ -306,6 +313,9 @@ entries.extend([
     dict(id='family-shared-leaf-nest',vertices=family_vertices,az=math.pi-.65,el=.52,span=20,center=.95),
     dict(id='personal-leaf-nest',vertices=exports['personal_leaf_nest']['vertices'],az=math.pi-.65,el=.52,span=6.6,center=.95),
 ])
+for mask,label in ((1,'underlay'),(3,'spread'),(7,'finished')):
+    entries.append(dict(id='nest-stage-'+label,vertices=selected_layers(exports['personal_leaf_nest'],mask),az=math.pi-.65,el=.52,span=6.6,center=.95))
+entries.append(dict(id='gathered-bedding',vertices=exports['bedding_bundle']['vertices'],az=math.pi-.65,el=.4,span=3.5,center=.5))
 write(scratch/'input.json',entries)
 subprocess.run(['node','-e',node,str(ROOT/'standards/yukkuri-library/runtime/render.js'),str(scratch)],check=True)
 sheet=Image.new('RGB',(1400,math.ceil(len(entries)/3)*450+10),'#e9e6dc');draw=ImageDraw.Draw(sheet)
@@ -325,6 +335,11 @@ comparison_draw.rectangle((0,0,940,48),fill='#e9e6dc')
 for x,label in ((17,'SHARED FAMILY NEST - FOUR CONNECTED BEDS'),(487,'PERSONAL JUVENILE NEST - ONE BED')):
     comparison_draw.text((x,18),label,fill='#383e35')
 comparison.save(PRE/'large-shared-vs-small-personal.png')
+progress=Image.new('RGB',(1840,460),'#e9e6dc');progress_draw=ImageDraw.Draw(progress)
+for i,(item_id,label) in enumerate((('gathered-bedding','01  CARRY A REAL PORTION'),('nest-stage-underlay','02  LAY THE UNDERLAYER'),('nest-stage-spread','03  SPREAD THE SECOND PORTION'),('nest-stage-finished','04  PRESS AND FINISH'))):
+    progress.paste(rendered[item_id],(460*i,35),rendered[item_id])
+    progress_draw.text((460*i+20,18),label,fill='#383e35')
+progress.save(PRE/'bedding-progress.png')
 manifest={'status':'pending_user_confirmation','authoring':'build.py','coordinate_system':'16 units/block, +Z entrance, origin center floor','sources':[{'url':'http://blog.livedoor.jp/yukkuri_anko/archives/29803869.html','observed':'Battered cardboard shelter with an opening; original new mesh and texture.'},{'source':'User ecological correction, 2026-09-13','observed':'Existing cave or pit; only loose leaves and a few thin entrance twigs. No constructed earth walls, roof, arch or bindings. Previous mound interpretation rejected.'}],'exports':{name:{'mesh_sha256':sha(OUT/(name+'.json')),'editable_sha256':sha(OUT/(name+'.bbmodel')),'texture_sha256':sha(OUT/(name+'.png'))} for name in exports}}
 previous=json.loads((HERE/'manifest.json').read_text(encoding='utf-8')) if (HERE/'manifest.json').exists() else {}
 manifest['approvals']=previous.get('approvals',[])

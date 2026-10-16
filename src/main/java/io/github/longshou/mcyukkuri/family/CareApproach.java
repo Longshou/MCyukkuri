@@ -139,7 +139,7 @@ public final class CareApproach {
     }
     private Places around(Vec3 childFeet) {
         if (!SurfaceApproach.supported(child,childFeet)) return null;
-        double radius=(owner.getBbWidth()+child.getBbWidth())*.5+.045;
+        double radius=FamilyFeedingContact.standingDistance(owner,child);
         List<Vec3> candidates=new ArrayList<>();
         for (var direction:net.minecraft.core.Direction.Plane.HORIZONTAL) {
             for (double dy:new double[]{0,-.5,.5}) {

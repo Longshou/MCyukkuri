@@ -42,6 +42,7 @@ public final class ChildhoodNestGameTests {
         YukkuriEntity[] parent={null},child={null};
         ItemEntity[] leaf={null};BlockPos[] grass={null};
         int[] pausedWork={0};boolean[] harvested={false};
+        var trace=new java.util.ArrayList<String>();
         boolean[] cleaned={false};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
@@ -62,13 +63,17 @@ public final class ChildhoodNestGameTests {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
             public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                P0Control.write("childhood-nest-trace",trace);
                 P0Control.write("childhood-nest-failure",java.util.Map.of("home",home[0]==null?"none":home[0].saveWithFullMetadata(level.registryAccess()).toString(),
                         "child",child[0]==null?"none":child[0].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()));cleanup.run();
             }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         ShelterGameTests.daylightFixture(level);
-        helper.onEachTick(()->{if(child[0]!=null&&child[0].habitat().activity().equals("nest_harvest"))harvested[0]=true;});
+        helper.onEachTick(()->{if(child[0]!=null){
+            if(child[0].habitat().activity().equals("nest_harvest"))harvested[0]=true;
+            if(child[0].tickCount%40==0)trace.add(child[0].tickCount+" "+child[0].position()+" "+child[0].habitat().debug()+" nav="+child[0].getNavigation().isDone()+" behavior="+child[0].getBehaviorId());
+        }});
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
         for(int x=171;x<=173;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,true);
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,171,173,-1,1)).thenExecute(()->{
@@ -135,9 +140,10 @@ public final class ChildhoodNestGameTests {
             helper.assertTrue(home[0].nestWork(child[0].getUUID())==pausedWork[0]&&!home[0].privateNest(child[0].getUUID()),
                     "Interrupted work remains visible but cannot advance or finish by itself");
             level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());child[0].setNoAi(false);
-            grass[0]=home[0].beds().stream().filter(bed->!bed.equals(home[0].bed(child[0].getUUID()))
-                    &&!bed.equals(home[0].bed(parent[0].getUUID()))).findFirst().orElse(home[0].entrance());
+            // A solid bush belongs on the bank, not inside a sleeping cell (which makes the home unusable).
+            grass[0]=ORIGIN.offset(2,0,-1);
             level.setBlockAndUpdate(grass[0],Blocks.AZALEA.defaultBlockState());
+            helper.assertTrue(home[0].usable(child[0]),"Nearby natural source does not obstruct the child's home or sleeping cell");
         }).thenWaitUntil(()->helper.assertTrue(home[0].privateNest(child[0].getUUID()),
                 "Late child must walk, collect two real nearby plant portions and work its own bed before a personal nest exists"))
         .thenExecute(()->{
