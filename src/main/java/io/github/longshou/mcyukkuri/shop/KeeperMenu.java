@@ -147,14 +147,19 @@ public final class KeeperMenu extends AbstractContainerMenu {
             if (age == 45) { a.playAction("shiawase"); b.playAction("greet"); }
             if (age == 70) {
                 var relations = YukkuriWorldData.get(level); relations.relate(petId, studId, 20); relations.relate(studId, petId, 20);
-                boolean ok = ShopKeeping.arrangedConceive(level, a, b);
+                // The date's emotes leave a command action running, which makes FamilyLife.ready() fail: end both before the checks.
+                a.playAction("idle"); b.playAction("idle");
+                String why = ShopKeeping.refusal(level, a, b);
+                boolean ok = why == null && ShopKeeping.arrangedConceive(level, a, b);
+                if (!ok && why == null) why = "conceive_null";
+                if (!ok) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.warn("[keeper] matchmaking refused for {} x {}: {}", petId, studId, why);
                 var sp = level.getServer().getPlayerList().getPlayer(buyer);
                 if (ok) {
                     paid[0] = false; long until = level.getGameTime() + 24000;
                     a.pet().permitBreeding(studId, until); b.pet().permitBreeding(petId, until);
                     a.showReaction("happy", "expecting", 100);
                     if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.matched", a.getDisplayName()), true);
-                } else if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed"), true);
+                } else if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed_reason", why), true);
                 if (!ok) { paid[0] = false; refund(level, buyer, origin); }
             }
             if (age < 90) return false;

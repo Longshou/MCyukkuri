@@ -2073,6 +2073,7 @@
   "shop.mcyukkuri.keeper.state.8": "今はお腹が空きすぎています。先に食べさせてください。",
   "shop.mcyukkuri.keeper.matched": "%s に赤ちゃんができました。",
   "shop.mcyukkuri.keeper.failed": "お見合いは成立しませんでした。料金は返金します。",
+  "shop.mcyukkuri.keeper.failed_reason": "お見合いは成立しませんでした（%s）。料金は返金しました。",
   "exam.mcyukkuri.started": "%s の試験を始めます。見守ってあげてください。",
   "exam.mcyukkuri.stay_near": "受験する子から12ブロック以内にいてください！",
   "exam.mcyukkuri.interrupted": "試験が中断されました：%s。返金はなく、しばらく休ませます。",
