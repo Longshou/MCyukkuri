@@ -53,22 +53,16 @@ def podium_side():
         return teal[i]
     return image(px)
 
-def cardboard():
-    base = [rgb(h) for h in ('#cf9f68', '#bd8c56', '#a87a47', '#8c6338')]
-    tape = [rgb(h) for h in ('#e6cf9f', '#d6bb88', '#bfa070')]
+def cardboard(top=False):
+    """Cardboard tan with darker corrugated edges; the lid texture carries the packing tape along the centre seam."""
+    base = [rgb(h) for h in ('#d6b67f', '#c9a870', '#b8955d', '#94724a')]
+    tape = [rgb(h) for h in ('#ebdaa8', '#dcc791', '#c4ab74')]
     def px(x, y):
-        # vertical corrugation (2px ribs), a seam flap near the top and a tape band across the middle
-        rib = (x // 2) % 2
-        i = 0 if rib == 0 else 1
-        if noise(x, y, 5) < 36: i = min(3, i + 1)
-        if y in (0, 1): i = 0 if y == 0 else 1
-        if y == 15: i = 3
-        if y == 3: i = 2                                  # flap crease
-        if 6 <= y <= 8:
-            t = 0 if y == 6 else 1 if y == 7 else 2
-            return tape[t]
-        if x == 0: i = max(0, i - 1)
-        if x == 15: i = 3
+        i = 0 if (x // 2) % 2 == 0 else 1                  # 2px corrugation ribs
+        if noise(x, y, 5) < 34: i = min(2, i + 1)
+        if top and 6 <= x <= 9: return tape[0 if x == 6 else 1 if x < 9 else 2]   # tape band, 4px wide, along the seam
+        if y in (0, 15) or x in (0, 15): i = 3 if (y == 15 or x == 15) else 2       # dark corrugated edge
+        elif y in (1, 14) and not top: i = 2 if y == 14 else 0
         return base[i]
     return image(px)
 
@@ -131,7 +125,7 @@ def language(lang):
 
 def export():
     records = {}
-    textures = {'exam_podium_top': podium_top(), 'exam_podium_side': podium_side(), 'exam_hide_box': cardboard()}
+    textures = {'exam_podium_top': podium_top(), 'exam_podium_side': podium_side(), 'exam_hide_box': cardboard(), 'exam_hide_box_top': cardboard(True)}
     for k in KINDS: textures['exam_mark_' + k] = mat(k)
     for name, im in textures.items():
         source = ART / (name + '.png'); data = write_png(source, im)
@@ -143,11 +137,13 @@ def export():
     write(models / 'block/exam_podium.json', {'parent': 'minecraft:block/block', 'textures': {'particle': 'mcyukkuri:block/exam_podium_side', 'top': 'mcyukkuri:block/exam_podium_top', 'side': 'mcyukkuri:block/exam_podium_side'},
         'elements': [{'from': [0, 0, 0], 'to': [16, 7, 16], 'faces': {'up': {'texture': '#top'}, 'down': {'texture': '#side'}, **{f: {'texture': '#side'} for f in ('north', 'south', 'east', 'west')}}}]})
     write(ASSET / 'blockstates/exam_podium.json', {'variants': {f'facing={f}': {'model': 'mcyukkuri:block/exam_podium', 'y': y} for f, y in rotations}})
-    # Hide box: open north side; two 1/16 side walls, back wall and roof, matching ExamHideBoxBlock collision.
-    # Visible mesh is wider than the collision (-3..19 = 22/16) so Reimu (17.4 units) and Marisa with hat (20.3) stay inside the walls.
-    parts = [cube([-3, 0, 0], [-2, 18, 19], 'box'), cube([18, 0, 0], [19, 18, 19], 'box'), cube([-2, 0, 18], [18, 18, 19], 'box', ('north', 'south', 'east', 'west')),
-             cube([-3, 17, 0], [19, 18, 19], 'box')]
-    write(models / 'block/exam_hide_box.json', {'parent': 'minecraft:block/block', 'textures': {'particle': 'mcyukkuri:block/exam_hide_box', 'box': 'mcyukkuri:block/exam_hide_box'}, 'elements': parts})
+    # Hide box: open north side; 1/16 walls and lid drawn at -1..17 around the 14/16 clear collision interior, plus two open front flaps.
+    def flap(x0, x1, angle):
+        return {'from': [x0, 17, -7], 'to': [x1, 17.0625, 0], 'rotation': {'origin': [8, 17, 0], 'axis': 'x', 'angle': angle},
+                'faces': {'up': {'texture': '#top', 'uv': [0, 0, 8, 7]}, 'down': {'texture': '#top', 'uv': [0, 0, 8, 7]}}}
+    parts = [cube([-1, 0, 0], [0, 17, 17], 'box'), cube([16, 0, 0], [17, 17, 17], 'box'), cube([0, 0, 16], [16, 17, 17], 'box', ('north', 'south')),
+             cube([-1, 16, 0], [17, 17, 17], 'top', ('up', 'down', 'north', 'south', 'east', 'west')), flap(-1, 8, 22.5), flap(8, 17, 45)]
+    write(models / 'block/exam_hide_box.json', {'parent': 'minecraft:block/block', 'textures': {'particle': 'mcyukkuri:block/exam_hide_box', 'box': 'mcyukkuri:block/exam_hide_box', 'top': 'mcyukkuri:block/exam_hide_box_top'}, 'elements': parts})
     write(ASSET / 'blockstates/exam_hide_box.json', {'variants': {f'facing={f}': {'model': 'mcyukkuri:block/exam_hide_box', 'y': y} for f, y in rotations}})
     # Marks: one 1/16 mat model per kind.
     for k in KINDS:

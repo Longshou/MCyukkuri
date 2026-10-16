@@ -60,6 +60,9 @@ class Building:
         data={'PendingRole':string(role),'Use':string(use),'Grade':integer(grade),'Pedigree':integer(pedigree),'FactoryGroup':integer(0)}
         if grade>=2: data['Medal']=integer(grade-1)
         self.entity(x,3,z,'mcyukkuri:'+kind,{'NeoForgeData':compound({'HumanCommerce':compound(data)})})
+    def pet_lost(self,x,z,kind,role):
+        """Missing-companion quest animal, same data as the former template (Use lost)."""
+        self.animal(x,z,kind,role,'lost')
     def display(self,x,y,z,item,over=False):
         self.block(x,y,z+1,'dark_oak_planks',over=over)
         self.entity(x+.5,y+.5,z+.94,'minecraft:item_display',{'item_display':string('fixed'),'item':compound({'id':string(item if ':' in item else 'mcyukkuri:'+item),'count':integer(1)}),
@@ -122,7 +125,8 @@ def glass(b,a,c,y0=3,y1=7,full=False):
         for z in range(a[1],c[1]+1):
             if full: b.box((x,y0,z),(x,y1,z),'glass'); continue
             if name_at(b,x,4,z)=='minecraft:glass': continue   # a shared full-height wall wins
-            b.block(x,3,z,'birch_planks'); b.box((x,4,z),(x,5,z),'glass_pane',{'north':'false','south':'false','east':'false','west':'false','waterlogged':'false'})
+            if name_at(b,x,3,z)!='minecraft:stripped_birch_log': b.block(x,3,z,'stripped_birch_log',{'axis':'z' if a[0]==c[0] and a[1]!=c[1] else 'x'})
+            b.box((x,4,z),(x,5,z),'glass_pane',{'north':'false','south':'false','east':'false','west':'false','waterlogged':'false'})
 def name_at(b,x,y,z): return b.blocks.get((x,y,z),('minecraft:air',))[0]
 def pen_rect(b,x0,z0,x1,z1,y0=3,y1=7,skip='',full=False):
     """Wall ring around an interior rectangle (walls sit just outside the interior); skip = sides n/s/w/e that already have a wall."""
@@ -192,24 +196,25 @@ def shop():
     # Street facade: big display windows y 4..7 with birch mullions at the booth glass lines, doors for shop and exam hall.
     for a,c in [(2,8),(10,14),(16,22),(24,30),(32,38)]: b.box((a,4,3),(c,7,3),'glass')
     for x in (5,19,35): b.box((x,4,3),(x,7,3),'stripped_birch_log',LOG)
+    for x in (26,28): b.box((x,4,3),(x,7,3),'stripped_birch_log',LOG); b.block(x,5,2,'cyan_wall_banner',{'facing':'north'})
     b.door(12,3,3); b.door(27,3,3)
     # Red/white awning (2-block stripes) stepping out over the pavement, shop banners on the pillars, paw-print sign board.
     for x in range(1,40):
         wool='red_wool' if (x//2)%2==0 else 'white_wool'
         b.block(x,8,2,wool); b.block(x,7,2,wool); b.block(x,7,1,wool)
     for x in (9,15,23,31): b.block(x,5,2,'red_wall_banner',{'facing':'north'})
-    b.box((6,8,2),(18,13,2),'dark_oak_planks'); b.box((7,9,2),(17,12,2),'green_terracotta')
-    emblem=['...RRR.....','.WWWWWWWWW.','.WWKKWKKWW.','..WWWWWWW..']   # yukkuri head: white bun, red bow, black eyes
+    b.box((6,8,2),(18,8,2),'dark_oak_planks'); b.box((6,15,2),(18,15,2),'dark_oak_planks'); b.box((6,8,2),(6,15,2),'dark_oak_planks'); b.box((18,8,2),(18,15,2),'dark_oak_planks')
+    emblem=['.FRRFDFRRF.','.KKKKKKKKK.','KKSSSSSSSKK','KSHESSSHESK','RSEESSSEESR','FPSSSMSSSPF']   # Reimu yukkuri head as seen from the street (map G of the art review)
+    mats={'.':'green_terracotta','F':'white_concrete','H':'white_concrete','R':'red_concrete','D':'red_nether_bricks','K':'black_concrete','E':'black_concrete','S':'white_terracotta','M':'red_terracotta','P':'pink_terracotta'}
     for r,row in enumerate(emblem):
-        for c,ch in enumerate(row):
-            if ch!='.': b.block(7+c,12-r,2,{'W':'white_concrete','R':'red_concrete','K':'black_concrete'}[ch])
+        for c,ch in enumerate(row): b.block(17-c,14-r,2,mats[ch])   # facade faces north: the viewer's left is +x
     # Planting and benches on the pavement.
     for x0,x1 in [(1,7),(33,39)]: b.box((x0,3,0),(x1,3,0),'flowering_azalea_leaves',{'persistent':'true','distance':'7'})
     for x in (9,15,23,31): b.block(x,3,1,'potted_azalea_bush')
     for x in (3,5,35,37): stairs(b,x,3,1,'birch','north')
     # Gabled roofs over the front and rear blocks; roof is 4 rows on a 6-row facade (y 3..8).
     roof(b,3,16); roof(b,17,30)
-    b.box((6,9,3),(18,12,3),Q)   # false front carries the sign board
+    b.box((6,9,3),(18,15,3),Q)   # false front carries the sign board
     b.sign(26,3,2,['考核处','EXAM HALL','口试 / 实技'],'8')
     for x in (11,12,13,26,27,28):   # street-edge ramp: two half-height steps up to the pavement
         b.block(x,2,0,'air'); stairs(b,x,1,0,'stone_brick','south'); stairs(b,x,2,1,'stone_brick','south')
@@ -272,7 +277,7 @@ def shop():
     # Oral area: podium faces the examiner desk; hide corner; two promise seats.
     b.block(34,3,5,'mcyukkuri:exam_podium',{'facing':'south'})
     b.box((33,3,7),(35,3,7),'dark_oak_planks'); b.block(34,4,7,'oak_pressure_plate',{'powered':'false'})
-    b.human(34.5,8.5,'caretaker_sister',3,1,'shop_examiner')
+    b.human(34.5,8.5,'caretaker_brother',3,1,'shop_examiner')
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     for z in (5,6): stairs(b,24,3,z,'birch','east')
@@ -298,6 +303,11 @@ def shop():
     b.sign(31,3,21,['金章考核间','左：考生席','右：野良役'],'8')
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); stairs(b,26,3,28,'birch','east'); stairs(b,27,3,28,'birch','west')
+    # Regular customer in the consultation corner and the lost-companion nook (hedge behind the shop, open to the east).
+    b.human(20.5,14.5,'caretaker_sister',0,1,'shop_sister')
+    b.box((4,3,32),(10,4,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.box((4,3,31),(4,4,31),'oak_leaves',{'persistent':'true','distance':'1'})
+    b.box((4,5,31),(10,5,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.block(7,4,31,'lantern',{'hanging':'true','waterlogged':'false'})
+    b.pet_lost(7.5,31.5,'marisa','shop_sister')
     # Rugs, plants and shelves keep the rooms warm and lived-in.
     for x,z in [(24,10),(25,4),(37,4),(37,12),(24,22),(27,27),(22,8),(2,10),(22,16)]: b.block(x,3,z,'potted_azalea_bush' if (x+z)%2 else 'potted_fern')
     carpet(b,11,4,13,5,'red'); carpet(b,18,13,22,16,'light_blue'); carpet(b,2,13,7,14,'orange'); carpet(b,25,5,29,10,'green'); carpet(b,33,8,35,9,'red')
@@ -314,24 +324,23 @@ def shop():
             if n!='minecraft:air': break
         else: return False
         if y<=5 or n in ('minecraft:glass','minecraft:glass_pane','minecraft:lantern') or n.endswith(('door','_leaves','_banner','_sign')) or n.startswith('mcyukkuri:'): return False
-        b.block(x,y-1,z,'lantern',{'hanging':'true','waterlogged':'false'}); return True   # right under the ceiling or awning, no chain
+        b.block(x,y-1,z,'lantern',{'hanging':'true','waterlogged':'false'}); return True   # under an awning
+    def flush(x,z):
+        """Ochre froglight set flush into the y8 ceiling."""
+        if name_at(b,x,8,z)!='minecraft:smooth_quartz' or any(name_at(b,x,y,z)!='minecraft:air' for y in (5,6,7)) or not 2<=x<=38 or not 4<=z<=29: return False
+        b.block(x,8,z,'ochre_froglight',{'axis':'y'},over=True); return True
     order=sorted(((abs(dx)+abs(dz),dx,dz) for dx in range(-2,3) for dz in range(-2,3)))
-    for gx in range(3,38,4):
-        for gz in range(5,30,4):
-            for pass_ in (0,1):
-                if any(hang(gx+dx,gz+dz) for _,dx,dz in order if pass_==1 or (gx+dx,gz+dz) not in pen_cells): break
+    for gx in range(3,38,5):
+        for gz in range(5,30,5):
+            any(flush(gx+dx,gz+dz) for _,dx,dz in order)
+    for x,z in [(9,13),(15,13),(11,8),(19,8),(27,8),(32,12)]: hang(x,z)   # a few lanterns over the counter and aisles
     for _ in range(400):
         level=light_levels(b); dark=[(level.get((x,3,z),0),(x,z)) for x,z in walk_cells(b)]
         dark=[t for t in dark if t[0]<8]
         if not dark: break
         dark.sort(); x,z=dark[0][1]
-        placed=False
-        for pass_ in (0,1):
-            for _,dx,dz in order:
-                if pass_==0 and (x+dx,z+dz) in pen_cells: continue
-                if hang(x+dx,z+dz): placed=True; break
-            if placed: break
-        if not placed: break
+        if any(flush(x+dx,z+dz) for _,dx,dz in order) or any(hang(x+dx,z+dz) for _,dx,dz in order): continue
+        break
     connect_panes(b)
     return b
 
