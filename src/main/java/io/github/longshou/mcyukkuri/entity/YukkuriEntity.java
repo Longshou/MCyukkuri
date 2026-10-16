@@ -158,6 +158,14 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override public boolean isEyeInFluid(net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> fluid) {
         return !(fluid == net.minecraft.tags.FluidTags.WATER && shelteredInHat()) && super.isEyeInFluid(fluid);
     }
+    /** NeoForge breathes through its fluid-type hook rather than the vanilla eye-fluid predicate. */
+    public static void breatheInHat(net.neoforged.neoforge.event.entity.living.LivingBreatheEvent event) {
+        if (event.getEntity() instanceof YukkuriEntity y && y.shelteredInHat()
+                && y.getEyeInFluidType() == net.neoforged.neoforge.common.NeoForgeMod.WATER_TYPE.value()) {
+            event.setCanBreathe(true);
+            event.setRefillAirAmount(y.getMaxAirSupply());
+        }
+    }
     public io.github.longshou.mcyukkuri.predator.PredatorLife predator() { return predator; }
     public boolean predatorFlying() { return entityData.get(PREDATOR_FLIGHT); }
     public void setPredatorFlying(boolean flying) {

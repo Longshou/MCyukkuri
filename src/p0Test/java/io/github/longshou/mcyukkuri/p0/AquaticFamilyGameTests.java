@@ -308,6 +308,12 @@ public final class AquaticFamilyGameTests {
             helper.assertTrue(home.voyageBerth(child)!=null&&home.onVoyageBerth(child),"large subadult reaches the dedicated supported departure seat after its real move");
             home.releaseVoyageBerth(child.getUUID()); clearPupil(father); readyForDeparture(child); lateJuvenile(child,.70f);
         }).thenIdle(80).thenExecute(()->{
+            // This point is more than 300 real world ticks after boarding.  A dry, protected hat
+            // must preserve every rider's actual breathing and health; FirstVoyage correctly aborts
+            // when any sibling is unhealthy, so do not let drowning masquerade as a berth failure.
+            helper.assertTrue(home.getPassengers().stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast)
+                    .allMatch(y -> home.protects(y) && y.getHealth()==y.getMaxHealth() && y.getAirSupply()==y.getMaxAirSupply()),
+                    "all long-riding protected family members stay at full health and air");
             double r=HatVessel.radius(child.getBbWidth())/home.unit();
             helper.assertTrue(child.childhood().canLiveIndependently(),"0.70 late juvenile remains eligible before adult stage");
             helper.assertTrue(HatVessel.brimPlace(r,java.util.List.of(),true)==null,"0.70 subadult likewise cannot use the narrow full-body brim strip");
