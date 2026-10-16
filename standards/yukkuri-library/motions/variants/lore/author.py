@@ -274,9 +274,9 @@ def state(action, t, c, height):
         r = [c['look_up'], c['turn']*math.sin(ph), c['tilt']*math.sin(ph)]; s = [1+.5*k, 1-k, 1+.5*k]
     elif action == 'nervous':
         ph = 2*math.pi*t/c['hop_seconds']; k = c['shrink']
-        s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['shuffle_ratio']*height*math.sin(2*math.pi*t/.75)
+        s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['tremble_units']*math.sin(2*math.pi*c['tremble_hz']*t)
         q = bump((t % c['hop_seconds'])/c['hop_seconds']); lift = c['hop_ratio']*height*q
-        s = [s[0]*(1-.015*q), s[1]*(1+.03*q), s[2]*(1-.015*q)]; r = [-2, 0., c['shudder']*math.sin(ph*2)]
+        s = [s[0]*(1-.015*q), s[1]*(1+.03*q), s[2]*(1-.015*q)]; r = [-2, c['glance']*math.sin(2*math.pi*t/c['glance_seconds']), c['shudder']*math.sin(ph*2)]
     elif action == 'proud':
         # Lean back and puff the chest, hold, then settle with a small overshoot and rest.
         if t < .5:
@@ -307,7 +307,8 @@ def state(action, t, c, height):
             w = bump((t-1.4)/.5)*math.sin(2*math.pi*9*t); r[2] += c['shudder']*w; shift[0] = .006*height*w
     elif action == 'hide_face':
         ph = 2*math.pi*t/d
-        r = [c['lean']+c['wiggle']*math.sin(ph*3), 0., c['roll']*math.sin(ph*4)]; s = [1.03, c['height'], 1.03]
+        w = 2*math.pi*c['wiggle_hz']*t
+        r = [c['lean']+c['wiggle']*math.sin(w), c['yaw']*math.sin(w), c['roll']*math.sin(w+1)]; s = [1.03, c['height'], 1.03]
     elif action == 'beg':
         q = bump((t % c['bounce_seconds'])/c['bounce_seconds'])
         r = [c['lean']+c['lean_bounce']*q, 0., 0.]; lift = c['bounce_ratio']*height*q
