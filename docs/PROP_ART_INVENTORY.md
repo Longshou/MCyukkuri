@@ -88,4 +88,4 @@
 - [茎生显示](../src/main/java/io/github/longshou/mcyukkuri/client/FamilyRenderer.java)、[身体附属显示](../src/main/java/io/github/longshou/mcyukkuri/client/YukkuriRenderer.java)
 - [运行物品模型](../src/main/resources/assets/mcyukkuri/models/item/)、[道具目录](../art/props/README.md)
 
-金银章现为饰物上的圆形金属牌，已接入实际饰物挂点、资格考核及摘章／补发，见[徽章制作源](../art/props/badges/README.md)。此版造型仍待用户确认。
+金银章现为饰物上的圆形金属牌，已接入实际饰物挂点、资格考核及摘章／补发，见[徽章制作源](../art/props/badges/README.md)。2026-10-16 起改为 16×16 圆顶铜／银／金三档（含新增铜章）和同源手帖图标，待用户确认。
