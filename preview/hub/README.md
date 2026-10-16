@@ -28,7 +28,7 @@ python scripts/build_preview_hub.py --render
 
 没有专属动作的继任、库存变化等以状态图呈现；普通对白直接提供音频和对应字幕，捕食种新增条目明确标为仅字幕。不要用静态模型或无关动作充当玩法演示。
 
-`hat-motion/` 当前展示三段连续事件：`rock-and-flee.gif` 的受惊与撤离、`float-and-braid-rescue.gif` 的水面扑腾与单辫救援，以及 `recall-and-crowding.gif` 的亲油呼唤、子油赶回、登帽、推挤与挤落。独立页面按事件节拍播放已有实际 OGG 和对应字幕，GIF 本身无声。当前模型、单辫自然长度、帽檐支撑及动作源与游戏共用；离线演出不运行 Minecraft 的完整碰撞、水流或救援 AI，不代表自然触发已经实测。页面模板位于世界观动作制作目录的 `hat_motion_preview.html`，生成后更新本主题当前静帧和分镜，再重建总入口。
+`hat-motion/` 当前展示三段连续事件：`rock-and-flee.gif` 的受惊与撤离、`float-and-braid-rescue.gif` 的水面扑腾与单辫救援，以及 `recall-and-crowding.gif` 的亲油呼唤、子油赶回、登帽与接触争位。当前六只样本最终安全聚拢，没有触发挤落，不以定时踢落补造该分支。独立页面按事件节拍播放已有实际 OGG 和对应字幕，GIF 本身无声。当前模型、单辫自然长度、帽檐支撑及动作源与游戏共用；离线演出不运行 Minecraft 的完整碰撞、水流或救援 AI，不代表自然触发已经实测。页面模板位于世界观动作制作目录的 `hat_motion_preview.html`，生成后更新本主题当前静帧和分镜，再重建总入口。
 
 ## 维护
 

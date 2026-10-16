@@ -20,6 +20,8 @@ final class HatBoatCrowding {
     private static final class Balance {
         long since,until,touched=Long.MIN_VALUE;
         long verticalAt=Long.MIN_VALUE;
+        long reactionAt=Long.MIN_VALUE,movedAt=Long.MIN_VALUE;
+        double movedDistance;
         int contacts,mode;
         UUID pusher;
         Vec3 push=Vec3.ZERO;
@@ -100,7 +102,7 @@ final class HatBoatCrowding {
                 if(from.subtract(target).horizontalDistance()>safe||from.y>=HatVessel.FREEBOARD-.1){
                     if(b.contacts==0)mode(b,4);
                     var direction=target.subtract(from).multiply(1,0,1).normalize();
-                    attempt(child,direction.scale(.035),actual,parent,new HashSet<>(),0,null);
+                    attempt(child,direction.scale(.035),actual,parent,new HashSet<>(),0,null,true);
                 }else if(b.mode==4)mode(b,boat.rocking()?1:0);
             }
             else if(b.mode==4)mode(b,boat.rocking()?1:0);
@@ -113,7 +115,7 @@ final class HatBoatCrowding {
         if(dirty&&boat.tickCount%4==0){boat.syncCrowding();dirty=false;}
     }
     private boolean attempt(YukkuriEntity actor,Vec3 delta,List<YukkuriEntity> children,YukkuriEntity parent,
-                            HashSet<UUID> visited,int depth,UUID responsible){
+                            HashSet<UUID> visited,int depth,UUID responsible,boolean allowReaction){
         if(depth>4||!visited.add(actor.getUUID())||!boat.crowdMovable(actor))return false;
         var at=boat.toLocal(actor.position());var proposed=at.add(delta);var centre=boat.toLocal(parent.position());
         double parentClear=boat.crowdRadius(parent)+boat.crowdRadius(actor);
@@ -133,11 +135,61 @@ final class HatBoatCrowding {
             if(distance>=current+.002)continue; // Leaving an existing compressed contact is always allowed.
             var direction=where.subtract(at).multiply(1,0,1).normalize();
             if(direction.lengthSqr()<.01)direction=delta.normalize();
-            touch(actor,other,direction);touch(other,actor,direction);
+            touch(actor,other,direction.scale(-1));touch(other,actor,direction);
             if(entry(other).contacts<12)return false;
-            if(!attempt(other,direction.scale(Math.min(.075,.035+entry(other).contacts*.001)),children,parent,visited,depth+1,actor.getUUID()))return false;
+            if(!attempt(other,direction.scale(Math.min(.075,.035+entry(other).contacts*.001)),children,parent,visited,depth+1,actor.getUUID(),allowReaction)){
+                // A supported body that cannot move transmits a finite opposite reaction. The
+                // initiating child may retreat into real space; no reservation or elapsed timer pushes it.
+                var balance=entry(actor);
+                if(allowReaction&&balance.contacts>=12&&balance.reactionAt!=now()){
+                    balance.reactionAt=now();
+                    double theirMass=mass(other),ourMass=mass(actor);
+                    double brace=support(other,boat.toLocal(other.position()),Vec3.ZERO).bearing();
+                    double step=Math.min(.035,delta.horizontalDistance()*theirMass/(ourMass+theirMass)*(.35+.65*brace));
+                    var backward=direction.scale(-step);balance.pusher=other.getUUID();balance.push=backward;
+                    var returning=new HashSet<>(visited);returning.remove(actor.getUUID());
+                    attempt(actor,backward,children,parent,returning,depth+1,other.getUUID(),false);
+                }
+                return false;
+            }
         }
         return move(actor,delta,parent,responsible);
+    }
+    private double mass(YukkuriEntity child){
+        double radius=boat.crowdRadius(child);
+        return Math.max(.001,radius*radius*child.getBbHeight()/boat.unit());
+    }
+    /** Equal-area foot samples determine bearing, while sixteen support half-planes locate the
+     *  actual load relative to the remaining support polygon. Lower inner surfaces are never exterior void. */
+    private record FootSupport(double bearing,int exterior,double highest,boolean stable,boolean outsideLoad){}
+    private FootSupport support(YukkuriEntity child,Vec3 feet,Vec3 force){
+        double radius=boat.crowdRadius(child),height=child.getBbHeight()/boat.unit();
+        double momentum=Math.min(radius*.3,height*.08*Math.min(1,force.horizontalDistance()/.035));
+        Vec3 load=feet.add(force.multiply(1,0,1).normalize().scale(momentum));
+        var points=new ArrayList<Vec3>();int bearing=0,exterior=0;double highest=Double.NEGATIVE_INFINITY;
+        for(int i=0;i<49;i++){
+            double r=radius*Math.sqrt((i+.5)/49),angle=i*2.399963229728653;
+            double x=feet.x+r*Math.cos(angle),z=feet.z+r*Math.sin(angle),floor=HatVessel.surface(boat.mode(),x,z);
+            if(!Double.isFinite(floor)){exterior++;continue;}
+            highest=Math.max(highest,floor);
+            if(Math.abs(floor-feet.y)<=.12){bearing++;points.add(new Vec3(x,0,z));}
+        }
+        // The outer support boundary is sampled separately so area sampling does not shrink it.
+        for(int i=0;i<17;i++){
+            double x=i==16?feet.x:feet.x+radius*Math.cos(i*Math.PI/8),z=i==16?feet.z:feet.z+radius*Math.sin(i*Math.PI/8);
+            double floor=HatVessel.surface(boat.mode(),x,z);
+            if(Double.isFinite(floor)){
+                highest=Math.max(highest,floor);
+                if(Math.abs(floor-feet.y)<=.12)points.add(new Vec3(x,0,z));
+            }
+        }
+        boolean stable=points.size()>=3;
+        for(int i=0;i<16&&stable;i++){
+            double x=Math.cos(i*Math.PI/8),z=Math.sin(i*Math.PI/8),edge=Double.NEGATIVE_INFINITY;
+            for(var point:points)edge=Math.max(edge,(point.x-feet.x)*x+(point.z-feet.z)*z);
+            if((load.x-feet.x)*x+(load.z-feet.z)*z>edge-radius*.02)stable=false;
+        }
+        return new FootSupport(bearing/49.0,exterior,highest,stable,!Double.isFinite(HatVessel.surface(boat.mode(),load.x,load.z)));
     }
     private void touch(YukkuriEntity child,YukkuriEntity pusher,Vec3 force){
         var b=entry(child);
@@ -149,17 +201,28 @@ final class HatBoatCrowding {
         dirty=true;
     }
     private boolean move(YukkuriEntity child,Vec3 delta,YukkuriEntity parent,UUID pusher){
-        var at=boat.toLocal(child.position());var next=at.add(delta);var b=entry(child);
+        var at=boat.toLocal(child.position());var b=entry(child);
+        if(b.movedAt!=now()){b.movedAt=now();b.movedDistance=0;}
+        double distance=delta.horizontalDistance(),remaining=Math.max(0,.075-b.movedDistance);
+        if(distance>0&&remaining<1e-6)return false;
+        if(distance>remaining)delta=delta.scale(remaining/distance);
+        var next=at.add(delta);var foot=support(child,next,delta);
         double support=HatVessel.surface(boat.mode(),next.x,next.z);
-        if(!Double.isFinite(support)){
-            // No ordinary growth/shake branch can enter here: a real sustained body contact must be the cause.
-            if(pusher==null||b.contacts<12)return false;
-            mode(b,3);b.pusher=pusher;b.push=delta;
-            boat.crowdFall(child,next,delta,pusher);return true;
+        UUID responsible=pusher!=null?pusher:b.touched>=now()-1?b.pusher:null;
+        if(foot.exterior()>0&&!foot.stable()&&foot.outsideLoad()){
+            // Both the remaining foot support and the force-shifted load have crossed the
+            // exterior edge. An interior well/ledge still has a finite surface below it.
+            if(responsible==null||b.contacts<12)return false;
+            var outward=delta.horizontalDistanceSqr()>1e-8?delta:b.push;
+            mode(b,3);b.pusher=responsible;b.push=outward;
+            boat.crowdFall(child,next,outward,responsible);return true;
         }
-        if(support>at.y+.08)return false; // Pressure cannot grant a newborn a step-climbing/jump ability.
+        if(!Double.isFinite(support)&&!foot.stable())return false;
+        if(distance>0&&foot.highest()>at.y+.08)return false; // No pressure-induced step climbing.
         for(var berth:boat.cargoBerths())if(Math.abs(at.y-berth.position().y)<child.getBbHeight()/boat.unit()
                 &&next.subtract(berth.position()).horizontalDistance()<boat.crowdRadius(child)+berth.radius())return false;
+        if(foot.stable())support=at.y;
+        else if(!Double.isFinite(support))return false;
         if(at.y>support+.04){
             if(b.verticalAt!=now()){
                 b.verticalAt=now();b.falling=Math.max(-.18/boat.unit(),b.falling-.04/boat.unit());
@@ -167,7 +230,7 @@ final class HatBoatCrowding {
             }else next=new Vec3(next.x,at.y,next.z);
         }
         else {b.falling=0;next=new Vec3(next.x,Math.max(at.y,support),next.z);}
-        boat.crowdPosition(child,next);dirty=true;return true;
+        b.movedDistance+=delta.horizontalDistance();boat.crowdPosition(child,next);dirty=true;return true;
     }
     CompoundTag save(){
         var tag=new CompoundTag();var list=new ListTag();
