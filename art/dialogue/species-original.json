@@ -137,7 +137,8 @@
       "events": [
         "lesson_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I can wait here now."
     },
     {
       "id": "chen.adult.o_try",
@@ -150,7 +151,8 @@
         "lesson_progress",
         "exercise"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "So it's practice for waiting here."
     },
     {
       "id": "chen.adult.o_lost",
@@ -377,7 +379,8 @@
       "events": [
         "lesson_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "I can wait here!"
     },
     {
       "id": "chen.young.o_try",
@@ -390,7 +393,8 @@
         "lesson_progress",
         "exercise"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "We wait here?"
     },
     {
       "id": "chen.young.o_lost",
@@ -617,7 +621,8 @@
       "events": [
         "lesson_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu... I can wait here now."
     },
     {
       "id": "patchouli.adult.o_try",
@@ -630,7 +635,8 @@
         "lesson_progress",
         "exercise"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu... So it's practice for waiting here."
     },
     {
       "id": "patchouli.adult.o_lost",
@@ -857,7 +863,8 @@
       "events": [
         "lesson_learned"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu... I can wait here!"
     },
     {
       "id": "patchouli.young.o_try",
@@ -870,7 +877,8 @@
         "lesson_progress",
         "exercise"
       ],
-      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。"
+      "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
+      "english": "Mukyu... We wait here?"
     },
     {
       "id": "patchouli.young.o_lost",
@@ -1794,7 +1802,8 @@
         "lesson_refused"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I can't settle down now. Let's practice later."
     },
     {
       "id": "remilia.adult.o_start",
@@ -1806,7 +1815,8 @@
         "lesson_start"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... So it's practice for waiting here."
     },
     {
       "id": "remilia.adult.o_progress",
@@ -1818,7 +1828,8 @@
         "lesson_progress"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I get it a little. Let me try once more."
     },
     {
       "id": "remilia.adult.o_learned",
@@ -1831,7 +1842,8 @@
         "wait_learned"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I can wait here now."
     },
     {
       "id": "remilia.adult.o_busy",
@@ -2262,7 +2274,8 @@
         "lesson_refused"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Not now. Later."
     },
     {
       "id": "remilia.young.o_start",
@@ -2274,7 +2287,8 @@
         "lesson_start"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... We wait here?"
     },
     {
       "id": "remilia.young.o_progress",
@@ -2286,7 +2300,8 @@
         "lesson_progress"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Got a little. Again!"
     },
     {
       "id": "remilia.young.o_learned",
@@ -2299,7 +2314,8 @@
         "wait_learned"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I can wait here!"
     },
     {
       "id": "remilia.young.o_busy",
@@ -2730,7 +2746,8 @@
         "lesson_refused"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I can't settle down now. Let's practice later."
     },
     {
       "id": "flandre.adult.o_start",
@@ -2742,7 +2759,8 @@
         "lesson_start"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... So it's practice for waiting here."
     },
     {
       "id": "flandre.adult.o_progress",
@@ -2754,7 +2772,8 @@
         "lesson_progress"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I get it a little. Let me try once more."
     },
     {
       "id": "flandre.adult.o_learned",
@@ -2767,7 +2786,8 @@
         "wait_learned"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I can wait here now."
     },
     {
       "id": "flandre.adult.o_busy",
@@ -3198,7 +3218,8 @@
         "lesson_refused"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Not now. Later."
     },
     {
       "id": "flandre.young.o_start",
@@ -3210,7 +3231,8 @@
         "lesson_start"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... We wait here?"
     },
     {
       "id": "flandre.young.o_progress",
@@ -3222,7 +3244,8 @@
         "lesson_progress"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Got a little. Again!"
     },
     {
       "id": "flandre.young.o_learned",
@@ -3235,7 +3258,8 @@
         "wait_learned"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I can wait here!"
     },
     {
       "id": "flandre.young.o_busy",
@@ -3526,7 +3550,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "reimu.adult.o_exam_nervous2",
@@ -3538,7 +3563,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Reimu will do my best!"
     },
     {
       "id": "reimu.adult.o_exam_answer",
@@ -3550,7 +3576,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Reimu knows this!"
     },
     {
       "id": "reimu.adult.o_exam_unsure",
@@ -3562,7 +3589,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "reimu.adult.o_exam_hide_fail",
@@ -3574,7 +3602,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu isn't here! Nobody's here!"
     },
     {
       "id": "reimu.adult.o_exam_promise_wait",
@@ -3586,7 +3615,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "reimu.adult.o_exam_promise_wait2",
@@ -3598,7 +3628,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "reimu.adult.o_exam_promise_fail",
@@ -3610,7 +3641,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Reimu?!"
     },
     {
       "id": "reimu.adult.o_exam_promise_fail2",
@@ -3622,7 +3654,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu was waiting too! Hmph!"
     },
     {
       "id": "reimu.adult.o_exam_report",
@@ -3634,7 +3667,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "reimu.adult.o_exam_sorry",
@@ -3646,7 +3680,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Reimu got it wrong..."
     },
     {
       "id": "reimu.adult.o_exam_pass",
@@ -3658,7 +3693,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Reimu can relax now!"
     },
     {
       "id": "reimu.adult.o_exam_pass2",
@@ -3670,7 +3706,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Reimu is so happy!"
     },
     {
       "id": "reimu.adult.o_exam_fail",
@@ -3682,7 +3719,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "reimu.adult.o_exam_fail2",
@@ -3694,7 +3732,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu failed...? Waaah..."
     },
     {
       "id": "reimu.adult.o_badge_proud",
@@ -3706,7 +3745,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Reimu's badge! Isn't it great?"
     },
     {
       "id": "reimu.adult.o_shop_appeal",
@@ -3718,7 +3758,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Reimu! Let's stay together!"
     },
     {
       "id": "reimu.adult.o_shop_appeal2",
@@ -3730,7 +3771,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Reimu is a really good one!"
     },
     {
       "id": "reimu.adult.o_shop_bought",
@@ -3742,7 +3784,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "reimu.adult.o_shop_sold_sad",
@@ -3754,7 +3797,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Reimu..."
     },
     {
       "id": "reimu.adult.o_shop_sold_proud",
@@ -3766,7 +3810,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu is going to a better home! Bye-bye!"
     },
     {
       "id": "reimu.adult.o_wild_role_beg",
@@ -3778,7 +3823,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "reimu.adult.o_wild_role_provoke",
@@ -3790,7 +3836,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Reimu! You're no fun!"
     },
     {
       "id": "reimu.adult.o_lesson_praised",
@@ -3802,7 +3849,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Reimu is happy!"
     },
     {
       "id": "reimu.adult.o_lesson_praised2",
@@ -3814,7 +3862,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "reimu.adult.o_lesson_scolded",
@@ -3826,7 +3875,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Reimu will fix it properly..."
     },
     {
       "id": "reimu.adult.o_badge_envy",
@@ -3838,7 +3888,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Reimu wants that badge too."
     },
     {
       "id": "reimu.adult.o_badge_admire",
@@ -3850,7 +3901,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Reimu too!"
     },
     {
       "id": "reimu.young.o_exam_nervous",
@@ -3862,7 +3914,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "reimu.young.o_exam_nervous2",
@@ -3874,7 +3927,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Reimu will do my best!"
     },
     {
       "id": "reimu.young.o_exam_answer",
@@ -3886,7 +3940,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Reimu knows this!"
     },
     {
       "id": "reimu.young.o_exam_unsure",
@@ -3898,7 +3953,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "reimu.young.o_exam_hide_fail",
@@ -3910,7 +3966,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu isn't here! Nobody's here!"
     },
     {
       "id": "reimu.young.o_exam_promise_wait",
@@ -3922,7 +3979,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "reimu.young.o_exam_promise_wait2",
@@ -3934,7 +3992,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "reimu.young.o_exam_promise_fail",
@@ -3946,7 +4005,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Reimu?!"
     },
     {
       "id": "reimu.young.o_exam_promise_fail2",
@@ -3958,7 +4018,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu was waiting too! Hmph!"
     },
     {
       "id": "reimu.young.o_exam_report",
@@ -3970,7 +4031,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "reimu.young.o_exam_sorry",
@@ -3982,7 +4044,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Reimu got it wrong..."
     },
     {
       "id": "reimu.young.o_exam_pass",
@@ -3994,7 +4057,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Reimu can relax now!"
     },
     {
       "id": "reimu.young.o_exam_pass2",
@@ -4006,7 +4070,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Reimu is so happy!"
     },
     {
       "id": "reimu.young.o_exam_fail",
@@ -4018,7 +4083,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "reimu.young.o_exam_fail2",
@@ -4030,7 +4096,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu failed...? Waaah..."
     },
     {
       "id": "reimu.young.o_badge_proud",
@@ -4042,7 +4109,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Reimu's badge! Isn't it great?"
     },
     {
       "id": "reimu.young.o_shop_appeal",
@@ -4054,7 +4122,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Reimu! Let's stay together!"
     },
     {
       "id": "reimu.young.o_shop_appeal2",
@@ -4066,7 +4135,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Reimu is a really good one!"
     },
     {
       "id": "reimu.young.o_shop_bought",
@@ -4078,7 +4148,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "reimu.young.o_shop_sold_sad",
@@ -4090,7 +4161,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Reimu..."
     },
     {
       "id": "reimu.young.o_shop_sold_proud",
@@ -4102,7 +4174,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Reimu is going to a better home! Bye-bye!"
     },
     {
       "id": "reimu.young.o_wild_role_beg",
@@ -4114,7 +4187,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "reimu.young.o_wild_role_provoke",
@@ -4126,7 +4200,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Reimu! You're no fun!"
     },
     {
       "id": "reimu.young.o_lesson_praised",
@@ -4138,7 +4213,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Reimu is happy!"
     },
     {
       "id": "reimu.young.o_lesson_praised2",
@@ -4150,7 +4226,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "reimu.young.o_lesson_scolded",
@@ -4162,7 +4239,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Reimu will fix it properly..."
     },
     {
       "id": "reimu.young.o_badge_envy",
@@ -4174,7 +4252,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Reimu wants that badge too."
     },
     {
       "id": "reimu.young.o_badge_admire",
@@ -4186,7 +4265,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Reimu too!"
     },
     {
       "id": "marisa.adult.o_exam_nervous",
@@ -4198,7 +4278,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "marisa.adult.o_exam_nervous2",
@@ -4210,7 +4291,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Marisa will do my best!"
     },
     {
       "id": "marisa.adult.o_exam_answer",
@@ -4222,7 +4304,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Marisa knows this!"
     },
     {
       "id": "marisa.adult.o_exam_unsure",
@@ -4234,7 +4317,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "marisa.adult.o_exam_hide_fail",
@@ -4246,7 +4330,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa isn't here! Nobody's here!"
     },
     {
       "id": "marisa.adult.o_exam_promise_wait",
@@ -4258,7 +4343,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "marisa.adult.o_exam_promise_wait2",
@@ -4270,7 +4356,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "marisa.adult.o_exam_promise_fail",
@@ -4282,7 +4369,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Marisa?!"
     },
     {
       "id": "marisa.adult.o_exam_promise_fail2",
@@ -4294,7 +4382,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa was waiting too! Hmph!"
     },
     {
       "id": "marisa.adult.o_exam_report",
@@ -4306,7 +4395,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "marisa.adult.o_exam_sorry",
@@ -4318,7 +4408,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Marisa got it wrong..."
     },
     {
       "id": "marisa.adult.o_exam_pass",
@@ -4330,7 +4421,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Marisa can relax now!"
     },
     {
       "id": "marisa.adult.o_exam_pass2",
@@ -4342,7 +4434,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Marisa is so happy!"
     },
     {
       "id": "marisa.adult.o_exam_fail",
@@ -4354,7 +4447,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "marisa.adult.o_exam_fail2",
@@ -4366,7 +4460,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa failed...? Waaah..."
     },
     {
       "id": "marisa.adult.o_badge_proud",
@@ -4378,7 +4473,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Marisa's badge! Isn't it great?"
     },
     {
       "id": "marisa.adult.o_shop_appeal",
@@ -4390,7 +4486,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Marisa! Let's stay together!"
     },
     {
       "id": "marisa.adult.o_shop_appeal2",
@@ -4402,7 +4499,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Marisa is a really good one!"
     },
     {
       "id": "marisa.adult.o_shop_bought",
@@ -4414,7 +4512,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "marisa.adult.o_shop_sold_sad",
@@ -4426,7 +4525,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Marisa..."
     },
     {
       "id": "marisa.adult.o_shop_sold_proud",
@@ -4438,7 +4538,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa is going to a better home! Bye-bye!"
     },
     {
       "id": "marisa.adult.o_wild_role_beg",
@@ -4450,7 +4551,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "marisa.adult.o_wild_role_provoke",
@@ -4462,7 +4564,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Marisa! You're no fun!"
     },
     {
       "id": "marisa.adult.o_lesson_praised",
@@ -4474,7 +4577,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Marisa is happy!"
     },
     {
       "id": "marisa.adult.o_lesson_praised2",
@@ -4486,7 +4590,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "marisa.adult.o_lesson_scolded",
@@ -4498,7 +4603,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Marisa will fix it properly..."
     },
     {
       "id": "marisa.adult.o_badge_envy",
@@ -4510,7 +4616,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Marisa wants that badge too."
     },
     {
       "id": "marisa.adult.o_badge_admire",
@@ -4522,7 +4629,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Marisa too!"
     },
     {
       "id": "marisa.young.o_exam_nervous",
@@ -4534,7 +4642,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "marisa.young.o_exam_nervous2",
@@ -4546,7 +4655,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Marisa will do my best!"
     },
     {
       "id": "marisa.young.o_exam_answer",
@@ -4558,7 +4668,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Marisa knows this!"
     },
     {
       "id": "marisa.young.o_exam_unsure",
@@ -4570,7 +4681,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "marisa.young.o_exam_hide_fail",
@@ -4582,7 +4694,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa isn't here! Nobody's here!"
     },
     {
       "id": "marisa.young.o_exam_promise_wait",
@@ -4594,7 +4707,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "marisa.young.o_exam_promise_wait2",
@@ -4606,7 +4720,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "marisa.young.o_exam_promise_fail",
@@ -4618,7 +4733,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Marisa?!"
     },
     {
       "id": "marisa.young.o_exam_promise_fail2",
@@ -4630,7 +4746,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa was waiting too! Hmph!"
     },
     {
       "id": "marisa.young.o_exam_report",
@@ -4642,7 +4759,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "marisa.young.o_exam_sorry",
@@ -4654,7 +4772,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Marisa got it wrong..."
     },
     {
       "id": "marisa.young.o_exam_pass",
@@ -4666,7 +4785,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Marisa can relax now!"
     },
     {
       "id": "marisa.young.o_exam_pass2",
@@ -4678,7 +4798,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Marisa is so happy!"
     },
     {
       "id": "marisa.young.o_exam_fail",
@@ -4690,7 +4811,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "marisa.young.o_exam_fail2",
@@ -4702,7 +4824,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa failed...? Waaah..."
     },
     {
       "id": "marisa.young.o_badge_proud",
@@ -4714,7 +4837,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Marisa's badge! Isn't it great?"
     },
     {
       "id": "marisa.young.o_shop_appeal",
@@ -4726,7 +4850,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Marisa! Let's stay together!"
     },
     {
       "id": "marisa.young.o_shop_appeal2",
@@ -4738,7 +4863,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Marisa is a really good one!"
     },
     {
       "id": "marisa.young.o_shop_bought",
@@ -4750,7 +4876,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "marisa.young.o_shop_sold_sad",
@@ -4762,7 +4889,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Marisa..."
     },
     {
       "id": "marisa.young.o_shop_sold_proud",
@@ -4774,7 +4902,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Marisa is going to a better home! Bye-bye!"
     },
     {
       "id": "marisa.young.o_wild_role_beg",
@@ -4786,7 +4915,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "marisa.young.o_wild_role_provoke",
@@ -4798,7 +4928,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Marisa! You're no fun!"
     },
     {
       "id": "marisa.young.o_lesson_praised",
@@ -4810,7 +4941,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Marisa is happy!"
     },
     {
       "id": "marisa.young.o_lesson_praised2",
@@ -4822,7 +4954,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "marisa.young.o_lesson_scolded",
@@ -4834,7 +4967,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Marisa will fix it properly..."
     },
     {
       "id": "marisa.young.o_badge_envy",
@@ -4846,7 +4980,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Marisa wants that badge too."
     },
     {
       "id": "marisa.young.o_badge_admire",
@@ -4858,7 +4993,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Marisa too!"
     },
     {
       "id": "alice.adult.o_exam_nervous",
@@ -4870,7 +5006,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "alice.adult.o_exam_nervous2",
@@ -4882,7 +5019,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Alice will do my best!"
     },
     {
       "id": "alice.adult.o_exam_answer",
@@ -4894,7 +5032,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Alice knows this!"
     },
     {
       "id": "alice.adult.o_exam_unsure",
@@ -4906,7 +5045,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "alice.adult.o_exam_hide_fail",
@@ -4918,7 +5058,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice isn't here! Nobody's here!"
     },
     {
       "id": "alice.adult.o_exam_promise_wait",
@@ -4930,7 +5071,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "alice.adult.o_exam_promise_wait2",
@@ -4942,7 +5084,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "alice.adult.o_exam_promise_fail",
@@ -4954,7 +5097,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Alice?!"
     },
     {
       "id": "alice.adult.o_exam_promise_fail2",
@@ -4966,7 +5110,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice was waiting too! Hmph!"
     },
     {
       "id": "alice.adult.o_exam_report",
@@ -4978,7 +5123,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "alice.adult.o_exam_sorry",
@@ -4990,7 +5136,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Alice got it wrong..."
     },
     {
       "id": "alice.adult.o_exam_pass",
@@ -5002,7 +5149,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Alice can relax now!"
     },
     {
       "id": "alice.adult.o_exam_pass2",
@@ -5014,7 +5162,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Alice is so happy!"
     },
     {
       "id": "alice.adult.o_exam_fail",
@@ -5026,7 +5175,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "alice.adult.o_exam_fail2",
@@ -5038,7 +5188,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice failed...? Waaah..."
     },
     {
       "id": "alice.adult.o_badge_proud",
@@ -5050,7 +5201,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Alice's badge! Isn't it great?"
     },
     {
       "id": "alice.adult.o_shop_appeal",
@@ -5062,7 +5214,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Alice! Let's stay together!"
     },
     {
       "id": "alice.adult.o_shop_appeal2",
@@ -5074,7 +5227,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Alice is a really good one!"
     },
     {
       "id": "alice.adult.o_shop_bought",
@@ -5086,7 +5240,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "alice.adult.o_shop_sold_sad",
@@ -5098,7 +5253,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Alice..."
     },
     {
       "id": "alice.adult.o_shop_sold_proud",
@@ -5110,7 +5266,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice is going to a better home! Bye-bye!"
     },
     {
       "id": "alice.adult.o_wild_role_beg",
@@ -5122,7 +5279,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "alice.adult.o_wild_role_provoke",
@@ -5134,7 +5292,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Alice! You're no fun!"
     },
     {
       "id": "alice.adult.o_lesson_praised",
@@ -5146,7 +5305,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Alice is happy!"
     },
     {
       "id": "alice.adult.o_lesson_praised2",
@@ -5158,7 +5318,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "alice.adult.o_lesson_scolded",
@@ -5170,7 +5331,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Alice will fix it properly..."
     },
     {
       "id": "alice.adult.o_badge_envy",
@@ -5182,7 +5344,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Alice wants that badge too."
     },
     {
       "id": "alice.adult.o_badge_admire",
@@ -5194,7 +5357,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Alice too!"
     },
     {
       "id": "alice.young.o_exam_nervous",
@@ -5206,7 +5370,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "alice.young.o_exam_nervous2",
@@ -5218,7 +5383,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Alice will do my best!"
     },
     {
       "id": "alice.young.o_exam_answer",
@@ -5230,7 +5396,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Alice knows this!"
     },
     {
       "id": "alice.young.o_exam_unsure",
@@ -5242,7 +5409,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "alice.young.o_exam_hide_fail",
@@ -5254,7 +5422,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice isn't here! Nobody's here!"
     },
     {
       "id": "alice.young.o_exam_promise_wait",
@@ -5266,7 +5435,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "alice.young.o_exam_promise_wait2",
@@ -5278,7 +5448,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "alice.young.o_exam_promise_fail",
@@ -5290,7 +5461,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Alice?!"
     },
     {
       "id": "alice.young.o_exam_promise_fail2",
@@ -5302,7 +5474,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice was waiting too! Hmph!"
     },
     {
       "id": "alice.young.o_exam_report",
@@ -5314,7 +5487,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "alice.young.o_exam_sorry",
@@ -5326,7 +5500,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Alice got it wrong..."
     },
     {
       "id": "alice.young.o_exam_pass",
@@ -5338,7 +5513,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Alice can relax now!"
     },
     {
       "id": "alice.young.o_exam_pass2",
@@ -5350,7 +5526,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Alice is so happy!"
     },
     {
       "id": "alice.young.o_exam_fail",
@@ -5362,7 +5539,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "alice.young.o_exam_fail2",
@@ -5374,7 +5552,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice failed...? Waaah..."
     },
     {
       "id": "alice.young.o_badge_proud",
@@ -5386,7 +5565,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Alice's badge! Isn't it great?"
     },
     {
       "id": "alice.young.o_shop_appeal",
@@ -5398,7 +5578,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Alice! Let's stay together!"
     },
     {
       "id": "alice.young.o_shop_appeal2",
@@ -5410,7 +5591,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Alice is a really good one!"
     },
     {
       "id": "alice.young.o_shop_bought",
@@ -5422,7 +5604,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "alice.young.o_shop_sold_sad",
@@ -5434,7 +5617,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Alice..."
     },
     {
       "id": "alice.young.o_shop_sold_proud",
@@ -5446,7 +5630,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Alice is going to a better home! Bye-bye!"
     },
     {
       "id": "alice.young.o_wild_role_beg",
@@ -5458,7 +5643,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "alice.young.o_wild_role_provoke",
@@ -5470,7 +5656,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Alice! You're no fun!"
     },
     {
       "id": "alice.young.o_lesson_praised",
@@ -5482,7 +5669,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Alice is happy!"
     },
     {
       "id": "alice.young.o_lesson_praised2",
@@ -5494,7 +5682,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "alice.young.o_lesson_scolded",
@@ -5506,7 +5695,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Alice will fix it properly..."
     },
     {
       "id": "alice.young.o_badge_envy",
@@ -5518,7 +5708,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Alice wants that badge too."
     },
     {
       "id": "alice.young.o_badge_admire",
@@ -5530,7 +5721,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Alice too!"
     },
     {
       "id": "chen.adult.o_exam_nervous",
@@ -5542,7 +5734,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "chen.adult.o_exam_nervous2",
@@ -5554,7 +5747,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Chen will do my best!"
     },
     {
       "id": "chen.adult.o_exam_answer",
@@ -5566,7 +5760,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Chen knows this!"
     },
     {
       "id": "chen.adult.o_exam_unsure",
@@ -5578,7 +5773,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "chen.adult.o_exam_hide_fail",
@@ -5590,7 +5786,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen isn't here! Nobody's here!"
     },
     {
       "id": "chen.adult.o_exam_promise_wait",
@@ -5602,7 +5799,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "chen.adult.o_exam_promise_wait2",
@@ -5614,7 +5812,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "chen.adult.o_exam_promise_fail",
@@ -5626,7 +5825,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Chen?!"
     },
     {
       "id": "chen.adult.o_exam_promise_fail2",
@@ -5638,7 +5838,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen was waiting too! Hmph!"
     },
     {
       "id": "chen.adult.o_exam_report",
@@ -5650,7 +5851,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "chen.adult.o_exam_sorry",
@@ -5662,7 +5864,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Chen got it wrong..."
     },
     {
       "id": "chen.adult.o_exam_pass",
@@ -5674,7 +5877,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Chen can relax now!"
     },
     {
       "id": "chen.adult.o_exam_pass2",
@@ -5686,7 +5890,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Chen is so happy!"
     },
     {
       "id": "chen.adult.o_exam_fail",
@@ -5698,7 +5903,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "chen.adult.o_exam_fail2",
@@ -5710,7 +5916,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen failed...? Waaah..."
     },
     {
       "id": "chen.adult.o_badge_proud",
@@ -5722,7 +5929,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Chen's badge! Isn't it great?"
     },
     {
       "id": "chen.adult.o_shop_appeal",
@@ -5734,7 +5942,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Chen! Let's stay together!"
     },
     {
       "id": "chen.adult.o_shop_appeal2",
@@ -5746,7 +5955,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Chen is a really good one!"
     },
     {
       "id": "chen.adult.o_shop_bought",
@@ -5758,7 +5968,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "chen.adult.o_shop_sold_sad",
@@ -5770,7 +5981,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Chen..."
     },
     {
       "id": "chen.adult.o_shop_sold_proud",
@@ -5782,7 +5994,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen is going to a better home! Bye-bye!"
     },
     {
       "id": "chen.adult.o_wild_role_beg",
@@ -5794,7 +6007,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "chen.adult.o_wild_role_provoke",
@@ -5806,7 +6020,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Chen! You're no fun!"
     },
     {
       "id": "chen.adult.o_lesson_praised",
@@ -5818,7 +6033,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Chen is happy!"
     },
     {
       "id": "chen.adult.o_lesson_praised2",
@@ -5830,7 +6046,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "chen.adult.o_lesson_scolded",
@@ -5842,7 +6059,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Chen will fix it properly..."
     },
     {
       "id": "chen.adult.o_badge_envy",
@@ -5854,7 +6072,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Chen wants that badge too."
     },
     {
       "id": "chen.adult.o_badge_admire",
@@ -5866,7 +6085,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Chen too!"
     },
     {
       "id": "chen.young.o_exam_nervous",
@@ -5878,7 +6098,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "chen.young.o_exam_nervous2",
@@ -5890,7 +6111,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm nervous, but Chen will do my best!"
     },
     {
       "id": "chen.young.o_exam_answer",
@@ -5902,7 +6124,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yes! Chen knows this!"
     },
     {
       "id": "chen.young.o_exam_unsure",
@@ -5914,7 +6137,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "chen.young.o_exam_hide_fail",
@@ -5926,7 +6150,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen isn't here! Nobody's here!"
     },
     {
       "id": "chen.young.o_exam_promise_wait",
@@ -5938,7 +6163,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "chen.young.o_exam_promise_wait2",
@@ -5950,7 +6176,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "chen.young.o_exam_promise_fail",
@@ -5962,7 +6189,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Unfair! Why not Chen?!"
     },
     {
       "id": "chen.young.o_exam_promise_fail2",
@@ -5974,7 +6202,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen was waiting too! Hmph!"
     },
     {
       "id": "chen.young.o_exam_report",
@@ -5986,7 +6215,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "chen.young.o_exam_sorry",
@@ -5998,7 +6228,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Chen got it wrong..."
     },
     {
       "id": "chen.young.o_exam_pass",
@@ -6010,7 +6241,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Yay! A badge! Chen can relax now!"
     },
     {
       "id": "chen.young.o_exam_pass2",
@@ -6022,7 +6254,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Chen is so happy!"
     },
     {
       "id": "chen.young.o_exam_fail",
@@ -6034,7 +6267,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "chen.young.o_exam_fail2",
@@ -6046,7 +6280,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen failed...? Waaah..."
     },
     {
       "id": "chen.young.o_badge_proud",
@@ -6058,7 +6293,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Look at Chen's badge! Isn't it great?"
     },
     {
       "id": "chen.young.o_shop_appeal",
@@ -6070,7 +6306,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Please buy Chen! Let's stay together!"
     },
     {
       "id": "chen.young.o_shop_appeal2",
@@ -6082,7 +6319,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Chen is a really good one!"
     },
     {
       "id": "chen.young.o_shop_bought",
@@ -6094,7 +6332,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "chen.young.o_shop_sold_sad",
@@ -6106,7 +6345,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Why...? Don't forget Chen..."
     },
     {
       "id": "chen.young.o_shop_sold_proud",
@@ -6118,7 +6358,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Chen is going to a better home! Bye-bye!"
     },
     {
       "id": "chen.young.o_wild_role_beg",
@@ -6130,7 +6371,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "chen.young.o_wild_role_provoke",
@@ -6142,7 +6384,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "That badge means nothing to Chen! You're no fun!"
     },
     {
       "id": "chen.young.o_lesson_praised",
@@ -6154,7 +6397,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Hehe, I was praised! Chen is happy!"
     },
     {
       "id": "chen.young.o_lesson_praised2",
@@ -6166,7 +6410,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "chen.young.o_lesson_scolded",
@@ -6178,7 +6423,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm sorry... Chen will fix it properly..."
     },
     {
       "id": "chen.young.o_badge_envy",
@@ -6190,7 +6436,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'm jealous... Chen wants that badge too."
     },
     {
       "id": "chen.young.o_badge_admire",
@@ -6202,7 +6449,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Amazing! Teach Chen too!"
     },
     {
       "id": "patchouli.adult.o_exam_nervous",
@@ -6214,7 +6462,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "patchouli.adult.o_exam_nervous2",
@@ -6226,7 +6475,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm nervous, but Patchouli will do my best!"
     },
     {
       "id": "patchouli.adult.o_exam_answer",
@@ -6238,7 +6488,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Yes! Patchouli knows this!"
     },
     {
       "id": "patchouli.adult.o_exam_unsure",
@@ -6250,7 +6501,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Um... huh...? What was it again..."
     },
     {
       "id": "patchouli.adult.o_exam_hide_fail",
@@ -6262,7 +6514,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Patchouli isn't here! Nobody's here!"
     },
     {
       "id": "patchouli.adult.o_exam_promise_wait",
@@ -6274,7 +6527,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "patchouli.adult.o_exam_promise_wait2",
@@ -6286,7 +6540,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "patchouli.adult.o_exam_promise_fail",
@@ -6298,7 +6553,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Unfair! Why not Patchouli?!"
     },
     {
       "id": "patchouli.adult.o_exam_promise_fail2",
@@ -6310,7 +6566,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Patchouli was waiting too! Hmph!"
     },
     {
       "id": "patchouli.adult.o_exam_report",
@@ -6322,7 +6579,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Human, there's a wild one over there!"
     },
     {
       "id": "patchouli.adult.o_exam_sorry",
@@ -6334,7 +6592,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm sorry... Patchouli got it wrong..."
     },
     {
       "id": "patchouli.adult.o_exam_pass",
@@ -6346,7 +6605,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Yay! A badge! Patchouli can relax now!"
     },
     {
       "id": "patchouli.adult.o_exam_pass2",
@@ -6358,7 +6618,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Patchouli is so happy!"
     },
     {
       "id": "patchouli.adult.o_exam_fail",
@@ -6370,7 +6631,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Why... why is this happening...!"
     },
     {
       "id": "patchouli.adult.o_exam_fail2",
@@ -6382,7 +6644,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Patchouli failed...? Waaah..."
     },
     {
       "id": "patchouli.adult.o_badge_proud",
@@ -6394,7 +6657,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Look at Patchouli's badge! Isn't it great?"
     },
     {
       "id": "patchouli.adult.o_shop_appeal",
@@ -6406,7 +6670,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Please buy Patchouli! Let's stay together!"
     },
     {
       "id": "patchouli.adult.o_shop_appeal2",
@@ -6418,7 +6683,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Patchouli is a really good one!"
     },
     {
       "id": "patchouli.adult.o_shop_bought",
@@ -6430,7 +6696,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... A new home! Please take care of me!"
     },
     {
       "id": "patchouli.adult.o_shop_sold_sad",
@@ -6442,7 +6709,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Why...? Don't forget Patchouli..."
     },
     {
       "id": "patchouli.adult.o_shop_sold_proud",
@@ -6454,7 +6722,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Patchouli is going to a better home! Bye-bye!"
     },
     {
       "id": "patchouli.adult.o_wild_role_beg",
@@ -6466,7 +6735,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Give me something yummy! Open this!"
     },
     {
       "id": "patchouli.adult.o_wild_role_provoke",
@@ -6478,7 +6748,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... That badge means nothing to Patchouli! You're no fun!"
     },
     {
       "id": "patchouli.adult.o_lesson_praised",
@@ -6490,7 +6761,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Hehe, I was praised! Patchouli is happy!"
     },
     {
       "id": "patchouli.adult.o_lesson_praised2",
@@ -6502,7 +6774,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "patchouli.adult.o_lesson_scolded",
@@ -6514,7 +6787,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm sorry... Patchouli will fix it properly..."
     },
     {
       "id": "patchouli.adult.o_badge_envy",
@@ -6526,7 +6800,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm jealous... Patchouli wants that badge too."
     },
     {
       "id": "patchouli.adult.o_badge_admire",
@@ -6538,7 +6813,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Amazing! Teach Patchouli too!"
     },
     {
       "id": "patchouli.young.o_exam_nervous",
@@ -6550,7 +6826,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "patchouli.young.o_exam_nervous2",
@@ -6562,7 +6839,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm nervous, but Patchouli will do my best!"
     },
     {
       "id": "patchouli.young.o_exam_answer",
@@ -6574,7 +6852,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Yes! Patchouli knows this!"
     },
     {
       "id": "patchouli.young.o_exam_unsure",
@@ -6586,7 +6865,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Um... huh...? What was it again..."
     },
     {
       "id": "patchouli.young.o_exam_hide_fail",
@@ -6598,7 +6878,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Patchouli isn't here! Nobody's here!"
     },
     {
       "id": "patchouli.young.o_exam_promise_wait",
@@ -6610,7 +6891,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "patchouli.young.o_exam_promise_wait2",
@@ -6622,7 +6904,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "patchouli.young.o_exam_promise_fail",
@@ -6634,7 +6917,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Unfair! Why not Patchouli?!"
     },
     {
       "id": "patchouli.young.o_exam_promise_fail2",
@@ -6646,7 +6930,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Patchouli was waiting too! Hmph!"
     },
     {
       "id": "patchouli.young.o_exam_report",
@@ -6658,7 +6943,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Human, there's a wild one over there!"
     },
     {
       "id": "patchouli.young.o_exam_sorry",
@@ -6670,7 +6956,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm sorry... Patchouli got it wrong..."
     },
     {
       "id": "patchouli.young.o_exam_pass",
@@ -6682,7 +6969,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Yay! A badge! Patchouli can relax now!"
     },
     {
       "id": "patchouli.young.o_exam_pass2",
@@ -6694,7 +6982,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Patchouli is so happy!"
     },
     {
       "id": "patchouli.young.o_exam_fail",
@@ -6706,7 +6995,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Why... why is this happening...!"
     },
     {
       "id": "patchouli.young.o_exam_fail2",
@@ -6718,7 +7008,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Patchouli failed...? Waaah..."
     },
     {
       "id": "patchouli.young.o_badge_proud",
@@ -6730,7 +7021,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Look at Patchouli's badge! Isn't it great?"
     },
     {
       "id": "patchouli.young.o_shop_appeal",
@@ -6742,7 +7034,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Please buy Patchouli! Let's stay together!"
     },
     {
       "id": "patchouli.young.o_shop_appeal2",
@@ -6754,7 +7047,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Patchouli is a really good one!"
     },
     {
       "id": "patchouli.young.o_shop_bought",
@@ -6766,7 +7060,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... A new home! Please take care of me!"
     },
     {
       "id": "patchouli.young.o_shop_sold_sad",
@@ -6778,7 +7073,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Why...? Don't forget Patchouli..."
     },
     {
       "id": "patchouli.young.o_shop_sold_proud",
@@ -6790,7 +7086,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Patchouli is going to a better home! Bye-bye!"
     },
     {
       "id": "patchouli.young.o_wild_role_beg",
@@ -6802,7 +7099,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Give me something yummy! Open this!"
     },
     {
       "id": "patchouli.young.o_wild_role_provoke",
@@ -6814,7 +7112,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... That badge means nothing to Patchouli! You're no fun!"
     },
     {
       "id": "patchouli.young.o_lesson_praised",
@@ -6826,7 +7125,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Hehe, I was praised! Patchouli is happy!"
     },
     {
       "id": "patchouli.young.o_lesson_praised2",
@@ -6838,7 +7138,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "patchouli.young.o_lesson_scolded",
@@ -6850,7 +7151,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm sorry... Patchouli will fix it properly..."
     },
     {
       "id": "patchouli.young.o_badge_envy",
@@ -6862,7 +7164,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... I'm jealous... Patchouli wants that badge too."
     },
     {
       "id": "patchouli.young.o_badge_admire",
@@ -6874,7 +7177,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Mukyu... Amazing! Teach Patchouli too!"
     },
     {
       "id": "remilia.adult.o_exam_nervous",
@@ -6886,7 +7190,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "remilia.adult.o_exam_nervous2",
@@ -6898,7 +7203,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm nervous, but Remilia will do my best!"
     },
     {
       "id": "remilia.adult.o_exam_answer",
@@ -6910,7 +7216,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yes! Remilia knows this!"
     },
     {
       "id": "remilia.adult.o_exam_unsure",
@@ -6922,7 +7229,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "remilia.adult.o_exam_hide_fail",
@@ -6934,7 +7242,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Remilia isn't here! Nobody's here!"
     },
     {
       "id": "remilia.adult.o_exam_promise_wait",
@@ -6946,7 +7255,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "remilia.adult.o_exam_promise_wait2",
@@ -6958,7 +7268,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "remilia.adult.o_exam_promise_fail",
@@ -6970,7 +7281,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Unfair! Why not Remilia?!"
     },
     {
       "id": "remilia.adult.o_exam_promise_fail2",
@@ -6982,7 +7294,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Remilia was waiting too! Hmph!"
     },
     {
       "id": "remilia.adult.o_exam_report",
@@ -6994,7 +7307,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "remilia.adult.o_exam_sorry",
@@ -7006,7 +7320,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Remilia got it wrong..."
     },
     {
       "id": "remilia.adult.o_exam_pass",
@@ -7018,7 +7333,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yay! A badge! Remilia can relax now!"
     },
     {
       "id": "remilia.adult.o_exam_pass2",
@@ -7030,7 +7346,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Remilia is so happy!"
     },
     {
       "id": "remilia.adult.o_exam_fail",
@@ -7042,7 +7359,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "remilia.adult.o_exam_fail2",
@@ -7054,7 +7372,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Remilia failed...? Waaah..."
     },
     {
       "id": "remilia.adult.o_badge_proud",
@@ -7066,7 +7385,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Look at Remilia's badge! Isn't it great?"
     },
     {
       "id": "remilia.adult.o_shop_appeal",
@@ -7078,7 +7398,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Please buy Remilia! Let's stay together!"
     },
     {
       "id": "remilia.adult.o_shop_appeal2",
@@ -7090,7 +7411,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Remilia is a really good one!"
     },
     {
       "id": "remilia.adult.o_shop_bought",
@@ -7102,7 +7424,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "remilia.adult.o_shop_sold_sad",
@@ -7114,7 +7437,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why...? Don't forget Remilia..."
     },
     {
       "id": "remilia.adult.o_shop_sold_proud",
@@ -7126,7 +7450,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Remilia is going to a better home! Bye-bye!"
     },
     {
       "id": "remilia.adult.o_wild_role_beg",
@@ -7138,7 +7463,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "remilia.adult.o_wild_role_provoke",
@@ -7150,7 +7476,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... That badge means nothing to Remilia! You're no fun!"
     },
     {
       "id": "remilia.adult.o_lesson_praised",
@@ -7162,7 +7489,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hehe, I was praised! Remilia is happy!"
     },
     {
       "id": "remilia.adult.o_lesson_praised2",
@@ -7174,7 +7502,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "remilia.adult.o_lesson_scolded",
@@ -7186,7 +7515,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Remilia will fix it properly..."
     },
     {
       "id": "remilia.adult.o_badge_envy",
@@ -7198,7 +7528,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm jealous... Remilia wants that badge too."
     },
     {
       "id": "remilia.adult.o_badge_admire",
@@ -7210,7 +7541,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Amazing! Teach Remilia too!"
     },
     {
       "id": "remilia.young.o_exam_nervous",
@@ -7222,7 +7554,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "remilia.young.o_exam_nervous2",
@@ -7234,7 +7567,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm nervous, but Remilia will do my best!"
     },
     {
       "id": "remilia.young.o_exam_answer",
@@ -7246,7 +7580,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yes! Remilia knows this!"
     },
     {
       "id": "remilia.young.o_exam_unsure",
@@ -7258,7 +7593,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "remilia.young.o_exam_hide_fail",
@@ -7270,7 +7606,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Remilia isn't here! Nobody's here!"
     },
     {
       "id": "remilia.young.o_exam_promise_wait",
@@ -7282,7 +7619,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "remilia.young.o_exam_promise_wait2",
@@ -7294,7 +7632,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "remilia.young.o_exam_promise_fail",
@@ -7306,7 +7645,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Unfair! Why not Remilia?!"
     },
     {
       "id": "remilia.young.o_exam_promise_fail2",
@@ -7318,7 +7658,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Remilia was waiting too! Hmph!"
     },
     {
       "id": "remilia.young.o_exam_report",
@@ -7330,7 +7671,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "remilia.young.o_exam_sorry",
@@ -7342,7 +7684,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Remilia got it wrong..."
     },
     {
       "id": "remilia.young.o_exam_pass",
@@ -7354,7 +7697,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yay! A badge! Remilia can relax now!"
     },
     {
       "id": "remilia.young.o_exam_pass2",
@@ -7366,7 +7710,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Remilia is so happy!"
     },
     {
       "id": "remilia.young.o_exam_fail",
@@ -7378,7 +7723,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "remilia.young.o_exam_fail2",
@@ -7390,7 +7736,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Remilia failed...? Waaah..."
     },
     {
       "id": "remilia.young.o_badge_proud",
@@ -7402,7 +7749,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Look at Remilia's badge! Isn't it great?"
     },
     {
       "id": "remilia.young.o_shop_appeal",
@@ -7414,7 +7762,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Please buy Remilia! Let's stay together!"
     },
     {
       "id": "remilia.young.o_shop_appeal2",
@@ -7426,7 +7775,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Remilia is a really good one!"
     },
     {
       "id": "remilia.young.o_shop_bought",
@@ -7438,7 +7788,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "remilia.young.o_shop_sold_sad",
@@ -7450,7 +7801,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why...? Don't forget Remilia..."
     },
     {
       "id": "remilia.young.o_shop_sold_proud",
@@ -7462,7 +7814,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Remilia is going to a better home! Bye-bye!"
     },
     {
       "id": "remilia.young.o_wild_role_beg",
@@ -7474,7 +7827,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "remilia.young.o_wild_role_provoke",
@@ -7486,7 +7840,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... That badge means nothing to Remilia! You're no fun!"
     },
     {
       "id": "remilia.young.o_lesson_praised",
@@ -7498,7 +7853,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hehe, I was praised! Remilia is happy!"
     },
     {
       "id": "remilia.young.o_lesson_praised2",
@@ -7510,7 +7866,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "remilia.young.o_lesson_scolded",
@@ -7522,7 +7879,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Remilia will fix it properly..."
     },
     {
       "id": "remilia.young.o_badge_envy",
@@ -7534,7 +7892,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm jealous... Remilia wants that badge too."
     },
     {
       "id": "remilia.young.o_badge_admire",
@@ -7546,7 +7905,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Amazing! Teach Remilia too!"
     },
     {
       "id": "flandre.adult.o_exam_nervous",
@@ -7558,7 +7918,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "flandre.adult.o_exam_nervous2",
@@ -7570,7 +7931,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm nervous, but Flandre will do my best!"
     },
     {
       "id": "flandre.adult.o_exam_answer",
@@ -7582,7 +7944,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yes! Flandre knows this!"
     },
     {
       "id": "flandre.adult.o_exam_unsure",
@@ -7594,7 +7957,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "flandre.adult.o_exam_hide_fail",
@@ -7606,7 +7970,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Flandre isn't here! Nobody's here!"
     },
     {
       "id": "flandre.adult.o_exam_promise_wait",
@@ -7618,7 +7983,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "flandre.adult.o_exam_promise_wait2",
@@ -7630,7 +7996,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "flandre.adult.o_exam_promise_fail",
@@ -7642,7 +8009,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Unfair! Why not Flandre?!"
     },
     {
       "id": "flandre.adult.o_exam_promise_fail2",
@@ -7654,7 +8022,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Flandre was waiting too! Hmph!"
     },
     {
       "id": "flandre.adult.o_exam_report",
@@ -7666,7 +8035,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "flandre.adult.o_exam_sorry",
@@ -7678,7 +8048,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Flandre got it wrong..."
     },
     {
       "id": "flandre.adult.o_exam_pass",
@@ -7690,7 +8061,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yay! A badge! Flandre can relax now!"
     },
     {
       "id": "flandre.adult.o_exam_pass2",
@@ -7702,7 +8074,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Flandre is so happy!"
     },
     {
       "id": "flandre.adult.o_exam_fail",
@@ -7714,7 +8087,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "flandre.adult.o_exam_fail2",
@@ -7726,7 +8100,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Flandre failed...? Waaah..."
     },
     {
       "id": "flandre.adult.o_badge_proud",
@@ -7738,7 +8113,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Look at Flandre's badge! Isn't it great?"
     },
     {
       "id": "flandre.adult.o_shop_appeal",
@@ -7750,7 +8126,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Please buy Flandre! Let's stay together!"
     },
     {
       "id": "flandre.adult.o_shop_appeal2",
@@ -7762,7 +8139,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Flandre is a really good one!"
     },
     {
       "id": "flandre.adult.o_shop_bought",
@@ -7774,7 +8152,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "flandre.adult.o_shop_sold_sad",
@@ -7786,7 +8165,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why...? Don't forget Flandre..."
     },
     {
       "id": "flandre.adult.o_shop_sold_proud",
@@ -7798,7 +8178,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Flandre is going to a better home! Bye-bye!"
     },
     {
       "id": "flandre.adult.o_wild_role_beg",
@@ -7810,7 +8191,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "flandre.adult.o_wild_role_provoke",
@@ -7822,7 +8204,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... That badge means nothing to Flandre! You're no fun!"
     },
     {
       "id": "flandre.adult.o_lesson_praised",
@@ -7834,7 +8217,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hehe, I was praised! Flandre is happy!"
     },
     {
       "id": "flandre.adult.o_lesson_praised2",
@@ -7846,7 +8230,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "flandre.adult.o_lesson_scolded",
@@ -7858,7 +8243,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Flandre will fix it properly..."
     },
     {
       "id": "flandre.adult.o_badge_envy",
@@ -7870,7 +8256,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm jealous... Flandre wants that badge too."
     },
     {
       "id": "flandre.adult.o_badge_admire",
@@ -7882,7 +8269,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Amazing! Teach Flandre too!"
     },
     {
       "id": "flandre.young.o_exam_nervous",
@@ -7894,7 +8282,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "flandre.young.o_exam_nervous2",
@@ -7906,7 +8295,8 @@
         "exam_nervous"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm nervous, but Flandre will do my best!"
     },
     {
       "id": "flandre.young.o_exam_answer",
@@ -7918,7 +8308,8 @@
         "exam_answer"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yes! Flandre knows this!"
     },
     {
       "id": "flandre.young.o_exam_unsure",
@@ -7930,7 +8321,8 @@
         "exam_unsure"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "flandre.young.o_exam_hide_fail",
@@ -7942,7 +8334,8 @@
         "exam_hide_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Flandre isn't here! Nobody's here!"
     },
     {
       "id": "flandre.young.o_exam_promise_wait",
@@ -7954,7 +8347,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "flandre.young.o_exam_promise_wait2",
@@ -7966,7 +8360,8 @@
         "exam_promise_wait"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "flandre.young.o_exam_promise_fail",
@@ -7978,7 +8373,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Unfair! Why not Flandre?!"
     },
     {
       "id": "flandre.young.o_exam_promise_fail2",
@@ -7990,7 +8386,8 @@
         "exam_promise_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Flandre was waiting too! Hmph!"
     },
     {
       "id": "flandre.young.o_exam_report",
@@ -8002,7 +8399,8 @@
         "exam_report"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "flandre.young.o_exam_sorry",
@@ -8014,7 +8412,8 @@
         "exam_sorry"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Flandre got it wrong..."
     },
     {
       "id": "flandre.young.o_exam_pass",
@@ -8026,7 +8425,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Yay! A badge! Flandre can relax now!"
     },
     {
       "id": "flandre.young.o_exam_pass2",
@@ -8038,7 +8438,8 @@
         "exam_pass"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Thank you, human! Flandre is so happy!"
     },
     {
       "id": "flandre.young.o_exam_fail",
@@ -8050,7 +8451,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "flandre.young.o_exam_fail2",
@@ -8062,7 +8464,8 @@
         "exam_fail"
       ],
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Flandre failed...? Waaah..."
     },
     {
       "id": "flandre.young.o_badge_proud",
@@ -8074,7 +8477,8 @@
         "badge_proud"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Look at Flandre's badge! Isn't it great?"
     },
     {
       "id": "flandre.young.o_shop_appeal",
@@ -8086,7 +8490,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Please buy Flandre! Let's stay together!"
     },
     {
       "id": "flandre.young.o_shop_appeal2",
@@ -8098,7 +8503,8 @@
         "shop_appeal"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Here, here! Flandre is a really good one!"
     },
     {
       "id": "flandre.young.o_shop_bought",
@@ -8110,7 +8516,8 @@
         "shop_bought"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "flandre.young.o_shop_sold_sad",
@@ -8122,7 +8529,8 @@
         "shop_sold_sad"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Why...? Don't forget Flandre..."
     },
     {
       "id": "flandre.young.o_shop_sold_proud",
@@ -8134,7 +8542,8 @@
         "shop_sold_proud"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Flandre is going to a better home! Bye-bye!"
     },
     {
       "id": "flandre.young.o_wild_role_beg",
@@ -8146,7 +8555,8 @@
         "wild_role_beg"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "flandre.young.o_wild_role_provoke",
@@ -8158,7 +8568,8 @@
         "wild_role_provoke"
       ],
       "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... That badge means nothing to Flandre! You're no fun!"
     },
     {
       "id": "flandre.young.o_lesson_praised",
@@ -8170,7 +8581,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Hehe, I was praised! Flandre is happy!"
     },
     {
       "id": "flandre.young.o_lesson_praised2",
@@ -8182,7 +8594,8 @@
         "lesson_praised"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "flandre.young.o_lesson_scolded",
@@ -8194,7 +8607,8 @@
         "lesson_scolded"
       ],
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm sorry... Flandre will fix it properly..."
     },
     {
       "id": "flandre.young.o_badge_envy",
@@ -8206,7 +8620,8 @@
         "badge_envy"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... I'm jealous... Flandre wants that badge too."
     },
     {
       "id": "flandre.young.o_badge_admire",
@@ -8218,7 +8633,8 @@
         "badge_admire"
       ],
       "basis": "项目原创；徽章炫耀、羡慕与钦佩参考 L19 羡慕母题，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；尚未配音。",
-      "audio_status": "unvoiced"
+      "audio_status": "unvoiced",
+      "english": "Uu... Amazing! Teach Flandre too!"
     },
     {
       "id": "reimu.adult.o_date_meet",
@@ -8679,8 +9095,8 @@
       "id": "marisa.adult.o_spray_drowsy2",
       "species": "marisa",
       "age": "adult",
-      "japanese": "あしに ちからが はいらないのぜ……ぜぇ……。",
-      "chinese": "腿使不上力了贼……。",
+      "japanese": "からだに ちからが はいらないのぜ……ぜぇ……。",
+      "chinese": "身子使不上力了贼……。",
       "english": "So floaty... my strength is going...",
       "events": [
         "spray_drowsy"

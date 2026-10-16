@@ -344,7 +344,8 @@
       "source_sha256": "b94e6922e5ae4ac5c75244f88da916522814141d7cb5af377202c6570655d88e",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I can wait here now."
     },
     {
       "id": "marisa.adult.l1982",
@@ -875,7 +876,8 @@
       "source_sha256": "1b20b898a6af1a76d89c101441181870dddc4b000fbadcf47bbd3d61c2b7d0d9",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I can wait here!"
     },
     {
       "id": "marisa.young.l1982",
@@ -1406,7 +1408,8 @@
       "source_sha256": "dae6ef0d8be37674747566afab19d542aff4570237b456bd87dd147e7123932a",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I can wait here now."
     },
     {
       "id": "reimu.adult.l1982",
@@ -1937,7 +1940,8 @@
       "source_sha256": "13f76a4c7c5cb2b2baaecb6c1358c374c8660e7e510d52c0afe2b3b5859ff499",
       "events": [
         "lesson_learned"
-      ]
+      ],
+      "english": "I can wait here!"
     },
     {
       "id": "reimu.young.l1982",
@@ -4207,7 +4211,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_praise"
       },
-      "source_sha256": "c0cb91b08648dfcc6bb78c41ba0bf571a85b8c7f82040cfaeeaf2564118b7717"
+      "source_sha256": "c0cb91b08648dfcc6bb78c41ba0bf571a85b8c7f82040cfaeeaf2564118b7717",
+      "english": "I can wait here now."
     },
     {
       "id": "chen.adult.o_try",
@@ -4225,7 +4230,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_try"
       },
-      "source_sha256": "d0d7f73f17819214370b2e8a1cdd98bd622665229e62b54ca8fe1d3e9add7177"
+      "source_sha256": "d0d7f73f17819214370b2e8a1cdd98bd622665229e62b54ca8fe1d3e9add7177",
+      "english": "So it's practice for waiting here."
     },
     {
       "id": "chen.adult.o_lost",
@@ -4552,7 +4558,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_praise"
       },
-      "source_sha256": "47eb33cf62e0de9cddf58986a2bf83370e26801c1e7d50d0a539f618c78b2e9a"
+      "source_sha256": "47eb33cf62e0de9cddf58986a2bf83370e26801c1e7d50d0a539f618c78b2e9a",
+      "english": "I can wait here!"
     },
     {
       "id": "chen.young.o_try",
@@ -4570,7 +4577,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_try"
       },
-      "source_sha256": "c653403bf77db3928e28d3eada5458938030bb79f290968bd46c67f0bf5b5551"
+      "source_sha256": "c653403bf77db3928e28d3eada5458938030bb79f290968bd46c67f0bf5b5551",
+      "english": "We wait here?"
     },
     {
       "id": "chen.young.o_lost",
@@ -4897,7 +4905,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_praise"
       },
-      "source_sha256": "e84ecbf1ee3345a6241adec33a773d41b3da8c92f28a1c621340864a94af38f5"
+      "source_sha256": "e84ecbf1ee3345a6241adec33a773d41b3da8c92f28a1c621340864a94af38f5",
+      "english": "Mukyu... I can wait here now."
     },
     {
       "id": "patchouli.adult.o_try",
@@ -4915,7 +4924,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_try"
       },
-      "source_sha256": "21d73c982d4146db9343e2c63cd35096135594503c184f810698f97df52eec6e"
+      "source_sha256": "21d73c982d4146db9343e2c63cd35096135594503c184f810698f97df52eec6e",
+      "english": "Mukyu... So it's practice for waiting here."
     },
     {
       "id": "patchouli.adult.o_lost",
@@ -5242,7 +5252,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_praise"
       },
-      "source_sha256": "41d97b4e9e16a0da24592165dd2ef0dc21a13878f2b79ad2aaef9f513f208190"
+      "source_sha256": "41d97b4e9e16a0da24592165dd2ef0dc21a13878f2b79ad2aaef9f513f208190",
+      "english": "Mukyu... I can wait here!"
     },
     {
       "id": "patchouli.young.o_try",
@@ -5260,7 +5271,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_try"
       },
-      "source_sha256": "29410c35a042473c90d288e8bea84d5b6ef5716d5a9c690030c18f5896687cf4"
+      "source_sha256": "29410c35a042473c90d288e8bea84d5b6ef5716d5a9c690030c18f5896687cf4",
+      "english": "Mukyu... We wait here?"
     },
     {
       "id": "patchouli.young.o_lost",
@@ -6566,7 +6578,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_refuse"
       },
-      "source_sha256": "f46b5acbeaa6272d92da3cedfd0cc3583a0c557952d766458e358bd89dc64ba7"
+      "source_sha256": "f46b5acbeaa6272d92da3cedfd0cc3583a0c557952d766458e358bd89dc64ba7",
+      "english": "I can't settle down now. Let's practice later."
     },
     {
       "id": "remilia.adult.o_start",
@@ -6582,7 +6595,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_start"
       },
-      "source_sha256": "0eb4ccc989bc8d4a9cb93e92b054d57cbe42a6fead32a76a93673e0a1a337b66"
+      "source_sha256": "0eb4ccc989bc8d4a9cb93e92b054d57cbe42a6fead32a76a93673e0a1a337b66",
+      "english": "Uu... So it's practice for waiting here."
     },
     {
       "id": "remilia.adult.o_progress",
@@ -6598,7 +6612,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_progress"
       },
-      "source_sha256": "11cd7969c0a05404ff8aaf768b2b76e0319c6d36beb501a7428f1d7a79a8df3b"
+      "source_sha256": "11cd7969c0a05404ff8aaf768b2b76e0319c6d36beb501a7428f1d7a79a8df3b",
+      "english": "I get it a little. Let me try once more."
     },
     {
       "id": "remilia.adult.o_learned",
@@ -6615,7 +6630,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_learned"
       },
-      "source_sha256": "02f6a4ef837a40912429f62f886bd788ba1d0dcd2773f84a2ee884f3de2961c1"
+      "source_sha256": "02f6a4ef837a40912429f62f886bd788ba1d0dcd2773f84a2ee884f3de2961c1",
+      "english": "Uu... I can wait here now."
     },
     {
       "id": "remilia.adult.o_busy",
@@ -7186,7 +7202,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_refuse"
       },
-      "source_sha256": "692cc9a507072529110832af7d6e6beaa49560c6fb23f4bef8341d565916c8fd"
+      "source_sha256": "692cc9a507072529110832af7d6e6beaa49560c6fb23f4bef8341d565916c8fd",
+      "english": "Not now. Later."
     },
     {
       "id": "remilia.young.o_start",
@@ -7202,7 +7219,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_start"
       },
-      "source_sha256": "619976ff592203f173ebceaef2e7faf2469aee0230421126724d6cd7bc4cc26a"
+      "source_sha256": "619976ff592203f173ebceaef2e7faf2469aee0230421126724d6cd7bc4cc26a",
+      "english": "Uu... We wait here?"
     },
     {
       "id": "remilia.young.o_progress",
@@ -7218,7 +7236,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_progress"
       },
-      "source_sha256": "d0db4cf8649019a72bfb5c9b77436a8fa0ef86d79ee758ae8b401f00974dc03f"
+      "source_sha256": "d0db4cf8649019a72bfb5c9b77436a8fa0ef86d79ee758ae8b401f00974dc03f",
+      "english": "Got a little. Again!"
     },
     {
       "id": "remilia.young.o_learned",
@@ -7235,7 +7254,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_learned"
       },
-      "source_sha256": "8a6916d39bfb9c114119be8a5591ad191616be344425a5b9d21799281179eccf"
+      "source_sha256": "8a6916d39bfb9c114119be8a5591ad191616be344425a5b9d21799281179eccf",
+      "english": "Uu... I can wait here!"
     },
     {
       "id": "remilia.young.o_busy",
@@ -7806,7 +7826,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_refuse"
       },
-      "source_sha256": "04d6bd9b18a6d28ebe91e27460f29b07c88cf8f6deb7ee6b7507d7d478ba6a32"
+      "source_sha256": "04d6bd9b18a6d28ebe91e27460f29b07c88cf8f6deb7ee6b7507d7d478ba6a32",
+      "english": "I can't settle down now. Let's practice later."
     },
     {
       "id": "flandre.adult.o_start",
@@ -7822,7 +7843,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_start"
       },
-      "source_sha256": "b96ea7b3e41274af83fcff47ed9bd16dcd701f4f5a9b73f39d9bc7a5c192cbc5"
+      "source_sha256": "b96ea7b3e41274af83fcff47ed9bd16dcd701f4f5a9b73f39d9bc7a5c192cbc5",
+      "english": "Uu... So it's practice for waiting here."
     },
     {
       "id": "flandre.adult.o_progress",
@@ -7838,7 +7860,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_progress"
       },
-      "source_sha256": "e84687bdc6540f82791c03cf890db4a6f4652ad58e04c123b6d59119c3d339b2"
+      "source_sha256": "e84687bdc6540f82791c03cf890db4a6f4652ad58e04c123b6d59119c3d339b2",
+      "english": "I get it a little. Let me try once more."
     },
     {
       "id": "flandre.adult.o_learned",
@@ -7855,7 +7878,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_learned"
       },
-      "source_sha256": "6287058a62ab0af772a7418ee2384f03a37836dd54c47460b410aa11de9fc64d"
+      "source_sha256": "6287058a62ab0af772a7418ee2384f03a37836dd54c47460b410aa11de9fc64d",
+      "english": "Uu... I can wait here now."
     },
     {
       "id": "flandre.adult.o_busy",
@@ -8426,7 +8450,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_refuse"
       },
-      "source_sha256": "286e7f98aaeb8a64c8b0e9a9bcf64bd9f9033c6bce433b11421842b4e0dbe660"
+      "source_sha256": "286e7f98aaeb8a64c8b0e9a9bcf64bd9f9033c6bce433b11421842b4e0dbe660",
+      "english": "Not now. Later."
     },
     {
       "id": "flandre.young.o_start",
@@ -8442,7 +8467,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_start"
       },
-      "source_sha256": "2f17e516d6d9ab81bb3f05f8d5e15a29b83f48ff1976e9d455c70d2f935d1b05"
+      "source_sha256": "2f17e516d6d9ab81bb3f05f8d5e15a29b83f48ff1976e9d455c70d2f935d1b05",
+      "english": "Uu... We wait here?"
     },
     {
       "id": "flandre.young.o_progress",
@@ -8458,7 +8484,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_progress"
       },
-      "source_sha256": "c93321909d240937280c2e1de0cc5985695c7ffdb3869bdb69c96e1f69891d0d"
+      "source_sha256": "c93321909d240937280c2e1de0cc5985695c7ffdb3869bdb69c96e1f69891d0d",
+      "english": "Got a little. Again!"
     },
     {
       "id": "flandre.young.o_learned",
@@ -8475,7 +8502,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_learned"
       },
-      "source_sha256": "3109f29d395a5f5aff15895bf9b583749f54f2ef18edca4d3e611007288453dd"
+      "source_sha256": "3109f29d395a5f5aff15895bf9b583749f54f2ef18edca4d3e611007288453dd",
+      "english": "Uu... I can wait here!"
     },
     {
       "id": "flandre.young.o_busy",
@@ -8878,7 +8906,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_nervous"
       },
-      "source_sha256": "33bb80d9f4d29cd6af05fcd9942231532eb62632d146968bcd0c7cb433a52d6f"
+      "source_sha256": "33bb80d9f4d29cd6af05fcd9942231532eb62632d146968bcd0c7cb433a52d6f",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "reimu.adult.o_exam_nervous2",
@@ -8894,7 +8923,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_nervous2"
       },
-      "source_sha256": "1bae1b7bc83365c823aa3de960595b36e50c9d204aa03df66b50e0a07a7c9ef6"
+      "source_sha256": "1bae1b7bc83365c823aa3de960595b36e50c9d204aa03df66b50e0a07a7c9ef6",
+      "english": "I'm nervous, but Reimu will do my best!"
     },
     {
       "id": "reimu.adult.o_exam_answer",
@@ -8910,7 +8940,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_answer"
       },
-      "source_sha256": "61a743d5db86d953a5f3afc29a01e125671b00a6110233c81e54b357de104819"
+      "source_sha256": "61a743d5db86d953a5f3afc29a01e125671b00a6110233c81e54b357de104819",
+      "english": "Yes! Reimu knows this!"
     },
     {
       "id": "reimu.adult.o_exam_unsure",
@@ -8926,7 +8957,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_unsure"
       },
-      "source_sha256": "e55744c8a711b8d4a0702d7ecfb80d5a0309cdc86506a497eed888e02d7029d7"
+      "source_sha256": "e55744c8a711b8d4a0702d7ecfb80d5a0309cdc86506a497eed888e02d7029d7",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "reimu.adult.o_exam_hide_fail",
@@ -8942,7 +8974,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_hide_fail"
       },
-      "source_sha256": "d9fea32cd301d9e2ce7d0202e7c4c0edd14da9724707443654923a128a5236f4"
+      "source_sha256": "d9fea32cd301d9e2ce7d0202e7c4c0edd14da9724707443654923a128a5236f4",
+      "english": "Reimu isn't here! Nobody's here!"
     },
     {
       "id": "reimu.adult.o_exam_promise_wait",
@@ -8958,7 +8991,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_promise_wait"
       },
-      "source_sha256": "27d489eb4914edcd2ac105df449090b8ba71b639eeb56ae2010df0f880a47206"
+      "source_sha256": "27d489eb4914edcd2ac105df449090b8ba71b639eeb56ae2010df0f880a47206",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "reimu.adult.o_exam_promise_wait2",
@@ -8974,7 +9008,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "8dd850281ea5c07dbd7e8d90472d63f92609f729f42678207e3b1c88722a3bae"
+      "source_sha256": "8dd850281ea5c07dbd7e8d90472d63f92609f729f42678207e3b1c88722a3bae",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "reimu.adult.o_exam_promise_fail",
@@ -8990,7 +9025,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_promise_fail"
       },
-      "source_sha256": "79f9e09e6285e679fbde6a74bc249a089f6eee115e4393e1e47def9a7098590a"
+      "source_sha256": "79f9e09e6285e679fbde6a74bc249a089f6eee115e4393e1e47def9a7098590a",
+      "english": "Unfair! Why not Reimu?!"
     },
     {
       "id": "reimu.adult.o_exam_promise_fail2",
@@ -9006,7 +9042,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "64205651619e70e23a17354bd84354fd4beb9c9a0f2c054376706d5a6f2142ca"
+      "source_sha256": "64205651619e70e23a17354bd84354fd4beb9c9a0f2c054376706d5a6f2142ca",
+      "english": "Reimu was waiting too! Hmph!"
     },
     {
       "id": "reimu.adult.o_exam_report",
@@ -9022,7 +9059,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_report"
       },
-      "source_sha256": "c038174db1572ada71a3c22c9af408da429e964a5bf004e64680804ab34e664a"
+      "source_sha256": "c038174db1572ada71a3c22c9af408da429e964a5bf004e64680804ab34e664a",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "reimu.adult.o_exam_sorry",
@@ -9038,7 +9076,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_sorry"
       },
-      "source_sha256": "aba02f83674ebed6c99e423d13f9f9c018fc34a8a842947e31c95fea2ed168a3"
+      "source_sha256": "aba02f83674ebed6c99e423d13f9f9c018fc34a8a842947e31c95fea2ed168a3",
+      "english": "I'm sorry... Reimu got it wrong..."
     },
     {
       "id": "reimu.adult.o_exam_pass",
@@ -9054,7 +9093,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_pass"
       },
-      "source_sha256": "06ede902654cc725b4f49ae60b327de619361df71a6c48b7eaae2a99bf6ba974"
+      "source_sha256": "06ede902654cc725b4f49ae60b327de619361df71a6c48b7eaae2a99bf6ba974",
+      "english": "Yay! A badge! Reimu can relax now!"
     },
     {
       "id": "reimu.adult.o_exam_pass2",
@@ -9070,7 +9110,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_pass2"
       },
-      "source_sha256": "b061c8440518e2d2c7372548c0999244b3b368508c154773cb7040a8115d8875"
+      "source_sha256": "b061c8440518e2d2c7372548c0999244b3b368508c154773cb7040a8115d8875",
+      "english": "Thank you, human! Reimu is so happy!"
     },
     {
       "id": "reimu.adult.o_exam_fail",
@@ -9086,7 +9127,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_fail"
       },
-      "source_sha256": "f64c302f6bfcda96bad77fa19455cc380a965372890ce0ad143ef606dcc630a3"
+      "source_sha256": "f64c302f6bfcda96bad77fa19455cc380a965372890ce0ad143ef606dcc630a3",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "reimu.adult.o_exam_fail2",
@@ -9102,7 +9144,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_exam_fail2"
       },
-      "source_sha256": "948275260d85b8dc019841b6c896c76b895c4a6005d3cb51cd6f0a4509542d9a"
+      "source_sha256": "948275260d85b8dc019841b6c896c76b895c4a6005d3cb51cd6f0a4509542d9a",
+      "english": "Reimu failed...? Waaah..."
     },
     {
       "id": "reimu.adult.o_badge_proud",
@@ -9118,7 +9161,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_badge_proud"
       },
-      "source_sha256": "be3403936b50dfecdcf63627e827c7f187b451af0d4bb02ee36fbf3ea0d4f6f9"
+      "source_sha256": "be3403936b50dfecdcf63627e827c7f187b451af0d4bb02ee36fbf3ea0d4f6f9",
+      "english": "Look at Reimu's badge! Isn't it great?"
     },
     {
       "id": "reimu.adult.o_shop_appeal",
@@ -9134,7 +9178,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_shop_appeal"
       },
-      "source_sha256": "1b2213b344d4edb0b8782f386d8c6e4289aa017a1492fe278b8cc15c9655d998"
+      "source_sha256": "1b2213b344d4edb0b8782f386d8c6e4289aa017a1492fe278b8cc15c9655d998",
+      "english": "Please buy Reimu! Let's stay together!"
     },
     {
       "id": "reimu.adult.o_shop_appeal2",
@@ -9150,7 +9195,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_shop_appeal2"
       },
-      "source_sha256": "9ff59d3ce9bb67861f21f48c4d50075624f1a4f6eed2b51869bb42b68e60850d"
+      "source_sha256": "9ff59d3ce9bb67861f21f48c4d50075624f1a4f6eed2b51869bb42b68e60850d",
+      "english": "Here, here! Reimu is a really good one!"
     },
     {
       "id": "reimu.adult.o_shop_bought",
@@ -9166,7 +9212,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_shop_bought"
       },
-      "source_sha256": "cac07fec5911506c4ed0ae277669a168a0c7844c1efe601ede6d4d5c4878daf3"
+      "source_sha256": "cac07fec5911506c4ed0ae277669a168a0c7844c1efe601ede6d4d5c4878daf3",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "reimu.adult.o_shop_sold_sad",
@@ -9182,7 +9229,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_shop_sold_sad"
       },
-      "source_sha256": "a92ff9aa1fc590f639d1d272ce44a4bb584ba3aed1f77aa2b08713217a5d7704"
+      "source_sha256": "a92ff9aa1fc590f639d1d272ce44a4bb584ba3aed1f77aa2b08713217a5d7704",
+      "english": "Why...? Don't forget Reimu..."
     },
     {
       "id": "reimu.adult.o_shop_sold_proud",
@@ -9198,7 +9246,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_shop_sold_proud"
       },
-      "source_sha256": "3393c30c2ec0d23caca91f258ae6b32985d63660b1f695babae3e3c0bd869d21"
+      "source_sha256": "3393c30c2ec0d23caca91f258ae6b32985d63660b1f695babae3e3c0bd869d21",
+      "english": "Reimu is going to a better home! Bye-bye!"
     },
     {
       "id": "reimu.adult.o_wild_role_beg",
@@ -9214,7 +9263,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_wild_role_beg"
       },
-      "source_sha256": "124b5752c74c9c6722dd21c9b752a004a5804b52833ff73dbe04a7c0470ea973"
+      "source_sha256": "124b5752c74c9c6722dd21c9b752a004a5804b52833ff73dbe04a7c0470ea973",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "reimu.adult.o_wild_role_provoke",
@@ -9230,7 +9280,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_wild_role_provoke"
       },
-      "source_sha256": "beae943e1c0aa8e63af1f3028fac02a93ee2f074084101e87baf16230e1454c5"
+      "source_sha256": "beae943e1c0aa8e63af1f3028fac02a93ee2f074084101e87baf16230e1454c5",
+      "english": "That badge means nothing to Reimu! You're no fun!"
     },
     {
       "id": "reimu.adult.o_lesson_praised",
@@ -9246,7 +9297,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_lesson_praised"
       },
-      "source_sha256": "4622be66dbf770c820c47a077a2aa68c1e56f45f139900f1a4d445f5efe8a415"
+      "source_sha256": "4622be66dbf770c820c47a077a2aa68c1e56f45f139900f1a4d445f5efe8a415",
+      "english": "Hehe, I was praised! Reimu is happy!"
     },
     {
       "id": "reimu.adult.o_lesson_praised2",
@@ -9262,7 +9314,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_lesson_praised2"
       },
-      "source_sha256": "d3009e1607d1132bd4962c535ec15d8ea87d52693fdbc00dea4140da7709644a"
+      "source_sha256": "d3009e1607d1132bd4962c535ec15d8ea87d52693fdbc00dea4140da7709644a",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "reimu.adult.o_lesson_scolded",
@@ -9278,7 +9331,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_lesson_scolded"
       },
-      "source_sha256": "751ab0979d9d3fc241f0248277f3830ac87313cb873009d83f1b3a00fe0cde5f"
+      "source_sha256": "751ab0979d9d3fc241f0248277f3830ac87313cb873009d83f1b3a00fe0cde5f",
+      "english": "I'm sorry... Reimu will fix it properly..."
     },
     {
       "id": "reimu.adult.o_badge_envy",
@@ -9294,7 +9348,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_badge_envy"
       },
-      "source_sha256": "72deb533985ab7aa7017370c0a707bda3fe5a29bf6079428a9d8212943bac638"
+      "source_sha256": "72deb533985ab7aa7017370c0a707bda3fe5a29bf6079428a9d8212943bac638",
+      "english": "I'm jealous... Reimu wants that badge too."
     },
     {
       "id": "reimu.adult.o_badge_admire",
@@ -9310,7 +9365,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_badge_admire"
       },
-      "source_sha256": "521e2a165785abda6dd22232f4f101a5dfa2d927ab14989213f861dcf908bcba"
+      "source_sha256": "521e2a165785abda6dd22232f4f101a5dfa2d927ab14989213f861dcf908bcba",
+      "english": "Amazing! Teach Reimu too!"
     },
     {
       "id": "reimu.young.o_exam_nervous",
@@ -9326,7 +9382,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_nervous"
       },
-      "source_sha256": "bec5ac6910884cfeeee1eb6dff3b766640c05be8e1cbc4b39379a9bb4ad391f8"
+      "source_sha256": "bec5ac6910884cfeeee1eb6dff3b766640c05be8e1cbc4b39379a9bb4ad391f8",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "reimu.young.o_exam_nervous2",
@@ -9342,7 +9399,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_nervous2"
       },
-      "source_sha256": "582ee1ee3bb97dc2ae9c0af637718cc1d4ce784fb706a7812e00754d833b13de"
+      "source_sha256": "582ee1ee3bb97dc2ae9c0af637718cc1d4ce784fb706a7812e00754d833b13de",
+      "english": "I'm nervous, but Reimu will do my best!"
     },
     {
       "id": "reimu.young.o_exam_answer",
@@ -9358,7 +9416,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_answer"
       },
-      "source_sha256": "ef2885193992e62272f252c54c86170c4b7ed039e1b5971a28ab0f7db29743f8"
+      "source_sha256": "ef2885193992e62272f252c54c86170c4b7ed039e1b5971a28ab0f7db29743f8",
+      "english": "Yes! Reimu knows this!"
     },
     {
       "id": "reimu.young.o_exam_unsure",
@@ -9374,7 +9433,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_unsure"
       },
-      "source_sha256": "31651e6a055661379dd3397ddb2bfab9f96ed11771d1f018a01b62a675dc1636"
+      "source_sha256": "31651e6a055661379dd3397ddb2bfab9f96ed11771d1f018a01b62a675dc1636",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "reimu.young.o_exam_hide_fail",
@@ -9390,7 +9450,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_hide_fail"
       },
-      "source_sha256": "64587681234ec85684e88b67c38f101fb399f58be2b2401626604b6d653e0c84"
+      "source_sha256": "64587681234ec85684e88b67c38f101fb399f58be2b2401626604b6d653e0c84",
+      "english": "Reimu isn't here! Nobody's here!"
     },
     {
       "id": "reimu.young.o_exam_promise_wait",
@@ -9406,7 +9467,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_promise_wait"
       },
-      "source_sha256": "2029b681e03b85095102dcddfc32533cf5961dba2cb83b6bd448f37d263dae72"
+      "source_sha256": "2029b681e03b85095102dcddfc32533cf5961dba2cb83b6bd448f37d263dae72",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "reimu.young.o_exam_promise_wait2",
@@ -9422,7 +9484,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_promise_wait2"
       },
-      "source_sha256": "e5879837d9846414c479a2d06e1568b472c4a7a1ad2ccd5d8008684e88cacc59"
+      "source_sha256": "e5879837d9846414c479a2d06e1568b472c4a7a1ad2ccd5d8008684e88cacc59",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "reimu.young.o_exam_promise_fail",
@@ -9438,7 +9501,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_promise_fail"
       },
-      "source_sha256": "dba27349ad7ec09fbae9ea202f333334b54b10ba2a3456240129be169fe929fc"
+      "source_sha256": "dba27349ad7ec09fbae9ea202f333334b54b10ba2a3456240129be169fe929fc",
+      "english": "Unfair! Why not Reimu?!"
     },
     {
       "id": "reimu.young.o_exam_promise_fail2",
@@ -9454,7 +9518,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_promise_fail2"
       },
-      "source_sha256": "b10a1d1efff63db6dcf1c4290dc96cbfaa55fa86267b0cbb69c3d67d1b427e14"
+      "source_sha256": "b10a1d1efff63db6dcf1c4290dc96cbfaa55fa86267b0cbb69c3d67d1b427e14",
+      "english": "Reimu was waiting too! Hmph!"
     },
     {
       "id": "reimu.young.o_exam_report",
@@ -9470,7 +9535,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_report"
       },
-      "source_sha256": "8fc034637dcce322604ee65633e0ddcc331bc1de6fb0c4264f921f782666fc30"
+      "source_sha256": "8fc034637dcce322604ee65633e0ddcc331bc1de6fb0c4264f921f782666fc30",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "reimu.young.o_exam_sorry",
@@ -9486,7 +9552,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_sorry"
       },
-      "source_sha256": "b0aa1ea8175b37722b7d132564f6c493e2a2d446dfeb16a3e0e7fbd4a5279fcb"
+      "source_sha256": "b0aa1ea8175b37722b7d132564f6c493e2a2d446dfeb16a3e0e7fbd4a5279fcb",
+      "english": "I'm sorry... Reimu got it wrong..."
     },
     {
       "id": "reimu.young.o_exam_pass",
@@ -9502,7 +9569,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_pass"
       },
-      "source_sha256": "0da93b32c967aeffdf25c5089a4366838b01ccb05f3ebb4caca01376fb088749"
+      "source_sha256": "0da93b32c967aeffdf25c5089a4366838b01ccb05f3ebb4caca01376fb088749",
+      "english": "Yay! A badge! Reimu can relax now!"
     },
     {
       "id": "reimu.young.o_exam_pass2",
@@ -9518,7 +9586,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_pass2"
       },
-      "source_sha256": "85a8223c856d1dde205059dea82c957fb0469d19e00985997b697ac2209b25aa"
+      "source_sha256": "85a8223c856d1dde205059dea82c957fb0469d19e00985997b697ac2209b25aa",
+      "english": "Thank you, human! Reimu is so happy!"
     },
     {
       "id": "reimu.young.o_exam_fail",
@@ -9534,7 +9603,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_fail"
       },
-      "source_sha256": "3df28a86ad16e4995dfb66f46985876d03cdba0eff8e0127b07d00a17ea2555d"
+      "source_sha256": "3df28a86ad16e4995dfb66f46985876d03cdba0eff8e0127b07d00a17ea2555d",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "reimu.young.o_exam_fail2",
@@ -9550,7 +9620,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_exam_fail2"
       },
-      "source_sha256": "a42717c669344257cbdd1f8562e03c50016a815d8ee113fe911dc89bcb5d1de1"
+      "source_sha256": "a42717c669344257cbdd1f8562e03c50016a815d8ee113fe911dc89bcb5d1de1",
+      "english": "Reimu failed...? Waaah..."
     },
     {
       "id": "reimu.young.o_badge_proud",
@@ -9566,7 +9637,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_badge_proud"
       },
-      "source_sha256": "ec79142aaf974eec1fe67876ac266539aa475802076f6ac2ff2d5c29b555267a"
+      "source_sha256": "ec79142aaf974eec1fe67876ac266539aa475802076f6ac2ff2d5c29b555267a",
+      "english": "Look at Reimu's badge! Isn't it great?"
     },
     {
       "id": "reimu.young.o_shop_appeal",
@@ -9582,7 +9654,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_shop_appeal"
       },
-      "source_sha256": "8d79cc246a1bfd8ca4ad14adb1eac15316b11544304fb2254e305997eaac9532"
+      "source_sha256": "8d79cc246a1bfd8ca4ad14adb1eac15316b11544304fb2254e305997eaac9532",
+      "english": "Please buy Reimu! Let's stay together!"
     },
     {
       "id": "reimu.young.o_shop_appeal2",
@@ -9598,7 +9671,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_shop_appeal2"
       },
-      "source_sha256": "14428da9444dca03f709da63b52d3802cae6bf19710a897fafb23035889072ad"
+      "source_sha256": "14428da9444dca03f709da63b52d3802cae6bf19710a897fafb23035889072ad",
+      "english": "Here, here! Reimu is a really good one!"
     },
     {
       "id": "reimu.young.o_shop_bought",
@@ -9614,7 +9688,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_shop_bought"
       },
-      "source_sha256": "5759cfd74001c3642390c8cd8707e1835daf19ae935b5a2eb6f4d11688b044a7"
+      "source_sha256": "5759cfd74001c3642390c8cd8707e1835daf19ae935b5a2eb6f4d11688b044a7",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "reimu.young.o_shop_sold_sad",
@@ -9630,7 +9705,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_shop_sold_sad"
       },
-      "source_sha256": "792735c6ac1a2ee49fe6aeede97e09d57419b2f30cbd59ccb5f167dace84011e"
+      "source_sha256": "792735c6ac1a2ee49fe6aeede97e09d57419b2f30cbd59ccb5f167dace84011e",
+      "english": "Why...? Don't forget Reimu..."
     },
     {
       "id": "reimu.young.o_shop_sold_proud",
@@ -9646,7 +9722,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_shop_sold_proud"
       },
-      "source_sha256": "7165515f7452215438dd89e37342676e08a8b8941ef55af512eadb55ed6c6745"
+      "source_sha256": "7165515f7452215438dd89e37342676e08a8b8941ef55af512eadb55ed6c6745",
+      "english": "Reimu is going to a better home! Bye-bye!"
     },
     {
       "id": "reimu.young.o_wild_role_beg",
@@ -9662,7 +9739,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_wild_role_beg"
       },
-      "source_sha256": "9a3119da9a3e400b4ba353d06593a044bb910bc73dbb084267e6ca7631dcd862"
+      "source_sha256": "9a3119da9a3e400b4ba353d06593a044bb910bc73dbb084267e6ca7631dcd862",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "reimu.young.o_wild_role_provoke",
@@ -9678,7 +9756,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_wild_role_provoke"
       },
-      "source_sha256": "69799e99347aab79c85e86f94180a01c263f9e6f64724207fba4a9ff401634be"
+      "source_sha256": "69799e99347aab79c85e86f94180a01c263f9e6f64724207fba4a9ff401634be",
+      "english": "That badge means nothing to Reimu! You're no fun!"
     },
     {
       "id": "reimu.young.o_lesson_praised",
@@ -9694,7 +9773,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_lesson_praised"
       },
-      "source_sha256": "4804e0c67868c2e6fe4e000437b2849f860845d35984f5855ceffb26ac241348"
+      "source_sha256": "4804e0c67868c2e6fe4e000437b2849f860845d35984f5855ceffb26ac241348",
+      "english": "Hehe, I was praised! Reimu is happy!"
     },
     {
       "id": "reimu.young.o_lesson_praised2",
@@ -9710,7 +9790,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_lesson_praised2"
       },
-      "source_sha256": "4ab73c28e9ccfd1a24610dba881f96ddabb1d4187f666a6d8f01b3431dc5fc46"
+      "source_sha256": "4ab73c28e9ccfd1a24610dba881f96ddabb1d4187f666a6d8f01b3431dc5fc46",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "reimu.young.o_lesson_scolded",
@@ -9726,7 +9807,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_lesson_scolded"
       },
-      "source_sha256": "03ee78fc72e00c0ebbf9e2bba104372a45bcdcd0c2c48705405aba96535117e1"
+      "source_sha256": "03ee78fc72e00c0ebbf9e2bba104372a45bcdcd0c2c48705405aba96535117e1",
+      "english": "I'm sorry... Reimu will fix it properly..."
     },
     {
       "id": "reimu.young.o_badge_envy",
@@ -9742,7 +9824,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_badge_envy"
       },
-      "source_sha256": "dc5468ab046c74318ba77df64d650b2eff6f8829634ba7bd65c5975c73157b0b"
+      "source_sha256": "dc5468ab046c74318ba77df64d650b2eff6f8829634ba7bd65c5975c73157b0b",
+      "english": "I'm jealous... Reimu wants that badge too."
     },
     {
       "id": "reimu.young.o_badge_admire",
@@ -9758,7 +9841,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_badge_admire"
       },
-      "source_sha256": "84a92eb05442270943172456af65058e126e6beb5578a7861054aed87df6c428"
+      "source_sha256": "84a92eb05442270943172456af65058e126e6beb5578a7861054aed87df6c428",
+      "english": "Amazing! Teach Reimu too!"
     },
     {
       "id": "marisa.adult.o_exam_nervous",
@@ -9774,7 +9858,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_nervous"
       },
-      "source_sha256": "8163a27f86c0aed003e32355fdf3af888bb28611b0fff561486422eb5c1ac408"
+      "source_sha256": "8163a27f86c0aed003e32355fdf3af888bb28611b0fff561486422eb5c1ac408",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "marisa.adult.o_exam_nervous2",
@@ -9790,7 +9875,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_nervous2"
       },
-      "source_sha256": "056124d76ed3f88db960c354e05359e692738a83a8c0d3fd73d44e24cc504b35"
+      "source_sha256": "056124d76ed3f88db960c354e05359e692738a83a8c0d3fd73d44e24cc504b35",
+      "english": "I'm nervous, but Marisa will do my best!"
     },
     {
       "id": "marisa.adult.o_exam_answer",
@@ -9806,7 +9892,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_answer"
       },
-      "source_sha256": "d27016252e26ad653f8cf2243c67938d11c7825e0cf337ec26b077892e3c8b56"
+      "source_sha256": "d27016252e26ad653f8cf2243c67938d11c7825e0cf337ec26b077892e3c8b56",
+      "english": "Yes! Marisa knows this!"
     },
     {
       "id": "marisa.adult.o_exam_unsure",
@@ -9822,7 +9909,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_unsure"
       },
-      "source_sha256": "f4273d103ec291dc2b11286338e9c0bb64d2c708625022777cc0e3ab547acc71"
+      "source_sha256": "f4273d103ec291dc2b11286338e9c0bb64d2c708625022777cc0e3ab547acc71",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "marisa.adult.o_exam_hide_fail",
@@ -9838,7 +9926,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_hide_fail"
       },
-      "source_sha256": "1ed213b1e3b3b46d742db767c2e7bf2c8ec5c5fd34a2c7971c3b28f987415907"
+      "source_sha256": "1ed213b1e3b3b46d742db767c2e7bf2c8ec5c5fd34a2c7971c3b28f987415907",
+      "english": "Marisa isn't here! Nobody's here!"
     },
     {
       "id": "marisa.adult.o_exam_promise_wait",
@@ -9854,7 +9943,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_promise_wait"
       },
-      "source_sha256": "ad62f77d55d744850cd4fdbc66ee6c1758f9b7061db018dfe3225195dc00f0cc"
+      "source_sha256": "ad62f77d55d744850cd4fdbc66ee6c1758f9b7061db018dfe3225195dc00f0cc",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "marisa.adult.o_exam_promise_wait2",
@@ -9870,7 +9960,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "6fa23439134fe11bbb7c5047bd1a16f9c4bed16988810011cb6a6396e2aae0f4"
+      "source_sha256": "6fa23439134fe11bbb7c5047bd1a16f9c4bed16988810011cb6a6396e2aae0f4",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "marisa.adult.o_exam_promise_fail",
@@ -9886,7 +9977,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_promise_fail"
       },
-      "source_sha256": "b6d9d3a7207b8377324a43ecd875dc8b33f9907d5b26f05273e2e7bb96991d77"
+      "source_sha256": "b6d9d3a7207b8377324a43ecd875dc8b33f9907d5b26f05273e2e7bb96991d77",
+      "english": "Unfair! Why not Marisa?!"
     },
     {
       "id": "marisa.adult.o_exam_promise_fail2",
@@ -9902,7 +9994,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "32c1a32474ff37f8c79ea749d05d584b75038eeefd6ac827aea14e2181bc55f0"
+      "source_sha256": "32c1a32474ff37f8c79ea749d05d584b75038eeefd6ac827aea14e2181bc55f0",
+      "english": "Marisa was waiting too! Hmph!"
     },
     {
       "id": "marisa.adult.o_exam_report",
@@ -9918,7 +10011,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_report"
       },
-      "source_sha256": "5d8821561ad3b76ffc73971c44ec4fe285a1dfa04cb7cd1f01be87808c2b91bc"
+      "source_sha256": "5d8821561ad3b76ffc73971c44ec4fe285a1dfa04cb7cd1f01be87808c2b91bc",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "marisa.adult.o_exam_sorry",
@@ -9934,7 +10028,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_sorry"
       },
-      "source_sha256": "7628eeda2bf690727d720cbaf1d81d5aacb53651f9f0fba8bef126716862b00d"
+      "source_sha256": "7628eeda2bf690727d720cbaf1d81d5aacb53651f9f0fba8bef126716862b00d",
+      "english": "I'm sorry... Marisa got it wrong..."
     },
     {
       "id": "marisa.adult.o_exam_pass",
@@ -9950,7 +10045,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_pass"
       },
-      "source_sha256": "2324bfa730407ba186ebe60368ac20fe6f5f68a5dee56aae5daeccbb9fee1a64"
+      "source_sha256": "2324bfa730407ba186ebe60368ac20fe6f5f68a5dee56aae5daeccbb9fee1a64",
+      "english": "Yay! A badge! Marisa can relax now!"
     },
     {
       "id": "marisa.adult.o_exam_pass2",
@@ -9966,7 +10062,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_pass2"
       },
-      "source_sha256": "285ebc3686fa7f620938afec57921ef5a4b631c63766f485c22a39baab567fa8"
+      "source_sha256": "285ebc3686fa7f620938afec57921ef5a4b631c63766f485c22a39baab567fa8",
+      "english": "Thank you, human! Marisa is so happy!"
     },
     {
       "id": "marisa.adult.o_exam_fail",
@@ -9982,7 +10079,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_fail"
       },
-      "source_sha256": "06391b8eb15eca51e1b0691b10f79e8c37a3b7dae2fe2f8373bbe292c838d711"
+      "source_sha256": "06391b8eb15eca51e1b0691b10f79e8c37a3b7dae2fe2f8373bbe292c838d711",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "marisa.adult.o_exam_fail2",
@@ -9998,7 +10096,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_exam_fail2"
       },
-      "source_sha256": "b0d227ee8c0d456895ff89ee304439a8945f5296a4198d63d680006c1f4de32b"
+      "source_sha256": "b0d227ee8c0d456895ff89ee304439a8945f5296a4198d63d680006c1f4de32b",
+      "english": "Marisa failed...? Waaah..."
     },
     {
       "id": "marisa.adult.o_badge_proud",
@@ -10014,7 +10113,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_badge_proud"
       },
-      "source_sha256": "056066cb6a9e9bb9bdd60b2b122b43b440471ba75a3b2fddcdc320c7866eb610"
+      "source_sha256": "056066cb6a9e9bb9bdd60b2b122b43b440471ba75a3b2fddcdc320c7866eb610",
+      "english": "Look at Marisa's badge! Isn't it great?"
     },
     {
       "id": "marisa.adult.o_shop_appeal",
@@ -10030,7 +10130,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_shop_appeal"
       },
-      "source_sha256": "b9d4e07c0f0c935ea2c60a9246cc309499cc2a979e5c8bbd96321659c075ea24"
+      "source_sha256": "b9d4e07c0f0c935ea2c60a9246cc309499cc2a979e5c8bbd96321659c075ea24",
+      "english": "Please buy Marisa! Let's stay together!"
     },
     {
       "id": "marisa.adult.o_shop_appeal2",
@@ -10046,7 +10147,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_shop_appeal2"
       },
-      "source_sha256": "f278343ec426d29394896c7005b6abecef6284b93fae24a672684d0a34560cf0"
+      "source_sha256": "f278343ec426d29394896c7005b6abecef6284b93fae24a672684d0a34560cf0",
+      "english": "Here, here! Marisa is a really good one!"
     },
     {
       "id": "marisa.adult.o_shop_bought",
@@ -10062,7 +10164,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_shop_bought"
       },
-      "source_sha256": "0d8aabe1953a1fc8ec2634098065949fcbadad0fc1132adbd4db8873102be6b2"
+      "source_sha256": "0d8aabe1953a1fc8ec2634098065949fcbadad0fc1132adbd4db8873102be6b2",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "marisa.adult.o_shop_sold_sad",
@@ -10078,7 +10181,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_shop_sold_sad"
       },
-      "source_sha256": "c20054a9a40827e57a19dcc533de8653353ef2ea23ebda6b911ff1cd86078822"
+      "source_sha256": "c20054a9a40827e57a19dcc533de8653353ef2ea23ebda6b911ff1cd86078822",
+      "english": "Why...? Don't forget Marisa..."
     },
     {
       "id": "marisa.adult.o_shop_sold_proud",
@@ -10094,7 +10198,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_shop_sold_proud"
       },
-      "source_sha256": "a006480e78ea90f0916322eba1198aa887c4adcf905ea36c51607d613c9fe5df"
+      "source_sha256": "a006480e78ea90f0916322eba1198aa887c4adcf905ea36c51607d613c9fe5df",
+      "english": "Marisa is going to a better home! Bye-bye!"
     },
     {
       "id": "marisa.adult.o_wild_role_beg",
@@ -10110,7 +10215,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_wild_role_beg"
       },
-      "source_sha256": "c4e2ada0672a1f88d42473b989c8aa14e9e96aa756de927543340857386f997f"
+      "source_sha256": "c4e2ada0672a1f88d42473b989c8aa14e9e96aa756de927543340857386f997f",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "marisa.adult.o_wild_role_provoke",
@@ -10126,7 +10232,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_wild_role_provoke"
       },
-      "source_sha256": "19752a549da850e51419fe94e61362e24a30de1dfa030f42b3c92d4e2b3c3f67"
+      "source_sha256": "19752a549da850e51419fe94e61362e24a30de1dfa030f42b3c92d4e2b3c3f67",
+      "english": "That badge means nothing to Marisa! You're no fun!"
     },
     {
       "id": "marisa.adult.o_lesson_praised",
@@ -10142,7 +10249,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_lesson_praised"
       },
-      "source_sha256": "82c5e8bb6a8556b10ff6e070bb765a1238547db1e75568672699d48cd7f869a2"
+      "source_sha256": "82c5e8bb6a8556b10ff6e070bb765a1238547db1e75568672699d48cd7f869a2",
+      "english": "Hehe, I was praised! Marisa is happy!"
     },
     {
       "id": "marisa.adult.o_lesson_praised2",
@@ -10158,7 +10266,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_lesson_praised2"
       },
-      "source_sha256": "9f24dafe2be5c740846406be3f9c3438e76654da8008100bb75fab18e2b88b2d"
+      "source_sha256": "9f24dafe2be5c740846406be3f9c3438e76654da8008100bb75fab18e2b88b2d",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "marisa.adult.o_lesson_scolded",
@@ -10174,7 +10283,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_lesson_scolded"
       },
-      "source_sha256": "f47d2ffb894982c55661d5d5cf28994c866c2ec31c2487f0930411cecf904d50"
+      "source_sha256": "f47d2ffb894982c55661d5d5cf28994c866c2ec31c2487f0930411cecf904d50",
+      "english": "I'm sorry... Marisa will fix it properly..."
     },
     {
       "id": "marisa.adult.o_badge_envy",
@@ -10190,7 +10300,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_badge_envy"
       },
-      "source_sha256": "a0b43f075f8873a27813ff47adb483b265189db896325004cd243eb2e5329365"
+      "source_sha256": "a0b43f075f8873a27813ff47adb483b265189db896325004cd243eb2e5329365",
+      "english": "I'm jealous... Marisa wants that badge too."
     },
     {
       "id": "marisa.adult.o_badge_admire",
@@ -10206,7 +10317,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_badge_admire"
       },
-      "source_sha256": "49364e96f146f0a46c63914b643f23a22691f7e4720700e98cc71412efcc51a3"
+      "source_sha256": "49364e96f146f0a46c63914b643f23a22691f7e4720700e98cc71412efcc51a3",
+      "english": "Amazing! Teach Marisa too!"
     },
     {
       "id": "marisa.young.o_exam_nervous",
@@ -10222,7 +10334,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_nervous"
       },
-      "source_sha256": "827143d9adc195a9005605cfebcd984a6828d5ef11e1e77d81456977aed14a08"
+      "source_sha256": "827143d9adc195a9005605cfebcd984a6828d5ef11e1e77d81456977aed14a08",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "marisa.young.o_exam_nervous2",
@@ -10238,7 +10351,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_nervous2"
       },
-      "source_sha256": "93d5c985087e85d5da7d18f5e7e7f0827758a15a53a490de7e9ca8fda3a45c6a"
+      "source_sha256": "93d5c985087e85d5da7d18f5e7e7f0827758a15a53a490de7e9ca8fda3a45c6a",
+      "english": "I'm nervous, but Marisa will do my best!"
     },
     {
       "id": "marisa.young.o_exam_answer",
@@ -10254,7 +10368,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_answer"
       },
-      "source_sha256": "09d33247bd6b56a68f73481f4cd5fd268272f32bdf4142e10989dc765c77e8a3"
+      "source_sha256": "09d33247bd6b56a68f73481f4cd5fd268272f32bdf4142e10989dc765c77e8a3",
+      "english": "Yes! Marisa knows this!"
     },
     {
       "id": "marisa.young.o_exam_unsure",
@@ -10270,7 +10385,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_unsure"
       },
-      "source_sha256": "79838e75e3d7372b434338183a8c71aa318f7146b17bb89f94d4efddcb61d4f0"
+      "source_sha256": "79838e75e3d7372b434338183a8c71aa318f7146b17bb89f94d4efddcb61d4f0",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "marisa.young.o_exam_hide_fail",
@@ -10286,7 +10402,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_hide_fail"
       },
-      "source_sha256": "278b65923fd3060592a646413641610b5a0df4c50cc010ac785a47f0859c2927"
+      "source_sha256": "278b65923fd3060592a646413641610b5a0df4c50cc010ac785a47f0859c2927",
+      "english": "Marisa isn't here! Nobody's here!"
     },
     {
       "id": "marisa.young.o_exam_promise_wait",
@@ -10302,7 +10419,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_promise_wait"
       },
-      "source_sha256": "6f3fd6daded56425eb12aea6a7497f7f7d17a4e07c92cbea7a5665bfe3095a96"
+      "source_sha256": "6f3fd6daded56425eb12aea6a7497f7f7d17a4e07c92cbea7a5665bfe3095a96",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "marisa.young.o_exam_promise_wait2",
@@ -10318,7 +10436,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_promise_wait2"
       },
-      "source_sha256": "e24c4a587456cc07a67d1cc82b131e0b7764a24b24b4f63fb117b292920a443b"
+      "source_sha256": "e24c4a587456cc07a67d1cc82b131e0b7764a24b24b4f63fb117b292920a443b",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "marisa.young.o_exam_promise_fail",
@@ -10334,7 +10453,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_promise_fail"
       },
-      "source_sha256": "f4d29f211fc7db5c4ede33d21ba050e3480078259b898f801449ba328d8b93d5"
+      "source_sha256": "f4d29f211fc7db5c4ede33d21ba050e3480078259b898f801449ba328d8b93d5",
+      "english": "Unfair! Why not Marisa?!"
     },
     {
       "id": "marisa.young.o_exam_promise_fail2",
@@ -10350,7 +10470,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_promise_fail2"
       },
-      "source_sha256": "20d8ec762bd6f2a970d5eb24201953e3d04440727cd680a988c269372792784d"
+      "source_sha256": "20d8ec762bd6f2a970d5eb24201953e3d04440727cd680a988c269372792784d",
+      "english": "Marisa was waiting too! Hmph!"
     },
     {
       "id": "marisa.young.o_exam_report",
@@ -10366,7 +10487,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_report"
       },
-      "source_sha256": "cff60a503e36a7b469450a200129a81091d106217fe46dc5e202b46f01eb9dba"
+      "source_sha256": "cff60a503e36a7b469450a200129a81091d106217fe46dc5e202b46f01eb9dba",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "marisa.young.o_exam_sorry",
@@ -10382,7 +10504,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_sorry"
       },
-      "source_sha256": "60d8939e044b2335a3345238e44ef9222028fa4a136a35514db081fad6da67b5"
+      "source_sha256": "60d8939e044b2335a3345238e44ef9222028fa4a136a35514db081fad6da67b5",
+      "english": "I'm sorry... Marisa got it wrong..."
     },
     {
       "id": "marisa.young.o_exam_pass",
@@ -10398,7 +10521,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_pass"
       },
-      "source_sha256": "e591573cb06855cf4770866c4a381136beca283701e085fbc5f445a714378aad"
+      "source_sha256": "e591573cb06855cf4770866c4a381136beca283701e085fbc5f445a714378aad",
+      "english": "Yay! A badge! Marisa can relax now!"
     },
     {
       "id": "marisa.young.o_exam_pass2",
@@ -10414,7 +10538,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_pass2"
       },
-      "source_sha256": "5c810289174c7e7d3958ea31db527aef543e193da1b69ba3eacb86e81015e330"
+      "source_sha256": "5c810289174c7e7d3958ea31db527aef543e193da1b69ba3eacb86e81015e330",
+      "english": "Thank you, human! Marisa is so happy!"
     },
     {
       "id": "marisa.young.o_exam_fail",
@@ -10430,7 +10555,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_fail"
       },
-      "source_sha256": "b9a179544037c6fff96e1094c81ef057ca7ac3e775e09c14f9b7f00ce8ea4653"
+      "source_sha256": "b9a179544037c6fff96e1094c81ef057ca7ac3e775e09c14f9b7f00ce8ea4653",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "marisa.young.o_exam_fail2",
@@ -10446,7 +10572,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_exam_fail2"
       },
-      "source_sha256": "80781074d758aab650ac40573cc32cb043838707e1de5e2d3c25e02892af99b1"
+      "source_sha256": "80781074d758aab650ac40573cc32cb043838707e1de5e2d3c25e02892af99b1",
+      "english": "Marisa failed...? Waaah..."
     },
     {
       "id": "marisa.young.o_badge_proud",
@@ -10462,7 +10589,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_badge_proud"
       },
-      "source_sha256": "c482a1379e19483e314e7493e0f26e95f5dad80f19a1295feb9556241dd7129b"
+      "source_sha256": "c482a1379e19483e314e7493e0f26e95f5dad80f19a1295feb9556241dd7129b",
+      "english": "Look at Marisa's badge! Isn't it great?"
     },
     {
       "id": "marisa.young.o_shop_appeal",
@@ -10478,7 +10606,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_shop_appeal"
       },
-      "source_sha256": "f650d6466db09751d9bca8729c9b8a9d5c43646072e931b3c9af5ef5213b6018"
+      "source_sha256": "f650d6466db09751d9bca8729c9b8a9d5c43646072e931b3c9af5ef5213b6018",
+      "english": "Please buy Marisa! Let's stay together!"
     },
     {
       "id": "marisa.young.o_shop_appeal2",
@@ -10494,7 +10623,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_shop_appeal2"
       },
-      "source_sha256": "205e90262750eea1bfe9fe5b8586375f6dfc64a595621b3628166a8e43d7b2f6"
+      "source_sha256": "205e90262750eea1bfe9fe5b8586375f6dfc64a595621b3628166a8e43d7b2f6",
+      "english": "Here, here! Marisa is a really good one!"
     },
     {
       "id": "marisa.young.o_shop_bought",
@@ -10510,7 +10640,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_shop_bought"
       },
-      "source_sha256": "209614344550a81cb97ce595b14a3389e890e3dcbec60095edace0a06313e006"
+      "source_sha256": "209614344550a81cb97ce595b14a3389e890e3dcbec60095edace0a06313e006",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "marisa.young.o_shop_sold_sad",
@@ -10526,7 +10657,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_shop_sold_sad"
       },
-      "source_sha256": "555ff8c3197b2f31a478d35f8652d700f23604d00f297c13a1e5b8576d5f5cdf"
+      "source_sha256": "555ff8c3197b2f31a478d35f8652d700f23604d00f297c13a1e5b8576d5f5cdf",
+      "english": "Why...? Don't forget Marisa..."
     },
     {
       "id": "marisa.young.o_shop_sold_proud",
@@ -10542,7 +10674,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_shop_sold_proud"
       },
-      "source_sha256": "a2126a0912c37a0412a8ce8e00012c5261f11fb37a14d953dac75d585b125345"
+      "source_sha256": "a2126a0912c37a0412a8ce8e00012c5261f11fb37a14d953dac75d585b125345",
+      "english": "Marisa is going to a better home! Bye-bye!"
     },
     {
       "id": "marisa.young.o_wild_role_beg",
@@ -10558,7 +10691,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_wild_role_beg"
       },
-      "source_sha256": "16b091d1701cf25434f4cf9c93452d53463070ba89f1f2bef0baa5228d07d8d3"
+      "source_sha256": "16b091d1701cf25434f4cf9c93452d53463070ba89f1f2bef0baa5228d07d8d3",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "marisa.young.o_wild_role_provoke",
@@ -10574,7 +10708,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_wild_role_provoke"
       },
-      "source_sha256": "38bba93e906132de6269b64664e199aac0636d802ef0f19c2edc1f6ccc27d541"
+      "source_sha256": "38bba93e906132de6269b64664e199aac0636d802ef0f19c2edc1f6ccc27d541",
+      "english": "That badge means nothing to Marisa! You're no fun!"
     },
     {
       "id": "marisa.young.o_lesson_praised",
@@ -10590,7 +10725,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_lesson_praised"
       },
-      "source_sha256": "0c58463b2789edbcec56d8c46176574f83855b8cda4e8fdbc51714bb78755ae2"
+      "source_sha256": "0c58463b2789edbcec56d8c46176574f83855b8cda4e8fdbc51714bb78755ae2",
+      "english": "Hehe, I was praised! Marisa is happy!"
     },
     {
       "id": "marisa.young.o_lesson_praised2",
@@ -10606,7 +10742,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_lesson_praised2"
       },
-      "source_sha256": "4cac53216f8a960965581c43d7fdc6c1ad3cf86dc349e8f93d640a2714eb2e3b"
+      "source_sha256": "4cac53216f8a960965581c43d7fdc6c1ad3cf86dc349e8f93d640a2714eb2e3b",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "marisa.young.o_lesson_scolded",
@@ -10622,7 +10759,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_lesson_scolded"
       },
-      "source_sha256": "cee73e07cf4983a09dc216a1dfaac7aa87d26f739a0bddb729118869734ed401"
+      "source_sha256": "cee73e07cf4983a09dc216a1dfaac7aa87d26f739a0bddb729118869734ed401",
+      "english": "I'm sorry... Marisa will fix it properly..."
     },
     {
       "id": "marisa.young.o_badge_envy",
@@ -10638,7 +10776,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_badge_envy"
       },
-      "source_sha256": "af4ae524ea776c77c5da99dc9c05f7c1c3796d83f0c448873285da8e0823ef3f"
+      "source_sha256": "af4ae524ea776c77c5da99dc9c05f7c1c3796d83f0c448873285da8e0823ef3f",
+      "english": "I'm jealous... Marisa wants that badge too."
     },
     {
       "id": "marisa.young.o_badge_admire",
@@ -10654,7 +10793,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_badge_admire"
       },
-      "source_sha256": "8a337f853a49817b4abb4c549e783da15b7982f81e7bbc217a5dcf6367543a21"
+      "source_sha256": "8a337f853a49817b4abb4c549e783da15b7982f81e7bbc217a5dcf6367543a21",
+      "english": "Amazing! Teach Marisa too!"
     },
     {
       "id": "alice.adult.o_exam_nervous",
@@ -10670,7 +10810,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_nervous"
       },
-      "source_sha256": "616fadc73ba2ee1c862cebf95825f0ca2644fa9c4f894abb1aba2dbd5e1bb5f9"
+      "source_sha256": "616fadc73ba2ee1c862cebf95825f0ca2644fa9c4f894abb1aba2dbd5e1bb5f9",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "alice.adult.o_exam_nervous2",
@@ -10686,7 +10827,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_nervous2"
       },
-      "source_sha256": "170517dbf927dd340bcf18fa19cf4a3691add9adced62711ec743129648b1e24"
+      "source_sha256": "170517dbf927dd340bcf18fa19cf4a3691add9adced62711ec743129648b1e24",
+      "english": "I'm nervous, but Alice will do my best!"
     },
     {
       "id": "alice.adult.o_exam_answer",
@@ -10702,7 +10844,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_answer"
       },
-      "source_sha256": "f83682d2f4e066e7e8f21d8a660c2128d81b55293904945b39d03c10434bb016"
+      "source_sha256": "f83682d2f4e066e7e8f21d8a660c2128d81b55293904945b39d03c10434bb016",
+      "english": "Yes! Alice knows this!"
     },
     {
       "id": "alice.adult.o_exam_unsure",
@@ -10718,7 +10861,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_unsure"
       },
-      "source_sha256": "87120d44e4a29d8632880932607fa2004998ab554f14ae181c4e0138ec28f4f7"
+      "source_sha256": "87120d44e4a29d8632880932607fa2004998ab554f14ae181c4e0138ec28f4f7",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "alice.adult.o_exam_hide_fail",
@@ -10734,7 +10878,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_hide_fail"
       },
-      "source_sha256": "3dd61341a6067e9b5cc8424bacea33c48f84df1357da6432aeb2d2445e9a3c10"
+      "source_sha256": "3dd61341a6067e9b5cc8424bacea33c48f84df1357da6432aeb2d2445e9a3c10",
+      "english": "Alice isn't here! Nobody's here!"
     },
     {
       "id": "alice.adult.o_exam_promise_wait",
@@ -10750,7 +10895,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_promise_wait"
       },
-      "source_sha256": "d45b642a86990b43da5d6d81bf47e3f30c85b0acf6940e040af0d253094af014"
+      "source_sha256": "d45b642a86990b43da5d6d81bf47e3f30c85b0acf6940e040af0d253094af014",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "alice.adult.o_exam_promise_wait2",
@@ -10766,7 +10912,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "b3088c24fbb0e290ec807b451c68c9600c10be5340029cec83d2e909fdd89297"
+      "source_sha256": "b3088c24fbb0e290ec807b451c68c9600c10be5340029cec83d2e909fdd89297",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "alice.adult.o_exam_promise_fail",
@@ -10782,7 +10929,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_promise_fail"
       },
-      "source_sha256": "78ec9433e04201ee4dd1d1613cfedd3ba4893734f153b4c3d1143d692657275e"
+      "source_sha256": "78ec9433e04201ee4dd1d1613cfedd3ba4893734f153b4c3d1143d692657275e",
+      "english": "Unfair! Why not Alice?!"
     },
     {
       "id": "alice.adult.o_exam_promise_fail2",
@@ -10798,7 +10946,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "68d47a88d4ed5696829f4ca8809d0f1e915e5e34748e0397a1e164b542e7e697"
+      "source_sha256": "68d47a88d4ed5696829f4ca8809d0f1e915e5e34748e0397a1e164b542e7e697",
+      "english": "Alice was waiting too! Hmph!"
     },
     {
       "id": "alice.adult.o_exam_report",
@@ -10814,7 +10963,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_report"
       },
-      "source_sha256": "91f5b0aee399599ea0878aca27839611274a9f4dcbde661c994e1490ebf0096f"
+      "source_sha256": "91f5b0aee399599ea0878aca27839611274a9f4dcbde661c994e1490ebf0096f",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "alice.adult.o_exam_sorry",
@@ -10830,7 +10980,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_sorry"
       },
-      "source_sha256": "9732702bb98e6e95ce9b3a3b5b58066b19dc37108db814d470175a33ffbbe4fe"
+      "source_sha256": "9732702bb98e6e95ce9b3a3b5b58066b19dc37108db814d470175a33ffbbe4fe",
+      "english": "I'm sorry... Alice got it wrong..."
     },
     {
       "id": "alice.adult.o_exam_pass",
@@ -10846,7 +10997,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_pass"
       },
-      "source_sha256": "2a1c328cb16d27e7c07002571a2e3970f99c4bdeaf0d4eead4cb4cdefed199e8"
+      "source_sha256": "2a1c328cb16d27e7c07002571a2e3970f99c4bdeaf0d4eead4cb4cdefed199e8",
+      "english": "Yay! A badge! Alice can relax now!"
     },
     {
       "id": "alice.adult.o_exam_pass2",
@@ -10862,7 +11014,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_pass2"
       },
-      "source_sha256": "12943ac1a17c57d49eba4e10cd992ad692b67f1883bf96a8e99f709ab286b4e4"
+      "source_sha256": "12943ac1a17c57d49eba4e10cd992ad692b67f1883bf96a8e99f709ab286b4e4",
+      "english": "Thank you, human! Alice is so happy!"
     },
     {
       "id": "alice.adult.o_exam_fail",
@@ -10878,7 +11031,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_fail"
       },
-      "source_sha256": "d19409016aba1df13f64558910c8be21a43c3c982a4b11194d8becbb28c91f17"
+      "source_sha256": "d19409016aba1df13f64558910c8be21a43c3c982a4b11194d8becbb28c91f17",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "alice.adult.o_exam_fail2",
@@ -10894,7 +11048,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_exam_fail2"
       },
-      "source_sha256": "240a42493e65823355473c3e9f2ea809dbc11ae8fd1ebc4ddeadf29bc3684c11"
+      "source_sha256": "240a42493e65823355473c3e9f2ea809dbc11ae8fd1ebc4ddeadf29bc3684c11",
+      "english": "Alice failed...? Waaah..."
     },
     {
       "id": "alice.adult.o_badge_proud",
@@ -10910,7 +11065,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_badge_proud"
       },
-      "source_sha256": "248f63504ed342cd3a15f07957616e31af7a23c68eba8acab569de708b7b9a4b"
+      "source_sha256": "248f63504ed342cd3a15f07957616e31af7a23c68eba8acab569de708b7b9a4b",
+      "english": "Look at Alice's badge! Isn't it great?"
     },
     {
       "id": "alice.adult.o_shop_appeal",
@@ -10926,7 +11082,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_shop_appeal"
       },
-      "source_sha256": "77cddc159d370a6de1c40565da6e0f7e5ccf67d54e0f2b7bc7f6618d946141df"
+      "source_sha256": "77cddc159d370a6de1c40565da6e0f7e5ccf67d54e0f2b7bc7f6618d946141df",
+      "english": "Please buy Alice! Let's stay together!"
     },
     {
       "id": "alice.adult.o_shop_appeal2",
@@ -10942,7 +11099,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_shop_appeal2"
       },
-      "source_sha256": "5dd3fbded3498d10b1f6460cce5a9fdfa8eb7f3b408e1938966d24aa9c6258b3"
+      "source_sha256": "5dd3fbded3498d10b1f6460cce5a9fdfa8eb7f3b408e1938966d24aa9c6258b3",
+      "english": "Here, here! Alice is a really good one!"
     },
     {
       "id": "alice.adult.o_shop_bought",
@@ -10958,7 +11116,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_shop_bought"
       },
-      "source_sha256": "d89054ec03bbbfee55afc183778e1f6a3aeb4edc0daeeeaf72f6a33a64f91a2a"
+      "source_sha256": "d89054ec03bbbfee55afc183778e1f6a3aeb4edc0daeeeaf72f6a33a64f91a2a",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "alice.adult.o_shop_sold_sad",
@@ -10974,7 +11133,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_shop_sold_sad"
       },
-      "source_sha256": "ad08cef3c54f143d3b817596fdfd20dba397db9f3648808d672cbbfa005003a9"
+      "source_sha256": "ad08cef3c54f143d3b817596fdfd20dba397db9f3648808d672cbbfa005003a9",
+      "english": "Why...? Don't forget Alice..."
     },
     {
       "id": "alice.adult.o_shop_sold_proud",
@@ -10990,7 +11150,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_shop_sold_proud"
       },
-      "source_sha256": "b2dbb940c93a54e3dcb0a3a7bb0d6d25a5b14864d79b6852eb5439856c6de9ec"
+      "source_sha256": "b2dbb940c93a54e3dcb0a3a7bb0d6d25a5b14864d79b6852eb5439856c6de9ec",
+      "english": "Alice is going to a better home! Bye-bye!"
     },
     {
       "id": "alice.adult.o_wild_role_beg",
@@ -11006,7 +11167,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_wild_role_beg"
       },
-      "source_sha256": "9af3ca083600be24ab908684fadac88b812318c74ace88c509754781525a60db"
+      "source_sha256": "9af3ca083600be24ab908684fadac88b812318c74ace88c509754781525a60db",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "alice.adult.o_wild_role_provoke",
@@ -11022,7 +11184,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_wild_role_provoke"
       },
-      "source_sha256": "0abf2e0cf9c4a8060a92b945705d32deaa6564311dee3959f7e36d118932d6ba"
+      "source_sha256": "0abf2e0cf9c4a8060a92b945705d32deaa6564311dee3959f7e36d118932d6ba",
+      "english": "That badge means nothing to Alice! You're no fun!"
     },
     {
       "id": "alice.adult.o_lesson_praised",
@@ -11038,7 +11201,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_lesson_praised"
       },
-      "source_sha256": "89c7081f77eb4b48371b819bb4db41a6096cfc8e86be0a678bc1d859e5716333"
+      "source_sha256": "89c7081f77eb4b48371b819bb4db41a6096cfc8e86be0a678bc1d859e5716333",
+      "english": "Hehe, I was praised! Alice is happy!"
     },
     {
       "id": "alice.adult.o_lesson_praised2",
@@ -11054,7 +11218,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_lesson_praised2"
       },
-      "source_sha256": "35ee59033696e33ed308009d5e4aaa414845f76c3062059d2c831334a9042734"
+      "source_sha256": "35ee59033696e33ed308009d5e4aaa414845f76c3062059d2c831334a9042734",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "alice.adult.o_lesson_scolded",
@@ -11070,7 +11235,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_lesson_scolded"
       },
-      "source_sha256": "7ce1dfa9df17bbd64b94b875ffe928c71d6bf2d1a0d4717547b47abba06475b6"
+      "source_sha256": "7ce1dfa9df17bbd64b94b875ffe928c71d6bf2d1a0d4717547b47abba06475b6",
+      "english": "I'm sorry... Alice will fix it properly..."
     },
     {
       "id": "alice.adult.o_badge_envy",
@@ -11086,7 +11252,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_badge_envy"
       },
-      "source_sha256": "f8ac5b5bc2ee158ff63b5f2ec5b6c040dc92ce42922d4448f26335fb52fc3d2a"
+      "source_sha256": "f8ac5b5bc2ee158ff63b5f2ec5b6c040dc92ce42922d4448f26335fb52fc3d2a",
+      "english": "I'm jealous... Alice wants that badge too."
     },
     {
       "id": "alice.adult.o_badge_admire",
@@ -11102,7 +11269,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_badge_admire"
       },
-      "source_sha256": "1d78a460f2d3afaa00379625bf079a254a2bdc45189ceafda5b960015426c13b"
+      "source_sha256": "1d78a460f2d3afaa00379625bf079a254a2bdc45189ceafda5b960015426c13b",
+      "english": "Amazing! Teach Alice too!"
     },
     {
       "id": "alice.young.o_exam_nervous",
@@ -11118,7 +11286,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_nervous"
       },
-      "source_sha256": "6420d37fb77fdc94d072ab18175a3b39b510f687f1f51da6e4cf77807cc60630"
+      "source_sha256": "6420d37fb77fdc94d072ab18175a3b39b510f687f1f51da6e4cf77807cc60630",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "alice.young.o_exam_nervous2",
@@ -11134,7 +11303,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_nervous2"
       },
-      "source_sha256": "b022a2e074a104ad49b5400f9ff77ea28428c72ad79a6c5fbf527ebbd405d66c"
+      "source_sha256": "b022a2e074a104ad49b5400f9ff77ea28428c72ad79a6c5fbf527ebbd405d66c",
+      "english": "I'm nervous, but Alice will do my best!"
     },
     {
       "id": "alice.young.o_exam_answer",
@@ -11150,7 +11320,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_answer"
       },
-      "source_sha256": "cf98a3bbb9cf591d760021fac009d99b41f74e0390b1ed70785d06f5aa963251"
+      "source_sha256": "cf98a3bbb9cf591d760021fac009d99b41f74e0390b1ed70785d06f5aa963251",
+      "english": "Yes! Alice knows this!"
     },
     {
       "id": "alice.young.o_exam_unsure",
@@ -11166,7 +11337,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_unsure"
       },
-      "source_sha256": "93624a5d4804209e048c159a0b7e121556228b8290c4e95646b994a114adaa96"
+      "source_sha256": "93624a5d4804209e048c159a0b7e121556228b8290c4e95646b994a114adaa96",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "alice.young.o_exam_hide_fail",
@@ -11182,7 +11354,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_hide_fail"
       },
-      "source_sha256": "17514660323ed79a3bed7a0911a15b0093549c2dc0098fd8057c74aa721b3b32"
+      "source_sha256": "17514660323ed79a3bed7a0911a15b0093549c2dc0098fd8057c74aa721b3b32",
+      "english": "Alice isn't here! Nobody's here!"
     },
     {
       "id": "alice.young.o_exam_promise_wait",
@@ -11198,7 +11371,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_promise_wait"
       },
-      "source_sha256": "a18fba01e7964b11a7270f67bde5b0f93fcee32f523c70d8ac17606f96c23d6d"
+      "source_sha256": "a18fba01e7964b11a7270f67bde5b0f93fcee32f523c70d8ac17606f96c23d6d",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "alice.young.o_exam_promise_wait2",
@@ -11214,7 +11388,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_promise_wait2"
       },
-      "source_sha256": "4cbe407c9584de0ae977b1d1af7e18639709ac5b9ea88babfb4d0f7af6a5f550"
+      "source_sha256": "4cbe407c9584de0ae977b1d1af7e18639709ac5b9ea88babfb4d0f7af6a5f550",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "alice.young.o_exam_promise_fail",
@@ -11230,7 +11405,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_promise_fail"
       },
-      "source_sha256": "b87ccab608e1b741928f122934e200a240591f72b8fb49da01abc5f97cf881e6"
+      "source_sha256": "b87ccab608e1b741928f122934e200a240591f72b8fb49da01abc5f97cf881e6",
+      "english": "Unfair! Why not Alice?!"
     },
     {
       "id": "alice.young.o_exam_promise_fail2",
@@ -11246,7 +11422,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_promise_fail2"
       },
-      "source_sha256": "acd0dae5be0830298fd5d24fc781732858489cc3fa82621b77113f720ee95716"
+      "source_sha256": "acd0dae5be0830298fd5d24fc781732858489cc3fa82621b77113f720ee95716",
+      "english": "Alice was waiting too! Hmph!"
     },
     {
       "id": "alice.young.o_exam_report",
@@ -11262,7 +11439,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_report"
       },
-      "source_sha256": "79072ad588c46e8f595dbefe82e08722b38591348d6183b92afc8bf00160d7f1"
+      "source_sha256": "79072ad588c46e8f595dbefe82e08722b38591348d6183b92afc8bf00160d7f1",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "alice.young.o_exam_sorry",
@@ -11278,7 +11456,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_sorry"
       },
-      "source_sha256": "d4bc459db4f7c749c2036bb5fcc2c1bd85d0fdd30e1ea0dd385cc5eeb76738a2"
+      "source_sha256": "d4bc459db4f7c749c2036bb5fcc2c1bd85d0fdd30e1ea0dd385cc5eeb76738a2",
+      "english": "I'm sorry... Alice got it wrong..."
     },
     {
       "id": "alice.young.o_exam_pass",
@@ -11294,7 +11473,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_pass"
       },
-      "source_sha256": "e7a9e84585e7cd15bf85c3f45fb7d6c0590f434bd05aaac99889025575b50092"
+      "source_sha256": "e7a9e84585e7cd15bf85c3f45fb7d6c0590f434bd05aaac99889025575b50092",
+      "english": "Yay! A badge! Alice can relax now!"
     },
     {
       "id": "alice.young.o_exam_pass2",
@@ -11310,7 +11490,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_pass2"
       },
-      "source_sha256": "99c15fa3f6ee8268b5e1db6a777c2b723b0e31976746758890959141e41b16c9"
+      "source_sha256": "99c15fa3f6ee8268b5e1db6a777c2b723b0e31976746758890959141e41b16c9",
+      "english": "Thank you, human! Alice is so happy!"
     },
     {
       "id": "alice.young.o_exam_fail",
@@ -11326,7 +11507,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_fail"
       },
-      "source_sha256": "2cc9895b8c85249067818964db8295a227e00e01d3d5e0e9a80256754846c43b"
+      "source_sha256": "2cc9895b8c85249067818964db8295a227e00e01d3d5e0e9a80256754846c43b",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "alice.young.o_exam_fail2",
@@ -11342,7 +11524,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_exam_fail2"
       },
-      "source_sha256": "46303f515d719e78701542865c5ab255021e8ebc486327111fcf4563f058ad7c"
+      "source_sha256": "46303f515d719e78701542865c5ab255021e8ebc486327111fcf4563f058ad7c",
+      "english": "Alice failed...? Waaah..."
     },
     {
       "id": "alice.young.o_badge_proud",
@@ -11358,7 +11541,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_badge_proud"
       },
-      "source_sha256": "b754bba84377b76f82774f55f757680d0c7ced00418658240c189ebdcdc652de"
+      "source_sha256": "b754bba84377b76f82774f55f757680d0c7ced00418658240c189ebdcdc652de",
+      "english": "Look at Alice's badge! Isn't it great?"
     },
     {
       "id": "alice.young.o_shop_appeal",
@@ -11374,7 +11558,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_shop_appeal"
       },
-      "source_sha256": "7bea6d2684e51557f5b7b637c91b64abddd281d0b7a88d462c1650cfd47ea5ec"
+      "source_sha256": "7bea6d2684e51557f5b7b637c91b64abddd281d0b7a88d462c1650cfd47ea5ec",
+      "english": "Please buy Alice! Let's stay together!"
     },
     {
       "id": "alice.young.o_shop_appeal2",
@@ -11390,7 +11575,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_shop_appeal2"
       },
-      "source_sha256": "05b9afec50474fe1c548dc5bd593e7496a67e9365b63deb58b01ac16993975b3"
+      "source_sha256": "05b9afec50474fe1c548dc5bd593e7496a67e9365b63deb58b01ac16993975b3",
+      "english": "Here, here! Alice is a really good one!"
     },
     {
       "id": "alice.young.o_shop_bought",
@@ -11406,7 +11592,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_shop_bought"
       },
-      "source_sha256": "2ff3777ea612785d3c54470befa78a0043558d720e360666c0f6c0e89691ecd7"
+      "source_sha256": "2ff3777ea612785d3c54470befa78a0043558d720e360666c0f6c0e89691ecd7",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "alice.young.o_shop_sold_sad",
@@ -11422,7 +11609,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_shop_sold_sad"
       },
-      "source_sha256": "7d34067794fc6d0c1b76a7c1190d3b78dbab337764c5d69c99b7b2d7dc2dbb75"
+      "source_sha256": "7d34067794fc6d0c1b76a7c1190d3b78dbab337764c5d69c99b7b2d7dc2dbb75",
+      "english": "Why...? Don't forget Alice..."
     },
     {
       "id": "alice.young.o_shop_sold_proud",
@@ -11438,7 +11626,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_shop_sold_proud"
       },
-      "source_sha256": "5c0457528717377860d9902d0bcd2ff14c8d61ce9fb1b24dde27f776a92c440a"
+      "source_sha256": "5c0457528717377860d9902d0bcd2ff14c8d61ce9fb1b24dde27f776a92c440a",
+      "english": "Alice is going to a better home! Bye-bye!"
     },
     {
       "id": "alice.young.o_wild_role_beg",
@@ -11454,7 +11643,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_wild_role_beg"
       },
-      "source_sha256": "de04be7561857066bdb1bfa713b81563765f99606640cbdbee4aa8e65d4300f9"
+      "source_sha256": "de04be7561857066bdb1bfa713b81563765f99606640cbdbee4aa8e65d4300f9",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "alice.young.o_wild_role_provoke",
@@ -11470,7 +11660,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_wild_role_provoke"
       },
-      "source_sha256": "f84b3eaf5f620d66b12592ca3bc44e8d15b80c5784a0ad0a1fbb6cc2b5afd98d"
+      "source_sha256": "f84b3eaf5f620d66b12592ca3bc44e8d15b80c5784a0ad0a1fbb6cc2b5afd98d",
+      "english": "That badge means nothing to Alice! You're no fun!"
     },
     {
       "id": "alice.young.o_lesson_praised",
@@ -11486,7 +11677,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_lesson_praised"
       },
-      "source_sha256": "746c23b6c4e492fa326afedd4a7e85eac2075c5fbf1865965a5a6836d2a80c0c"
+      "source_sha256": "746c23b6c4e492fa326afedd4a7e85eac2075c5fbf1865965a5a6836d2a80c0c",
+      "english": "Hehe, I was praised! Alice is happy!"
     },
     {
       "id": "alice.young.o_lesson_praised2",
@@ -11502,7 +11694,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_lesson_praised2"
       },
-      "source_sha256": "38d0979cce6614cf9ea41d63c5ee2213d24fc14386953aa7cd35f8be14cca610"
+      "source_sha256": "38d0979cce6614cf9ea41d63c5ee2213d24fc14386953aa7cd35f8be14cca610",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "alice.young.o_lesson_scolded",
@@ -11518,7 +11711,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_lesson_scolded"
       },
-      "source_sha256": "eb1424abeaca3039d76eba75c72ceed6a8b21243976f5e99756a4d1d0c4e229f"
+      "source_sha256": "eb1424abeaca3039d76eba75c72ceed6a8b21243976f5e99756a4d1d0c4e229f",
+      "english": "I'm sorry... Alice will fix it properly..."
     },
     {
       "id": "alice.young.o_badge_envy",
@@ -11534,7 +11728,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_badge_envy"
       },
-      "source_sha256": "d2b104fa5dc5fcf20489488d4709044eba049a4dd66bd1f17b941b7bfec5db9c"
+      "source_sha256": "d2b104fa5dc5fcf20489488d4709044eba049a4dd66bd1f17b941b7bfec5db9c",
+      "english": "I'm jealous... Alice wants that badge too."
     },
     {
       "id": "alice.young.o_badge_admire",
@@ -11550,7 +11745,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_badge_admire"
       },
-      "source_sha256": "790ce02dbc7037997d8dfd04043cc6501ef3826d0c3ddbbfbd652823158eb50f"
+      "source_sha256": "790ce02dbc7037997d8dfd04043cc6501ef3826d0c3ddbbfbd652823158eb50f",
+      "english": "Amazing! Teach Alice too!"
     },
     {
       "id": "chen.adult.o_exam_nervous",
@@ -11566,7 +11762,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_nervous"
       },
-      "source_sha256": "d813af9ad8e636afa4aa5f52c2da26e71c61898c2032ea922f0c775cff15f0f1"
+      "source_sha256": "d813af9ad8e636afa4aa5f52c2da26e71c61898c2032ea922f0c775cff15f0f1",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "chen.adult.o_exam_nervous2",
@@ -11582,7 +11779,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_nervous2"
       },
-      "source_sha256": "d7c8e3e7061edcf1190d92cd334c32808750003b3d2769c962f7ff7274b71da2"
+      "source_sha256": "d7c8e3e7061edcf1190d92cd334c32808750003b3d2769c962f7ff7274b71da2",
+      "english": "I'm nervous, but Chen will do my best!"
     },
     {
       "id": "chen.adult.o_exam_answer",
@@ -11598,7 +11796,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_answer"
       },
-      "source_sha256": "fa9eae9ab8bd64155fada0184eadc5e0d249a198a13c40f810a848544cc03f88"
+      "source_sha256": "fa9eae9ab8bd64155fada0184eadc5e0d249a198a13c40f810a848544cc03f88",
+      "english": "Yes! Chen knows this!"
     },
     {
       "id": "chen.adult.o_exam_unsure",
@@ -11614,7 +11813,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_unsure"
       },
-      "source_sha256": "90f2f8df79cf37e65399f1849973d7137406ccbc40b3c3f1c3bb255150847871"
+      "source_sha256": "90f2f8df79cf37e65399f1849973d7137406ccbc40b3c3f1c3bb255150847871",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "chen.adult.o_exam_hide_fail",
@@ -11630,7 +11830,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_hide_fail"
       },
-      "source_sha256": "5b29fd1873ce86cf154fbd876efb66f662e16d8e7dd4bea7241603167a2cc7bb"
+      "source_sha256": "5b29fd1873ce86cf154fbd876efb66f662e16d8e7dd4bea7241603167a2cc7bb",
+      "english": "Chen isn't here! Nobody's here!"
     },
     {
       "id": "chen.adult.o_exam_promise_wait",
@@ -11646,7 +11847,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_promise_wait"
       },
-      "source_sha256": "5e6f9f3dd7d622bd4a33f7af6191f9ddaee93105556a095b38e36a1d14d03624"
+      "source_sha256": "5e6f9f3dd7d622bd4a33f7af6191f9ddaee93105556a095b38e36a1d14d03624",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "chen.adult.o_exam_promise_wait2",
@@ -11662,7 +11864,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "e0d22b43b7d3764d037f4359f227259b2a3c16c32aea28caa379283768a98e3e"
+      "source_sha256": "e0d22b43b7d3764d037f4359f227259b2a3c16c32aea28caa379283768a98e3e",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "chen.adult.o_exam_promise_fail",
@@ -11678,7 +11881,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_promise_fail"
       },
-      "source_sha256": "e726b39c9343f345dcc71f808ce54bfba2f5fa2a7d1526f06a75d6cd022ef2d2"
+      "source_sha256": "e726b39c9343f345dcc71f808ce54bfba2f5fa2a7d1526f06a75d6cd022ef2d2",
+      "english": "Unfair! Why not Chen?!"
     },
     {
       "id": "chen.adult.o_exam_promise_fail2",
@@ -11694,7 +11898,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "d7114613e17f74de2ab4ae9cdefbf97d6ba130c6c066ed706532bee541246783"
+      "source_sha256": "d7114613e17f74de2ab4ae9cdefbf97d6ba130c6c066ed706532bee541246783",
+      "english": "Chen was waiting too! Hmph!"
     },
     {
       "id": "chen.adult.o_exam_report",
@@ -11710,7 +11915,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_report"
       },
-      "source_sha256": "339eb5c226014dac35958b2d7a153a45b0803ff8b1a7ac4a6bfb00d372b04874"
+      "source_sha256": "339eb5c226014dac35958b2d7a153a45b0803ff8b1a7ac4a6bfb00d372b04874",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "chen.adult.o_exam_sorry",
@@ -11726,7 +11932,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_sorry"
       },
-      "source_sha256": "ae2502cd3004610d1d10a1765c8fa13c2c0826c832be18f16267d30b206ce76d"
+      "source_sha256": "ae2502cd3004610d1d10a1765c8fa13c2c0826c832be18f16267d30b206ce76d",
+      "english": "I'm sorry... Chen got it wrong..."
     },
     {
       "id": "chen.adult.o_exam_pass",
@@ -11742,7 +11949,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_pass"
       },
-      "source_sha256": "8bdf6a3d75c8fd58a86e2e60e0782d23975fe0768a0d0b0912746238a09feeb6"
+      "source_sha256": "8bdf6a3d75c8fd58a86e2e60e0782d23975fe0768a0d0b0912746238a09feeb6",
+      "english": "Yay! A badge! Chen can relax now!"
     },
     {
       "id": "chen.adult.o_exam_pass2",
@@ -11758,7 +11966,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_pass2"
       },
-      "source_sha256": "0f87993ff7c84086dadbff71fdc683e3ec10279fd1703c6a761a77a8d30c603f"
+      "source_sha256": "0f87993ff7c84086dadbff71fdc683e3ec10279fd1703c6a761a77a8d30c603f",
+      "english": "Thank you, human! Chen is so happy!"
     },
     {
       "id": "chen.adult.o_exam_fail",
@@ -11774,7 +11983,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_fail"
       },
-      "source_sha256": "9da77d6f6227d4b3e21bdb061f3b703b734f8f138874e93b6f9cb42183ad0dcb"
+      "source_sha256": "9da77d6f6227d4b3e21bdb061f3b703b734f8f138874e93b6f9cb42183ad0dcb",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "chen.adult.o_exam_fail2",
@@ -11790,7 +12000,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_exam_fail2"
       },
-      "source_sha256": "6a4197177b0b16ec3453657bf4ed6c40922239fec5bfe19972378a145fb2426f"
+      "source_sha256": "6a4197177b0b16ec3453657bf4ed6c40922239fec5bfe19972378a145fb2426f",
+      "english": "Chen failed...? Waaah..."
     },
     {
       "id": "chen.adult.o_badge_proud",
@@ -11806,7 +12017,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_badge_proud"
       },
-      "source_sha256": "1932ee96e17cfc2302b56e3289e84cb648a6062ad88f9ad1d254f4407ca757ef"
+      "source_sha256": "1932ee96e17cfc2302b56e3289e84cb648a6062ad88f9ad1d254f4407ca757ef",
+      "english": "Look at Chen's badge! Isn't it great?"
     },
     {
       "id": "chen.adult.o_shop_appeal",
@@ -11822,7 +12034,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_shop_appeal"
       },
-      "source_sha256": "e4dd3055f01f383500e3c987ed8a74c137cb9516c10a0579367765aebfe27aac"
+      "source_sha256": "e4dd3055f01f383500e3c987ed8a74c137cb9516c10a0579367765aebfe27aac",
+      "english": "Please buy Chen! Let's stay together!"
     },
     {
       "id": "chen.adult.o_shop_appeal2",
@@ -11838,7 +12051,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_shop_appeal2"
       },
-      "source_sha256": "118f9956dcec6d2615e184c369c3da3175eea9b6b52770dced638a84eec9c83a"
+      "source_sha256": "118f9956dcec6d2615e184c369c3da3175eea9b6b52770dced638a84eec9c83a",
+      "english": "Here, here! Chen is a really good one!"
     },
     {
       "id": "chen.adult.o_shop_bought",
@@ -11854,7 +12068,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_shop_bought"
       },
-      "source_sha256": "1b0fa3adf50e9e6312e8e5464be7a0432c7806f2dba348d559e662074b8022cf"
+      "source_sha256": "1b0fa3adf50e9e6312e8e5464be7a0432c7806f2dba348d559e662074b8022cf",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "chen.adult.o_shop_sold_sad",
@@ -11870,7 +12085,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_shop_sold_sad"
       },
-      "source_sha256": "699d31ddc53ea2fd58e60c1aec7085ba1912d08d197d5a75158b5432d47c6c26"
+      "source_sha256": "699d31ddc53ea2fd58e60c1aec7085ba1912d08d197d5a75158b5432d47c6c26",
+      "english": "Why...? Don't forget Chen..."
     },
     {
       "id": "chen.adult.o_shop_sold_proud",
@@ -11886,7 +12102,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_shop_sold_proud"
       },
-      "source_sha256": "d84629e51fc5a06b2a6d8cb5738e6456dea2c5df76db96399d44dd044972eef2"
+      "source_sha256": "d84629e51fc5a06b2a6d8cb5738e6456dea2c5df76db96399d44dd044972eef2",
+      "english": "Chen is going to a better home! Bye-bye!"
     },
     {
       "id": "chen.adult.o_wild_role_beg",
@@ -11902,7 +12119,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_wild_role_beg"
       },
-      "source_sha256": "74ffd6baeefb6c8604e9b26b1a4e850d8b77e524ed9344b04241b2ae0d988c30"
+      "source_sha256": "74ffd6baeefb6c8604e9b26b1a4e850d8b77e524ed9344b04241b2ae0d988c30",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "chen.adult.o_wild_role_provoke",
@@ -11918,7 +12136,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_wild_role_provoke"
       },
-      "source_sha256": "1202ebc6d37737f5388a02d5f59b6524b3c54f8f1e0d201de7de0c02450ad18c"
+      "source_sha256": "1202ebc6d37737f5388a02d5f59b6524b3c54f8f1e0d201de7de0c02450ad18c",
+      "english": "That badge means nothing to Chen! You're no fun!"
     },
     {
       "id": "chen.adult.o_lesson_praised",
@@ -11934,7 +12153,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_lesson_praised"
       },
-      "source_sha256": "6a184e9389debd16a6412cd9893afaaaabb6643516f31dac7b8f594e0d15cb4b"
+      "source_sha256": "6a184e9389debd16a6412cd9893afaaaabb6643516f31dac7b8f594e0d15cb4b",
+      "english": "Hehe, I was praised! Chen is happy!"
     },
     {
       "id": "chen.adult.o_lesson_praised2",
@@ -11950,7 +12170,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_lesson_praised2"
       },
-      "source_sha256": "1db7629c9437ebd5d5a38410cbdd8006e29f61747eddca94e020d30344d05f91"
+      "source_sha256": "1db7629c9437ebd5d5a38410cbdd8006e29f61747eddca94e020d30344d05f91",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "chen.adult.o_lesson_scolded",
@@ -11966,7 +12187,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_lesson_scolded"
       },
-      "source_sha256": "e838d6394d507fc80f8b4eea0d8afae8d31bf55cdf5a35a0300a551f8b9fca4e"
+      "source_sha256": "e838d6394d507fc80f8b4eea0d8afae8d31bf55cdf5a35a0300a551f8b9fca4e",
+      "english": "I'm sorry... Chen will fix it properly..."
     },
     {
       "id": "chen.adult.o_badge_envy",
@@ -11982,7 +12204,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_badge_envy"
       },
-      "source_sha256": "6b314d6bc435bed7b90ae7a2afb20f61dc347c410275ce221d70415e0210a634"
+      "source_sha256": "6b314d6bc435bed7b90ae7a2afb20f61dc347c410275ce221d70415e0210a634",
+      "english": "I'm jealous... Chen wants that badge too."
     },
     {
       "id": "chen.adult.o_badge_admire",
@@ -11998,7 +12221,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_badge_admire"
       },
-      "source_sha256": "0187cdcef648296ef8cf3d9c53650e07ca9f6c1ab4d76dff67a59fa84d157793"
+      "source_sha256": "0187cdcef648296ef8cf3d9c53650e07ca9f6c1ab4d76dff67a59fa84d157793",
+      "english": "Amazing! Teach Chen too!"
     },
     {
       "id": "chen.young.o_exam_nervous",
@@ -12014,7 +12238,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_nervous"
       },
-      "source_sha256": "44ad2497672bc6bd766d973471b680800156fd4e46b138b5cccb8b577d4df5a4"
+      "source_sha256": "44ad2497672bc6bd766d973471b680800156fd4e46b138b5cccb8b577d4df5a4",
+      "english": "Will I get a badge...? My heart is pounding."
     },
     {
       "id": "chen.young.o_exam_nervous2",
@@ -12030,7 +12255,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_nervous2"
       },
-      "source_sha256": "494d31432b74182ff19807a7802d973963c4f884f1cc71aa9767da9f4ad4b385"
+      "source_sha256": "494d31432b74182ff19807a7802d973963c4f884f1cc71aa9767da9f4ad4b385",
+      "english": "I'm nervous, but Chen will do my best!"
     },
     {
       "id": "chen.young.o_exam_answer",
@@ -12046,7 +12272,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_answer"
       },
-      "source_sha256": "10a502ca7d4b8977d4bfdc94fbd00bf2fc9a9ec135be8e22dd43ebae9d09be2f"
+      "source_sha256": "10a502ca7d4b8977d4bfdc94fbd00bf2fc9a9ec135be8e22dd43ebae9d09be2f",
+      "english": "Yes! Chen knows this!"
     },
     {
       "id": "chen.young.o_exam_unsure",
@@ -12062,7 +12289,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_unsure"
       },
-      "source_sha256": "c6c77c90ea3d5e01a5ac6fa5443f9114f39f930ac5505cbb6db443d508407a6e"
+      "source_sha256": "c6c77c90ea3d5e01a5ac6fa5443f9114f39f930ac5505cbb6db443d508407a6e",
+      "english": "Um... huh...? What was it again..."
     },
     {
       "id": "chen.young.o_exam_hide_fail",
@@ -12078,7 +12306,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_hide_fail"
       },
-      "source_sha256": "77c11e120d61e0f16541c80facecc9ef2e43fa60634a6212dca0101c3000d5cc"
+      "source_sha256": "77c11e120d61e0f16541c80facecc9ef2e43fa60634a6212dca0101c3000d5cc",
+      "english": "Chen isn't here! Nobody's here!"
     },
     {
       "id": "chen.young.o_exam_promise_wait",
@@ -12094,7 +12323,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_promise_wait"
       },
-      "source_sha256": "e4ccd873e50b4cf2667b138ac195d61d165fe718b4f5040c22a01efaf0527dac"
+      "source_sha256": "e4ccd873e50b4cf2667b138ac195d61d165fe718b4f5040c22a01efaf0527dac",
+      "english": "Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "chen.young.o_exam_promise_wait2",
@@ -12110,7 +12340,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_promise_wait2"
       },
-      "source_sha256": "deddbfc065fd1ca93cbffdf279bca549188bf6ac05c791014e3a6de26fded8d2"
+      "source_sha256": "deddbfc065fd1ca93cbffdf279bca549188bf6ac05c791014e3a6de26fded8d2",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "chen.young.o_exam_promise_fail",
@@ -12126,7 +12357,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_promise_fail"
       },
-      "source_sha256": "9d01281a569885dcb20db865b0dda4c0e39d53c307046abc18b0a3aecd136aa7"
+      "source_sha256": "9d01281a569885dcb20db865b0dda4c0e39d53c307046abc18b0a3aecd136aa7",
+      "english": "Unfair! Why not Chen?!"
     },
     {
       "id": "chen.young.o_exam_promise_fail2",
@@ -12142,7 +12374,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_promise_fail2"
       },
-      "source_sha256": "8380044ed238bf9f6dca68993fbb939d27dcbb830736cc404327f6c83912fe0e"
+      "source_sha256": "8380044ed238bf9f6dca68993fbb939d27dcbb830736cc404327f6c83912fe0e",
+      "english": "Chen was waiting too! Hmph!"
     },
     {
       "id": "chen.young.o_exam_report",
@@ -12158,7 +12391,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_report"
       },
-      "source_sha256": "e589eb88ed7f61a0d0dc87d54901a73149637bf949850c5e0d5af8d016cffa4a"
+      "source_sha256": "e589eb88ed7f61a0d0dc87d54901a73149637bf949850c5e0d5af8d016cffa4a",
+      "english": "Human, there's a wild one over there!"
     },
     {
       "id": "chen.young.o_exam_sorry",
@@ -12174,7 +12408,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_sorry"
       },
-      "source_sha256": "57f435d007e4bf12afe47941622d4e349294925759b132db2365c85d779c76a9"
+      "source_sha256": "57f435d007e4bf12afe47941622d4e349294925759b132db2365c85d779c76a9",
+      "english": "I'm sorry... Chen got it wrong..."
     },
     {
       "id": "chen.young.o_exam_pass",
@@ -12190,7 +12425,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_pass"
       },
-      "source_sha256": "aebfbd6568010b08f5f458d560d4ea6dab6e92948e250a922cd094b2e6cb462b"
+      "source_sha256": "aebfbd6568010b08f5f458d560d4ea6dab6e92948e250a922cd094b2e6cb462b",
+      "english": "Yay! A badge! Chen can relax now!"
     },
     {
       "id": "chen.young.o_exam_pass2",
@@ -12206,7 +12442,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_pass2"
       },
-      "source_sha256": "9ca471ff734792145fa7c1cb872e6ce8bcd0e57d0362548524af274606e4ce0c"
+      "source_sha256": "9ca471ff734792145fa7c1cb872e6ce8bcd0e57d0362548524af274606e4ce0c",
+      "english": "Thank you, human! Chen is so happy!"
     },
     {
       "id": "chen.young.o_exam_fail",
@@ -12222,7 +12459,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_fail"
       },
-      "source_sha256": "52c1f2568162892f3b1744bb17e8642185657151e92666984bee97376d2c0ba1"
+      "source_sha256": "52c1f2568162892f3b1744bb17e8642185657151e92666984bee97376d2c0ba1",
+      "english": "Why... why is this happening...!"
     },
     {
       "id": "chen.young.o_exam_fail2",
@@ -12238,7 +12476,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_exam_fail2"
       },
-      "source_sha256": "6e5e5f4347e63dd965ba032b708a57154872fa2a15cdfe1354f18816f2754079"
+      "source_sha256": "6e5e5f4347e63dd965ba032b708a57154872fa2a15cdfe1354f18816f2754079",
+      "english": "Chen failed...? Waaah..."
     },
     {
       "id": "chen.young.o_badge_proud",
@@ -12254,7 +12493,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_badge_proud"
       },
-      "source_sha256": "0f795473d3a263baa855d91101b251be02d9557312f77a9d1f6628417e52c8ea"
+      "source_sha256": "0f795473d3a263baa855d91101b251be02d9557312f77a9d1f6628417e52c8ea",
+      "english": "Look at Chen's badge! Isn't it great?"
     },
     {
       "id": "chen.young.o_shop_appeal",
@@ -12270,7 +12510,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_shop_appeal"
       },
-      "source_sha256": "ef65f2b3fd50f66cf4075d696db786fd1645284ead42186cc423dde578a1728e"
+      "source_sha256": "ef65f2b3fd50f66cf4075d696db786fd1645284ead42186cc423dde578a1728e",
+      "english": "Please buy Chen! Let's stay together!"
     },
     {
       "id": "chen.young.o_shop_appeal2",
@@ -12286,7 +12527,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_shop_appeal2"
       },
-      "source_sha256": "facf7c4374ac28edfad22753c204dbbd58227272fbf99bc429a9f8e899c79a54"
+      "source_sha256": "facf7c4374ac28edfad22753c204dbbd58227272fbf99bc429a9f8e899c79a54",
+      "english": "Here, here! Chen is a really good one!"
     },
     {
       "id": "chen.young.o_shop_bought",
@@ -12302,7 +12544,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_shop_bought"
       },
-      "source_sha256": "46f77e7b73a682fc1ccd9931125e12500e6396f4a02a57433a40c0bba9c12faa"
+      "source_sha256": "46f77e7b73a682fc1ccd9931125e12500e6396f4a02a57433a40c0bba9c12faa",
+      "english": "A new home! Please take care of me!"
     },
     {
       "id": "chen.young.o_shop_sold_sad",
@@ -12318,7 +12561,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_shop_sold_sad"
       },
-      "source_sha256": "361cafebfe771ab5b64e4a051b8dd40b3752fa55d2e46a8791ca7deb3fab1f45"
+      "source_sha256": "361cafebfe771ab5b64e4a051b8dd40b3752fa55d2e46a8791ca7deb3fab1f45",
+      "english": "Why...? Don't forget Chen..."
     },
     {
       "id": "chen.young.o_shop_sold_proud",
@@ -12334,7 +12578,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_shop_sold_proud"
       },
-      "source_sha256": "666f3f0f0abda3398dabdc45147ba208af73fc1943fa073d797faa755a5cfdcc"
+      "source_sha256": "666f3f0f0abda3398dabdc45147ba208af73fc1943fa073d797faa755a5cfdcc",
+      "english": "Chen is going to a better home! Bye-bye!"
     },
     {
       "id": "chen.young.o_wild_role_beg",
@@ -12350,7 +12595,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_wild_role_beg"
       },
-      "source_sha256": "a7e53836ef6e5b56d9351349860eb71eafd973b31a2027871595421d78908765"
+      "source_sha256": "a7e53836ef6e5b56d9351349860eb71eafd973b31a2027871595421d78908765",
+      "english": "Give me something yummy! Open this!"
     },
     {
       "id": "chen.young.o_wild_role_provoke",
@@ -12366,7 +12612,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_wild_role_provoke"
       },
-      "source_sha256": "113aee0aa807c02daecfeb6a5f1d31721613162f0111279111894e6bf11de2a7"
+      "source_sha256": "113aee0aa807c02daecfeb6a5f1d31721613162f0111279111894e6bf11de2a7",
+      "english": "That badge means nothing to Chen! You're no fun!"
     },
     {
       "id": "chen.young.o_lesson_praised",
@@ -12382,7 +12629,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_lesson_praised"
       },
-      "source_sha256": "5075c32118747e8ac958cef96815d927300befe89f1e1849873e35ff2d3cd454"
+      "source_sha256": "5075c32118747e8ac958cef96815d927300befe89f1e1849873e35ff2d3cd454",
+      "english": "Hehe, I was praised! Chen is happy!"
     },
     {
       "id": "chen.young.o_lesson_praised2",
@@ -12398,7 +12646,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_lesson_praised2"
       },
-      "source_sha256": "cb2d475c57afdc05afcf099d5e3925eb5cf221a576ba96eed552e33a838d8e10"
+      "source_sha256": "cb2d475c57afdc05afcf099d5e3925eb5cf221a576ba96eed552e33a838d8e10",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "chen.young.o_lesson_scolded",
@@ -12414,7 +12663,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_lesson_scolded"
       },
-      "source_sha256": "f7db07e245f91a7a194b8fa199dc76a3e4330327f760487b1a18a470710ff85a"
+      "source_sha256": "f7db07e245f91a7a194b8fa199dc76a3e4330327f760487b1a18a470710ff85a",
+      "english": "I'm sorry... Chen will fix it properly..."
     },
     {
       "id": "chen.young.o_badge_envy",
@@ -12430,7 +12680,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_badge_envy"
       },
-      "source_sha256": "8923bd8f5b737d1076770389f5e794dd1651efa792ab079cdf525b159e88d6a8"
+      "source_sha256": "8923bd8f5b737d1076770389f5e794dd1651efa792ab079cdf525b159e88d6a8",
+      "english": "I'm jealous... Chen wants that badge too."
     },
     {
       "id": "chen.young.o_badge_admire",
@@ -12446,7 +12697,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_badge_admire"
       },
-      "source_sha256": "792da0862b4fcbe7fcb29e7f8afd46b7c49c8f9ee83e812997d89d69268a63f5"
+      "source_sha256": "792da0862b4fcbe7fcb29e7f8afd46b7c49c8f9ee83e812997d89d69268a63f5",
+      "english": "Amazing! Teach Chen too!"
     },
     {
       "id": "patchouli.adult.o_exam_nervous",
@@ -12462,7 +12714,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_nervous"
       },
-      "source_sha256": "552b9dd95139d8d33e62187d62eb30c58f97304b613f4447b09eb71bbd6702a9"
+      "source_sha256": "552b9dd95139d8d33e62187d62eb30c58f97304b613f4447b09eb71bbd6702a9",
+      "english": "Mukyu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "patchouli.adult.o_exam_nervous2",
@@ -12478,7 +12731,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_nervous2"
       },
-      "source_sha256": "0380c475dfcb39cfdf3e099f6501480260c3ed98044ffc84219917b29b1fd078"
+      "source_sha256": "0380c475dfcb39cfdf3e099f6501480260c3ed98044ffc84219917b29b1fd078",
+      "english": "Mukyu... I'm nervous, but Patchouli will do my best!"
     },
     {
       "id": "patchouli.adult.o_exam_answer",
@@ -12494,7 +12748,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_answer"
       },
-      "source_sha256": "52dbebb1da51a3a0964526f090ed385f5f84a3e2d7f6a4d779e05f3c686c6c60"
+      "source_sha256": "52dbebb1da51a3a0964526f090ed385f5f84a3e2d7f6a4d779e05f3c686c6c60",
+      "english": "Mukyu... Yes! Patchouli knows this!"
     },
     {
       "id": "patchouli.adult.o_exam_unsure",
@@ -12510,7 +12765,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_unsure"
       },
-      "source_sha256": "cd468a21ec5581f2fba33ffa8cd357dffa31dfc1ad2df682bec33ba040d735d3"
+      "source_sha256": "cd468a21ec5581f2fba33ffa8cd357dffa31dfc1ad2df682bec33ba040d735d3",
+      "english": "Mukyu... Um... huh...? What was it again..."
     },
     {
       "id": "patchouli.adult.o_exam_hide_fail",
@@ -12526,7 +12782,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_hide_fail"
       },
-      "source_sha256": "c0232182d34f162bf0742f46ecb0c9c3d48dc3a6fa75ab542e29b19d41d2e9ab"
+      "source_sha256": "c0232182d34f162bf0742f46ecb0c9c3d48dc3a6fa75ab542e29b19d41d2e9ab",
+      "english": "Mukyu... Patchouli isn't here! Nobody's here!"
     },
     {
       "id": "patchouli.adult.o_exam_promise_wait",
@@ -12542,7 +12799,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_promise_wait"
       },
-      "source_sha256": "90f56b4368f6de6dd6020a8a3f84b13f8ad70125e8fc8c58f6e9e652675e4b21"
+      "source_sha256": "90f56b4368f6de6dd6020a8a3f84b13f8ad70125e8fc8c58f6e9e652675e4b21",
+      "english": "Mukyu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "patchouli.adult.o_exam_promise_wait2",
@@ -12558,7 +12816,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "eaee2079eadc526db1e2339ee76c22b454eb5d629f1e0195cdbdaa60be0be7e1"
+      "source_sha256": "eaee2079eadc526db1e2339ee76c22b454eb5d629f1e0195cdbdaa60be0be7e1",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "patchouli.adult.o_exam_promise_fail",
@@ -12574,7 +12833,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_promise_fail"
       },
-      "source_sha256": "06454449dead7195eb7d25e8cfa84ca440772717acb0b418cfa62f27edb32bc8"
+      "source_sha256": "06454449dead7195eb7d25e8cfa84ca440772717acb0b418cfa62f27edb32bc8",
+      "english": "Mukyu... Unfair! Why not Patchouli?!"
     },
     {
       "id": "patchouli.adult.o_exam_promise_fail2",
@@ -12590,7 +12850,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "8f8488a1495dc84958062c1b53c460b2d8caa5529d3fac0cd6d6a2f84dcadf8c"
+      "source_sha256": "8f8488a1495dc84958062c1b53c460b2d8caa5529d3fac0cd6d6a2f84dcadf8c",
+      "english": "Patchouli was waiting too! Hmph!"
     },
     {
       "id": "patchouli.adult.o_exam_report",
@@ -12606,7 +12867,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_report"
       },
-      "source_sha256": "670a032f2d558a04eaa464e4b8ad623c102a5dde59f74a7a65cea8193a959137"
+      "source_sha256": "670a032f2d558a04eaa464e4b8ad623c102a5dde59f74a7a65cea8193a959137",
+      "english": "Mukyu... Human, there's a wild one over there!"
     },
     {
       "id": "patchouli.adult.o_exam_sorry",
@@ -12622,7 +12884,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_sorry"
       },
-      "source_sha256": "2addd2fc0400e5701e9fea6482f0a589f4277175a634a43fac185cd6eec94ee4"
+      "source_sha256": "2addd2fc0400e5701e9fea6482f0a589f4277175a634a43fac185cd6eec94ee4",
+      "english": "Mukyu... I'm sorry... Patchouli got it wrong..."
     },
     {
       "id": "patchouli.adult.o_exam_pass",
@@ -12638,7 +12901,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_pass"
       },
-      "source_sha256": "ec8fd31e867e9531dacef8be7fe735d4c9871a211009c2f61c1f5789dbcc8ed8"
+      "source_sha256": "ec8fd31e867e9531dacef8be7fe735d4c9871a211009c2f61c1f5789dbcc8ed8",
+      "english": "Mukyu... Yay! A badge! Patchouli can relax now!"
     },
     {
       "id": "patchouli.adult.o_exam_pass2",
@@ -12654,7 +12918,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_pass2"
       },
-      "source_sha256": "bd032e37c489b79098605368e98909c39aca86ab5b1c0fb65d3c7aff566242c3"
+      "source_sha256": "bd032e37c489b79098605368e98909c39aca86ab5b1c0fb65d3c7aff566242c3",
+      "english": "Thank you, human! Patchouli is so happy!"
     },
     {
       "id": "patchouli.adult.o_exam_fail",
@@ -12670,7 +12935,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_fail"
       },
-      "source_sha256": "af3f0682e952d5508667ea2952eaa7803faa5447a65908c002a338d39abf2a12"
+      "source_sha256": "af3f0682e952d5508667ea2952eaa7803faa5447a65908c002a338d39abf2a12",
+      "english": "Mukyu... Why... why is this happening...!"
     },
     {
       "id": "patchouli.adult.o_exam_fail2",
@@ -12686,7 +12952,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_exam_fail2"
       },
-      "source_sha256": "71b27bad4f8ea59ee3e7b672d6a65cd9cc26bfb6e517e1b546d5753d5da8e333"
+      "source_sha256": "71b27bad4f8ea59ee3e7b672d6a65cd9cc26bfb6e517e1b546d5753d5da8e333",
+      "english": "Patchouli failed...? Waaah..."
     },
     {
       "id": "patchouli.adult.o_badge_proud",
@@ -12702,7 +12969,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_badge_proud"
       },
-      "source_sha256": "a1249789d90f558cd30be7841dd952311ba2228710dd22f60371ff35c193b69d"
+      "source_sha256": "a1249789d90f558cd30be7841dd952311ba2228710dd22f60371ff35c193b69d",
+      "english": "Mukyu... Look at Patchouli's badge! Isn't it great?"
     },
     {
       "id": "patchouli.adult.o_shop_appeal",
@@ -12718,7 +12986,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_shop_appeal"
       },
-      "source_sha256": "1db8adceab263e8b0f1d721e43ef88c9e40dc2a874a142ba9decdcb389392bae"
+      "source_sha256": "1db8adceab263e8b0f1d721e43ef88c9e40dc2a874a142ba9decdcb389392bae",
+      "english": "Mukyu... Please buy Patchouli! Let's stay together!"
     },
     {
       "id": "patchouli.adult.o_shop_appeal2",
@@ -12734,7 +13003,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_shop_appeal2"
       },
-      "source_sha256": "f3fcd3040bf915de61cbce78e4f4534b320fea2eaae9ef71215b498298fe4d4b"
+      "source_sha256": "f3fcd3040bf915de61cbce78e4f4534b320fea2eaae9ef71215b498298fe4d4b",
+      "english": "Here, here! Patchouli is a really good one!"
     },
     {
       "id": "patchouli.adult.o_shop_bought",
@@ -12750,7 +13020,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_shop_bought"
       },
-      "source_sha256": "6640c872b60b98829911a1c3866bfa0acf8f132f9345fbcfbc55558457f8afa6"
+      "source_sha256": "6640c872b60b98829911a1c3866bfa0acf8f132f9345fbcfbc55558457f8afa6",
+      "english": "Mukyu... A new home! Please take care of me!"
     },
     {
       "id": "patchouli.adult.o_shop_sold_sad",
@@ -12766,7 +13037,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_shop_sold_sad"
       },
-      "source_sha256": "bd5aa5a891592ce9a9b092b60c000ac28d8e2ae3064381d702849794248937cd"
+      "source_sha256": "bd5aa5a891592ce9a9b092b60c000ac28d8e2ae3064381d702849794248937cd",
+      "english": "Mukyu... Why...? Don't forget Patchouli..."
     },
     {
       "id": "patchouli.adult.o_shop_sold_proud",
@@ -12782,7 +13054,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_shop_sold_proud"
       },
-      "source_sha256": "f86b7157a722faaafac926366efa7d0eabfb7faf6194298cdb115e7958567628"
+      "source_sha256": "f86b7157a722faaafac926366efa7d0eabfb7faf6194298cdb115e7958567628",
+      "english": "Mukyu... Patchouli is going to a better home! Bye-bye!"
     },
     {
       "id": "patchouli.adult.o_wild_role_beg",
@@ -12798,7 +13071,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_wild_role_beg"
       },
-      "source_sha256": "e133812c8595e67e02f5d3c1d4f6e663b5836877fedb9fbbeea945457a97791b"
+      "source_sha256": "e133812c8595e67e02f5d3c1d4f6e663b5836877fedb9fbbeea945457a97791b",
+      "english": "Mukyu... Give me something yummy! Open this!"
     },
     {
       "id": "patchouli.adult.o_wild_role_provoke",
@@ -12814,7 +13088,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_wild_role_provoke"
       },
-      "source_sha256": "1b31615596fb6a3bc54c2bebe3729107661fa60d6ea1d394cf7ec02224f166b4"
+      "source_sha256": "1b31615596fb6a3bc54c2bebe3729107661fa60d6ea1d394cf7ec02224f166b4",
+      "english": "Mukyu... That badge means nothing to Patchouli! You're no fun!"
     },
     {
       "id": "patchouli.adult.o_lesson_praised",
@@ -12830,7 +13105,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_lesson_praised"
       },
-      "source_sha256": "46b54a55c45e7b33b4ab0c739d44c91546481c0ff8a25aa3d547afe4707b3343"
+      "source_sha256": "46b54a55c45e7b33b4ab0c739d44c91546481c0ff8a25aa3d547afe4707b3343",
+      "english": "Mukyu... Hehe, I was praised! Patchouli is happy!"
     },
     {
       "id": "patchouli.adult.o_lesson_praised2",
@@ -12846,7 +13122,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_lesson_praised2"
       },
-      "source_sha256": "e78814fcad4cf5c3c71d9d8cff1b60c762161126e28dd57854ac8962d584a4e6"
+      "source_sha256": "e78814fcad4cf5c3c71d9d8cff1b60c762161126e28dd57854ac8962d584a4e6",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "patchouli.adult.o_lesson_scolded",
@@ -12862,7 +13139,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_lesson_scolded"
       },
-      "source_sha256": "c818b34d11acd1956f3bfbef642aa02805053fc1723b93437177215d4ee51609"
+      "source_sha256": "c818b34d11acd1956f3bfbef642aa02805053fc1723b93437177215d4ee51609",
+      "english": "Mukyu... I'm sorry... Patchouli will fix it properly..."
     },
     {
       "id": "patchouli.adult.o_badge_envy",
@@ -12878,7 +13156,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_badge_envy"
       },
-      "source_sha256": "1ebefd4ba9d6d8e44a84d96066e838316901ece11aa4ab61a67f1c70be9daafe"
+      "source_sha256": "1ebefd4ba9d6d8e44a84d96066e838316901ece11aa4ab61a67f1c70be9daafe",
+      "english": "Mukyu... I'm jealous... Patchouli wants that badge too."
     },
     {
       "id": "patchouli.adult.o_badge_admire",
@@ -12894,7 +13173,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_badge_admire"
       },
-      "source_sha256": "331876bb471355d858473954774d7d020c6c964ca9da0e4c7f52fe7369073122"
+      "source_sha256": "331876bb471355d858473954774d7d020c6c964ca9da0e4c7f52fe7369073122",
+      "english": "Mukyu... Amazing! Teach Patchouli too!"
     },
     {
       "id": "patchouli.young.o_exam_nervous",
@@ -12910,7 +13190,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_nervous"
       },
-      "source_sha256": "69d39661cd8e7206d37dded0a16495dc014c246976525ba103a242db13a65083"
+      "source_sha256": "69d39661cd8e7206d37dded0a16495dc014c246976525ba103a242db13a65083",
+      "english": "Mukyu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "patchouli.young.o_exam_nervous2",
@@ -12926,7 +13207,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_nervous2"
       },
-      "source_sha256": "921a6353fd53207dee3e34942759267df38413b2f4f89a8f402d377b8d329bc3"
+      "source_sha256": "921a6353fd53207dee3e34942759267df38413b2f4f89a8f402d377b8d329bc3",
+      "english": "Mukyu... I'm nervous, but Patchouli will do my best!"
     },
     {
       "id": "patchouli.young.o_exam_answer",
@@ -12942,7 +13224,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_answer"
       },
-      "source_sha256": "23e457449ef6ce99296d2c76a918fd211e98855a2915b0a15ec2de8b35597374"
+      "source_sha256": "23e457449ef6ce99296d2c76a918fd211e98855a2915b0a15ec2de8b35597374",
+      "english": "Mukyu... Yes! Patchouli knows this!"
     },
     {
       "id": "patchouli.young.o_exam_unsure",
@@ -12958,7 +13241,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_unsure"
       },
-      "source_sha256": "b90db3940b98ff2152e7e0e169516b1311c8ead26aa6288554dfbd2aa2ac5df1"
+      "source_sha256": "b90db3940b98ff2152e7e0e169516b1311c8ead26aa6288554dfbd2aa2ac5df1",
+      "english": "Mukyu... Um... huh...? What was it again..."
     },
     {
       "id": "patchouli.young.o_exam_hide_fail",
@@ -12974,7 +13258,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_hide_fail"
       },
-      "source_sha256": "5e21020cf854ab0f175a6a47d628beb8dcf77310a9040f4832547694342dfc4e"
+      "source_sha256": "5e21020cf854ab0f175a6a47d628beb8dcf77310a9040f4832547694342dfc4e",
+      "english": "Mukyu... Patchouli isn't here! Nobody's here!"
     },
     {
       "id": "patchouli.young.o_exam_promise_wait",
@@ -12990,7 +13275,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_promise_wait"
       },
-      "source_sha256": "9259fbe5d50c53f2245ba2f0bdbc4d4c3195ac89c5c0b4f18fdf432f2c04ec2d"
+      "source_sha256": "9259fbe5d50c53f2245ba2f0bdbc4d4c3195ac89c5c0b4f18fdf432f2c04ec2d",
+      "english": "Mukyu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "patchouli.young.o_exam_promise_wait2",
@@ -13006,7 +13292,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_promise_wait2"
       },
-      "source_sha256": "17d56a37aacea7a65bf06580345373b1b88c180b6d702a0c1257fd8523be86be"
+      "source_sha256": "17d56a37aacea7a65bf06580345373b1b88c180b6d702a0c1257fd8523be86be",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "patchouli.young.o_exam_promise_fail",
@@ -13022,7 +13309,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_promise_fail"
       },
-      "source_sha256": "96777c749d4e0f86313fd203cede36404baa0015c247f383d7ee300bb0d08db0"
+      "source_sha256": "96777c749d4e0f86313fd203cede36404baa0015c247f383d7ee300bb0d08db0",
+      "english": "Mukyu... Unfair! Why not Patchouli?!"
     },
     {
       "id": "patchouli.young.o_exam_promise_fail2",
@@ -13038,7 +13326,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_promise_fail2"
       },
-      "source_sha256": "2f17a0c9cfa9c7f3157e7d343e31dffc5e6e0996f1381ebdbbd74e24a8704dc8"
+      "source_sha256": "2f17a0c9cfa9c7f3157e7d343e31dffc5e6e0996f1381ebdbbd74e24a8704dc8",
+      "english": "Patchouli was waiting too! Hmph!"
     },
     {
       "id": "patchouli.young.o_exam_report",
@@ -13054,7 +13343,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_report"
       },
-      "source_sha256": "2c8a36e685470aa365246fec5b521c4d4c4ac1a5772381c7ebd94b9159676470"
+      "source_sha256": "2c8a36e685470aa365246fec5b521c4d4c4ac1a5772381c7ebd94b9159676470",
+      "english": "Mukyu... Human, there's a wild one over there!"
     },
     {
       "id": "patchouli.young.o_exam_sorry",
@@ -13070,7 +13360,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_sorry"
       },
-      "source_sha256": "ecbe085e0adc0a92a58ebacd5053cc04e9d1b334f03367958dfc360150bd1ae4"
+      "source_sha256": "ecbe085e0adc0a92a58ebacd5053cc04e9d1b334f03367958dfc360150bd1ae4",
+      "english": "Mukyu... I'm sorry... Patchouli got it wrong..."
     },
     {
       "id": "patchouli.young.o_exam_pass",
@@ -13086,7 +13377,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_pass"
       },
-      "source_sha256": "bf3c44e6287f37a719efe34d7f409befa293cbf1dfd864486be2e2673c61ec35"
+      "source_sha256": "bf3c44e6287f37a719efe34d7f409befa293cbf1dfd864486be2e2673c61ec35",
+      "english": "Mukyu... Yay! A badge! Patchouli can relax now!"
     },
     {
       "id": "patchouli.young.o_exam_pass2",
@@ -13102,7 +13394,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_pass2"
       },
-      "source_sha256": "b76dbd161843292676d5e1209567f5cd3fde8cf39925436b9a4f46a87ef3d433"
+      "source_sha256": "b76dbd161843292676d5e1209567f5cd3fde8cf39925436b9a4f46a87ef3d433",
+      "english": "Thank you, human! Patchouli is so happy!"
     },
     {
       "id": "patchouli.young.o_exam_fail",
@@ -13118,7 +13411,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_fail"
       },
-      "source_sha256": "6958ea78108a95043a8cd062c51b876a7457d00cbccb301445b2338f55f8012c"
+      "source_sha256": "6958ea78108a95043a8cd062c51b876a7457d00cbccb301445b2338f55f8012c",
+      "english": "Mukyu... Why... why is this happening...!"
     },
     {
       "id": "patchouli.young.o_exam_fail2",
@@ -13134,7 +13428,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_exam_fail2"
       },
-      "source_sha256": "ea91f63fd43bfaf4c783242f27d7106350cbd5194fbdd88edf4c41cdb91a1b20"
+      "source_sha256": "ea91f63fd43bfaf4c783242f27d7106350cbd5194fbdd88edf4c41cdb91a1b20",
+      "english": "Patchouli failed...? Waaah..."
     },
     {
       "id": "patchouli.young.o_badge_proud",
@@ -13150,7 +13445,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_badge_proud"
       },
-      "source_sha256": "31f5c1ef5c8ecbc2c1e2f2676b2d694cf1135ae2e5b2ad8760415a4624fa8c33"
+      "source_sha256": "31f5c1ef5c8ecbc2c1e2f2676b2d694cf1135ae2e5b2ad8760415a4624fa8c33",
+      "english": "Mukyu... Look at Patchouli's badge! Isn't it great?"
     },
     {
       "id": "patchouli.young.o_shop_appeal",
@@ -13166,7 +13462,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_shop_appeal"
       },
-      "source_sha256": "4996f619810f7d8e8fcceeb69415452025ac1ebd30db4fbdc0ae8e0aaaa7bb8e"
+      "source_sha256": "4996f619810f7d8e8fcceeb69415452025ac1ebd30db4fbdc0ae8e0aaaa7bb8e",
+      "english": "Mukyu... Please buy Patchouli! Let's stay together!"
     },
     {
       "id": "patchouli.young.o_shop_appeal2",
@@ -13182,7 +13479,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_shop_appeal2"
       },
-      "source_sha256": "68af64bce3c26a583e7ec34d05af2edefe37eb94d2a05ce4b0a4ac6ae8d89dae"
+      "source_sha256": "68af64bce3c26a583e7ec34d05af2edefe37eb94d2a05ce4b0a4ac6ae8d89dae",
+      "english": "Here, here! Patchouli is a really good one!"
     },
     {
       "id": "patchouli.young.o_shop_bought",
@@ -13198,7 +13496,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_shop_bought"
       },
-      "source_sha256": "36f83ec23d5b658d4530826d8261f4f44f908b77ae00a6c2f1be17ce819b3eb7"
+      "source_sha256": "36f83ec23d5b658d4530826d8261f4f44f908b77ae00a6c2f1be17ce819b3eb7",
+      "english": "Mukyu... A new home! Please take care of me!"
     },
     {
       "id": "patchouli.young.o_shop_sold_sad",
@@ -13214,7 +13513,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_shop_sold_sad"
       },
-      "source_sha256": "33b30980716015c9d96b5504e3e074ff68e06f1a9db092af74ff3bcb6e4f61e5"
+      "source_sha256": "33b30980716015c9d96b5504e3e074ff68e06f1a9db092af74ff3bcb6e4f61e5",
+      "english": "Mukyu... Why...? Don't forget Patchouli..."
     },
     {
       "id": "patchouli.young.o_shop_sold_proud",
@@ -13230,7 +13530,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_shop_sold_proud"
       },
-      "source_sha256": "a990eca21ffa01d14927b5e4a534d5dc85eb9278ca4f3822db572af75a8ab1b0"
+      "source_sha256": "a990eca21ffa01d14927b5e4a534d5dc85eb9278ca4f3822db572af75a8ab1b0",
+      "english": "Mukyu... Patchouli is going to a better home! Bye-bye!"
     },
     {
       "id": "patchouli.young.o_wild_role_beg",
@@ -13246,7 +13547,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_wild_role_beg"
       },
-      "source_sha256": "23af801f852b9b818cb4a3b4b07a99ea9c716a46c720093219db8986710345d4"
+      "source_sha256": "23af801f852b9b818cb4a3b4b07a99ea9c716a46c720093219db8986710345d4",
+      "english": "Mukyu... Give me something yummy! Open this!"
     },
     {
       "id": "patchouli.young.o_wild_role_provoke",
@@ -13262,7 +13564,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_wild_role_provoke"
       },
-      "source_sha256": "30f172bc1065f7a47e4a8a64a4dc5cd688e36f5915bef6cad01442c10551b2dd"
+      "source_sha256": "30f172bc1065f7a47e4a8a64a4dc5cd688e36f5915bef6cad01442c10551b2dd",
+      "english": "Mukyu... That badge means nothing to Patchouli! You're no fun!"
     },
     {
       "id": "patchouli.young.o_lesson_praised",
@@ -13278,7 +13581,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_lesson_praised"
       },
-      "source_sha256": "708bf50663e4aec16db824f3b00078daa20d1339107b56b232c1757bca259296"
+      "source_sha256": "708bf50663e4aec16db824f3b00078daa20d1339107b56b232c1757bca259296",
+      "english": "Mukyu... Hehe, I was praised! Patchouli is happy!"
     },
     {
       "id": "patchouli.young.o_lesson_praised2",
@@ -13294,7 +13598,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_lesson_praised2"
       },
-      "source_sha256": "93673773fa7b475f04a815f653df2adca38e2ccd9cf314390ddeb5049d856312"
+      "source_sha256": "93673773fa7b475f04a815f653df2adca38e2ccd9cf314390ddeb5049d856312",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "patchouli.young.o_lesson_scolded",
@@ -13310,7 +13615,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_lesson_scolded"
       },
-      "source_sha256": "8bfa2ff225fa3d7cb63d452369516289b97fbac536e9ae00b196a4fe040e3c0f"
+      "source_sha256": "8bfa2ff225fa3d7cb63d452369516289b97fbac536e9ae00b196a4fe040e3c0f",
+      "english": "Mukyu... I'm sorry... Patchouli will fix it properly..."
     },
     {
       "id": "patchouli.young.o_badge_envy",
@@ -13326,7 +13632,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_badge_envy"
       },
-      "source_sha256": "c6af917db6c37060bb0fafb1d2496b0dc8e93a6b4d3e8d39ef94d4a552dfa67b"
+      "source_sha256": "c6af917db6c37060bb0fafb1d2496b0dc8e93a6b4d3e8d39ef94d4a552dfa67b",
+      "english": "Mukyu... I'm jealous... Patchouli wants that badge too."
     },
     {
       "id": "patchouli.young.o_badge_admire",
@@ -13342,7 +13649,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_badge_admire"
       },
-      "source_sha256": "fc122d69e45f6a93565f282cd67a6888a8c015c8ae4166493bd3994446659974"
+      "source_sha256": "fc122d69e45f6a93565f282cd67a6888a8c015c8ae4166493bd3994446659974",
+      "english": "Mukyu... Amazing! Teach Patchouli too!"
     },
     {
       "id": "remilia.adult.o_exam_nervous",
@@ -13358,7 +13666,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_nervous"
       },
-      "source_sha256": "44cd137526ed06a7ecbae26b09b73b99d0bceb20847663d88927893c22b48d11"
+      "source_sha256": "44cd137526ed06a7ecbae26b09b73b99d0bceb20847663d88927893c22b48d11",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "remilia.adult.o_exam_nervous2",
@@ -13374,7 +13683,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_nervous2"
       },
-      "source_sha256": "73d13f1b2e1be63a022de7c5f759e636fbf2938c0a194ec36ef8b24efb81ff51"
+      "source_sha256": "73d13f1b2e1be63a022de7c5f759e636fbf2938c0a194ec36ef8b24efb81ff51",
+      "english": "Uu... I'm nervous, but Remilia will do my best!"
     },
     {
       "id": "remilia.adult.o_exam_answer",
@@ -13390,7 +13700,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_answer"
       },
-      "source_sha256": "44355f8c1e0c24cbb0c60ef61a66af5dc584de186c7fb22ba70be8b6f5a80646"
+      "source_sha256": "44355f8c1e0c24cbb0c60ef61a66af5dc584de186c7fb22ba70be8b6f5a80646",
+      "english": "Uu... Yes! Remilia knows this!"
     },
     {
       "id": "remilia.adult.o_exam_unsure",
@@ -13406,7 +13717,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_unsure"
       },
-      "source_sha256": "14d1d54bf516d319158bab64a4a4fb2b5e4c72bc6252cc365f7b23a080da00f0"
+      "source_sha256": "14d1d54bf516d319158bab64a4a4fb2b5e4c72bc6252cc365f7b23a080da00f0",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "remilia.adult.o_exam_hide_fail",
@@ -13422,7 +13734,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_hide_fail"
       },
-      "source_sha256": "4cb55d0a278ad7a995b68eb5370d7dc3f423d19e73c03872c009998e52f775a3"
+      "source_sha256": "4cb55d0a278ad7a995b68eb5370d7dc3f423d19e73c03872c009998e52f775a3",
+      "english": "Uu... Remilia isn't here! Nobody's here!"
     },
     {
       "id": "remilia.adult.o_exam_promise_wait",
@@ -13438,7 +13751,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_promise_wait"
       },
-      "source_sha256": "065c8aeb6992bbd3f658fbeb9241b3cddf6db8d9ec5ad2b6918565e7c89a1cfb"
+      "source_sha256": "065c8aeb6992bbd3f658fbeb9241b3cddf6db8d9ec5ad2b6918565e7c89a1cfb",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "remilia.adult.o_exam_promise_wait2",
@@ -13454,7 +13768,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "274e100a73de0657774e2498c8dcebed9c4bb37a0ce4d48258fb68ed2da8eb1b"
+      "source_sha256": "274e100a73de0657774e2498c8dcebed9c4bb37a0ce4d48258fb68ed2da8eb1b",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "remilia.adult.o_exam_promise_fail",
@@ -13470,7 +13785,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_promise_fail"
       },
-      "source_sha256": "a3958392e1c08ef1d2cb137124fb7362e19c4286e570cd5be51617116c283450"
+      "source_sha256": "a3958392e1c08ef1d2cb137124fb7362e19c4286e570cd5be51617116c283450",
+      "english": "Uu... Unfair! Why not Remilia?!"
     },
     {
       "id": "remilia.adult.o_exam_promise_fail2",
@@ -13486,7 +13802,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "104ef70bf74bd61f4eef8485d390e6486bf225b7f9c850380b518d9c0cb399c8"
+      "source_sha256": "104ef70bf74bd61f4eef8485d390e6486bf225b7f9c850380b518d9c0cb399c8",
+      "english": "Remilia was waiting too! Hmph!"
     },
     {
       "id": "remilia.adult.o_exam_report",
@@ -13502,7 +13819,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_report"
       },
-      "source_sha256": "4a12d0a47c62e1adf18a1ff7bb43c5870b674655a172eb772850d9590249e153"
+      "source_sha256": "4a12d0a47c62e1adf18a1ff7bb43c5870b674655a172eb772850d9590249e153",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "remilia.adult.o_exam_sorry",
@@ -13518,7 +13836,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_sorry"
       },
-      "source_sha256": "0aaac949e95dbe7d6211114be88f938f5b5d107f81c2450f2f12f0c71e0a2097"
+      "source_sha256": "0aaac949e95dbe7d6211114be88f938f5b5d107f81c2450f2f12f0c71e0a2097",
+      "english": "Uu... I'm sorry... Remilia got it wrong..."
     },
     {
       "id": "remilia.adult.o_exam_pass",
@@ -13534,7 +13853,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_pass"
       },
-      "source_sha256": "290afbfc73172407a3ac78d0be9a635f8c9c3be542d6e814f32a659dc224871e"
+      "source_sha256": "290afbfc73172407a3ac78d0be9a635f8c9c3be542d6e814f32a659dc224871e",
+      "english": "Uu... Yay! A badge! Remilia can relax now!"
     },
     {
       "id": "remilia.adult.o_exam_pass2",
@@ -13550,7 +13870,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_pass2"
       },
-      "source_sha256": "0f3be3444d949d15b7692a141e8fc4a3cb6f4d893757eb018cf873b32447e605"
+      "source_sha256": "0f3be3444d949d15b7692a141e8fc4a3cb6f4d893757eb018cf873b32447e605",
+      "english": "Thank you, human! Remilia is so happy!"
     },
     {
       "id": "remilia.adult.o_exam_fail",
@@ -13566,7 +13887,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_fail"
       },
-      "source_sha256": "ebf79051b5e3ee6b50a141e647c35eef529446c98edec2f255abe08eaa95f4c7"
+      "source_sha256": "ebf79051b5e3ee6b50a141e647c35eef529446c98edec2f255abe08eaa95f4c7",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "remilia.adult.o_exam_fail2",
@@ -13582,7 +13904,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_exam_fail2"
       },
-      "source_sha256": "5b9805f3b33d2f8b676265947be902b4cae0629a1d2f0fd38f6a34266fd37e68"
+      "source_sha256": "5b9805f3b33d2f8b676265947be902b4cae0629a1d2f0fd38f6a34266fd37e68",
+      "english": "Remilia failed...? Waaah..."
     },
     {
       "id": "remilia.adult.o_badge_proud",
@@ -13598,7 +13921,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_badge_proud"
       },
-      "source_sha256": "f593d1e6a78f1cff584ba229b9fcf13942c94b850eb71783534c721ce7e23d8a"
+      "source_sha256": "f593d1e6a78f1cff584ba229b9fcf13942c94b850eb71783534c721ce7e23d8a",
+      "english": "Uu... Look at Remilia's badge! Isn't it great?"
     },
     {
       "id": "remilia.adult.o_shop_appeal",
@@ -13614,7 +13938,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shop_appeal"
       },
-      "source_sha256": "4f9c6c2c762168aa47084cdf83e24b531d625b3ef7e947fe8d1527f552e87070"
+      "source_sha256": "4f9c6c2c762168aa47084cdf83e24b531d625b3ef7e947fe8d1527f552e87070",
+      "english": "Uu... Please buy Remilia! Let's stay together!"
     },
     {
       "id": "remilia.adult.o_shop_appeal2",
@@ -13630,7 +13955,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shop_appeal2"
       },
-      "source_sha256": "42ac3bc90210f68d79c6f9f1303d3107b1635ef994c0821adaf765bcafd64c07"
+      "source_sha256": "42ac3bc90210f68d79c6f9f1303d3107b1635ef994c0821adaf765bcafd64c07",
+      "english": "Here, here! Remilia is a really good one!"
     },
     {
       "id": "remilia.adult.o_shop_bought",
@@ -13646,7 +13972,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shop_bought"
       },
-      "source_sha256": "c3562fb308000b0d6f1f54d3d626f2a410c27784256c9be2262fe30fc9ec816d"
+      "source_sha256": "c3562fb308000b0d6f1f54d3d626f2a410c27784256c9be2262fe30fc9ec816d",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "remilia.adult.o_shop_sold_sad",
@@ -13662,7 +13989,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shop_sold_sad"
       },
-      "source_sha256": "a45d50fa82c01ce85dd1dd8afdc84ee6110a711193681508b6e7a94ae882837a"
+      "source_sha256": "a45d50fa82c01ce85dd1dd8afdc84ee6110a711193681508b6e7a94ae882837a",
+      "english": "Uu... Why...? Don't forget Remilia..."
     },
     {
       "id": "remilia.adult.o_shop_sold_proud",
@@ -13678,7 +14006,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_shop_sold_proud"
       },
-      "source_sha256": "52ef0eb9b1f9ea565dc1fa7ee541691c9a8fc064ce8d7ea8de4afad2c3da0642"
+      "source_sha256": "52ef0eb9b1f9ea565dc1fa7ee541691c9a8fc064ce8d7ea8de4afad2c3da0642",
+      "english": "Uu... Remilia is going to a better home! Bye-bye!"
     },
     {
       "id": "remilia.adult.o_wild_role_beg",
@@ -13694,7 +14023,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_wild_role_beg"
       },
-      "source_sha256": "5cc45c3c212d169a7f41fb697a3806deab2e79e051620e1af96b3f853e2d4084"
+      "source_sha256": "5cc45c3c212d169a7f41fb697a3806deab2e79e051620e1af96b3f853e2d4084",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "remilia.adult.o_wild_role_provoke",
@@ -13710,7 +14040,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_wild_role_provoke"
       },
-      "source_sha256": "8c2fb4bcb81bdb4777463417c2fc5aa8b1f506587c205f6dc44f16648f60965f"
+      "source_sha256": "8c2fb4bcb81bdb4777463417c2fc5aa8b1f506587c205f6dc44f16648f60965f",
+      "english": "Uu... That badge means nothing to Remilia! You're no fun!"
     },
     {
       "id": "remilia.adult.o_lesson_praised",
@@ -13726,7 +14057,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_lesson_praised"
       },
-      "source_sha256": "d694483261a4be12157c9b7af1ee098291e37ba701b1de9dab56fb770180eae4"
+      "source_sha256": "d694483261a4be12157c9b7af1ee098291e37ba701b1de9dab56fb770180eae4",
+      "english": "Uu... Hehe, I was praised! Remilia is happy!"
     },
     {
       "id": "remilia.adult.o_lesson_praised2",
@@ -13742,7 +14074,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_lesson_praised2"
       },
-      "source_sha256": "8da9cf1e6cc90d4217fcc3ab09c99220eb5483c9a7d612c4381c028063d331bf"
+      "source_sha256": "8da9cf1e6cc90d4217fcc3ab09c99220eb5483c9a7d612c4381c028063d331bf",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "remilia.adult.o_lesson_scolded",
@@ -13758,7 +14091,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_lesson_scolded"
       },
-      "source_sha256": "30f3fc0b1feb4620a97ab785b77125ce014fbc936e2dded9441bb29e800e1734"
+      "source_sha256": "30f3fc0b1feb4620a97ab785b77125ce014fbc936e2dded9441bb29e800e1734",
+      "english": "Uu... I'm sorry... Remilia will fix it properly..."
     },
     {
       "id": "remilia.adult.o_badge_envy",
@@ -13774,7 +14108,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_badge_envy"
       },
-      "source_sha256": "e4c939a4388a68849692e6b150d55ccfac0b2cb5c469c1645dc28c15dc6619de"
+      "source_sha256": "e4c939a4388a68849692e6b150d55ccfac0b2cb5c469c1645dc28c15dc6619de",
+      "english": "Uu... I'm jealous... Remilia wants that badge too."
     },
     {
       "id": "remilia.adult.o_badge_admire",
@@ -13790,7 +14125,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_badge_admire"
       },
-      "source_sha256": "ca56f90e25a4a7a174658f10a62f7ec1c892b893b327f4bbf9584fbd9f8f448b"
+      "source_sha256": "ca56f90e25a4a7a174658f10a62f7ec1c892b893b327f4bbf9584fbd9f8f448b",
+      "english": "Uu... Amazing! Teach Remilia too!"
     },
     {
       "id": "remilia.young.o_exam_nervous",
@@ -13806,7 +14142,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_nervous"
       },
-      "source_sha256": "d645edad00db4eaab4f81a7c7b5fa42beb1cfbb8310fd38015d55876e7c17156"
+      "source_sha256": "d645edad00db4eaab4f81a7c7b5fa42beb1cfbb8310fd38015d55876e7c17156",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "remilia.young.o_exam_nervous2",
@@ -13822,7 +14159,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_nervous2"
       },
-      "source_sha256": "6f9071a9c600ee1f4ef472bdb934b283c98988a205ff45fcbc8e529d3b7b270e"
+      "source_sha256": "6f9071a9c600ee1f4ef472bdb934b283c98988a205ff45fcbc8e529d3b7b270e",
+      "english": "Uu... I'm nervous, but Remilia will do my best!"
     },
     {
       "id": "remilia.young.o_exam_answer",
@@ -13838,7 +14176,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_answer"
       },
-      "source_sha256": "6d9d251d2a7601176dc9fbca7587ce55e0cddffce40758d590a280da1f6ac4a0"
+      "source_sha256": "6d9d251d2a7601176dc9fbca7587ce55e0cddffce40758d590a280da1f6ac4a0",
+      "english": "Uu... Yes! Remilia knows this!"
     },
     {
       "id": "remilia.young.o_exam_unsure",
@@ -13854,7 +14193,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_unsure"
       },
-      "source_sha256": "3234227e84da0ab11fad20a3189bc4b8ee4ca25a683f6a4ef187f7b100e72ee6"
+      "source_sha256": "3234227e84da0ab11fad20a3189bc4b8ee4ca25a683f6a4ef187f7b100e72ee6",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "remilia.young.o_exam_hide_fail",
@@ -13870,7 +14210,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_hide_fail"
       },
-      "source_sha256": "7dcb4ea83380021e4d6c2dad6e697292249c180c883731b546cc20885637c55f"
+      "source_sha256": "7dcb4ea83380021e4d6c2dad6e697292249c180c883731b546cc20885637c55f",
+      "english": "Uu... Remilia isn't here! Nobody's here!"
     },
     {
       "id": "remilia.young.o_exam_promise_wait",
@@ -13886,7 +14227,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_promise_wait"
       },
-      "source_sha256": "3c1b60770a90ed5c4272d545a19fe15b6e8eeafac98af9eddfdc109aaee82553"
+      "source_sha256": "3c1b60770a90ed5c4272d545a19fe15b6e8eeafac98af9eddfdc109aaee82553",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "remilia.young.o_exam_promise_wait2",
@@ -13902,7 +14244,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_promise_wait2"
       },
-      "source_sha256": "cc5c8b3dda21fbbb47fe4d0d363c1cd08ea5c8bd684f14ffc56f5c43ed62f367"
+      "source_sha256": "cc5c8b3dda21fbbb47fe4d0d363c1cd08ea5c8bd684f14ffc56f5c43ed62f367",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "remilia.young.o_exam_promise_fail",
@@ -13918,7 +14261,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_promise_fail"
       },
-      "source_sha256": "16edaf2e0505655cf285191df20b3b3db802f71a1c977084ff541d549e8753de"
+      "source_sha256": "16edaf2e0505655cf285191df20b3b3db802f71a1c977084ff541d549e8753de",
+      "english": "Uu... Unfair! Why not Remilia?!"
     },
     {
       "id": "remilia.young.o_exam_promise_fail2",
@@ -13934,7 +14278,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_promise_fail2"
       },
-      "source_sha256": "5eb69b8af1ade570315218df8225856530f4b6cf33708f39da85788ea4f35932"
+      "source_sha256": "5eb69b8af1ade570315218df8225856530f4b6cf33708f39da85788ea4f35932",
+      "english": "Remilia was waiting too! Hmph!"
     },
     {
       "id": "remilia.young.o_exam_report",
@@ -13950,7 +14295,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_report"
       },
-      "source_sha256": "fc479145d5cda8c9698754cd4223f6815ca863e4f331bf83d5b0c6bc9ad44172"
+      "source_sha256": "fc479145d5cda8c9698754cd4223f6815ca863e4f331bf83d5b0c6bc9ad44172",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "remilia.young.o_exam_sorry",
@@ -13966,7 +14312,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_sorry"
       },
-      "source_sha256": "77617f63986a79ad64abb4763c94b2ce4b197b8521df738236b28226dab8cec0"
+      "source_sha256": "77617f63986a79ad64abb4763c94b2ce4b197b8521df738236b28226dab8cec0",
+      "english": "Uu... I'm sorry... Remilia got it wrong..."
     },
     {
       "id": "remilia.young.o_exam_pass",
@@ -13982,7 +14329,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_pass"
       },
-      "source_sha256": "bfeb78c9b231de0261cecd908eee7b3264b0797afd86252bbfd5f143c2811adb"
+      "source_sha256": "bfeb78c9b231de0261cecd908eee7b3264b0797afd86252bbfd5f143c2811adb",
+      "english": "Uu... Yay! A badge! Remilia can relax now!"
     },
     {
       "id": "remilia.young.o_exam_pass2",
@@ -13998,7 +14346,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_pass2"
       },
-      "source_sha256": "1e8e070a82cab94387d0b31bc350b34d4d0404e77908ea233b777cef09803463"
+      "source_sha256": "1e8e070a82cab94387d0b31bc350b34d4d0404e77908ea233b777cef09803463",
+      "english": "Thank you, human! Remilia is so happy!"
     },
     {
       "id": "remilia.young.o_exam_fail",
@@ -14014,7 +14363,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_fail"
       },
-      "source_sha256": "888da00829965cfb33f86e5e4521138e172436d54bff611851adb123cbc12006"
+      "source_sha256": "888da00829965cfb33f86e5e4521138e172436d54bff611851adb123cbc12006",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "remilia.young.o_exam_fail2",
@@ -14030,7 +14380,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_exam_fail2"
       },
-      "source_sha256": "2f50bbf1ca9da29f1b11c036943d6a3be8cf761e4e6fa499ac8e4d2b90c228a6"
+      "source_sha256": "2f50bbf1ca9da29f1b11c036943d6a3be8cf761e4e6fa499ac8e4d2b90c228a6",
+      "english": "Remilia failed...? Waaah..."
     },
     {
       "id": "remilia.young.o_badge_proud",
@@ -14046,7 +14397,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_badge_proud"
       },
-      "source_sha256": "3d46a97859ea9c81bd14fcaa99cd30deeccb9b78e2c2481c250f92ed0156c9c5"
+      "source_sha256": "3d46a97859ea9c81bd14fcaa99cd30deeccb9b78e2c2481c250f92ed0156c9c5",
+      "english": "Uu... Look at Remilia's badge! Isn't it great?"
     },
     {
       "id": "remilia.young.o_shop_appeal",
@@ -14062,7 +14414,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shop_appeal"
       },
-      "source_sha256": "435446770b4d1b5afe63ca81d4f2470ca2a30dec436f7d3a10aeaa136556e776"
+      "source_sha256": "435446770b4d1b5afe63ca81d4f2470ca2a30dec436f7d3a10aeaa136556e776",
+      "english": "Uu... Please buy Remilia! Let's stay together!"
     },
     {
       "id": "remilia.young.o_shop_appeal2",
@@ -14078,7 +14431,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shop_appeal2"
       },
-      "source_sha256": "891330414df31fb5e1570999d6dca932c1a28c98e8113629b71654bee8126ee7"
+      "source_sha256": "891330414df31fb5e1570999d6dca932c1a28c98e8113629b71654bee8126ee7",
+      "english": "Here, here! Remilia is a really good one!"
     },
     {
       "id": "remilia.young.o_shop_bought",
@@ -14094,7 +14448,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shop_bought"
       },
-      "source_sha256": "c32dee21ec314ba7c70ca288b96c782d10f6d9c32849ec26b29b72f3b700c361"
+      "source_sha256": "c32dee21ec314ba7c70ca288b96c782d10f6d9c32849ec26b29b72f3b700c361",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "remilia.young.o_shop_sold_sad",
@@ -14110,7 +14465,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shop_sold_sad"
       },
-      "source_sha256": "eb4530c71840ff6a50d6abaa93ad84220aee60d5e90b3d30f033992ce10dd660"
+      "source_sha256": "eb4530c71840ff6a50d6abaa93ad84220aee60d5e90b3d30f033992ce10dd660",
+      "english": "Uu... Why...? Don't forget Remilia..."
     },
     {
       "id": "remilia.young.o_shop_sold_proud",
@@ -14126,7 +14482,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_shop_sold_proud"
       },
-      "source_sha256": "1ec1a049fd5bcfc72bb1a32ab91ad060287eddb6b0544d0da71636fec49b54ea"
+      "source_sha256": "1ec1a049fd5bcfc72bb1a32ab91ad060287eddb6b0544d0da71636fec49b54ea",
+      "english": "Uu... Remilia is going to a better home! Bye-bye!"
     },
     {
       "id": "remilia.young.o_wild_role_beg",
@@ -14142,7 +14499,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_wild_role_beg"
       },
-      "source_sha256": "8eabdeaff65178696177d63f4d9edc91601d8b6ca748d38fdc89a14dcc7cbae8"
+      "source_sha256": "8eabdeaff65178696177d63f4d9edc91601d8b6ca748d38fdc89a14dcc7cbae8",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "remilia.young.o_wild_role_provoke",
@@ -14158,7 +14516,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_wild_role_provoke"
       },
-      "source_sha256": "15d23166fe8e865bb91c2b402d943009414094ee07a5a881aa409232bd87d560"
+      "source_sha256": "15d23166fe8e865bb91c2b402d943009414094ee07a5a881aa409232bd87d560",
+      "english": "Uu... That badge means nothing to Remilia! You're no fun!"
     },
     {
       "id": "remilia.young.o_lesson_praised",
@@ -14174,7 +14533,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_lesson_praised"
       },
-      "source_sha256": "dd48f58ddc18530411fe3e1a2a65f720e190a0df902231e61db5a93ad385c4d7"
+      "source_sha256": "dd48f58ddc18530411fe3e1a2a65f720e190a0df902231e61db5a93ad385c4d7",
+      "english": "Uu... Hehe, I was praised! Remilia is happy!"
     },
     {
       "id": "remilia.young.o_lesson_praised2",
@@ -14190,7 +14550,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_lesson_praised2"
       },
-      "source_sha256": "b88e7f78f1c3e74439c4dc3879a63de97dbfc7731dc11e55a0462235bf57a4cc"
+      "source_sha256": "b88e7f78f1c3e74439c4dc3879a63de97dbfc7731dc11e55a0462235bf57a4cc",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "remilia.young.o_lesson_scolded",
@@ -14206,7 +14567,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_lesson_scolded"
       },
-      "source_sha256": "efa4350f5b60a3e961bb46a169aa0d07d2207bc52242276ca2a7c2a90ec8e136"
+      "source_sha256": "efa4350f5b60a3e961bb46a169aa0d07d2207bc52242276ca2a7c2a90ec8e136",
+      "english": "Uu... I'm sorry... Remilia will fix it properly..."
     },
     {
       "id": "remilia.young.o_badge_envy",
@@ -14222,7 +14584,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_badge_envy"
       },
-      "source_sha256": "e153cfdad34b4e4af966b32a0f7bd7d2f87afe85e51af27b909df558cfd2c5d3"
+      "source_sha256": "e153cfdad34b4e4af966b32a0f7bd7d2f87afe85e51af27b909df558cfd2c5d3",
+      "english": "Uu... I'm jealous... Remilia wants that badge too."
     },
     {
       "id": "remilia.young.o_badge_admire",
@@ -14238,7 +14601,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_badge_admire"
       },
-      "source_sha256": "619fe834006cc7faebdb501b96a8c95208ab07b4b1aefb1c00909f37092a9ae9"
+      "source_sha256": "619fe834006cc7faebdb501b96a8c95208ab07b4b1aefb1c00909f37092a9ae9",
+      "english": "Uu... Amazing! Teach Remilia too!"
     },
     {
       "id": "flandre.adult.o_exam_nervous",
@@ -14254,7 +14618,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_nervous"
       },
-      "source_sha256": "9e0b21795f9994aa04a742725c354d78ce94f8a6a3bc1b75f06bfc65151ea5d9"
+      "source_sha256": "9e0b21795f9994aa04a742725c354d78ce94f8a6a3bc1b75f06bfc65151ea5d9",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "flandre.adult.o_exam_nervous2",
@@ -14270,7 +14635,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_nervous2"
       },
-      "source_sha256": "f3127ff09546b5f9b3735d67bf2ea176b9b57fa8876d8291e72215d4ca249717"
+      "source_sha256": "f3127ff09546b5f9b3735d67bf2ea176b9b57fa8876d8291e72215d4ca249717",
+      "english": "Uu... I'm nervous, but Flandre will do my best!"
     },
     {
       "id": "flandre.adult.o_exam_answer",
@@ -14286,7 +14652,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_answer"
       },
-      "source_sha256": "e171faeb0f9260a15f64f43b2234d2330cb5b40ad569ae94b7947b786320d360"
+      "source_sha256": "e171faeb0f9260a15f64f43b2234d2330cb5b40ad569ae94b7947b786320d360",
+      "english": "Uu... Yes! Flandre knows this!"
     },
     {
       "id": "flandre.adult.o_exam_unsure",
@@ -14302,7 +14669,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_unsure"
       },
-      "source_sha256": "7cac9dbfc9a854df35f673b6f94c92cdc7587f38050b4cc09e0fe8a747e59638"
+      "source_sha256": "7cac9dbfc9a854df35f673b6f94c92cdc7587f38050b4cc09e0fe8a747e59638",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "flandre.adult.o_exam_hide_fail",
@@ -14318,7 +14686,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_hide_fail"
       },
-      "source_sha256": "9ef619981ba45729b333cdc4556ece603f64ef79373c9b70ce97a79e536a2066"
+      "source_sha256": "9ef619981ba45729b333cdc4556ece603f64ef79373c9b70ce97a79e536a2066",
+      "english": "Uu... Flandre isn't here! Nobody's here!"
     },
     {
       "id": "flandre.adult.o_exam_promise_wait",
@@ -14334,7 +14703,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_promise_wait"
       },
-      "source_sha256": "42cf7760099fde1ba9cf14b295128a8d0a44f2ad55cfd1034f635d48c831c1d5"
+      "source_sha256": "42cf7760099fde1ba9cf14b295128a8d0a44f2ad55cfd1034f635d48c831c1d5",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "flandre.adult.o_exam_promise_wait2",
@@ -14350,7 +14720,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_promise_wait2"
       },
-      "source_sha256": "87397bb73683824e6d89af20530c45ddc7c7fa64b9e72a7fa790250020725dc5"
+      "source_sha256": "87397bb73683824e6d89af20530c45ddc7c7fa64b9e72a7fa790250020725dc5",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "flandre.adult.o_exam_promise_fail",
@@ -14366,7 +14737,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_promise_fail"
       },
-      "source_sha256": "6ab3561971d999f66839742d615a60144dc81acfbde65c850c6c2b6f306d5ed1"
+      "source_sha256": "6ab3561971d999f66839742d615a60144dc81acfbde65c850c6c2b6f306d5ed1",
+      "english": "Uu... Unfair! Why not Flandre?!"
     },
     {
       "id": "flandre.adult.o_exam_promise_fail2",
@@ -14382,7 +14754,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_promise_fail2"
       },
-      "source_sha256": "eeadea708a9f48cedcdeb0e98440d3cc01aaad01f1ed84f253d0075a21c532fa"
+      "source_sha256": "eeadea708a9f48cedcdeb0e98440d3cc01aaad01f1ed84f253d0075a21c532fa",
+      "english": "Flandre was waiting too! Hmph!"
     },
     {
       "id": "flandre.adult.o_exam_report",
@@ -14398,7 +14771,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_report"
       },
-      "source_sha256": "6e7c9baa36a6f4cec036a1920509c2480d92a15e2ebdcadf2d2dff971a4cb7e2"
+      "source_sha256": "6e7c9baa36a6f4cec036a1920509c2480d92a15e2ebdcadf2d2dff971a4cb7e2",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "flandre.adult.o_exam_sorry",
@@ -14414,7 +14788,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_sorry"
       },
-      "source_sha256": "f8fb0a298abf00f7efefe5609287c23b2cb60dcdec14ca60673b344fcc94ff70"
+      "source_sha256": "f8fb0a298abf00f7efefe5609287c23b2cb60dcdec14ca60673b344fcc94ff70",
+      "english": "Uu... I'm sorry... Flandre got it wrong..."
     },
     {
       "id": "flandre.adult.o_exam_pass",
@@ -14430,7 +14805,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_pass"
       },
-      "source_sha256": "2941f1fe4c55495e5904d28d74230bd250393ec4702b774534291f635d330513"
+      "source_sha256": "2941f1fe4c55495e5904d28d74230bd250393ec4702b774534291f635d330513",
+      "english": "Uu... Yay! A badge! Flandre can relax now!"
     },
     {
       "id": "flandre.adult.o_exam_pass2",
@@ -14446,7 +14822,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_pass2"
       },
-      "source_sha256": "e1fd524526dd8ebed6896f356eff4cf3b52541b6f4ca23cb05be19d043c0e1da"
+      "source_sha256": "e1fd524526dd8ebed6896f356eff4cf3b52541b6f4ca23cb05be19d043c0e1da",
+      "english": "Thank you, human! Flandre is so happy!"
     },
     {
       "id": "flandre.adult.o_exam_fail",
@@ -14462,7 +14839,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_fail"
       },
-      "source_sha256": "c9b078d3ce786c27108a3343ab50ef3b080d7edbc87ce1df0192ea2eaa625405"
+      "source_sha256": "c9b078d3ce786c27108a3343ab50ef3b080d7edbc87ce1df0192ea2eaa625405",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "flandre.adult.o_exam_fail2",
@@ -14478,7 +14856,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_exam_fail2"
       },
-      "source_sha256": "99f8f1349c2f7738cdf73db2020cf3dc2bfc6b53c0e6e7a4011bdceaa6b33f54"
+      "source_sha256": "99f8f1349c2f7738cdf73db2020cf3dc2bfc6b53c0e6e7a4011bdceaa6b33f54",
+      "english": "Flandre failed...? Waaah..."
     },
     {
       "id": "flandre.adult.o_badge_proud",
@@ -14494,7 +14873,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_badge_proud"
       },
-      "source_sha256": "41d2bac5ba4b70bc7f665a556345563978bd3014a374f10ad18fe80c82047d8f"
+      "source_sha256": "41d2bac5ba4b70bc7f665a556345563978bd3014a374f10ad18fe80c82047d8f",
+      "english": "Uu... Look at Flandre's badge! Isn't it great?"
     },
     {
       "id": "flandre.adult.o_shop_appeal",
@@ -14510,7 +14890,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shop_appeal"
       },
-      "source_sha256": "59c31f61c49e084fa172d644775c755df2a57da122895ba4d15d6ec383e9d43a"
+      "source_sha256": "59c31f61c49e084fa172d644775c755df2a57da122895ba4d15d6ec383e9d43a",
+      "english": "Uu... Please buy Flandre! Let's stay together!"
     },
     {
       "id": "flandre.adult.o_shop_appeal2",
@@ -14526,7 +14907,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shop_appeal2"
       },
-      "source_sha256": "feffdb609fcfdf3c96bc40cf30aecd54a58346e7787b7317c6e1f787cca62ee6"
+      "source_sha256": "feffdb609fcfdf3c96bc40cf30aecd54a58346e7787b7317c6e1f787cca62ee6",
+      "english": "Here, here! Flandre is a really good one!"
     },
     {
       "id": "flandre.adult.o_shop_bought",
@@ -14542,7 +14924,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shop_bought"
       },
-      "source_sha256": "24e5cd11ac6431fcafcc5450eef10233dea68968f025f70af33b1a41ef78f188"
+      "source_sha256": "24e5cd11ac6431fcafcc5450eef10233dea68968f025f70af33b1a41ef78f188",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "flandre.adult.o_shop_sold_sad",
@@ -14558,7 +14941,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shop_sold_sad"
       },
-      "source_sha256": "417043b08b728e0ecfcfcda746eca731d0bd582bcb2fc1137b2bff95b202dee0"
+      "source_sha256": "417043b08b728e0ecfcfcda746eca731d0bd582bcb2fc1137b2bff95b202dee0",
+      "english": "Uu... Why...? Don't forget Flandre..."
     },
     {
       "id": "flandre.adult.o_shop_sold_proud",
@@ -14574,7 +14958,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_shop_sold_proud"
       },
-      "source_sha256": "4a511a98c0bc239b21b3aca26bee1cd35812a74e1edc1c05348ea794c8803877"
+      "source_sha256": "4a511a98c0bc239b21b3aca26bee1cd35812a74e1edc1c05348ea794c8803877",
+      "english": "Uu... Flandre is going to a better home! Bye-bye!"
     },
     {
       "id": "flandre.adult.o_wild_role_beg",
@@ -14590,7 +14975,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_wild_role_beg"
       },
-      "source_sha256": "d390d49c94b7789a1e45f52da107dd229b1f1776634098e646ffe82d8170b642"
+      "source_sha256": "d390d49c94b7789a1e45f52da107dd229b1f1776634098e646ffe82d8170b642",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "flandre.adult.o_wild_role_provoke",
@@ -14606,7 +14992,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_wild_role_provoke"
       },
-      "source_sha256": "1d798eec69291d352d7133b6b6116725ee8c42be0779e85c00fdbf219f83684b"
+      "source_sha256": "1d798eec69291d352d7133b6b6116725ee8c42be0779e85c00fdbf219f83684b",
+      "english": "Uu... That badge means nothing to Flandre! You're no fun!"
     },
     {
       "id": "flandre.adult.o_lesson_praised",
@@ -14622,7 +15009,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_lesson_praised"
       },
-      "source_sha256": "f1e2acfad872b22db60965c3a123a3f940b4d86cc37acbb9b21c5dc70398a354"
+      "source_sha256": "f1e2acfad872b22db60965c3a123a3f940b4d86cc37acbb9b21c5dc70398a354",
+      "english": "Uu... Hehe, I was praised! Flandre is happy!"
     },
     {
       "id": "flandre.adult.o_lesson_praised2",
@@ -14638,7 +15026,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_lesson_praised2"
       },
-      "source_sha256": "5e2f5b0faf4d9c5b75c47cce36c727593eaef7721f8ca1978ba7cbda300bc161"
+      "source_sha256": "5e2f5b0faf4d9c5b75c47cce36c727593eaef7721f8ca1978ba7cbda300bc161",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "flandre.adult.o_lesson_scolded",
@@ -14654,7 +15043,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_lesson_scolded"
       },
-      "source_sha256": "fba4a9f372f6eacd43d624606a0f326c500f7e59b986d1db11f2fc4e9cfab4b5"
+      "source_sha256": "fba4a9f372f6eacd43d624606a0f326c500f7e59b986d1db11f2fc4e9cfab4b5",
+      "english": "Uu... I'm sorry... Flandre will fix it properly..."
     },
     {
       "id": "flandre.adult.o_badge_envy",
@@ -14670,7 +15060,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_badge_envy"
       },
-      "source_sha256": "9267d59eefcca4a3be7b7709479185a862cd1cf82925a9ec3b95d97072b1dbf7"
+      "source_sha256": "9267d59eefcca4a3be7b7709479185a862cd1cf82925a9ec3b95d97072b1dbf7",
+      "english": "Uu... I'm jealous... Flandre wants that badge too."
     },
     {
       "id": "flandre.adult.o_badge_admire",
@@ -14686,7 +15077,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_badge_admire"
       },
-      "source_sha256": "d808db2e14804e8045c4eb22ed3d7badd1e276b9ecd6a7ac840bae5476484fe7"
+      "source_sha256": "d808db2e14804e8045c4eb22ed3d7badd1e276b9ecd6a7ac840bae5476484fe7",
+      "english": "Uu... Amazing! Teach Flandre too!"
     },
     {
       "id": "flandre.young.o_exam_nervous",
@@ -14702,7 +15094,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_nervous"
       },
-      "source_sha256": "5ba8d592d58196810dc22f2cfccfa2cb988106a887b43785ded3a0e7f8568393"
+      "source_sha256": "5ba8d592d58196810dc22f2cfccfa2cb988106a887b43785ded3a0e7f8568393",
+      "english": "Uu... Will I get a badge...? My heart is pounding."
     },
     {
       "id": "flandre.young.o_exam_nervous2",
@@ -14718,7 +15111,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_nervous2"
       },
-      "source_sha256": "70d327219240de753b272d1d509053b7e99b65e473334505423fa82014a26e9f"
+      "source_sha256": "70d327219240de753b272d1d509053b7e99b65e473334505423fa82014a26e9f",
+      "english": "Uu... I'm nervous, but Flandre will do my best!"
     },
     {
       "id": "flandre.young.o_exam_answer",
@@ -14734,7 +15128,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_answer"
       },
-      "source_sha256": "719e5ca3398b4ce4613fba6bb9b1b1e8b0b1fe04abf3f652dfcac5734a40a9e8"
+      "source_sha256": "719e5ca3398b4ce4613fba6bb9b1b1e8b0b1fe04abf3f652dfcac5734a40a9e8",
+      "english": "Uu... Yes! Flandre knows this!"
     },
     {
       "id": "flandre.young.o_exam_unsure",
@@ -14750,7 +15145,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_unsure"
       },
-      "source_sha256": "862b89143971d4708c89e8374675bc50aa109742bae3905a24fd354839febb12"
+      "source_sha256": "862b89143971d4708c89e8374675bc50aa109742bae3905a24fd354839febb12",
+      "english": "Uu... Um... huh...? What was it again..."
     },
     {
       "id": "flandre.young.o_exam_hide_fail",
@@ -14766,7 +15162,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_hide_fail"
       },
-      "source_sha256": "57ba3a9b874cf0d8075af2c4bd3ef7fdc5e244aec515a6d9fda8963bbadec9c7"
+      "source_sha256": "57ba3a9b874cf0d8075af2c4bd3ef7fdc5e244aec515a6d9fda8963bbadec9c7",
+      "english": "Uu... Flandre isn't here! Nobody's here!"
     },
     {
       "id": "flandre.young.o_exam_promise_wait",
@@ -14782,7 +15179,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_promise_wait"
       },
-      "source_sha256": "4ad3360af33d3d03cebde10001fd8ecad48e4b7afe7784b868afa99797ec8e02"
+      "source_sha256": "4ad3360af33d3d03cebde10001fd8ecad48e4b7afe7784b868afa99797ec8e02",
+      "english": "Uu... Hold on... hold on... I'm waiting for my treat..."
     },
     {
       "id": "flandre.young.o_exam_promise_wait2",
@@ -14798,7 +15196,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_promise_wait2"
       },
-      "source_sha256": "f3df470aa160e90c7e6922cf166c606cb088de1f4c34eedb70a99251e9cc9430"
+      "source_sha256": "f3df470aa160e90c7e6922cf166c606cb088de1f4c34eedb70a99251e9cc9430",
+      "english": "I'll wait nicely... Where's my treat?"
     },
     {
       "id": "flandre.young.o_exam_promise_fail",
@@ -14814,7 +15213,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_promise_fail"
       },
-      "source_sha256": "f5f8440ca3a9b9beea2737389f6e4be6e4a995264ffa8ff71dc7d39f125d39ba"
+      "source_sha256": "f5f8440ca3a9b9beea2737389f6e4be6e4a995264ffa8ff71dc7d39f125d39ba",
+      "english": "Uu... Unfair! Why not Flandre?!"
     },
     {
       "id": "flandre.young.o_exam_promise_fail2",
@@ -14830,7 +15230,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_promise_fail2"
       },
-      "source_sha256": "4527ec3d33ff51a4501723c5979413b77fa07c7a9ee015453588d17a7e983ded"
+      "source_sha256": "4527ec3d33ff51a4501723c5979413b77fa07c7a9ee015453588d17a7e983ded",
+      "english": "Flandre was waiting too! Hmph!"
     },
     {
       "id": "flandre.young.o_exam_report",
@@ -14846,7 +15247,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_report"
       },
-      "source_sha256": "3429cec573b00ecd39582eba642226f6925b001e6b47b1fd6991360315851551"
+      "source_sha256": "3429cec573b00ecd39582eba642226f6925b001e6b47b1fd6991360315851551",
+      "english": "Uu... Human, there's a wild one over there!"
     },
     {
       "id": "flandre.young.o_exam_sorry",
@@ -14862,7 +15264,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_sorry"
       },
-      "source_sha256": "052197a56316b77b043527387cc1b6cc2fbdc317b4d82260e5ade72c4b59a801"
+      "source_sha256": "052197a56316b77b043527387cc1b6cc2fbdc317b4d82260e5ade72c4b59a801",
+      "english": "Uu... I'm sorry... Flandre got it wrong..."
     },
     {
       "id": "flandre.young.o_exam_pass",
@@ -14878,7 +15281,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_pass"
       },
-      "source_sha256": "21d95c3f4e1996fac30391b25ba292eaaf84474d07a506d9bc0d85fc5aa8718f"
+      "source_sha256": "21d95c3f4e1996fac30391b25ba292eaaf84474d07a506d9bc0d85fc5aa8718f",
+      "english": "Uu... Yay! A badge! Flandre can relax now!"
     },
     {
       "id": "flandre.young.o_exam_pass2",
@@ -14894,7 +15298,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_pass2"
       },
-      "source_sha256": "2a3738eeb2c309b047635f4ab1a622a509525d1a705a4bc398ab8e6885c4132b"
+      "source_sha256": "2a3738eeb2c309b047635f4ab1a622a509525d1a705a4bc398ab8e6885c4132b",
+      "english": "Thank you, human! Flandre is so happy!"
     },
     {
       "id": "flandre.young.o_exam_fail",
@@ -14910,7 +15315,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_fail"
       },
-      "source_sha256": "c9a9f9ce6fea54f86b2c5edac5a4999f00255d665b2e2492f35c6931753e7069"
+      "source_sha256": "c9a9f9ce6fea54f86b2c5edac5a4999f00255d665b2e2492f35c6931753e7069",
+      "english": "Uu... Why... why is this happening...!"
     },
     {
       "id": "flandre.young.o_exam_fail2",
@@ -14926,7 +15332,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_exam_fail2"
       },
-      "source_sha256": "8d76577c9cf2a4409a9f69b2790b9dc8ee089738fa4bf1418623e4ec75e8827d"
+      "source_sha256": "8d76577c9cf2a4409a9f69b2790b9dc8ee089738fa4bf1418623e4ec75e8827d",
+      "english": "Flandre failed...? Waaah..."
     },
     {
       "id": "flandre.young.o_badge_proud",
@@ -14942,7 +15349,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_badge_proud"
       },
-      "source_sha256": "270236bb8ed1432555d8e4d791e46eb86f83e63ce9d22291bb56df787104119f"
+      "source_sha256": "270236bb8ed1432555d8e4d791e46eb86f83e63ce9d22291bb56df787104119f",
+      "english": "Uu... Look at Flandre's badge! Isn't it great?"
     },
     {
       "id": "flandre.young.o_shop_appeal",
@@ -14958,7 +15366,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shop_appeal"
       },
-      "source_sha256": "6ad7cbc89dbf9032efedffd430b60fb02b3b474aa0744dcf3c4ff7c79b9b9c5f"
+      "source_sha256": "6ad7cbc89dbf9032efedffd430b60fb02b3b474aa0744dcf3c4ff7c79b9b9c5f",
+      "english": "Uu... Please buy Flandre! Let's stay together!"
     },
     {
       "id": "flandre.young.o_shop_appeal2",
@@ -14974,7 +15383,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shop_appeal2"
       },
-      "source_sha256": "4774deb45c900c629a8ec827f624a237962e8c4168d4b619e5b0d44f40809190"
+      "source_sha256": "4774deb45c900c629a8ec827f624a237962e8c4168d4b619e5b0d44f40809190",
+      "english": "Here, here! Flandre is a really good one!"
     },
     {
       "id": "flandre.young.o_shop_bought",
@@ -14990,7 +15400,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shop_bought"
       },
-      "source_sha256": "fe29f5a2190f801d93c1c948de705dcee771c34efce1d1946b95d8376240d7ca"
+      "source_sha256": "fe29f5a2190f801d93c1c948de705dcee771c34efce1d1946b95d8376240d7ca",
+      "english": "Uu... A new home! Please take care of me!"
     },
     {
       "id": "flandre.young.o_shop_sold_sad",
@@ -15006,7 +15417,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shop_sold_sad"
       },
-      "source_sha256": "63d3dfa22c474ffa3cc780608e718243adc01e66d34488643e0f36704d331979"
+      "source_sha256": "63d3dfa22c474ffa3cc780608e718243adc01e66d34488643e0f36704d331979",
+      "english": "Uu... Why...? Don't forget Flandre..."
     },
     {
       "id": "flandre.young.o_shop_sold_proud",
@@ -15022,7 +15434,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_shop_sold_proud"
       },
-      "source_sha256": "f3119a0f5307749c13ae5d6da1fbf73a85dbbc6ff377af43fa5a33e30908742f"
+      "source_sha256": "f3119a0f5307749c13ae5d6da1fbf73a85dbbc6ff377af43fa5a33e30908742f",
+      "english": "Uu... Flandre is going to a better home! Bye-bye!"
     },
     {
       "id": "flandre.young.o_wild_role_beg",
@@ -15038,7 +15451,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_wild_role_beg"
       },
-      "source_sha256": "8e17c258425407e5d1dfa10eece8e40cbaf5d65a4e6811334a0cca50a1b5eb6c"
+      "source_sha256": "8e17c258425407e5d1dfa10eece8e40cbaf5d65a4e6811334a0cca50a1b5eb6c",
+      "english": "Uu... Give me something yummy! Open this!"
     },
     {
       "id": "flandre.young.o_wild_role_provoke",
@@ -15054,7 +15468,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_wild_role_provoke"
       },
-      "source_sha256": "4c2136c0576aaab1f3596d1ebaf31cb13d058c61d3c229824e3d25cacb69141d"
+      "source_sha256": "4c2136c0576aaab1f3596d1ebaf31cb13d058c61d3c229824e3d25cacb69141d",
+      "english": "Uu... That badge means nothing to Flandre! You're no fun!"
     },
     {
       "id": "flandre.young.o_lesson_praised",
@@ -15070,7 +15485,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_lesson_praised"
       },
-      "source_sha256": "601619acf3bad86924672c6b51e36fcc448c9cfab74b2b3f52effc4712eebb56"
+      "source_sha256": "601619acf3bad86924672c6b51e36fcc448c9cfab74b2b3f52effc4712eebb56",
+      "english": "Uu... Hehe, I was praised! Flandre is happy!"
     },
     {
       "id": "flandre.young.o_lesson_praised2",
@@ -15086,7 +15502,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_lesson_praised2"
       },
-      "source_sha256": "c084d359bada9e7ffe9453bf113ffa6f86ae17c631a6d192ada0b307fada91da"
+      "source_sha256": "c084d359bada9e7ffe9453bf113ffa6f86ae17c631a6d192ada0b307fada91da",
+      "english": "I'll keep learning slowly! Thanks, human!"
     },
     {
       "id": "flandre.young.o_lesson_scolded",
@@ -15102,7 +15519,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_lesson_scolded"
       },
-      "source_sha256": "8cebf2f1aa3ece452f8a1ac9d22c032eb316a587551eb6d98d0fa470ecad5025"
+      "source_sha256": "8cebf2f1aa3ece452f8a1ac9d22c032eb316a587551eb6d98d0fa470ecad5025",
+      "english": "Uu... I'm sorry... Flandre will fix it properly..."
     },
     {
       "id": "flandre.young.o_badge_envy",
@@ -15118,7 +15536,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_badge_envy"
       },
-      "source_sha256": "8378bdc956f47cde7f8f0b61926b938f3e12c1f3748ac4c6f814dc1fef2801a7"
+      "source_sha256": "8378bdc956f47cde7f8f0b61926b938f3e12c1f3748ac4c6f814dc1fef2801a7",
+      "english": "Uu... I'm jealous... Flandre wants that badge too."
     },
     {
       "id": "flandre.young.o_badge_admire",
@@ -15134,7 +15553,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_badge_admire"
       },
-      "source_sha256": "258b40462a2ecb053c02819815ee63aceaa3e01aeb0b47a4b95a36818c51ccda"
+      "source_sha256": "258b40462a2ecb053c02819815ee63aceaa3e01aeb0b47a4b95a36818c51ccda",
+      "english": "Uu... Amazing! Teach Flandre too!"
     },
     {
       "id": "reimu.adult.o_date_meet",
@@ -15735,8 +16155,8 @@
       "id": "marisa.adult.o_spray_drowsy2",
       "species": "marisa",
       "age": "adult",
-      "japanese": "あしに ちからが はいらないのぜ……ぜぇ……。",
-      "chinese": "腿使不上力了贼……。",
+      "japanese": "からだに ちからが はいらないのぜ……ぜぇ……。",
+      "chinese": "身子使不上力了贼……。",
       "english": "So floaty... my strength is going...",
       "events": [
         "spray_drowsy"
@@ -15746,7 +16166,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_spray_drowsy2"
       },
-      "source_sha256": "0802e51b68ca7342587b3a2377d01f7e95e92de4c8cb352d796aad3c6c571d91"
+      "source_sha256": "980bec43345527115ec8ff03abbb89679757c282acb730ccc11843f9f9fcd369"
     },
     {
       "id": "marisa.adult.o_basket_refuse",
