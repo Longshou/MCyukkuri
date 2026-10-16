@@ -57,7 +57,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
     private static void debit(Player p, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(Items.EMERALD)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
     }
-    private static void refund(ServerLevel level, UUID player, Vec3 at) {
+    static void refund(ServerLevel level, UUID player, Vec3 at) {
         var stack = new ItemStack(Items.EMERALD, FEE); ServerPlayer sp = level.getServer().getPlayerList().getPlayer(player);
         if (sp != null) { if (!sp.getInventory().add(stack)) sp.drop(stack, false); }
         else { var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
@@ -119,63 +119,41 @@ public final class KeeperMenu extends AbstractContainerMenu {
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
 
     /** Nearest free spot beside the centre entity, so the moved animal does not land inside a block. */
-    private static Vec3 spotBeside(ServerLevel level, YukkuriEntity mover, Vec3 centre) {
+    static Vec3 spotBeside(ServerLevel level, YukkuriEntity mover, Vec3 centre) {
         for (double[] d : new double[][] {{1.1, 0}, {-1.1, 0}, {0, 1.1}, {0, -1.1}}) {
             Vec3 c = centre.add(d[0], 0, d[1]);
             if (level.noCollision(mover, mover.getBoundingBox().move(c.subtract(mover.position())))) return c;
         }
         return null;
     }
-    private static void poof(ServerLevel level, YukkuriEntity y) { level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02); }
+    static void poof(ServerLevel level, YukkuriEntity y) { level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02); }
+
+    /** A free spot the given distance from the centre entity (the shy first meeting), else null. */
+    private static Vec3 spotAt(ServerLevel level, YukkuriEntity mover, Vec3 centre, double distance) {
+        double[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {.7, .7}, {-.7, .7}, {.7, -.7}, {-.7, -.7}};
+        int from = mover.getRandom().nextInt(dirs.length);
+        for (int i = 0; i < dirs.length; i++) {
+            double[] d = dirs[(from + i) % dirs.length]; Vec3 c = centre.add(d[0] * distance, 0, d[1] * distance);
+            if (level.noCollision(mover, mover.getBoundingBox().move(c.subtract(mover.position())))) return c;
+        }
+        return null;
+    }
+    private static final Set<String> REFUSALS = Set.of("pair", "busy", "kind", "factory", "shelter", "crowded", "hungry_mother", "hungry_father", "conceive_null");
+    /** Player-facing text for a conception refusal code; codes themselves are never shown. */
+    static Component failReason(String why) {
+        return Component.translatable("shop.mcyukkuri.keeper.fail." + (why != null && REFUSALS.contains(why) ? why : "other"));
+    }
 
     private boolean book(Player p) {
         var pet = subject(); var s = stud();
         if (state(pet, s) != 0 || !pet.pet().near(p) || pet.pet().busy() || !(p.level() instanceof ServerLevel level)) return false;
-        Vec3 spot = spotBeside(level, pet, s.position()); if (spot == null) return false;
-        if (!pet.pet().lock("date", p.getUUID())) return false;
-        if (!s.pet().lock("date", target.getUUID())) { pet.pet().unlock("date"); return false; }
+        Vec3 meet = spotAt(level, pet, s.position(), 2.8);
+        if (meet == null) meet = spotBeside(level, pet, s.position());
+        if (meet == null) return false;
+        if (!pet.pet().lock(ShopDate.LOCK, p.getUUID())) return false;
+        if (!s.pet().lock(ShopDate.LOCK, target.getUUID())) { pet.pet().unlock(ShopDate.LOCK); return false; }
         debit(p, FEE);
-        UUID petId = pet.getUUID(), studId = s.getUUID(), buyer = p.getUUID(); Vec3 origin = pet.position(); boolean[] paid = {true};
-        ShopPerformance.schedule(level, age -> {
-            var a = level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
-            var b = level.getEntity(studId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
-            if (a == null || b == null) {
-                if (a != null) a.pet().unlock("date"); if (b != null) b.pet().unlock("date");
-                if (paid[0]) refund(level, buyer, origin);
-                return true;
-            }
-            if (age == 1) {
-                poof(level, a); a.getNavigation().stop(); a.moveTo(spot.x, spot.y, spot.z, a.getYRot(), 0); poof(level, a);
-            }
-            if (age % 10 == 0) { a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30); }
-            if (age == 8) { a.playAction("nuzzle"); b.playAction("nuzzle"); }
-            if (age == 45) { a.playAction("shiawase"); b.playAction("greet"); }
-            if (age == 70) {
-                var relations = YukkuriWorldData.get(level); relations.relate(petId, studId, 20); relations.relate(studId, petId, 20);
-                // The date's emotes leave a command action running, which makes FamilyLife.ready() fail: end both before the checks.
-                a.playAction("idle"); b.playAction("idle");
-                String why = ShopKeeping.refusal(level, a, b);
-                boolean ok = why == null && ShopKeeping.arrangedConceive(level, a, b);
-                if (!ok && why == null) why = "conceive_null";
-                if (!ok) io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.warn("[keeper] matchmaking refused for {} x {}: {}", petId, studId, why);
-                var sp = level.getServer().getPlayerList().getPlayer(buyer);
-                if (ok) {
-                    paid[0] = false; long until = level.getGameTime() + 24000;
-                    a.pet().permitBreeding(studId, until); b.pet().permitBreeding(petId, until);
-                    a.showReaction("happy", "expecting", 100);
-                    if (sp != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(sp, "shop_date");
-                    if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.matched", a.getDisplayName()), true);
-                } else if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed_reason", why), true);
-                if (!ok) { paid[0] = false; refund(level, buyer, origin); }
-            }
-            if (age < 90) return false;
-            poof(level, a);
-            var owner = level.getPlayerByUUID(buyer); Vec3 home = origin;
-            if (owner != null) { Vec3 near = spotBeside(level, a, owner.position()); if (near != null) home = near; }
-            a.getNavigation().stop(); a.moveTo(home.x, home.y, home.z, a.getYRot(), 0); poof(level, a);
-            a.pet().unlock("date"); b.pet().unlock("date");
-            return true;
-        });
+        ShopPerformance.schedule(level, new ShopDate(level, target.getUUID(), pet, s, p.getUUID(), pet.position(), meet));
         return true;
     }
 
@@ -183,7 +161,12 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 4 || target == null) return false;
         boolean ok = true;
         if (id <= 1) { rescan(); if (!mine.isEmpty()) selected = (selected + (id == 1 ? 1 : mine.size() - 1)) % mine.size(); }
-        else if (id == 2) { ok = book(p); p.displayClientMessage(Component.translatable(ok ? "human.mcyukkuri.success" : "human.mcyukkuri.unavailable"), true); }
+        else if (id == 2) {
+            ok = book(p);
+            // the precise reason the screen already shows, not the generic shop line
+            int why = ok ? 0 : state(subject(), stud());
+            p.displayClientMessage(Component.translatable(ok ? "human.mcyukkuri.success" : why != 0 ? "shop.mcyukkuri.keeper.state." + why : "shop.mcyukkuri.keeper.unable", FEE), true);
+        }
         else { int n = studs().size(); if (n > 0) stud = (stud + (id == 3 ? 1 : n - 1)) % n; }
         broadcastChanges(); return ok;
     }
