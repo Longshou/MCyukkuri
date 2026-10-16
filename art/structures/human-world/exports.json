@@ -42,7 +42,7 @@
     "art/structures/human-world/products/yukkuri_manju.png": "89b8b0cf0b695a55fce265ab367828df4e6c7f4df905ecbc0b8529f0eee42981",
     "scripts/export_human_world.py": "068e639ac333538fb57223dd39a487a8e8cdae0947b672c2f73e94b7ce6ec2a4",
     "src/main/java/io/github/longshou/mcyukkuri/client/FactoryTrayRenderer.java": "364182b3c72d3182f43031008cdfd80ff38d5d67839bbf0aa07beb664d1876e0",
-    "src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java": "9073698063a2df1cbb13e049548a6f7d4c54abf5bb0a6d03ae7cef60f17ec22d",
+    "src/main/java/io/github/longshou/mcyukkuri/client/HumanRenderer.java": "41423717c996212715b4d75e00bfaa6a2cfca685fb3e7a63c2160f0b902740ba",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamHideBoxBlock.java": "e7bed4184f837bd40f98aee809c52d1d342ad57a2ecfb782a661cfb2bcd9cfd3",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamMarkBlock.java": "7870b295a4c4b6a598e2b2bb03dafccb688ffd257c5912be603f02e076b1a254",
     "src/main/java/io/github/longshou/mcyukkuri/human/ExamPodiumBlock.java": "f507f87f9f4450106e5a1cbca7b1fb4fbdd556a12af6b069794b2ab58c67a298",
