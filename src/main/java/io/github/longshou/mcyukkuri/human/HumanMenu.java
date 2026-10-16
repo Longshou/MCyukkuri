@@ -35,8 +35,7 @@ public final class HumanMenu extends AbstractContainerMenu {
     }
     public HumanNpc target() { return target; }
     public int value(int index) { return display.get(index); }
-    public static int price(YukkuriEntity y) { return 6 + switch (y.pet().grade()) { case BRONZE -> 4; case SILVER -> 12; case GOLD -> 28; default -> 0; } + y.life().personality().lessons() * 2
-            + (y.getVariant().isPredator() ? 24 : y.getVariant() == YukkuriVariant.PATCHOULI ? 4 : 0); }
+    public static int price(YukkuriEntity y) { return io.github.longshou.mcyukkuri.shop.ShopPricing.price(y); }
     public static boolean valid(Player p, HumanNpc n) {
         return n != null && n.isAlive() && p.isAlive() && !p.isSpectator() && p.level() == n.level()
                 && p.distanceToSqr(n) <= 36 && p.hasLineOfSight(n);

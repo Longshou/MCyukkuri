@@ -52,6 +52,8 @@ public final class HumanWorld {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new HumanMenu(id, inv, buf.readVarInt())));
     public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.badge.BadgeMenu>> BADGE_MENU = MENUS.register("badge_assessment",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.badge.BadgeMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.shop.ShopMenu>> SHOP_MENU = MENUS.register("pet_shop",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.shop.ShopMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
     public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS;
