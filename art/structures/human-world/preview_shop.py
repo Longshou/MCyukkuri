@@ -207,8 +207,8 @@ def main():
     args=ap.parse_args();args.out.mkdir(parents=True,exist_ok=True);a=Assets(args.minecraft_resources)
     shop_views(a,args.out);skins(args.out);props(a,args.out);goods(args.out);worn_badges(args.out)
     overview=Image.new('RGB',(1560,1650),'#eff2eb');d=ImageDraw.Draw(overview)
-    d.text((40,24),'宠物店、徽章考试与养成 · 分支内容预览',font=font(38),fill='#273e37')
-    d.text((42,82),'当前运行素材的离线画面；界面为示例数据，完整页面含八组动作 GIF。',font=font(20),fill='#596f65')
+    d.text((40,24),'宠物店、徽章考试与养成 · 当前资源预览',font=font(38),fill='#273e37')
+    d.text((42,82),'当前运行素材的离线画面；界面为示例数据，完整页面含15 组动作 GIF。',font=font(20),fill='#596f65')
     cards=[('新店外观与考场','shop-exterior.png'),('商店与考试界面','ui/shop_live_zh_cn_x2.png'),
            ('七套 NPC 皮肤','staff.png'),('徽章佩戴位置','badge-mounts.png'),('油粮、瓶装与陪伴绳','goods.png'),('铜银金章与手帖','badges.png')]
     for i,(title,relative) in enumerate(cards):
