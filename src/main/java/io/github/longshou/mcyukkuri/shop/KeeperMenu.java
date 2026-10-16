@@ -90,9 +90,14 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (!matchable(pet, s)) return 5;
         if (pet.life().homeStand() == null) return 6;
         if (!(pet.level() instanceof ServerLevel level)) return 5;
-        String why = ShopKeeping.refusal(level, pet, s);
-        return why == null ? 0 : why.equals("crowded") ? 7 : why.startsWith("hungry") ? 8 : 5;
+        long now = level.getGameTime();
+        if (!pet.getUUID().equals(refusalPet) || !s.getUUID().equals(refusalStud) || now - refusalAt >= 20) { // FamilyData.plan is costly: re-ask once a second
+            String why = ShopKeeping.refusal(level, pet, s);
+            refusalCode = why == null ? 0 : why.equals("crowded") ? 7 : why.startsWith("hungry") ? 8 : 5; refusalPet = pet.getUUID(); refusalStud = s.getUUID(); refusalAt = now;
+        }
+        return refusalCode;
     }
+    private UUID refusalPet, refusalStud; private long refusalAt; private int refusalCode;
 
     private void refresh() {
         if (viewer.level().isClientSide || target == null || !(viewer.level() instanceof ServerLevel level)) return;

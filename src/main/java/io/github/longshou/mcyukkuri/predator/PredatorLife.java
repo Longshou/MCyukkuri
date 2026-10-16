@@ -60,7 +60,7 @@ public final class PredatorLife {
     }
     /** The certificate belongs to this animal; putting on someone else's token cannot teach commands. */
     public boolean obedient() {
-        return animal.getVariant().isPredator() && animal.pet().grade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
+        return animal.getVariant().isPredator() && animal.pet().effectiveGrade().id() >= io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER.id()
                 && animal.life().personality().knowsWait() && animal.pet().ability(io.github.longshou.mcyukkuri.pet.Ability.WITS) >= 60;
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }

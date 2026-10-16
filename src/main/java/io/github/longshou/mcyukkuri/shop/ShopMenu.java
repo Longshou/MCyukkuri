@@ -84,6 +84,7 @@ public final class ShopMenu extends AbstractContainerMenu {
     private final ContainerData data = new SimpleContainerData(57);
     private int tab, page, selected, shopCount, focus = -1;
     private boolean penOk, custom;
+    private final Set<UUID> locating = new HashSet<>();
 
     public ShopMenu(int id, Inventory inventory, int entityId) { this(id, inventory, entityId, null); }
     /** Server side only passes a focus animal (opened by clicking it): the menu starts on the LIVE page that lists it with its row highlighted (slot 56). */
@@ -125,6 +126,9 @@ public final class ShopMenu extends AbstractContainerMenu {
     private static void debit(Player p, Item item, int amount) {
         for (ItemStack stack : p.getInventory().items) if (stack.is(item)) { int used = Math.min(amount, stack.getCount()); stack.shrink(used); amount -= used; if (amount == 0) return; }
     }
+    /** Emeralds in stacks of at most 64. */
+    private static void giveEmeralds(Player p, int amount) { for (; amount > 0; amount -= 64) give(p, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
+    private static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     /** Hands over to the player if still online, otherwise leaves it on the ground where the scene happened. */
@@ -230,13 +234,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         UUID id = animal.getUUID(), buyer = p.getUUID(); Vec3 at = animal.position();
         ShopPerformance.schedule(level, age -> {
             if (age < 30) return false;
-            ItemStack refund = new ItemStack(Items.EMERALD, price);
-            if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) { deliver(level, buyer, at, refund); return true; }
+            if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) { deliverEmeralds(level, buyer, at, price); return true; }
             a.pet().unlock("sale");
             var previous = HumanCommerce.data(a).copy();
             HumanCommerce.assign(a, buyer, "companion");
             UUID token = YukkuriWorldData.get(level).capture(a);
-            if (token == null) { HumanCommerce.set(a, previous); deliver(level, buyer, at, refund); return true; }
+            if (token == null) { HumanCommerce.set(a, previous); deliverEmeralds(level, buyer, at, price); return true; }
             deliver(level, buyer, at, HumanCommerce.carrier(a, token));
             var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);
             if (buyerPlayer != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(buyerPlayer, "pet_bought");
@@ -247,11 +250,13 @@ public final class ShopMenu extends AbstractContainerMenu {
     private boolean locate(Player p, int row) {
         var animal = quoted(page * 4 + row); if (animal == null || !(p.level() instanceof ServerLevel level)) return false;
         UUID id = animal.getUUID();
+        if (!locating.add(id)) { custom = true; return false; } // its beam is still running
         p.displayClientMessage(Component.translatable("shop.mcyukkuri.locate_hint", animal.getDisplayName()), true); custom = true;
         ShopPerformance.schedule(level, age -> {
-            var e = level.getEntity(id); if (e == null) return true;
+            var e = level.getEntity(id); if (e == null) { locating.remove(id); return true; }
             if (age % 3 == 0) for (int k = 0; k < 6; k++) level.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + e.getBbHeight() + .3 + k * .35, e.getZ(), 1, .05, .05, .05, 0);
-            return age >= 100;
+            if (age >= 100) { locating.remove(id); return true; }
+            return false;
         });
         return true;
     }
@@ -268,7 +273,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return false; }
         if (!a.pet().lock("sale", p.getUUID())) return false;
         ShopPerformance.RESERVED.add(pen.asLong());
-        give(p, new ItemStack(Items.EMERALD, ShopPricing.buyback(a)));
+        giveEmeralds(p, ShopPricing.buyback(a));
+        a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
         io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
         HumanCommerce.assign(a, target.getUUID(), "stock");
         var pers = a.life().personality();

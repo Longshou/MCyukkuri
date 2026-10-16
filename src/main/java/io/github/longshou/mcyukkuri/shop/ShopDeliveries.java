@@ -45,9 +45,10 @@ public final class ShopDeliveries extends SavedData {
     }
     /** Nearest registered shopkeeper in the same dimension within RANGE blocks, or null. */
     public Map.Entry<UUID, GlobalPos> nearestShop(ServerLevel level, BlockPos from) {
-        Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE;
+        Map.Entry<UUID, GlobalPos> best = null; double bestD = (double) RANGE * RANGE; long now = level.getGameTime();
+        if (shops.keySet().removeIf(id -> seen.getOrDefault(id, -1L) < now - EXPIRY && pending.stream().noneMatch(d -> d.shopkeeper.equals(id)))) setDirty();
         for (var e : shops.entrySet()) {
-            if (!e.getValue().dimension().equals(level.dimension())) continue;
+            if (!e.getValue().dimension().equals(level.dimension()) || seen.getOrDefault(e.getKey(), -1L) < now - EXPIRY) continue;
             double d = e.getValue().pos().distSqr(from);
             if (d <= bestD) { bestD = d; best = e; }
         }
@@ -94,8 +95,8 @@ public final class ShopDeliveries extends SavedData {
         var data = get(level);
         if (data.pending.isEmpty()) return false;
         resolveExpired(level, now);
-        var shop = actor.siteRole().equals("shopkeeper") ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
-                n -> n.isAlive() && n.siteRole().equals("shopkeeper")).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
+        var shop = actor.job() == HumanNpc.Job.SHOPKEEPER ? actor : level.getEntitiesOfClass(HumanNpc.class, actor.getBoundingBox().inflate(48),
+                n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
         if (shop == null) return false;
         var custody = YukkuriWorldData.get(level);
         for (var it = data.pending.iterator(); it.hasNext(); ) {

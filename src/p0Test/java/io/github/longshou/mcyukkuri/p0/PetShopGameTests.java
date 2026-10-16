@@ -544,7 +544,7 @@ public final class PetShopGameTests {
         exam("simple exam", ExamSession.SIMPLE, true, () -> {
             var y = candidateNearExaminer(false);
             y.life().personality().fed(player.getUUID()); y.life().personality().fed(player.getUUID());
-            check("wild candidate is unowned with trust >= 10", y.pet().owner() == null && y.life().personality().trust(player.getUUID()) >= 10, "owner=" + y.pet().owner() + " trust=" + y.life().personality().trust(player.getUUID()));
+            check("wild candidate is unowned with trust >= 10", y.pet().owner() == null && y.life().personality().trust(player.getUUID()) >= 10 && io.github.longshou.mcyukkuri.event.WildEvents.canAdopt(y, player), "owner=" + y.pet().owner() + " trust=" + y.life().personality().trust(player.getUUID()));
             check("a wild candidate may only sit the simple exam", "wild_simple_only".equals(ExamSession.refusal(examiner, player, y, ExamSession.PROMOTION)) && ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE) == null,
                     "promotion=" + ExamSession.refusal(examiner, player, y, ExamSession.PROMOTION) + " simple=" + ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE));
             return y;

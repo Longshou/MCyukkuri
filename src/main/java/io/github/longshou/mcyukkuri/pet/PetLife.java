@@ -50,7 +50,10 @@ public final class PetLife {
     public BadgeGrade grade() { return grade; }
     public boolean expired() { return expiresAt >= 0 && now() > expiresAt; }
     public BadgeGrade effectiveGrade() { return voidBadge ? BadgeGrade.NONE : expired() ? grade.lower() : grade; }
-    public BadgeGrade visibleGrade() { return worn && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
+    /** Transient (never saved): the exam ceremony keeps a freshly decided badge off the animal until the pinning moment. */
+    private boolean badgeHidden;
+    public void hideBadge(boolean hidden) { badgeHidden = hidden; }
+    public BadgeGrade visibleGrade() { return worn && !badgeHidden && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
     private BadgeGrade visibleEffective() { return voidBadge ? BadgeGrade.NONE : expired() ? visibleGrade().lower() : visibleGrade(); }
     public boolean worn() { return worn; }
     public long issuedAt() { return issuedAt; }
@@ -64,6 +67,7 @@ public final class PetLife {
     }
     public void issue(BadgeGrade g, int source, UUID issuer) {
         if (g == null || g == BadgeGrade.NONE) { revoke(); return; }
+        if (grade == BadgeGrade.NONE) animal.getPersistentData().putInt("ExamUnauthBase", unauthorized); // births before the first badge are not held against it
         grade = g; this.source = source; this.issuer = issuer; serial = UUID.randomUUID(); issuedAt = now(); expiresAt = expiry(g); worn = true; voidBadge = false;
     }
     public void renew(UUID issuer) { if (grade == BadgeGrade.NONE) return; this.issuer = issuer; source = 6; issuedAt = now(); expiresAt = expiry(grade); voidBadge = false; }
@@ -95,6 +99,8 @@ public final class PetLife {
         worn = true; stack.shrink(1); return true;
     }
     /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
+    /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */
+    public void rotateSerial() { if (grade == BadgeGrade.NONE) return; serial = UUID.randomUUID(); worn = true; }
     public ItemStack reissueToken() { if (grade == BadgeGrade.NONE) return ItemStack.EMPTY; serial = UUID.randomUUID(); worn = false; return token(); }
     private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     public void markAccessory(ItemStack accessory) {
@@ -378,7 +384,7 @@ public final class PetLife {
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("ReunionDue", reunionDue); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
         tag.putBoolean("Waits", waits); tag.putInt("AbandonStage", abandonStage); if (formerOwner != null) tag.putUUID("FormerOwner", formerOwner);
-        tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized);
+        tag.putInt("Cooldown", cooldown); tag.putInt("Unauthorized", unauthorized); tag.putInt("LessonsToday", lessons.today()); tag.putInt("LessonDayClock", lessons.dayClock());
         if (serial != null) tag.putUUID("Serial", serial); if (issuer != null) tag.putUUID("Issuer", issuer);
         var list = new ListTag(); for (var r : history) list.add(r.save()); tag.put("History", list);
         var permitList = new ListTag();
@@ -392,6 +398,7 @@ public final class PetLife {
         pedigree = Math.clamp(tag.getInt("Pedigree"), 0, 100); pedigreeSet = tag.getBoolean("PedigreeSet");
         stress = Math.clamp(tag.getInt("Stress"), 0, 100); indulgence = Math.clamp(tag.getInt("Indulgence"), 0, 100);
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 72000); unauthorized = Math.clamp(tag.getInt("Unauthorized"), 0, 99);
+        lessons.restore(tag.getInt("LessonsToday"), tag.getInt("LessonDayClock"));
         serial = tag.hasUUID("Serial") ? tag.getUUID("Serial") : null; issuer = tag.hasUUID("Issuer") ? tag.getUUID("Issuer") : null;
         history.clear(); for (var e : tag.getList("History", 10)) { history.add(ExamRecord.load((CompoundTag)e)); }
         while (history.size() > 16) history.remove(0);

@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Disposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -67,7 +68,7 @@ public final class ExamSession implements ExamContext {
         if (active(examiner)) return "busy";
         var pet = y.pet(); boolean mine = pet.owned(p);
         if (!mine) {
-            if (pet.owner() != null || y.life().personality().trust(p.getUUID()) < 10) return "not_owned";
+            if (pet.owner() != null || !io.github.longshou.mcyukkuri.event.WildEvents.canAdopt(y, p)) return "not_owned";
             if (type != SIMPLE) return "wild_simple_only";
         }
         if (pet.busy() || y.isPassenger() || y.isNoAi()) return "not_ready";
@@ -100,9 +101,11 @@ public final class ExamSession implements ExamContext {
         var plan = ExamPlan.items(type, targetOf(type, before), hall);
         if (plan.isEmpty()) return "no_section";
         if (!candidate.pet().lock(LOCK, owner.getUUID())) return "not_ready";
-        if (candidate.pet().owner() == null) HumanCommerce.assign(candidate, owner.getUUID(), "companion");
+        CompoundTag wildTag = null;
+        if (candidate.pet().owner() == null) { wildTag = HumanCommerce.data(candidate).copy(); HumanCommerce.assign(candidate, owner.getUUID(), "companion"); }
         int fee = charge ? fee(type) : 0; if (fee > 0) debit(owner, fee);
         var s = new ExamSession(level, examiner, owner, candidate, type, hall, plan, fee);
+        s.wildTag = wildTag;
         ACTIVE.put(examiner.getUUID(), s);
         candidate.pet().direct(s.walker);
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
@@ -145,6 +148,8 @@ public final class ExamSession implements ExamContext {
     private UUID sayCard;
     private int index, pt, itemTicks, farTicks, offlineTicks, simpleScore = 100, rs, ceremony;
     private boolean done, applied;
+    /** Custody data of a wild candidate before the exam registered it; restored unless the exam awarded a grade. */
+    private CompoundTag wildTag;
     // decision
     private int outcome; private BadgeGrade result = BadgeGrade.NONE; private int[] finalScores = {-1, -1, -1, -1};
 
@@ -184,11 +189,13 @@ public final class ExamSession implements ExamContext {
     @Override public void examinerLookAt(Entity e) { examiner.getLookControl().setLookAt(e, 30, 30); }
     @Override public void examinerSwing() { examiner.swing(InteractionHand.MAIN_HAND); }
     @Override public List<YukkuriEntity> trainees() {
-        return examiner.animals("trainee").stream().filter(y -> y != candidate && (!y.pet().busy() || y.pet().busyWith().equals(LOCK_EXTRA)) && !y.isPanicking())
+        return examiner.animals("trainee").stream().filter(y -> y != candidate && (!y.pet().busy() || mine(y)) && !y.isPanicking())
                 .sorted(Comparator.comparingDouble(y -> y.distanceToSqr(Vec3.atCenterOf(hall != null && hall.room != null ? hall.room : examiner.blockPosition())))).limit(3).toList();
     }
+    /** Locked as an extra by this examiner's own session (not by another one). */
+    private boolean mine(YukkuriEntity y) { return y.pet().busyWith().equals(LOCK_EXTRA) && examiner.getUUID().equals(y.pet().lockedBy()); }
     @Override public YukkuriEntity actor() {
-        return examiner.animals("exam_actor").stream().filter(y -> !y.pet().busy() || y.pet().busyWith().equals(LOCK_EXTRA)).findFirst().orElse(null);
+        return examiner.animals("exam_actor").stream().filter(y -> !y.pet().busy() || mine(y)).findFirst().orElse(null);
     }
     @Override public void direct(YukkuriEntity y, PetLife.Director d) {
         if (y != candidate && !extraIds.contains(y.getUUID())) {
@@ -298,6 +305,8 @@ public final class ExamSession implements ExamContext {
     private void release() {
         done = true; clearCards();
         candidate.pet().unlock(LOCK);
+        candidate.pet().hideBadge(false);
+        if (wildTag != null && candidate.isAlive() && candidate.pet().grade() == BadgeGrade.NONE && HumanCommerce.ownedBy(candidate, ownerId)) HumanCommerce.set(candidate, wildTag);
         for (var y : extras) y.pet().unlock(LOCK_EXTRA);
         if (examiner.isAlive()) examiner.getNavigation().stop();
         ACTIVE.remove(examiner.getUUID());
@@ -349,6 +358,8 @@ public final class ExamSession implements ExamContext {
         }
         pet.record(new ExamRecord(type, level.getGameTime(), s, result, outcome, examiner.getUUID()));
         pet.setCooldown(COOLDOWN);
+        applyGrade(); // persisted now; the ceremony only reveals it (an unloaded candidate keeps its result)
+        if (outcome == 0 || outcome == 3) pet.hideBadge(true);
         candidate.getPersistentData().putString("ExamNotes", String.join("|", notes));
         if (type == JUDGMENT && result.id() >= BadgeGrade.SILVER.id() && fee > 0) give(level, owner(), candidate.position(), new ItemStack(Items.EMERALD, 3));
         var p = owner();
@@ -398,18 +409,18 @@ public final class ExamSession implements ExamContext {
             if (c == 20) { candidate.playAction("joy_jump"); candidate.showReaction("happy", "exam_pass", 60); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f); }
             if (c == 28) Staging.sparkle(level, chest);
             if (c == 34) examinerSwing();
-            if (c == 40) { applyGrade(); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5f); if (result.id() > before.id()) neighbours(); }
+            if (c == 40) { candidate.pet().hideBadge(false); Staging.sparkle(level, chest); Staging.sound(level, candidate.position(), SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5f); if (result.id() > before.id()) neighbours(); }
             if (c == 80 && bold()) { candidate.playAction("proud"); candidate.showReaction("smug", "badge_proud", 50); }
             if (c >= (bold() ? 120 : 90)) finish();
         } else if (outcome == 1) {
             if (c == 20) { candidate.playAction("bow"); candidate.showReaction("satisfied", "", 50); }
             if (c == 30) examinerSwing();
-            if (c == 34) { applyGrade(); Staging.sparkle(level, chest); }
+            if (c == 34) Staging.sparkle(level, chest);
             if (c >= 70) finish();
         } else {
             if (c == 15) candidate.showReaction("dazed", "", 24);
             if (c == 38) { candidate.playAction("tremble"); candidate.showReaction("cry", "exam_fail", 60); Staging.sound(level, candidate.position(), SoundEvents.VILLAGER_NO, 1.2f); }
-            if (c == 40) applyGrade();
+            if (c == 40) candidate.pet().hideBadge(false);
             if (c == 80) {
                 candidate.playAction("sulk"); candidate.showReaction("teary", "", 80);
                 var p = owner(); double dx = p == null ? 0 : candidate.getX() - p.getX(), dz = p == null ? 1 : candidate.getZ() - p.getZ();

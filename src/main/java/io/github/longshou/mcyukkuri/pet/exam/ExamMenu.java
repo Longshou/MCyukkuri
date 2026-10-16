@@ -53,7 +53,7 @@ public final class ExamMenu extends AbstractContainerMenu {
     private void rescan() {
         subjects.clear(); if (!(viewer.level() instanceof ServerLevel level)) return;
         level.getEntitiesOfClass(YukkuriEntity.class, viewer.getBoundingBox().inflate(8), y -> y.isAlive() && (y.pet().owned(viewer)
-                || y.pet().owner() == null && y.life().personality().trust(viewer.getUUID()) >= 10)).stream()
+                || io.github.longshou.mcyukkuri.event.WildEvents.canAdopt(y, viewer))).stream()
                 .sorted(Comparator.comparing(YukkuriEntity::getUUID)).limit(32).forEach(y -> subjects.add(y.getUUID()));
         selected = subjects.isEmpty() ? 0 : Math.min(selected, subjects.size() - 1);
     }

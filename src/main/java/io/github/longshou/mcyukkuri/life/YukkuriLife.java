@@ -153,7 +153,7 @@ public final class YukkuriLife {
     public boolean hasAccessory() { return accessory; }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
-    public boolean canRecognize(YukkuriEntity target) { return entity.pet().grade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD || target.life().hasAccessory()
+    public boolean canRecognize(YukkuriEntity target) { return entity.pet().effectiveGrade() == io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD || target.life().hasAccessory()
             || target.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat
             && target.getUUID().equals(boat.ownerYukkuri()) && boat.protects(target); }
     public boolean needsFood() { return nutrition <= 75 && mouth.isEmpty() && mealTicks == 0; }

@@ -36,6 +36,8 @@ public final class PetLessons {
     public boolean running() { return state == State.RUNNING; }
     public boolean awaitingFeedback() { return state == State.AWAITING && feedbackLeft > 0; }
     public int today() { return today; }
+    public int dayClock() { return dayClock; }
+    public void restore(int today, int dayClock) { this.today = Math.clamp(today, 0, 999); this.dayClock = Math.clamp(dayClock, 0, DAY); }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
 
     // preconditions

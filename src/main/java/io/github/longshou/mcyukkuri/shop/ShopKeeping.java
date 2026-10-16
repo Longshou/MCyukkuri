@@ -70,7 +70,7 @@ public final class ShopKeeping {
 
     /** Nursery young that can live on their own become trained stock: abilities from pedigree, a bronze or silver badge when earned, a pen. */
     private static void train(HumanNpc keeper, ServerLevel level, YukkuriEntity y) {
-        var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && n.siteRole().equals("shopkeeper"))
+        var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER)
                 .stream().min(Comparator.comparingDouble(keeper::distanceToSqr)).orElse(null);
         if (shop == null) return;
         int[] score = new int[4]; var rng = y.getRandom();

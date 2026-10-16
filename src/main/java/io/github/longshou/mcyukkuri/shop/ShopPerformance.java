@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Delayed shop scenes (farewell, sale, locate beam) and the display "beg" appeal. Tasks are transient: a restart mid-scene drops them. */
@@ -22,6 +24,10 @@ public final class ShopPerformance {
 
     /** The predicate gets the age in ticks (1, 2, ...) and returns true when the scene is over. */
     public static void schedule(ServerLevel level, IntPredicate run) { TASKS.add(new Task(level, new int[1], run)); }
+
+    /** Transient scenes and pen reservations never outlive their server (singleplayer world switches). */
+    @SubscribeEvent public static void started(ServerStartingEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
+    @SubscribeEvent public static void stopped(ServerStoppedEvent event) { TASKS.clear(); RESERVED.clear(); APPEAL.clear(); }
 
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
         if (TASKS.isEmpty()) return;

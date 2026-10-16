@@ -258,10 +258,13 @@ public final class WildEvents {
             }
         } else if(s==null)WildCards.fed(e,player);
     }
+    /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
+    public static boolean canAdopt(YukkuriEntity e, Player player) {
+        return !e.getVariant().isPredator()&&!e.getVariant().isHouse()&&HumanCommerce.mayCapture(player,e)
+                &&unowned(e)&&e.life().personality().trust(player.getUUID())>=10&&e.life().personality().fear(player.getUUID())<25;
+    }
     public static boolean adopt(YukkuriEntity e, Player player) {
-        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16
-                ||e.getVariant().isPredator()||e.getVariant().isHouse()||!HumanCommerce.mayCapture(player,e)
-                ||!unowned(e)||e.life().personality().trust(player.getUUID())<10||e.life().personality().fear(player.getUUID())>=25)return false;
+        if(!(e.level() instanceof ServerLevel level)||!safe(e)||!playerNear(e,player)||e.distanceToSqr(player)>16||!canAdopt(e,player))return false;
         HumanCommerce.assign(e,player.getUUID(),"companion");
         Scene s=WildEventData.get(level).forMember(e.getUUID());
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}

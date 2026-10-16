@@ -29,9 +29,19 @@ public final class ShopPens {
     }
     /** Nearest unoccupied nest near the shopkeeper; display grades prefer a glass-side nest, the rest a glass-free one, but any free nest will do. */
     public static BlockPos freePen(ServerLevel level, HumanNpc shopkeeper, YukkuriEntity animal) {
-        return freePen(level, shopkeeper, animal, animal.pet().grade().id() >= BadgeGrade.SILVER.id());
+        return scan(level, shopkeeper, animal, animal.pet().grade().id() >= BadgeGrade.SILVER.id());
     }
+    /** Periodic callers (arrival, training): backs off 200 ticks after an empty scan. */
     public static BlockPos freePen(ServerLevel level, HumanNpc shopkeeper, YukkuriEntity animal, boolean display) {
+        long now = level.getGameTime(); Long hold = NO_PEN.get(shopkeeper.getUUID());
+        if (hold != null && now < hold) return null;
+        var pen = scan(level, shopkeeper, animal, display);
+        if (pen == null) { if (NO_PEN.size() > 64) NO_PEN.values().removeIf(t -> t < now); NO_PEN.put(shopkeeper.getUUID(), now + 200); } else NO_PEN.remove(shopkeeper.getUUID());
+        return pen;
+    }
+    /** Shopkeeper to the tick before which the (expensive) pen scan is skipped after it found nothing. */
+    private static final java.util.Map<java.util.UUID, Long> NO_PEN = new java.util.HashMap<>();
+    private static BlockPos scan(ServerLevel level, HumanNpc shopkeeper, YukkuriEntity animal, boolean display) {
         BlockPos origin = shopkeeper.blockPosition(), best = null; double bestScore = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-24, -6, -24), origin.offset(24, 6, 24))) {
             if (!level.hasChunkAt(pos) || !(level.getBlockState(pos).getBlock() instanceof CareBlock care) || care.kind() != CareBlock.Kind.NEST

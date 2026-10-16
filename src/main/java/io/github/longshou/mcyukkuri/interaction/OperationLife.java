@@ -58,7 +58,6 @@ public final class OperationLife {
         if(entity.level().isClientSide||!CareMenu.valid(player,entity))return false;
         if(action==CareAction.RELEASE)return active()||!inserted.isEmpty()?end():false;
         if(!canStart(player,action))return false;
-        if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
         boolean done=switch(action){
             case OBSERVE -> {
                 player.sendSystemMessage(Component.translatable("operation.mcyukkuri.observation",entity.getName(),
@@ -132,6 +131,7 @@ public final class OperationLife {
             case RELEASE -> false;
         };
         if(done){
+            if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
             entity.pet().contact(player.getUUID(),!java.util.EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
