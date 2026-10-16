@@ -7,7 +7,8 @@
   - “出生与接生场景”：夫妻、接生者和出生的子油都在场——陆生胎生（父亲用辫子摘帽接）、陆生茎生、水生帽船分娩与夜里在帽内睡、水生靠岸接生与失误落水、夜里帽船上睡、单亲魔理沙自己接，另有体型规范与茎长对照。孕体、收缩、茎与实子按游戏的几何绘制；帽子是[帽子容器](../../../interactions/marisa-hat-vessel/README.md)；新生儿的路线与游戏相同（[孩子怎么进帽子](../../../interactions/marisa-hat-vessel/README.md#孩子怎么进帽子)）。孕期的表情面片按游戏 `PregnancyFaces` 的做法贴在鼓起的身体前表面上。
   - “单个动作”：选择动作后播放，可旋转、缩放、调速或拖动时间；每个动作只显示适用的形态（例如缩壳只显示螺壳魔理沙，帽船动作只显示水生魔理沙），表情按动作内的编排切换。
 - 素材检查室的模型页也能选择这些动作。
-- 帽船当前预览位于 `.local/previews/hat-motion/index.html`。本轮以 `current-interactions.png` 展示近缘登船、翻帽自救和低位辫子救援的九格分镜；读取当前模型、贴图与动作，不模拟 Minecraft 完整碰撞或 AI。旧远跳、高举救援动图不作为当前实现预览。更新后运行 `scripts/build_preview_hub.py` 收录到总入口。
+- 帽船当前预览位于 `.local/previews/hat-motion/index.html`，打开后连续播放近缘登船、翻帽自救和亲油低位救援，支持暂停、重播、进度拖动、0.25× 慢放、旋转视角和接触近景。点击“开启声音”播放已有录音与对应中文字幕；九格分镜收在折叠区。
+- 运行 `python standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py` 生成播放器、当前模型／表情、逐 tick 骨骼姿态和现有音频；页面使用仓库内 Three.js 在帧间连续插值，不需要网络或本地服务器。`--still` 才生成静态九格图。导出使用当前运动规则及动作，但不运行 Minecraft 碰撞、AI 或成功率判定；完整运行效果仍由游戏实测。更新后运行 `scripts/build_preview_hub.py` 收录到总入口。
 - 回复里展示的截图也渲染到 `.local/`，不入库。
 
 ## 动作与触发

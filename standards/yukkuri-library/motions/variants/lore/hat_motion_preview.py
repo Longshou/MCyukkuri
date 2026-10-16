@@ -1208,6 +1208,245 @@ def current_interactions():
     print(OUT/'current-interactions.png',flush=True)
 
 
+def playback_palette(model,name,time,tip=None,hat_transfer=None):
+    """The selected game's two-bone palette, without spending CPU time skinning every vertex."""
+    clip=model.clips[name];time=time%clip['duration'] if clip['loop'] else min(clip['duration'],max(0,time))
+    pose={}
+    for clip,at in ((model.clips['idle'],0),(clip,time)):
+        for tr in clip['tracks']:pose.setdefault(tr['bone'],{})[tr['channel']]=P.sample(tr['keys'],at)
+    bones=model.model['bones'];M=[]
+    for i,bone in enumerate(bones):
+        track=pose.get(i,{});mat=np.eye(4);R=P.euler(track.get('rotation',[0,0,0]))*np.array(track.get('scale',[1,1,1]));pivot=np.array(bone['pivot'])
+        mat[:3,:3]=R;mat[:3,3]=pivot+track.get('position',[0,0,0])-R@pivot
+        if bone['name']=='hat_follow':
+            scaled=np.eye(4);scaled[:3,:3]*=model.worn_hat_scale;scaled[:3,3]=np.array(model.hat_anchor)*(1-model.worn_hat_scale);mat=mat@scaled
+        M.append(M[bone['parent']]@mat if bone['parent']>=0 else mat)
+    M=np.array(M);old=M.copy();names={b['name']:i for i,b in enumerate(bones)}
+    rig=runpy.run_path(str(Path(__file__).with_name('hat.py')))
+    if hat_transfer is not None:
+        destination,q,spec=hat_transfer;hat=names['hat_follow'];anchor=np.array(model.hat_anchor)
+        smooth=lambda q:(lambda u:u*u*(3-2*u))(min(1,max(0,q)))
+        slide=smooth((q-spec['slide_begin'])/(spec['lower_begin']-spec['slide_begin']));lower=smooth((q-spec['lower_begin'])/(1-spec['lower_begin']))
+        start=M[hat];a=(start@np.r_[anchor,1])[:3];b=(destination@np.r_[anchor,1])[:3];at=a+(b-a)*slide
+        at[1]=(a[1]+spec['clearance_model_units']*smooth(q/spec['slide_begin']))*(1-lower)+b[1]*lower
+        sa=np.linalg.norm(start[:3,:3],axis=0);sb=np.linalg.norm(destination[:3,:3],axis=0)
+        M[hat,:3,:3]=rig['slerp'](start[:3,:3]/sa,destination[:3,:3]/sb,lower)*(sa+(sb-sa)*lower);M[hat,:3,3]=at-M[hat,:3,:3]@anchor
+        for i,bone in enumerate(bones):
+            ancestor=bone['parent']
+            while ancestor>=0 and ancestor!=hat:ancestor=bones[ancestor]['parent']
+            if ancestor==hat:M[i]=M[bone['parent']]@np.linalg.inv(old[bone['parent']])@old[i]
+    if tip is not None:
+        joint=names['hand_right'];parent=bones[joint]['parent'];pivot=np.array(bones[joint]['pivot']);rest=np.array(json.loads((P.ASSETS/'yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))['braid_tip'])-pivot
+        direction=(np.linalg.inv(M[parent])@np.r_[tip,1])[:3]-pivot;R=rig['aim'](rest,direction);local=np.eye(4);local[:3,:3]=R;local[:3,3]=pivot-R@pivot;M[joint]=M[parent]@local
+        for i,bone in enumerate(bones):
+            ancestor=bone['parent']
+            while ancestor>=0 and ancestor!=joint:ancestor=bones[ancestor]['parent']
+            if ancestor==joint:M[i]=M[bone['parent']].copy() if bone['name'] in ('hand_right_tip','hand_right_ribbon') else M[bone['parent']]@np.linalg.inv(old[bone['parent']])@old[i]
+    return M
+
+
+class PlaybackExport:
+    def __init__(self,scene):
+        self.scene=scene;self.chunks=[];self.count=0;self.meshes=[];self.images={};self.scenes=[]
+        self.bones=len(scene.young.model['bones']);self.spec=json.loads(Path(__file__).with_name('recipe.json').read_text(encoding='utf-8'))['clips']['water_hat_flip']['hat_transfer']
+        for face in ('neutral','teary','cry','surprise'):
+            self.image('marisa_'+face,Image.fromarray(scene.young.texture(face)))
+        for ident,model,stop in (('bare',scene.parent,-scene.parent.boat),('worn',scene.young,len(scene.young.v))):
+            values=np.c_[model.v[:stop],model.uv[:stop],model.n[:stop],model.a[:stop],model.b[:stop],model.q[:stop]]
+            self.meshes.append(dict(id=ident,vertexOffset=self.add(values),vertexCount=len(values),stride=11,boneCount=self.bones))
+        prop=json.loads((P.ASSETS/'yukkuri_props/marisa_hat_turned.json').read_text(encoding='utf-8'));raw=np.array(prop['vertices']).reshape(-1,8)
+        self.mesh('hat',raw)
+        atlas=Atlas()
+        for name in ('oil_grain_regular','food_scrap'):
+            raw=scene.prop(name,atlas);self.mesh(name,raw)
+        self.image('cargo',atlas.image)
+        if hasattr(scene,'stick'):self.image('stick',scene.stick)
+        else:
+            source=P.ROOT/'.local/gradle-home/caches/neoformruntime/artifacts/minecraft_1.21.1_client.jar'
+            with zipfile.ZipFile(source) as archive:self.image('stick',Image.open(io.BytesIO(archive.read('assets/minecraft/textures/item/stick.png'))))
+        quad=[]
+        for x,y,u,v in ((-8,-8,0,1),(8,-8,1,1),(8,8,1,0),(-8,-8,0,1),(8,8,1,0),(-8,8,0,0)):
+            quad.append([x,y,0,u,v,0,0,-1])
+        self.mesh('paddle',np.array(quad))
+    def add(self,array):
+        value=np.asarray(array,dtype='<f4').ravel();at=self.count;self.count+=len(value);self.chunks.append(value);return at
+    def mesh(self,ident,vertices):
+        value=np.c_[vertices,np.zeros((len(vertices),3))];self.meshes.append(dict(id=ident,vertexOffset=self.add(value),vertexCount=len(value),stride=11,boneCount=1))
+    def image(self,ident,image):
+        import base64
+        output=io.BytesIO();image.convert('RGBA').save(output,format='PNG');self.images[ident]='data:image/png;base64,'+base64.b64encode(output.getvalue()).decode('ascii')
+    @staticmethod
+    def world(at=(0,0,0),yaw=0,scale=1,rotation=None):
+        value=np.eye(4);value[:3,:3]=P.euler([0,yaw,0])@(np.eye(3) if rotation is None else rotation)*scale;value[:3,3]=at;return value
+    def matrices(self,matrices):return self.add(np.asarray(matrices).transpose(0,2,1))
+    def instance(self,ident,mesh,texture,matrices,visible=True):
+        return dict(id=ident,mesh=mesh,texture=texture,bonesOffset=self.matrices(matrices),visible=bool(visible))
+    def actor(self,ident,size,at,clip,time,face='teary',yaw=0,worn=True,tip=None,hat_transfer=None,visible=True,paddle=False):
+        if 'marisa_'+face not in self.images:self.image('marisa_'+face,Image.fromarray(self.scene.young.texture(face)))
+        local_tip=None if tip is None else P.euler([0,-yaw,0])@(tip-at)/size
+        matrices=playback_palette(self.scene.young,clip,time,local_tip,hat_transfer);world=self.world(at,yaw,size);palette=np.einsum('ij,njk->nik',world,matrices)
+        offset=self.matrices(palette);instances=[]
+        for suffix,mesh,shown in (('bare','bare',not worn),('worn','worn',worn)):
+            instances.append(dict(id=ident+'_'+suffix,mesh=mesh,texture='marisa_'+face,bonesOffset=offset,visible=bool(visible and shown)))
+        index=next(i for i,b in enumerate(self.scene.young.model['bones']) if b['name']=='hand_right_tip');pivot=np.array(self.scene.young.model['bones'][index]['pivot'])
+        grip=self.world(pivot+[0,-.22*16,0],scale=.85*.5,rotation=P.euler([0,0,45]))
+        instances.append(self.instance(ident+'_paddle','paddle','stick',[world@matrices[index]@grip],visible and paddle))
+        return instances
+    def boat(self,ident,size,at=(0,0,0),yaw=0,rotation=None,visible=True,food=0):
+        scene=self.scene;k=scene.k*size;motion=self.world(at,yaw,rotation=rotation);hull=motion@self.world((0,scene.vessel['bowl']['freeboard']*k,0));hull[:3,:3]=hull[:3,:3]@np.diag([k,k*scene.vessel['squash']['bowl'],k])
+        instances=[self.instance(ident,'hat','marisa_neutral',[hull],visible)];masks=[]
+        if visible:
+            corners=np.array([[p[0]*k,.03*16,p[1]*k,1] for p in scene.vessel['bowl']['mask']]);masks=[(corners@motion.T)[:,:3].ravel().tolist()]
+        for i,(position,r,name) in enumerate(scene.cargo[:2]):
+            bounds=np.array(scene.props[name]['bounds']);extent=max(bounds[:,1]-bounds[:,0]);scale=r*k*math.sqrt(2)*.92/extent
+            transform=motion@self.world(position*k,scale=scale)@self.world(-np.array([bounds[0].mean(),bounds[1,0],bounds[2].mean()]))
+            instances.append(self.instance(ident+'_food_'+str(i),name,'cargo',[transform],visible and i<food))
+        return instances,masks
+    def frame(self,tick,stage,instances,masks,camera,detail=None):
+        result=dict(tick=tick,stage=stage,instances=instances,masks=masks,camera=camera)
+        if detail is not None:result['detailCamera']=detail
+        return result
+    def write(self):
+        import base64
+        payload=dict(version=1,unitsPerBlock=16,tickRate=20,images=self.images,meshes=self.meshes,scenes=self.scenes,bufferBase64=base64.b64encode(np.concatenate(self.chunks).tobytes()).decode('ascii'))
+        (OUT/'playback-data.js').write_text('window.HAT_PLAYBACK='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8',newline='\n')
+        for source in (Path(__file__).with_suffix('.html'),Path(__file__).with_name('hat_motion_player.js')):
+            if source.is_file():shutil.copyfile(source,OUT/('index.html' if source.suffix=='.html' else source.name))
+        shutil.copyfile(P.ROOT/'preview/vendor/three.min.js',OUT/'three.min.js')
+        import hat_motion_audio
+        hat_motion_audio.build(OUT)
+        print('Continuous playback:',{scene['id']:scene['durationTicks'] for scene in self.scenes},'floats:',self.count,flush=True)
+
+
+def playback_camera(span,target,az=.85,el=.32):return dict(az=az,el=el,span=span,target=np.asarray(target).tolist())
+
+def playback_sail(start,destination):
+    """Existing calm-water paddle force/drag and exact near-transfer stop; no position interpolation."""
+    at=np.array(start,float);goal=np.array(destination,float);velocity=np.zeros(3);frames=[at.copy()]
+    for tick in range(240):
+        delta=goal-at;delta[1]=0;distance=np.linalg.norm(delta)
+        if distance<=.05*16:break
+        velocity*=.88;velocity+=delta/distance*(.004+.008*max(0,math.sin(tick*math.pi/16)))*16
+        speed=np.linalg.norm(velocity)
+        if speed>.08*16:velocity*=.08*16/speed
+        if np.linalg.norm(velocity)>distance:velocity*=distance/np.linalg.norm(velocity)
+        at+=velocity;frames.append(at.copy())
+    return frames
+
+def playback_walk(scene,from_at,to_at,tick,duration,radius):
+    time=min(duration,max(0,tick));gait=lambda t:t-24*math.sin(t*math.pi/12)/(2*math.pi)
+    q=min(1,max(0,gait(time)/max(1,gait(duration))));local=from_at+(to_at-from_at)*q
+    floor=scene.foot(local[0],local[2],radius)
+    if math.isfinite(floor):local[1]=max(local[1],floor)
+    return local
+
+
+def export_playback():
+    OUT.mkdir(parents=True,exist_ok=True);scene=CausalScene();V=scene.vessel;data=PlaybackExport(scene)
+    smooth=lambda q:(lambda t:t*t*(3-2*t))(min(1,max(0,q)))
+    # 1: actual own-hat approach, supported walking, steady alignment, a finite short hop and stable landing.
+    size=.25;sail=playback_sail([0,0,-28],[0,0,-20.1]);own=sail[-1];walk_from=scene.seats[0].copy();walk_to=np.array([0,V['bowl']['freeboard'],8.75]);walk_ticks=max(16,math.ceil(np.linalg.norm(walk_to-walk_from)/.20))
+    from_at=own+walk_to*scene.k*size;to_at=np.array([0,V['bowl']['freeboard'],-8.75])*scene.k;gap=np.linalg.norm((to_at-from_at)[[0,2]])/16
+    hop=next(t for t in range(4,11) if gap/t<=.05+.06*size and 0<=(to_at[1]-from_at[1])/16/t+.08*t*.5<=.22+.14*size)
+    arrive=len(sail)-1;align=arrive+walk_ticks;jump=align+6;land=jump+hop;end=land+40;frames=[]
+    for tick in range(end+1):
+        center=sail[min(tick,arrive)];walking=arrive<=tick<align
+        if tick<arrive:position=center+walk_from*scene.k*size;clip='boat_paddle';time=tick/20;stage='划近亲油的帽船'
+        elif tick<align:position=center+playback_walk(scene,walk_from,walk_to,tick-arrive,walk_ticks,3.584)*scene.k*size;clip='water_hat_climb';time=.2+.3*(tick-arrive)/walk_ticks;stage='走到近处帽缘'
+        elif tick<jump:position=from_at;clip='water_hat_grip';time=(tick-align)/20;stage='停稳对齐'
+        elif tick<land:
+            t=tick-jump;position=from_at+(to_at-from_at)*t/hop;position[1]+=V['delivery']['gravity']*.5*t*(hop-t);clip='water_hat_climb';time=.35+.3*t/hop;stage='短跳登船'
+        else:position=to_at;clip='water_recover';time=(tick-land)/20;stage='落稳后休息'
+        instances,masks=data.boat('home',1,food=2);other,holes=data.boat('own',size,center,food=0);instances+=other;masks+=holes
+        instances+=data.actor('parent',1,scene.seats[0]*scene.k,'boat_alarm_wait',tick/20,worn=False)
+        instances+=data.actor('young',size,position,clip,time,yaw=180,worn=False,paddle=tick<arrive)
+        frames.append(data.frame(tick,stage,instances,masks,playback_camera(21,[0,2,-8],.8,.33),playback_camera(10,position+[0,2,0],2.1,.34)))
+    data.scenes.append(dict(id='boarding',title='近檐短距登船',durationTicks=end,frames=frames,cues=[dict(tick=jump,text='短跳登船'),dict(tick=land,text='站稳了，歇一会儿')]))
+    # 2: real immersion, one original hat, fixed endpoint, a controlled failed grip and another finite attempt.
+    child=np.array([0.,-.56*scene.body_height*size,0.]);distance=(.8*size*.5+1.05*size*.5+.03)*16;brim=[]
+    for i in range(32):
+        angle=i*math.pi/16;dx,dz=math.cos(angle),math.sin(angle);extent=0
+        while math.isfinite(scene.surface(dx*extent,dz*extent)) and extent<64:extent+=.125
+        brim.append(np.array([dx*max(0,extent-.125),V['bowl']['freeboard'],dz*max(0,extent-.125)]))
+    root=child+scene.braid_root*size;roll=P.euler([0,0,110]);planned=None
+    for i in range(8):
+        angle=math.pi+i*math.pi/4;center=np.array([math.sin(angle)*distance,0,-math.cos(angle)*distance])
+        if any(np.linalg.norm(center+roll@(p*scene.k*size)-root)<=scene.braid_length*size+.02*16 for p in brim):planned=center;break
+    if planned is None:raise RuntimeError('The current calm-water deployment sample is outside natural braid reach.')
+    anchor=np.array(V['anchor_worn']);Mv=np.array([[0,0,-1],[0,-1,0],[-1,0,0.]]);transform=roll@np.diag([scene.k,scene.k*V['squash']['bowl'],scene.k])@Mv
+    destination=np.eye(4);destination[:3,:3]=transform;destination[:3,3]=(planned-child)/size+roll@np.array([0,V['bowl']['freeboard']*scene.k,0])-transform@anchor
+    r=3.584;seat=np.array([-V['brim'][0]+r+round((V['brim'][0]-r)/.25)*.25,V['bowl']['freeboard'],-V['brim'][1]+r]);to=planned+seat*scene.k*size;crest=np.array([child[0],max(child[1],to[1],V['bowl']['freeboard']*scene.k*size+.015*16),child[2]])
+    remove=28;deploy=remove+18;deployed=deploy+20;slip=deployed+8;retry=slip+32;lift=retry+8;settle=lift+16;safe=settle+16;end=safe+56;frames=[]
+    for tick in range(end+1):
+        position=child.copy();transfer=None;worn=tick<deploy;hull=tick>=deploy;rotation=np.eye(3);yaw=0
+        if tick<12:clip='water_plunge';time=tick/20;stage='落水受惊'
+        elif tick<remove:clip='water_struggle' if (tick-12)%32<8 else 'water_gasp';time=(tick-12)%32/20;stage='浮着扑腾，仍在受伤'
+        elif tick<deploy:
+            q=(tick-remove)/18;transfer=(destination,q,data.spec);clip='water_hat_flip';time=.8*q;stage='取下自己的帽子'
+        elif tick<deployed:
+            q=(tick-deploy)/20;rotation=P.euler([0,0,110*(1-smooth(q))])@P.euler([7*math.sin(math.pi*q),0,0]);clip='water_gasp';time=(tick-deploy)/20;stage='把帽子翻成船';yaw=180
+        elif tick<slip:clip='water_hat_grip';time=(tick-deployed)/20;stage='抓住帽檐';yaw=180
+        elif tick<retry:clip='water_gasp';time=(tick-slip)/20;stage='打滑了，稍作喘息';yaw=180
+        elif tick<lift:clip='water_hat_grip';time=(tick-retry)/20;stage='重新抓稳';yaw=180
+        elif tick<settle:position=child+(crest-child)*smooth((tick-lift)/16);clip='water_hat_climb';time=.65*(tick-lift)/16;stage='撑住帽檐，努力抬身';yaw=180
+        elif tick<safe:position=crest+(to-crest)*smooth((tick-settle)/16);clip='water_hat_climb';time=.65+.55*(tick-settle)/16;stage='越过帽缘，慢慢爬入';yaw=180
+        else:position=to;clip='water_recover';time=(tick-safe)/20;stage='终于爬上帽船，伏低喘息';yaw=180
+        if tick>=deploy:yaw=180*smooth((tick-deploy)/16)
+        instances,masks=data.boat('own',size,planned,rotation=rotation,visible=hull,food=0)
+        instances+=data.actor('young',size,position,clip,time,face=scene.young.face(clip,time),yaw=yaw,worn=worn,hat_transfer=transfer)
+        frame=data.frame(tick,stage,instances,masks,playback_camera(8,[0,1,planned[2]*.5],1.25,.34),playback_camera(5.5,[0,1,planned[2]*.5],.9+1.8*yaw/180,.30));frame['immersed']=bool(tick<safe and position[1]<0);frames.append(frame)
+    data.scenes.append(dict(id='self_rescue',title='同一原帽：翻船、滑脱重试与抓檐爬入',durationTicks=end,frames=frames,cues=[dict(tick=12,text='浮着呼救',event='water_help'),dict(tick=remove,text='取帽自救',event='self_rescue_hat'),dict(tick=slip,text='打滑了',event='self_rescue_slip'),dict(tick=retry,text='再次抓稳',event='self_rescue_grip'),dict(tick=lift,text='努力爬入',event='self_rescue_climb'),dict(tick=safe,text='爬上帽船了',event='self_rescue_safe')]))
+    # 3: actual paddle approach, supported parent walking, one fixed-length tuft and the low rim curve.
+    wet=np.array([5.1,-.56*scene.body_height*.14,-15.8]);offset=np.array([0,scene.body_height*.14*scene.rig['grip_height'],0]);pickup=np.array([-.6012007706195452,-.4863,-1.6741996084474984]);placement=np.array([-.400923440251366,-.4863,-.5336705508019405]);seat=np.array([.38346,-.4863,-5.50824])*scene.k
+    sail=playback_sail([0,0,26],[0,0,0]);arrive=len(sail)-1;home=sail[-1]
+    # The supported shared sample is translated with the final actual boat centre, never snapped to a nominal destination.
+    wet=wet+home;pickup_world=pickup*scene.k+home;placement_world=placement*scene.k+home;seat=seat+home
+    walk=max(16,math.ceil(np.linalg.norm(pickup-scene.seats[0])/.20));reach=arrive+walk;contact=reach+6;grip=contact+6
+    clear=max(wet[1],seat[1]);samples=max(1,math.ceil(np.linalg.norm(seat-wet)/(.025*16)))
+    for q in np.linspace(0,1,samples+1):
+        local=(wet+(seat-wet)*q-home)/scene.k;floor=scene.foot(local[0],local[2],3.584*.14)
+        if math.isfinite(floor):clear=max(clear,home[1]+floor*scene.k)
+    height=clear+.015*16+offset[1];contact_height=(wet+offset)[1];lift_ticks=max(8,math.ceil(abs(height-contact_height)/(.035*16)));carry=grip+lift_ticks
+    walk_place=max(16,math.ceil(np.linalg.norm(placement-pickup)/.20));turn=carry+walk_place
+    first=(wet+offset)-(pickup_world+scene.braid_root);last=seat+offset-(placement_world+scene.braid_root)
+    def low_tip(root,direction,y):
+        dy=y-root[1];horizontal=direction.copy();horizontal[1]=0;horizontal/=np.linalg.norm(horizontal)
+        return root+horizontal*math.sqrt(scene.braid_length**2-dy*dy)+[0,dy,0]
+    def low_arc(root,a,b,ay,by,q):
+        q=smooth(q);aa=math.atan2(a[2],a[0]);bb=math.atan2(b[2],b[0]);angle=aa+math.atan2(math.sin(bb-aa),math.cos(bb-aa))*q
+        return low_tip(root,np.array([math.cos(angle),0,math.sin(angle)]),ay+(by-ay)*q)
+    raised=low_tip(pickup_world+scene.braid_root,first,height)-(pickup_world+scene.braid_root)
+    place_ticks=max(scene.rig['place_ticks'],math.ceil(1.5*math.acos(np.clip(raised@last/np.linalg.norm(raised)/np.linalg.norm(last),-1,1))*scene.braid_length/(.075*16)))
+    settling=turn+place_ticks;settle_ticks=max(6,math.ceil(abs(height-(seat+offset)[1])/(.025*16)));release=settling+settle_ticks;safe=release+6;end=safe+56;frames=[]
+    for tick in range(end+1):
+        center=sail[min(tick,arrive)];parent_at=center+scene.seats[0]*scene.k;child_at=wet.copy();tip=None;held=False
+        if tick<arrive:clip='boat_paddle';time=tick/20;stage='亲油划向落水孩子'
+        elif tick<reach:
+            parent_at=home+playback_walk(scene,scene.seats[0],pickup,tick-arrive,walk,3.584)*scene.k;root=parent_at+scene.braid_root;tip=scene.spherical(root,scene.braid_rest-scene.braid_root,wet+offset-root,(tick-arrive)/scene.rig['reach_ticks']);clip='braid_rescue_reach';time=.8*min(1,(tick-arrive)/scene.rig['reach_ticks']);stage='走近帽缘，伸出辫梢'
+        else:
+            parent_at=pickup_world.copy();root=parent_at+scene.braid_root;tip=wet+offset;clip='braid_rescue_reach';time=1;stage='辫梢接触'
+            if tick>=contact:held=True;clip='braid_rescue_hold';time=.3*min(1,(tick-contact)/6);stage='抓稳孩子'
+            if tick>=grip:tip=low_arc(root,first,raised,contact_height,height,(tick-grip)/lift_ticks);time=.3+.9*min(1,(tick-grip)/lift_ticks);stage='贴近帽缘，轻轻托起'
+            if tick>=carry:
+                parent_at=home+playback_walk(scene,pickup,placement,tick-carry,walk_place,3.584)*scene.k;root=parent_at+scene.braid_root;tip=low_tip(root,raised,height);time=1.2;stage='沿帽缘转移'
+            if tick>=turn:parent_at=placement_world;root=parent_at+scene.braid_root;tip=low_arc(root,raised,last,height,height,(tick-turn)/place_ticks);time=.8+.4*min(1,(tick-turn)/place_ticks);stage='低位托回帽中'
+            if tick>=settling:
+                start_direction=low_tip(root,last,height)-root;tip=low_arc(root,start_direction,last,height,(seat+offset)[1],(tick-settling)/settle_ticks);clip='braid_rescue_settle';time=.6*min(1,(tick-settling)/settle_ticks);stage='轻轻放下'
+            if tick>=release:tip=seat+offset;clip='braid_rescue_settle';time=.6+.3*min(1,(tick-release)/6);stage='放稳后再松开'
+            if held:child_at=tip-offset
+            if tick>=safe:tip=None;held=False;child_at=seat;clip='boat_reassure';time=(tick-safe)/20;stage='亲油守候，孩子喘息恢复'
+        child_clip,ct=('idle',0) if held else ('water_recover',(tick-safe)/20) if tick>=safe else scene.distress(tick)
+        instances,masks=data.boat('home',1,center,food=2)
+        instances+=data.actor('parent',1,parent_at,clip,time,face='teary',worn=False,tip=tip,paddle=tick<arrive)
+        instances+=data.actor('child',.14,child_at,child_clip,ct,face='teary' if held else scene.young.face(child_clip,ct))
+        blend=smooth(tick/max(1,arrive));camera=playback_camera(30*(1-blend)+18*blend,[1,2,center[2]*.5-5],1.0,.34)
+        detail=playback_camera(12,child_at+[0,3,1],1.0,.30)
+        frame=data.frame(tick,stage,instances,masks,camera,detail);frame['immersed']=bool(child_at[1]<0 and tick<release);frames.append(frame)
+    data.scenes.append(dict(id='braid_rescue',title='真正划近后，以原单辫沿实檐低位托回',durationTicks=end,frames=frames,cues=[dict(tick=12,text='落水孩子呼救',event='water_help'),dict(tick=arrive,text='亲油赶来',event='braid_rescue_offer'),dict(tick=contact,text='抓稳孩子',event='braid_rescue_grip'),dict(tick=safe,text='已经安全了',event='braid_rescue_safe')]))
+    data.write()
+
+
 if __name__=='__main__':
-    if any(flag in sys.argv for flag in ('--only-rock','--only-rescue','--only-recall')):causal_main()
-    else:current_interactions()
+    if '--still' in sys.argv:current_interactions()
+    elif any(flag in sys.argv for flag in ('--only-rock','--only-rescue','--only-recall')):causal_main()
+    else:export_playback()

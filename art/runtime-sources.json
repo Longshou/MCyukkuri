@@ -3676,6 +3676,8 @@
     "aquatic_family_preview_source": "standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py",
     "first_voyage_preview_source": "standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py",
     "hat_motion_preview_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py",
+    "hat_motion_player_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_player.js",
+    "hat_motion_audio_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_audio.py",
     "water_distress_export_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-distress",
     "water_distress_preview": ".local/previews/hat-motion/index.html"
   },

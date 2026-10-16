@@ -71,7 +71,7 @@
 
 天气变坏、亲油离开／卸载、命令打断、需求变化、失桨、翻覆或超时会中断当前练习，尽可能回亲船。亲子关联、预留席位和帽子唯一凭据随存档保存，重载按无奖励的返回处理；成功标记单独保存，不重播奖励。日常活动只保存冷却与已发生的移动、观察经验，不重建卸载前的合唱或试划会话。观察笔记显示初航、随亲自驾、返亲帽、复航、亚成离家状态及岸上负担。
 
-当前登船与落水分镜由 [hat_motion_preview.py](../standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py) 离线渲染，采用当前短跳、近檐攀入和低位托回公式、帽子几何及运行时动作。画面展示动作阶段，不是游戏实录；输出在 `.local/previews/hat-motion/`。
+当前登船与落水预览由 [hat_motion_preview.py](../standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py) 导出为连续三维播放页，采用当前短跳、近檐攀入和低位托回公式、帽子几何及运行时动作。三段分别呈现靠缘登船、一次滑脱后翻帽自救、亲油划近并沿帽缘低位托回；可以拖动进度、慢放、旋转视角或切换接触近景。画面是离线编排，未运行游戏 AI 与碰撞；输出在 `.local/previews/hat-motion/`。
 
 ## 危险、保存与回收
 
@@ -136,7 +136,7 @@
 
 初航另增魔理沙试坐 `boat_first_balance` 与非家油幼体站帽檐 `hat_brim`；既有动作和基础造型保持不变。新动作状态仍为待用户复查。
 
-落水自救新增 `water_hat_flip`、`water_hat_grip`、`water_hat_climb`，与近帽缘登船共享服务器阶段时钟；客户端动作不叠加额外跳高或水平位移。最新离线过程分镜为 `.local/previews/hat-motion/current-interactions.png`，入口 `.local/previews/hat-motion/index.html`。旧远跳与高举救援动图不再作为当前实现预览。本轮未运行检查、回归、编译、游戏或 CI 查询，分镜不代表自然触发与成功率已经实测。
+落水自救新增 `water_hat_flip`、`water_hat_grip`、`water_hat_climb`，与近帽缘登船共享服务器阶段时钟；客户端动作不叠加额外跳高或水平位移。最新预览入口 `.local/previews/hat-motion/index.html` 默认连续播放三段，静态分镜仅供展开对照。播放页读取当前表情与逐 tick 姿态，开启声音后使用游戏已收录的录音及其真实中文字幕。生成入口默认输出连续数据，附加 `--still` 才渲染九格图。本轮只生成预览数据，未运行检查、回归、编译、游戏或 CI 查询，离线演示不代表自然触发与成功率已经实测。
 
 无需浏览器或游戏的当前预览入口为 [aquatic_preview.py](../standards/yukkuri-library/motions/variants/lore/aquatic_preview.py)，输出位于 `.local/previews/aquatic/`。运行时验证仍需关注连续昼夜、水上育幼、多人同步、亚成独立和急流翻覆；离线图和 CI 构建均不替代这些实测。
 
