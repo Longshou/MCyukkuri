@@ -24,9 +24,10 @@ abstract class Scene implements ExamItem {
 
     /** Walks to a goal (re-pathing every 10 ticks) and keeps looking at a target while the scene acts. */
     static final class Act implements PetLife.Director {
-        BlockPos goal; Entity look; Vec3 lookAt; double speed = 1.0;
+        BlockPos goal; Entity look; Vec3 lookAt; Float lockYaw; double speed = 1.0;
         @Override public void tick(YukkuriEntity y) {
             if (goal != null && Staging.walkTo(y, goal, speed)) goal = null;
+            if (lockYaw != null) { float w = lockYaw; y.setYRot(w); y.yBodyRot = w; y.yBodyRotO = w; y.setYHeadRot(w); return; }
             if (look != null) y.getLookControl().setLookAt(look, 30, 30);
             else if (lookAt != null) y.getLookControl().setLookAt(lookAt.x, lookAt.y, lookAt.z);
         }
@@ -47,7 +48,7 @@ abstract class Scene implements ExamItem {
         for (var r : undo) r.run();
         undo.clear();
         for (var e : acts.entrySet()) {
-            var a = e.getValue(); a.goal = null; a.look = null; a.lookAt = null;
+            var a = e.getValue(); a.goal = null; a.look = null; a.lookAt = null; a.lockYaw = null;
             if (e.getKey().isAlive() && e.getKey().isCommandPlaying()) e.getKey().playAction("idle");
         }
     }
