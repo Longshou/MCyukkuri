@@ -78,6 +78,6 @@ public final class FamilyFeedingContact {
     }
 
     private static void face(YukkuriEntity entity, float yaw) {
-        entity.setYRot(yaw); entity.yBodyRot = yaw; entity.yBodyRotO = yaw; entity.setYHeadRot(yaw);
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity, yaw);
     }
 }

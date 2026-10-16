@@ -92,6 +92,7 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.life.SurfaceLife surfaceLife=new io.github.longshou.mcyukkuri.life.SurfaceLife(this);
     private final FamilyLife family;
     private final io.github.longshou.mcyukkuri.family.ChildhoodLife childhood;
+    private final io.github.longshou.mcyukkuri.family.CareApproach careApproach = new io.github.longshou.mcyukkuri.family.CareApproach(this);
     private io.github.longshou.mcyukkuri.family.IndependenceLife independence;
     private io.github.longshou.mcyukkuri.season.WinteringLife wintering;
     private final io.github.longshou.mcyukkuri.settlement.SettlementLife settlement;
@@ -255,6 +256,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public FamilyLife family() { return family; }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
+    public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
     public io.github.longshou.mcyukkuri.family.IndependenceLife independence() { return independence; }
     public io.github.longshou.mcyukkuri.season.WinteringLife wintering() { return wintering; }
     public io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies() { return subspecies; }
@@ -393,6 +395,7 @@ public final class YukkuriEntity extends PathfinderMob {
         goalSelector.addGoal(1, new FleeGoal());
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
+        goalSelector.addGoal(2, new CareReceiverGoal());
         goalSelector.addGoal(2, new io.github.longshou.mcyukkuri.badge.BadgeLife.SessionGoal(this));
         goalSelector.addGoal(3, new io.github.longshou.mcyukkuri.predator.PredatorLife.BehaviorGoal(this));
         aquaticLife = new io.github.longshou.mcyukkuri.subspecies.AquaticLife(this);
@@ -537,7 +540,7 @@ public final class YukkuriEntity extends PathfinderMob {
             requestedAction = null;
         }
         String behavior = predator.active() ? predator.activity() : isInWaterOrBubble() ? "escape_water" : !life.activity().equals("idle") ? life.activity()
-                : !childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
+                : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
                 : travelledX * travelledX + travelledZ * travelledZ > 0.000001 && onGround() && !life.isSleeping()
@@ -784,6 +787,15 @@ public final class YukkuriEntity extends PathfinderMob {
         independence.load(tag.getCompound("YukkuriIndependence"));
         if (variant.isPredator()) { predator.load(tag.getCompound("YukkuriPredator")); setNoGravity(false); }
         entityData.set(HAIR_LOSS,body.hairLoss());
+    }
+
+    private final class CareReceiverGoal extends Goal {
+        CareReceiverGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return careApproach.waiting(); }
+        @Override public boolean canContinueToUse() { return careApproach.waiting(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { careApproach.tickReceiver(); }
+        @Override public void stop() { careApproach.cancelIncoming(); }
     }
 
     private final class ChildhoodGoal extends Goal {

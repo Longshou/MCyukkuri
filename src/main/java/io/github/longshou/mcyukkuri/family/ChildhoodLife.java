@@ -236,10 +236,11 @@ public final class ChildhoodLife {
 
     public boolean canUse() {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE) return false;
-        if (parentAvailable(entity) && !entity.isPassenger()) {
+        if (parentAvailable(entity) && !entity.isPassenger() && !entity.family().hasUrgentlyHungryChild()) {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
                     other -> entity.family().caresFor(other) && !other.isPassenger() && childAvailable(other)
-                            && other.childhood().needsAssistedFirstToilet() && mayHelp(other)).stream()
+                            && other.childhood().needsAssistedFirstToilet() && other.life().nutrition()>=30
+                            && entity.careApproach().mayTry(other) && mayHelp(other)).stream()
                     .min(java.util.Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (child != null) { task = Task.FIRST_TOILET; careTarget = child.getUUID(); careTicks = taskTicks = 0; return true; }
             var learner = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
@@ -308,6 +309,7 @@ public final class ChildhoodLife {
 
     public void stop() {
         stopHatPractice();
+        if (task == Task.FIRST_TOILET) entity.careApproach().cancel();
         if (task != Task.NONE) entity.getNavigation().stop();
         task = Task.NONE;
         careTarget = null;
@@ -319,17 +321,9 @@ public final class ChildhoodLife {
     private void tickFirstToilet() {
         var child = person(careTarget);
         if (child == null) { stop(); return; }
-        Vec3 forward = Vec3.directionFromRotation(0, child.getYRot());
-        double reach = (entity.getBbWidth() + child.getBbWidth()) * .5 + .08;
-        Vec3 spot = child.position().subtract(forward.scale(reach));
-        entity.getLookControl().setLookAt(child, 30, 30);
-        if (!toiletContact(entity, child)) {
-            careTicks = 0;
-            if (entity.distanceToSqr(spot) <= 4) {
-                entity.getNavigation().stop(); entity.getMoveControl().setWantedPosition(spot.x, spot.y, spot.z, .65);
-            } else if (taskTicks % 10 == 1 && !entity.getNavigation().moveTo(spot.x, spot.y, spot.z, .9)) stop();
-            return;
-        }
+        var approach=entity.careApproach().tick(child,CareApproach.Kind.REAR);
+        if(approach==CareApproach.Result.FAILED){stop();return;}
+        if(approach!=CareApproach.Result.CONTACT){careTicks=0;return;}
         entity.getNavigation().stop(); child.getNavigation().stop();
         float yaw = child.getYRot(); entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
         if (++careTicks < FIRST_TOILET_CONTACT_TICKS) return;

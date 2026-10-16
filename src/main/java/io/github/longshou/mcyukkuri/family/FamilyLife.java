@@ -69,6 +69,7 @@ public final class FamilyLife {
     private ItemStack carrying=ItemStack.EMPTY;
     private ItemEntity foodSource;
     private BlockPos foodStore;
+    private int careFinishTicks;
     public FamilyLife(YukkuriEntity entity) { this.entity=entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public Stage stage() { return stage; }
@@ -115,6 +116,10 @@ public final class FamilyLife {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(1.5),child->caresFor(child)
                 &&entity.life().canRecognize(child)&&child.life().nutrition()<entity.life().nutrition()-15).isEmpty();
     }
+    public boolean hasUrgentlyHungryChild() {
+        return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
+                child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
+    }
     public boolean elder() { return age>=maturity+(lifespan-maturity)*.85; }
     public boolean active() { return task!=Task.NONE||laboring()||hatMove!=HatMove.NONE||fetching!=null||flight!=null; }
     public String activity() {
@@ -125,7 +130,7 @@ public final class FamilyLife {
             case COURT, RECEIVE_COURT -> "courtship"; case BROOD -> "tend_brood"; case FOLLOW -> "follow_parent";
             case WAIT_CHILD -> "wait_child"; case SEARCH -> "search_family";
             case MIDWIFE -> cradleEntity()!=null?"hat_hold"+big:"midwife";
-            case FEED_CHILD -> !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? "family_chew" : "feed_child";
+            case FEED_CHILD -> careFinishTicks>0 ? "care_finish" : !carrying.isEmpty() && target != null && target.family().needsMash() && !InfantFood.isMash(carrying) ? "family_chew" : "feed_child";
             case STAY_HOME -> "stay_home"; default -> awaitingLanding?"newborn_fall":"idle";
         };
     }
@@ -701,7 +706,7 @@ public final class FamilyLife {
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&caresFor(child)&&entity.life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.life().reachable(child.blockPosition(),false);
+                &&child.life().nutrition()<entity.life().nutrition()-15&&entity.careApproach().mayTry(child)&&entity.life().reachable(child.blockPosition(),false);
     }
     private YukkuriEntity hungriestOwnChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),this::hungryOwnChild).stream()
@@ -747,6 +752,11 @@ public final class FamilyLife {
         }
     }
     private void tickCare() {
+        if(careFinishTicks>0) {
+            entity.careApproach().hold();
+            if(++careFinishTicks>=72 || target==null || !target.isAlive())stop();
+            return;
+        }
         if(!validCareTarget()) {
             target=hungriestOwnChild();foodSource=null;foodStore=null;careOfferTicks=0;
             if(target==null){stop();return;}
@@ -782,29 +792,23 @@ public final class FamilyLife {
             if(++careChewTicks >= 40) { carrying=InfantFood.mash(carrying,entity.getUUID());careOfferTicks=0; }
             return;
         }
-        FamilyFeedingContact.faceEachOther(entity,target);
-        if(FamilyFeedingContact.mouthsMeet(entity,target)) {
+        var approach=entity.careApproach().tick(target,CareApproach.Kind.FEED);
+        if(approach==CareApproach.Result.FAILED){stop();return;}
+        if(approach==CareApproach.Result.CONTACT) {
             entity.getNavigation().stop();
             if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;
             boolean handed=target.family().needsMash() ? target.life().beginParentMeal(entity,carrying) : target.life().beginMeal(carrying,null,true);
-            if(handed) { carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;entity.showReaction("happy","share",80); }
-            stop();return;
+            if(handed) { carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;entity.showReaction("happy","share",80); }
+            else stop();return;
         }
         careOfferTicks=0;
-        Vec3 contact=FamilyFeedingContact.approachSpot(entity,target);
-        if(entity.distanceToSqr(target)<=4&&entity.hasLineOfSight(target)&&target.hasLineOfSight(entity)) {
-            // Path navigation stops at a block-sized tolerance.  The last fraction must be a real
-            // precise approach, or the two mouths can remain permanently just outside contact.
-            entity.getNavigation().stop();
-            entity.getMoveControl().setWantedPosition(contact.x,contact.y,contact.z,.8);
-        } else if(taskTicks%5==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
     }
     public boolean canContinue() {
         if(task==Task.NONE||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
-        if(task==Task.FEED_CHILD)return careReady()&&validCareTarget()&&taskTicks<480;
+        if(task==Task.FEED_CHILD)return careReady()&&(careFinishTicks>0&&target!=null&&target.isAlive()||validCareTarget())&&taskTicks<600;
         return (taskTicks<240||task==Task.MIDWIFE)&&(task==Task.BROOD||task==Task.SEARCH||target!=null&&target.isAlive()&&target.level()==entity.level()&&entity.distanceToSqr(target)<256);
     }
     public void tickGoal() {
@@ -890,7 +894,7 @@ public final class FamilyLife {
             default -> { }
         }
     }
-    public void stop() { task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=0;wait=Math.max(wait,40); }
+    public void stop() { if(task==Task.FEED_CHILD)entity.careApproach().cancel();task=Task.NONE;target=null;searchAt=null;foodSource=null;foodStore=null;taskTicks=0;careOfferTicks=careFinishTicks=0;wait=Math.max(wait,40); }
     public void died() {
         if(!carrying.isEmpty()) {
             var food=entity.spawnAtLocation(carrying.copy());
