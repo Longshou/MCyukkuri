@@ -56,6 +56,11 @@ public final class FamilyData extends SavedData {
         public int[] dispositions = new int[0];
         public boolean born;
         public boolean landed;
+        // House eggs keep individual custody and time when separated from their clutch.
+        public boolean eggManaged, eggLost;
+        public int eggElapsed;
+        public GlobalPos eggNest;
+        public UUID eggNestId, eggToken;
     }
     public static final class Brood {
         public UUID id, mother, father, detachedHolder;
@@ -65,8 +70,8 @@ public final class FamilyData extends SavedData {
         public float variation;
         public boolean cancelled;
         public final List<Child> children = new ArrayList<>();
-        public boolean complete() { return children.stream().allMatch(child -> child.born); }
-        public int unborn() { return (int)children.stream().filter(child -> !child.born).count(); }
+        public boolean complete() { return children.stream().allMatch(child -> child.born || child.eggLost); }
+        public int unborn() { return (int)children.stream().filter(child -> !child.born && !child.eggLost).count(); }
         public float progress() { return Math.min(1, elapsed/(float)Math.max(1,duration)); }
     }
     private final Map<UUID, Person> people = new HashMap<>();
@@ -247,8 +252,14 @@ public final class FamilyData extends SavedData {
                 &&level.getEntity(brood.mother) instanceof YukkuriEntity mother&&!mother.subspecies().canReproduce()) {
             cancel(brood);return null;
         }
-        Child child=brood.children.get(index);if(child.born)return null;
-        if(brood.elapsed<brood.duration+(brood.kind==BirthKind.STEM?index*8:brood.kind==BirthKind.LIVE?LiveBirthGeometry.birthTick(index):0))return null;
+        Child child=brood.children.get(index);if(child.born||child.eggLost)return null;
+        int elapsed=brood.kind==BirthKind.EGG&&child.eggManaged?child.eggElapsed:brood.elapsed;
+        if(elapsed<brood.duration+(brood.kind==BirthKind.STEM?index*8:brood.kind==BirthKind.LIVE?LiveBirthGeometry.birthTick(index):0))return null;
+        if(brood.kind==BirthKind.EGG&&child.eggManaged
+                &&(child.eggToken!=null||child.eggNest==null||!child.eggNest.dimension().equals(level.dimension())
+                ||child.eggNest.pos().distToCenterSqr(position)>4
+                ||!(level.getBlockEntity(child.eggNest.pos()) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest)
+                ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
             if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood
                     ||!mother.family().readyForDelivery()||position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001
@@ -260,7 +271,11 @@ public final class FamilyData extends SavedData {
             return null;
         }
         if(YukkuriWorldData.get(level).isCaptured(child.id)) { child.born=true;people.get(child.id).status=Status.ALIVE;setDirty();trackStemCompletion(brood,level);return null; }
-        if(!level.hasChunkAt(BlockPos.containing(position))||!relocate(brood,level,BlockPos.containing(position)))return null;
+        if(!level.hasChunkAt(BlockPos.containing(position)))return null;
+        // Moving one egg must never move its siblings' population reservations to the new nest.
+        if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
+            if(!relocate(brood,level,BlockPos.containing(position)))return null;
+        }
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.family().newborn(child,brood);entity.moveTo(position.x,position.y,position.z,0,0);
         entity.subspecies().initializeBirth(child.subspeciesFlags);
@@ -372,7 +387,7 @@ public final class FamilyData extends SavedData {
         return id==null?null:GlobalPos.of(ResourceKey.create(Registries.DIMENSION,id),BlockPos.of(value.getLong("Pos")));
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version",2);ListTag persons=new ListTag(),pregnancies=new ListTag();
+        tag.putInt("Version",3);ListTag persons=new ListTag(),pregnancies=new ListTag();
         for(Person person:people.values()) {
             CompoundTag value=new CompoundTag();value.putUUID("Id",person.id);value.putString("Variant",person.variant);value.putString("Status",person.status.name());
             if(person.mother!=null)value.putUUID("Mother",person.mother);if(person.father!=null)value.putUUID("Father",person.father);if(person.brood!=null)value.putUUID("Brood",person.brood);
@@ -386,6 +401,12 @@ public final class FamilyData extends SavedData {
             for(Child child:brood.children) {
                 CompoundTag c=new CompoundTag();c.putUUID("Id",child.id);c.putString("Variant",child.variant.name());c.putFloat("AdultScale",child.adultScale);
                 c.putInt("SubspeciesFlags",child.subspeciesFlags);
+                if(child.eggManaged){
+                    c.putBoolean("EggManaged",true);c.putBoolean("EggLost",child.eggLost);c.putInt("EggElapsed",child.eggElapsed);
+                    putPosition(c,"EggNest",child.eggNest);
+                    if(child.eggNestId!=null)c.putUUID("EggNestId",child.eggNestId);
+                    if(child.eggToken!=null)c.putUUID("EggToken",child.eggToken);
+                }
                 c.putLong("Lifespan",child.lifespan);c.putLong("Maturity",child.maturity);c.putIntArray("Traits",child.traits);c.putIntArray("Dispositions",child.dispositions);c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
@@ -414,6 +435,10 @@ public final class FamilyData extends SavedData {
                 for(Tag childEntry:value.getList("Children",Tag.TAG_COMPOUND)) {
                     CompoundTag c=(CompoundTag)childEntry;Child child=new Child();child.id=c.getUUID("Id");child.variant=YukkuriVariant.valueOf(c.getString("Variant"));
                     child.subspeciesFlags=Math.clamp(c.getInt("SubspeciesFlags"),0,255);
+                    child.eggManaged=c.getBoolean("EggManaged");child.eggLost=c.getBoolean("EggLost");
+                    child.eggElapsed=Math.clamp(c.getInt("EggElapsed"),0,brood.duration+600);
+                    child.eggNest=position(c,"EggNest");child.eggNestId=c.hasUUID("EggNestId")?c.getUUID("EggNestId"):null;
+                    child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
                     child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.lifespan=Math.max(600,c.getLong("Lifespan"));child.traits=c.getIntArray("Traits");child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
                     child.dispositions=c.getIntArray("Dispositions");
                     if(tag.getInt("Version")<2) {

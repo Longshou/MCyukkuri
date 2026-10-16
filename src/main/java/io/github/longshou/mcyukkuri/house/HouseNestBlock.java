@@ -35,6 +35,7 @@ public final class HouseNestBlock extends Block implements EntityBlock {
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
         if(stack.is(ModItems.WASH_CLOTH.get()))return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        if(stack.is(ModItems.HOUSE_EGG.get()))return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         if(level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest&&(HouseNestBlockEntity.isMaterial(stack)||stack.is(ModItems.FOOD_SCRAP.get()))){
             if(!level.isClientSide&&nest.deposit(stack.copyWithCount(1))&&!player.getAbilities().instabuild)stack.shrink(1);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -42,8 +43,15 @@ public final class HouseNestBlock extends Block implements EntityBlock {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){
-        if(!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)
-            player.displayClientMessage(Component.translatable("house.mcyukkuri.inspect",nest.materials(),nest.food(),nest.dirt(),nest.eggs(),Math.round(nest.progress()*100)),false);
+        if(!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest){
+            if(player.isSecondaryUseActive()&&player.getMainHandItem().isEmpty()){
+                var egg=nest.extractEgg();
+                if(!egg.isEmpty()){
+                    if(!player.getInventory().add(egg))player.drop(egg,false);
+                    player.displayClientMessage(Component.translatable("house.mcyukkuri.egg_taken"),true);
+                }else player.displayClientMessage(Component.translatable("house.mcyukkuri.no_egg"),true);
+            }else player.displayClientMessage(Component.translatable("house.mcyukkuri.inspect",nest.materials(),nest.food(),nest.dirt(),nest.eggs(),Math.round(nest.progress()*100)),false);
+        }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){

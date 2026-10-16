@@ -1,0 +1,26 @@
+{
+  "id": "house_ecology",
+  "revision": "cotton-lint-20261016",
+  "status": "pending_user_confirmation",
+  "lore": "wiki/hakkei-reference/world/resources-ecology.md#家油巢与卵",
+  "materials": ["cotton_lint", "dust"],
+  "units_per_block": 16,
+  "palette": ["d5d0c1", "c2beaf", "e8e3d5", "aaa696", "f7ecd4", "dfceb0"],
+  "lint": {"radius": [0.83, 0.39, 0.58], "tufts": 7, "fibers": 9},
+  "bedding": {"radius": [3.38, 0.055, 2.44], "rim_tufts": 24, "floor_tufts": 30, "fibers": 32},
+  "shell": {
+    "source": "art/props/runtime-peripheral/selected/house_egg/house_egg.mesh.json",
+    "texture": "art/props/runtime-peripheral/selected/house_egg/texture.png",
+    "rim_height": 0.48,
+    "rim_wave": 0.12,
+    "wall_thickness": 0.028,
+    "note": "Lower faces are selected from the approved R2.4 shell; the jagged opening and inner surface are original hatching presentation. Intact and cracked approved assets remain unchanged."
+  },
+  "display": {
+    "sleeping_center": [0.32, 0.01, 0.55],
+    "sleeping_scale": [0.90, 1.0, 1.15],
+    "egg_center": [0.665, 0.018, 0.525],
+    "egg_scale": [0.62, 0.7, 0.95],
+    "egg_slots": [[0.61, 0.036, 0.45], [0.72, 0.036, 0.45], [0.61, 0.036, 0.60], [0.72, 0.036, 0.60]]
+  }
+}

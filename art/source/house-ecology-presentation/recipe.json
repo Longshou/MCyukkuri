@@ -1,0 +1,41 @@
+{
+  "format": 1,
+  "status": "pending_user_review",
+  "source_basis": "wiki/hakkei-reference/lore/house-nest-sources.md",
+  "adaptation": "Original readable pauses for crevice life; natural hatch choreography is not a traced comic sequence.",
+  "models": ["house_reimu", "house_marisa"],
+  "sample_ticks": 1,
+  "key_layout": ["tick", "pitch", "yaw", "roll", "scale_x", "scale_y", "scale_z"],
+  "clips": {
+    "house_peek": {
+      "duration_ticks": 60,
+      "loop": true,
+      "intent": "Lean out, look left, hold, look right, return to the opening.",
+      "keys": [[0,0,0,0,1,1,1],[9,3,-15,-2,0.98,1.04,1],[20,3,-15,-2,0.98,1.04,1],[35,3,17,2,0.98,1.04,1],[46,3,17,2,0.98,1.04,1],[60,0,0,0,1,1,1]]
+    },
+    "house_tend": {
+      "duration_ticks": 40,
+      "loop": true,
+      "intent": "Lower toward the egg, make two small careful nudges, then withdraw.",
+      "keys": [[0,0,0,0,1,1,1],[9,-8,-3,0,1.03,0.88,1.04],[15,-10,-3,0,1.04,0.85,1.06],[20,-6,2,0,1.03,0.90,1.03],[26,-9,2,0,1.04,0.86,1.05],[34,-4,0,0,1.02,0.94,1.02],[40,0,0,0,1,1,1]]
+    },
+    "house_listen": {
+      "duration_ticks": 80,
+      "loop": true,
+      "intent": "Rest close to the egg and tilt one cheek toward a crack before listening again.",
+      "keys": [[0,0,0,0,1,1,1],[14,-3,-5,9,1.02,0.95,1.01],[34,-3,-5,9,1.02,0.95,1.01],[43,2,0,3,0.99,1.03,1],[54,-2,4,-7,1.02,0.96,1.01],[70,-2,4,-7,1.02,0.96,1.01],[80,0,0,0,1,1,1]]
+    },
+    "house_startled": {
+      "duration_ticks": 20,
+      "loop": false,
+      "intent": "A brief recoil and compressed freeze, then a low ready-to-flee posture.",
+      "keys": [[0,0,0,0,1,1,1],[3,4,0,-3,1.1,0.76,1.07],[7,2,0,2,1.07,0.81,1.05],[11,2,0,-1,1.06,0.83,1.05],[16,0,0,0,1.05,0.86,1.04],[20,0,0,0,1.04,0.89,1.03]]
+    },
+    "house_search_home": {
+      "duration_ticks": 60,
+      "loop": true,
+      "intent": "Pause low, look back at the lost home, then search the other side.",
+      "keys": [[0,0,0,0,1,1,1],[10,-2,-24,-3,1.02,0.94,1.02],[22,-2,-24,-3,1.02,0.94,1.02],[34,2,0,0,1,1.03,1],[45,-2,24,3,1.02,0.94,1.02],[53,-2,24,3,1.02,0.94,1.02],[60,0,0,0,1,1,1]]
+    }
+  }
+}

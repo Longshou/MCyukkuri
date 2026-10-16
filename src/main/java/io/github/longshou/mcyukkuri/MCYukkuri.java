@@ -45,6 +45,7 @@ public final class MCYukkuri {
         NeoForge.EVENT_BUS.addListener(YukkuriWorldData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::leaving);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.house.HouseEggs::leaving);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.entity.YukkuriEntity::breatheInHat);
         container.registerConfig(ModConfig.Type.SERVER, YukkuriConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, io.github.longshou.mcyukkuri.family.FamilyConfig.SPEC, "mcyukkuri-family.toml");

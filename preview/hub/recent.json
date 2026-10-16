@@ -6,6 +6,52 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "house-ecology",
+      "label": "家油的一家",
+      "title": "家具缝隙里，觅食、筑巢与破壳相连。",
+      "tag": "家油生态",
+      "summary": "夜间探头、搬运棉絮、分区守卵与逐枚破壳。当前资源离线分镜使用真实模型及动作，家具剖视用于看清小家内部。",
+      "model": "house_reimu",
+      "gallery": [
+        {
+          "src": "house-ecology/house-ecology.png",
+          "label": "家油生态四格分镜"
+        },
+        {
+          "src": "house-ecology/materials.png",
+          "label": "棉絮、巢垫、卵与空残壳"
+        }
+      ],
+      "points": [
+        "棉絮灰尘用于筑巢，碎食进入有限存粮；两者不混用。",
+        "睡位在左、卵窝在右，四个卵位保持独立身份。",
+        "完整与裂壳卵保留 R2.4 认可几何；空残壳属于原创孵化演出。"
+      ],
+      "steps": [
+        {
+          "title": "先探头，再走出藏身处",
+          "body": "house_peek 动作取样；夜间觅食由服务器条件与真实目标驱动。",
+          "image": "house-ecology/night-peek.png"
+        },
+        {
+          "title": "单辫夹絮，搬回家中",
+          "body": "当前 house_carry 的真实辫梢挂点承载棉絮，不把食物画成筑巢材料。",
+          "image": "house-ecology/carry-lint.png"
+        },
+        {
+          "title": "分区守卵与倾听",
+          "body": "左侧睡眠垫与右侧卵窝分别显示，护卵有低头停顿。",
+          "image": "house-ecology/guard-eggs.png"
+        },
+        {
+          "title": "逐枚破壳，幼体独立",
+          "body": "空壳短时保留，幼体从原卵位置成为真实独立个体；离线构图不代替游戏内验收。",
+          "image": "house-ecology/staggered-hatch.png"
+        }
+      ],
+      "source": "standards/yukkuri-library/ecology/house-nest/README.md"
+    },
+    {
       "id": "water",
       "label": "帽船一家",
       "title": "在一顶帽子上，过一家人的日子。",

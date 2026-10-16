@@ -14,6 +14,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
     public PropItemRenderer(){super(Minecraft.getInstance().getBlockEntityRenderDispatcher(),Minecraft.getInstance().getEntityModels());}
     @Override public void renderByItem(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         String name=BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.HOUSE_EGG.get()))name=HouseScrapRenderer.smallProp(stack);
         if(io.github.longshou.mcyukkuri.life.InfantFood.isMash(stack))name="food_mash_serving";
         if(stack.is(io.github.longshou.mcyukkuri.registry.ModItems.REMAINS.get())){
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
