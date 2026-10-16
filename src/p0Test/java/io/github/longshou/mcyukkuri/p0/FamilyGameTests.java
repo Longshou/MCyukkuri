@@ -394,6 +394,12 @@ public final class FamilyGameTests {
             check("newborn has landed and woken before following",child!=null&&!child.family().awaitingLanding(),child==null?"missing":child.position());
             helper.assertTrue(child!=null&&pregnancy.mother.equals(child.family().mother())&&pregnancy.father.equals(child.family().father())
                     &&a.getUUID().equals(child.family().mother())&&b.getUUID().equals(child.family().father()),"Following uses the actual recorded biological parents");
+            // Hold the targets while observing the newborn's own slow approach. Otherwise a parent
+            // caring for another sibling can move away faster than this newborn can crawl.
+            for(var parent:List.of(a,b)) {
+                parent.setNoAi(true);parent.family().stop();parent.childhood().stop();
+                parent.getNavigation().stop();parent.setDeltaMovement(Vec3.ZERO);
+            }
             Vec3 start=null;
             for(var offset:List.of(new Vec3(5,0,0),new Vec3(-5,0,0),new Vec3(0,0,5),new Vec3(0,0,-5))) {
                 var candidate=a.position().add(offset);

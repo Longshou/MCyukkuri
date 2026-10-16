@@ -45,6 +45,7 @@ public final class FamilyCareGameTests {
         var terrain=new HashMap<BlockPos,BlockState>();
         var actors=new ArrayList<YukkuriEntity>();
         var items=new ArrayList<ItemEntity>();
+        var handoffTrace=new ArrayList<java.util.Map<String,Object>>();
         ShelterPlacement.Placed[] childHome={null};
         YukkuriEntity[] parent={null},child={null}; ItemEntity[] source={null}; Vec3[] parentStart={null};
         boolean[] picked={false},mashed={false},delivered={false},moved={false},contacted={false},swallowed={false},duplicated={false},cleaned={false};
@@ -66,7 +67,13 @@ public final class FamilyCareGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                if(parent[0]!=null&&child[0]!=null) {
+                    var last=handoffDebug(level,parent[0],child[0],childHome[0]);last.put("event","test_failed");last.put("gameTime",level.getGameTime());
+                    handoffTrace.add(last);P0Control.write("family-care-handoff-trace",handoffTrace);
+                }
+                cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         int chunk=X>>4;GameTestChunks.setForced(level,chunk,0,true);
@@ -80,6 +87,10 @@ public final class FamilyCareGameTests {
             moved[0]|=parentStart[0]!=null&&parent[0].position().distanceToSqr(parentStart[0])>4;
             contacted[0]|=parent[0].family().careContactProgress()>0&&FamilyFeedingContact.mouthsMeet(parent[0],child[0]);
             swallowed[0]|=child[0].life().nutrition()>=40&&child[0].life().mouth().isEmpty();
+            if(mashed[0]&&!delivered[0]&&level.getGameTime()%40==0) {
+                var sample=handoffDebug(level,parent[0],child[0],childHome[0]);sample.put("gameTime",level.getGameTime());sample.put("event","offer_wait");
+                handoffTrace.add(sample);if(handoffTrace.size()>16)handoffTrace.remove(0);P0Control.write("family-care-handoff-trace",handoffTrace);
+            }
         });
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,chunk,chunk,0,0)).thenExecute(()->{
             for(int x=X;x<X+16;x++)for(int z=0;z<16;z++)for(int y=64;y<70;y++) {
@@ -164,7 +175,7 @@ public final class FamilyCareGameTests {
             helper.assertTrue(level.addFreshEntity(source[0]),"one physical stem is available only at the parent");items.add(source[0]);
         }).thenWaitUntil(()->helper.assertTrue(picked[0],"Full AI caregiver must pick the only stem before leaving its source"))
         .thenWaitUntil(()->helper.assertTrue(mashed[0],"Full AI caregiver must chew the carried stem into mash before approaching the child"))
-        .thenWaitUntil(()->helper.assertTrue(delivered[0],"Full AI caregiver walks the prepared serving to the child and begins the child's real meal"))
+        .thenWaitUntil(()->helper.assertTrue(delivered[0],"Full AI caregiver walks the prepared serving to the child and begins the child's real meal; "+handoffDebug(level,parent[0],child[0],childHome[0])))
         .thenWaitUntil(()->helper.assertTrue(swallowed[0],"The child reaches the stem's ordinary twenty-nutrition swallow result"))
         .thenExecute(()->helper.assertTrue(moved[0]&&contacted[0]&&!duplicated[0]&&!source[0].isAlive(),
                 "Parent walked into actual mouth contact; the one source portion was neither left behind nor duplicated"))
@@ -183,5 +194,38 @@ public final class FamilyCareGameTests {
         var data=child.family().save();data.putString("Stage","BABY");data.putLong("Age",0);data.putLong("Nourishment",0);data.putFloat("Scale",.14f);
         data.putBoolean("AwaitingLanding",false);child.family().load(data);
     }
+    private static java.util.Map<String,Object> handoffDebug(ServerLevel level,YukkuriEntity parent,YukkuriEntity child,ShelterPlacement.Placed home) {
+        var state=new java.util.LinkedHashMap<String,Object>();
+        if(parent==null||child==null) { state.put("fixture","parent_or_child_missing");return state; }
+        var toward=child.position().subtract(parent.position()).multiply(1,0,1);double horizontal=toward.length();
+        var unit=horizontal>1.0e-6?toward.scale(1/horizontal):Vec3.ZERO;
+        var approach=FamilyFeedingContact.approachSpot(parent,child);
+        state.put("parent",handoffEntity(level,parent));state.put("child",handoffEntity(level,child));
+        state.put("horizontalDistance",horizontal);state.put("mouthMinimum",FamilyFeedingContact.minimumMouthDistance(parent,child));state.put("mouthMaximum",FamilyFeedingContact.mouthDistance(parent,child));
+        state.put("mouthHeightDelta",Math.abs((parent.getY()+parent.getBbHeight()*.5)-(child.getY()+child.getBbHeight()*.5)));
+        state.put("parentHasLineOfSight",parent.hasLineOfSight(child));state.put("childHasLineOfSight",child.hasLineOfSight(parent));state.put("mouthsMeet",FamilyFeedingContact.mouthsMeet(parent,child));
+        state.put("parentFacingDot",horizontal>1.0e-6?handoffForward(parent).dot(unit):0.0);state.put("childFacingDot",horizontal>1.0e-6?handoffForward(child).dot(unit.scale(-1)):0.0);
+        state.put("approachSpot",approach.toString());state.put("parentDistanceToApproach",parent.position().distanceTo(approach));
+        state.put("approachCollisionFree",level.noCollision(parent,parent.getBoundingBox().move(approach.subtract(parent.position()))));
+        if(home!=null) {
+            var entrance=home.shelter().entrance();var bed=home.shelter().bed(child.getUUID());
+            state.put("childHomeEntrance",entrance.toShortString());state.put("childHomeBed",bed==null?"none":bed.toShortString());
+            state.put("entranceBlock",level.getBlockState(entrance).toString());state.put("entranceHasCollision",!level.getBlockState(entrance).getCollisionShape(level,entrance).isEmpty());
+            state.put("homeSound",home.shelter().sound());state.put("homeInterior",home.shelter().interior().toString());
+        }
+        return state;
+    }
+    private static java.util.Map<String,Object> handoffEntity(ServerLevel level,YukkuriEntity entity) {
+        var state=new java.util.LinkedHashMap<String,Object>();
+        state.put("position",entity.position().toString());state.put("width",entity.getBbWidth());state.put("height",entity.getBbHeight());
+        state.put("yaw",entity.getYRot());state.put("headYaw",entity.getYHeadRot());state.put("velocity",entity.getDeltaMovement().toString());
+        state.put("onGround",entity.onGround());state.put("horizontalCollision",entity.horizontalCollision);state.put("verticalCollision",entity.verticalCollision);
+        state.put("collisionFree",level.noCollision(entity,entity.getBoundingBox()));state.put("behavior",entity.getBehaviorId());state.put("lifeActivity",entity.life().activity());
+        state.put("mealTicks",entity.life().mealTicks());state.put("nutrition",entity.life().nutrition());state.put("mouth",entity.life().mouth().toString());
+        state.put("familyActive",entity.family().active());state.put("familyTask",entity.family().activity());state.put("careTargetId",entity.family().careTargetId());
+        state.put("careProgress",entity.family().careContactProgress());state.put("careChewTicks",entity.family().careChewTicks());state.put("carrying",entity.family().carrying().toString());
+        return state;
+    }
+    private static Vec3 handoffForward(YukkuriEntity entity) { return Vec3.directionFromRotation(0,entity.getYHeadRot()).multiply(1,0,1).normalize(); }
     private FamilyCareGameTests() {}
 }

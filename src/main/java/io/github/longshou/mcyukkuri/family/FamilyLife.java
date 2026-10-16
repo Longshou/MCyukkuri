@@ -57,7 +57,6 @@ public final class FamilyLife {
     private Flight flight;
     private int flightTick, releaseWait;
     /** Afloat and heading for a bank to give birth there (decided every 40 ticks, needs a bank in reach). */
-    private boolean shoreBound;
     public float liveBelly(){
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE)
@@ -136,7 +135,6 @@ public final class FamilyLife {
         if(entity.level().isClientSide)return false;
         var b=brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration;
     }
-    public boolean wantsBoatLanding() { return shoreBound; }
     /** The mate this partner is helping deliver, while acting as midwife. */
     public YukkuriEntity midwifeTarget() { return task==Task.MIDWIFE?target:null; }
     /** An aquatic mother afloat in her own hat boat nests in it: her young are born into the hat (water birth). */
@@ -362,11 +360,6 @@ public final class FamilyLife {
             }
         return best;
     }
-    /** An aquatic mother afloat comes ashore to give birth when the father can catch, or by her own choice [original 1/2]. */
-    private boolean wantsShore(FamilyData.Brood brood){
-        if(brood.father!=null&&level().getEntity(brood.father) instanceof YukkuriEntity father&&father.isAlive()&&father.distanceToSqr(entity)<1024)return true;
-        return new java.util.Random(brood.id.getLeastSignificantBits()^0x53484f5245L).nextBoolean();
-    }
     public FamilyData.Brood brood() {
         var result=gestation==null||entity.level().isClientSide?null:FamilyData.get(level()).brood(gestation);
         return result!=null&&result.detachedHolder==null?result:null;
@@ -410,15 +403,6 @@ public final class FamilyLife {
         if(birthId!=null)FamilyData.get(level()).landed(entity);
         settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
-        // AquaticLife owns life afloat, boarding flights, real sleep and short shore visits.
-        var pendingBrood=brood();var afloat=boatHome();
-        if(afloat==null)shoreBound=false;
-        else if(pendingBrood!=null&&!pendingBrood.cancelled&&!pendingBrood.complete()&&entity.tickCount%40==0
-                &&pendingBrood.elapsed>=pendingBrood.duration-(pendingBrood.kind==FamilyData.BirthKind.LIVE?200:400)){
-            var bank=wantsShore(pendingBrood)?afloat.nearestBank():null;
-            shoreBound=bank!=null && (afloat.distanceToSqr(Vec3.atBottomCenterOf(bank))<=3.25
-                    || afloat.cargo().paddle() && !io.github.longshou.mcyukkuri.subspecies.HatBoatRoute.find(afloat,Vec3.atBottomCenterOf(bank)).isEmpty());
-        }
         if(FamilyConfig.AGING.get()&&age>=lifespan) { entity.hurt(level().damageSources().generic(),entity.getMaxHealth()+100);return; }
         if(entity.isPanicking()||entity.life().hasUrgentNeed()||entity.isCommandPlaying())stop();
         var brood=brood();
@@ -533,7 +517,7 @@ public final class FamilyLife {
         if(entity.operations().active())return;
         if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().wound()>0||entity.body().infection()>0)return;
         var boat=boatHome();
-        if(boat!=null){ if(shoreBound&&brood.elapsed>=brood.duration-400||!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
+        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
         else if(bankNest()&&(entity.life().homeStand()==null||entity.distanceToSqr(Vec3.atBottomCenterOf(entity.life().homeStand()))>4)) {
             if(!FamilyData.get(level()).relocate(brood,level(),entity.blockPosition()))return;
         } else {
@@ -585,7 +569,7 @@ public final class FamilyLife {
         Vec3 before=deliveryLast;deliveryLast=entity.position();
         if(!readyForDelivery())return;
         var boat=boatHome();
-        if(boat!=null){ if(shoreBound&&brood.elapsed>=brood.duration-200||!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
+        if(boat!=null){ if(!FamilyData.get(level()).relocate(brood,level(),boat.blockPosition()))return; }
         else {
             var home=entity.life().homeStand();
             boolean bank=bankNest()&&(home==null||entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4);
