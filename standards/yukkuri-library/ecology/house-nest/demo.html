@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>缝隙里的一天 · 家油生态演示</title>
+  <style>
+    :root{color-scheme:light;--ink:#294136;--muted:#6a786f;--paper:#f4f0e6;--card:#fffcf5;--line:#d6dcd2;--green:#375c46}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 "Microsoft YaHei",sans-serif}
+    main{max-width:1160px;margin:auto;padding:28px 28px 54px}a{color:var(--green);text-underline-offset:4px}nav{font-size:14px}
+    header{margin:30px 0 24px;display:flex;justify-content:space-between;align-items:end;gap:24px}h1{font-size:clamp(28px,4.4vw,48px);font-weight:500;line-height:1.15;margin:8px 0 14px}
+    .eyebrow{letter-spacing:.16em;font-size:12px;color:var(--green)}p{margin:0;color:var(--muted)}.badge{font-size:13px;white-space:nowrap;padding:7px 12px;border:1px solid var(--line);border-radius:30px}
+    .screen{background:#e9e5db;border-radius:18px;overflow:hidden;box-shadow:0 9px 38px #2941360c}video{display:block;width:100%;max-height:76vh;background:#e9e5db;object-fit:contain}
+    .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;background:var(--card)}#now{font-size:17px;font-weight:600}.speed{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font:inherit}
+    .chapters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 28px}button{font:inherit;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:16px;cursor:pointer;transition:background .2s,border-color .2s}
+    button:hover{border-color:var(--green)}button[aria-current=true]{background:#e1e9dd;border-color:#88a080}button:focus-visible,select:focus-visible{outline:3px solid #a6ba85;outline-offset:3px}.num{display:block;font-size:12px;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}.caption{display:block;font-size:13px;color:var(--muted);margin-top:5px}
+    .note{border-left:3px solid #a7b69d;padding-left:16px;font-size:14px;margin-bottom:28px}details{border-top:1px solid var(--line);padding-top:18px}summary{cursor:pointer;font-size:15px}details img{width:100%;height:auto;border-radius:12px;margin-top:18px}.links{font-size:14px;margin-top:22px;display:flex;gap:24px;flex-wrap:wrap}
+    @media(max-width:700px){main{padding:20px 16px 36px}header{display:block;margin-top:24px}.badge{display:inline-block;margin-top:16px}.chapters{grid-template-columns:repeat(2,1fr);gap:8px}button{padding:12px}.bar{padding:12px;gap:8px}#now{font-size:14px}.speed{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){button{transition:none}}
+  </style>
+</head>
+<body><main>
+  <nav><a href="../index.html">← 全部预览</a></nav>
+  <header><div><div class="eyebrow">MCYUKKURI · 家油生态</div><h1>缝隙里的一天</h1><p>白日安睡，夜里衔絮。守着小小的卵，等一家人醒来。</p></div><span class="badge">24 秒 · 四段演示</span></header>
+  <section class="screen" aria-label="家油生态动画">
+    <video id="demo" controls autoplay muted loop playsinline preload="metadata" poster="demo-poster.png" aria-label="家油入巢、搬运、照卵和破壳动画"><source src="house-ecology-demo.mp4" type="video/mp4">此浏览器不支持视频，请使用下方下载链接。</video>
+    <div class="bar"><span id="now" aria-live="off">01 · 白日归巢</span><label class="speed">播放速度<select id="speed"><option value="0.5">0.5× 慢放</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></label></div>
+  </section>
+  <div class="chapters" aria-label="跳转到片段">
+    <button type="button" data-time="0" aria-current="true"><span class="num">01 / 00:00</span>白日归巢<span class="caption">爬入睡位，贴地休息</span></button>
+    <button type="button" data-time="6" aria-current="false"><span class="num">02 / 00:06</span>夜间搬运<span class="caption">探头张望，夹絮回家</span></button>
+    <button type="button" data-time="12" aria-current="false"><span class="num">03 / 00:12</span>守卵倾听<span class="caption">俯身照看，停下听动静</span></button>
+    <button type="button" data-time="18" aria-current="false"><span class="num">04 / 00:18</span>小家伙破壳<span class="caption">逐枚出生，空壳暂留</span></button>
+  </div>
+  <p class="note">使用当前游戏模型、贴图与动作制作的离线演示。家具采用剖面展示，路线和镜头为演示安排，孵化等待已压缩；实际游戏由服务器驱动。</p>
+  <details><summary>查看当前分镜与材料</summary><img src="house-ecology.png" alt="家油生态四格分镜" loading="lazy"><img src="materials.png" alt="棉絮、巢垫、完整卵与空壳" loading="lazy"></details>
+  <div class="links"><a href="house-ecology-demo.mp4" download>下载完整视频</a><a href="house-ecology-demo.gif" download>下载动画预览</a><a href="house-ecology.png" download>下载四格分镜</a></div>
+</main>
+<script>
+  const video=document.querySelector('#demo'),buttons=[...document.querySelectorAll('[data-time]')];
+  const titles=['01 · 白日归巢','02 · 夜间搬运','03 · 守卵倾听','04 · 小家伙破壳'];
+  const update=()=>{const index=Math.min(3,Math.floor(video.currentTime/6));document.querySelector('#now').textContent=titles[index];buttons.forEach((button,i)=>button.setAttribute('aria-current',String(i===index)));};
+  buttons.forEach(button=>button.addEventListener('click',()=>{video.currentTime=Number(button.dataset.time);video.play().catch(()=>{});update();}));
+  video.addEventListener('timeupdate',update);document.querySelector('#speed').addEventListener('change',event=>{video.playbackRate=Number(event.target.value);});
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){video.autoplay=false;video.pause();}
+</script>
+</body></html>
