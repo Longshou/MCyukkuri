@@ -20,6 +20,7 @@ public final class ShopKeeping {
     /** Called every 20 ticks while the keeper is active. */
     public static void tick(HumanNpc keeper) {
         if (!(keeper.level() instanceof ServerLevel level) || !keeper.isAlive()) return;
+        ShopCourier.recover(keeper, level);
         for (var y : keeper.animals("shop_nursery")) if ((y.family().adult() || y.childhood().canLiveIndependently()) && !y.pet().busy() && !y.isPassenger()) train(keeper, level, y);
         long now = level.getGameTime();
         ShopDeliveries.arrive(keeper, level, now);
@@ -70,6 +71,7 @@ public final class ShopKeeping {
 
     /** Nursery young that can live on their own become trained stock: abilities from pedigree, a bronze or silver badge when earned, a pen. */
     private static void train(HumanNpc keeper, ServerLevel level, YukkuriEntity y) {
+        if (ShopCourier.busy(keeper)) return; // one job at a time: the next graduate waits its turn
         var shop = level.getEntitiesOfClass(HumanNpc.class, keeper.getBoundingBox().inflate(48), n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER)
                 .stream().min(Comparator.comparingDouble(keeper::distanceToSqr)).orElse(null);
         if (shop == null) return;
@@ -83,7 +85,8 @@ public final class ShopKeeping {
         for (int k = 0; k < 3; k++) { int r = 1 + rng.nextInt(2); while (y.pet().routine(k) < r) y.pet().routineCompleted(k); }
         if (grade != BadgeGrade.NONE) y.pet().issue(grade, 2, shop.getUUID());
         HumanCommerce.assign(y, shop.getUUID(), "stock");
-        y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
+        // The keeper walks over, sprays the graduate to sleep and carries it to the pen; with no taker it is moved directly.
+        if (!ShopCourier.graduate(level, keeper, shop, y, pen)) { y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0); }
     }
     private ShopKeeping() {}
 }

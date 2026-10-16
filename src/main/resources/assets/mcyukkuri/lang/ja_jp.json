@@ -303,6 +303,7 @@
   "care.mcyukkuri.carrier.empty": "ゆっくりに使うと、1 匹をかごに入れられます。",
   "care.mcyukkuri.carrier.full": "乾いた広い地面に使うと、外へ出せます。",
   "care.mcyukkuri.carrier.blocked": "ここには出せないか、すでに外へ出ています。",
+  "care.mcyukkuri.carrier.refuse": "%s は運搬かごに入りたがりません。ラムネスプレーで落ち着かせるか、まず信頼を得てください。",
   "care.mcyukkuri.nest.free": "空の巣：入口を空けて屋根を付けると、ゆっくりが自分で探しに来ます。",
   "care.mcyukkuri.nest.occupied": "住人がいます。手帳でその個体の住まいを確認できます。",
   "care.mcyukkuri.nest.selected": "巣を選択しました。近くのゆっくりに、しゃがみながら手帳を使うと住まいを指定できます。",
