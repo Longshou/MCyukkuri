@@ -76,7 +76,7 @@ async function selectModel(item){
   const jump=motions.models[item.id]?.hop_height*item.formScale||0;
   centerY=(min+max+jump*.5)/2;span=Math.max((max-min)*.64+jump*.5,radius*.9,4);az=.45;el=.15;zoom=1;resize();
   $('time').max=pose.clips[action].duration;buildActions();const textureReady=await applyExpression();if(token!==loadToken||!textureReady)return;
-  $('loading').style.display='none';$('play').disabled=false;loadNote();frameGeometry();dirty=true;
+  $('loading').style.display='none';$('play').disabled=false;loadNote();frameGeometry();dirty=true;if(requested.get('autoplay')==='1'&&item.id===requested.get('model'))setPlaying(true);
  }catch(error){if(token!==loadToken)return;$('loading').textContent=`模型未能载入：${error.message}。请通过“打开素材检查.cmd”启动本地服务后访问。`;}
 }
 function buildActions(){

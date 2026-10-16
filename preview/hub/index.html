@@ -8,9 +8,9 @@
   <div id="chapter-list" class="chapter-list" role="tablist" aria-label="更新主题"></div>
   <article id="story" class="story">
     <div class="story-copy"><p class="eyebrow" id="tag"></p><h2 id="title"></h2><p id="summary" class="summary"></p><ul id="points"></ul><div class="actions"><button id="model-link" class="primary">查看当前模型 ↗</button><a id="source-link" target="_blank">实现说明 ↗</a></div></div>
-    <div class="media-area"><div class="media-frame" id="media-frame"><img id="main-image" alt=""><div id="season-name"></div></div><div class="media-toolbar"><span id="media-caption">当前运行资源的离线画面</span><button id="animate" hidden>播放初航分镜</button></div></div>
+    <div class="media-area"><div class="media-frame" id="media-frame"><img id="main-image" alt=""><div id="season-name"></div><div id="logic-visual" hidden></div><div id="voice-visual" hidden></div></div><div class="media-toolbar"><span id="media-caption">当前运行资源的离线画面</span><button id="animate" hidden>看静帧</button></div><div id="sample-audio" hidden><audio id="sample-player" controls preload="none"></audio><p id="sample-caption"></p></div></div>
   </article>
-  <section class="sequence"><div class="sequence-heading"><h3>这件事怎样发生</h3><span>点选一步，查看条件和结果</span></div><div id="steps" class="steps"></div><div class="step-detail"><span id="step-number">01</span><div><strong id="step-title"></strong><p id="step-body"></p></div><div class="progress-track" aria-hidden="true"><span id="progress-dot">ゆ</span></div></div></section>
+  <section class="sequence"><div class="sequence-heading"><h3>选择要看的场景</h3><span>点选后直接播放对应动作；无独立动画的变化展示状态图</span></div><div id="steps" class="steps"></div><div class="step-detail"><span id="step-number">01</span><div><strong id="step-title"></strong><p id="step-body"></p></div><div class="progress-track" aria-hidden="true"><span id="progress-dot">ゆ</span></div></div></section>
   <section id="gallery" class="gallery"></section>
   <section class="footer-notes"><p>画面读取当前模型、贴图和动作；分镜与流程展示行为关系，并非 Minecraft 实机录像。</p><details><summary>版本与文件位置</summary><p id="version"></p><p>所有生成预览集中在 <code>.local/previews/</code>。同一主题只保留当前版本；制作源与原始参考素材独立保留。</p></details></section>
 </main>

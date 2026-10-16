@@ -9,6 +9,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 
 import build_review_catalog
@@ -42,29 +43,33 @@ def render_models(node):
     thumbs.mkdir(parents=True, exist_ok=True)
     for task in tasks:
         Image.frombytes('RGBA', (task['width'], task['height']), (work / (task['id'] + '.rgba')).read_bytes()).save(thumbs / (task['id'] + '.png'))
-    # A portable, directly shareable cover. The detailed hub contains each motion and behavior sequence.
-    sheet = Image.new('RGB', (1600, 1080), '#f3f0e8')
+
+
+def render_overview():
+    from PIL import Image, ImageDraw, ImageOps
+    sheet = Image.new('RGB', (1600, 1160), '#f3f0e8')
     draw = ImageDraw.Draw(sheet)
-    draw.text((64, 44), '油库里的新一天', font=font(48), fill='#253c35')
-    draw.text((64, 112), '10 月 15 日 20:00 起的更新 · 当前资源离线预览', font=font(23), fill='#66796c')
-    panels = [('水上的一家人', '帽船育幼、夜宿与初航', 'marisa', '#dcebed'),
-              ('每个地方都有自己的季节', '群系季节、秋储与冬歇', 'reimu', '#e7ead7'),
-              ('长大，带着材料去建窝', '自然离巢、探亲与空茎', 'chen', '#eee1cc'),
-              ('一个会记事的聚落', '见证继任、派工与迁徙', 'patchouli', '#e6e0ed')]
-    for i, (title, sub, ident, color) in enumerate(panels):
-        x, y = 54 + i % 2 * 758, 184 + i // 2 * 408
-        draw.rounded_rectangle((x, y, x+734, y+384), 24, fill=color)
-        thumb = Image.open(thumbs / f'{ident}.png').convert('RGBA')
-        thumb.thumbnail((350, 314))
-        sheet.paste(thumb, (x+365, y+52), thumb)
-        draw.text((x+28, y+34), f'0{i+1}', font=font(24), fill='#718577')
-        # Fixed line breaks keep the exported cover legible without a browser layout pass.
-        lines = {'水上的一家人':['水上的一家人'], '每个地方都有自己的季节':['每个地方都有', '自己的季节'],
-                 '长大，带着材料去建窝':['长大，带着材料', '去建窝'], '一个会记事的聚落':['一个会记事的', '聚落']}[title]
-        for j, line in enumerate(lines):
-            draw.text((x+28, y+100+j*46), line, font=font(31), fill='#253c35')
-        draw.text((x+28, y+290), sub, font=font(21), fill='#52685d')
-    draw.text((64, 1022), '还有：温度避险 · 壳上徽章 · 日文与捕食种字幕     详细动作与流程见集中预览', font=font(22), fill='#52685d')
+    draw.text((54, 30), '看得到的动作与场景', font=font(44), fill='#253c35')
+    draw.text((56, 98), '10 月 15 日 20:00 起的更新 · 当前运行资源离线演示', font=font(22), fill='#66796c')
+    cards = [('帽船初航', 'first-voyage/first-voyage.gif', 12),
+             ('受冷发抖', 'actions/cold.gif', 6),
+             ('在窝里进食', 'actions/winter-eat.gif', 9),
+             ('施工整理', 'actions/build-nest.gif', 10),
+             ('群体步行迁址', 'actions/migration.gif', 12),
+             ('螺壳缩壳', 'actions/shell-retract.gif', 18)]
+    for i, (title, source, frame) in enumerate(cards):
+        x, y = 48 + i % 3 * 508, 158 + i // 3 * 462
+        draw.rounded_rectangle((x, y, x+488, y+438), 18, fill='#fffef9')
+        path = OUT / source
+        if path.exists():
+            with Image.open(path) as gif:
+                gif.seek(min(frame, gif.n_frames-1))
+                still = ImageOps.contain(gif.convert('RGBA'), (468, 344))
+                sheet.paste(still, (x+(488-still.width)//2, y+30+(344-still.height)//2), still)
+        else:
+            draw.text((x+30, y+150), '分镜尚未生成', font=font(25), fill='#66796c')
+        draw.text((x+24, y+382), title, font=font(27), fill='#253c35')
+    draw.text((56, 1110), '页面打开即播放；选择场景切换动作。继任、库存等无独立动画的变化用状态图说明。', font=font(21), fill='#52685d')
     sheet.save(OUT / 'overview.png')
 
 
@@ -75,8 +80,6 @@ def main():
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     build_review_catalog.main()
-    for name in ('index.html', 'style.css', 'app.js'):
-        shutil.copy2(ROOT / 'preview/hub' / name, OUT / name)
     manifest = json.loads((ROOT / 'preview/hub/recent.json').read_text(encoding='utf-8'))
     manifest['generatedAt'] = datetime.now(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
     manifest['assetFingerprint'] = hashlib.sha256((ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json').read_bytes()).hexdigest()
@@ -93,16 +96,38 @@ def main():
     if args.render or missing_thumb or not (OUT / 'overview.png').exists() or not stamp.exists() or stamp.read_text() != fingerprint:
         render_models(args.node)
         stamp.write_text(fingerprint)
+    command = [sys.executable, str(ROOT / 'scripts/build_preview_actions.py'), '--node', args.node]
+    if args.render:
+        command.append('--force')
+    subprocess.run(command, check=True, cwd=ROOT)
+    actions = {item['id']: item for item in json.loads((ROOT / 'preview/hub/actions.json').read_text(encoding='utf-8'))['clips']}
+    catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
+    manifest['audioSamples'] = {
+        'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),
+        'song': next(item for item in catalog['audio'] if item['id']=='ecology.song.reimu')}
+    manifest['subtitleSamples'] = [next(item for item in catalog['subtitles'] if item['id']==ident)
+                                   for ident in ('remilia.adult.o_hello', 'flandre.adult.o_hello')]
     for chapter in manifest['chapters']:
-        if not (OUT / chapter['image']).is_file():
-            chapter['image'] = f"models/thumbs/{chapter['model']}.png"
-            chapter['mediaPending'] = True
-        if chapter.get('animation') and not (OUT / chapter['animation']).is_file():
-            del chapter['animation']
+        for step in chapter['steps']:
+            if step.get('demo'):
+                demo = actions[step['demo']]
+                step.update(image=f"actions/{demo['id']}.png", animation=f"actions/{demo['id']}.gif", model=demo['model'], action=demo['action'])
+                assert (OUT / step['image']).is_file() and (OUT / step['animation']).is_file(), demo['id']
+                if step.get('still'):
+                    step.pop('animation')
+                    step.pop('action')
+            if step.get('image') and not (OUT / step['image']).is_file():
+                step.update(kind='logic', states=['此分镜尚未生成', '完整生成方法见预览工具说明'], mediaPending=True)
+                step.pop('animation', None)
+            if step.get('animation') and not (OUT / step['animation']).is_file():
+                step.pop('animation')
         chapter['gallery'] = [item for item in chapter.get('gallery', []) if (OUT / item['src']).is_file()]
+    render_overview()
     manifest['availableMedia'] = sorted(str(p.relative_to(OUT)) for p in OUT.rglob('*')
                                         if p.suffix in ('.png', '.gif', '.webm', '.mp4') and not p.relative_to(OUT).parts[0].startswith('_'))
     (OUT / 'recent.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    for name in ('style.css', 'app.js', 'index.html'):
+        shutil.copy2(ROOT / 'preview/hub' / name, OUT / name)
     print(OUT / 'index.html')
 
 
