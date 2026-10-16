@@ -31,6 +31,7 @@
   "care.mcyukkuri.carrier.empty": "Use on one yukkuri to carry it.",
   "care.mcyukkuri.carrier.full": "Use on clear, dry ground to release.",
   "care.mcyukkuri.carrier.blocked": "Cannot release here, or this yukkuri was already released.",
+  "care.mcyukkuri.carrier.refuse": "%s refuses to get into the transport basket. Calm it with Ramune spray, or earn its trust first.",
   "care.mcyukkuri.nest.free": "Unoccupied: keep a sheltered, dry entrance.",
   "care.mcyukkuri.nest.occupied": "Occupied. Check its resident with field notes.",
   "care.mcyukkuri.nest.selected": "Nest selected. Sneak-use the notes on a nearby yukkuri to assign it.",

@@ -100,6 +100,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         goalSelector.addGoal(1, new PanicGoal(this, 1.25));
+        goalSelector.addGoal(1, new CourierGoal());
         goalSelector.addGoal(2, new RoutineGoal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85));
@@ -188,6 +189,12 @@ public final class HumanNpc extends PathfinderMob {
             y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
         }
         return false;
+    }
+    /** While a keeper runs a courier job (ShopCourier steers the walk), this holds the move and look flags so the routine, strolling and restriction goals stand aside. */
+    private final class CourierGoal extends Goal {
+        CourierGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return job() == Job.KEEPER && io.github.longshou.mcyukkuri.shop.ShopCourier.active(HumanNpc.this); }
+        @Override public boolean canContinueToUse() { return canUse(); }
     }
     private final class RoutineGoal extends Goal {
         private int elapsed;

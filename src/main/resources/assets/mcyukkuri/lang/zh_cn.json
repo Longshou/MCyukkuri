@@ -31,6 +31,7 @@
   "care.mcyukkuri.carrier.empty": "对油库里使用可装入一只。",
   "care.mcyukkuri.carrier.full": "对干燥、空旷的地面使用可放出。",
   "care.mcyukkuri.carrier.blocked": "这里无法放出，或这只已被放出。",
+  "care.mcyukkuri.carrier.refuse": "%s 不肯进运输篮。用弹珠汽水喷雾让它安静下来，或先赢得它的信任。",
   "care.mcyukkuri.nest.free": "空窝：留出入口并搭好屋顶，油库里会自行寻找。",
   "care.mcyukkuri.nest.occupied": "已有住户。用笔记查看个体的住所。",
   "care.mcyukkuri.nest.selected": "已选草窝；潜行并对附近油库里使用笔记可指定住所。",

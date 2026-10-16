@@ -65,7 +65,7 @@ public final class ShopDeliveries extends SavedData {
         var custody = YukkuriWorldData.get(level);
         for (var it = data.pending.listIterator(); it.hasNext(); ) {
             var d = it.next();
-            if (now - d.shipped <= EXPIRY) continue;
+            if (now - d.shipped <= EXPIRY || ShopCourier.inFlight(d.token)) continue;
             if (!custody.hasToken(d.token)) { it.remove(); data.setDirty(); continue; }
             if (!level.hasChunkAt(d.shopPos)) continue;
             Map.Entry<UUID, GlobalPos> alt = null; double best = (double) RANGE * RANGE;
@@ -99,27 +99,48 @@ public final class ShopDeliveries extends SavedData {
                 n -> n.isAlive() && n.job() == HumanNpc.Job.SHOPKEEPER).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
         if (shop == null) return false;
         var custody = YukkuriWorldData.get(level);
+        boolean keepers = ShopCourier.hasKeeper(level, shop);
+        var courier = keepers ? ShopCourier.idleKeeper(level, shop) : null;
         for (var it = data.pending.iterator(); it.hasNext(); ) {
             var d = it.next();
-            if (!d.shopkeeper.equals(shop.getUUID())) continue;
+            if (!d.shopkeeper.equals(shop.getUUID()) || ShopCourier.inFlight(d.token)) continue;
             if (!custody.hasToken(d.token)) { it.remove(); data.setDirty(); continue; } // record gone: never invent an animal
             if (now - d.shipped < TRANSIT || ShopPens.stock(level, shop) >= ShopMenu.STOCK_CAPACITY) continue;
             var pen = ShopPens.freePen(level, shop, null, false);
             if (pen == null) continue;
+            if (keepers) { // a keeper carries it over; the record stays until the animal is set down, and while every keeper is busy the delivery waits
+                if (courier != null && ShopCourier.carry(level, courier, shop, d.token, pen)) return true;
+                continue;
+            }
             var y = custody.release(d.token, level, new Vec3(pen.getX() + .5, pen.getY() + 1, pen.getZ() + .5), actor.getYRot());
             if (y == null) continue; // token stays valid; retried on the next tick
             it.remove(); data.setDirty();
-            HumanCommerce.assign(y, shop.getUUID(), "stock");
-            y.life().releaseHome();
-            var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
-            if (!y.pet().pedigreeKnown()) y.pet().setPedigree(20 + y.getRandom().nextInt(21));
-            y.getPersistentData().putUUID("FactoryOrigin", d.factory);
+            finishArrival(y, shop, d.factory);
             y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0);
             actor.swing(InteractionHand.MAIN_HAND);
             y.playAction("look_around"); y.showReaction("cry", "", 100);
             return true;
         }
         return false;
+    }
+    /** The animal of a delivery has been set down (by a keeper, or recovered): a factory arrival becomes unbadged stock. Returns whether it was a factory arrival. */
+    public static boolean completed(ServerLevel level, UUID token, YukkuriEntity y, HumanNpc shop) {
+        var data = get(level); UUID factory = null; boolean found = false;
+        for (var it = data.pending.iterator(); it.hasNext(); ) {
+            var d = it.next();
+            if (d.token.equals(token)) { factory = d.factory; found = true; it.remove(); data.setDirty(); break; }
+        }
+        if (!found && !HumanCommerce.data(y).getBoolean("ShopCandidate")) return false;
+        if (shop != null) finishArrival(y, shop, factory);
+        else { var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean); }
+        return true;
+    }
+    private static void finishArrival(YukkuriEntity y, HumanNpc shop, UUID factory) {
+        HumanCommerce.assign(y, shop.getUUID(), "stock");
+        y.life().releaseHome();
+        var clean = HumanCommerce.data(y).copy(); clean.remove("ShopCandidate"); HumanCommerce.set(y, clean);
+        if (!y.pet().pedigreeKnown()) y.pet().setPedigree(20 + y.getRandom().nextInt(21));
+        if (factory != null) y.getPersistentData().putUUID("FactoryOrigin", factory);
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
