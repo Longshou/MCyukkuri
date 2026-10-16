@@ -1,5 +1,7 @@
 # 油库里商店、加工所与人类 NPC
 
+> 宠物店的现行实现（2026-10-16 重设计，含考官考试与徽章：采用 M02 考试结构，并新增铜章）见 [docs/PET_SHOP.md](../docs/PET_SHOP.md)；下文的商店部分是作品核读与历史设计建议。
+
 [Wiki 入口](README.md) · [世界背景](hakkei-reference/world/README.md)
 
 首批结构、NPC 与有限交易已落实，实际范围和待补内容见 [实现说明](../docs/HUMAN_WORLD.md)。下文仍区分作品证据与设计建议，不把全部建议视为已实现。
