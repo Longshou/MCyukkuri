@@ -177,6 +177,13 @@ public final class ChildhoodLife {
     public boolean landed() { return landed; }
     public boolean firstToiletDone() { return firstToiletDone; }
     public boolean active() { return task != Task.NONE; }
+    public CompoundTag debug() {
+        var tag=save();tag.putString("Task",task.name());tag.putInt("TaskTicks",taskTicks);
+        tag.putBoolean("HatPractice",hatPractice);tag.putBoolean("JumpLaunched",jumpLaunched);tag.putBoolean("JumpAirborne",jumpAirborne);
+        if(practiceBoat!=null)tag.putUUID("PracticeBoat",practiceBoat);
+        if(lastHatPosition!=null)tag.putString("LastHatPosition",lastHatPosition.toString());
+        return tag;
+    }
     /** Current parent being sought or providing care; null outside a live care action. */
     public UUID careTargetId() { return careTarget; }
     /** Consecutive verified first-toilet contact ticks, for presentation only. */

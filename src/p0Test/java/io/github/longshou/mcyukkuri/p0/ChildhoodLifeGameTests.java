@@ -190,6 +190,7 @@ public final class ChildhoodLifeGameTests {
             level.setBlockAndUpdate(p, Blocks.WATER.defaultBlockState());
         }
         YukkuriEntity[] parent = {null}, child = {null}; HatBoatEntity[] boat = {null};
+        var practiceTrace = new java.util.ArrayList<Map<String,Object>>();
         boolean[] cleaned = {false};
         Runnable cleanup = () -> {
             if (cleaned[0]) return;
@@ -216,6 +217,7 @@ public final class ChildhoodLifeGameTests {
                     debug.put("mouthsMeet",io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(parent[0],child[0]));
                     debug.put("rearContact",io.github.longshou.mcyukkuri.family.ChildhoodLife.toiletContact(parent[0],child[0]));
                     P0Control.write("aquatic-newborn-care-failure",debug);
+                    P0Control.write("aquatic-newborn-practice-trace",practiceTrace);
                 }
                 cleanup.run();
             }
@@ -228,6 +230,14 @@ public final class ChildhoodLifeGameTests {
         AtomicBoolean sawHatJump = new AtomicBoolean(), roseDuringHatJump = new AtomicBoolean(), observePractice = new AtomicBoolean();
         helper.onEachTick(() -> {
             if (boat[0] == null || child[0] == null) return;
+            if(child[0].tickCount%20==0){
+                var sample=new java.util.LinkedHashMap<String,Object>();
+                sample.put("tick",child[0].tickCount);sample.put("state",child[0].childhood().debug().toString());
+                sample.put("local",boat[0].toLocal(child[0].position()).toString());sample.put("practiceMove",boat[0].practisingMove(child[0]));
+                sample.put("changingSeat",boat[0].changingSeat(child[0]));sample.put("protected",boat[0].protects(child[0]));
+                sample.put("childActivity",child[0].aquaticLife().activity());sample.put("parentCare",parent[0].aquaticLife().care().activity());
+                practiceTrace.add(sample);if(practiceTrace.size()>60)practiceTrace.remove(0);
+            }
             for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, area, entry -> entry.getItem().is(ModItems.WASTE.get()))) {
                 if (firstWaste[0] == null) {
                     firstWaste[0] = item;
@@ -240,8 +250,9 @@ public final class ChildhoodLifeGameTests {
             if (activity.equals("newborn_crawl")) sawHatCrawl.set(true);
             if (activity.equals("learn_jump")) {
                 sawHatJump.set(true);
-                if (jumpStart[0] == null) jumpStart[0] = child[0].position();
-                else if (child[0].getY() > jumpStart[0].y + .02) roseDuringHatJump.set(true);
+                Vec3 local=boat[0].toLocal(child[0].position());
+                if (jumpStart[0] == null) jumpStart[0] = local;
+                else if ((local.y-jumpStart[0].y)*boat[0].unit() > .02) roseDuringHatJump.set(true);
             }
         });
         helper.startSequence().thenWaitUntil(() -> GameTestChunks.assertTicking(helper, firstChunk, lastChunk, 0, 0)).thenExecute(() -> {
@@ -271,8 +282,11 @@ public final class ChildhoodLifeGameTests {
                     "waste starts high beyond the actual hat brim, rather than being placed directly on the water plane");
             vitals(child[0], 0);
             observePractice.set(true);
-        }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().canJump() && sawHatCrawl.get() && sawHatJump.get() && roseDuringHatJump.get(),
-                "the protected newborn earns its aquatic jump after real in-hat crawling and a completed upward hop"))
+        }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().canJump() && sawHatCrawl.get() && sawHatJump.get() && roseDuringHatJump.get()
+                        &&child[0].childhood().save().getDouble("CrawlDistance")>=io.github.longshou.mcyukkuri.family.ChildhoodLife.CRAWL_DISTANCE_REQUIRED
+                        &&child[0].childhood().save().getInt("JumpLandings")>=5,
+                "the protected newborn earns its aquatic jump after real relative-to-hat crawling and five completed upward hops"))
+        .thenExecute(()->P0Control.write("aquatic-newborn-practice-trace",practiceTrace))
         .thenSucceed();
     }
 

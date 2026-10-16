@@ -129,6 +129,18 @@ public final class WoundSurface {
         sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);}return world;
     }
+    /** Compose an authored stable root track on the selected common-side skeleton. */
+    public Matrix4f rootPose(float[] values){
+        for(int i=0;i<bones.size();i++){
+            var bone=bones.get(i).getAsJsonObject();if(!bone.get("name").getAsString().equals("root"))continue;
+            float[] pivot=floats(bone.getAsJsonArray("pivot"));int parent=bone.get("parent").getAsInt();
+            var root=parent<0?new Matrix4f():new Matrix4f(pose("idle",0)[parent]);
+            return root.translate(pivot[0]+values[0],pivot[1]+values[1],pivot[2]+values[2])
+                    .rotateZYX(values[5]*(float)Math.PI/180,values[4]*(float)Math.PI/180,values[3]*(float)Math.PI/180)
+                    .scale(values[6],values[7],values[8]).translate(-pivot[0],-pivot[1],-pivot[2]);
+        }
+        throw new IllegalStateException("Selected skin has no root bone");
+    }
     private void sample(JsonObject clip,float elapsed,float[][] values){float duration=clip.get("duration").getAsFloat();float time=clip.get("loop").getAsBoolean()?Math.max(0,elapsed)%duration:Math.clamp(elapsed,0,duration);
         for(var raw:clip.getAsJsonArray("tracks")){var t=raw.getAsJsonObject();var keys=t.getAsJsonArray("keys");int lo=0,hi=keys.size()-1;while(hi-lo>1){int mid=(lo+hi)>>>1;if(keys.get(mid).getAsJsonArray().get(0).getAsFloat()<=time)lo=mid;else hi=mid;}
             var a=floats(keys.get(lo).getAsJsonArray());var b=floats(keys.get(Math.min(lo+1,keys.size()-1)).getAsJsonArray());float q=a[0]==b[0]?0:Math.clamp((time-a[0])/(b[0]-a[0]),0,1);int off=switch(t.get("channel").getAsString()){case "position"->0;case "rotation"->3;default->6;};var target=values[t.get("bone").getAsInt()];for(int k=0;k<3;k++)target[off+k]=a[k+1]+(b[k+1]-a[k+1])*q;

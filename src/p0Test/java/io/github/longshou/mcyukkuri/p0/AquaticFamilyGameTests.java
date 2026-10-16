@@ -277,6 +277,14 @@ public final class AquaticFamilyGameTests {
                 childCarried[0]=true;
                 helper.assertTrue(boat.hatCarrier(child).equals(parent.getUUID()) && !child.childhood().canJump(),"an untrained newborn crosses layers with its real parent as holder");
                 helper.assertTrue(child.position().distanceTo(boat.hatCarryAnchor(child))<.04,"held child follows the synchronized parent anchor");
+                if(boat.walkingInHat(parent)) {
+                    Vec3 p=io.github.longshou.mcyukkuri.subspecies.HatCareAnchor.mouth(parent,"boat_carry_young");
+                    Vec3 c=io.github.longshou.mcyukkuri.subspecies.HatCareAnchor.mouth(child,"boat_be_carried");
+                    helper.assertTrue(p!=null && c!=null,"both selected carry poses export a real mouth anchor");
+                    Vec3 parentMouth=parent.position().add(p.yRot((float)Math.toRadians(180-parent.yBodyRot)));
+                    Vec3 childMouth=child.position().add(c.yRot((float)Math.toRadians(180-child.yBodyRot)));
+                    helper.assertTrue(parentMouth.distanceTo(childMouth)<.015,"held child meets the actual authored mouths including root pivot and floor lift");
+                }
             }
             if (care.meals() > meals[0]) {
                 helper.assertTrue(boat.careSeatReady(child) && io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(parent,child),
