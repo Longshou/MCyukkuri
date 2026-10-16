@@ -32,13 +32,18 @@ public final class FamilyFeedingContact {
         return Math.max(.02, (caregiver.getBbWidth() + child.getBbWidth()) * .5 - MOUTH_CLEARANCE);
     }
 
+    /** Stable non-overlapping standing distance, with equal room for the two stopping tolerances. */
+    public static double standingDistance(YukkuriEntity caregiver, YukkuriEntity child) {
+        return mouthDistance(caregiver, child) - MOUTH_CLEARANCE * .5;
+    }
+
     /** The parent walks to this point beside the child before beginning the contact count. */
     public static Vec3 approachSpot(YukkuriEntity caregiver, YukkuriEntity child) {
         Vec3 offset = caregiver.position().subtract(child.position()).multiply(1, 0, 1);
         if (offset.lengthSqr() < 1.0e-6) offset = horizontalForward(caregiver);
         else offset = offset.normalize();
         // Aim inside the accepted envelope: MoveControl may stop just short of its exact target.
-        double contact = (minimumMouthDistance(caregiver, child) + mouthDistance(caregiver, child)) * .5;
+        double contact = standingDistance(caregiver, child);
         return child.position().add(offset.scale(contact));
     }
 

@@ -137,6 +137,11 @@ public final class FamilyCareGameTests {
             float away=directParent.getYRot()+180;directParent.setYRot(away);directParent.yBodyRot=away;directParent.yBodyRotO=away;directParent.setYHeadRot(away);
             helper.assertTrue(!FamilyFeedingContact.mouthsMeet(directParent,hungriest),"turned-away mouths are not a valid feeding contact");
             for(int i=0;i<40&&directParent.family().careContactProgress()==0;i++)directParent.family().tickGoal();
+            if(directParent.family().careContactProgress()==0){
+                var directDebug=handoffDebug(level,directParent,hungriest,null);
+                directDebug.put("approach",directParent.careApproach().debug().toString());
+                P0Control.write("family-care-direct-contact",directDebug);
+            }
             helper.assertTrue(directParent.family().careContactProgress()>0,"caregiver first turns into an actual contact pose");
             for(int i=0;i<19;i++)directParent.family().tickGoal();
             helper.assertTrue(hungriest.life().mealTicks()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(hungriest.life().mouth())

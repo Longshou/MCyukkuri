@@ -135,9 +135,10 @@ public final class ChildhoodNestGameTests {
             helper.assertTrue(home[0].nestWork(child[0].getUUID())==pausedWork[0]&&!home[0].privateNest(child[0].getUUID()),
                     "Interrupted work remains visible but cannot advance or finish by itself");
             level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());child[0].setNoAi(false);
-            grass[0]=home[0].beds().stream().filter(bed->!bed.equals(home[0].bed(child[0].getUUID()))
-                    &&!bed.equals(home[0].bed(parent[0].getUUID()))).findFirst().orElse(home[0].entrance());
+            // A solid bush belongs on the bank, not inside a sleeping cell (which makes the home unusable).
+            grass[0]=ORIGIN.offset(2,0,-1);
             level.setBlockAndUpdate(grass[0],Blocks.AZALEA.defaultBlockState());
+            helper.assertTrue(home[0].usable(child[0]),"Nearby natural source does not obstruct the child's home or sleeping cell");
         }).thenWaitUntil(()->helper.assertTrue(home[0].privateNest(child[0].getUUID()),
                 "Late child must walk, collect two real nearby plant portions and work its own bed before a personal nest exists"))
         .thenExecute(()->{
