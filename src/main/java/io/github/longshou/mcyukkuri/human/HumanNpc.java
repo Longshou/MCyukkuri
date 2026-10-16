@@ -32,7 +32,7 @@ public final class HumanNpc extends PathfinderMob {
     private String siteRole = "";
     private UUID lostAnimal, questPlayer, customer;
     private boolean questComplete, initialized;
-    private long nextRestock;
+    private long nextRestock, nextBreed;
     private int trades, delivered, careFood, medicine = 8, routineDelay;
     private YukkuriEntity attention;
     private final FactoryProduction production = new FactoryProduction(this);
@@ -54,6 +54,9 @@ public final class HumanNpc extends PathfinderMob {
     public void setJob(Job job) { entityData.set(JOB, job.ordinal()); }
     public void setAttitude(Attitude attitude) { entityData.set(ATTITUDE, attitude.ordinal()); }
     public String siteRole() { return siteRole; }
+    /** Game time of the keeper's next stud pairing; 0 until first scheduled. */
+    public long nextBreed() { return nextBreed; }
+    public void setNextBreed(long time) { nextBreed = time; }
     public BlockPos home() { return home == null ? blockPosition() : home; }
     public boolean resting() { return entityData.get(RESTING); }
     public int careFood() { return careFood; }
@@ -84,7 +87,8 @@ public final class HumanNpc extends PathfinderMob {
         if (customer == null) return false;
         Player player = level().getPlayerByUUID(customer);
         return player != null && (player.containerMenu instanceof HumanMenu menu && menu.target() == this
-                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this);
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.ShopMenu shop && shop.target() == this
+                || player.containerMenu instanceof io.github.longshou.mcyukkuri.shop.KeeperMenu keeper && keeper.target() == this);
     }
     public List<YukkuriEntity> animals(String use) {
         return level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(48), y -> y.isAlive()
@@ -105,7 +109,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!level().isClientSide) { if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this); else HumanMenu.open(player, this); }
+        if (!level().isClientSide) { if (job() == Job.SHOPKEEPER) io.github.longshou.mcyukkuri.shop.ShopMenu.open(player, this); else if (job() == Job.KEEPER) io.github.longshou.mcyukkuri.shop.KeeperMenu.open(player, this); else HumanMenu.open(player, this); }
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public void die(net.minecraft.world.damagesource.DamageSource source) {
@@ -122,6 +126,7 @@ public final class HumanNpc extends PathfinderMob {
         if (routineDelay > 0) routineDelay--;
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
         if (job() == Job.FACTORY) production.tick();
+        if (job() == Job.KEEPER && tickCount % 20 == 0) io.github.longshou.mcyukkuri.shop.ShopKeeping.tick(this);
     }
     /** Staff refill nearby bowls from finite saved supplies, through their normal service aisle. */
     private void serviceFacilities() {
@@ -198,7 +203,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void addAdditionalSaveData(CompoundTag t) {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);
         t.putBoolean("HumanInitialized", initialized); if (home != null) t.putLong("HumanHome", home.asLong());
-        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock", nextRestock);
+        t.putInt("CareFood", careFood); t.putInt("Medicine", medicine); t.putInt("Trades", trades); t.putInt("Delivered", delivered); t.putLong("NextRestock", nextRestock); t.putLong("NextBreed", nextBreed);
         t.put("FactoryProduction", production.save());
         if (lostAnimal != null) t.putUUID("LostAnimal", lostAnimal); if (lostAt != null) t.putLong("LostAt", lostAt.asLong());
         if (questPlayer != null) t.putUUID("QuestPlayer", questPlayer); t.putBoolean("QuestComplete", questComplete);
@@ -209,7 +214,7 @@ public final class HumanNpc extends PathfinderMob {
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized"); home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;
         production.load(t.getCompound("FactoryProduction"));
         careFood = Math.clamp(t.getInt("CareFood"), 0, 256); medicine = t.contains("Medicine") ? Math.clamp(t.getInt("Medicine"), 0, 64) : 8;
-        trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock");
+        trades = Math.clamp(t.getInt("Trades"), 0, 64); delivered = Math.clamp(t.getInt("Delivered"), 0, 4); nextRestock = t.getLong("NextRestock"); nextBreed = t.getLong("NextBreed");
         lostAnimal = t.hasUUID("LostAnimal") ? t.getUUID("LostAnimal") : null; lostAt = t.contains("LostAt") ? BlockPos.of(t.getLong("LostAt")) : blockPosition();
         questPlayer = t.hasUUID("QuestPlayer") ? t.getUUID("QuestPlayer") : null; questComplete = t.getBoolean("QuestComplete");
     }

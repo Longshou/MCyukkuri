@@ -293,6 +293,7 @@ public final class FamilyData extends SavedData {
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.onBirth(entity,actualMother,actualFather);
         if(actualMother!=null)io.github.longshou.mcyukkuri.human.HumanCommerce.inheritFactoryChild(entity,actualMother);
+        io.github.longshou.mcyukkuri.human.HumanCommerce.inheritPet(entity,actualMother,actualFather);
         for(var parent:new YukkuriEntity[]{actualMother,actualFather})if(parent!=null){
             var custody=io.github.longshou.mcyukkuri.human.HumanCommerce.data(parent);
             if(custody.hasUUID("Owner")&&level.getServer().getPlayerList().getPlayer(custody.getUUID("Owner")) instanceof net.minecraft.server.level.ServerPlayer owner)

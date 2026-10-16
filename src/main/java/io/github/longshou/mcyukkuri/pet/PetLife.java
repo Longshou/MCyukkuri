@@ -131,6 +131,30 @@ public final class PetLife {
     public void setCooldown(int ticks) { cooldown = Math.max(0, ticks); }
     public boolean breedingPermitted(UUID partner) { var until = permits.get(partner); return until != null && now() <= until; }
     public void permitBreeding(UUID partner, long untilGameTime) { permits.put(partner, untilGameTime); }
+    public long permitUntil(UUID partner) { var until = permits.get(partner); return until != null && now() <= until ? until : -1; }
+    /** The partner whose permit lasts longest, or null. */
+    public UUID permitPartner() {
+        UUID best = null; long t = -1;
+        for (var e : permits.entrySet()) if (now() <= e.getValue() && e.getValue() > t) { best = e.getKey(); t = e.getValue(); }
+        return best;
+    }
+    public void revokeBreeding(UUID partner) { permits.remove(partner); }
+    public boolean pedigreeKnown() { return pedigreeSet; }
+    /** Rolled once per courtship attempt. 0 = no restriction or permitted, 1 = proceeds without permission, 2 = the pet backs off. */
+    public int courtshipGate(YukkuriEntity partner) {
+        if (!isPet() || breedingPermitted(partner.getUUID())) return 0;
+        double chance = (100 - animal.life().personality().selfControl()) / 400.0 * (1 + indulgence / 100.0) * (1 + stress / 200.0);
+        return animal.getRandom().nextDouble() < chance ? 1 : 2;
+    }
+    /** Conception without permission: counted on every owned parent and reported once to each owner who is online. */
+    public static void unauthorizedConception(YukkuriEntity a, YukkuriEntity b) {
+        Set<UUID> told = new HashSet<>();
+        for (var y : List.of(a, b)) if (y.pet().isPet()) {
+            y.pet().noteUnauthorizedBirth(); var owner = y.pet().owner(); var other = y == a ? b : a;
+            if (owner != null && told.add(owner) && y.level() instanceof ServerLevel level && level.getServer().getPlayerList().getPlayer(owner) instanceof net.minecraft.server.level.ServerPlayer sp)
+                sp.sendSystemMessage(net.minecraft.network.chat.Component.translatable("pet.mcyukkuri.breed.unauthorized", y.getDisplayName(), other.getDisplayName()));
+        }
+    }
     public int unauthorizedBirths() { return unauthorized; }
     public void noteUnauthorizedBirth() { unauthorized = Math.min(99, unauthorized + 1); }
 
