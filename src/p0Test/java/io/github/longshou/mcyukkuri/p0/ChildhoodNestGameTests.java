@@ -155,4 +155,3 @@ public final class ChildhoodNestGameTests {
         entity.life().load(tag);
     }
 }
-
