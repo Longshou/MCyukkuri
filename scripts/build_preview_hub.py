@@ -51,7 +51,7 @@ def render_overview():
     draw = ImageDraw.Draw(sheet)
     draw.text((54, 30), '看得到的动作与场景', font=font(44), fill='#253c35')
     draw.text((56, 98), '从出生到离家 · 当前运行资源离线演示', font=font(22), fill='#66796c')
-    cards = [('亲油俯身贴嘴喂糜', 'childhood-life/childhood-land-feed.png', 0),
+    cards = [('亲油微微前倾递喂', 'childhood-life/childhood-land-feed.png', 0),
              ('首次排便由亲油照料', 'childhood-life/childhood-first-toilet.gif', 12),
              ('先爬行，再练习短跳', 'childhood-life/childhood-locomotion.gif', 15),
              ('长大后铺个人小巢', 'actions/family-small-build.gif', 10),

@@ -171,7 +171,9 @@ public final class ChildhoodLifeGameTests {
         return state;
     }
 
-    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 720, batch = "childhood")
+    // Remote trace: rear care/return ends around tick 360, actual crawling reaches .75 near 640,
+    // then five landings with 24-tick rests finish near 785. Allow that complete sequence.
+    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 1000, batch = "childhood")
     public static void aquaticNewbornReceivesHatCare(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos origin = new BlockPos(X + 32, 65, 8);

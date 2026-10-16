@@ -101,6 +101,7 @@ class RuntimePose{
    for(let i=0;i<3;i++)adjustment[i]+=translation[i];
    adjustment[3]+=rootAdjustment.pitch||0;
   }
+  this.rootPose=poses[this.rootBone].slice();
   for(let i=0;i<model.bones.length;i++){
    const p=model.bones[i].pivot,v=poses[i],[x,y,z]=v.slice(3,6).map(a=>a*Math.PI/180);
    const cx=Math.cos(x),sx=Math.sin(x),cy=Math.cos(y),sy=Math.sin(y),cz=Math.cos(z),sz=Math.sin(z),[a,b,d]=v.slice(6);

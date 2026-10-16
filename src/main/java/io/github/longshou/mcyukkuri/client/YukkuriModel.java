@@ -617,14 +617,16 @@ public final class YukkuriModel {
         boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young")||behavior.equals("first_toilet_assist"));
         composeWorld();
         if(careContact){
-            // The source clip's root lift already lands its body.  Measure that exact body floor,
-            // solve a root pitch toward the synchronized care point, then restore the same
-            // floor in model space. This keeps the caregiving mouth free to meet a smaller child
-            // while its feet remain supported.
+            // Source and contact tracking share one total inclination budget. Adding a separate
+            // 50-degree reach on top of the authored feeding lean made the parent tip forward.
+            // A tiny child is expressed through proximity, face changes and speech, not a dive.
             float floor=bodyMinimumY();float[] root=pose[rootBone()];
+            boolean feeding=!behavior.equals("first_toilet_assist");
+            float maximumPitch=feeding?10:28;
+            root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
             float basePitch=root[3],baseMouth=mouthY();
             float target=baseMouth+(careTargetMouthY-baseMouth)*careBlend;
-            float low=0,high=50;
+            float low=0,high=Math.max(0,maximumPitch+basePitch)*careBlend;
             if(baseMouth>target)for(int i=0;i<7;i++){
                 float pitch=(low+high)*.5f;root[3]=basePitch-pitch;composeWorld();
                 float lifted=Math.max(0,floor-bodyMinimumY());
@@ -634,8 +636,9 @@ public final class YukkuriModel {
             // Pitch changes the mouth's depth. Align the composed anchor, rather than estimating
             // reach from the upright face mesh; keep the extra lean small and tied to real contact.
             var mouth=mouthPoint();
-            root[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-.04f*16,.04f*16);
-            root[2]+=Math.clamp((careTargetMouthZ-mouth.z)*careBlend,-.18f*16,.18f*16);
+            float lateral=feeding?.02f:.04f,forward=feeding?.03f:.18f;
+            root[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-lateral*16,lateral*16);
+            root[2]+=Math.clamp((careTargetMouthZ-mouth.z)*careBlend,-forward*16,forward*16);
             composeWorld();float lowered=bodyMinimumY();
             if(lowered<floor)raiseWorld(floor-lowered);
         }

@@ -65,26 +65,29 @@ function careTarget(parent,child,q){
  return {anchor:parentMouth,target:[x/parentScale,(childAt[1]+point[1]-parentAt[1])/parentScale,z/parentScale]};
 }
 function groundedCarePose(pose,action,time,anchor,target,blend=1){
- // Mirrors YukkuriModel: use the exact root-bone matrix, binary-search the
- // bounded 50-degree pitch against the synchronized child mouth, then apply
- // only the runtime's capped X/Z correction and restore the original floor.
- const model=pose.model,baseline=pose.frame(action,time),floor=bodyFloor(model,baseline),baseMouth=pose.rootPoint(anchor);
+ // Mirrors YukkuriModel: source and contact tracking share the same total pitch
+ // budget. Feeding remains a slight inclination even beside the smallest child.
+ const model=pose.model,baseline=pose.frame(action,time),floor=bodyFloor(model,baseline);
+ const feeding=action!=='first_toilet_assist',maximumPitch=feeding?10:28,sourcePitch=pose.rootPose[3];
+ const basePitch=Math.max(-maximumPitch,sourcePitch),clampPitch=basePitch-sourcePitch;
+ pose.frame(action,time,{pitch:clampPitch});const baseMouth=pose.rootPoint(anchor);
  const goal=baseMouth.map((value,index)=>value+(target[index]-value)*blend);
  let pitch=0;
  if(baseMouth[1]>goal[1]){
-  let low=0,high=50;
+  let low=0,high=Math.max(0,maximumPitch+basePitch)*blend;
   for(let i=0;i<7;i++){
-   const candidate=(low+high)*.5;pose.frame(action,time,{pitch:-candidate});
+   const candidate=(low+high)*.5;pose.frame(action,time,{pitch:clampPitch-candidate});
    const lifted=Math.max(0,floor-bodyFloor(model,pose.output));
    if(pose.rootPoint(anchor)[1]+lifted>goal[1])low=candidate;else high=candidate;
   }
   pitch=high;
  }
- pose.frame(action,time,{pitch:-pitch});
- const mouth=pose.rootPoint(anchor),x=Math.max(-.04*16,Math.min(.04*16,(target[0]-mouth[0])*blend)),z=Math.max(-.18*16,Math.min(.18*16,(target[2]-mouth[2])*blend));
- pose.frame(action,time,{pitch:-pitch,translation:[x,0,z]});
+ pose.frame(action,time,{pitch:clampPitch-pitch});
+ const mouth=pose.rootPoint(anchor),lateral=feeding?.02:.04,forward=feeding?.03:.18;
+ const x=Math.max(-lateral*16,Math.min(lateral*16,(target[0]-mouth[0])*blend)),z=Math.max(-forward*16,Math.min(forward*16,(target[2]-mouth[2])*blend));
+ pose.frame(action,time,{pitch:clampPitch-pitch,translation:[x,0,z]});
  const lift=Math.max(0,floor-bodyFloor(model,pose.output));
- return pose.frame(action,time,{pitch:-pitch,translation:[x,lift,z]});
+ return pose.frame(action,time,{pitch:clampPitch-pitch,translation:[x,lift,z]});
 }
 function withoutAccessory(model,vertices){
  // A HatBoat holds the owner's one real hat.  Preview the owner bare-headed,

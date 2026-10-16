@@ -67,7 +67,7 @@ def state(action, t, c, height):
             s[1] -= .04*settle
         elif action == 'boat_feed_young':
             reach = smooth(t/.6)*(1-smooth((t-1.2)/1.2))
-            r = [-7*reach, -4*reach, -2*reach]; s[1] -= .02*reach
+            r = [-6*reach, -2*reach, -1*reach]; s[1] -= .01*reach
         elif action == 'boat_toilet':
             # The boat has already selected the water-facing rear yaw.  This clip only lowers
             # the seated body there, keeping the face out of the child-care interaction.

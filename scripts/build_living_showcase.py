@@ -164,7 +164,10 @@ def build(world, maturity):
     for i, (zone, title, x, z, biome) in enumerate(ZONES):
         hx = 7+i*10
         hub += control(hx, 23, 'function mcyliving:visit/'+zone, title[3:11], '前往本区')
-        p.fn('visit/'+zone, [f'forceload add {x-3} {z} {x+66} {z+63}', f'tp @p {x+31.5} 65 {z+4.5} 0 4', tell(title+'：在此按开始；观测通道在玻璃围栏外。')])
+        p.fn('visit/'+zone, [f'forceload add {x-3} {z} {x+66} {z+63}',
+            'execute unless score #ready living matches 1 run '+tell('展区正在准备，完成后即可进入。'),
+            f'execute if score #ready living matches 1 run tp @p {x+31.5} 65 {z+4.5} 0 4',
+            'execute if score #ready living matches 1 run '+tell(title+'：在此按开始；观测通道在玻璃围栏外。')])
         permanent = [f'fill {x-3} 63 {z} {x+66} 64 {z+7} minecraft:smooth_sandstone',
                      f'fill {x+2} 64 {z+1} {x+61} 64 {z+6} minecraft:oak_planks',
                      f'fill {x-3} 64 {z+8} {x-1} 64 {z+58} minecraft:oak_planks',
@@ -189,7 +192,8 @@ def build(world, maturity):
         p.fn('build/'+zone, [f'forceload add {x-3} {z} {x+66} {z+63}'] + permanent + [f'function mcyliving:{zone}/terrain',
             f'scoreboard players set #{zone} living 0', f'forceload remove {x-3} {z} {x+66} {z+63}',
             ('schedule function mcyliving:build/'+ZONES[i+1][0]+' 2s replace') if i+1<len(ZONES) else 'function mcyliving:ready'])
-        p.fn(zone+'/start', [f'execute unless score #{zone} living matches 1 unless entity @e[tag=living_{zone}] run function mcyliving:{zone}/begin',
+        p.fn(zone+'/start', ['execute unless score #ready living matches 1 run '+tell('展区尚未准备完成，请稍后开始。'),
+                            f'execute if score #ready living matches 1 unless score #{zone} living matches 1 unless entity @e[tag=living_{zone}] run function mcyliving:{zone}/begin',
                             f'execute if score #{zone} living matches 1 run '+tell('本区正在连续生活。重置才重新出生；加速改变全世界tick速度。'),
                             f'execute unless score #{zone} living matches 1 if entity @e[tag=living_{zone}] run '+tell('上次初始化未完成，请按本区重置后再开始；不会重复生成父母。')])
         p.fn(zone+'/reset', [f'forceload add {x-3} {z} {x+66} {z+63}',

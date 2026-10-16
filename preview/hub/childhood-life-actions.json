@@ -2,7 +2,7 @@
   "clips": [
     {
       "id": "childhood-land-feed",
-      "title": "陆地亲油贴近赤油嘴边喂糜",
+      "title": "亲油轻微前倾、近身递喂",
       "model": "reimu",
       "action": "feed_child",
       "duration": 1.2,
@@ -13,7 +13,6 @@
         {
           "model": "reimu",
           "action": "feed_child",
-          "face": "happy",
           "careTarget": 1
         },
         {
@@ -70,7 +69,7 @@
     },
     {
       "id": "childhood-water-feed",
-      "title": "帽船同层内沿贴嘴喂养",
+      "title": "帽内站稳微倾，停桨喂养子油",
       "model": "marisa",
       "action": "boat_feed_young",
       "duration": 1.2,
@@ -81,7 +80,6 @@
         {
           "model": "marisa",
           "action": "boat_feed_young",
-          "face": "happy",
           "yaw": -34.24,
           "accessory": false,
           "careTarget": 1

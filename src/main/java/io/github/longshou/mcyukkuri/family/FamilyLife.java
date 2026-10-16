@@ -719,7 +719,7 @@ public final class FamilyLife {
         foodSource=null;foodStore=null;careOfferTicks=0;
         if(carrying.isEmpty())selectFoodSource();
         if(carrying.isEmpty()&&foodSource==null&&foodStore==null){target=null;return false;}
-        task=Task.FEED_CHILD;taskTicks=0;return true;
+        task=Task.FEED_CHILD;taskTicks=0;entity.showReaction("closed_smile","caregiver",40);return true;
     }
     /** Choose a real nearby drop or the caregiver's own stocked shelter, without reserving either. */
     private void selectFoodSource() {
