@@ -192,7 +192,7 @@ public final class YukkuriEntity extends PathfinderMob {
         entityData.set(CRAWLING, active);
     }
 
-    @Override protected void jumpFromGround() {
+    @Override public void jumpFromGround() {
         if (childhood == null || childhood.canJump() || isInWaterOrBubble() || isOnFire() || isPanicking()) super.jumpFromGround();
     }
 
