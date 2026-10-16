@@ -29,7 +29,7 @@ public final class DialogueGameTests {
             boolean predator = java.util.Set.of("remilia", "flandre").contains(line.species());
             boolean settlement = line.events().stream().allMatch(java.util.Set.of("settlement_shun", "settlement_drive",
                     "settlement_hurt", "settlement_assign", "settlement_submit",
-                    "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail", "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought", "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke", "lesson_praised", "lesson_scolded", "badge_envy", "badge_admire")::contains);
+                    "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail", "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought", "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke", "lesson_praised", "lesson_scolded", "badge_envy", "badge_admire", "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy", "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner", "predator_restrain", "predator_obey", "predator_defy")::contains);
             helper.assertTrue(line.key().startsWith("dialogue.mcyukkuri.original.") && (predator || settlement),
                     "Only explicitly authored subtitle groups may be unvoiced: " + line.id());
         }
@@ -102,10 +102,11 @@ public final class DialogueGameTests {
                 var family=e.family().save();family.putString("Stage",young?"BABY":"ADULT");family.putFloat("Scale",young?.35f:1);e.family().load(family);
                 level.addFreshEntity(e);speakers.add(e);String species=e.getVariant().assetId();String age=young?"young":"adult";
                 for(String event:NativeDialogue.events()) {
+                    if(event.startsWith("predator_")&&!java.util.Set.of("remilia","flandre").contains(species)) continue;
                     var line=NativeDialogue.select(species,young,event,e.getRandom());
                     helper.assertTrue(line!=null,species+"/"+age+" missing "+event);
                     boolean originalSubtitle = java.util.Set.of("settlement_shun", "settlement_drive", "settlement_hurt", "settlement_assign", "settlement_submit",
-                            "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail", "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought", "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke", "lesson_praised", "lesson_scolded", "badge_envy", "badge_admire").contains(event)
+                            "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail", "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought", "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke", "lesson_praised", "lesson_scolded", "badge_envy", "badge_admire", "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy", "basket_refuse", "basket_enter", "basket_exit", "wild_plea_keep", "pet_report_owner", "predator_restrain", "predator_obey", "predator_defy").contains(event)
                             && line.key().startsWith("dialogue.mcyukkuri.original.");
                     helper.assertTrue(!line.sound().isEmpty() || originalSubtitle, species+"/"+age+" missing voice for "+event);
                     helper.assertTrue(line.species().equals(species)&&line.age().equals(age),"No cross-species fallback: "+species);
