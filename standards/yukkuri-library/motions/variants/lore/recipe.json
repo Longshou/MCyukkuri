@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -177,7 +177,15 @@
                    "lore": "project design: a quieter strain, curled against the crown, then she turns to gather the baby into the hat (L06 the hat carries young)", "triggers": ["labor afloat"]},
     "hat_cradle": {"label": "帽中幼体", "duration": 3.0, "loop": true, "applies": "not_house", "sway": 3, "bob": 0.15,
                    "faces": [[0, 1.2, "happy"], [1.2, 2.4, "closed_smile"], [2.4, 3.0, "sleepy"]],
-                   "lore": "young carried in the hat (L06)", "triggers": ["young aboard the mother's hat boat"]}
+                   "lore": "young carried in the hat (L06)", "triggers": ["young aboard the mother's hat boat"]},
+    "think": {"label": "思考", "duration": 2.0, "loop": true, "applies": "all", "tilt": 10, "turn": 4, "look_up": 4, "squash": 0.03, "faces": [[0, 0.5, "neutral"], [0.5, 1.5, "confused"], [1.5, 2.0, "neutral"]], "lore": "Project design for exam thinking: slow side-to-side head tilt, slight squash, eyes up.", "triggers": ["pet exam: considering an answer"]},
+    "nervous": {"label": "紧张", "duration": 1.5, "loop": true, "applies": "all", "shrink": 0.05, "shuffle_ratio": 0.035, "hop_ratio": 0.03, "hop_seconds": 0.375, "shudder": 2, "faces": [[0, 0.375, "teary"], [0.375, 0.75, "confused"], [0.75, 1.125, "teary"], [1.125, 1.5, "confused"]], "lore": "Project design for pre-exam jitters: small quick left-right shuffles and tiny hops, body slightly shrunk (cf. tremble, special-events fear).", "triggers": ["pet exam: waiting before answering"]},
+    "proud": {"label": "得意", "duration": 2.0, "loop": false, "applies": "all", "lean_back": 14, "stretch": 0.06, "chin_up": 4, "faces": [[0, 0.9, "smug"], [0.9, 1.25, "closed_smile"], [1.25, 62, "smug"]], "lore": "Project design of the ehhen (えっへん) pose: lean back, puff the chest, hold, settle (Marisa smug face, M02/EH25 style).", "triggers": ["badge earned or praised"]},
+    "joy_jump": {"label": "欢呼跳", "duration": 1.6, "loop": false, "applies": "all", "hop_ratio": 0.3, "second_hop_ratio": 0.36, "look_up": 8, "faces": [[0, 0.55, "open_smile"], [0.55, 1.05, "happy"], [1.05, 61.6, "open_smile"]], "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash (cf. shiawase hop, EH25 delight).", "triggers": ["exam passed"]},
+    "sulk": {"label": "闹别扭", "duration": 2.4, "loop": true, "applies": "all", "turn": 150, "height": 0.9, "width": 1.06, "head_down": -6, "tilt": 3, "shudder": 3, "faces": [[0, 1.4, "teary"], [1.4, 1.9, "cry"], [1.9, 2.4, "teary"]], "lore": "Project design: body turned about 150 degrees from the front, sunk and flattened, with an occasional small shudder (cf. droop, TM02).", "triggers": ["exam failed or scolded"]},
+    "hide_face": {"label": "藏头露腚", "duration": 2.0, "loop": true, "applies": "all", "lean": -64, "wiggle": 4, "roll": 5, "height": 0.97, "faces": [[0, 2.0, "closed_smile"]], "lore": "Project design of the head-hidden gag: face pressed to the ground, rear raised, tiny wiggle (the closed-eyes smile reads as squeezed eyes).", "triggers": ["exam: hiding from the question or failure"]},
+    "beg": {"label": "乞求", "duration": 1.4, "loop": true, "applies": "all", "lean": -16, "lean_bounce": -6, "bounce_ratio": 0.045, "bounce_seconds": 0.7, "faces": [[0, 0.35, "open_smile"], [0.35, 0.7, "happy"], [0.7, 1.05, "open_smile"], [1.05, 1.4, "happy"]], "lore": "Project design: eager forward lean with little bounces toward the target (cf. tremble begging in special-events).", "triggers": ["shop appeal, wild role begging"]},
+    "bow": {"label": "鞠躬", "duration": 1.2, "loop": false, "applies": "all", "bow": -25, "squash": 0.03, "faces": [[0, 0.7, "closed_smile"], [0.7, 61.2, "happy"]], "lore": "Project design: polite forward bow of about 25 degrees and back up (cf. greet nod).", "triggers": ["greeting the examiner, farewell"]}
   },
   "flourishes": {
     "braid_wave": {"clips": ["greet"], "raise": 118, "forward": 15, "wave": 10, "waves": 3, "root_offset": [0.05, -0.22, -0.05],
@@ -188,5 +196,5 @@
     "lock_tremble": {"clips": ["labor", "boat_labor"], "degrees": 2.5, "hz": 9,
                      "lore": "side hair trembles while straining", "applies": "models whose hand bones carry hair"}
   },
-  "braid_follow": ["eat", "drink", "sleep", "nuzzle", "sing", "sway", "push", "tremble", "droop", "shiawase", "wake", "brood", "midwife", "postpartum", "first_wake", "hat_cradle", "bereaved"]
+  "braid_follow": ["eat", "drink", "sleep", "nuzzle", "sing", "sway", "push", "tremble", "droop", "shiawase", "wake", "brood", "midwife", "postpartum", "first_wake", "hat_cradle", "bereaved", "think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow"]
 }

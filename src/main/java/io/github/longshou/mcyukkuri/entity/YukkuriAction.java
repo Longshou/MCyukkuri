@@ -77,7 +77,16 @@ public enum YukkuriAction {
     /** Shell Marisa only; other models fall back to idle. */
     SHELL_RETRACT("shell_retract", 6.0, true),
     HAT_BRIM("hat_brim", 3.0, true),
-    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false);
+    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false),
+    // Pet shop, exam and raising performances (lore recipe v9, all standard forms).
+    THINK("think", 2.0, true),
+    NERVOUS("nervous", 1.5, true),
+    PROUD("proud", 2.0, false),
+    JOY_JUMP("joy_jump", 1.6, false),
+    SULK("sulk", 2.4, true),
+    HIDE_FACE("hide_face", 2.0, true),
+    BEG("beg", 1.4, true),
+    BOW("bow", 1.2, false);
 
     private final String id;
     private final double duration;

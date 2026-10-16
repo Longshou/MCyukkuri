@@ -269,6 +269,54 @@ def state(action, t, c, height):
             r[0] = (c['wail_chin']*(1-u)+c['head_down']*u)*fade; r[2] = 1.5*w*u*fade
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
+    elif action == 'think':
+        ph = 2*math.pi*t/d; k = c['squash']
+        r = [c['look_up'], c['turn']*math.sin(ph), c['tilt']*math.sin(ph)]; s = [1+.5*k, 1-k, 1+.5*k]
+    elif action == 'nervous':
+        ph = 2*math.pi*t/c['hop_seconds']; k = c['shrink']
+        s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['shuffle_ratio']*height*math.sin(2*math.pi*t/.75)
+        q = bump((t % c['hop_seconds'])/c['hop_seconds']); lift = c['hop_ratio']*height*q
+        s = [s[0]*(1-.015*q), s[1]*(1+.03*q), s[2]*(1-.015*q)]; r = [-2, 0., c['shudder']*math.sin(ph*2)]
+    elif action == 'proud':
+        # Lean back and puff the chest, hold, then settle with a small overshoot and rest.
+        if t < .5:
+            a = smooth(t/.5)
+        elif t < 1.5:
+            a = 1.
+        else:
+            a = 1-smooth((t-1.5)/.5)
+        k = c['stretch']*a; r = [c['lean_back']*a+c['chin_up']*bump((t-.5)/1.0), 0., 0.]
+        s = [1-.3*k, 1+k, 1-.3*k]
+        if t >= 1.5: e = bump((t-1.5)/.5); s = [s[0]*(1+.03*e), s[1]*(1-.04*e), s[2]*(1+.03*e)]
+    elif action == 'joy_jump':
+        def leap(t0, tk, tl, te, h):
+            if t < t0 or t >= te: return None
+            if t < tk:
+                a = smooth((t-t0)/(tk-t0)); return squash(a, .09, .17, .06), 0., 0.
+            if t < tl:
+                air = (t-tk)/(tl-tk); e = math.sin(math.pi*air); release = 1-smooth(air/.2)
+                return times(squash(release, .09, .17, .06), [1-.06*e, 1+.14*e, 1-.05*e]), h*4*air*(1-air), e
+            return squash(bump((t-tl)/(te-tl)), .08, .14, .05), 0., 0.
+        got = leap(0, .22, .62, .8, height*c['hop_ratio']) or leap(.8, 1.0, 1.4, 1.6, height*c['second_hop_ratio'])
+        if got: s, lift, e = got; r[0] = c['look_up']*e
+    elif action == 'sulk':
+        ph = 2*math.pi*t/d; wide = 1+(1-c['height'])*.5
+        s = [c['width'], c['height']+.01*math.sin(ph), c['width']]; s[0] = wide
+        r = [c['head_down'], c['turn'], c['tilt']]
+        if 1.4 <= t < 1.9:
+            w = bump((t-1.4)/.5)*math.sin(2*math.pi*9*t); r[2] += c['shudder']*w; shift[0] = .006*height*w
+    elif action == 'hide_face':
+        ph = 2*math.pi*t/d
+        r = [c['lean']+c['wiggle']*math.sin(ph*3), 0., c['roll']*math.sin(ph*4)]; s = [1.03, c['height'], 1.03]
+    elif action == 'beg':
+        q = bump((t % c['bounce_seconds'])/c['bounce_seconds'])
+        r = [c['lean']+c['lean_bounce']*q, 0., 0.]; lift = c['bounce_ratio']*height*q
+        s = [1-.02*q, 1+.04*q, 1-.02*q]
+    elif action == 'bow':
+        if t < .45: a = smooth(t/.45)
+        elif t < .65: a = 1.
+        else: a = 1-smooth((t-.65)/.55)
+        r[0] = c['bow']*a; k = c['squash']*a; s = [1+.5*k, 1-k, 1+.5*k]
     elif action == 'hat_brim':
         r = [2, c['turn']*math.sin(2*math.pi*t/d), c['sway']*math.sin(4*math.pi*t/d)]
         s[1] = 1.025  # upright, but no idle floating above the supporting brim
