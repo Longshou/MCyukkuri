@@ -1,0 +1,52 @@
+package io.github.longshou.mcyukkuri.pet.exam;
+
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.pet.Ability;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetLife;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+
+/** What an exam item may use. Implemented by the running session; everything registered here is cleaned up when the item ends. */
+public interface ExamContext {
+    ServerLevel level();
+    HumanNpc examiner();
+    YukkuriEntity candidate();
+    /** The owner, or null while briefly offline (the session interrupts if the owner stays away). */
+    Player owner();
+    ExamHall hall();
+    /** The grade the questions are pitched at (difficulty for successChance). */
+    BadgeGrade tier();
+    Random random();
+    /** Ticks since the current item started. */
+    int itemTicks();
+    /** Success check against candidate().pet().successChance(a, tier()). */
+    boolean roll(Ability a);
+    double chance(Ability a);
+    /** Examiner line: a speech card above the examiner (~60 ticks) and the owner's action bar. */
+    void examinerSay(String langKey, Object... args);
+    /** Staging cards that are removed automatically when the item ends. */
+    UUID card(Vec3 pos, Component text, int ticks);
+    UUID itemCard(Vec3 pos, ItemStack stack, int ticks);
+    void examinerWalkTo(BlockPos pos);
+    boolean examinerAt(BlockPos pos);
+    void examinerLookAt(Entity e);
+    void examinerSwing();
+    /** Shop trainees that sit the exam alongside the candidate (may be empty). */
+    List<YukkuriEntity> trainees();
+    /** The wild-role actor behind the gold booth glass, or null. */
+    YukkuriEntity actor();
+    /** Drive a trainee/actor/candidate for this item; the session locks them and removes the director when the item ends. */
+    void direct(YukkuriEntity y, PetLife.Director d);
+    /** Short lang key appended to the exam log shown with the result. */
+    void note(String langKey);
+}
