@@ -138,11 +138,13 @@ public final class HumanNpc extends PathfinderMob {
         if (job() == Job.SHOPKEEPER && tickCount % 100 == 7) io.github.longshou.mcyukkuri.shop.ShopDeliveries.register(this);
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3 && !resting()) io.github.longshou.mcyukkuri.shop.ShopDeliveries.arrive(this, (net.minecraft.server.level.ServerLevel) level(), level().getGameTime());
         if (job() == Job.KEEPER && tickCount % 20 == 0) io.github.longshou.mcyukkuri.shop.ShopKeeping.tick(this);
+        if (job() == Job.KEEPER && tickCount % 100 == 13 && getMainHandItem().is(io.github.longshou.mcyukkuri.registry.ModItems.CARRIER.get()) && !io.github.longshou.mcyukkuri.shop.ShopDate.holding(getUUID()))
+            setItemInHand(InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY); // a date scene dropped by a restart must not leave the carrier in hand
     }
     /** M02: a badge on a yukkuri whose registry entry went void (abandoned while worn) is taken off by staff who see it. */
     private void revokeVoidBadges() {
         for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(6), v -> v.isAlive() && v.pet().voidBadge() && hasLineOfSight(v))) {
-            y.pet().revoke(); swing(InteractionHand.MAIN_HAND);
+            y.pet().revoke(); swing(InteractionHand.MAIN_HAND); io.github.longshou.mcyukkuri.pet.PetScenes.revoked(y);
             var near = level().getNearestPlayer(this, 16);
             if (near != null) near.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", y.getDisplayName()), true);
             return;

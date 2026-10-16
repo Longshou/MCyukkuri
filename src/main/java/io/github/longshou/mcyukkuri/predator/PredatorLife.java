@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -14,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -36,7 +38,9 @@ public final class PredatorLife {
     private YukkuriEntity prey;
     private ItemEntity food;
     private Vec3 destination;
-    private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait;
+    private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
+    /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
+    private static final java.util.Map<UUID, Long> ALERTED = new java.util.HashMap<>();
     private boolean naturalSpawn;
 
     public PredatorLife(YukkuriEntity animal) { this.animal = animal; }
@@ -65,11 +69,42 @@ public final class PredatorLife {
     }
     private boolean validCommander() { return commander != null && HumanCommerce.ownedBy(animal, commander); }
     public boolean command(Player player, Order requested) {
-        if (!obedient() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
+        if (!obedient()) { defy(player); return false; }
+        if (!animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
                 || animal.pet().busy() || animal.operations().active() || animal.isCommandPlaying()) return false;
         if (requested == Order.RETURN && animal.life().homeStand() == null) return false;
         stop(); order = requested; commander = player.getUUID(); cooldown = 0;
-        animal.setPersistenceRequired(); return true;
+        animal.setPersistenceRequired();
+        if (reactWait == 0) { reactWait = 60; PetScenes.act(animal, "bow", "happy", "predator_obey", 40, player); }
+        return true;
+    }
+    /** An untrained predator ignores its owner's order. */
+    private void defy(Player player) {
+        if (reactWait > 0 || !animal.getVariant().isPredator() || active() || !animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID()) || animal.pet().busy()
+                || animal.operations().active() || animal.isCommandPlaying() || animal.isPanicking() || animal.life().isSleeping()) return;
+        reactWait = 100; PetScenes.act(animal, "ignore", "neutral", "predator_defy", 40, null);
+    }
+    /** An obedient predator that sees a protected yukkuri it would otherwise go for holds itself back, once a minute at most. */
+    private boolean restrain() {
+        if (restrainWait > 0 || !obedient() || animal.isCommandPlaying() || animal.life().isSleeping()) return false;
+        var tempting = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(10), y -> huntable(y, false) && HumanCommerce.protectedAnimal(y) && animal.hasLineOfSight(y))
+                .stream().min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+        if (tempting == null) return false;
+        restrainWait = 1200; PetScenes.act(animal, "restrain", "neutral", "predator_restrain", 60, tempting);
+        return true;
+    }
+    /** The owner of a yukkuri that a predator has started to chase hears of it; a pet near its owner runs to them. */
+    private void alertOwner() {
+        if (prey == null || !prey.isAlive()) return;
+        var id = prey.pet().owner(); if (id == null) return;
+        var owner = level().getServer().getPlayerList().getPlayer(id);
+        if (owner == null || owner.level() != level() || owner.distanceToSqr(prey) > 4096) return;
+        long now = level().getGameTime();
+        if (ALERTED.getOrDefault(prey.getUUID(), 0L) > now) return;
+        if (ALERTED.size() > 128) ALERTED.values().removeIf(t -> t <= now);
+        ALERTED.put(prey.getUUID(), now + 600);
+        owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
+        if (owner.distanceToSqr(prey) <= 256) prey.showReaction("surprise", "afraid", 80);
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {
@@ -86,12 +121,14 @@ public final class PredatorLife {
         if (order() == Order.HUNT) threshold = 75;
         return animal.life().nutrition() < threshold;
     }
-    public boolean mayHunt(YukkuriEntity target) {
+    public boolean mayHunt(YukkuriEntity target) { return huntable(target, true); }
+    /** Whether the target is something this predator would go for; respect=false ignores the protection an educated predator honours. */
+    private boolean huntable(YukkuriEntity target, boolean respect) {
         if (target == animal || !target.isAlive() || target.isInvulnerable() || target.getVariant().isPredator()
                 || target.getVariant().isHouse() || target.isPassenger() || target.operations().active()
                 || target.getScale() * target.growthScale() > animal.getScale() * animal.growthScale() * 1.35) return false;
         // Educated animals respect protected pets; uneducated ones retain the wild risk after purchase.
-        if (obedient() && HumanCommerce.protectedAnimal(target)) return false;
+        if (respect && obedient() && HumanCommerce.protectedAnimal(target)) return false;
         if (animal.family().caresFor(target) || target.getUUID().equals(animal.family().partner())) return false;
         var shelter = target.habitat().shelter();
         if (shelter != null && shelter.owns(target.getUUID()) && shelter.sound() && shelter.contains(target.blockPosition())) return false;
@@ -104,6 +141,8 @@ public final class PredatorLife {
         if (biteTicks > 0) biteTicks--;
         if (patrolWait > 0) patrolWait--;
         if (nestWait > 0) nestWait--;
+        if (reactWait > 0) reactWait--;
+        if (restrainWait > 0) restrainWait--;
         if (!ready() && active()) stop();
         if (animal.predatorFlying() && !active()) animal.setPredatorFlying(false);
         if (animal.isNoAi()) return;
@@ -158,6 +197,7 @@ public final class PredatorLife {
             prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(18), this::mayHunt).stream()
                     .min(Comparator.comparingDouble(y -> animal.distanceToSqr(y) + y.getHealth())).orElse(null);
             if (prey != null) { task = Task.TAKEOFF; return true; }
+            if (restrain()) { cooldown = 20; return false; }
         }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
                 && !level().isNight() && !level().isRaining() && !animal.life().hasUrgentNeed()) {
@@ -215,7 +255,7 @@ public final class PredatorLife {
             if (ticks % 20 == 1) alertPrey();
             if (task == Task.TAKEOFF) {
                 fly(animal.position().add(0, 1.2, 0), 1);
-                if (ticks >= 15) task = Task.CHASE;
+                if (ticks >= 15) { task = Task.CHASE; alertOwner(); }
             } else {
                 double d = animal.distanceToSqr(prey);
                 task = d < 16 ? Task.DIVE : Task.CHASE;

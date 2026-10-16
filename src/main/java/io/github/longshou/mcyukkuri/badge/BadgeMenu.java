@@ -114,12 +114,14 @@ public final class BadgeMenu extends AbstractContainerMenu {
                 scanPartners(y); var c = candidate();
                 if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c)) {
                     long until = y.level().getGameTime() + 24000; b.permitBreeding(c.getUUID(), until); c.pet().permitBreeding(y.getUUID(), until); done = true;
+                    io.github.longshou.mcyukkuri.pet.PetScenes.permitGranted(y, c, p);
                 }
             } else {
                 var pp = b.permitPartner();
                 if (pp != null && b.owned(p)) {
-                    b.revokeBreeding(pp);
-                    if (p.level() instanceof net.minecraft.server.level.ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) o.pet().revokeBreeding(y.getUUID());
+                    b.revokeBreeding(pp); YukkuriEntity other = null;
+                    if (p.level() instanceof net.minecraft.server.level.ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) { o.pet().revokeBreeding(y.getUUID()); other = o; }
+                    io.github.longshou.mcyukkuri.pet.PetScenes.permitRevoked(y, other, p);
                     done = true;
                 }
             }
