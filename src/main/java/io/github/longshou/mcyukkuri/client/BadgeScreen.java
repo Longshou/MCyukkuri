@@ -89,6 +89,7 @@ public final class BadgeScreen extends AbstractContainerScreen<BadgeMenu> {
                     Component.translatable("predator.mcyukkuri.obedient."+menu.value(28))), 14, 101, INK, false);
         else line(g, 101, "hint");
         if (menu.value(56) > 0 || menu.value(57) > 0) line(g, 111, "owner_line", menu.value(56), Component.translatable("badge.mcyukkuri.profile.owner_state." + menu.value(57)));
+        if (menu.value(58) > 0) lineAt(g, 206, 31, "title", Component.translatable("title.mcyukkuri.pet." + menu.value(58)));
         var candidate = minecraft.level == null || menu.value(46) == 0 ? null : minecraft.level.getEntity((menu.value(47) & 0xffff) | (menu.value(48) << 16));
         line(g, 200, "breed_partner", candidate == null ? Component.translatable("badge.mcyukkuri.no_subject") : candidate.getDisplayName(), menu.value(46), menu.value(45));
         if (menu.value(49) == 0) line(g, 211, "permit_none", menu.value(24));

@@ -36,7 +36,7 @@ public final class ExamSession implements ExamContext {
     public static final String LOCK = "exam", LOCK_EXTRA = "exam_extra";
     /** Index in this list is the refusal code synced to the screen (0 = allowed). Lang: exam.mcyukkuri.refuse.&lt;name&gt;. */
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready", "cooldown", "no_accessory",
-            "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee");
+            "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee", "no_management");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
     private static Boolean forced;
     private enum Phase { GATHER, MOVE, ITEM, RESULT }
@@ -61,6 +61,13 @@ public final class ExamSession implements ExamContext {
         return switch (type) { case JUDGMENT -> BadgeGrade.GOLD; case PROMOTION -> current.higher(); case RENEWAL -> current; default -> BadgeGrade.BRONZE; };
     }
 
+    /** M02 refusal 3 (docs/PET_SHOP.md 3): the owner cannot be expected to manage a pet. True if the player abandoned one within the last 3 game days, or one of their pets within 32 blocks has neglect >= 60. */
+    public static boolean unmanaged(Player p) {
+        if (!(p.level() instanceof ServerLevel level)) return false;
+        if (io.github.longshou.mcyukkuri.pet.AbandonLog.get(level).recent(p.getUUID(), level.getGameTime())) return true;
+        return !level.getEntitiesOfClass(YukkuriEntity.class, p.getBoundingBox().inflate(32), y -> y.isAlive() && y.pet().owned(p) && y.pet().isPet() && y.pet().neglect() >= 60).isEmpty();
+    }
+
     /** Why this subject may not sit this exam now (a REASONS entry), or null if it may. Reissue (REISSUE) is checked here too. */
     public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) {
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
@@ -78,7 +85,7 @@ public final class ExamSession implements ExamContext {
         if (!y.life().hasAccessory()) return "no_accessory";
         var grade = pet.grade();
         switch (type) {
-            case SIMPLE -> { if (grade != BadgeGrade.NONE) return "already_badged"; }
+            case SIMPLE -> { if (grade != BadgeGrade.NONE) return "already_badged"; if (unmanaged(p)) return "no_management"; }
             case PROMOTION -> { if (grade == BadgeGrade.NONE) return "need_badge"; if (grade == BadgeGrade.GOLD) return "max_grade"; }
             case RENEWAL -> { if (grade.id() < BadgeGrade.SILVER.id()) return "need_silver"; if (pet.expiresAt() < 0) return "not_needed"; }
             default -> {}

@@ -136,6 +136,25 @@ public final class PetLife {
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
     public void record(ExamRecord r) { history.add(r); while (history.size() > 16) history.remove(0); }
+    /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/PET_SHOP.md 2. */
+    public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
+    public int title() { return title(history, grade); }
+    public static int title(List<ExamRecord> records, BadgeGrade now) {
+        var cur = BadgeGrade.NONE; int silverMisses = 0, fails = 0; long bronzeSince = -1; boolean hidden = false;
+        for (var r : records) {
+            if (r.outcome() == 4) continue;
+            if (cur == BadgeGrade.SILVER && (r.type() == 4 || r.type() == 5) && r.outcome() >= 1 && r.outcome() <= 3) silverMisses++;
+            if (r.outcome() == 2) fails++;
+            if (r.result() == BadgeGrade.GOLD && r.outcome() == 0) {
+                boolean low = cur.id() <= BadgeGrade.BRONZE.id();
+                hidden = r.type() == 4 && low && (bronzeSince >= 0 && r.gameTime() - bronzeSince >= 48000 || fails >= 2);
+            }
+            if (r.result() == BadgeGrade.BRONZE && cur != BadgeGrade.BRONZE) bronzeSince = r.gameTime();
+            else if (r.result() == BadgeGrade.NONE) bronzeSince = -1;
+            cur = r.result();
+        }
+        return now == BadgeGrade.SILVER && silverMisses >= 3 ? TITLE_ETERNAL_SILVER : now == BadgeGrade.GOLD && hidden ? TITLE_HIDDEN_GOLD : 0;
+    }
     public int cooldown() { return cooldown; }
     public void setCooldown(int ticks) { cooldown = Math.max(0, ticks); }
     public boolean breedingPermitted(UUID partner) { var until = permits.get(partner); return until != null && now() <= until; }
@@ -205,6 +224,7 @@ public final class PetLife {
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
+        if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
         var p = animal.life().personality();

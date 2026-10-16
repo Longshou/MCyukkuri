@@ -540,6 +540,33 @@ public final class PetShopGameTests {
             return true;
         });
 
+        // 0. owner management (M02 refusal 3) and titles derived from history
+        step("owner management: recent abandonment", 5, () -> {
+            var y = candidateNearExaminer(true);
+            check("without a recent abandonment the simple exam is open", ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE) == null, "refusal=" + ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE));
+            var other = ShopFixtures.spawn(level, ModEntities.REIMU, y.getX() + 1, y.getY(), y.getZ());
+            HumanCommerce.assign(other, player.getUUID(), "companion");
+            other.pet().abandonedBy(player.getUUID());
+            check("a player who just abandoned a pet is refused the simple exam", "no_management".equals(ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE)), "refusal=" + ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE));
+            check("the refusal is in the synced reason list", io.github.longshou.mcyukkuri.pet.exam.ExamSession.REASONS.contains("no_management"), "reasons=" + ExamSession.REASONS);
+            io.github.longshou.mcyukkuri.pet.AbandonLog.get(level).clear(player.getUUID());
+            check("clearing the log reopens the simple exam", ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE) == null, "refusal=" + ExamSession.refusal(examiner, player, y, ExamSession.SIMPLE));
+            other.discard(); y.discard();
+            return true;
+        });
+        step("titles from history", 1, () -> {
+            var B = BadgeGrade.BRONZE; var S = BadgeGrade.SILVER; var G = BadgeGrade.GOLD;
+            var miss = new io.github.longshou.mcyukkuri.pet.ExamRecord[] {
+                new io.github.longshou.mcyukkuri.pet.ExamRecord(3, 1000, null, B, 0, null), new io.github.longshou.mcyukkuri.pet.ExamRecord(5, 2000, null, S, 0, null),
+                new io.github.longshou.mcyukkuri.pet.ExamRecord(4, 3000, null, S, 1, null), new io.github.longshou.mcyukkuri.pet.ExamRecord(5, 4000, null, S, 1, null),
+                new io.github.longshou.mcyukkuri.pet.ExamRecord(4, 5000, null, S, 1, null)};
+            check("three missed gold attempts at silver give Eternal Silver", io.github.longshou.mcyukkuri.pet.PetLife.title(List.of(miss), S) == io.github.longshou.mcyukkuri.pet.PetLife.TITLE_ETERNAL_SILVER, "title=" + io.github.longshou.mcyukkuri.pet.PetLife.title(List.of(miss), S));
+            check("two missed attempts are not enough", io.github.longshou.mcyukkuri.pet.PetLife.title(List.of(miss).subList(0, 4), S) == 0, "title=" + io.github.longshou.mcyukkuri.pet.PetLife.title(List.of(miss).subList(0, 4), S));
+            var hidden = List.of(new io.github.longshou.mcyukkuri.pet.ExamRecord(3, 0, null, B, 0, null), new io.github.longshou.mcyukkuri.pet.ExamRecord(4, 50000, null, G, 0, null));
+            check("bronze for two days then a judgment straight to gold gives Hidden Gold", io.github.longshou.mcyukkuri.pet.PetLife.title(hidden, G) == io.github.longshou.mcyukkuri.pet.PetLife.TITLE_HIDDEN_GOLD, "title=" + io.github.longshou.mcyukkuri.pet.PetLife.title(hidden, G));
+            return true;
+        });
+
         // 1. simple exam on an unowned tame reimu: registration plus bronze
         exam("simple exam", ExamSession.SIMPLE, true, () -> {
             var y = candidateNearExaminer(false);

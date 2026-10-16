@@ -14,7 +14,7 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224;
-    private final Button[] actions = new Button[22];
+    private final Button[] actions = new Button[25];
     public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 250; }
     @Override protected void init() {
         super.init();
@@ -25,8 +25,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             add(14 + i, 36, 52 + i * 34, 290, Component.empty());
         }
         for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
-            add(4 + i, 270, TOP + i * ROW + 4, 62, Component.translatable("shop.mcyukkuri.buy"));
-            add(8 + i, 270, TOP + i * ROW + 28, 62, Component.translatable("shop.mcyukkuri.locate"));
+            add(4 + i, 270, TOP + i * ROW + 3, 62, 16, Component.translatable("shop.mcyukkuri.buy"));
+            add(8 + i, 270, TOP + i * ROW + 20, 62, 16, Component.translatable("shop.mcyukkuri.locate"));
+            add(22 + i, 270, TOP + i * ROW + 37, 62, 16, Component.translatable("shop.mcyukkuri.about"));
         }
         add(12, 8, FOOT, 40, Component.literal("<")); add(13, 52, FOOT, 40, Component.literal(">"));
         add(20, 8, FOOT, 40, Component.literal("<")); add(21, 52, FOOT, 40, Component.literal(">"));
@@ -35,8 +36,9 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build());
     }
     private void press(int id) { if (minecraft.gameMode != null) minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id); }
-    private void add(int id, int x, int y, int w, Component title) {
-        actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, 20).build());
+    private void add(int id, int x, int y, int w, Component title) { add(id, x, y, w, 20, title); }
+    private void add(int id, int x, int y, int w, int h, Component title) {
+        actions[id] = addRenderableWidget(Button.builder(title, b -> press(id)).bounds(leftPos + x, topPos + y, w, h).build());
     }
     @Override protected void containerTick() {
         super.containerTick();
@@ -45,8 +47,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             actions[i].active = tab != i;
             if (i < ShopMenu.PAGE_ROWS) {
                 boolean has = menu.value(8 + i * 12) > 0, locked = (menu.value(10 + i * 12) & 16) != 0;
-                actions[4 + i].visible = actions[8 + i].visible = tab == ShopMenu.LIVE;
-                actions[4 + i].active = has && day && !locked; actions[8 + i].active = has;
+                actions[4 + i].visible = actions[8 + i].visible = actions[22 + i].visible = tab == ShopMenu.LIVE;
+                actions[4 + i].active = has && day && !locked; actions[8 + i].active = actions[22 + i].active = has;
                 if (has) actions[4 + i].setMessage(Component.translatable("shop.mcyukkuri.buy_price", menu.value(19 + i * 12)));
             }
             var stack = ShopMenu.goodsStack(menu.value(3), i); int price = ShopMenu.goodsPrice(menu.value(3), i);
@@ -144,6 +146,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             boolean any = false;
             for (int i = 0; i < 3; i++) if (menu.value(26 + i) > 0) { any = true; line(g, 172 + i * 12, INK, Component.literal("- ").append(Component.translatable("shop.mcyukkuri.advice." + menu.value(26 + i)))); }
             if (!any) line(g, 172, SOFT, Component.translatable("shop.mcyukkuri.advice.0"));
+            if (menu.value(36) > 0) g.drawString(font, Component.translatable("shop.mcyukkuri.title", Component.translatable("title.mcyukkuri.pet." + menu.value(36))), 130, 160, menu.value(36) == 2 ? GOOD : INK, false);
         }
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }

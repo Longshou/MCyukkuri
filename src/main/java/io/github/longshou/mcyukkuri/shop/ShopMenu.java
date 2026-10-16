@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.Ability;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.*;
@@ -34,12 +35,12 @@ import net.minecraft.world.phys.Vec3;
 
 /** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
  *  Button ids: 0-3 tab (live, goods, buyback, consult); 4-6 buy live row (PAGE_ROWS = 3 rows per page); 8-10 locate row; 12/13 prev/next page;
- *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject.
+ *  14-17 buy goods row; 18 sell subject; 19 exam forecast; 20/21 prev/next subject; 22-24 about (species notes and transport advice in chat) for live row.
  *  Data slots (shorts): 0 tab, 1 trades left, 2 daytime, 3 page, 4 page count, 5 shop stock count (Use stock only, capped at STOCK_CAPACITY), 6 subject count, 7 subject index+1;
  *  from 8, live rows of 12: species+1, stage, flags (grade | expired<<2 | display<<3 | locked<<4 | factory<<5), pedigree, 4 abilities, tags (a|b<<4, 15 none), health, nutrition, price;
  *  subject block (buyback/consult) from 8: species+1, stage, flags, pedigree, 4 abilities, health, nutrition, hygiene, stress, indulgence,
  *  bowl/toilet/sleep routines (21-23), unauthorized (24), weakest ability (25), advice x3 (26-28), price/offer (29), forecast bronze/silver/gold (30-32; 0 none, 1 high, 2 mid, 3 low),
- *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35). */
+ *  forecast bought (33), buyback refusal (34; 0 ok, 1 shop full, 2 no free pen), tags (35), title (36; 0 none, 1 eternal silver, 2 hidden gold). */
 public final class ShopMenu extends AbstractContainerMenu {
     public static final int PAGE_ROWS = 3, LIVE = 0, GOODS = 1, BUYBACK = 2, CONSULT = 3, CAPACITY = 16, STOCK_CAPACITY = 12;
     private record Quote(UUID id, int price) {}
@@ -200,6 +201,8 @@ public final class ShopMenu extends AbstractContainerMenu {
             put(16, Math.round(y.getHealth())); put(17, Math.round(y.life().nutrition())); put(18, Math.round(y.life().hygiene()));
             put(19, b.stress()); put(20, b.indulgence()); put(21, b.routine(0)); put(22, b.routine(1)); put(23, b.routine(2)); put(24, b.unauthorizedBirths()); put(25, weakest);
             List<Integer> advice = new ArrayList<>();
+            if (b.title() == PetLife.TITLE_ETERNAL_SILVER) advice.add(12);
+            if (b.title() == PetLife.TITLE_HIDDEN_GOLD) advice.add(13);
             if (b.stress() > 50) advice.add(1);
             if (b.indulgence() > 50) advice.add(2);
             if (b.routine(1) < 2) advice.add(3);
@@ -212,7 +215,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             put(29, tab == BUYBACK ? ShopPricing.buyback(y) : ShopPricing.price(y));
             var f = forecasts.get(y.getUUID()); put(33, f == null ? 0 : 1);
             if (f != null) for (int i = 0; i < 3; i++) put(30 + i, f[i]);
-            put(34, tab != BUYBACK ? 0 : shopCount >= STOCK_CAPACITY ? 1 : penOk ? 0 : 2); put(35, t[0] | t[1] << 4);
+            put(34, tab != BUYBACK ? 0 : shopCount >= STOCK_CAPACITY ? 1 : penOk ? 0 : 2); put(35, t[0] | t[1] << 4); put(36, b.title());
         }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
@@ -261,6 +264,17 @@ public final class ShopMenu extends AbstractContainerMenu {
             return false;
         });
         return true;
+    }
+    /** R2: the clerk explains the species and gives transport advice, as three chat lines. */
+    private boolean about(Player p, int row) {
+        if (row < 0 || row >= PAGE_ROWS) return false;
+        var animal = quoted(page * PAGE_ROWS + row); if (animal == null) return false;
+        var v = animal.getVariant(); String id = v.assetId(); String note = v.isPredator() ? "predator" : id;
+        var name = target.getDisplayName();
+        p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.head", Component.translatable("entity.mcyukkuri." + id))));
+        p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.note." + note)));
+        p.sendSystemMessage(Component.translatable("shop.mcyukkuri.about.say", name, Component.translatable("shop.mcyukkuri.about.transport")));
+        custom = true; return true;
     }
     private boolean buyGood(Player p, int row) {
         int price = goodsPrice(page, row); var stack = goodsStack(page, row);
@@ -311,7 +325,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         forecasts.put(a.getUUID(), result); io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "shop_consult"); return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
-        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 21 || target == null) return false;
+        if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 24 || target == null) return false;
         if (id < 4) { tab = id; page = 0; if (tab >= BUYBACK) rescan(); else evaluate(); broadcastChanges(); return true; }
         if (id == 12 || id == 13) { int n = pageCount(); page = (page + (id == 13 ? 1 : n - 1)) % n; broadcastChanges(); return true; }
         if (id == 20 || id == 21) {
@@ -320,7 +334,8 @@ public final class ShopMenu extends AbstractContainerMenu {
             evaluate(); broadcastChanges(); return true;
         }
         boolean ok; custom = false;
-        if (id >= 8 && id <= 11) ok = tab == LIVE && locate(p, id - 8);
+        if (id >= 22) ok = tab == LIVE && about(p, id - 22);
+        else if (id >= 8 && id <= 11) ok = tab == LIVE && locate(p, id - 8);
         else if (!p.level().isDay()) ok = false;
         else if (id <= 7) ok = tab == LIVE && buyLive(p, id - 4);
         else if (id <= 17) ok = tab == GOODS && buyGood(p, id - 14);
