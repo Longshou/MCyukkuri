@@ -77,39 +77,27 @@ def export_mount_group(specs,folder,previous):
     return out
 
 def language(zh):
+    """Badge keys this script owns (the pet-shop UI strings live in the lang files directly; the badge page, handbook name and wear states are kept in sync here)."""
     pairs={
-        'title':('金银章档案与考核','Badge records and assessment'),
-        'shop':('金银章考核 / 补发','Badge assessment / reissue'),
+        'title':('宠物手册','Pet Handbook'),
+        'shop':('考试 / 补发徽章','Exams / Badge reissue'),
         'subject':('对象：%s（%s/%s）','Subject: %s (%s/%s)'),
-        'no_subject':('请将自己的宠物油带到身边','Bring your pet yukkuri here'),
-        'certificate':('资格：%s · %s · %s','Grade: %s · %s · %s'),
-        'skills':('知识 %s / 理解 %s / 社会应对 %s（满分100）','Knowledge %s / Reasoning %s / Social %s (max 100)'),
-        'routines':('食盆进食 %s · 如厕 %s · 休息 %s · 等待课 %s/3','Bowl %s · Toilet %s · Rest %s · Wait lessons %s/3'),
-        'requirements':('银章：三项60，进食/如厕各2，休息1，等待课1','Silver: skills 60; bowl/toilet 2; rest 1; wait 1'),
-        'thresholds':('金章：三项80，进食/如厕各3，休息2，等待课2','Gold: skills 80; bowl/toilet 3; rest 2; wait 2'),
-        'session':('当前：%s %s · %s秒 · 冷却%s秒','Now: %s %s · %ss · Cooldown %ss'),
-        'result':('最近结果：%s（报名%s次）','Last result: %s (attempts %s)'),
-        'scores':('等待 / 生活知识 / 理解 / 社会 / 行动：%s %s %s %s %s','Wait / Living / Reason / Social / Move: %s %s %s %s %s'),
-        'examiner_hint':('白天报名；银章3、金章8绿宝石；中断不退费','Daytime: silver 3 / gold 8 emeralds; no refund on stop'),
-        'home_hint':('训练每次15秒；升级需到商店找店员报名','Practice: 15s per lesson. Visit a shop to take the exam.'),
-        'condition_hint':('保持近距离、安全、清洁；先满足饥饿、睡眠、如厕','Stay nearby, safe and clean; meet urgent needs first.'),
-        'unavailable':('无法办理：查看对象归属、距离、冷却、身体状态、营业时间和费用。','Unavailable: check owner, distance, cooldown, needs, hours and fee.'),
-        'token_refused':('这枚徽章不能佩戴：须属于该个体的有效编号、已有资格并已摘章，且饰物在身。','Cannot attach: the current token must belong to this certified, unbadged animal with its accessory.'),
-        'token_hint':('身份绑定圆牌；右键原个体佩戴。空白章、旧编号不能取得资格。','Bound ID badge; use on its animal. Blank or obsolete tokens do not grant a grade.'),
-        'book_hint':('右键油库里查看档案并训练；店员可办理考核。','Use on a yukkuri to review and train; shopkeepers examine.'),
-        'guide':('用金银章手册右键油库里。未登记且信任达到10的个体可登记为宠物油。用手册练知识、理解和社会应对；原有口令课练等待。食盆进食、厕所排泄和完整休息会积累生活记录。带自己的油库里到商店，点“金银章考核”。实测等待、生活知识、理解、社会和走到考位；银章每项60分，金章80分。失败或中断需等60秒。徽章附着于饰物，摘饰物保留资格；摘章后右键原个体重戴，丢失可花1绿宝石补发，旧编号随即失效。','Use the handbook on a yukkuri. Unowned animals with trust 10 can register as pets. Train knowledge, reasoning and social skills; existing command lessons teach waiting. Bowl meals, toilet use and completed rest build records. Bring your pet to a shop for a five-stage exam: wait, living knowledge, reasoning, social response and walking to a marker. Silver requires 60 per stage, gold 80. Failure/interruption has a 60s cooldown. Badges attach to accessories; removing either preserves certification. Reissue costs 1 emerald and invalidates the old serial.')
+        'no_subject':('请把你的油库里带到身边','Bring your yukkuri over'),
+        'unavailable':('现在办不了：它要是你的、在近处、没在忙。','Not possible right now: it must be yours, close by and not busy.'),
+        'token_refused':('别不上这枚徽章：它得是这只油库里的有效徽章，而且它要戴着饰物、当前没别着别的徽章。','Cannot pin this badge: it must be a valid badge for this yukkuri, which must be wearing its accessory with no other badge on.'),
+        'token_hint':('只属于一只油库里的圆牌；手持它右键原来的油库里即可别上。空白章和旧章无效。','A badge bound to one yukkuri. Hold it and right-click that yukkuri to pin it on. Blank or old badges do not count.'),
+        'book_hint':('右键你的油库里：查看档案、上课、办繁殖许可。考试请找考官。','Right-click your yukkuri: view its page, start lessons, grant breeding permits. Exams are with the Examiner.'),
+        'guide':('宠物手册：右键你的油库里，打开它的档案页，能看到能力、生活记录和考试成绩。','Pet Handbook: right-click your yukkuri to open its page with abilities, daily records and exam results.'),
+        'wear.0':('徽章已摘下','Badge off'),
+        'wear.1':('徽章佩戴中','Badge on'),
+        'wear.2':('饰物离身','No accessory'),
+        'action.5':('摘下徽章','Take off badge'),
+        'action.8':('切换对象','Next pet'),
+        'action.10':('佩戴手中徽章','Pin held badge'),
+        'help.5':('把徽章摘下来变成一枚徽章物品，等级保留；手持它右键这只油库里即可再别上。','Take the badge off as an item. Its grade is kept; hold it and right-click this yukkuri to pin it back.'),
+        'help.8':('在附近你的油库里之间切换。','Switch between your yukkuri nearby.'),
+        'help.10':('手里拿着这只油库里的徽章时可用；也可以关掉界面直接右键它。',"Works while you hold this yukkuri's badge. You can also close the screen and right-click it."),
     }
-    groups={
-        'source': [('无记录','No record'),('旧存档资格，未复核','Legacy, not re-examined'),('店内既有评级','Shop stock certificate'),('考核取得','Examined')],
-        'wear':[('已摘章','Detached'),('已佩戴','Worn'),('饰物离身','Accessory absent')],
-        'action':[('知识练习','Knowledge'),('理解练习','Reasoning'),('社会情境练习','Social practice'),('银章考试 · 3绿宝石','Silver exam · 3E'),('金章考试 · 8绿宝石','Gold exam · 8E'),('摘下徽章','Detach'),('补发 · 1绿宝石','Reissue · 1E'),('登记宠物油','Register pet'),('切换对象','Next subject'),('中止本次','Stop session'),('佩戴手中徽章','Attach held badge')],
-        'help':[('每次15秒完成后知识+10；只上口令课不能取得徽章。','15s for +10 knowledge; command lessons alone cannot certify.'),('练条件顺序与他者视角；每次15秒，理解+10。','Practice ordered conditions and perspectives: 15s, +10 reasoning.'),('练礼貌、求助和识别情境；每次15秒，社会应对+10。','Practice manners, help and recognition: 15s, +10 social.'),('五项实测均须60；失败或中断保留记录并冷却60秒。','All five stages need 60; failures persist with a 60s cooldown.'),('复杂条件与社会情境均须80；晋级失败保留银章。','Complex reasoning and social scenarios need 80; failure retains silver.'),('摘章生成绑定原个体编号的物品；资格保留。','Remove to receive the bound token; certification remains.'),('仅补发已取得的资格；旧编号立即失效。','Reissues existing certification only; old serial becomes invalid.'),('无主人、非店内库存，且信任达到10时可登记为宠物油。','Requires unowned, non-stock animal with trust at least 10.'),('对象列表在打开时固定，不会因排序变化错选。','The subject list is fixed when opened.'),('停止训练或考试；中断考试不退费。','Stop practice/exam; interrupted exams are not refunded.'),('手持这只个体的有效徽章；也可关界面后直接右键佩戴。','Hold this animal’s current token, or use it directly after closing.')],
-        'session':[('空闲','Idle'),('知识练习','Knowledge'),('理解练习','Reasoning'),('社会练习','Social'),('考核中','Exam')],
-        'stage':[('等待口令','Wait command'),('生活与基础知识','Living / knowledge'),('条件与他者视角','Conditions / perspective'),('礼貌求助与识别','Manners / help / recognition'),('走到指定考位','Walk to marker')]
-    }
-    for prefix, entries in groups.items():
-        for i,pair in enumerate(entries):pairs[prefix+'.'+str(i)]=pair
-    for i,pair in {0:('尚无结果','No result'),1:('合格，已佩章','Passed, badge attached'),2:('中断，未发证','Interrupted, no new certificate'),10:('等待不合格','Wait failed'),11:('生活记录或知识不足','Living records / knowledge insufficient'),12:('理解不足','Reasoning insufficient'),13:('社会应对不足','Social response insufficient'),14:('未到达考位','Did not reach marker')}.items():pairs['result.'+str(i)]=pair
     for key,pair in {
         'exam':('ゆ！要认真参加考试！','Yuh! Time for my exam!'),'practice':('ゆ！慢慢学会！','Yuh! Let’s learn!'),
         'learned':('这次记住了哟！','I remembered this time!'),'recall':('听懂了，要去那边！','I understand, go over there!'),
@@ -121,15 +109,9 @@ def language(zh):
         'boast':('看好啦！自己可是有徽章的！','Look! I have a badge!'),
         'polite':('有徽章也要好好打招呼哟。','A badge still means greeting politely.'),
         'peer':('你也有徽章呢，一起慢慢来吧！','You have a badge too! Take it easy together!')}.items():pairs['speech.'+key]=pair
-    questions={
-        1:[('题目：先等待口令，不能抢先行动。','Task: wait for the signal before moving.'),('题目：数清食物，说明进食、如厕和休息的规矩。','Task: count food and explain daily routines.'),('题目：先安静等待，再得到点心。顺序能倒过来吗？','Task: wait quietly, then a treat. Can these be reversed?'),('题目：打招呼；遇到困难时应向谁求助？','Task: greet others; who can help when you are stuck?'),('口令：请走到绿色粒子标出的考位。','Signal: walk to the green particle marker.')],
-        2:[('题目：听完整口令，在允许之前保持等候。','Task: hear all conditions; wait until permitted.'),('题目：规划三只油的用餐次序，并说明生活规矩。','Task: plan meals for three yukkuri and explain routines.'),('题目：自己闭眼后，对方还能看见自己吗？','Task: can others still see you when you close your eyes?'),('题目：同伴掉了饰物，如何判断身份并提供帮助？','Task: identify and help a companion without its accessory.'),('口令：确认路线安全，再走到绿色考位。','Signal: check the route, then walk to the green marker.')]
-    }
-    for tier,entries in questions.items():
-        for stage,pair in enumerate(entries):pairs[f'question.{tier}.{stage}']=pair
     result={'badge.mcyukkuri.'+k:v[0 if zh else 1] for k,v in pairs.items()}
-    result['item.mcyukkuri.badge_handbook']='金银章手册' if zh else 'Badge Handbook'
-    result['human.mcyukkuri.help.16']='带自己的宠物油到店员身边办理考核、查看档案或补发。' if zh else 'Bring your pet for assessment, records or badge reissue.'
+    result['item.mcyukkuri.badge_handbook']='宠物手册' if zh else 'Pet Handbook'
+    result['human.mcyukkuri.help.16']='带上你的宠物去考官那里参加考试、查看记录或补发徽章。' if zh else 'Bring your pet to the Examiner for exams, records or a badge reissue.'
     return result
 
 def handbook_png():

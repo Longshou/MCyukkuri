@@ -40,7 +40,7 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
     }
     private void line(GuiGraphics g, int y, int color, Component text) { g.drawString(font, text, 16, y, color, false); }
     private static Component grade(int id) { return GuiKit.gradeName(id); }
-    private static String score(int v) { return v < 0 ? "--" : Integer.toString(v); }
+    private static String score(int v) { return v < 0 ? "-" : Integer.toString(v); }
     @Override protected void renderLabels(GuiGraphics g, int mx, int my) {
         if (menu.value(0) == 0) { line(g, 40, SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject")); line(g, 54, SOFT, Component.translatable("exam.mcyukkuri.ui.no_subject_hint")); }
         else {
@@ -51,7 +51,12 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
             chip(g, 16, 32, menu.value(5));
             g.drawString(font, Component.translatable("exam.mcyukkuri.ui.grade", grade(menu.value(5)), menu.value(5) == 0 ? Component.empty() : state), 16 + CHIP_WIDTH, 32, INK, false);
             line(g, 42, INK, Component.translatable("shop.mcyukkuri.abilities", menu.value(8), menu.value(9), menu.value(10), menu.value(11)));
-            line(g, 52, SOFT, Component.translatable("exam.mcyukkuri.ui.vitals", menu.value(31), menu.value(13), menu.value(25), menu.value(12)));
+            var ped = Component.translatable("badge.mcyukkuri.profile.pedigree");
+            g.drawString(font, ped, 16, 52, SOFT, false); int px = 16 + font.width(ped) + 4;
+            stars(g, px, 51, menu.value(31));
+            var vitals = Component.translatable("exam.mcyukkuri.ui.vitals", level(menu.value(13)));
+            if (menu.value(25) > 0) vitals.append("  ").append(Component.translatable("badge.mcyukkuri.profile.unauthorized", menu.value(25)));
+            g.drawString(font, vitals, px + STARS_WIDTH + 8, 52, SOFT, false);
             int mask = menu.value(14);
             if ((mask & 16) == 0) line(g, 64, WARN, Component.translatable("exam.mcyukkuri.ui.no_hall"));
             else {
@@ -71,12 +76,16 @@ public final class ExamScreen extends AbstractContainerScreen<ExamMenu> {
         for (int i = 0; i < 5; i++) {
             int code = menu.value(26 + i), type = i + 3, fee = ExamSession.fee(type);
             if (menu.value(0) == 0) continue;
-            Component text = code == 0 ? Component.translatable("exam.mcyukkuri.ui.fee", fee).append("  ").append(Component.translatable("exam.mcyukkuri.hint." + type))
+            Component text = code == 0 ? (fee == 0 ? Component.translatable("exam.mcyukkuri.ui.free") : Component.translatable("exam.mcyukkuri.ui.fee", fee)).append("  ").append(Component.translatable("exam.mcyukkuri.hint." + type))
                     : Component.translatable("exam.mcyukkuri.refuse." + ExamSession.REASONS.get(Math.min(code, ExamSession.REASONS.size() - 1)));
             var lines = font.split(text, 198); int shown = Math.min(2, lines.size()), top = 111 + i * 22 + (shown == 1 ? 7 : 2);
             for (int n = 0; n < shown; n++) g.drawString(font, lines.get(n), 128, top + n * font.lineHeight, code == 0 ? SOFT : WARN, false);
         }
         g.drawString(font, Component.translatable("exam.mcyukkuri.ui.emeralds", menu.value(15)), 16, 230, SOFT, false);
     }
-    @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }
+    @Override public void render(GuiGraphics g, int x, int y, float partial) {
+        super.render(g, x, y, partial); renderTooltip(g, x, y);
+        if (menu.value(0) > 0 && over(x, y, leftPos + 16 + font.width(Component.translatable("badge.mcyukkuri.profile.pedigree")) + 4, topPos + 51, STARS_WIDTH, 9))
+            g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), x, y);
+    }
 }

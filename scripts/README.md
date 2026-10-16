@@ -56,6 +56,7 @@
 | `run_badge_checks.py` | 在冻结构建和独立临时世界中验证金银章训练、考试、佩戴、保存与社会反应 | JDK 21；报告写 `.local/badges/gametest-clean/`；缺少实际报告时判失败 |
 | `badge_checks.init.gradle` | 固定徽章任务所有 source set 的实际编译输出到 `.local/badges/build` | 配合独立 `--project-cache-dir` 与 `--no-configuration-cache`；详见 `docs/BADGES.md` |
 | `validate_entity_assets.py` | 读取九种运行模型，检查来源指纹、骨架、共享顶点绑定、19 个动作时长、贴图及生成蛋资源 | 只读检查，可按任务需要在本机或 CI 运行 |
+| `check_ui_lang_keys.py` | 静态扫描考试题目类、店主／考官／饲养员／手册界面可能拼出的语言键，核对三语都有；同时检查术语表禁用词与英文 “E” 代指绿宝石 | 只读检查，不启动游戏 |
 | `export_living_assets.py` | 从生活设施配方及圆润选用网格导出当前归属的方块状态、材质与嘴部表现数据，更新来源指纹；`--check` 检查现有导出 | 周边模型交给周边导出器；默认写资源与来源登记，检查模式只读，不启动游戏 |
 | `export_family_assets.py` | 从生命周期和家庭配方导出共用茎形、挂接与成长参数；`--check` 核对指纹 | 只写游戏适配资源，不覆盖角色标准 |
 | `export_house_assets.py` | 从家油照料配方与遗体物品渲染配置选用源导出当前归属的方块状态、物品、合成和来源；`--check` 核对导出 | 默认写资源，检查模式只读 |

@@ -43,7 +43,7 @@ public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
         for (int i = 0; i < 4; i++) {
             int k = 12 + i * 4; if (menu.value(k) == 0) continue;
             int f = menu.value(k + 1);
-            var line = GuiKit.gradeName(f & 3).append(" ").append(species(menu.value(k))).append(" " + menu.value(k + 2));
+            var line = GuiKit.gradeName(f & 3).append(" ").append(species(menu.value(k)));
             if ((f & 8) != 0) line.append(Component.translatable("shop.mcyukkuri.keeper.occupied"));
             chip(g, 14, 43 + i * 12, f & 3);
             g.drawString(font, line, 14 + CHIP_WIDTH, 44 + i * 12, menu.value(k + 3) == 1 ? INK : SOFT, false);
@@ -51,9 +51,17 @@ public final class KeeperScreen extends AbstractContainerScreen<KeeperMenu> {
         }
         g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.omiai"), 28, 100, INK, false);
         if (menu.value(7) == 0) g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.no_subject"), 14, 118, SOFT, false);
-        else g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.subject", species(menu.value(28)), menu.value(29), menu.value(7), menu.value(6)), 14, 118, INK, false);
+        else {
+            g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.subject", species(menu.value(28)), menu.value(7), menu.value(6)), 14, 118, INK, false);
+            stars(g, 292 - 6 - STARS_WIDTH, 117, menu.value(29));
+        }
         int st = menu.value(9);
         g.drawString(font, Component.translatable("shop.mcyukkuri.keeper.state." + st, menu.value(10)), 14, 130, st == 0 ? INK : WARN, false);
     }
-    @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); }
+    @Override public void render(GuiGraphics g, int x, int y, float partial) {
+        super.render(g, x, y, partial); renderTooltip(g, x, y);
+        boolean hit = menu.value(7) != 0 && over(x, y, leftPos + 292 - 6 - STARS_WIDTH, topPos + 117, STARS_WIDTH, 9);
+        for (int i = 0; i < 4 && !hit; i++) hit = menu.value(12 + i * 4) != 0 && over(x, y, leftPos + 292 - 6 - STARS_WIDTH, topPos + 43 + i * 12, STARS_WIDTH, 9);
+        if (hit) g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), x, y);
+    }
 }
