@@ -18,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /** Optional remote fixture: inventory ownership across interruptions, reloads, completed care and capsize. */
@@ -85,6 +86,10 @@ public final class AquaticFamilyGameTests {
             if(hat==null||parent.isRemoved()||child.isRemoved()||sibling.isRemoved())return;
             boolean bedtime=careStage[0]==3;
             lastTend[0]=careStage[0]>0&&care.tend(hat,bedtime);
+            if (careStage[0] == 4 && care.meals() == 2 && child.life().mealTicks() > 0) {
+                helper.assertTrue(care.active() && hat.careSeatReady(child), "served child retains real parent contact until swallowing finishes");
+                helper.assertTrue(care.response(child).equals("boat_eat"), "a swallowing child stops begging for its already-delivered serving");
+            }
             if(careStage[0]==1&&care.activity().equals("family_chew")&&care.serving().is(Items.APPLE)
                     &&child.life().mouth().isEmpty())chewed[0]=true;
             if(careStage[0]==1&&care.meals()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(child.life().mouth()))firstMash[0]=true;
@@ -188,6 +193,94 @@ public final class AquaticFamilyGameTests {
                         .stream().mapToInt(i->i.getItem().getCount()).sum();
                 helper.assertTrue(apples==1&&care.serving().isEmpty()&&!care.active(),"capsize drops the unserved item exactly once");
                 helper.assertTrue(parent.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA,"family care never changes aquatic identity");
+            }).thenSucceed();
+    }
+    /** The whole contract runs through real rider movement, contact, swallowing, brim release and return. */
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1000,batch="aquatic_family_contact")
+    public static void supportedCareAndFirstToiletReturn(GameTestHelper helper) {
+        var level = helper.getLevel(); long day = level.getDayTime(); int x = X + 64, chunk = x / 16;
+        boolean forced = level.getForcedChunks().contains(net.minecraft.world.level.ChunkPos.asLong(chunk, 0));
+        Map<BlockPos,BlockState> terrain = new HashMap<>();
+        for (var p : BlockPos.betweenClosed(x,64,0,x+15,71,15)) terrain.put(p.immutable(),level.getBlockState(p));
+        boolean[] cleaned = {false};
+        Runnable cleanup = () -> {
+            if (cleaned[0]) return; cleaned[0] = true;
+            level.getEntitiesOfClass(Entity.class,new AABB(x,60,0,x+16,76,16),
+                    e -> e instanceof YukkuriEntity || e instanceof HatBoatEntity || e instanceof ItemEntity).forEach(Entity::discard);
+            terrain.forEach(level::setBlockAndUpdate); level.setDayTime(day); GameTestChunks.setForced(level,chunk,0,forced);
+        };
+        helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
+            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
+            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
+        });
+        GameTestChunks.setForced(level,chunk,0,true); level.setDayTime(6000);
+        for (var p : BlockPos.betweenClosed(x,64,0,x+15,71,15))
+            level.setBlockAndUpdate(p,p.getY()<=65 ? Blocks.STONE.defaultBlockState() : Blocks.AIR.defaultBlockState());
+        for (var p : BlockPos.betweenClosed(x+2,65,2,x+13,65,13)) {
+            level.setBlockAndUpdate(p,Blocks.WATER.defaultBlockState()); level.setBlockAndUpdate(p.above(5),Blocks.STONE.defaultBlockState());
+        }
+        var parent = ModEntities.MARISA.get().create(level); var child = ModEntities.MARISA.get().create(level);
+        for (var y : java.util.List.of(parent,child)) {
+            WaddleGameTests.clearGoals(y); y.setPersistenceRequired();
+            y.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA,SubspeciesLife.Congenital.NORMAL);
+        }
+        var kin = child.family().save(); kin.putBoolean("Initialized",true); kin.putString("Stage","BABY");
+        kin.putFloat("Scale",.32f); kin.putUUID("Mother",parent.getUUID()); child.family().load(kin);
+        var infant = child.childhood().save(); infant.putBoolean("Newborn",true); infant.putBoolean("Landed",true);
+        infant.putBoolean("FirstToiletDone",false); child.childhood().load(infant);
+        parent.moveTo(x+4.5,66,7.5,0,0); child.moveTo(x+4.5,66,7.5,0,0);
+        level.addFreshEntity(parent); level.addFreshEntity(child); nutrition(parent,85); nutrition(child,20);
+        var needs = child.life().save(); needs.putFloat("Bladder",20); child.life().load(needs);
+        var boat = HatBoatEntity.createFor(parent,new BlockPos(x+6,65,7));
+        helper.assertTrue(boat != null && boat.boardYoung(child),"care pair boards the real hat");
+        boat.cargo().store(new ItemStack(Items.APPLE),1,false);
+        var care = parent.aquaticLife().care();
+        boolean[] started = {false}, childWalked = {false}, parentWalked = {false}, swallowed = {false}, rearContact = {false}, brimReached = {false};
+        int[] meals = {0}; Vec3[] original = {null};
+        helper.onEachTick(() -> {
+            if (cleaned[0] || !started[0]) return;
+            care.tend(boat,false);
+            for (var rider : java.util.List.of(parent,child)) if (boat.walkingInHat(rider)) {
+                if (rider == parent) parentWalked[0] = true; else childWalked[0] = true;
+                Vec3 local = boat.toLocal(rider.position());
+                double radius = HatVessel.radius(rider.getBbWidth()) / boat.unit();
+                double support = HatVessel.footprint(boat.mode(),local.x,local.z,Math.min(1.05,Math.max(.25,radius*.3)));
+                helper.assertTrue(Double.isFinite(HatVessel.surface(boat.mode(),local.x,local.z)) && local.y >= support-.03,
+                        "each walking rider remains over the real supported hat surface");
+            }
+            if (care.meals() > meals[0]) {
+                helper.assertTrue(boat.careSeatReady(child) && io.github.longshou.mcyukkuri.family.FamilyFeedingContact.mouthsMeet(parent,child),
+                        "ownership changes only after both real service positions and mouths meet");
+                meals[0] = care.meals();
+            }
+            if (care.meals() == 1 && child.life().mealTicks() > 0)
+                helper.assertTrue(care.active() && boat.careSeatReady(child),"parent retains its service seat throughout actual swallowing");
+            if (care.meals() == 1 && child.life().mealTicks() == 0) swallowed[0] = true;
+            if (care.activity().equals("first_toilet_assist") && care.contactProgress() > 0) {
+                rearContact[0] = true;
+                if (care.contactProgress() < io.github.longshou.mcyukkuri.family.ChildhoodLife.FIRST_TOILET_CONTACT_TICKS)
+                    helper.assertTrue(io.github.longshou.mcyukkuri.family.ChildhoodLife.toiletContact(parent,child),"rear-care progress requires actual rear contact");
+            }
+            if (!child.childhood().firstToiletDone() && boat.toiletSeatReady(child)) {
+                brimReached[0] = true;
+                helper.assertTrue(rearContact[0] && boat.toiletAssistanceValidated(child) && boat.toiletDropPosition(child) != null,
+                        "first waste release follows rear care and a supported brim over open water");
+                helper.assertTrue(parent.distanceTo(child) < 1,"parent escorts the child to the brim");
+            }
+            if (!child.childhood().firstToiletDone())
+                helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16)).isEmpty(),"no waste appears before the real first-toilet completion");
+        });
+        helper.startSequence().thenIdle(3).thenExecute(() -> { original[0] = boat.toLocal(child.position()); started[0] = true; })
+            .thenWaitUntil(() -> helper.assertTrue(child.childhood().firstToiletDone(),"hungry newborn is fed before its assisted first toilet finishes"))
+            .thenWaitUntil(() -> helper.assertTrue(!care.active() && !boat.changingSeat(child)
+                    && boat.toLocal(child.position()).distanceTo(original[0]) < .1
+                    && parent.position().distanceTo(boat.toWorld(boat.ownerSeat(parent))) < .02,"both riders finish actual return paths"))
+            .thenExecute(() -> {
+                helper.assertTrue(childWalked[0] && parentWalked[0] && swallowed[0] && rearContact[0] && brimReached[0],"every visible care phase occurred on the server");
+                helper.assertTrue(care.meals() == 1 && boat.cargo().count() == 0 && care.serving().isEmpty(),"one serving is consumed once across the full contract");
+                helper.assertTrue(level.getEntitiesOfClass(ItemEntity.class,new AABB(x,64,0,x+16,75,16)).size() == 1,"first toilet creates exactly one physical waste item");
             }).thenSucceed();
     }
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=80,batch="aquatic_family")

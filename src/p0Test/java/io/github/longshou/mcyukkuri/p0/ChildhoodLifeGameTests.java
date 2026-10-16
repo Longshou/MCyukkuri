@@ -59,7 +59,7 @@ public final class ChildhoodLifeGameTests {
                 .stream().mapToInt(item -> item.getItem().getCount()).sum();
     }
 
-    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 820, batch = "childhood")
+    @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 1600, batch = "childhood")
     public static void parentAssistsFirstToiletThenMovement(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos origin = new BlockPos(X, 65, 8);
@@ -74,6 +74,9 @@ public final class ChildhoodLifeGameTests {
             level.setBlockAndUpdate(p, Blocks.STONE.defaultBlockState());
         }
         boolean[] cleaned = {false};
+        YukkuriEntity[] parent = {null}, child = {null};
+        String[] phase = {"spawn"};
+        var trace = new java.util.ArrayList<Map<String, Object>>();
         Runnable cleanup = () -> {
             if (cleaned[0]) return;
             cleaned[0] = true;
@@ -85,16 +88,25 @@ public final class ChildhoodLifeGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) { }
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) {
+                if (parent[0] != null && child[0] != null) {
+                    trace.add(practiceDebug(level, phase[0], parent[0], child[0]));
+                    P0Control.write("childhood-ground-care-trace", trace);
+                }
+                cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo, net.minecraft.gametest.framework.GameTestInfo newInfo, net.minecraft.gametest.framework.GameTestRunner runner) { }
         });
         for (int chunk = firstChunk; chunk <= lastChunk; chunk++) GameTestChunks.setForced(level, chunk, 0, true);
-        YukkuriEntity[] parent = {null}, child = {null};
         Vec3[] parentStart = {Vec3.ZERO};
         AtomicBoolean assistingAtRear = new AtomicBoolean(), observePractice = new AtomicBoolean();
         AtomicBoolean airborne = new AtomicBoolean(), landedAfterAirborne = new AtomicBoolean();
         helper.onEachTick(() -> {
             if (parent[0] == null || child[0] == null || !parent[0].isAlive() || !child[0].isAlive()) return;
+            if (level.getGameTime() % 40 == 0) {
+                trace.add(practiceDebug(level, phase[0], parent[0], child[0]));
+                if (trace.size() > 40) trace.remove(0);
+            }
             if (parent[0].childhood().activity().equals("first_toilet_assist") && child[0].getUUID().equals(parent[0].childhood().careTargetId())) {
                 Vec3 offset = parent[0].position().subtract(child[0].position()).multiply(1, 0, 1);
                 Vec3 rear = child[0].getLookAngle().multiply(-1, 0, -1).normalize();
@@ -121,25 +133,42 @@ public final class ChildhoodLifeGameTests {
                     "only an actual new birth opts into the current first-toilet and movement contract");
             vitals(parent[0], 0); vitals(child[0], 10); parentStart[0] = parent[0].position();
             helper.assertTrue(level.addFreshEntity(parent[0]) && level.addFreshEntity(child[0]), "actual parent and newborn join the level");
+            phase[0] = "settle";
         }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().landed() && child[0].childhood().needsAssistedFirstToilet(),
                 "settled newborn with a real urge asks for parent help before any ordinary toilet"))
+        .thenExecute(() -> phase[0] = "rear_approach")
         .thenWaitUntil(() -> helper.assertTrue(assistingAtRear.get(),
                 "the parent walks to the child's rear and holds actual close contact before the first stool"))
+        .thenExecute(() -> phase[0] = "rear_contact")
         .thenWaitUntil(() -> helper.assertTrue(child[0].childhood().firstToiletDone(), "twenty uninterrupted rear-care ticks complete the first toilet"))
         .thenExecute(() -> {
             helper.assertTrue(waste(level, area) == 1 && child[0].life().bladder() == 0,
                     "completed assistance creates exactly one real waste and clears the current urge");
             CompoundTag saved = child[0].childhood().save(); child[0].childhood().load(saved);
             vitals(child[0], 10);
+            phase[0] = "saved_first_toilet";
         }).thenIdle(40).thenExecute(() -> {
             helper.assertTrue(child[0].childhood().firstToiletDone() && waste(level, area) == 1,
                     "saved completion prevents a second assisted-first-toilet reward");
-            vitals(child[0], 0); observePractice.set(true);
+            vitals(child[0], 0); observePractice.set(true); phase[0] = "movement_practice";
         }).thenWaitUntil(() -> helper.assertTrue(child[0].childhood().canJump() && airborne.get() && landedAfterAirborne.get(),
                 "ordinary newborn gains jumping only after real crawling and a complete lift-off then landing; state="
                         + child[0].childhood().save() + ", activity=" + child[0].getBehaviorId()
                         + ", position=" + child[0].position() + ", energy=" + child[0].life().energy()))
         .thenSucceed();
+    }
+
+    private static Map<String, Object> practiceDebug(ServerLevel level, String phase, YukkuriEntity parent, YukkuriEntity child) {
+        var state = new java.util.LinkedHashMap<String, Object>();
+        state.put("gameTime", level.getGameTime()); state.put("phase", phase);
+        state.put("parent", parent.saveWithoutId(new CompoundTag()).toString());
+        state.put("child", child.saveWithoutId(new CompoundTag()).toString());
+        state.put("parentActivity", parent.childhood().activity()); state.put("childActivity", child.childhood().activity());
+        state.put("parentBehavior", parent.getBehaviorId()); state.put("childBehavior", child.getBehaviorId());
+        state.put("parentApproach", parent.careApproach().debug().toString()); state.put("childApproach", child.careApproach().debug().toString());
+        state.put("rearContact", io.github.longshou.mcyukkuri.family.ChildhoodLife.toiletContact(parent, child));
+        state.put("careProgress", parent.childhood().careProgress());
+        return state;
     }
 
     @GameTest(templateNamespace = P0Mod.ID, template = "empty", timeoutTicks = 720, batch = "childhood")

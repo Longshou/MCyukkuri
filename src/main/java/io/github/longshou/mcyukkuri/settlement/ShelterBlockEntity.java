@@ -40,6 +40,32 @@ public final class ShelterBlockEntity extends BlockEntity {
     private final Map<UUID,Integer> residents=new LinkedHashMap<>();
     /** Residents that have spent real bedding to make a small, personal nest in this natural burrow. */
     private final Set<UUID> privateNests=new LinkedHashSet<>();
+    private static final class NestProject {
+        final java.util.List<ItemStack> materials=new ArrayList<>();
+        int work;
+    }
+    private final Map<UUID,NestProject> nestProjects=new LinkedHashMap<>();
+    public record NestConstruction(BlockPos bed,int portions,int work) {}
+    public java.util.List<NestConstruction> nestConstructions(){
+        return nestProjects.entrySet().stream().filter(e->owns(e.getKey()))
+                .map(e->new NestConstruction(bed(e.getKey()),e.getValue().materials.size(),e.getValue().work)).toList();
+    }
+    public int nestPortions(UUID id){var p=nestProjects.get(id);return p==null?0:p.materials.size();}
+    public int nestWork(UUID id){var p=nestProjects.get(id);return p==null?0:p.work;}
+    public boolean layNestPortion(YukkuriEntity entity,ItemStack portion){
+        if(level==null||level.isClientSide||!owns(entity.getUUID())||privateNest(entity.getUUID())||!usable(entity)
+                ||portion.getCount()!=1||!bedding(portion)||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16)return false;
+        var project=nestProjects.computeIfAbsent(entity.getUUID(),id->new NestProject());
+        if(project.materials.size()>=2)return false;
+        project.materials.add(portion.copy());changed();return true;
+    }
+    public boolean workOnNest(YukkuriEntity entity){
+        var project=nestProjects.get(entity.getUUID());
+        if(level==null||level.isClientSide||project==null||!owns(entity.getUUID())||!usable(entity)
+                ||entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(bed(entity.getUUID())))>.16||project.work>=project.materials.size()*60)return false;
+        project.work++;setChanged();if(project.work%10==0)changed();
+        return project.work>=120&&completePrivateNest(entity);
+    }
     private int condition=100, moisture, lining, dirt, ticks;
     private boolean dismantling;
     private int displayFood;
@@ -113,12 +139,20 @@ public final class ShelterBlockEntity extends BlockEntity {
     /** The caller has already verified the two real bedding portions at this resident's own usable bed. */
     public boolean completePrivateNest(YukkuriEntity entity) {
         if(level==null||level.isClientSide||kind()!=ShelterBlock.Kind.BURROW||!owns(entity.getUUID())||privateNest(entity.getUUID())||!usable(entity))return false;
-        privateNests.add(entity.getUUID());changed();return true;
+        var project=nestProjects.get(entity.getUUID());
+        if(project==null||project.materials.size()!=2||project.work<120)return false;
+        nestProjects.remove(entity.getUUID());privateNests.add(entity.getUUID());changed();return true;
     }
     public void release(UUID id) {
+        dropNestProject(id);
         boolean released=residents.remove(id)!=null;
         boolean removedPrivate=privateNests.remove(id);
         if(released||removedPrivate)changed();
+    }
+    private void dropNestProject(UUID id){
+        var project=nestProjects.remove(id);
+        if(project!=null&&level!=null&&!level.isClientSide)for(var material:project.materials)
+            Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,material.copy());
     }
     public boolean complete() {
         if(level==null)return false;
@@ -247,7 +281,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(kind()==ShelterBlock.Kind.BURROW&&naturalBeds.isEmpty()){dismantle();return;}
         var families=FamilyData.get((ServerLevel)level);
         if(residents.keySet().removeIf(id->{var p=families.person(id);return p!=null&&(p.status==FamilyData.Status.DEAD||p.status==FamilyData.Status.REMOVED);})) {
-            privateNests.retainAll(residents.keySet());changed();
+            privateNests.retainAll(residents.keySet());
+            for(var id:java.util.List.copyOf(nestProjects.keySet()))if(!owns(id))dropNestProject(id);
+            changed();
         }
         if(!complete()) {
             if(ShelterPlacement.positions(worldPosition,kind()).stream().allMatch(level::hasChunkAt))dismantle();
@@ -287,12 +323,13 @@ public final class ShelterBlockEntity extends BlockEntity {
     private void clearStructure(boolean drops) {
         if(dismantling||level==null)return;dismantling=true;
         if(drops){
+            for(var id:java.util.List.copyOf(nestProjects.keySet()))dropNestProject(id);
             for(var stack:stock)if(!stack.isEmpty())Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,stack.copy());
             Containers.dropItemStack(level,worldPosition.getX()+.5,worldPosition.getY(),worldPosition.getZ()+.5,
                     new ItemStack(kind()==ShelterBlock.Kind.CARDBOARD?Items.PAPER:Items.STICK,kind()==ShelterBlock.Kind.CARDBOARD?(condition>0?3:1):branches));
         }
         stock.clear();
-        residents.clear();privateNests.clear();
+        residents.clear();privateNests.clear();nestProjects.clear();
         var positions=new ArrayList<>(ShelterPlacement.positions(worldPosition,kind()));positions.remove(worldPosition);positions.add(worldPosition);
         for(var pos:positions)if(level.hasChunkAt(pos)){
             var state=level.getBlockState(pos);
@@ -303,20 +340,34 @@ public final class ShelterBlockEntity extends BlockEntity {
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.saveAdditional(tag,registries);tag.putInt("Version",2);saveSite(tag);ContainerHelper.saveAllItems(tag,stock,registries);
         tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);
-        saveResidents(tag);
+        saveResidents(tag,registries);
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries) {
         super.loadAdditional(tag,registries);loadSite(tag);stock.clear();ContainerHelper.loadAllItems(tag,stock,registries);
         condition=Math.clamp(tag.getInt("Condition"),0,100);moisture=Math.clamp(tag.getInt("Moisture"),0,100);lining=Math.clamp(tag.getInt("Lining"),0,4);dirt=Math.clamp(tag.getInt("Dirt"),0,100);ticks=Math.max(0,tag.getInt("Ticks"));
-        loadResidents(tag);
+        loadResidents(tag,registries);
     }
-    private void saveResidents(CompoundTag tag) {
+    private void saveResidents(CompoundTag tag,HolderLookup.Provider registries) {
         ListTag residentsTag=new ListTag();residents.forEach((id,slot)->{var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Bed",slot);residentsTag.add(entry);});tag.put("Residents",residentsTag);
         ListTag privateTag=new ListTag();privateNests.forEach(id->{var entry=new CompoundTag();entry.putUUID("Id",id);privateTag.add(entry);});tag.put("PrivateNests",privateTag);
+        ListTag projects=new ListTag();nestProjects.forEach((id,project)->{
+            var entry=new CompoundTag();entry.putUUID("Id",id);entry.putInt("Work",project.work);
+            var materials=new ListTag();for(var material:project.materials)materials.add(material.save(registries));
+            entry.put("Materials",materials);projects.add(entry);
+        });tag.put("NestProjects",projects);
     }
-    private void loadResidents(CompoundTag tag) {
+    private void loadResidents(CompoundTag tag,HolderLookup.Provider registries) {
         residents.clear();for(Tag raw:tag.getList("Residents",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;int slot=entry.getInt("Bed");if(entry.hasUUID("Id")&&slot>=0&&slot<capacity()&&!residents.containsValue(slot))residents.put(entry.getUUID("Id"),slot);}
         privateNests.clear();for(Tag raw:tag.getList("PrivateNests",Tag.TAG_COMPOUND)){var entry=(CompoundTag)raw;if(entry.hasUUID("Id")&&residents.containsKey(entry.getUUID("Id")))privateNests.add(entry.getUUID("Id"));}
+        nestProjects.clear();for(Tag raw:tag.getList("NestProjects",Tag.TAG_COMPOUND)){
+            var entry=(CompoundTag)raw;if(!entry.hasUUID("Id")||!owns(entry.getUUID("Id"))||privateNest(entry.getUUID("Id")))continue;
+            var project=new NestProject();
+            for(var material:entry.getList("Materials",Tag.TAG_COMPOUND)){
+                var stack=ItemStack.parseOptional(registries,(CompoundTag)material);
+                if(project.materials.size()<2&&!stack.isEmpty()&&bedding(stack))project.materials.add(stack.copyWithCount(1));
+            }
+            if(!project.materials.isEmpty()){project.work=Math.clamp(entry.getInt("Work"),0,project.materials.size()*60);nestProjects.put(entry.getUUID("Id"),project);}
+        }
     }
     private void saveSite(CompoundTag tag) {
         tag.putLongArray("NaturalBeds",naturalBeds.stream().mapToLong(BlockPos::asLong).toArray());tag.putInt("Branches",branches);
@@ -331,8 +382,8 @@ public final class ShelterBlockEntity extends BlockEntity {
                 ||naturalEntrance.getY()<worldPosition.getY()||naturalEntrance.getY()>worldPosition.getY()+1))naturalEntrance=null;
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Food",food());return tag;
+        var tag=super.getUpdateTag(registries);saveSite(tag);saveResidents(tag,registries);tag.putInt("Condition",condition);tag.putInt("Moisture",moisture);tag.putInt("Lining",lining);tag.putInt("Dirt",dirt);tag.putInt("Food",food());return tag;
     }
-    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");displayFood=tag.getInt("Food"); }
+    @Override public void handleUpdateTag(CompoundTag tag,HolderLookup.Provider registries) { loadSite(tag);loadResidents(tag,registries);condition=tag.getInt("Condition");moisture=tag.getInt("Moisture");lining=tag.getInt("Lining");dirt=tag.getInt("Dirt");displayFood=tag.getInt("Food"); }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
 }

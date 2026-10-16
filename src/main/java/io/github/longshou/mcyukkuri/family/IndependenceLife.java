@@ -46,12 +46,13 @@ public final class IndependenceLife extends Goal {
     private Direction facing = Direction.SOUTH;
     private ItemStack carrying = ItemStack.EMPTY;
     private ItemEntity pickup;
+    private final io.github.longshou.mcyukkuri.settlement.PlantBedding plants;
     private BlockPos target;
     private Task task = Task.NONE;
     private int wait = CHECK_INTERVAL, elapsed, work, projectTicks, visitWait = VISIT_INTERVAL, visits, rainLosses, loadGrace;
     private boolean running, farewell, returning;
 
-    public IndependenceLife(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+    public IndependenceLife(YukkuriEntity entity) { this.entity = entity;plants=new io.github.longshou.mcyukkuri.settlement.PlantBedding(entity); setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public boolean active() { return running && task != Task.NONE; }
     public boolean building() { return site != null; }
@@ -65,7 +66,8 @@ public final class IndependenceLife extends Goal {
     public String activity() {
         return switch (task) {
             case FAREWELL -> "independence_farewell";
-            case PICKUP, HARVEST -> "independence_gather";
+            case PICKUP -> "independence_gather";
+            case HARVEST -> plants.harvesting()?"nest_harvest":"independence_gather";
             case DELIVER -> "independence_carry";
             case WORK -> "independence_build";
             case VISIT, GREET -> "independence_visit";
@@ -232,10 +234,9 @@ public final class IndependenceLife extends Goal {
                 }
             }
             case HARVEST -> {
-                if (target == null || !level().hasChunkAt(target) || !level().getBlockState(target).is(Blocks.SHORT_GRASS)) { stop(); return; }
-                if (approach(target) && level().setBlock(target, Blocks.AIR.defaultBlockState(), 3)) {
-                    carrying = new ItemStack(Items.SHORT_GRASS); task = Task.DELIVER; elapsed = 0;
-                }
+                var portion=plants.tick();
+                if(!portion.isEmpty()){carrying=portion;task=Task.DELIVER;elapsed=0;}
+                else if(!plants.active())stop();
             }
             case DELIVER -> { if (approach(site.pos())) { deliver(); stop(); wait = 10; } }
             case WORK -> {
@@ -281,19 +282,13 @@ public final class IndependenceLife extends Goal {
         return stack.is(Items.PAPER) ? materialCount(true) < paperNeeded() : bedding(stack) && materialCount(false) < beddingNeeded();
     }
     private boolean findMaterial() {
+        if(materialCount(false)<beddingNeeded()&&plants.find(entity.blockPosition(),6,pos->true)){task=Task.HARVEST;return true;}
         pickup = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12), item ->
                 item.isAlive() && !item.hasPickUpDelay() && needed(item.getItem())
                         && materials.stream().noneMatch(m -> m.entityId.equals(item.getUUID())))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(item -> entity.life().reachable(item.blockPosition(), false)).findFirst().orElse(null);
         if (pickup != null) { task = Task.PICKUP; return true; }
-        if (materialCount(false) >= beddingNeeded()) return false;
-        for (var pos : BlockPos.betweenClosed(entity.blockPosition().offset(-6,-2,-6), entity.blockPosition().offset(6,2,6))) {
-            if (level().hasChunkAt(pos) && level().getBlockState(pos).is(Blocks.SHORT_GRASS)
-                    && entity.life().dryStand(pos) && entity.life().reachable(pos, false)) {
-                target = pos.immutable(); task = Task.HARVEST; return true;
-            }
-        }
         return false;
     }
     private void deliver() {
@@ -371,6 +366,7 @@ public final class IndependenceLife extends Goal {
         return false;
     }
     @Override public void stop() {
+        plants.stop();
         if (task == Task.WORK) work -= work % UNIT_WORK;
         task = Task.NONE; running = false; pickup = null; target = null; visitor = null; elapsed = 0; wait = 40;
         entity.getNavigation().stop();

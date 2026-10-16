@@ -136,7 +136,9 @@ public final class FamilyCareGameTests {
             FamilyFeedingContact.faceEachOther(directParent,hungriest);
             float away=directParent.getYRot()+180;directParent.setYRot(away);directParent.yBodyRot=away;directParent.yBodyRotO=away;directParent.setYHeadRot(away);
             helper.assertTrue(!FamilyFeedingContact.mouthsMeet(directParent,hungriest),"turned-away mouths are not a valid feeding contact");
-            directParent.family().tickGoal();for(int i=0;i<19;i++)directParent.family().tickGoal();
+            for(int i=0;i<40&&directParent.family().careContactProgress()==0;i++)directParent.family().tickGoal();
+            helper.assertTrue(directParent.family().careContactProgress()>0,"caregiver first turns into an actual contact pose");
+            for(int i=0;i<19;i++)directParent.family().tickGoal();
             helper.assertTrue(hungriest.life().mealTicks()==1&&io.github.longshou.mcyukkuri.life.InfantFood.isMash(hungriest.life().mouth())
                     &&sibling.life().mealTicks()==0&&directParent.family().carrying().isEmpty()&&directStem.getItem().getCount()==1,
                     "twenty close delivery ticks hand the saved mash to the lower-nutrition child without duplicating its source");

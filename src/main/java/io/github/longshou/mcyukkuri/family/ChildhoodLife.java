@@ -30,7 +30,7 @@ public final class ChildhoodLife {
     /** Ground distance, rather than a wait, required to learn basic crawling. */
     public static final double CRAWL_DISTANCE_REQUIRED = .75;
 
-    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, CRAWL, JUMP }
+    private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP }
 
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
@@ -45,6 +45,8 @@ public final class ChildhoodLife {
     private boolean newborn, landed, firstToiletDone = true, crawled, jumped;
     private boolean jumpLaunched, jumpAirborne, demonstrationSeen;
     private double launchY;
+    private int jumpLandings,practiceRest,watchedTicks;
+    private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -61,6 +63,7 @@ public final class ChildhoodLife {
         crawled = false;
         jumped = false;
         jumpLaunched = jumpAirborne = demonstrationSeen = false;
+        jumpLandings=practiceRest=watchedTicks=0;
         crawlDistance = 0;
         careTicks = taskTicks = 0;
         careTarget = null;
@@ -72,6 +75,7 @@ public final class ChildhoodLife {
     /** Updates settled-birth and actual movement evidence after the regular entity physics tick. */
     public void tick() {
         if (entity.level().isClientSide || !newborn) return;
+        if(practiceRest>0)practiceRest--;
         if (hatPractice && (!(entity.getVehicle() instanceof HatBoatEntity boat)
                 || !boat.getUUID().equals(practiceBoat) || !boat.protects(entity) || !safePracticeState())) stopHatPractice();
         if (!landed && settled()) {
@@ -99,15 +103,16 @@ public final class ChildhoodLife {
             double moved = here.subtract(lastPosition).horizontalDistance();
             // A teleport, a boat ride or a stationary timer is not crawling practice.
             if (moved > 1.0e-6 && moved <= .20) {
+                int before=(int)(crawlDistance/.25);
                 crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
+                if((int)(crawlDistance/.25)>before&&!hatPractice){practiceRest=20;stop();}
                 if (crawlDistance >= CRAWL_DISTANCE_REQUIRED) crawled = true;
             }
         }
         if (task == Task.JUMP && jumpLaunched && safePracticeState() && !entity.isPassenger()) {
             if (!entity.onGround() && entity.getY() > launchY + .02) jumpAirborne = true;
             if (jumpAirborne && entity.onGround() && Math.abs(entity.getY() - launchY) < .5) {
-                jumped = true;
-                entity.setPersistenceRequired();
+                finishPracticeJump();
             }
         }
         lastPosition = here;
@@ -126,7 +131,7 @@ public final class ChildhoodLife {
         if (task == Task.JUMP && jumpLaunched && safePracticeState()) {
             double above = (here.y - launchY) * boat.unit();
             if (above > .02) jumpAirborne = true;
-            if (jumpAirborne && !boat.practisingMove(entity) && Math.abs(above) < .04) jumped = true;
+            if (jumpAirborne && !boat.practisingMove(entity) && Math.abs(above) < .04) finishPracticeJump();
         }
         lastHatPosition = here;
     }
@@ -134,6 +139,7 @@ public final class ChildhoodLife {
     /** The aquatic goal calls this while the child is dry and supported; boat drift grants no skill. */
     public boolean practiseInHat(HatBoatEntity boat) {
         if (hatPractice) observeHatMovement();
+        if(practiceRest>0&&!hatPractice)return false;
         if (!newborn || !landed || !firstToiletDone || movementReady() || !boat.protects(entity)
                 || !safePracticeState() || boat.flooding() > 0 || boat.towed()) {
             stopHatPractice(); return false;
@@ -143,7 +149,7 @@ public final class ChildhoodLife {
                 || parent.life().isSleeping() || parent.isPanicking()) { stopHatPractice(); return false; }
         if (hatPractice) {
             if (++taskTicks > 240 || !boat.getUUID().equals(practiceBoat)) { stopHatPractice(); return false; }
-            if (!boat.practisingMove(entity) && (task != Task.JUMP || jumped) && boat.completePracticeMove(entity)) {
+            if (!boat.practisingMove(entity) && (task != Task.JUMP || !jumpLaunched) && boat.completePracticeMove(entity)) {
                 // Movement evidence was observed from the actual rider, before retiring the service berth.
                 hatPractice = false; practiceBoat = null; lastHatPosition = null;
                 task = Task.NONE; jumpLaunched = jumpAirborne = false; taskTicks = 0;
@@ -228,6 +234,7 @@ public final class ChildhoodLife {
             case FIRST_TOILET -> careTicks > 0 ? "first_toilet_assist" : "first_toilet_seek";
             case WAIT_CARE -> "first_toilet_wait";
             case DEMONSTRATE -> "learn_jump";
+            case WATCH -> "learn_watch";
             case CRAWL -> "newborn_crawl";
             case JUMP -> "learn_jump";
             default -> "idle";
@@ -257,6 +264,11 @@ public final class ChildhoodLife {
             return false;
         }
         if (!safePracticeState() || !firstToiletDone) return false;
+        if(practiceRest>0)return false;
+        var demonstrator=availableParent();
+        if(demonstrator!=null&&demonstrator.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(demonstrator.childhood().careTarget)){
+            task=Task.WATCH;careTarget=demonstrator.getUUID();taskTicks=0;return true;
+        }
         if (!crawled) { task = Task.CRAWL; taskTicks = 0; return true; }
         if (readyToPractiseJump()) { task = Task.JUMP; taskTicks = 0; return true; }
         return false;
@@ -279,7 +291,8 @@ public final class ChildhoodLife {
                     && entity.family().caresFor(target) && !target.isPassenger() && childAvailable(target) && target.childhood().needsAssistedFirstToilet();
             case WAIT_CARE -> taskTicks < 300 && childAvailable(entity) && needsAssistedFirstToilet() && target != null
                     && target.childhood().task == Task.FIRST_TOILET && entity.getUUID().equals(target.childhood().careTarget);
-            case DEMONSTRATE -> taskTicks < 40 && parentAvailable(entity) && target != null && target.childhood().readyToPractiseJump();
+            case DEMONSTRATE -> taskTicks < 100 && parentAvailable(entity) && target != null && target.childhood().readyToPractiseJump();
+            case WATCH -> taskTicks<100&&safePracticeState()&&target!=null&&target.childhood().task==Task.DEMONSTRATE&&entity.getUUID().equals(target.childhood().careTarget);
             case CRAWL -> !crawled && taskTicks < 240 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
             case JUMP -> !jumped && taskTicks < 120 && !entity.isPassenger() && safePracticeState() && firstToiletDone;
             default -> false;
@@ -293,13 +306,30 @@ public final class ChildhoodLife {
             case FIRST_TOILET -> tickFirstToilet();
             case WAIT_CARE -> entity.getNavigation().stop();
             case DEMONSTRATE -> {
-                entity.getNavigation().stop();
+                io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(entity);
                 var child = person(careTarget);
-                if (child != null && taskTicks == 1 && entity.onGround()) {
-                    entity.getLookControl().setLookAt(child, 30, 30);
-                    entity.setDeltaMovement(0, .24, 0); entity.hasImpulse = true;
-                    child.childhood().demonstrationSeen = true;
+                boolean watches=child!=null&&child.childhood().task==Task.WATCH&&child.hasLineOfSight(entity)
+                        &&child.getLookAngle().multiply(1,0,1).normalize().dot(entity.position().subtract(child.position()).multiply(1,0,1).normalize())>.8;
+                if(watches)watchedTicks++;
+                else if(!demonstrationLaunched)watchedTicks=0;
+                if(!demonstrationLaunched&&watches&&watchedTicks>=10&&entity.onGround()){
+                    launchY=entity.getY();demonstrationLaunched=demonstrationWitnessed=true;
+                    entity.setDeltaMovement(0,.24,0);entity.hasImpulse=true;
                 }
+                if(demonstrationLaunched&&!watches)demonstrationWitnessed=false;
+                if(demonstrationLaunched&&!entity.onGround()&&entity.getY()>launchY+.04){
+                    demonstrationAirborne=true;
+                }
+                if(demonstrationAirborne&&entity.onGround()){
+                    // A short hop has only a few airborne ticks. Require an observed takeoff and
+                    // landing, rather than a timer longer than the actual demonstration can last.
+                    if(watches&&demonstrationWitnessed)child.childhood().demonstrationSeen=true;
+                    stop();
+                }
+            }
+            case WATCH -> {
+                var parent=person(careTarget);io.github.longshou.mcyukkuri.life.SurfaceApproach.halt(entity);
+                if(parent!=null)io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(entity.position(),parent.position()));
             }
             case CRAWL -> tickCrawl();
             case JUMP -> tickJump();
@@ -316,6 +346,7 @@ public final class ChildhoodLife {
         practiceTarget = null;
         careTicks = taskTicks = 0;
         jumpLaunched = jumpAirborne = false;
+        demonstrationLaunched=demonstrationAirborne=demonstrationWitnessed=false;watchedTicks=0;
     }
 
     private void tickFirstToilet() {
@@ -368,9 +399,15 @@ public final class ChildhoodLife {
             // physical practice impulse; observeMovement grants the ability only after a real takeoff.
             jumpLaunched = true; jumpAirborne = false; launchY = entity.getY();
             Vec3 velocity = entity.getDeltaMovement();
-            entity.setDeltaMovement(velocity.x, Math.max(velocity.y, .24), velocity.z);
+            entity.setDeltaMovement(velocity.x, Math.max(velocity.y, .16+.025*Math.min(3,jumpLandings)), velocity.z);
             entity.hasImpulse = true;
         }
+    }
+
+    private void finishPracticeJump(){
+        jumpLandings++;jumped=jumpLandings>=(demonstrationSeen?3:5);
+        jumpLaunched=jumpAirborne=false;practiceRest=24;entity.setPersistenceRequired();
+        if(!hatPractice)stop();
     }
 
     private boolean movementReady() { return !newborn || landed && crawled && (shellForm() || jumped); }
@@ -426,6 +463,7 @@ public final class ChildhoodLife {
         tag.putBoolean("Crawled", crawled);
         tag.putBoolean("Jumped", jumped);
         tag.putBoolean("DemonstrationSeen", demonstrationSeen);
+        tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
         return tag;
     }
@@ -445,6 +483,9 @@ public final class ChildhoodLife {
         firstToiletDone = tag.getBoolean("FirstToiletDone");
         crawled = tag.getBoolean("Crawled");
         jumped = tag.getBoolean("Jumped");
+        jumpLandings=Math.clamp(tag.getInt("JumpLandings"),0,5);
+        if(jumped)jumpLandings=Math.max(3,jumpLandings);
+        practiceRest=Math.clamp(tag.getInt("PracticeRest"),0,24);
         demonstrationSeen = tag.getBoolean("DemonstrationSeen");
         crawlDistance = Math.clamp(tag.getDouble("CrawlDistance"), 0, CRAWL_DISTANCE_REQUIRED);
         if (!newborn) {

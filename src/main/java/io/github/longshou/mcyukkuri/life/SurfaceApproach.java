@@ -33,7 +33,9 @@ public final class SurfaceApproach {
     }
 
     public static boolean arrived(YukkuriEntity actor, Vec3 destination) {
-        return Math.abs(actor.getY()-destination.y)<.08 && actor.position().subtract(destination).horizontalDistanceSqr()<.0036;
+        // Two actors may stop on opposite edges of this tolerance. Keep their combined error
+        // inside the shared mouth envelope, rather than accepting two individually "near" bodies.
+        return Math.abs(actor.getY()-destination.y)<.08 && actor.position().subtract(destination).horizontalDistanceSqr()<.0004;
     }
 
     /** Never substitute a straight line for a route around a step or obstruction. */
@@ -54,6 +56,10 @@ public final class SurfaceApproach {
         actor.getNavigation().stop();
         actor.getMoveControl().setWantedPosition(actor.getX(), actor.getY(), actor.getZ(), 0);
         actor.setSpeed(0);
+        if (actor.onGround()) {
+            Vec3 velocity = actor.getDeltaMovement();
+            actor.setDeltaMovement(0, velocity.y, 0);
+        }
     }
 
     public static void face(YukkuriEntity actor, float yaw) {

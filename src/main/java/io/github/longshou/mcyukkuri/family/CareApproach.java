@@ -48,6 +48,15 @@ public final class CareApproach {
     }
     public String activity() { return waiting() ? incoming.kind==Kind.REAR ? "first_toilet_wait" : "care_wait" : "idle"; }
     public void cancelIncoming() { if (incoming!=null) incoming.cancel(); }
+    public boolean cooperatingWith(YukkuriEntity other){
+        return child==other&&valid()&&lease>=owner.level().getGameTime() || waiting()&&incoming.owner==other;
+    }
+    public net.minecraft.nbt.CompoundTag debug(){
+        var tag=new net.minecraft.nbt.CompoundTag();tag.putBoolean("Waiting",waiting());tag.putInt("Stalled",stalled);tag.putInt("Retries",retries);
+        if(child!=null)tag.putUUID("Child",child.getUUID());if(kind!=null)tag.putString("Kind",kind.name());
+        if(places!=null){tag.putString("ParentStand",places.parent().toString());tag.putString("ChildStand",places.child().toString());}
+        return tag;
+    }
 
     /** The receiver owns its MOVE/LOOK goal too; normal wandering cannot fight a live handoff. */
     public void tickReceiver() {
@@ -71,8 +80,12 @@ public final class CareApproach {
         if (places!=null && (!SurfaceApproach.supported(owner, places.parent()) || !SurfaceApproach.supported(child, places.child()))) replan();
         if (places==null && (places=choosePlaces())==null) return fail();
         if (lastParent!=null && lastParent.distanceToSqr(owner.position())<.0004
-                && lastChild.distanceToSqr(child.position())<.0004) stalled++; else stalled=0;
-        lastParent=owner.position(); lastChild=child.position();
+                && lastChild.distanceToSqr(child.position())<.0004) stalled++;
+        else {
+            // A newborn's supported crawl advances millimetres per tick. Measure accumulated
+            // progress, not one frame, or every valid slow relocation is mistaken for a blockage.
+            stalled=0; lastParent=owner.position(); lastChild=child.position();
+        }
         if (stalled>50 && !(SurfaceApproach.arrived(owner, places.parent()) && SurfaceApproach.arrived(child, places.child()))) {
             replan(); if (++retries>=3) return fail(); return Result.APPROACHING;
         }

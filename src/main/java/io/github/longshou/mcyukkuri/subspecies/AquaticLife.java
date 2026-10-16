@@ -272,10 +272,10 @@ public final class AquaticLife extends Goal {
             String response = captain == null ? "idle" : captain.aquaticLife().care().response(entity);
             if (!response.equals("idle")) {
                 entity.childhood().stopHatPractice();
-                if (!response.equals("first_toilet_wait")) {
+                if (!response.equals("first_toilet_wait")&&!response.equals("boat_toilet")&&!response.equals("hat_walk")&&!response.equals("boat_eat")) {
                     var toward = captain.position().subtract(entity.position());
                     float yaw = (float)(Math.toDegrees(Math.atan2(toward.z,toward.x))-90);
-                    entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
+                    io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,yaw);
                 }
                 activity = response; return;
             }
@@ -283,12 +283,12 @@ public final class AquaticLife extends Goal {
             if (entity.life().nutrition() < 25 || captain == null || captain.isNoAi() || captain.isPanicking())
                 boat.cargo().feed(entity);
             if (entity.life().dryness() >= 40 && elapsed%40 == 0) entity.life().drink(30);
-            if (entity.life().toiletInHat(boat)) { entity.childhood().stopHatPractice(); activity = "boat_toilet"; return; }
+            if (entity.life().toiletInHat(boat)) { entity.childhood().stopHatPractice(); activity = boat.walkingInHat(entity)?"hat_walk":"boat_toilet"; return; }
             if (captain == null || captain.aquaticLife().resting() || entity.life().isSleeping()
                     || entity.life().energy() <= (entity.family().needsMash() ? 65 : 35)) entity.life().restInHat(boat);
             else entity.life().wakeInHat();
             if (entity.childhood().practiseInHat(boat)) { activity = entity.childhood().activity(); return; }
-            activity = entity.life().isSleeping() ? "boat_sleep" : boat.onBrim(entity) ? "hat_brim" : "hat_cradle";
+            activity = boat.walkingInHat(entity)?"hat_walk":entity.life().isSleeping() ? "boat_sleep" : boat.onBrim(entity) ? "hat_brim" : "hat_cradle";
             return;
         }
         if (!boat.isAfloat()) return;
@@ -329,7 +329,7 @@ public final class AquaticLife extends Goal {
         if (boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y != entity && y.isPanicking())) {
             care.cancel(); boat.holdPosition(); activity = "boat_steady"; return;
         }
-        if (!care.active() && entity.life().toiletInHat(boat)) { boat.holdPosition(); activity = "boat_toilet"; return; }
+        if (!care.active() && entity.life().toiletInHat(boat)) { boat.holdPosition(); activity = boat.walkingInHat(entity) ? "hat_walk" : "boat_toilet"; return; }
         if (hungryCrew && boat.cargo().count()==0 && care.serving().isEmpty() && seekFloatingFood(boat)) {
             activity="boat_paddle"; return;
         }

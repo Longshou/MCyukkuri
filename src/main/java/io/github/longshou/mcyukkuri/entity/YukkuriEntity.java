@@ -257,6 +257,13 @@ public final class YukkuriEntity extends PathfinderMob {
     public FamilyLife family() { return family; }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
     public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
+    @Override public void push(net.minecraft.world.entity.Entity other) {
+        // Vanilla's extra proximity push otherwise separates a consenting pair before mouths can meet.
+        // Actual body overlap, players and unrelated animals retain ordinary collision response.
+        if(other instanceof YukkuriEntity peer&&careApproach.cooperatingWith(peer)
+                &&!getBoundingBox().intersects(peer.getBoundingBox()))return;
+        super.push(other);
+    }
     public io.github.longshou.mcyukkuri.family.IndependenceLife independence() { return independence; }
     public io.github.longshou.mcyukkuri.season.WinteringLife wintering() { return wintering; }
     public io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies() { return subspecies; }

@@ -27,7 +27,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public final class ChildhoodNestGameTests {
     private static final BlockPos ORIGIN=new BlockPos(2752,65,8);
 
-    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=900,batch="childhood")
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1500,batch="childhood")
     public static void sharedNestAndPersonalNest(GameTestHelper helper) {
         ServerLevel level=helper.getLevel();
         long day=level.getDayTime();
@@ -41,6 +41,7 @@ public final class ChildhoodNestGameTests {
         ShelterBlockEntity[] home={null};
         YukkuriEntity[] parent={null},child={null};
         ItemEntity[] leaf={null};BlockPos[] grass={null};
+        int[] pausedWork={0};boolean[] harvested={false};
         boolean[] cleaned={false};
         Runnable cleanup=()->{
             if(cleaned[0])return;cleaned[0]=true;
@@ -60,10 +61,14 @@ public final class ChildhoodNestGameTests {
         helper.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
             public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) {}
             public void testPassed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
-            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) { cleanup.run(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info,net.minecraft.gametest.framework.GameTestRunner runner) {
+                P0Control.write("childhood-nest-failure",java.util.Map.of("home",home[0]==null?"none":home[0].saveWithFullMetadata(level.registryAccess()).toString(),
+                        "child",child[0]==null?"none":child[0].saveWithoutId(new net.minecraft.nbt.CompoundTag()).toString()));cleanup.run();
+            }
             public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo oldInfo,net.minecraft.gametest.framework.GameTestInfo newInfo,net.minecraft.gametest.framework.GameTestRunner runner) {}
         });
         ShelterGameTests.daylightFixture(level);
+        helper.onEachTick(()->{if(child[0]!=null&&child[0].habitat().activity().equals("nest_harvest"))harvested[0]=true;});
         level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
         for(int x=171;x<=173;x++)for(int z=-1;z<=1;z++)GameTestChunks.setForced(level,x,z,true);
         helper.startSequence().thenWaitUntil(()->GameTestChunks.assertTicking(helper,171,173,-1,1)).thenExecute(()->{
@@ -116,29 +121,31 @@ public final class ChildhoodNestGameTests {
             ready.putLong("Nourishment",child[0].family().maturityAge()*3/8);
             ready.putBoolean("AwaitingLanding",false);child[0].family().load(ready);
             setVitals(child[0],100);
-        }).thenWaitUntil(()->helper.assertTrue(!child[0].habitat().carrying().isEmpty()&&!home[0].privateNest(child[0].getUUID()),
-                "A material shortfall leaves the first real portion reserved without creating a personal nest"))
+            level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false,level.getServer());
+        }).thenWaitUntil(()->helper.assertTrue(home[0].nestWork(child[0].getUUID())>=25&&!home[0].privateNest(child[0].getUUID()),
+                "One legitimately dropped portion can be gathered and spread without permission to destroy plants"))
         .thenExecute(()->{
+            child[0].setNoAi(true);pausedWork[0]=home[0].nestWork(child[0].getUUID());
             var saved=child[0].habitat().save();child[0].habitat().stop();child[0].habitat().load(saved);
-            helper.assertTrue(saved.contains("Carrying")&&!saved.contains("NestMaterial")&&!child[0].habitat().carrying().isEmpty(),
-                    "Interrupted one-portion work survives save and reload without inventing a second portion");
+            var site=home[0].saveWithFullMetadata(level.registryAccess());home[0].loadWithComponents(site,level.registryAccess());
+            helper.assertTrue(home[0].nestPortions(child[0].getUUID())==1&&home[0].nestWork(child[0].getUUID())==pausedWork[0]
+                    &&child[0].habitat().carrying().isEmpty()&&!leaf[0].isAlive(),
+                    "Deposited material and exact work survive entity and shelter reload without duplication");
+        }).thenIdle(40).thenExecute(()->{
+            helper.assertTrue(home[0].nestWork(child[0].getUUID())==pausedWork[0]&&!home[0].privateNest(child[0].getUUID()),
+                    "Interrupted work remains visible but cannot advance or finish by itself");
+            level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());child[0].setNoAi(false);
             grass[0]=home[0].beds().stream().filter(bed->!bed.equals(home[0].bed(child[0].getUUID()))
                     &&!bed.equals(home[0].bed(parent[0].getUUID()))).findFirst().orElse(home[0].entrance());
-            level.setBlockAndUpdate(grass[0],Blocks.SHORT_GRASS.defaultBlockState());
-        }).thenWaitUntil(()->helper.assertTrue(child[0].habitat().save().contains("NestMaterial")&&!home[0].privateNest(child[0].getUUID()),
-                "The second real portion is retained separately while the build is in progress"))
-        .thenExecute(()->{
-            var saved=child[0].habitat().save();child[0].habitat().stop();child[0].habitat().load(saved);
-            helper.assertTrue(saved.contains("Carrying")&&saved.contains("NestMaterial"),
-                    "Two reserved mixed portions both survive an interrupted construction reload");
+            level.setBlockAndUpdate(grass[0],Blocks.AZALEA.defaultBlockState());
         }).thenWaitUntil(()->helper.assertTrue(home[0].privateNest(child[0].getUUID()),
                 "Late child must walk, collect two real nearby plant portions and work its own bed before a personal nest exists"))
         .thenExecute(()->{
             helper.assertTrue(home[0].privateBeds().equals(List.of(home[0].bed(child[0].getUUID())))
                     &&home[0].sharedBeds().equals(List.of(home[0].bed(parent[0].getUUID()))),
                     "Personal nest separates only the child's bed while preserving the parent shared-nest bed");
-            helper.assertTrue(!leaf[0].isAlive()&&level.getBlockState(grass[0]).isAir()&&child[0].habitat().carrying().isEmpty(),
-                    "A real leaf and one short grass harvested near the nest are consumed only after construction completes");
+            helper.assertTrue(!leaf[0].isAlive()&&level.getBlockState(grass[0]).isAir()&&child[0].habitat().carrying().isEmpty()&&harvested[0],
+                    "A real dropped leaf and one physically harvested bush are each spent exactly once after visible work");
             var saved=home[0].saveWithFullMetadata(level.registryAccess());
             var reloaded=new ShelterBlockEntity(ORIGIN.below(),home[0].getBlockState());reloaded.setLevel(level);
             reloaded.loadWithComponents(saved,level.registryAccess());
@@ -147,7 +154,8 @@ public final class ChildhoodNestGameTests {
                     "Personal-nest ownership and its resident bed survive shelter save and load");
             P0Control.write("childhood-nest-checks",List.of(
                     new Check("early child remains in the shared nest",true),
-                    new Check("late child consumes a dropped leaf and one nearby short grass",true),
+                    new Check("late child gathers a real leaf and visibly harvests a nearby bush",true),
+                    new Check("partial construction persists across interruption and reload",true),
                     new Check("private nest state persists with the original bed",true)));
         }).thenSucceed();
     }

@@ -34,19 +34,24 @@ public final class HabitatLife {
     private BlockPos targetBlock;
     private Task task=Task.NONE;
     private int wait,ticks,buildTicks;
+    private final PlantBedding plants;
     // Seasonal state is transient: it restarts with the entity and never changes the save format.
     private BlockPos shareTo;
     private int shareCooldown,quarrelCooldown;
     private long siestaDay=-1;
     private boolean arrived;
-    public HabitatLife(YukkuriEntity entity) { this.entity=entity; }
+    public HabitatLife(YukkuriEntity entity) { this.entity=entity;this.plants=new PlantBedding(entity); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public boolean hasMemory() { return home!=null; }
     public boolean unavailable() { return home!=null&&(!home.dimension().equals(entity.level().dimension())||!entity.level().hasChunkAt(home.pos())); }
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task!=Task.NONE; }
-    public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?"nest_build":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
+    public String activity() { return task==Task.CLEAN?"shelter_clean":task==Task.NEST_BUILD?nestActivity():(task==Task.NEST_HARVEST||task==Task.HARVEST)&&plants.harvesting()?"nest_harvest":task==Task.NEST_PICKUP||task==Task.NEST_HARVEST?"nest_gather":task==Task.DEPOSIT||task==Task.SHARE?"shelter_carry":task==Task.STAY||task==Task.SIESTA?"idle":task==Task.HARVEST||task==Task.PICKUP?"shelter_gather":"shelter_stock"; }
+    private String nestActivity(){
+        var value=shelter();if(value==null||targetBlock==null||!io.github.longshou.mcyukkuri.life.SurfaceApproach.arrived(entity,Vec3.atBottomCenterOf(targetBlock)))return "nest_carry";
+        int phase=value.nestWork(entity.getUUID())%60;return phase<20?"nest_place":phase<40?"nest_spread":"nest_press";
+    }
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
     public boolean leaking() {
         var value=shelter();
@@ -177,33 +182,32 @@ public final class HabitatLife {
     /** A late child builds only at its actual inherited burrow bed, never by creating or destroying blocks. */
     private boolean nestEligible(ShelterBlockEntity value) {
         return value!=null&&value.kind()==ShelterBlock.Kind.BURROW&&value.owns(entity.getUUID())&&value.usable(entity)
-                &&entity.family().readyForOwnNest()&&!value.privateNest(entity.getUUID())
+                &&(entity.family().readyForOwnNest()||entity.family().adult()&&value.nestPortions(entity.getUUID())>0)&&!value.privateNest(entity.getUUID())
                 &&!entity.life().needsFood()&&!entity.life().hasUrgentNeed()&&!entity.independence().householdOuting()
                 &&(!hasNestProject()||sameNestHome(value));
     }
     private boolean startNest(ShelterBlockEntity value) {
         if(!nestEligible(value))return false;
-        if(!EventHooks.canEntityGrief(level(),entity))return false;
         normalizeNestMaterials();
         if(!carrying.isEmpty()&&!nestBedding(carrying))return false;
         if(!nestMaterial.isEmpty()&&(!nestBedding(nestMaterial)||carrying.isEmpty()))return false;
         if(!carrying.isEmpty()&&nestHome==null)nestHome=GlobalPos.of(level().dimension(),value.getBlockPos());
-        if(hasNestMaterials()) {
+        if(!carrying.isEmpty()||!nestMaterial.isEmpty()||value.nestPortions(entity.getUUID())>0) {
             task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());targetItem=null;ticks=buildTicks=0;return true;
         }
         return findNestBedding(value);
     }
     private void normalizeNestMaterials() {
+        if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
         if(nestMaterial.isEmpty()&&carrying.getCount()==2)nestMaterial=carrying.split(1);
     }
-    private boolean hasNestMaterials() { return !carrying.isEmpty()&&!nestMaterial.isEmpty(); }
     private boolean hasNestProject() { return nestHome!=null; }
     private boolean sameNestHome(ShelterBlockEntity value) {
         return nestHome!=null&&nestHome.dimension().equals(entity.level().dimension())&&value!=null&&nestHome.pos().equals(value.getBlockPos());
     }
     private boolean nestProjectValid() {
         var value=shelter();
-        return !entity.family().adult()&&sameNestHome(value)&&value.owns(entity.getUUID())&&!value.privateNest(entity.getUUID());
+        return sameNestHome(value)&&value.owns(entity.getUUID())&&!value.privateNest(entity.getUUID());
     }
     /** Invalid projects release every real reserved portion at the current location, retrying after a failed spawn. */
     private void cancelNestProject() {
@@ -216,16 +220,11 @@ public final class HabitatLife {
     }
     /** Select one physical bedding portion close to this home; blocks and paper never count as nest material. */
     private boolean findNestBedding(ShelterBlockEntity value) {
+        if(plants.find(value.bed(entity.getUUID()),4,pos->nearNest(value,pos))){task=Task.NEST_HARVEST;targetBlock=null;targetItem=null;ticks=0;return true;}
         targetItem=level().getEntitiesOfClass(ItemEntity.class,value.interior().inflate(3),item->item.isAlive()&&!item.hasPickUpDelay()
                 &&nearNest(value,item.blockPosition())&&nestBedding(item.getItem())
                 &&entity.life().reachable(item.blockPosition(),false)).stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if(targetItem!=null){task=Task.NEST_PICKUP;targetBlock=null;ticks=0;return true;}
-        for(var pos:BlockPos.betweenClosed(BlockPos.containing(value.interior().minX-3,value.interior().minY-1,value.interior().minZ-3),
-                BlockPos.containing(value.interior().maxX+3,value.interior().maxY+1,value.interior().maxZ+3)))
-            if(nearNest(value,pos)&&level().hasChunkAt(pos)&&level().getBlockState(pos).is(Blocks.SHORT_GRASS)
-                    &&entity.life().dryStand(pos)&&entity.life().reachable(pos,false)) {
-                task=Task.NEST_HARVEST;targetBlock=pos.immutable();ticks=0;return true;
-            }
         return false;
     }
     private void takeNestMaterial(ShelterBlockEntity value,ItemStack material) {
@@ -234,11 +233,8 @@ public final class HabitatLife {
         else if(nestMaterial.isEmpty())nestMaterial=material;
     }
     private boolean planHarvest(ShelterBlockEntity value) {
-        if(wantsResource(value,new ItemStack(Items.SHORT_GRASS))) {
-            for(var pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8)))
-                if(level().hasChunkAt(pos)&&level().getBlockState(pos).is(Blocks.SHORT_GRASS)&&entity.life().dryStand(pos)&&entity.life().reachable(pos,false)){
-                    targetBlock=pos.immutable();targetItem=null;task=Task.HARVEST;ticks=0;return true;
-                }
+        if(wantsResource(value,new ItemStack(Items.SHORT_GRASS))&&plants.find(entity.blockPosition(),8,pos->true)){
+            targetBlock=null;targetItem=null;task=Task.HARVEST;ticks=0;return true;
         }
         return false;
     }
@@ -286,7 +282,7 @@ public final class HabitatLife {
         if(!active()||!ready())return false;
         if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&Seasons.is(entity,Season.SUMMER)&&Seasons.noon(level())&&!entity.life().hasUrgentNeed();
         if(task==Task.STAY)return homeStand()!=null&&Seasons.confined(entity)&&!entity.wintering().usesWinterStores()&&!entity.life().hasUrgentNeed();
-        if(task==Task.NEST_PICKUP||task==Task.NEST_HARVEST||task==Task.NEST_BUILD)return ticks<400&&nestEligible(shelter())&&EventHooks.canEntityGrief(level(),entity);
+        if(task==Task.NEST_PICKUP||task==Task.NEST_HARVEST||task==Task.NEST_BUILD)return ticks<600&&nestEligible(shelter())&&(task!=Task.NEST_HARVEST||EventHooks.canEntityGrief(level(),entity));
         return active()&&ready()&&ticks<400&&homeStand()!=null&&(task==Task.FOOD||EventHooks.canEntityGrief(level(),entity))
                 &&(!entity.independence().householdOuting()||!carrying.isEmpty()||task==Task.FOOD&&outingMealAvailable())
                 &&(task==Task.FOOD||!carrying.isEmpty()||!entity.settlement().society().dejected())
@@ -333,22 +329,23 @@ public final class HabitatLife {
                 if(remaining.isEmpty())targetItem.discard();else targetItem.setItem(remaining);
                 takeNestMaterial(value,gathered);
                 targetItem=null;ticks=0;
-                if(hasNestMaterials()){task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());buildTicks=0;}
-                else if(!findNestBedding(value))stop();
+                task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());buildTicks=0;
             }
         } else if(task==Task.NEST_HARVEST) {
-            if(targetBlock==null||!level().hasChunkAt(targetBlock)||!nearNest(value,targetBlock)
-                    ||!level().getBlockState(targetBlock).is(Blocks.SHORT_GRASS)){stop();return;}
-            if(approach(targetBlock)&&level().setBlock(targetBlock,Blocks.AIR.defaultBlockState(),3)) {
-                takeNestMaterial(value,new ItemStack(Items.SHORT_GRASS));ticks=0;
-                if(hasNestMaterials()){task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());buildTicks=0;}
-                else if(!findNestBedding(value))stop();
-            }
+            var portion=plants.tick();
+            if(!portion.isEmpty()){takeNestMaterial(value,portion);ticks=0;task=Task.NEST_BUILD;targetBlock=value.bed(entity.getUUID());}
+            else if(!plants.active())stop();
         } else if(task==Task.NEST_BUILD) {
-            if(!hasNestMaterials()||targetBlock==null||!targetBlock.equals(value.bed(entity.getUUID()))||!nestEligible(value)){stop();return;}
-            if(approach(targetBlock)) {
-                entity.getNavigation().stop();buildTicks++;
-                if(buildTicks>=120&&nestEligible(value)&&value.completePrivateNest(entity)){carrying=nestMaterial=ItemStack.EMPTY;nestHome=null;stop();}
+            if(targetBlock==null||!targetBlock.equals(value.bed(entity.getUUID()))||!nestEligible(value)){stop();return;}
+            if(io.github.longshou.mcyukkuri.life.SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
+                int portions=value.nestPortions(entity.getUUID()),work=value.nestWork(entity.getUUID());
+                if(work>=portions*60&&portions<2){
+                    if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
+                    if(!carrying.isEmpty()&&value.layNestPortion(entity,carrying)){carrying=ItemStack.EMPTY;}
+                    else {if(!findNestBedding(value))stop();return;}
+                }
+                io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,(work/20%4)*90);
+                if(value.workOnNest(entity)){nestHome=null;entity.showReaction("happy","gentle",60);stop();}
             }
         } else if(task==Task.PICKUP) {
             if(targetItem==null||!targetItem.isAlive()||targetItem.hasPickUpDelay()
@@ -359,11 +356,10 @@ public final class HabitatLife {
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
-            if(targetBlock==null||!level().hasChunkAt(targetBlock)||!level().getBlockState(targetBlock).is(Blocks.SHORT_GRASS)
-                    ||!wantsResource(value,new ItemStack(Items.SHORT_GRASS))){stop();return;}
-            if(approach(targetBlock)&&level().setBlock(targetBlock,Blocks.AIR.defaultBlockState(),3)) {
-                carrying=new ItemStack(Items.SHORT_GRASS);task=Task.DEPOSIT;ticks=0;
-            }
+            if(!wantsResource(value,new ItemStack(Items.SHORT_GRASS))){stop();return;}
+            var portion=plants.tick();
+            if(!portion.isEmpty()){carrying=portion;task=Task.DEPOSIT;ticks=0;}
+            else if(!plants.active())stop();
         } else if(task==Task.DEPOSIT) {
             if(approach(value.bed(entity.getUUID()))) {
                 if(value.deposit(carrying))carrying=ItemStack.EMPTY;else if(entity.life().dryStand(entity.blockPosition()))dropCarrying();
@@ -384,7 +380,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { plants.stop();task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);
