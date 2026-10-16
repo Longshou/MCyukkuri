@@ -21,7 +21,7 @@ public final class FactoryPipeline {
     private boolean trayBroken;
     public static final long SHIP_INTERVAL = 48000;
     private int purposeMode, nextPurpose = 1, saleFilter, serial, inspected, held;
-    private long nextShip;
+    private long nextShip, stuckSince;
     private final Map<UUID,Integer> batches = new HashMap<>();
     private final Map<UUID,Integer> batchPurposes = new HashMap<>();
     private final Set<UUID> residents = new HashSet<>();
@@ -64,6 +64,10 @@ public final class FactoryPipeline {
     }
     /** Sorting: mark up to two fit young as shop candidates while a shop is in range; stale marks are cleared. */
     private void markCandidates(ServerLevel level) {
+        if (stuckSince != 0 && level.getGameTime() - stuckSince > 24000) { // shipping impossible for over a game day: release the nursery slots
+            stuckSince = 0;
+            for (var y : worker.animals("nursery")) if (HumanCommerce.data(y).getBoolean("ShopCandidate")) { var tag = HumanCommerce.data(y).copy(); tag.remove("ShopCandidate"); HumanCommerce.set(y, tag); }
+        }
         boolean shop = io.github.longshou.mcyukkuri.shop.ShopDeliveries.enabled() && io.github.longshou.mcyukkuri.shop.ShopDeliveries.get(level).nearestShop(level, worker.blockPosition()) != null;
         int marked = (int) worker.animals("nursery").stream().filter(y -> HumanCommerce.data(y).getBoolean("ShopCandidate")).count();
         for (var y : worker.animals("nursery")) {
@@ -75,9 +79,12 @@ public final class FactoryPipeline {
     /** Every SHIP_INTERVAL ticks: ship the candidates (timer persisted). */
     private void tickShipping(ServerLevel level) {
         long now = level.getGameTime();
+        io.github.longshou.mcyukkuri.shop.ShopDeliveries.resolveExpired(level, now);
         if (nextShip == 0) { nextShip = now + SHIP_INTERVAL; return; }
         if (now < nextShip) return;
-        nextShip = now + SHIP_INTERVAL; ship(level);
+        nextShip = now + SHIP_INTERVAL;
+        boolean waiting = worker.animals("nursery").stream().anyMatch(y -> HumanCommerce.data(y).getBoolean("ShopCandidate"));
+        if (ship(level) > 0 || !waiting) stuckSince = 0; else if (stuckSince == 0) stuckSince = now;
     }
     /** Capture up to two candidates with identity intact and queue them for the nearest shop. Returns how many shipped. */
     public int ship(ServerLevel level) {
@@ -259,14 +266,14 @@ public final class FactoryPipeline {
     public CompoundTag save() {
         var tag=new CompoundTag(); if(trayId!=null)tag.putUUID("Tray",trayId); tag.putBoolean("TrayBroken",trayBroken);
         tag.putInt("PurposeMode",purposeMode);tag.putInt("NextPurpose",nextPurpose);tag.putInt("SaleFilter",saleFilter);
-        tag.putInt("Serial",serial);tag.putInt("Inspected",inspected);tag.putInt("Held",held);tag.putLong("NextShip",nextShip);
+        tag.putInt("Serial",serial);tag.putInt("Inspected",inspected);tag.putInt("Held",held);tag.putLong("NextShip",nextShip);tag.putLong("StuckSince",stuckSince);
         var people=new ListTag();residents.forEach(id->people.add(NbtUtils.createUUID(id)));tag.put("Residents",people);
         var list=new ListTag(); batches.forEach((id,number)->{var b=new CompoundTag();b.putUUID("Id",id);b.putInt("Number",number);b.putInt("Purpose",batchPurposes.getOrDefault(id,0));list.add(b);});tag.put("BatchNumbers",list);return tag;
     }
     public void load(CompoundTag tag) {
         trayId=tag.hasUUID("Tray")?tag.getUUID("Tray"):null;trayBroken=tag.getBoolean("TrayBroken");
         purposeMode=Math.clamp(tag.getInt("PurposeMode"),0,2);nextPurpose=tag.getInt("NextPurpose")==2?2:1;saleFilter=Math.clamp(tag.getInt("SaleFilter"),0,2);
-        serial=Math.max(0,tag.getInt("Serial"));inspected=Math.max(0,tag.getInt("Inspected"));held=Math.max(0,tag.getInt("Held"));nextShip=tag.getLong("NextShip");
+        serial=Math.max(0,tag.getInt("Serial"));inspected=Math.max(0,tag.getInt("Inspected"));held=Math.max(0,tag.getInt("Held"));nextShip=tag.getLong("NextShip");stuckSince=tag.getLong("StuckSince");
         residents.clear();for(var id:tag.getList("Residents",11))residents.add(NbtUtils.loadUUID(id));
         batches.clear();batchPurposes.clear();for(var raw:tag.getList("BatchNumbers",10)){var b=(CompoundTag)raw;if(b.hasUUID("Id")){batches.put(b.getUUID("Id"),b.getInt("Number"));batchPurposes.put(b.getUUID("Id"),b.getInt("Purpose"));serial=Math.max(serial,b.getInt("Number"));}}
     }

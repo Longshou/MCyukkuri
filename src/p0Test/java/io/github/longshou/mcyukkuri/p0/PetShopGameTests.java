@@ -986,6 +986,33 @@ public final class PetShopGameTests {
             t.check("exactly one entity carries the UUID", t.level.getEntitiesOfClass(YukkuriEntity.class, t.area, e -> e.getUUID().equals(id)).size() == 1);
             return true;
         });
+        t.step("expired deliveries return to the factory, or to the wild when it is gone", 20, () -> {
+            var factory = t.level.getEntitiesOfClass(HumanNpc.class, t.area, n -> n.siteRole().equals("bag_worker")).stream().findFirst().orElse(null);
+            if (factory == null || t.shop == null) { t.check("expiry fixture exists", false); return true; }
+            var data = ShopDeliveries.get(t.level); var custody = YukkuriWorldData.get(t.level);
+            for (int round = 0; round < 2; round++) {
+                boolean gone = round == 1;
+                var y = ShopFixtures.spawn(t.level, ModEntities.MARISA, factory.getX() + 2, factory.getY(), factory.getZ() + 2);
+                ShopFixtures.needs(y); ShopFixtures.adult(y);
+                HumanCommerce.assign(y, factory.getUUID(), "nursery");
+                var tag = HumanCommerce.data(y).copy(); tag.putString("FactoryStage", "nursery"); tag.putBoolean("ShopCandidate", true); HumanCommerce.set(y, tag);
+                var id = y.getUUID();
+                t.check("round " + round + ": shipped", factory.production().pipeline().ship(t.level) == 1 && data.pending().size() == 1);
+                var token = data.pending().get(0).token();
+                long late = t.level.getGameTime() + ShopDeliveries.EXPIRY + 1;
+                if (gone) factory.discard();
+                ShopDeliveries.resolveExpired(t.level, late);
+                var back = t.level.getEntity(id);
+                t.check("round " + round + ": the captive is released once and the delivery retired", back instanceof YukkuriEntity && !custody.hasToken(token) && data.pending().isEmpty(), "entity=" + back);
+                if (back instanceof YukkuriEntity b) {
+                    if (!gone) t.check("round 0: back with the factory as nursery young", HumanCommerce.ownedBy(b, factory.getUUID()) && use(b).equals("nursery") && !HumanCommerce.data(b).getBoolean("ShopCandidate"));
+                    else t.check("round 1: unowned wild juvenile at the shop position", !HumanCommerce.data(b).hasUUID("Owner"), HumanCommerce.data(b).toString());
+                }
+                ShopDeliveries.resolveExpired(t.level, late);
+                t.check("round " + round + ": a second resolve changes nothing", t.level.getEntitiesOfClass(YukkuriEntity.class, t.area, e -> e.getUUID().equals(id)).size() == 1);
+            }
+            return true;
+        });
         t.begin();
     }
 }
