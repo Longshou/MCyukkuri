@@ -45,7 +45,7 @@ public final class ShopCourier {
 
     /** True while the keeper runs a job: its routine and wandering goals stand aside. */
     public static boolean active(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()); }
-    public static boolean busy(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()) || keeper.getMainHandItem().is(ModItems.CARRIER.get()); }
+    public static boolean busy(HumanNpc keeper) { return JOBS.containsKey(keeper.getUUID()) || ShopDate.holding(keeper.getUUID()) || keeper.getMainHandItem().is(ModItems.CARRIER.get()); }
     public static boolean inFlight(UUID token) { return IN_FLIGHT.contains(token); }
     public static boolean hasKeeper(ServerLevel level, HumanNpc shop) {
         return !level.getEntitiesOfClass(HumanNpc.class, shop.getBoundingBox().inflate(48), n -> n.isAlive() && n.job() == HumanNpc.Job.KEEPER).isEmpty();
@@ -76,7 +76,7 @@ public final class ShopCourier {
 
     /** A keeper that holds a loaded basket without a job (the server restarted mid-delivery) finishes the delivery into a free pen, or sets the animal down at its feet. */
     public static void recover(HumanNpc keeper, ServerLevel level) {
-        if (JOBS.containsKey(keeper.getUUID())) return;
+        if (JOBS.containsKey(keeper.getUUID()) || ShopDate.holding(keeper.getUUID())) return; // a date scene's empty display basket is not ours to clear
         ItemStack hand = keeper.getMainHandItem();
         if (!hand.is(ModItems.CARRIER.get())) return;
         UUID token = CarrierItem.token(hand);

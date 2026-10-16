@@ -97,6 +97,7 @@ public final class FreezerGameTests {
         var creativeAnimal=spawn(25);var creativeId=creativeAnimal.getUUID();
         player.moveTo(X+25.5,65,6.5);
         player.getAbilities().instabuild=true;player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(ModItems.CARRIER.get()));
+        creativeAnimal.life().spray(); // a wild animal resists the basket unless it trusts the player or is sedated
         player.interactOn(creativeAnimal,InteractionHand.MAIN_HAND);
         var creativeToken=CarrierItem.token(player.getMainHandItem());
         check("vanilla creative capture writes capability into actual hand",creativeToken!=null&&world.isCaptured(creativeId));
@@ -168,6 +169,7 @@ public final class FreezerGameTests {
         player.moveTo(X+offset+.5,65,6.5);player.getAbilities().instabuild=creative;
         player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(net.minecraft.world.item.Items.APPLE));
         player.setItemInHand(hand,new ItemStack(ModItems.CARRIER.get()));
+        animal.life().spray(); // a wild animal resists the basket unless it trusts the player or is sedated
         player.interactOn(animal,hand);var token=CarrierItem.token(player.getItemInHand(hand));
         String label=(creative?"creative":"survival")+" "+hand;
         check(label+" actual interaction stores token",token!=null&&world.isCaptured(id));

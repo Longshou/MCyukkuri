@@ -18,7 +18,7 @@ public final class PetScenes {
     public static boolean ready(YukkuriEntity y, String kind, int ticks) {
         long now = y.level().getGameTime(); var key = new UUID(y.getUUID().getMostSignificantBits() ^ kind.hashCode(), y.getUUID().getLeastSignificantBits());
         if (COOLDOWN.getOrDefault(key, 0L) > now) return false;
-        if (COOLDOWN.size() > 256) COOLDOWN.values().removeIf(t -> t <= now);
+        if (COOLDOWN.size() > 256) { COOLDOWN.values().removeIf(t -> t <= now); if (COOLDOWN.size() > 2048) COOLDOWN.clear(); }
         COOLDOWN.put(key, now + ticks); return true;
     }
     public static void reset() { COOLDOWN.clear(); }

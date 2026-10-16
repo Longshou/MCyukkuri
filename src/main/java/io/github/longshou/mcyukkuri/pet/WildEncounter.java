@@ -22,7 +22,7 @@ public final class WildEncounter {
     public static void reset() { WILD.clear(); PET.clear(); TOLD.clear(); }
     private static boolean held(Map<UUID, Long> map, UUID id, long now) { return map.getOrDefault(id, 0L) > now; }
     private static void hold(Map<UUID, Long> map, UUID id, long now, int ticks) {
-        if (map.size() > 256) map.values().removeIf(t -> t <= now);
+        if (map.size() > 256) { map.values().removeIf(t -> t <= now); if (map.size() > 2048) map.clear(); }
         map.put(id, now + ticks);
     }
     /** Wild side: awake, unoccupied, not in trouble. Hunger itself is no obstacle. */

@@ -44,6 +44,8 @@ public final class PredatorLife {
     private boolean naturalSpawn;
 
     public PredatorLife(YukkuriEntity animal) { this.animal = animal; }
+    /** Owner alerts never outlive their server. */
+    public static void resetAlerts() { ALERTED.clear(); }
     public boolean active() { return task != Task.NONE; }
     public Order order() { return obedient() && validCommander() ? order : Order.NATURAL; }
     public String activity() {
@@ -71,7 +73,7 @@ public final class PredatorLife {
     public boolean command(Player player, Order requested) {
         if (!obedient()) { defy(player); return false; }
         if (!animal.pet().near(player) || !HumanCommerce.ownedBy(animal, player.getUUID())
-                || animal.pet().busy() || animal.operations().active() || animal.isCommandPlaying()) return false;
+                || animal.pet().busy() || animal.operations().active() || animal.isCommandPlaying() && reactWait == 0) return false; // its own bow/ignore reaction does not block the next order
         if (requested == Order.RETURN && animal.life().homeStand() == null) return false;
         stop(); order = requested; commander = player.getUUID(); cooldown = 0;
         animal.setPersistenceRequired();
@@ -101,7 +103,7 @@ public final class PredatorLife {
         if (owner == null || owner.level() != level() || owner.distanceToSqr(prey) > 4096) return;
         long now = level().getGameTime();
         if (ALERTED.getOrDefault(prey.getUUID(), 0L) > now) return;
-        if (ALERTED.size() > 128) ALERTED.values().removeIf(t -> t <= now);
+        if (ALERTED.size() > 128) { ALERTED.values().removeIf(t -> t <= now); if (ALERTED.size() > 1024) ALERTED.clear(); }
         ALERTED.put(prey.getUUID(), now + 600);
         owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
         if (owner.distanceToSqr(prey) <= 256) prey.showReaction("surprise", "afraid", 80);

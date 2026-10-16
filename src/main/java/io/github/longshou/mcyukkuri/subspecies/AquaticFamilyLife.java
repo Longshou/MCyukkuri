@@ -352,7 +352,7 @@ public final class AquaticFamilyLife {
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
                     if(troubled.family().rescueIntoHat(boat))hold(boat,"boat_return_family");
-                    else if(alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
+                    else if(this.alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
                     else if(horizontal(boat.position(),troubled.position())>.8)steer(boat,troubled.position(),false);
                     else hold(boat,"boat_guard_young");
                     activity="boat_rescue_young";return true;

@@ -67,6 +67,7 @@ public final class ShopDate implements IntPredicate {
     private static void face(YukkuriEntity a, YukkuriEntity b) { a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30); }
     private void hold(HumanNpc k, boolean on) {
         if (on && !held && k != null) {
+            if (ShopCourier.busy(k)) return; // a courier job (or a stray basket) owns the hand: only swing
             kept = k.getMainHandItem().copy(); k.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
             held = true; HOLDING.add(keeperId);
         } else if (!on && held) {

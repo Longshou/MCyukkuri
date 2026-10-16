@@ -427,7 +427,10 @@ public final class PetShopGameTests {
             clickTick = h.getTick();
             return true;
         });
-        step("buyback: animal walks into a pen", 400, () -> {
+        step("buyback: animal walks into a pen", 700, () -> {
+            // A keeper may carry it in a basket (captured and released as a new entity object with the same UUID), so follow it by UUID.
+            if (!(level.getEntity(subjectId) instanceof YukkuriEntity current)) { note = "in the keeper's basket, elapsed=" + (h.getTick() - clickTick); return false; }
+            subject = current;
             note = "busyWith=" + subject.pet().busyWith() + " elapsed=" + (h.getTick() - clickTick) + " pos=" + subject.position();
             if (subject.pet().busy()) return false;
             int nearest = nestDistance(subject);
@@ -979,7 +982,8 @@ public final class PetShopGameTests {
             return true;
         });
         t.critical("custody binds", 800, () -> t.level.getEntitiesOfClass(YukkuriEntity.class, t.area).stream().noneMatch(y -> HumanCommerce.data(y).contains("PendingRole")));
-        t.step("ship one candidate and receive it at the shop", 20, () -> {
+        var sent = new Object[4]; // id, token, stock before, factory
+        t.step("ship one candidate and the keeper takes it", 20, () -> {
             t.findCast(); t.freezeShop();
             var factory = t.level.getEntitiesOfClass(HumanNpc.class, t.area, n -> n.siteRole().equals("bag_worker")).stream().findFirst().orElse(null);
             t.check("cast found", t.shop != null && t.keeper != null && factory != null, "shop=" + t.shop + " keeper=" + t.keeper + " factory=" + factory);
@@ -1002,7 +1006,16 @@ public final class PetShopGameTests {
             t.check("nothing arrives before the transit time", !ShopDeliveries.arrive(t.keeper, t.level, now) && data.pending().size() == 1);
             boolean arrived = ShopDeliveries.arrive(t.keeper, t.level, now + ShopDeliveries.TRANSIT);
             t.check("the keeper receives the delivery after the transit time", arrived, "stock=" + stock + " pen=" + ShopPens.freePen(t.level, t.shop, null, false));
+            sent[0] = id; sent[1] = token; sent[2] = stock; sent[3] = factory;
+            return true;
+        });
+        // A keeper now carries the delivery to its pen in a basket (the NoAi keeper cannot walk, so the leg times out into a direct set-down), and the animal stays in custody until then.
+        t.step("the keeper sets the delivery down in a pen", 600, () -> {
+            if (sent[0] == null) return true;
+            var id = (UUID) sent[0]; var token = (UUID) sent[1]; int stock = (Integer) sent[2]; var factory = (HumanNpc) sent[3];
+            var custody = YukkuriWorldData.get(t.level); var data = ShopDeliveries.get(t.level); long now = t.level.getGameTime();
             var in = t.level.getEntity(id);
+            if (!(in instanceof YukkuriEntity)) return false;
             t.check("the same UUID is back as shop stock owned by the shopkeeper", in instanceof YukkuriEntity s && HumanCommerce.ownedBy(s, t.shop.getUUID()) && use(s).equals("stock"), "entity=" + in);
             if (in instanceof YukkuriEntity s) {
                 t.check("factory origin is recorded and the grade is NONE", s.getPersistentData().hasUUID("FactoryOrigin") && s.getPersistentData().getUUID("FactoryOrigin").equals(factory.getUUID()) && s.pet().grade() == BadgeGrade.NONE);
