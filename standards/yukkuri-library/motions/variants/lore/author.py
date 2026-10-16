@@ -19,7 +19,10 @@ TEXTURES = ROOT/'src/main/resources/assets/mcyukkuri/textures/entity'
 DISTRESS_CLIPS=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','water_held_breath','boat_reassure',
                 'boat_alarm_call','boat_alarm_wait','boat_answer_call','boat_flee','boat_calm',
                 'braid_rescue_reach','braid_rescue_hold','braid_rescue_settle',
-                'water_hat_flip','water_hat_grip','water_hat_climb','water_hat_pull','water_hat_over')
+                'water_hat_flip','water_hat_grip','water_hat_climb','water_hat_pull','water_hat_over',
+                'hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
+# Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
+NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 _BRAID_RESCUE=None
 
 
@@ -73,7 +76,7 @@ def state(action, t, c, height):
     if action.startswith('braid_rescue_'):
         global _BRAID_RESCUE
         if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
-        r=list(_BRAID_RESCUE['root_rotation']);lift=_BRAID_RESCUE['root_lift']
+        r=list(_BRAID_RESCUE['root_rotation']);lift=_BRAID_RESCUE['root_lift']  # v4: root_pitch_degrees is 0, no whole-body tilt
     elif action in ('boat_alarm_call','boat_answer_call'):
         q=keyed(t,[(0,.1),(.16,1),(.4,.55),(.75,.3),(d,.2)])
         s=[1+.03*q,1-.065*q,1+.025*q];r=[-3*q,keyed(t,[(0,0),(.25,-9),(.65,5),(d,0)]),0]
@@ -88,7 +91,8 @@ def state(action, t, c, height):
         # used by SelfRescueHatGeometry stable while the real braid does the work.
         s=[1.,1.,1.];r=[0.,0.,0.]
     elif action=='water_hat_grip':
-        q=min(1,max(0,t/d));s=[1,1,1];r=[-12*smooth(q),0,-3*math.sin(math.pi*q)**2]
+        # Mouth hold on the rim (project original): the head rides a few degrees low, braids only touch.
+        q=min(1,max(0,t/d));s=[1,1,1];r=[-6*smooth(q),0,-3*math.sin(math.pi*q)**2]
     elif action=='water_hat_climb':
         press=keyed(t,[(0,.5),(.2,1),(.52,.8),(.8,.35),(1.2,0)])
         s=[1+.055*press,1-.14*press,1+.04*press];r=[-9*press,0,keyed(t,[(0,-3),(.34,2),(.75,-1),(1.2,0)])]
@@ -101,6 +105,42 @@ def state(action, t, c, height):
         q=min(1,max(0,t/d))
         pulse=lambda v:math.sin(math.pi*v)**2 if 0<v<1 else 0
         s=[1,1,1];r=[-18+18*smooth((q-.42)/.58),0,-3*pulse((q-.08)/.34)]
+    elif action=='hat_brim_offer':
+        # Project original: the captain settles her weight toward the near rim (the hull dip itself is the boat's).
+        w=2*math.pi*t/d;lean=.72+.28*math.sin(w)
+        s=[1+.04*lean,1-.06*lean,1+.03*lean];r=[-4.5*lean,3*math.sin(w+1),3*math.sin(w+.6)];shift[1]=-.3*lean
+    elif action=='hat_hop_up':
+        # Crouch, spring, land compressed; HatBoarding supplies the arc so there is no lift here.
+        a=keyed(t,[(0,0),(.3,1),(.4,-.5),(.55,-.2),(.62,.7),(.8,0)])
+        s=squash(a,.065,.12,.045)
+        r=[keyed(t,[(0,0),(.3,-4),(.42,-6),(.55,3),(.68,1),(.8,0)]),keyed(t,[(0,0),(.3,2),(.55,-2),(.8,0)]),0]
+    elif action=='water_bob_lunge':
+        # One darting surge up the dipped rim: squash, stretch, release; both ends match so it can repeat.
+        a=keyed(t,[(0,.35),(.22,1),(.36,-.8),(.5,-.35),(.7,.35)])
+        s=squash(a,.07,.14,.05)
+        r=[keyed(t,[(0,1),(.22,-2),(.36,-8),(.52,-4),(.7,1)]),keyed(t,[(0,0),(.22,-3),(.4,4),(.7,0)]),keyed(t,[(0,0),(.22,-3),(.38,3),(.7,0)])]
+    elif action=='hat_slide_over':
+        # zuri-zuri: the belly presses on the rim and the body wriggles over it; HatBoarding keeps the lowest point supported.
+        w=2*math.pi*t/.7;press=keyed(t,[(0,.3),(.2,1),(.9,1),(1.4,.1)])
+        s=squash(press,.08,.15,.05)
+        r=[-8*(1-smooth((t-.15)/1.2)),8*math.sin(w)*(1-smooth((t-.9)/.5)),3*math.sin(w+.8)*(1-smooth((t-1)/.4))]
+    elif action=='water_mouth_grip':
+        # Project original: the mouth holds the brim, so the head rides back a little; breathing and a small tremble only.
+        w=2*math.pi*t/d
+        s=[1.03,.95+.012*math.sin(w),1.03];r=[5+1*math.sin(2*w),2*math.sin(w+.5),2*math.sin(w)]
+    elif action=='water_hat_shake':
+        env=smooth(t/.15)*(1-smooth((t-1.0)/.2));sw=math.sin(2*math.pi*2.5*t);q=abs(sw)*env
+        s=[1+.04*q,1-.05*q,1+.03*q];r=[keyed(t,[(0,0),(.15,2),(.6,-2),(1.2,0)]),14*env*sw,3*env*math.sin(2*math.pi*2.5*t+1.2)]
+    elif action=='water_hat_push':
+        a=keyed(t,[(0,.2),(.2,1),(.38,-.9),(.55,-.3),(.8,.2)])
+        s=squash(a,.07,.13,.05)
+        r=[keyed(t,[(0,0),(.2,2),(.38,-8),(.6,-3),(.8,0)]),keyed(t,[(0,0),(.2,-4),(.4,4),(.8,0)]),keyed(t,[(0,0),(.2,-3),(.4,4),(.8,0)])]
+    elif action=='boat_nudge_young':
+        # Project original: a short chest-first nudge at the child's back, never a lift.
+        a=keyed(t,[(0,.2),(.18,.8),(.34,-.7),(.5,-.3),(.8,.2)])
+        s=squash(a,.05,.1,.04)
+        r=[keyed(t,[(0,0),(.18,3),(.34,-8),(.55,-3),(.8,-1)]),0,0]
+        shift[1]=keyed(t,[(0,0),(.18,.3),(.34,-.9),(.6,-.3),(.8,0)])
     elif action == 'hat_stumble':
         press=keyed(t,[(0,.15),(.10,1),(.25,.45),(.40,.85),(.65,.35),(.83,.65),(1.2,.15)])
         s=[1+.065*press,1-.16*press,1+.07*press]
@@ -112,12 +152,12 @@ def state(action, t, c, height):
     elif action == 'water_plunge':
         impact=keyed(t,[(0,.1),(.12,1),(.30,.55),(.6,.15)])
         s=[1+.10*impact,1-.22*impact,1+.08*impact]
-        r=[keyed(t,[(0,-15),(.12,-21),(.3,4),(.48,13),(.6,8)]),0,keyed(t,[(0,-7),(.16,9),(.36,-4),(.6,0)])]
+        r=[keyed(t,[(0,-9),(.12,-12),(.3,3),(.48,10),(.6,6)]),0,keyed(t,[(0,-5),(.16,6),(.36,-3),(.6,0)])]
     elif action == 'water_struggle':
         effort=keyed(t,[(0,.1),(.07,.9),(.17,.35),(.28,1),(.4,.12),(1.6,.1)])
         s=[1+.045*effort,.92+.07*effort,1+.055*effort]
-        r=[keyed(t,[(0,7),(.07,16),(.18,-4),(.28,15),(.4,6),(1.6,7)]),
-           keyed(t,[(0,0),(.12,-5),(.3,4),(.45,0),(1.6,0)]),keyed(t,[(0,-2),(.12,7),(.29,-6),(.44,0),(1.6,-2)])]
+        r=[keyed(t,[(0,5),(.07,10),(.18,-3),(.28,9.5),(.4,4),(1.6,5)]),
+           keyed(t,[(0,0),(.12,-5),(.3,4),(.45,0),(1.6,0)]),keyed(t,[(0,-2),(.12,6),(.29,-5),(.44,0),(1.6,-2)])]
     elif action == 'water_gasp':
         breath=keyed(t,[(0,0),(.3,0),(.5,1),(.75,.1),(1.2,0),(1.6,0)])
         s=[1.035,.81+.035*breath,1.045]
@@ -508,6 +548,28 @@ def flourish_tracks(model, action, samples, cfg, c):
                 q=keyed(t,[(0,.3),(.15,1),(.35,.5),(.58,.9),(c['duration'],.3)])
                 return [10*q,side*5*q,side*(12+19*q)]
             tracks.append({'bone':hand,'channel':'rotation','keys':[[round(t,8),*[round(v,5) for v in gesture(t)]] for t in samples]})
+    if action in NEW_BRAID_CLIPS:
+        d=c['duration'];paddle=action in ('hat_brim_offer','boat_nudge_young')
+        def lunge(t):return bump((t-.22)/.3)
+        def shaker(t):return smooth(t/.15)*(1-smooth((t-1.0)/.2))*math.sin(2*math.pi*2.5*t)
+        for bone,side in (('hand_right',1),('hand_left',-1)):
+            hand,parts=carried(model,bone)
+            if not parts:continue
+            def gesture(t):
+                if paddle:  # the right braid keeps holding the paddle; the other rests
+                    return [4,0,24+3*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]
+                if action=='water_mouth_grip':
+                    q=.5+.5*math.sin(2*math.pi*t/d);return [2-3*q,0,side*(8+5*q)]
+                if action=='water_bob_lunge':
+                    q=lunge(t);return [-6*q,0,side*(8+16*q)]
+                if action=='hat_slide_over':
+                    w=math.sin(2*math.pi*t/.7);return [0,side*3*w,side*(8+5*(.5+.5*w))]
+                if action=='water_hat_shake':
+                    w=shaker(t);return [0,side*10*w,side*(10+14*abs(w))]
+                if action=='water_hat_push':
+                    q=bump((t-.2)/.3);return [-8*q,0,side*(8+14*q)]
+                q=bump((t-.3)/.3);return [-8*q,0,side*(8+16*q)]  # hat_hop_up
+            tracks.append({'bone':hand,'channel':'rotation','keys':[[round(t,8),*[round(v,5) for v in gesture(t)]] for t in samples]})
     if action in ('boat_paddle', 'boat_gather', 'boat_drink'):
         hand, parts = carried(model, 'hand_right')
         if parts:
@@ -678,7 +740,7 @@ def export_distress_clips(include_pet=False):
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    payload['revision']='aquatic-contact-climb-20261017-v22'
+    payload['revision']='aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),

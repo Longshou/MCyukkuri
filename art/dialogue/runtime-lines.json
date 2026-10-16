@@ -19198,9 +19198,9 @@
       "id": "marisa.adult.o_self_rescue_hat",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おぼうしを ひっくりかえすのぜ……。",
-      "chinese": "把帽帽翻过来……。",
-      "english": "Turn my hat over...",
+      "japanese": "おぼうし…… ふりおとすのぜ……。",
+      "chinese": "帽帽……抖掉……。",
+      "english": "Shake... the hat... off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -19209,15 +19209,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_self_rescue_hat"
       },
-      "source_sha256": "342399dc84db0a60b2af9c460f8eb1a41f2e38bc0b2ac6e46fe23bff815ff4a3"
+      "source_sha256": "13a6a67da8fb9f149afb8c6c9bb5585513e55cfebe0cc615d6fa32200de9a5b9"
     },
     {
       "id": "marisa.adult.o_self_rescue_grip",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ふちに つかまったのぜ！",
-      "chinese": "抓住帽檐了！",
-      "english": "I have the brim!",
+      "japanese": "ふちを くわえたのぜ！",
+      "chinese": "咬住帽檐了！",
+      "english": "I am biting the brim!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19226,7 +19226,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_self_rescue_grip"
       },
-      "source_sha256": "6b0570328f67ca262307bb8d86bbb364833dc4f4c35aefb23392a87ee6b3ee63"
+      "source_sha256": "cf146c1efd313ca81a06a2c576d1f455286eb479ac58466e1c50601382356da5"
     },
     {
       "id": "marisa.adult.o_self_rescue_climb",
@@ -19283,9 +19283,9 @@
       "id": "marisa.adult.o_braid_rescue_offer",
       "species": "marisa",
       "age": "adult",
-      "japanese": "いまいくのぜ！ みつあみに つかまるのぜ！",
-      "chinese": "这就来！抓住辫辫！",
-      "english": "I am coming! Hold on to my braid!",
+      "japanese": "いまいくのぜ！ ふちに つかまるのぜ！",
+      "chinese": "这就来！靠过来，抓住帽檐！",
+      "english": "I am coming! Come close and hold the brim!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -19294,15 +19294,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_braid_rescue_offer"
       },
-      "source_sha256": "7cee7739b67c07bd8cdd56e69cb550b673acdb6dd470c5d4757b3ffe152f506d"
+      "source_sha256": "4c2144c822862315d810312c4e567252bdc8f9763d2625d2a6cde8fb46b3419e"
     },
     {
       "id": "marisa.adult.o_braid_rescue_grip",
       "species": "marisa",
       "age": "adult",
-      "japanese": "つかんだのぜ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたのぜ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19311,7 +19311,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "323ceaa4f374ecb6e7e7ecb219313571b0b0ab7306fefcc4b66fcf7704cfcad9"
+      "source_sha256": "fe4eb0924bd55f061f8ee3f172b76d4d11fa3222afa054f5bf6f2bcfd48cb86b"
     },
     {
       "id": "marisa.adult.o_braid_rescue_safe",
@@ -19487,9 +19487,9 @@
       "id": "marisa.young.o_self_rescue_hat",
       "species": "marisa",
       "age": "young",
-      "japanese": "おぼうしを ひっくりかえすのじぇ……。",
-      "chinese": "把帽帽翻过来……。",
-      "english": "Turn my hat over...",
+      "japanese": "おぼうし…… ふりおとすのじぇ……。",
+      "chinese": "帽帽……抖掉……。",
+      "english": "Shake... the hat... off...",
       "events": [
         "self_rescue_hat"
       ],
@@ -19498,15 +19498,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_self_rescue_hat"
       },
-      "source_sha256": "4ab096fe2266fcb1e3d6ef02d9568e12fc4e8630e3f2d7f36aa06781037af640"
+      "source_sha256": "dd0b15cdc583e2782695ceb3a277904b4a7f39ae619fd6b528b30bd9bdbf4e4c"
     },
     {
       "id": "marisa.young.o_self_rescue_grip",
       "species": "marisa",
       "age": "young",
-      "japanese": "ふちに ちゅかまったのじぇ！",
-      "chinese": "抓住帽檐了！",
-      "english": "I have the brim!",
+      "japanese": "ふちを くわえたのじぇ！",
+      "chinese": "咬住帽檐了！",
+      "english": "I am biting the brim!",
       "events": [
         "self_rescue_grip"
       ],
@@ -19515,7 +19515,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_self_rescue_grip"
       },
-      "source_sha256": "982b1f109bebab12b0c47e0a639b9a4947bccfa83c636a0caa413cf172e59136"
+      "source_sha256": "25d59550dba5a15489e98df3c168bfff5c346abfc918b8712fb505116c0c7f6d"
     },
     {
       "id": "marisa.young.o_self_rescue_climb",
@@ -19572,9 +19572,9 @@
       "id": "marisa.young.o_braid_rescue_offer",
       "species": "marisa",
       "age": "young",
-      "japanese": "いまいくのじぇ！ みつあみに ちゅかまるのじぇ！",
-      "chinese": "这就来！抓住辫辫！",
-      "english": "I am coming! Hold on to my braid!",
+      "japanese": "いまいくのじぇ！ ふちに ちゅかまるのじぇ！",
+      "chinese": "这就来！靠过来，抓住帽檐！",
+      "english": "I am coming! Come close and hold the brim!",
       "events": [
         "braid_rescue_offer"
       ],
@@ -19583,15 +19583,15 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_braid_rescue_offer"
       },
-      "source_sha256": "571faaa9db02599e7ee18e92bc7d1b634138729e6a599aa3c86128836530b511"
+      "source_sha256": "c81c77f62223b40d6dfe96793606a42712e80b77f0a13a63a5c05d16d4c52bf3"
     },
     {
       "id": "marisa.young.o_braid_rescue_grip",
       "species": "marisa",
       "age": "young",
-      "japanese": "ちゅかんだのじぇ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたのじぇ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19600,7 +19600,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_braid_rescue_grip"
       },
-      "source_sha256": "ebf5b5d412cde3cafa6e2e4d49bf8dc0f309f8121f48018dd0547c169ddca0cb"
+      "source_sha256": "c60e6ebcb1d5d6bab0573468e3ef24ee5589806b4b3f0444f4e4dfffad44bb4f"
     },
     {
       "id": "marisa.young.o_braid_rescue_safe",
@@ -19691,9 +19691,9 @@
       "id": "reimu.adult.o_braid_rescue_grip",
       "species": "reimu",
       "age": "adult",
-      "japanese": "つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19702,7 +19702,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "0ab5a83a82ca55d749596931e0ba202e47e85dbc0e419694a12bcdff91efcfa6"
+      "source_sha256": "3f5f9b73c4c3ec6d49ab2cc59a6193e91a72f2b3e20357bca6fb6104bb10e984"
     },
     {
       "id": "reimu.young.o_water_help",
@@ -19725,9 +19725,9 @@
       "id": "reimu.young.o_braid_rescue_grip",
       "species": "reimu",
       "age": "young",
-      "japanese": "ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19736,7 +19736,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "reimu.young.o_braid_rescue_grip"
       },
-      "source_sha256": "c887d06337814d613a74dcdc4c064e4c2df8e9de7ccf23c09beb49a3eacec619"
+      "source_sha256": "3f5f9b73c4c3ec6d49ab2cc59a6193e91a72f2b3e20357bca6fb6104bb10e984"
     },
     {
       "id": "alice.adult.o_water_help",
@@ -19759,9 +19759,9 @@
       "id": "alice.adult.o_braid_rescue_grip",
       "species": "alice",
       "age": "adult",
-      "japanese": "つかまったわ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたわ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19770,7 +19770,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "c0f6a6ce58b423a24e2388b38a502d38f5ade31823c60f3dff9d5f651991cb5e"
+      "source_sha256": "c35e415210044dec7f6bc71d59c22e882e0eb4ba4ea7222c4d816b39403ae063"
     },
     {
       "id": "alice.young.o_water_help",
@@ -19793,9 +19793,9 @@
       "id": "alice.young.o_braid_rescue_grip",
       "species": "alice",
       "age": "young",
-      "japanese": "ちゅかまったわ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたわ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19804,7 +19804,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "alice.young.o_braid_rescue_grip"
       },
-      "source_sha256": "c825e74ceb79124c2284a594b9b3dc99acfb7d74ab900499b185399e1157f9ad"
+      "source_sha256": "c35e415210044dec7f6bc71d59c22e882e0eb4ba4ea7222c4d816b39403ae063"
     },
     {
       "id": "chen.adult.o_water_help",
@@ -19827,9 +19827,9 @@
       "id": "chen.adult.o_braid_rescue_grip",
       "species": "chen",
       "age": "adult",
-      "japanese": "つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19838,7 +19838,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "0ab5a83a82ca55d749596931e0ba202e47e85dbc0e419694a12bcdff91efcfa6"
+      "source_sha256": "3f5f9b73c4c3ec6d49ab2cc59a6193e91a72f2b3e20357bca6fb6104bb10e984"
     },
     {
       "id": "chen.young.o_water_help",
@@ -19861,9 +19861,9 @@
       "id": "chen.young.o_braid_rescue_grip",
       "species": "chen",
       "age": "young",
-      "japanese": "ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19872,7 +19872,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "chen.young.o_braid_rescue_grip"
       },
-      "source_sha256": "c887d06337814d613a74dcdc4c064e4c2df8e9de7ccf23c09beb49a3eacec619"
+      "source_sha256": "3f5f9b73c4c3ec6d49ab2cc59a6193e91a72f2b3e20357bca6fb6104bb10e984"
     },
     {
       "id": "patchouli.adult.o_water_help",
@@ -19895,9 +19895,9 @@
       "id": "patchouli.adult.o_braid_rescue_grip",
       "species": "patchouli",
       "age": "adult",
-      "japanese": "むきゅ……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "むきゅ……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19906,7 +19906,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "9ae7555c81528b476e3a9e0c6a501dde708b8fc90211708e4ae46efe28b089c5"
+      "source_sha256": "4614e639dae0b6dbce4fb7f460430365a5ffc0f5a460327b77f2b7855e402cda"
     },
     {
       "id": "patchouli.young.o_water_help",
@@ -19929,9 +19929,9 @@
       "id": "patchouli.young.o_braid_rescue_grip",
       "species": "patchouli",
       "age": "young",
-      "japanese": "むきゅ……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "むきゅ……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19940,7 +19940,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "patchouli.young.o_braid_rescue_grip"
       },
-      "source_sha256": "a333c41568d1b36c5e1e31357b0b3fb87d1ec8a09ecca4cc07dd0c0ed1256e98"
+      "source_sha256": "4614e639dae0b6dbce4fb7f460430365a5ffc0f5a460327b77f2b7855e402cda"
     },
     {
       "id": "remilia.adult.o_water_help",
@@ -19963,9 +19963,9 @@
       "id": "remilia.adult.o_braid_rescue_grip",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -19974,7 +19974,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "4077d9df95257fd11ae01799b0d8b1b6d4b4935dddc43134258f2399539ce966"
+      "source_sha256": "586007b75904d9bc9e6bc824e114b8f6c8ceb8febb843b02b835d7fae2144ca2"
     },
     {
       "id": "remilia.young.o_water_help",
@@ -19997,9 +19997,9 @@
       "id": "remilia.young.o_braid_rescue_grip",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -20008,7 +20008,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_braid_rescue_grip"
       },
-      "source_sha256": "8cf11bcf6ccf32cdc61bbdd1dce6e65bf4eb9fc660071139cf27354dd5000c29"
+      "source_sha256": "586007b75904d9bc9e6bc824e114b8f6c8ceb8febb843b02b835d7fae2144ca2"
     },
     {
       "id": "flandre.adult.o_water_help",
@@ -20031,9 +20031,9 @@
       "id": "flandre.adult.o_braid_rescue_grip",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー……つかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -20042,7 +20042,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_braid_rescue_grip"
       },
-      "source_sha256": "4077d9df95257fd11ae01799b0d8b1b6d4b4935dddc43134258f2399539ce966"
+      "source_sha256": "586007b75904d9bc9e6bc824e114b8f6c8ceb8febb843b02b835d7fae2144ca2"
     },
     {
       "id": "flandre.young.o_water_help",
@@ -20065,9 +20065,9 @@
       "id": "flandre.young.o_braid_rescue_grip",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー……ちゅかまったよ！ はなさないで！",
-      "chinese": "抓住了！不要松开！",
-      "english": "I have it! Do not let go!",
+      "japanese": "うー……くわえたよ！ はなさないで！",
+      "chinese": "咬住啦！不要松口！",
+      "english": "I am biting on! Do not let go!",
       "events": [
         "braid_rescue_grip"
       ],
@@ -20076,7 +20076,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_braid_rescue_grip"
       },
-      "source_sha256": "8cf11bcf6ccf32cdc61bbdd1dce6e65bf4eb9fc660071139cf27354dd5000c29"
+      "source_sha256": "586007b75904d9bc9e6bc824e114b8f6c8ceb8febb843b02b835d7fae2144ca2"
     }
   ]
 }

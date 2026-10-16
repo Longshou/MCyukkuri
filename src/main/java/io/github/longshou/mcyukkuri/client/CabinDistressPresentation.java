@@ -61,13 +61,18 @@ final class CabinDistressPresentation {
         if(!entity.getBehaviorId().startsWith("water_hat_")||state.getString("Phase").isEmpty())return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         return switch(state.getString("Phase")){
-            case "REMOVE_HAT"->new Motion("water_hat_flip",Math.min(2.9f,elapsed));
-            case "DEPLOY_HAT"->new Motion("water_hat_flip",2.9f);
-            case "GRIP","RIGHT_HAT"->new Motion("water_hat_grip",elapsed%1f);
-            case "CLIMB"->new Motion("water_hat_climb",1.2f*net.minecraft.util.Mth.clamp(elapsed/2f,0,1));
-            case "SLIPPED"->entity.hasVisibleAccessory()&&state.getBoolean("Planned")&&state.getFloat("RemovalProgress")>0
-                    ?new Motion("water_hat_flip",2.9f*state.getFloat("RemovalProgress")*(1-net.minecraft.util.Mth.clamp(elapsed,0,1)))
-                    :new Motion("water_gasp",elapsed%1.6f);
+            // Shake the worn hat off (project original): the clip spans the server's whole phase.
+            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*net.minecraft.util.Mth.clamp(elapsed/(state.contains("Duration")?Math.max(1,state.getInt("Duration"))/20f:1.8f),0,1));
+            case "DEPLOY_HAT"->new Motion("water_hat_shake",1.2f);
+            case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
+            case "RIGHT_HAT"->{
+                // Three body pushes of 20 ticks; tolerate a phase clock that is cumulative or restarts for each push.
+                int index=net.minecraft.util.Mth.clamp(state.getInt("PushIndex"),0,2);
+                float local=elapsed>=index?elapsed-index:elapsed;
+                yield new Motion("water_hat_push",Math.min(.8f,Math.max(0,local)));
+            }
+            case "CLIMB"->new Motion("water_mouth_grip",elapsed%.8f); // HatBoarding takes over with its own clips
+            case "SLIPPED"->new Motion("water_gasp",elapsed%1.6f);
             case "SAFE"->new Motion("water_recover",Math.min(2.8f,elapsed));
             default->null; // Approach/failure remain the actual immersed struggle and breath.
         };
@@ -79,12 +84,13 @@ final class CabinDistressPresentation {
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         float q=net.minecraft.util.Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
         // Every root position belongs to HatBoarding; these clips add pressure and breathing only.
+        // GRIP bites the rim, LIFT surges twice up the dipped rim, SETTLE slides over it, HOP is the small hop (project original).
         return switch(state.getString("Phase")){
             case "ALIGN"->new Motion("water_hat_grip",0);
-            case "GRIP"->new Motion("water_hat_grip",q);
-            case "HOP"->new Motion("water_hat_grip",q);
-            case "LIFT"->new Motion("water_hat_pull",1.2f*q);
-            case "SETTLE"->new Motion("water_hat_over",1.2f*q);
+            case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
+            case "HOP"->new Motion("hat_hop_up",.3f+.5f*q);
+            case "LIFT"->new Motion("water_bob_lunge",.7f*((q*2)%1f));
+            case "SETTLE"->new Motion("hat_slide_over",1.4f*q);
             default->null;
         };
     }
@@ -94,8 +100,13 @@ final class CabinDistressPresentation {
         if(!state.getBoolean("Active"))return;
         if(state.contains("RootPitch")){
             float pitch=(float)state.getDouble("RootPitch"),roll=(float)state.getDouble("RootRoll");
+            float squash=state.contains("RootSquash")?state.getFloat("RootSquash"):1;
+            if(state.contains("PrevRootSquash"))squash=net.minecraft.util.Mth.lerp(partial,state.getFloat("PrevRootSquash"),squash);
+            float q=net.minecraft.util.Mth.clamp((entity.level().getGameTime()-state.getLong("Start")+partial)/Math.max(1,state.getInt("Duration")),0,1);
+            // The slide's yaw wriggle shows only after the bite has let go (second half of SETTLE).
+            float wriggle=state.getString("Phase").equals("SETTLE")?net.minecraft.util.Mth.clamp((q-.45f)/.2f,0,1):0;
             model.setBoardingPose(state.contains("PrevRootPitch")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootPitch"),pitch):pitch,
-                    state.contains("PrevRootRoll")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootRoll"),roll):roll);
+                    state.contains("PrevRootRoll")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootRoll"),roll):roll,squash,wriggle);
         }
         if(!state.contains("TipX")||!state.contains("JointX"))return;
         // Joint, tip and body use the same server-tick interpolation interval.

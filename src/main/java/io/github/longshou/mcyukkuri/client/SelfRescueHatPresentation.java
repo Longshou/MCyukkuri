@@ -15,7 +15,6 @@ final class SelfRescueHatPresentation {
         if(!entity.getBehaviorId().startsWith("water_hat_"))return;
         var feet=entity.getPosition(partial);
         if(state.getBoolean("BraidContact")){
-            if(!entity.boardingState().getBoolean("Active"))model.setBoardingPose(0,0);
             model.setBraidRescueContact(modelPoint(interpolate(state,"PrevTip","Tip",partial),feet,entity,bodyYaw));
             model.setBraidRescueJoint(modelPoint(interpolate(state,"PrevJoint","Joint",partial),feet,entity,bodyYaw));
         }

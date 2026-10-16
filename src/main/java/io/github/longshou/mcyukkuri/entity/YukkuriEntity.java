@@ -598,14 +598,19 @@ public final class YukkuriEntity extends PathfinderMob {
         if(family.braidRescueActive()&&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             String phase=braidRescuePhase();boolean parent=braidRescueState().getInt("ParentId")==getId();
+            // Brim-dip rescue: the parent offers the rim, bites are the child's, one nudge, then calm. Unknown phases settle.
             String motion=parent?switch(phase){
-                case "REACH","CONTACT"->"braid_rescue_reach";
-                case "GRIP","LIFT","PLACE"->"braid_rescue_hold";
+                case "OFFER","BITE","SLIDE"->"braid_rescue_offer";
+                case "PUSH"->"braid_rescue_push";
                 default->"braid_rescue_settle";
             }:family.heldByBraid()?"braid_be_rescued":waterDistress.activity();
             setBehavior(motion);setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
             entityData.set(ANIMATION_START,parent||family.heldByBraid()?braidRescueStartTick():waterDistressStartTick());
-            entityData.set(EXPRESSION,phase.equals("RELEASE")?"neutral":"teary");
+            entityData.set(EXPRESSION,switch(phase){
+                case "PUSH","SLIDE"->parent?"closed_smile":"teary";
+                case "SETTLE","RELEASE"->"neutral";
+                default->"teary";
+            });
             return;
         }
         // Actual crowd contact and boat motion take precedence over leisure or a stale newborn pose.

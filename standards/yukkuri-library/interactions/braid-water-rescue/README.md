@@ -1,5 +1,7 @@
 # 单辫水面救援
 
+> 2026-10-17 第 4 版（压低近缘与咬缘重做，项目原创，非作品设定）：辫子不再托举、翻转或承力，只握桨或轻触帽缘；`root_pitch_degrees` 为 0，不再整身前倾；新增 `mouth_root`、`mouth_reach`、`approach/offer/bite/push/slide_ticks` 与 `boarding_body_pitch_min` 等键，`boarding_body_bounds` 俯仰范围扩到 -18～+6。以下关于两节辫托举、`RootBlend` 的描述是旧版（保留 id 兼容旧存档与旧预览），不再是现行流程；现行流程见 [水生魔理沙实现](../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md)。
+
 制作源为 `recipe.json`，`author.py` 从当前魔理沙模型导出单辫接触几何到 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json`。对应身体动作在 `motions/variants/lore/recipe.json`，不更换原模型或增加辫子。
 
 接触点取已有发梢网格的实际末端；`hand_right_tip` 骨骼转轴是两节辫子的真实关节，不能与末端接触点混为一点。制作源导出根至关节、关节至发梢的两段自然长度，服务器以两段三角形求出实际 `Joint`，客户端分别反解两根现有骨骼，不增骨、不伸长，也不把辫梢锁成直杆。根部俯身和对应支撑抬升以 `RootBlend` 同时进入服务端根锚与客户端模型：探身时缓入，孩子站稳后先松开发梢再缓退。

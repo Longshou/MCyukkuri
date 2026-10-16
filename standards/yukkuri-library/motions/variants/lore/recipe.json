@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -182,7 +182,7 @@
           "teary"
         ]
       ],
-      "lore": "The synchronized twelve-tick IMPACT phase: brief compression and a frightened cry, then raise the face. Root translation stays zero; no grounded correction or artificial buoyancy.",
+      "lore": "The synchronized twelve-tick IMPACT phase: brief compression and a frightened cry, then raise the face. Root translation stays zero; no grounded correction or artificial buoyancy. v14: pitch limited to -12..+10, roll 6.",
       "triggers": [
         "water_impact"
       ]
@@ -215,7 +215,7 @@
           "cry"
         ]
       ],
-      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity.",
+      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity. v14: pitch limited to 10, roll 6; effort is squash and braid strokes.",
       "triggers": [
         "water_struggle with synchronized effort"
       ]
@@ -2920,7 +2920,7 @@
           "teary"
         ]
       ],
-      "lore": "The single current braid follows the server's natural-length tip. Its fixed root pitch and support correction come from shared braid_rescue.json; the child remains in real water until sustained actual contact.",
+      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. The single current braid follows the server's natural-length tip. Its fixed root pitch and support correction come from shared braid_rescue.json; the child remains in real water until sustained actual contact.",
       "triggers": [
         "braid rescue REACH",
         "braid rescue CONTACT"
@@ -2944,7 +2944,7 @@
           "teary"
         ]
       ],
-      "lore": "The actual existing tuft contact follows the server low edge-support curve. The child grip remains at that same natural-length tip; no high hoist, root translation, extra hand or scaling is added by the pose.",
+      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. The actual existing tuft contact follows the server low edge-support curve. The child grip remains at that same natural-length tip; no high hoist, root translation, extra hand or scaling is added by the pose.",
       "triggers": [
         "braid rescue GRIP",
         "braid rescue LIFT",
@@ -2969,7 +2969,7 @@
           "neutral"
         ]
       ],
-      "lore": "Place on the reserved real support before release. Recovery belongs to actual dry support; this pose does not manufacture a platform or free flight.",
+      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. Place on the reserved real support before release. Recovery belongs to actual dry support; this pose does not manufacture a platform or free flight.",
       "triggers": [
         "braid rescue SETTLE",
         "braid rescue RELEASE"
@@ -3003,7 +3003,7 @@
           "teary"
         ]
       ],
-      "lore": "The same braid tip first reaches and grips the worn rim, then turns the hat outside the body around that contact and lowers it onto the water; SelfRescueHatGeometry owns the entire hat and braid path. The body frame stays stable and no independent centre lerp is applied.",
+      "lore": "Retired v14: the server no longer uses this clip, kept so old saves and previews still resolve. The same braid tip first reaches and grips the worn rim, then turns the hat outside the body around that contact and lowers it onto the water; SelfRescueHatGeometry owns the entire hat and braid path. The body frame stays stable and no independent centre lerp is applied.",
       "triggers": [
         "water_hat_flip"
       ],
@@ -3021,7 +3021,7 @@
       }
     },
     "water_hat_grip": {
-      "label": "贴真实帽檐抓稳喘息",
+      "label": "嘴含帽缘稳住呼吸",
       "duration": 1.0,
       "loop": true,
       "applies": "aquatic_marisa",
@@ -3038,7 +3038,7 @@
           "teary"
         ]
       ],
-      "lore": "Only the real contact phase uses this brace; the body remains at the synchronized fluid or hull contact point, with no upward animation track.",
+      "lore": "Mouth hold on the rim (project original, not canon): the head rides a few degrees low (pitch -6) and the braids only touch; the body stays at the server's contact point, with no upward animation track.",
       "triggers": [
         "water_hat_grip"
       ]
@@ -3061,7 +3061,7 @@
           "teary"
         ]
       ],
-      "lore": "The server owns every climb position and duration. The pose compresses against the edge then relaxes; it never adds a jump arc or root translation.",
+      "lore": "Retired v14: the server no longer uses this clip, kept so old saves and previews still resolve. The server owns every climb position and duration. The pose compresses against the edge then relaxes; it never adds a jump arc or root translation.",
       "triggers": [
         "water_hat_climb"
       ]
@@ -3299,7 +3299,7 @@
           "teary"
         ]
       ],
-      "lore": "Two effort pulses match server LIFT displacement; breathing pauses cause no horizontal sliding. Braid contact stays on the same real brim.",
+      "lore": "Retired v14: the server no longer uses this clip, kept so old saves and previews still resolve. Two effort pulses match server LIFT displacement; breathing pauses cause no horizontal sliding. Braid contact stays on the same real brim.",
       "triggers": [
         "HatBoarding LIFT"
       ]
@@ -3327,9 +3327,212 @@
           "sad"
         ]
       ],
-      "lore": "First compress the belly over the supported rim, pause, then ease onto the inner floor. No extra root lift or horizontal translation.",
+      "lore": "Retired v14: the server no longer uses this clip, kept so old saves and previews still resolve. First compress the belly over the supported rim, pause, then ease onto the inner floor. No extra root lift or horizontal translation.",
       "triggers": [
         "HatBoarding SETTLE"
+      ]
+    },
+    "hat_brim_offer": {
+      "label": "亲油压低近缘，等孩子靠上来",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.5,
+          "teary"
+        ],
+        [
+          0.5,
+          1.2,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project original (not canon): the captain sits her weight toward the near rim while the hull dips (HatBoatEntity dip, at most 5 degrees). Pitch -4.5, roll 3, yaw 3, squash h .94 w 1.04; the right braid keeps holding the paddle.",
+      "triggers": [
+        "HatBoarding offer",
+        "BraidRescue OFFER, BITE, SLIDE (parent)"
+      ]
+    },
+    "hat_hop_up": {
+      "label": "小步急跳上帽檐",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.3,
+          "teary"
+        ],
+        [
+          0.3,
+          0.55,
+          "open_smile"
+        ],
+        [
+          0.55,
+          0.8,
+          "happy"
+        ]
+      ],
+      "lore": "Crouch (h .88, w 1.065, pitch -4), spring (stretch, pitch -6 to +3) and a compressed landing. HatBoarding supplies the arc, limited to .08 of the body size; no lift here. EH07-006 and EH10-008 for the small quick hop.",
+      "triggers": [
+        "HatBoarding HOP"
+      ]
+    },
+    "water_bob_lunge": {
+      "label": "水中蹿身，一次顶上近缘",
+      "duration": 0.7,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.22,
+          "chewing_closed"
+        ],
+        [
+          0.22,
+          0.5,
+          "cry"
+        ],
+        [
+          0.5,
+          0.7,
+          "teary"
+        ]
+      ],
+      "lore": "Project original: one darting surge while the mouth holds the dipped rim, squash h .86 then stretch h 1.11, pitch -8 to +1, roll 4. Both ends match so it can repeat; HatBoarding LIFT plays it twice (.58 and .42 pull split) and owns the path.",
+      "triggers": [
+        "HatBoarding LIFT"
+      ]
+    },
+    "hat_slide_over": {
+      "label": "贴着帽缘滑进帽里",
+      "duration": 1.4,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.5,
+          "teary"
+        ],
+        [
+          0.5,
+          1.1,
+          "chewing_closed"
+        ],
+        [
+          1.1,
+          1.4,
+          "neutral"
+        ]
+      ],
+      "lore": "Project original zuri-zuri: belly pressed on the rim (h .85, w 1.08), yaw wriggle 8 degrees, pitch -8 to 0. HatBoarding SETTLE keeps the lowest point on real support.",
+      "triggers": [
+        "HatBoarding SETTLE",
+        "BraidRescue SLIDE (child)"
+      ]
+    },
+    "water_mouth_grip": {
+      "label": "咬住帽檐含稳",
+      "duration": 0.8,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.5,
+          "chewing_closed"
+        ],
+        [
+          0.5,
+          0.8,
+          "teary"
+        ]
+      ],
+      "lore": "Project original (not canon): the mouth bites a rim edge of the parent hat or the child's small hat. Head rides back, pitch +5; squash h .95; braids only touch. Contact is the mouth point within mouth_reach (braid_rescue.json) for 8 continuous ticks.",
+      "triggers": [
+        "HatBoarding GRIP",
+        "AquaticSelfRescue GRIP",
+        "BraidRescue BITE (child)"
+      ]
+    },
+    "water_hat_shake": {
+      "label": "甩头抖落帽子",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.3,
+          "cry"
+        ],
+        [
+          0.3,
+          1.2,
+          "teary"
+        ]
+      ],
+      "lore": "Shake the worn hat off: three yaw swings of 14 degrees at 2.5 Hz with squash, pitch within 2. The server drops the same single hat onto the planned water point; no braid takes the hat.",
+      "triggers": [
+        "AquaticSelfRescue REMOVE_HAT"
+      ]
+    },
+    "water_hat_push": {
+      "label": "从下往外顶翻帽子",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.25,
+          "teary"
+        ],
+        [
+          0.25,
+          0.55,
+          "cry"
+        ],
+        [
+          0.55,
+          0.8,
+          "teary"
+        ]
+      ],
+      "lore": "Project original: the head and body push the upturned hat from below, squash then stretch, pitch -8, roll 4. Three pushes (PushIndex 0 to 2) each add a third of the righting progress.",
+      "triggers": [
+        "AquaticSelfRescue RIGHT_HAT"
+      ]
+    },
+    "boat_nudge_young": {
+      "label": "亲油贴身一顶",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.8,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project original: a short chest-first nudge at the child's back (forward shift under .06 block, stretch, pitch -8). Never a lift or a carry; the right braid keeps holding the paddle.",
+      "triggers": [
+        "BraidRescue PUSH (parent)"
       ]
     },
     "water_held_breath": {
@@ -3443,5 +3646,5 @@
     "ignore",
     "restrain"
   ],
-  "revision": 13
+  "revision": 14
 }
