@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.pet_sold.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.pet_sold.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ],
+  "parent": "mcyukkuri:survival/pet_bought"
+}

@@ -339,6 +339,7 @@ public final class ExamSession implements ExamContext {
         // consequences (M02): pressure of higher-level questions, then a possible slip after a failure
         if (type == JUDGMENT) { pet.addStress(8); for (int v : s) if (v >= 0 && v < 40) { pet.addStress(12); break; } }
         if (outcome >= 2) {
+            if (owner() != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner(), "exam_retry");
             pet.addStress(15);
             var p = candidate.life().personality();
             if (pet.stress() >= 60 && p.selfControl() <= 40 && random.nextBoolean()) {
@@ -367,6 +368,12 @@ public final class ExamSession implements ExamContext {
             case 1 -> pet.renew(id);
             case 3 -> { if (result == BadgeGrade.NONE) pet.revoke(); else pet.issue(result, type, id); }
             default -> {}
+        }
+        var owner = owner();
+        if (owner != null && outcome == 0) {
+            if (before == BadgeGrade.NONE) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "pet_registered");
+            if (result.id() >= BadgeGrade.SILVER.id()) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "badge_silver");
+            if (result == BadgeGrade.GOLD) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(owner, "badge_gold");
         }
         if ((type == PROMOTION || type == RENEWAL) && outcome != 2) candidate.getPersistentData().putInt("ExamUnauthBase", pet.unauthorizedBirths());
     }

@@ -158,6 +158,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
                     paid[0] = false; long until = level.getGameTime() + 24000;
                     a.pet().permitBreeding(studId, until); b.pet().permitBreeding(petId, until);
                     a.showReaction("happy", "expecting", 100);
+                    if (sp != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(sp, "shop_date");
                     if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.matched", a.getDisplayName()), true);
                 } else if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed_reason", why), true);
                 if (!ok) { paid[0] = false; refund(level, buyer, origin); }

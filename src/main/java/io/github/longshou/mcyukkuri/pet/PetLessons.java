@@ -280,6 +280,7 @@ public final class PetLessons {
             default -> { gain = won ? 1 : 4; pet.addStress(10); }
         }
         award(gain);
+        if (praise && won) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "lesson_praised");
         pendingTicks = 2;
         if (praise) { pendingMove = "joy_jump"; pendingFace = "happy"; pendingEvent = "lesson_praised"; Staging.sparkle(level(), markPos()); }
         else if (action == CareAction.COLD) { pendingMove = "droop"; pendingFace = "teary"; pendingEvent = "lesson_scolded"; }

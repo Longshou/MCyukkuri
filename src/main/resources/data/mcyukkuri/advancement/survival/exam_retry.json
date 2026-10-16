@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "mcyukkuri:badge_handbook"
+    },
+    "title": {
+      "translate": "advancement.mcyukkuri.exam_retry.title"
+    },
+    "description": {
+      "translate": "advancement.mcyukkuri.exam_retry.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "performed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "performed"
+    ]
+  ],
+  "parent": "mcyukkuri:survival/pet_registered"
+}

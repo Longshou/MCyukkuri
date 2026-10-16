@@ -237,7 +237,10 @@ public final class ShopMenu extends AbstractContainerMenu {
             HumanCommerce.assign(a, buyer, "companion");
             UUID token = YukkuriWorldData.get(level).capture(a);
             if (token == null) { HumanCommerce.set(a, previous); deliver(level, buyer, at, refund); return true; }
-            deliver(level, buyer, at, HumanCommerce.carrier(a, token)); return true;
+            deliver(level, buyer, at, HumanCommerce.carrier(a, token));
+            var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);
+            if (buyerPlayer != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(buyerPlayer, "pet_bought");
+            return true;
         });
         return true;
     }
@@ -266,6 +269,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (!a.pet().lock("sale", p.getUUID())) return false;
         ShopPerformance.RESERVED.add(pen.asLong());
         give(p, new ItemStack(Items.EMERALD, ShopPricing.buyback(a)));
+        io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
         HumanCommerce.assign(a, target.getUUID(), "stock");
         var pers = a.life().personality();
         if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= 20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
@@ -296,7 +300,7 @@ public final class ShopMenu extends AbstractContainerMenu {
             for (var ab : need) { double c = a.pet().successChance(ab, tiers[i]); if (c < 0.7) high = false; if (c < 0.35) low = true; }
             result[i] = low ? 3 : high ? 1 : 2;
         }
-        forecasts.put(a.getUUID(), result); return true;
+        forecasts.put(a.getUUID(), result); io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "shop_consult"); return true;
     }
     @Override public boolean clickMenuButton(Player p, int id) {
         if (p != viewer || p.level().isClientSide || !stillValid(p) || id < 0 || id > 21 || target == null) return false;

@@ -31,7 +31,7 @@ ZONES = [
     ('care', '03 进食与日常照料', 'lime', ['food_bowl','oil_grain_budget','oil_grain_regular','oil_grain_premium','wash_cloth','yukkuri_toilet','newspaper_mat','soil_mat','covered_toilet','minecraft:apple','minecraft:wheat','minecraft:sugar'], '向食盆放食物或手持食物喂食，观察进食、咀嚼、睡眠、清洁与排泄。观察笔记右键个体看数值。'),
     ('family', '04 家庭与生育', 'pink', ['companion_cord','reproductive_filling','yukkuri_nest','food_bowl','oil_grain_premium','stem_shears','bottle_stem_shears','minecraft:sugar'], '笔记右键巢，再潜行右键个体分配住所；放足食物，用同伴绳配对。观察茎生/胎生和子代，妊娠需真实时间与条件。不足形态不可育，多毛可育。'),
     ('house', '05 家油生活', 'yellow', ['house_reimu_spawn_egg','house_marisa_spawn_egg','house_crevice','food_scrap','wash_cloth','bandage','yukkuri_carrier','minecraft:paper','minecraft:wheat','minecraft:stick'], '投放食屑、纸和材料，观察家油搬运、巢穴维护、巢卵与幼体。家油体型很小，请靠近地面查看。'),
-    ('teaching', '06 认知与金银章', 'orange', ['field_notebook','teaching_whistle','badge_handbook','oil_grain_premium','yarn_ball','minecraft:emerald'], '先照料建立信任；教学哨教等待，金银章手册登记/训练/考试。认知页查看先天与学习值。金章联合测试尚有一项失败，留意考试反馈。'),
+    ('teaching', '06 宠物培育与徽章', 'orange', ['field_notebook','teaching_whistle','badge_handbook',('minecraft:emerald',64),'minecraft:cookie','oil_grain_premium','oil_grain_regular','yarn_ball','yukkuri_carrier'], '照料建立信任后，到油库里商店（13区）的考官处报名简易考试登记为宠物。徽章手册可开课；课后潜行右键打开照料菜单夸奖或责骂。繁殖需饲养员相亲许可。'),
     ('operation', '07 治疗与器具', 'red', ['orange_juice','mold_remover','bandage','herbal_medicine','yogurt_drink','stimulant','sitataran','sleep_spray','spicy_grain','pin_tool','care_mallet','care_awl','heated_awl','restraint_frame','wrap_sling','hanging_hook','hair_clippers','cutting_knife','care_vibrator','sterilizing_shears','iron_enclosure','stem_shears','bottle_stem_shears'], '仅在本区补充样本后操作。空手/器具右键打开照料交互；用笔记前后对照伤口和状态。治疗及投药会消耗对应物品。'),
     ('transport', '08 收纳与冷冻', 'light_blue', ['yukkuri_carrier','cold_storage','field_notebook','orange_juice','minecraft:ice','minecraft:packed_ice'], '运输盒右键收纳，再对地面放出。使用冷冻柜测试存入/取回；比较笔记身份和状态，并退出重进检查持久保存。'),
     ('play', '09 游具与地面', 'magenta', ['yarn_ball','glass_marble','rubber_ball','reimu_doll','marisa_doll','pretty_stone','clear_dice','paper_tunnel','ceramic_tunnel','yukkuri_slide','yukkuri_trampoline','yukkuri_pool','newspaper_mat','soil_mat','sandpaper_mat'], '投放玩具，观察追逐和协作。游具由专用物品放置，箱中可取完整设施；比较软垫、土面与砂纸摩擦。'),
@@ -67,8 +67,11 @@ def button(x,z,command,caption):
 def barrel(x,z,items,title):
     stacks=[]
     for slot,item in enumerate(items):
+        fixed=None
+        if isinstance(item,tuple): item,fixed=item
         ident=item if ':' in item else 'mcyukkuri:'+item
         count=32 if ident.startswith('minecraft:') or any(word in item for word in ['grain','filling','scrap']) else 1
+        if fixed: count=fixed
         stacks.append(f'{{Slot:{slot}b,id:"{ident}",count:{count}}}')
     return f'setblock {x} 65 {z} minecraft:barrel[facing=up]{{CustomName:{quoted(text_component(title))},Items:[{",".join(stacks)}]}}'
 
@@ -127,6 +130,8 @@ def build(world):
             if ident in ['care','family','house','teaching']:lines+=spawn
             if ident in ['care','family','house','teaching','ecology']:
                 lines += [f'fill {x+3} 68 {z+26} {x+13} 68 {z+36} minecraft:oak_slab[type=bottom]',f'fill {x+3} 65 {z+36} {x+3} 67 {z+36} minecraft:oak_log',f'fill {x+13} 65 {z+36} {x+13} 67 {z+36} minecraft:oak_log',f'setblock {x+7} 65 {z+30} mcyukkuri:'+('house_crevice' if ident=='house' else 'yukkuri_nest'),f'setblock {x+10} 65 {z+30} mcyukkuri:food_bowl',f'setblock {x+12} 65 {z+33} mcyukkuri:yukkuri_toilet']
+            if ident=='teaching':
+                lines += [sign(x+9,65,z+34,['宠物培育区','课程:手册->课程','夸奖/责骂:潜行','右键开照料菜单']),sign(x+19,65,z+17,['两只成年样本','未登记,野生状态','到13区简易考试','登记后开课/繁殖'])]
             if ident=='water':
                 lines += [f'fill {x+5} 63 {z+13} {x+37} 63 {z+33} minecraft:prismarine',f'fill {x+6} 64 {z+14} {x+36} 64 {z+32} minecraft:water',f'fill {x+18} 64 {z+14} {x+20} 64 {z+22} minecraft:oak_planks']
             if ident=='predator':
@@ -140,8 +145,11 @@ def build(world):
         lines=[f'fill {x} 63 {z} {x+46} 64 {z+44} minecraft:stone_bricks',f'place template mcyukkuri:{template} {x+2} 65 {z+8}',label(x+23,70,z+2,title,1.2)]
         lines+=button(x+3,z+3,'tp @p 65 65 15 180 0','返回中庭')
         lines+=button(x+7,z+3,f'tellraw @p {text_component("右键现场NPC和机台，使用真实库存与工序。绿宝石用于交易，空白徽章不能授予资格。箱内提供原料和接入设施。","yellow")}','本区操作说明')
-        supply=[barrel(x+12,z+3,['minecraft:emerald','minecraft:paper','minecraft:sugar','minecraft:wheat','oil_grain_premium','yukkuri_carrier','badge_handbook','labor_bench','manju_steamer','live_packing_table','nursery_station','factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray'],title+'原料')]
+        supply=[barrel(x+12,z+3,[('minecraft:emerald',64),'minecraft:paper','minecraft:sugar','minecraft:wheat','oil_grain_premium','yukkuri_carrier','badge_handbook','labor_bench','manju_steamer','live_packing_table','nursery_station','factory_receiving_table','factory_inspection_table','factory_washing_table','factory_observation_station','factory_transfer_tray'],title+'原料')]
         p.fn('supply/'+ident,supply);lines+=supply+button(x+17,z+3,f'function mcylab:supply/{ident}','补充原料')
+        if ident=='shop':
+            lines.append(sign(x+12,66,z+4,['店主:买卖活体','商品/回收/咨询','考官:考试 饲养员','相亲/补货']))
+            lines.append(sign(x+14,66,z+4,['简易考试:找考官','交报名费,带宠物','晋级/判定需考场','徽章手册开课']))
         p.fn('build/'+ident,lines)
     for i,(ident,title,x,z) in enumerate(all_zones):
         hx=7+i*11
