@@ -14,7 +14,7 @@
 | 游戏资源 | `src/main/resources/` | 实际打包到模组的几何、贴图、动画、语言和物品模型 |
 | 模组声明 | `src/main/templates/` | 构建时替换版本号等信息的模板 |
 | 游戏测试夹具 | `src/p0Test/` | 独立开发模组，执行真实引擎行为检查与客户端采集；不进入发行 Jar |
-| 人工实验地图 | `scripts/build_experimental_map.py`、`docs/EXPERIMENTAL_MAP.md` | 制作16区试玩场；本机存档在 `run/saves/MCyukkuri-Lab/`，交付ZIP和检查在 `.local/experimental-map/release/`，不打入模组资源 |
+| 动作博物馆与实验地图 | `scripts/build_showcase_map.py`、`docs/EXPERIMENTAL_MAP.md`、`docs/MOTION_MUSEUM_ACTIONS.md` | 当前为44×32格、六组展台的紧凑动作馆；完整动作清单附适配范围。本机存档和运行配置在 `.local/experimental-map/`；旧实验场生成器与存档保留，不打入模组资源 |
 | 标准素材制作 | `standards/yukkuri-library/` | 共用组件、角色登记、造型、表情、动作、派生资产及配套导出 |
 | 当前实体接入素材 | `art/source/` | `standard-runtime/` 保存九种实体的选定快照与适配骨架；`rounded-runtime/`、`subspecies-runtime/`、`predator-runtime/` 等按包保存其余形态的选用快照 |
 | 独立道具 | `art/props/` | 食盆、器具、玩具等制作源及来源登记；`care-facilities/` 已接入生活设施，`wild-shelters/` 保存天然住所叶床／细枝结界／纸箱选用，其他包不自动接入 |

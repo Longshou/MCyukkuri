@@ -5,6 +5,10 @@ param([string]$GameDirectory = '')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
+if (-not $GameDirectory -and (Test-Path -LiteralPath (Join-Path $taskRoot 'showcase-runtime.json'))) {
+    & (Join-Path $PSScriptRoot 'launch_showcase_map.ps1')
+    exit $LASTEXITCODE
+}
 $manifestPath = Join-Path $taskRoot 'release/runtime.json'
 if (-not (Test-Path -LiteralPath $manifestPath)) { throw 'Laboratory release is missing. See docs/EXPERIMENTAL_MAP.md.' }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
