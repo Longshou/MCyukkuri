@@ -491,7 +491,7 @@ HALLS = [
         ('boatlife', '帽船上的一天', '备粮、划桨、吃喝、睡觉、返岸理帽。', 'cyan', boatlife),
         ('boatfamily', '船上育儿', '安胎、分娩、递食、亲昵与摇篮曲。', 'pink', boatfamily),
         ('voyage', '第一次出航', '放帽、跳进自己的帽船、试坐、划出去又回来。', 'lime', voyage),
-        ('rescue', '落水与救援', '攀回帽檐、自己翻帽求生、亲油用辫子救人。', 'red', museum_aquatic_rescue.rescue),
+        ('rescue', '落水与救援', '亲油低下帽缘、孩子咬缘滑进来；落水后自己抖落帽子、顶正再爬回。', 'red', museum_aquatic_rescue.rescue),
     ]),
     ('D', '人类社会', 'purple', [
         ('exam', '考场', '第一次考试：紧张、作答、躲猫猫，再看结果。', 'cyan', exam),

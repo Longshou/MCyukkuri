@@ -182,7 +182,7 @@ def validate(halls):
                             if (name.startswith('boat_') or name.endswith('_aq')) and not name.startswith('boat_rock'):
                                 assert spec['aquatic'] or name in ('boat_reassure', 'boat_alarm_call', 'boat_alarm_wait', 'boat_flee', 'boat_calm',
                                                                   'boat_answer_call'), (ctx.sid, did, key, name)
-                            if name.startswith('braid_') or name in ('water_hat_flip', 'water_hat_grip', 'water_hat_climb'):
+                            if name.startswith("braid_") or name in ("water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young"):
                                 assert model == 'marisa', (ctx.sid, did, key, name)
                             if not ACTION_META[name][1] and name != 'waddle':
                                 assert delay >= math.ceil(ACTION_META[name][0] * 20), (ctx.sid, did, key, name, delay)

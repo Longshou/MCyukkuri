@@ -1,13 +1,14 @@
 """AQUATIC RESCUE STAND -- the one place to edit when the water-rescue clips change.
 
-The three scenes below follow the aquatic documentation (docs/AQUATIC_MARISA_IMPLEMENTATION.md, "分阶段落水"):
+The scenes follow the redesigned flows (docs/AQUATIC_MARISA_IMPLEMENTATION.md; brim dip and biting the brim
+are project-original, not canon):
 
-  1. climb      a child in the water grips the parent's hat brim and climbs back aboard
-  2. self       a child who can handle a hat falls in, flips her own hat and climbs in
-  3. braid      a baby who cannot jump is lifted out by the parent's single braid
-  4. rock       someone rocks the boat: alarm, answer, withdraw, calm (not a rescue, but the same clips family)
+  1. climb      parent dips the near brim (hat_brim_offer), child hops up; in the water: bite, two lunges, slide in
+  2. self       child falls in, shakes the hat off, bites the brim, pushes the capsized hat over three times, climbs in
+  3. braid      parent paddles over, dips the brim, child bites, parent nudges, child slides in, nuzzle afterwards
+  4. rock       someone rocks the boat: alarm, answer, withdraw, calm
 
-Those clips (water_*, hat_brim, braid_rescue_*, boat_alarm_*, boat_reassure ...) and their dialogue
+Those clips (water_*, hat_brim*, hat_hop_up, hat_slide_over, boat_nudge_young ...) and their dialogue
 events (self_rescue_*, braid_rescue_*, family_alarm_*) are being re-authored by another task. Keep the
 names in this file only: build_museum_full.py validates every clip id against the current model JSON
 and every event against the dialogue catalogue, so a rename shows up as a generation error, not as a
@@ -21,30 +22,39 @@ from museum_dsl import Ctx  # noqa: E402
 # ---- scene data ---------------------------------------------------------------------------------------
 # (delay in ticks, [(actor, action | None, dialogue event | None, note | None), ...])
 CLIMB = [
-    (50, [('kid', 'hat_brim', None, '小子油站在亲油帽檐上'), ('mom', 'boat_steady', None, None)]),
-    (40, [('kid', 'hat_jostle', None, '帽檐拥挤，被挤到边上'), ('mom', 'boat_alarm_call', 'family_alarm_call', None)]),
-    (36, [('kid', 'hat_stumble', None, '失去帽檐支撑')]),
-    (40, [('kid', 'water_plunge', None, '落进水里'), ('mom', 'boat_alarm_wait', None, None)]),
-    (50, [('kid', 'water_struggle', None, '扑腾着朝亲船游去'), ('mom', 'boat_steady', None, None)]),
-    (50, [('kid', 'water_hat_grip', None, '抓住亲帽的帽缘'), ('mom', 'boat_reassure', 'family_alarm_calm', None)]),
-    (50, [('kid', 'water_hat_climb', None, '用力拉身，越过帽檐'), ('mom', 'boat_steady', None, None)]),
-    (80, [('kid', 'hat_brim', None, '重新站稳在帽檐上'), ('mom', 'boat_calm', None, None)]),
+    (60, [('mom', 'hat_brim_offer', None, '亲油移开重心，近缘的帽檐低下来')]),
+    (30, [('kid', 'hat_hop_up', None, '小子油蹿上帽檐')]),
+    (60, [('kid', 'hat_brim', None, '站稳'), ('mom', 'boat_steady', None, None)]),
+    (40, [('kid', 'hat_stumble', None, '拥挤失衡'), ('mom', 'boat_alarm_call', 'family_alarm_call', None)]),
+    (40, [('kid', 'water_plunge', None, '落进水里')]),
+    (50, [('kid', 'water_struggle', None, '朝亲船游去'), ('mom', 'hat_brim_offer', None, '亲油再次低下帽缘')]),
+    (50, [('kid', 'water_mouth_grip', None, '咬住帽缘')]),
+    (24, [('kid', 'water_bob_lunge', None, '蹿身')]),
+    (24, [('kid', 'water_bob_lunge', None, None)]),
+    (40, [('kid', 'hat_slide_over', None, '贴着帽缘滑进帽里')]),
+    (80, [('kid', 'water_recover', None, '喘息'), ('mom', 'boat_calm', 'family_alarm_calm', None)]),
 ]
 SELF = [
     (40, [('kid', 'water_plunge', 'self_rescue_slip', '失足落水')]),
-    (80, [('kid', 'water_struggle', None, '扑腾，找自己的帽子')]),
-    (60, [('kid', 'water_hat_flip', 'self_rescue_hat', '把倾覆的帽子翻正')]),
-    (50, [('kid', 'water_hat_grip', 'self_rescue_grip', '抓住帽缘')]),
-    (50, [('kid', 'water_hat_climb', 'self_rescue_climb', '爬回帽里')]),
+    (70, [('kid', 'water_struggle', None, '扑腾，帽子也翻了')]),
+    (36, [('kid', 'water_hat_shake', 'self_rescue_hat', '把头上的帽子抖落')]),
+    (50, [('kid', 'water_mouth_grip', 'self_rescue_grip', '咬住倾覆的帽缘')]),
+    (20, [('kid', 'water_hat_push', None, '用身体顶帽子（一）')]),
+    (20, [('kid', 'water_hat_push', None, '（二）')]),
+    (20, [('kid', 'water_hat_push', None, '（三），帽子翻正')]),
+    (24, [('kid', 'water_bob_lunge', None, '蹿身')]),
+    (40, [('kid', 'hat_slide_over', 'self_rescue_climb', '贴着帽缘滑进帽里')]),
     (80, [('kid', 'water_recover', 'self_rescue_safe', '获救后伏低喘息')]),
 ]
 BRAID = [
-    (50, [('baby', 'water_plunge', None, '还不会跳的赤油落水'), ('mom', 'boat_alarm_call', 'family_alarm_call', None)]),
-    (60, [('baby', 'water_struggle', None, '浮在水面扑腾'), ('mom', 'boat_alarm_wait', None, '亲油先划近')]),
-    (36, [('baby', 'water_gasp', None, None), ('mom', 'braid_rescue_reach', 'braid_rescue_offer', '单辫伸出')]),
-    (36, [('mom', 'braid_rescue_hold', 'braid_rescue_grip', '辫梢托住孩子，抬过帽檐')]),
-    (30, [('mom', 'braid_rescue_settle', 'braid_rescue_safe', '放回帽里')]),
-    (70, [('baby', 'water_recover', None, '喘息，回看亲友'), ('mom', 'boat_reassure', None, None)]),
+    (50, [('kid', 'water_plunge', None, '小子油落水'), ('mom', 'boat_alarm_call', 'family_alarm_call', None)]),
+    (60, [('kid', 'water_struggle', 'water_help', None), ('mom', 'boat_paddle', None, '亲油划近')]),
+    (50, [('mom', 'hat_brim_offer', 'braid_rescue_offer', '亲油下沉近缘，辫子只轻触帽缘')]),
+    (50, [('kid', 'water_mouth_grip', None, '孩子咬住帽缘')]),
+    (20, [('mom', 'boat_nudge_young', 'braid_rescue_grip', '亲油贴身一顶')]),
+    (40, [('kid', 'hat_slide_over', None, '孩子滑进帽里')]),
+    (80, [('mom', 'boat_calm', 'braid_rescue_safe', '平复'), ('kid', 'water_recover', None, None)]),
+    (50, [('mom', 'boat_nuzzle', None, '蹭蹭安慰')]),
 ]
 ROCK = [
     (40, [('mom', 'boat_steady', None, '有人用力摇晃帽船')]),
@@ -74,10 +84,9 @@ def _steps(c, rows):
 def rescue(c: Ctx):
     c.actor('mom', 'marisa', 4.0, 3, 'F', '亲油魔理沙', aquatic=True)
     c.actor('kid', 'marisa', 8.2, 3, 'F', '小子油魔理沙', stage='child', aquatic=True)
-    c.actor('baby', 'reimu', 1.5, 3, 'F', '赤油', stage='baby')
     c.water_floor()
     c.label(5.5, 5.2, 2.7, '落水是真实的危险：浸水每秒掉血', .35)
-    c.demo('climb', '攀回帽檐', _steps(c, CLIMB))
-    c.demo('self', '自己翻帽求生', _steps(c, SELF))
-    c.demo('braid', '亲油用辫子救人', _steps(c, BRAID))
+    c.demo('climb', '上亲油帽檐', _steps(c, CLIMB))
+    c.demo('self', '落水自救', _steps(c, SELF))
+    c.demo('braid', '亲油救助', _steps(c, BRAID))
     c.demo('rock', '摇船受惊', _steps(c, ROCK))
