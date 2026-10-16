@@ -91,5 +91,9 @@
     "chen": "chen_hat",
     "alice": "alice_headband",
     "patchouli": "patchouli_bonnet"
+  },
+  "gui_display": {
+    "companion_cord": {"rotation": [50, 225, 0], "scale": [1.25, 1.25, 1.25]},
+    "house_crevice": {"rotation": [25, 205, 0]}
   }
 }

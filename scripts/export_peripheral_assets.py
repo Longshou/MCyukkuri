@@ -116,11 +116,13 @@ def outputs():
         index[name] = {'bounds': bounds, 'triangles': len(vertices)//24}
     emit(ASSETS / 'yukkuri_props/index.json', index)
     for name in spec['items'] + list(spec.get('species_accessories', {}).values()):
+        gui = {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85],
+               **spec.get('gui_display', {}).get(name, {})}   # per-item overrides, e.g. thin cord enlarged, nest turned to its opening
         emit(ASSETS / f'models/item/{name}.json', {
             'parent': 'minecraft:builtin/entity', 'gui_light': 'front',
             'textures': {'particle': f'mcyukkuri:props/{name}'},
             'display': {
-                'gui': {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85]},
+                'gui': gui,
                 'ground': {'translation': [0, 3, 0], 'scale': [.5, .5, .5]},
                 'fixed': {'scale': [.75, .75, .75]},
                 'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.5, .5, .5]},

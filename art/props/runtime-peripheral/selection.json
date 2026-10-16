@@ -99,11 +99,13 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/companion_cord.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/companion_cord/companion_cord.mesh.json",
-      "sha256": "e887d707476970565c117344921581cfe35583d6088b7c6c8a921ed92883f0a2"
+      "sha256": "6e65b5ffc79fa740a95168ecc0333dc516d64efb34b0f7f0c68ddb7103b1763c",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/companion_cord.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/companion_cord/companion_cord.bbmodel",
-      "sha256": "48f1a492707f8fed23aae3f7404b4019115abeebbd8e2980aa3796b3489ccfc8"
+      "sha256": "1bea969503cab28113b1f1ca0a7de8a202317deb89fddbc6dac0d548425e9373",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/companion_cord/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/companion_cord/texture.png",
@@ -171,47 +173,58 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/oil_grain_budget.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.mesh.json",
-      "sha256": "a852ccd0942dc926c72970924211bb4cd2b794188a997b8550c1d6f482bedc9b"
+      "sha256": "96e36623ae158fcf20cd074401989e4d08b3b3526434862a40ba4165bb802a76",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/oil_grain_budget.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.bbmodel",
-      "sha256": "c9d98acdecbc4f5a1403d106a61b46e27523bc55390eaf969ea12e360599c191"
+      "sha256": "faf2c364020fb72e9dc59a4db78c49eb597e0987907330945af25756e68a418e",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_budget/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_budget/texture.png",
-      "sha256": "715460794148f72f9b4f495ca2804193c69e8a6c89d368b80e948e1e19891a8d"
+      "sha256": "5abd84bf201aeea5e7c795ff2158dcd048e5089211a9279013e0593f825e1bac",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/oil_grain_regular.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.mesh.json",
-      "sha256": "bb89c05af77909bd7013e43142c704a23bc9ca2122fbebad54efbcc6060b89a9"
+      "sha256": "ca66287bf17663caf068952adfcbabab9d6973a92e0120833e3215bc3278b0bd",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/oil_grain_regular.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/oil_grain_regular.bbmodel",
-      "sha256": "90ae75447ccd4637e095f1f1a46e9b43f12b73951f7fd0633e69c38aa22168f7"
+      "sha256": "59aa09668e95ab08ee3543e8d5fc3f8c260a083533f412f5c6b37d2805811bb4",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_regular/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_regular/texture.png",
-      "sha256": "d40df9064247e7408acfc97a7de81eb2809331c5abb36006e3587bde39582d1b"
+      "sha256": "0f5a38e3c37f259bb91b3b1e90cad31ff011a4c63d114ae9ce5b2dafdb792d06",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/oil_grain_premium.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.mesh.json",
-      "sha256": "4e65315daf031646657ffd8195e6535b5d168a905d51a799dead126161dbe1a6"
+      "sha256": "2b7013bbc1b42b174fdf63a5b5513fc0514614106370aeac1796c35ff4257c3f",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/oil_grain_premium.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/oil_grain_premium.bbmodel",
-      "sha256": "1e73ad20ee90e4354f342595c1e118d7e76062ff7d8b547f45427307a6795e22"
+      "sha256": "7d81276f25aa2b1b98945bdf026453c5be8fe65834ffab45ecff5abf44ff73e4",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/oil_grain_premium/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/oil_grain_premium/texture.png",
-      "sha256": "3d4fda94a8b112758b45dc9cc97f4cdeb41968708e4a48aea7531515144da43d"
+      "sha256": "631bc22e6442d8feb22510d9a4be1f67dbd39c96477cc63302e732eec151c7e2",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/orange_juice/orange_juice.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/orange_juice/orange_juice.mesh.json",
-      "sha256": "13e427bf7ba5e49f4fc8fdf37af86e42324358523f920a3fcda67bf491c0d1ed"
+      "sha256": "a1a106686048e1ff5ee1c31575bd48e302987f1f586734def2ef2861d0b9a1d0",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/orange_juice/orange_juice.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/orange_juice/orange_juice.bbmodel",
-      "sha256": "c9e04a78f5c97eb87416a2ae40e381c4481d608823e936a32822d094e877d5f2"
+      "sha256": "cf597da41d5c5a359c12f2e151fb0268bd0cd9880158e87c7100a4373bb87e2e",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/orange_juice/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/orange_juice/texture.png",
@@ -219,11 +232,13 @@
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/mold_remover.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/mold_remover/mold_remover.mesh.json",
-      "sha256": "bf958641dd7bceceeaf25b58ba2a303c18b35b3fcfda13fb95fc80286be2f559"
+      "sha256": "eee15b818b6ea01bc7c58267336ee32cc50afeb7d2a3554321fe7569c7b2a21d",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/mold_remover.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/mold_remover/mold_remover.bbmodel",
-      "sha256": "acdf89d13a0a4355c3a105c85add400bde00932662539bc9661e7a469ec627a6"
+      "sha256": "9c2b6127e09e51536466d9681e71e73a1378390c4b6c66253f07356ad50de391",
+      "edited_by": "art/props/runtime-peripheral/shop_goods_v2.py"
     },
     "standards/yukkuri-library/drafts/peripheral-props/assembled/mold_remover/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/mold_remover/texture.png",
