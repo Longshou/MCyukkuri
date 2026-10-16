@@ -6,6 +6,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -14,10 +16,13 @@ import net.minecraft.world.phys.Vec3;
 public final class SupplyPileBlockEntity extends BlockEntity {
     public static final int CAPACITY=64;
     private ItemStack contents=ItemStack.EMPTY;
-    public SupplyPileBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),pos,state);}
+    private final Vec3 pickup;
+    public SupplyPileBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),pos,state);pickup=Vec3.atBottomCenterOf(pos).add(0,.025,0);}
     public ItemStack contents(){return contents.copy();}
+    public boolean is(ItemLike item){return contents.is(item.asItem());}
+    public Component displayName(){return contents.getHoverName();}
     public int count(){return contents.getCount();}
-    public Vec3 pickupPosition(){return Vec3.atBottomCenterOf(worldPosition).add(0,.025,0);}
+    public Vec3 pickupPosition(){return pickup;}
     public boolean accepts(ItemStack stack){return SupplyPiles.material(stack)&&(contents.isEmpty()||ItemStack.isSameItemSameComponents(contents,stack));}
     /** Returns the amount stored; the caller owns and debits the source stack. */
     public int deposit(ItemStack stack,int limit){

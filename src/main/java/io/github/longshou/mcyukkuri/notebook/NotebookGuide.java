@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.notebook;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.house.HouseholdProtection;
+import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.component.DataComponents;
@@ -15,7 +17,9 @@ public final class NotebookGuide {
     public static List<Component> pages(ItemStack notebook) {
         List<Component> pages = new ArrayList<>();
         for (String chapter : List.of("start", "route", "discovery", "care", "water", "aquatic", "aquatic_family", "social", "home", "family", "birth", "childhood", "house", "house_start", "house_supplies", "house_cleanup", "house_guard", "body", "tools", "play", "storage", "retrieval", "commerce", "progress", "status", "accessories", "community", "season"))
-            pages.add(Component.translatable("notebook.mcyukkuri.chapter." + chapter));
+            pages.add(chapter.equals("house_guard")?Component.translatable("notebook.mcyukkuri.chapter.house_guard",
+                    HouseholdSprayItem.USES,HouseholdProtection.RADIUS,HouseholdProtection.HEIGHT,HouseholdProtection.DURATION/1200)
+                    :Component.translatable("notebook.mcyukkuri.chapter." + chapter));
         CompoundTag seen = notebook.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("ObservedSpecies");
         for (YukkuriVariant variant : YukkuriVariant.values()) {
             pages.add(Component.translatable("notebook.mcyukkuri.chapter.species",

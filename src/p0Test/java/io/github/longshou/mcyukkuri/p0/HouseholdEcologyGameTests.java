@@ -118,26 +118,31 @@ public final class HouseholdEcologyGameTests {
 
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=5000,batch="house_ecology")
     public static void guardAndCleaningSuppressNaturalGrowthWithoutOfflineCatchup(GameTestHelper h) {
-        var f=new Fixture(h,108);var guard=f.pos.east(2);boolean[] sample={false};long[] start={0},cleanUntil={0};
+        var f=new Fixture(h,108);var guard=f.pos.east(2).below();boolean[] sample={false};long[] start={0},cleanUntil={0};
+        f.extraCleanup=()->HouseholdProtection.get(f.level).remove(guard);
         h.onEachTick(()->{if(sample[0]&&!f.closed)HouseholdEcology.sample(f.level,List.of(f.pos));});
         h.startSequence().thenWaitUntil(f::ready).thenExecute(()->{
             h.assertTrue(HouseholdEcology.meal(f.level,f.pos),"an unprotected room accepts a genuine meal crumb");
-            f.level.setBlockAndUpdate(guard,ModBlocks.HOUSEHOLD_GUARD.get().defaultBlockState());
-            h.assertTrue(HouseholdProtection.protectedAt(f.level,guard.offset(16,8,16))
-                    &&!HouseholdProtection.protectedAt(f.level,guard.east(17))&&!HouseholdProtection.protectedAt(f.level,guard.above(9)),
-                    "placed protection includes horizontal 16 / vertical 8 boundaries and excludes 17 / 9");
+            h.assertTrue(HouseholdProtection.get(f.level).spray(guard,f.level.getGameTime()),"the room receives one timed spray treatment");
+            h.assertTrue(HouseholdProtection.protectedAt(f.level,guard.offset(8,4,8))
+                    &&!HouseholdProtection.protectedAt(f.level,guard.east(9))&&!HouseholdProtection.protectedAt(f.level,guard.above(5)),
+                    "spray includes horizontal 8 / vertical 4 boundaries and excludes 9 / 5");
             var saved=HouseholdProtection.get(f.level).save(new CompoundTag(),f.level.registryAccess());
             f.level.getDataStorage().set("mcyukkuri_household_protection",HouseholdProtection.load(saved,f.level.registryAccess()));
-            h.assertTrue(HouseholdProtection.protectedAt(f.level,guard.offset(-16,-8,-16)),"saved protection rebuilds its chunk index and retains the opposite inclusive boundary");
-            h.assertTrue(!HouseholdEcology.meal(f.level,f.pos),"placement immediately prevents new meal residue");
+            h.assertTrue(HouseholdProtection.protectedAt(f.level,guard.offset(-8,-4,-8)),"saved spray rebuilds its chunk index and retains the opposite inclusive boundary");
+            h.assertTrue(!HouseholdEcology.meal(f.level,f.pos),"spraying immediately prevents new meal residue");
             HouseholdEcology.sample(f.level,List.of(f.pos));
             h.assertTrue(HouseholdEcology.snapshot(f.level,f.pos).activity().lastSample()<0,"protected activity cannot accumulate settlement credit");
             sample[0]=true;start[0]=f.level.getGameTime();
         }).thenWaitUntil(()->h.assertTrue(f.level.getGameTime()-start[0]>=1200,"observing a full protected settlement interval")).thenExecute(()->{
             h.assertTrue(f.nests().isEmpty()&&f.count(ModItems.NEST_LINT.get())==0&&f.count(ModItems.FOOD_SCRAP.get())==1,
-                    "existing supplies under permanent protection do not produce dust or a new natural nest");
+                    "existing supplies under active spray do not produce dust or a new natural nest");
             f.level.removeBlock(guard,false);
-            h.assertTrue(!HouseholdProtection.protectedAt(f.level,f.pos)&&HouseholdEcology.meal(f.level,f.pos),"removing the actual fixture immediately restores natural residue");
+            h.assertTrue(HouseholdProtection.protectedAt(f.level,f.pos),"breaking the treated block does not cancel a timed area");
+            f.level.setBlockAndUpdate(guard,Blocks.STONE.defaultBlockState());
+            // End only this fixture's treatment; real expiry and item interaction have separate focused tests.
+            HouseholdProtection.get(f.level).remove(guard);
+            h.assertTrue(!HouseholdProtection.protectedAt(f.level,f.pos)&&HouseholdEcology.meal(f.level,f.pos),"without a treatment the room accepts natural residue again");
             HouseholdEcology.cleaned(f.level,f.pos);cleanUntil[0]=HouseholdEcology.snapshot(f.level,f.pos).activity().cleanUntil();
         }).thenWaitUntil(()->{
             var state=HouseholdEcology.snapshot(f.level,f.pos);
