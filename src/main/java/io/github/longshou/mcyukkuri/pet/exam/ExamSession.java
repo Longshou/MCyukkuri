@@ -376,7 +376,7 @@ public final class ExamSession implements ExamContext {
             for (var n : notes) p.sendSystemMessage(Component.literal("  ").append(Component.translatable(n)));
         }
     }
-    private static String sc(int v) { return v < 0 ? "--" : Integer.toString(v); }
+    private static String sc(int v) { return v < 0 ? "-" : Integer.toString(v); }
     /** Applies the grade change exactly once (at the pinning moment, or immediately if the ceremony cannot finish). */
     private void applyGrade() {
         if (applied) return; applied = true;

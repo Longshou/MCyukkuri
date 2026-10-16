@@ -19,7 +19,7 @@ public final class BadgeItem extends Item {
         return InteractionResult.sidedSuccess(p.level().isClientSide);
     }
     @Override public InteractionResultHolder<ItemStack> use(net.minecraft.world.level.Level level, Player p, InteractionHand hand) {
-        if (handbook && !level.isClientSide) p.sendSystemMessage(Component.translatable("badge.mcyukkuri.guide"));
+        if (handbook && !level.isClientSide) for (String key : new String[] {"badge.mcyukkuri.guide", "badge.mcyukkuri.guide.2", "badge.mcyukkuri.guide.3"}) p.sendSystemMessage(Component.translatable(key));
         return InteractionResultHolder.sidedSuccess(p.getItemInHand(hand), level.isClientSide);
     }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> lines, TooltipFlag flag) {

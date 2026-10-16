@@ -37,7 +37,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
     public static void open(Player player, YukkuriEntity subject) {
         if (!(player instanceof ServerPlayer p) || subject != null && !subject.pet().near(p)) return;
         p.openMenu(new SimpleMenuProvider((id, inv, owner) -> new BadgeMenu(id, inv, subject == null ? -1 : subject.getId()),
-                Component.translatable("badge.mcyukkuri.profile.title")), buf -> buf.writeVarInt(subject == null ? -1 : subject.getId()));
+                Component.translatable("badge.mcyukkuri.title")), buf -> buf.writeVarInt(subject == null ? -1 : subject.getId()));
     }
     public int value(int index) { return data.get(index); }
     public int subjectEntityId() { return (data.get(38) & 0xffff) | (data.get(39) << 16); }
