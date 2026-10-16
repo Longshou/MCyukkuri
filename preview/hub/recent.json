@@ -6,6 +6,46 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "hat-motion",
+      "label": "摇船与翻覆",
+      "title": "轻摇先稳身，翻覆再跌入水中。",
+      "tag": "水生魔理沙 · 2026-10-17",
+      "summary": "同一船中心带动帽子、粮食与乘员；倾倒到释放时机后，各自离船并转为落水挣扎。两段当前模型的离线动作预览。",
+      "demoPage": "hat-motion/index.html",
+      "model": "marisa",
+      "points": [
+        "空手右键轻摇水上的帽船；潜行空手仍可救援或拉近。",
+        "亲油稳身、幼体受惊；轻摇会逐渐停止，不直接判为翻覆。",
+        "翻覆时先倾倒，再释放实际乘员与物资；落水后的实体独立运动。"
+      ],
+      "steps": [
+        {
+          "title": "轻摇帽船，一家人稳住身体",
+          "body": "帽子、粮食和乘员共用同一摇摆中心，随后恢复平稳。",
+          "image": "hat-motion/rock-poster.png",
+          "animation": "hat-motion/rock-and-steady.gif"
+        },
+        {
+          "title": "倾倒、跌落与水中挣扎",
+          "body": "从逐渐倾倒到实际离船。这里按实现的运动公式离线取样，不是游戏录像。",
+          "image": "hat-motion/capsize-poster.png",
+          "animation": "hat-motion/capsize-and-struggle.gif"
+        },
+        {
+          "title": "六个关键时刻",
+          "body": "展开比较轻摇、稳身、倾倒、离船、落水与挣扎。",
+          "image": "hat-motion/storyboard.png"
+        }
+      ],
+      "gallery": [
+        {
+          "src": "hat-motion/storyboard.png",
+          "label": "当前模型 · 摇船与翻覆分镜"
+        }
+      ],
+      "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md"
+    },
+    {
       "id": "house-ecology",
       "label": "家油的一家",
       "title": "家具缝隙里，觅食、筑巢与破壳相连。",
@@ -63,7 +103,7 @@
       "label": "帽船一家",
       "title": "在一顶帽子上，过一家人的日子。",
       "tag": "水生魔理沙",
-      "summary": "帽船承接生育、喂养、向水中排泄、夜宿与行动学习。子油先做往返练习，具备亚成独立能力后驾驶自己的帽船离家。",
+      "summary": "帽船承接生育、喂养、向水中排泄、夜宿与行动学习。小子油完成初航即可在自己的帽船生活，跟随亲油学习和避险；亚成油再离家。",
       "model": "marisa",
       "gallery": [
         {
@@ -78,7 +118,7 @@
       "points": [
         "亲油在帽内实际移位、站稳后微微前倾递喂；有限船粮不凭空补充。",
         "在帽沿受支撑的位置向水中排泄，完成后回位；日常照料不要求返岸。",
-        "初航往返是练习；达到亚成独立门槛后实际驶离，才保留自己的帽船。"
+        "小子油完成初航后可保留自己的帽船过日常生活；亚成期实际驶离才算离家独立。"
       ],
       "steps": [
         {

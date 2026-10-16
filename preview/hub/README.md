@@ -21,11 +21,14 @@ python scripts/serve_review.py --port 8766
 python standards/yukkuri-library/motions/variants/lore/aquatic_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
 python standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
 python standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py --minecraft-resources PATH_TO_CLIENT_JAR --quick
+python standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
 python art/props/badges/preview.py
 python scripts/build_preview_hub.py --render
 ```
 
 没有专属动作的继任、库存变化等以状态图呈现；普通对白直接提供音频和对应字幕，捕食种新增条目明确标为仅字幕。不要用静态模型或无关动作充当玩法演示。
+
+`hat-motion/` 展示轻摇后的稳身与翻覆落水，提供两段 GIF、对应静帧、六格分镜及独立页面。它读取当前模型和动作，复现代码中的船体转角与离船时机；释放后的静水轨迹仅作动作示意，不运行 Minecraft 的碰撞、水流或救援 AI。页面模板位于世界观动作制作目录的 `hat_motion_preview.html`。
 
 ## 维护
 

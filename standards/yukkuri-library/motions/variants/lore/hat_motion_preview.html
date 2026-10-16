@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>帽船 · 轻摇与翻覆</title>
+  <style>
+    :root{color-scheme:light;--ink:#243c40;--soft:#647d80;--paper:#f4f2eb;--line:#d5dfda;--sea:#216a74}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}
+    main{max-width:1440px;margin:auto;padding:44px 32px 24px}a{color:var(--sea);text-decoration:none}a:hover{text-decoration:underline}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:30px}.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--sea);margin:0 0 10px}h1{font-size:clamp(28px,4vw,46px);line-height:1.2;margin:0 0 16px;letter-spacing:.03em}header p{max-width:720px;color:var(--soft);margin:0}.back{font-size:14px;white-space:nowrap;margin-top:4px}
+    .scenes{display:grid;grid-template-columns:1fr 1fr;gap:22px}figure{margin:0;background:#fffdf8;border:1px solid var(--line);border-radius:20px;overflow:hidden}.media{display:block;width:100%;height:auto;background:#e8eff0}figcaption{padding:20px 24px 24px}.number{color:var(--sea);font-size:13px;letter-spacing:.1em}h2{font-size:23px;margin:4px 0 8px}figcaption p{color:var(--soft);font-size:14px;margin:0;min-height:48px}.tools{display:flex;gap:20px;align-items:center;margin-top:16px;font-size:13px}button{border:1px solid #b6cbc8;border-radius:8px;background:#eef5f2;color:var(--ink);padding:8px 14px;cursor:pointer;font:inherit}button:hover{background:#e0eeea}
+    .sequence{margin-top:26px;padding:24px;background:#fffdf8;border:1px solid var(--line);border-radius:20px}.sequence h2{margin:0 0 16px}.sequence img{display:block;width:100%;height:auto;border-radius:10px}.note{font-size:13px;color:var(--soft);margin:22px 0 8px}.key{display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:5px;background:#fffdf8;color:var(--ink)}
+    @media(max-width:850px){main{padding:28px 16px}.scenes{grid-template-columns:1fr}header{display:block}.back{display:inline-block;margin-top:18px}figcaption p{min-height:0}.sequence{padding:16px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><p class="eyebrow">水生魔理沙 / 当前模型离线预览</p><h1>帽船，轻摇与翻覆。</h1><p>轻推帽船，亲油稳住身体，幼体随船受惊。真正翻覆时，帽子先倾倒，乘员和粮食随后离船，落水后转为挣扎。</p></div>
+    <a class="back" href="../index.html?topic=hat-motion">返回集中预览 ↗</a>
+  </header>
+  <section class="scenes" aria-label="连续动作预览">
+    <figure>
+      <img class="media" id="rock" src="rock-and-steady.gif" data-motion="rock-and-steady.gif" data-still="rock-poster.png" alt="帽子、粮食和一家人一起轻摇，随后恢复稳定">
+      <figcaption><span class="number">01 / 轻摇后稳住</span><h2>同一顶船帽，一起晃动。</h2><p>空手右键触发衰减摇晃。亲油稳身、幼体受惊；帽内物资随船倾动，仍留在帽内。</p><div class="tools"><button data-target="rock">看关键帧</button><a href="rock-and-steady.gif">原尺寸动图 ↗</a></div></figcaption>
+    </figure>
+    <figure>
+      <img class="media" id="capsize" src="capsize-and-struggle.gif" data-motion="capsize-and-struggle.gif" data-still="capsize-poster.png" alt="帽船逐步倾倒，乘员分别跌出，食物散落，油库里落水挣扎">
+      <figcaption><span class="number">02 / 翻覆与落水</span><h2>先倾倒，再跌出帽船。</h2><p>倾倒达到释放时机后，各乘员从自己的位置跌出，物资随之散落；离船后不再跟着帽子旋转。</p><div class="tools"><button data-target="capsize">看关键帧</button><a href="capsize-and-struggle.gif">原尺寸动图 ↗</a></div></figcaption>
+    </figure>
+  </section>
+  <section class="sequence"><h2>展开看六个时刻</h2><a href="storyboard.png"><img src="storyboard.png" alt="轻摇、稳身、倾倒、离船、落水和挣扎的六格分镜"></a></section>
+  <section class="sequence"><h2>帽内局部</h2><a href="cabin-detail.png"><img src="cabin-detail.png" alt="放大查看实际帽内座位、幼体及两侧存粮，保留当前模型的遮挡关系"></a><p class="note">局部放大保留当前座位和遮挡关系，便于看清幼体与存粮。</p></section>
+  <p class="note">操作：<span class="key">空手右键</span> 轻摇水上的帽船；<span class="key">潜行 + 空手右键</span> 救援或拉近。轻摇与真正翻覆是两个独立片段。</p>
+  <p class="note">画面使用当前模型、贴图和动作，按代码中的摇摆与释放时机离线渲染。这里没有运行 Minecraft，不能据此确认水流、碰撞和救援 AI 的实机效果。</p>
+</main>
+<script>
+  document.querySelectorAll('button[data-target]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const img=document.getElementById(button.dataset.target),still=img.dataset.paused!=='true';
+      img.dataset.paused=String(still);img.src=still?img.dataset.still:img.dataset.motion;
+      button.textContent=still?'播放动作':'看关键帧';
+    });
+  });
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('button[data-target]').forEach(button=>button.click());}
+</script>
+</body>
+</html>
