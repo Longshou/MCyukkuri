@@ -2608,5 +2608,455 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "voice.original.marisa.adult.o_boat_rock_startle": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_boat_rock_startle",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_boat_rock_startle",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_family_alarm_call": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_call",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_call",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_family_alarm_answer": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_answer",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_answer",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_family_alarm_flee": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_flee",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_flee",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_family_alarm_calm": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_calm",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_calm",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_self_rescue_hat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_hat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_self_rescue_hat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_self_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_self_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_self_rescue_climb": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_climb",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_self_rescue_climb",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_self_rescue_slip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_slip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_self_rescue_slip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_self_rescue_safe": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_safe",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_self_rescue_safe",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_braid_rescue_offer": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_offer",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_braid_rescue_offer",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_braid_rescue_safe": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_safe",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_braid_rescue_safe",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_hat_drifting": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_hat_drifting",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_hat_drifting",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_hat_recovered": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_hat_recovered",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_hat_recovered",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.o_hat_out_of_reach": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_hat_out_of_reach",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.o_hat_out_of_reach",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_boat_rock_startle": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_boat_rock_startle",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_boat_rock_startle",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_family_alarm_call": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_call",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_call",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_family_alarm_answer": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_answer",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_answer",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_family_alarm_flee": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_flee",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_flee",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_family_alarm_calm": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_calm",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_calm",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_self_rescue_hat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_hat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_self_rescue_hat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_self_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_self_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_self_rescue_climb": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_climb",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_self_rescue_climb",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_self_rescue_slip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_slip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_self_rescue_slip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_self_rescue_safe": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_safe",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_self_rescue_safe",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_braid_rescue_offer": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_offer",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_braid_rescue_offer",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_braid_rescue_safe": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_safe",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_braid_rescue_safe",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_hat_drifting": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_hat_drifting",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_hat_drifting",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_hat_recovered": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_hat_recovered",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_hat_recovered",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.young.o_hat_out_of_reach": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_hat_out_of_reach",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.young.o_hat_out_of_reach",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.young.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.young.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.young.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.young.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.young.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.young.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_water_help": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_water_help",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_water_help",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.young.o_braid_rescue_grip": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_braid_rescue_grip",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.young.o_braid_rescue_grip",
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

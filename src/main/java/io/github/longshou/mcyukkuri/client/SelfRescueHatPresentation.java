@@ -1,32 +1,38 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
-import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
+import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-/** Moves only the one still-worn hat to its already reserved physical deployment endpoint. */
+/** Displays the server's single hat and the two actual braid segments; it never invents a transfer path. */
 final class SelfRescueHatPresentation {
     static void configure(YukkuriEntity entity,YukkuriModel model,float partial,float bodyYaw){
-        model.setSelfHatTransfer(null,0);
-        var spec=model.selfHatTransfer();var state=entity.aquaticSelfRescueState();
-        if(spec==null||!entity.hasVisibleAccessory()||!entity.getBehaviorId().startsWith("water_hat_")||!state.getBoolean("Planned"))return;
-        String phase=state.getString("Phase");
-        float elapsed=Math.max(0,entity.level().getGameTime()-state.getLong("Start")+partial);
-        float amount=phase.equals("REMOVE_HAT")?Mth.clamp(elapsed/spec.removeTicks(),0,1)
-                :phase.equals("SLIPPED")?state.getFloat("RemovalProgress")*(1-Mth.clamp(elapsed/spec.returnTicks(),0,1)):0;
-        if(amount<=0)return;
-        float scale=Math.max(.001f,entity.getScale()*entity.growthScale());
+        model.setSelfHatPose(null);
+        var state=entity.aquaticSelfRescueState();
+        if(!entity.getBehaviorId().startsWith("water_hat_"))return;
         var feet=entity.getPosition(partial);
-        var offset=new Vector3f((float)(state.getDouble("DeployX")-feet.x),(float)(state.getDouble("DeployY")-feet.y),(float)(state.getDouble("DeployZ")-feet.z))
-                .rotateY((bodyYaw-180)*Mth.DEG_TO_RAD).mul(16/scale);
-        float hat=HatVessel.hatMultiplier(entity.subspeciesFlags());
-        var destination=new Matrix4f().translation(offset)
-                .rotateY((bodyYaw-state.getFloat("DeployYaw"))*Mth.DEG_TO_RAD).rotateZ(spec.rollDegrees()*Mth.DEG_TO_RAD)
-                .translate(0,HatVessel.FREEBOARD*hat,0).rotateY(Mth.HALF_PI).rotateX(Mth.PI)
-                .scale(hat,hat*HatVessel.SQUASH_FLOAT,hat).translate(HatVessel.anchor().negate());
-        model.setSelfHatTransfer(destination,amount);
+        if(state.getBoolean("BraidContact")){
+            if(!entity.boardingState().getBoolean("Active"))model.setBoardingPose(0,0);
+            model.setBraidRescueContact(modelPoint(interpolate(state,"PrevTip","Tip",partial),feet,entity,bodyYaw));
+            model.setBraidRescueJoint(modelPoint(interpolate(state,"PrevJoint","Joint",partial),feet,entity,bodyYaw));
+        }
+        if(!entity.hasVisibleAccessory()||!state.getBoolean("HatPose"))return;
+        var rotation=quaternion(state,"PrevHat").slerp(quaternion(state,"Hat"),partial);
+        float squash=net.minecraft.util.Mth.lerp(partial,state.getFloat("PrevHatSquash"),state.getFloat("HatSquash"));
+        var pose=new SelfRescueHatGeometry.Pose(interpolate(state,"PrevHat","Hat",partial),rotation,squash,Vec3.ZERO,Vec3.ZERO,null);
+        model.setSelfHatPose(pose.wornMatrix(feet,bodyYaw,SelfRescueHatGeometry.bodyUnit(entity),SelfRescueHatGeometry.hatUnit(entity)));
+    }
+    private static Quaternionf quaternion(CompoundTag state,String key){
+        return new Quaternionf(state.getFloat(key+"QX"),state.getFloat(key+"QY"),state.getFloat(key+"QZ"),state.getFloat(key+"QW")).normalize();
+    }
+    private static Vec3 vector(CompoundTag state,String key){return new Vec3(state.getDouble(key+"X"),state.getDouble(key+"Y"),state.getDouble(key+"Z"));}
+    private static Vec3 interpolate(CompoundTag state,String before,String current,float partial){return vector(state,before).lerp(vector(state,current),partial);}
+    private static Vector3f modelPoint(Vec3 point,Vec3 feet,YukkuriEntity actor,float bodyYaw){
+        var p=point.subtract(feet);return new Vector3f((float)p.x,(float)p.y,(float)p.z)
+                .rotateY((float)Math.toRadians(bodyYaw-180)).mul((float)(1/SelfRescueHatGeometry.bodyUnit(actor)));
     }
     private SelfRescueHatPresentation(){}
 }

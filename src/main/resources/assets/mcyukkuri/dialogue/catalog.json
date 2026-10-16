@@ -13548,5 +13548,701 @@
     ],
     "ticks": 79,
     "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_boat_rock_startle",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_boat_rock_startle",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "boat_rock_startle"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.adult.o_boat_rock_startle"
+  },
+  {
+    "id": "marisa.adult.o_family_alarm_call",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_call",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "family_alarm_call"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.marisa.adult.o_family_alarm_call"
+  },
+  {
+    "id": "marisa.adult.o_family_alarm_answer",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_answer",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "family_alarm_answer"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.o_family_alarm_answer"
+  },
+  {
+    "id": "marisa.adult.o_family_alarm_flee",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_flee",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "family_alarm_flee"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.marisa.adult.o_family_alarm_flee"
+  },
+  {
+    "id": "marisa.adult.o_family_alarm_calm",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_calm",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "family_alarm_calm"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.marisa.adult.o_family_alarm_calm"
+  },
+  {
+    "id": "marisa.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_water_help",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.marisa.adult.o_water_help"
+  },
+  {
+    "id": "marisa.adult.o_self_rescue_hat",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_hat",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "self_rescue_hat"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.adult.o_self_rescue_hat"
+  },
+  {
+    "id": "marisa.adult.o_self_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_grip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "self_rescue_grip"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.adult.o_self_rescue_grip"
+  },
+  {
+    "id": "marisa.adult.o_self_rescue_climb",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_climb",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "self_rescue_climb"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.marisa.adult.o_self_rescue_climb"
+  },
+  {
+    "id": "marisa.adult.o_self_rescue_slip",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_slip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "self_rescue_slip"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.marisa.adult.o_self_rescue_slip"
+  },
+  {
+    "id": "marisa.adult.o_self_rescue_safe",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_self_rescue_safe",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "self_rescue_safe"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.adult.o_self_rescue_safe"
+  },
+  {
+    "id": "marisa.adult.o_braid_rescue_offer",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_offer",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "braid_rescue_offer"
+    ],
+    "ticks": 75,
+    "sound": "voice.original.marisa.adult.o_braid_rescue_offer"
+  },
+  {
+    "id": "marisa.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.marisa.adult.o_braid_rescue_grip"
+  },
+  {
+    "id": "marisa.adult.o_braid_rescue_safe",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_braid_rescue_safe",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "braid_rescue_safe"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.marisa.adult.o_braid_rescue_safe"
+  },
+  {
+    "id": "marisa.adult.o_hat_drifting",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_hat_drifting",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hat_drifting"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.adult.o_hat_drifting"
+  },
+  {
+    "id": "marisa.adult.o_hat_recovered",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_hat_recovered",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hat_recovered"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.adult.o_hat_recovered"
+  },
+  {
+    "id": "marisa.adult.o_hat_out_of_reach",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_hat_out_of_reach",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hat_out_of_reach"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.o_hat_out_of_reach"
+  },
+  {
+    "id": "marisa.young.o_boat_rock_startle",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_boat_rock_startle",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "boat_rock_startle"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.young.o_boat_rock_startle"
+  },
+  {
+    "id": "marisa.young.o_family_alarm_call",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_call",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "family_alarm_call"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.young.o_family_alarm_call"
+  },
+  {
+    "id": "marisa.young.o_family_alarm_answer",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_answer",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "family_alarm_answer"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.young.o_family_alarm_answer"
+  },
+  {
+    "id": "marisa.young.o_family_alarm_flee",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_flee",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "family_alarm_flee"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.young.o_family_alarm_flee"
+  },
+  {
+    "id": "marisa.young.o_family_alarm_calm",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_calm",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "family_alarm_calm"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.marisa.young.o_family_alarm_calm"
+  },
+  {
+    "id": "marisa.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_water_help",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.marisa.young.o_water_help"
+  },
+  {
+    "id": "marisa.young.o_self_rescue_hat",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_hat",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "self_rescue_hat"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.young.o_self_rescue_hat"
+  },
+  {
+    "id": "marisa.young.o_self_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_grip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "self_rescue_grip"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.young.o_self_rescue_grip"
+  },
+  {
+    "id": "marisa.young.o_self_rescue_climb",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_climb",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "self_rescue_climb"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.young.o_self_rescue_climb"
+  },
+  {
+    "id": "marisa.young.o_self_rescue_slip",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_slip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "self_rescue_slip"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.marisa.young.o_self_rescue_slip"
+  },
+  {
+    "id": "marisa.young.o_self_rescue_safe",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_self_rescue_safe",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "self_rescue_safe"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.young.o_self_rescue_safe"
+  },
+  {
+    "id": "marisa.young.o_braid_rescue_offer",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_offer",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "braid_rescue_offer"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.marisa.young.o_braid_rescue_offer"
+  },
+  {
+    "id": "marisa.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.young.o_braid_rescue_grip"
+  },
+  {
+    "id": "marisa.young.o_braid_rescue_safe",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_braid_rescue_safe",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "braid_rescue_safe"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.marisa.young.o_braid_rescue_safe"
+  },
+  {
+    "id": "marisa.young.o_hat_drifting",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_hat_drifting",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "hat_drifting"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.young.o_hat_drifting"
+  },
+  {
+    "id": "marisa.young.o_hat_recovered",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_hat_recovered",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "hat_recovered"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.young.o_hat_recovered"
+  },
+  {
+    "id": "marisa.young.o_hat_out_of_reach",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_hat_out_of_reach",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "hat_out_of_reach"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.young.o_hat_out_of_reach"
+  },
+  {
+    "id": "reimu.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_water_help",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.adult.o_water_help"
+  },
+  {
+    "id": "reimu.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.adult.o_braid_rescue_grip"
+  },
+  {
+    "id": "reimu.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_water_help",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.young.o_water_help"
+  },
+  {
+    "id": "reimu.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.reimu.young.o_braid_rescue_grip"
+  },
+  {
+    "id": "alice.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_water_help",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.alice.adult.o_water_help"
+  },
+  {
+    "id": "alice.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.alice.adult.o_braid_rescue_grip"
+  },
+  {
+    "id": "alice.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_water_help",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.young.o_water_help"
+  },
+  {
+    "id": "alice.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.young.o_braid_rescue_grip"
+  },
+  {
+    "id": "chen.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_water_help",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.adult.o_water_help"
+  },
+  {
+    "id": "chen.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.adult.o_braid_rescue_grip"
+  },
+  {
+    "id": "chen.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_water_help",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.young.o_water_help"
+  },
+  {
+    "id": "chen.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.young.o_braid_rescue_grip"
+  },
+  {
+    "id": "patchouli.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_water_help",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.adult.o_water_help"
+  },
+  {
+    "id": "patchouli.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 94,
+    "sound": "voice.original.patchouli.adult.o_braid_rescue_grip"
+  },
+  {
+    "id": "patchouli.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_water_help",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.patchouli.young.o_water_help"
+  },
+  {
+    "id": "patchouli.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.patchouli.young.o_braid_rescue_grip"
+  },
+  {
+    "id": "remilia.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_water_help",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_water_help",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_water_help",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_water_help",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_water_help",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_water_help",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "water_help"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_braid_rescue_grip",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_braid_rescue_grip",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "braid_rescue_grip"
+    ],
+    "ticks": 95,
+    "sound": ""
   }
 ]

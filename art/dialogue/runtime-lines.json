@@ -19091,6 +19091,992 @@
         "id": "flandre.young.o_predator_defy"
       },
       "source_sha256": "c5af2054c76fd39bce0e8f7e65041032e3fc073029be079e6873cce1818212be"
+    },
+    {
+      "id": "marisa.adult.o_boat_rock_startle",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ、ふねが ゆれるのぜ！",
+      "chinese": "呜，船在摇呀！",
+      "english": "The boat is rocking!",
+      "events": [
+        "boat_rock_startle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_boat_rock_startle"
+      },
+      "source_sha256": "45339d6fe3dcb9f7db63e30da766ac44e532b80e780b4e7138e481fff300d808"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_call",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ちびたち、こっちへ くるのぜ！",
+      "chinese": "孩子们，快到这边来！",
+      "english": "Little ones, come over here!",
+      "events": [
+        "family_alarm_call"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_family_alarm_call"
+      },
+      "source_sha256": "f98f3debd2b0ea5b87ef2d15fe1d7819a453eb9548d9d68c54f1106faf63ceae"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_answer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いま そっちへ いくのぜ！",
+      "chinese": "这就过来！",
+      "english": "Coming to you!",
+      "events": [
+        "family_alarm_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_family_alarm_answer"
+      },
+      "source_sha256": "efa2158009fec45807afe30481f1125b83c05a58eb0d985a8998cc833d12d295"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_flee",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここは あぶない、はなれるのぜ！",
+      "chinese": "这里危险，快离远一点！",
+      "english": "It is dangerous here. Move away!",
+      "events": [
+        "family_alarm_flee"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_family_alarm_flee"
+      },
+      "source_sha256": "4cf9bef94c68fe1d8fd71e5db2a882124c559cce7b3df11d39427898dc5b8ad9"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_calm",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はあ……もう だいじょうぶなのぜ。",
+      "chinese": "呼……已经安全了。",
+      "english": "Whew... we are safe now.",
+      "events": [
+        "family_alarm_calm"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_family_alarm_calm"
+      },
+      "source_sha256": "326e2abc5a24849921a1c22d7f14ebc0c1231eebc0118b95868f0ff0073d4e37"
+    },
+    {
+      "id": "marisa.adult.o_water_help",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけてほしいのぜ！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_water_help"
+      },
+      "source_sha256": "dc67b26a32aa0a86bd343c435f0618b8ca476e611b219ba5dc598426ead0d86d"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_hat",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうしを ひっくりかえすのぜ……。",
+      "chinese": "把帽帽翻过来……。",
+      "english": "Turn my hat over...",
+      "events": [
+        "self_rescue_hat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_self_rescue_hat"
+      },
+      "source_sha256": "342399dc84db0a60b2af9c460f8eb1a41f2e38bc0b2ac6e46fe23bff815ff4a3"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_grip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ふちに つかまったのぜ！",
+      "chinese": "抓住帽檐了！",
+      "english": "I have the brim!",
+      "events": [
+        "self_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_self_rescue_grip"
+      },
+      "source_sha256": "6b0570328f67ca262307bb8d86bbb364833dc4f4c35aefb23392a87ee6b3ee63"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_climb",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "んっ……よいしょ……もういっかい！",
+      "chinese": "嗯……嘿咻……再使一次劲！",
+      "english": "Ngh... heave... once more!",
+      "events": [
+        "self_rescue_climb"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_self_rescue_climb"
+      },
+      "source_sha256": "199ddd8a755ebf2fb7777a5bd666bf3db1b9339055d7f28c62471ac773899ece"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_slip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ！ すべっちゃうのぜ！",
+      "chinese": "呜！要滑下去了！",
+      "english": "I am slipping!",
+      "events": [
+        "self_rescue_slip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_self_rescue_slip"
+      },
+      "source_sha256": "93e49a48fbd8e913b32da14a8342a3ee1ecae3aeab89a9dc85b8bf97f3e1edc4"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_safe",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はあ……のぼれたのぜ……。",
+      "chinese": "哈啊……爬上来了……。",
+      "english": "Phew... I made it aboard...",
+      "events": [
+        "self_rescue_safe"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_self_rescue_safe"
+      },
+      "source_sha256": "af0af75268e721dd9711964f366ac65cb5f4591ad9ecd76a99b761bc9039fabb"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_offer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いまいくのぜ！ みつあみに つかまるのぜ！",
+      "chinese": "这就来！抓住辫辫！",
+      "english": "I am coming! Hold on to my braid!",
+      "events": [
+        "braid_rescue_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_braid_rescue_offer"
+      },
+      "source_sha256": "7cee7739b67c07bd8cdd56e69cb550b673acdb6dd470c5d4757b3ffe152f506d"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_grip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "つかんだのぜ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "323ceaa4f374ecb6e7e7ecb219313571b0b0ab7306fefcc4b66fcf7704cfcad9"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_safe",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう ふねのうえだよ。ゆっくり いきするのぜ。",
+      "chinese": "已经到船上了，慢慢喘口气。",
+      "english": "You are aboard now. Catch your breath.",
+      "events": [
+        "braid_rescue_safe"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_braid_rescue_safe"
+      },
+      "source_sha256": "5ae5a7c949e8335814d7b596838fd8f28bab45fcad4106c1603ad745df9df2e2"
+    },
+    {
+      "id": "marisa.adult.o_hat_drifting",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうしが ながれていくのぜ！",
+      "chinese": "帽帽漂走了！",
+      "english": "My hat is drifting away!",
+      "events": [
+        "hat_drifting"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hat_drifting"
+      },
+      "source_sha256": "a7986440e1e8126f930999c06902387d2786e2c3c9787e96c02fe23df2aab6fd"
+    },
+    {
+      "id": "marisa.adult.o_hat_recovered",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうし、つかまえたのぜ。",
+      "chinese": "抓回帽帽了。",
+      "english": "I caught my hat.",
+      "events": [
+        "hat_recovered"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hat_recovered"
+      },
+      "source_sha256": "2271e364110e6c06f333defdfb71710a480935380bab2aa755e731411aa70269"
+    },
+    {
+      "id": "marisa.adult.o_hat_out_of_reach",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう とどかないのぜ……。",
+      "chinese": "已经够不到了……。",
+      "english": "I cannot reach it anymore...",
+      "events": [
+        "hat_out_of_reach"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hat_out_of_reach"
+      },
+      "source_sha256": "677e3e29438e5ef73bd09fb8951f3228f72774608bc037c72ef10eb73e52b8b5"
+    },
+    {
+      "id": "marisa.young.o_boat_rock_startle",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっ、ふねが ゆれるのじぇ！",
+      "chinese": "呜，船在摇呀！",
+      "english": "The boat is rocking!",
+      "events": [
+        "boat_rock_startle"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_boat_rock_startle"
+      },
+      "source_sha256": "ce738111a134867cadf84debfe66154b2e25e1571479a0deed4505e54a04ec62"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_call",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちびたち、こっちへ くるのじぇ！",
+      "chinese": "孩子们，快到这边来！",
+      "english": "Little ones, come over here!",
+      "events": [
+        "family_alarm_call"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_family_alarm_call"
+      },
+      "source_sha256": "2246323cfdcf9eccc28e6ef7dd5730b82723bfb317b403ed910a2f4d7aeb861e"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_answer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いま そっちへ いくのじぇ！",
+      "chinese": "这就过来！",
+      "english": "Coming to you!",
+      "events": [
+        "family_alarm_answer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_family_alarm_answer"
+      },
+      "source_sha256": "1d8bd8d04f664da3d8065c583046c072ee4e4c190a6f52d8e013c8f7e98064fc"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_flee",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここは あぶない、はなれるのじぇ！",
+      "chinese": "这里危险，快离远一点！",
+      "english": "It is dangerous here. Move away!",
+      "events": [
+        "family_alarm_flee"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_family_alarm_flee"
+      },
+      "source_sha256": "d3ca81a661c15fe69af2b78a1c151f80ff31b554cd32affe8678ef765e91ead3"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_calm",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はあ……もう だいじょうぶなのじぇ。",
+      "chinese": "呼……已经安全了。",
+      "english": "Whew... we are safe now.",
+      "events": [
+        "family_alarm_calm"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_family_alarm_calm"
+      },
+      "source_sha256": "cf0f1fcb89483d0bed5993eb296f29befb27e592cd340788be7dc4c29f7bb16f"
+    },
+    {
+      "id": "marisa.young.o_water_help",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆぶっ！ たすけてほしいのじぇ！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_water_help"
+      },
+      "source_sha256": "a92ca1bed32450cbada4dc0af073d26645e2954af89bac0cadc4484f1d97c2a2"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_hat",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうしを ひっくりかえすのじぇ……。",
+      "chinese": "把帽帽翻过来……。",
+      "english": "Turn my hat over...",
+      "events": [
+        "self_rescue_hat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_self_rescue_hat"
+      },
+      "source_sha256": "4ab096fe2266fcb1e3d6ef02d9568e12fc4e8630e3f2d7f36aa06781037af640"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_grip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふちに ちゅかまったのじぇ！",
+      "chinese": "抓住帽檐了！",
+      "english": "I have the brim!",
+      "events": [
+        "self_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_self_rescue_grip"
+      },
+      "source_sha256": "982b1f109bebab12b0c47e0a639b9a4947bccfa83c636a0caa413cf172e59136"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_climb",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "んっ……よいしょ……もういっかい！",
+      "chinese": "嗯……嘿咻……再使一次劲！",
+      "english": "Ngh... heave... once more!",
+      "events": [
+        "self_rescue_climb"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_self_rescue_climb"
+      },
+      "source_sha256": "199ddd8a755ebf2fb7777a5bd666bf3db1b9339055d7f28c62471ac773899ece"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_slip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっ！ しゅべっちゃうのじぇ！",
+      "chinese": "呜！要滑下去了！",
+      "english": "I am slipping!",
+      "events": [
+        "self_rescue_slip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_self_rescue_slip"
+      },
+      "source_sha256": "78b531b6189746852d758a2ac8bf16c3be2bea07bc37a4db3f6651c966525836"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_safe",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はあ……のぼれたのじぇ……。",
+      "chinese": "哈啊……爬上来了……。",
+      "english": "Phew... I made it aboard...",
+      "events": [
+        "self_rescue_safe"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_self_rescue_safe"
+      },
+      "source_sha256": "a3806aa177e28169335d50ae1de95287a47d5b47c0c2696a2745bac2074462c9"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_offer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いまいくのじぇ！ みつあみに ちゅかまるのじぇ！",
+      "chinese": "这就来！抓住辫辫！",
+      "english": "I am coming! Hold on to my braid!",
+      "events": [
+        "braid_rescue_offer"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_braid_rescue_offer"
+      },
+      "source_sha256": "571faaa9db02599e7ee18e92bc7d1b634138729e6a599aa3c86128836530b511"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_grip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちゅかんだのじぇ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "ebf5b5d412cde3cafa6e2e4d49bf8dc0f309f8121f48018dd0547c169ddca0cb"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_safe",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう ふねのうえだよ。ゆっくり いきするのじぇ。",
+      "chinese": "已经到船上了，慢慢喘口气。",
+      "english": "You are aboard now. Catch your breath.",
+      "events": [
+        "braid_rescue_safe"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_braid_rescue_safe"
+      },
+      "source_sha256": "4c36306d4ba62cf08e3ace45dad0e632dd82fe04b8ce679ea2100664cef82aa3"
+    },
+    {
+      "id": "marisa.young.o_hat_drifting",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうしが ながれていくのじぇ！",
+      "chinese": "帽帽漂走了！",
+      "english": "My hat is drifting away!",
+      "events": [
+        "hat_drifting"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hat_drifting"
+      },
+      "source_sha256": "14c623758863845906e567615a1723333f21babc5509144f59f2f23885262634"
+    },
+    {
+      "id": "marisa.young.o_hat_recovered",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうし、ちゅかまえたのじぇ。",
+      "chinese": "抓回帽帽了。",
+      "english": "I caught my hat.",
+      "events": [
+        "hat_recovered"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hat_recovered"
+      },
+      "source_sha256": "a6391fe2aa7e65ff58d5bbedb5924d39d92ec64e756a9bc1b960c7cf535bb6f2"
+    },
+    {
+      "id": "marisa.young.o_hat_out_of_reach",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう とどかないのじぇ……。",
+      "chinese": "已经够不到了……。",
+      "english": "I cannot reach it anymore...",
+      "events": [
+        "hat_out_of_reach"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hat_out_of_reach"
+      },
+      "source_sha256": "00b3803aeb938cabdd9a1dad957951d9789cff27c2857164976363606a1d9ae9"
+    },
+    {
+      "id": "reimu.adult.o_water_help",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_water_help"
+      },
+      "source_sha256": "45f3698a1e6b25a81f8a4cc70e89e72df9ed191b42e06b0da235b41d76452615"
+    },
+    {
+      "id": "reimu.adult.o_braid_rescue_grip",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "0ab5a83a82ca55d749596931e0ba202e47e85dbc0e419694a12bcdff91efcfa6"
+    },
+    {
+      "id": "reimu.young.o_water_help",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_water_help"
+      },
+      "source_sha256": "748e7dfab5f256cbaa46c44b2cdcb42f60ae96856b0786fd5fb212801c4b299e"
+    },
+    {
+      "id": "reimu.young.o_braid_rescue_grip",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "c887d06337814d613a74dcdc4c064e4c2df8e9de7ccf23c09beb49a3eacec619"
+    },
+    {
+      "id": "alice.adult.o_water_help",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_water_help"
+      },
+      "source_sha256": "45f3698a1e6b25a81f8a4cc70e89e72df9ed191b42e06b0da235b41d76452615"
+    },
+    {
+      "id": "alice.adult.o_braid_rescue_grip",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "つかまったわ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "c0f6a6ce58b423a24e2388b38a502d38f5ade31823c60f3dff9d5f651991cb5e"
+    },
+    {
+      "id": "alice.young.o_water_help",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_water_help"
+      },
+      "source_sha256": "748e7dfab5f256cbaa46c44b2cdcb42f60ae96856b0786fd5fb212801c4b299e"
+    },
+    {
+      "id": "alice.young.o_braid_rescue_grip",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゅかまったわ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "c825e74ceb79124c2284a594b9b3dc99acfb7d74ab900499b185399e1157f9ad"
+    },
+    {
+      "id": "chen.adult.o_water_help",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけてよー！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_water_help"
+      },
+      "source_sha256": "3e0ea4ede594b591a75c794c4559f5843c0c48a90e3f289cf59aa33fc588be00"
+    },
+    {
+      "id": "chen.adult.o_braid_rescue_grip",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "0ab5a83a82ca55d749596931e0ba202e47e85dbc0e419694a12bcdff91efcfa6"
+    },
+    {
+      "id": "chen.young.o_water_help",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけてよー！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_water_help"
+      },
+      "source_sha256": "84a4f49be5a3610b89938b3a52f306cca65ba63826e1a2f2332a5ad22dd27df6"
+    },
+    {
+      "id": "chen.young.o_braid_rescue_grip",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "c887d06337814d613a74dcdc4c064e4c2df8e9de7ccf23c09beb49a3eacec619"
+    },
+    {
+      "id": "patchouli.adult.o_water_help",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_water_help"
+      },
+      "source_sha256": "8b14ca06a25c7a32e7f9e9fcc79b0660b1d8bd8b6251017cedffca0e1505f1b3"
+    },
+    {
+      "id": "patchouli.adult.o_braid_rescue_grip",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "9ae7555c81528b476e3a9e0c6a501dde708b8fc90211708e4ae46efe28b089c5"
+    },
+    {
+      "id": "patchouli.young.o_water_help",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_water_help"
+      },
+      "source_sha256": "2a1fd9ae1c8b2be10cef62ea460cfec81afe22182142fcb2a0659065293b861b"
+    },
+    {
+      "id": "patchouli.young.o_braid_rescue_grip",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "a333c41568d1b36c5e1e31357b0b3fb87d1ec8a09ecca4cc07dd0c0ed1256e98"
+    },
+    {
+      "id": "remilia.adult.o_water_help",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_water_help"
+      },
+      "source_sha256": "5053933c56a245e89fcff2646b6cb8eb377fc1126b15a14ff02cf138ff91ff41"
+    },
+    {
+      "id": "remilia.adult.o_braid_rescue_grip",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "4077d9df95257fd11ae01799b0d8b1b6d4b4935dddc43134258f2399539ce966"
+    },
+    {
+      "id": "remilia.young.o_water_help",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_water_help"
+      },
+      "source_sha256": "8a14297d340460477cdfd01c2225a55d28baf5084307b0ace86cbc55b6e6f5b9"
+    },
+    {
+      "id": "remilia.young.o_braid_rescue_grip",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "8cf11bcf6ccf32cdc61bbdd1dce6e65bf4eb9fc660071139cf27354dd5000c29"
+    },
+    {
+      "id": "flandre.adult.o_water_help",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_water_help"
+      },
+      "source_sha256": "5053933c56a245e89fcff2646b6cb8eb377fc1126b15a14ff02cf138ff91ff41"
+    },
+    {
+      "id": "flandre.adult.o_braid_rescue_grip",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_braid_rescue_grip"
+      },
+      "source_sha256": "4077d9df95257fd11ae01799b0d8b1b6d4b4935dddc43134258f2399539ce966"
+    },
+    {
+      "id": "flandre.young.o_water_help",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_water_help"
+      },
+      "source_sha256": "8a14297d340460477cdfd01c2225a55d28baf5084307b0ace86cbc55b6e6f5b9"
+    },
+    {
+      "id": "flandre.young.o_braid_rescue_grip",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_braid_rescue_grip"
+      },
+      "source_sha256": "8cf11bcf6ccf32cdc61bbdd1dce6e65bf4eb9fc660071139cf27354dd5000c29"
     }
   ]
 }

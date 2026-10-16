@@ -32,7 +32,7 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&!entity.family().flying()&&!entity.family().heldByBraid()&&!entity.family().selfClimbActive();}
+    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&(!entity.family().flying()||entity.family().selfClimbActive())&&!entity.family().heldByBraid()&&!entity.family().climbGripActive();}
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
     public UUID pusherId(){return pusher;}
@@ -68,12 +68,12 @@ public final class WaterDistress {
         phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
-            if(!entity.family().heldByBraid()&&!entity.family().selfClimbActive())surfaceBuoyancy();
+            if(!entity.family().heldByBraid()&&!entity.family().climbGripActive())surfaceBuoyancy();
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&(fatigue>=160||entity.life().energy()<20))set(Phase.EXHAUSTED);
-            if(!entity.family().heldByBraid()&&!entity.family().selfClimbActive()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
+            if(!entity.family().heldByBraid()&&!entity.family().climbGripActive()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
                 if(burstTicks>0)burstTicks--;else if(restTicks>0)restTicks--;
                 if(callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;alertKin();}
             }else burstTicks=0;

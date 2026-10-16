@@ -277,6 +277,7 @@ public final class FamilyLife {
     public boolean doomed(){return doomed;}
     public boolean flying(){return flight!=null||boarding.active();}
     public boolean selfClimbActive(){return boarding.climbing();}
+    public boolean climbGripActive(){return boarding.gripped();}
     public CompoundTag boardingState(){return boarding.state();}
     void rescueTarget(UUID id){rescuingChild=id;}
     public UUID rescueTarget(){return rescuingChild;}
@@ -351,12 +352,9 @@ public final class FamilyLife {
         var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity)
                 :to.reserveBoardingSeat(entity,entity.position(),emergency);
         if(seat==null)return false;
-        if(HatBoarding.hopDuration(entity,from,to,entity.position(),to.toWorld(seat))==0){
-            to.cancelIncoming(entity);
-            from.approachBoardingEdge(entity,to.position());return false;
-        }
         if(boarding.begin(from,to,seat))return true;
-        to.cancelIncoming(entity);return false;
+        to.cancelIncoming(entity);
+        from.approachBoardingEdge(entity,to.position());return false;
     }
     /** A nearby parent lifts a swimming young over the brim, starting at its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){

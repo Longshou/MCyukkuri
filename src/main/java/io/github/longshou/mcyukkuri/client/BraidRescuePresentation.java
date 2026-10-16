@@ -18,7 +18,7 @@ final class BraidRescuePresentation {
         return switch(entity.braidRescuePhase()){case "GRIP","LIFT","PLACE","SETTLE","RELEASE"->true;default->false;};
     }
     static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){
-        if(heldChild(entity))return new CabinDistressPresentation.Motion("idle",0);
+        if(heldChild(entity))return new CabinDistressPresentation.Motion("water_held_breath",((entity.tickCount+partial)/20f)%1.6f);
         if(!parent(entity))return null;
         String phase=entity.braidRescuePhase();
         float seconds=Math.max(0,(entity.level().getGameTime()-entity.braidRescueStartTick()+partial)/20f);
@@ -38,7 +38,7 @@ final class BraidRescuePresentation {
         };
     }
     static void configure(YukkuriEntity parent,YukkuriModel model,float partial,float renderedYaw){
-        if(!parent(parent)){model.setBraidRescueContact(null);return;}
+        if(!parent(parent)){model.setBraidRescueContact(null);model.setBraidRescueJoint(null);return;}
         CompoundTag state=parent.braidRescueState();
         Vec3 at=new Vec3(Mth.lerp(partial,state.getDouble("PrevTipX"),state.getDouble("TipX")),
                 Mth.lerp(partial,state.getDouble("PrevTipY"),state.getDouble("TipY")),
@@ -48,6 +48,18 @@ final class BraidRescuePresentation {
                 .rotateY((renderedYaw-180)*Mth.DEG_TO_RAD)
                 .mul(16/Math.max(.001f,parent.getScale()*parent.growthScale()));
         model.setBraidRescueContact(local);
+        Vec3 joint=new Vec3(Mth.lerp(partial,state.getDouble("PrevJointX"),state.getDouble("JointX")),
+                Mth.lerp(partial,state.getDouble("PrevJointY"),state.getDouble("JointY")),
+                Mth.lerp(partial,state.getDouble("PrevJointZ"),state.getDouble("JointZ")));
+        var jointRelative=joint.subtract(parent.getPosition(partial));
+        var jointLocal=new Vector3f((float)jointRelative.x,(float)jointRelative.y,(float)jointRelative.z)
+                .rotateY((renderedYaw-180)*Mth.DEG_TO_RAD)
+                .mul(16/Math.max(.001f,parent.getScale()*parent.growthScale()));
+        model.setBraidRescueJoint(jointLocal);
+    }
+    static float rootBlend(YukkuriEntity parent,float partial){
+        if(!parent(parent))return 0;
+        var state=parent.braidRescueState();return Mth.lerp(partial,(float)state.getDouble("PrevRootBlend"),(float)state.getDouble("RootBlend"));
     }
     private BraidRescuePresentation(){}
 }

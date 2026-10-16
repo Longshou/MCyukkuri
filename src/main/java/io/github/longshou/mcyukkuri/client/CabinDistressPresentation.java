@@ -61,12 +61,12 @@ final class CabinDistressPresentation {
         if(!entity.getBehaviorId().startsWith("water_hat_")||state.getString("Phase").isEmpty())return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         return switch(state.getString("Phase")){
-            case "REMOVE_HAT"->new Motion("water_hat_flip",.8f*net.minecraft.util.Mth.clamp(elapsed/.9f,0,1));
-            case "DEPLOY_HAT"->new Motion("water_hat_flip",.35f+.45f*net.minecraft.util.Mth.clamp(elapsed,0,1));
+            case "REMOVE_HAT"->new Motion("water_hat_flip",Math.min(2.9f,elapsed));
+            case "DEPLOY_HAT"->new Motion("water_hat_flip",2.9f);
             case "GRIP","RIGHT_HAT"->new Motion("water_hat_grip",elapsed%1f);
             case "CLIMB"->new Motion("water_hat_climb",1.2f*net.minecraft.util.Mth.clamp(elapsed/2f,0,1));
             case "SLIPPED"->entity.hasVisibleAccessory()&&state.getBoolean("Planned")&&state.getFloat("RemovalProgress")>0
-                    ?new Motion("water_hat_flip",.8f*state.getFloat("RemovalProgress")*(1-net.minecraft.util.Mth.clamp(elapsed,0,1)))
+                    ?new Motion("water_hat_flip",2.9f*state.getFloat("RemovalProgress")*(1-net.minecraft.util.Mth.clamp(elapsed,0,1)))
                     :new Motion("water_gasp",elapsed%1.6f);
             case "SAFE"->new Motion("water_recover",Math.min(2.8f,elapsed));
             default->null; // Approach/failure remain the actual immersed struggle and breath.
@@ -80,12 +80,38 @@ final class CabinDistressPresentation {
         float q=net.minecraft.util.Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
         // Every root position belongs to HatBoarding; these clips add pressure and breathing only.
         return switch(state.getString("Phase")){
-            case "ALIGN","GRIP"->new Motion("water_hat_grip",elapsed%1f);
-            case "HOP"->new Motion("water_hat_climb",.35f+.3f*q);
-            case "LIFT"->new Motion("water_hat_climb",.65f*q);
-            case "SETTLE"->new Motion("water_hat_climb",.65f+.55f*q);
+            case "ALIGN"->new Motion("water_hat_grip",0);
+            case "GRIP"->new Motion("water_hat_grip",q);
+            case "HOP"->new Motion("water_hat_grip",q);
+            case "LIFT"->new Motion("water_hat_pull",1.2f*q);
+            case "SETTLE"->new Motion("water_hat_over",1.2f*q);
             default->null;
         };
+    }
+    /** Keep the actual distal braid on the held rim while the server moves the body in effort pulses. */
+    static void configureBoardingContact(YukkuriEntity entity,YukkuriModel model,float partial,float renderedYaw){
+        var state=entity.boardingState();
+        if(!state.getBoolean("Active"))return;
+        if(state.contains("RootPitch")){
+            float pitch=(float)state.getDouble("RootPitch"),roll=(float)state.getDouble("RootRoll");
+            model.setBoardingPose(state.contains("PrevRootPitch")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootPitch"),pitch):pitch,
+                    state.contains("PrevRootRoll")?net.minecraft.util.Mth.lerp(partial,(float)state.getDouble("PrevRootRoll"),roll):roll);
+        }
+        if(!state.contains("TipX")||!state.contains("JointX"))return;
+        // Joint, tip and body use the same server-tick interpolation interval.
+        model.setBraidRescueContact(boardingPoint(entity,state,"Tip",partial,renderedYaw));
+        model.setBraidRescueJoint(boardingPoint(entity,state,"Joint",partial,renderedYaw));
+    }
+    private static org.joml.Vector3f boardingPoint(YukkuriEntity entity,net.minecraft.nbt.CompoundTag state,String key,float partial,float yaw){
+        double x=state.getDouble(key+"X"),y=state.getDouble(key+"Y"),z=state.getDouble(key+"Z");
+        if(state.contains("Prev"+key+"X")){
+            x=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"X"),x);
+            y=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"Y"),y);
+            z=net.minecraft.util.Mth.lerp(partial,state.getDouble("Prev"+key+"Z"),z);
+        }
+        var at=entity.getPosition(partial);
+        return new org.joml.Vector3f((float)(x-at.x),(float)(y-at.y),(float)(z-at.z))
+                .rotateY((yaw-180)*net.minecraft.util.Mth.DEG_TO_RAD).mul(16/Math.max(.001f,entity.getScale()*entity.growthScale()));
     }
     /** Shared vessel roll was already applied about the boat centre; this correction pivots on this rider's real support. */
     static void balance(PoseStack pose,YukkuriEntity entity,HatBoatEntity boat,float partial,float renderedBodyYaw){

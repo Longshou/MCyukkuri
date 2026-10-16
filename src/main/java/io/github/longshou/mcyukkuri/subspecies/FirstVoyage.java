@@ -20,7 +20,7 @@ public final class FirstVoyage {
     private Phase phase=Phase.NONE;
     private UUID mentor, pupil, homeHat;
     private BlockPos harbor, turn;
-    private int ticks, elapsed, cooldown, loadGrace;
+    private int ticks, elapsed, cooldown, loadGrace, hatRecoveryTicks;
     private long nextSearch;
     private boolean completed, reachedTurn, independent, leavingHome;
     private boolean routineLaunch, routineSailing, emergencyRecall;
@@ -89,8 +89,8 @@ public final class FirstVoyage {
                 ||home!=null&&home.unsteadyMotion()||learnerBoat!=null&&learnerBoat.unsteadyMotion();
         if(!moving)return false;
         if(hold){
-            if(riding!=null)riding.holdPosition();if(own!=null)own.holdPosition();
-            if(home!=null)home.holdPosition();if(learnerBoat!=null)learnerBoat.holdPosition();
+            if(riding!=null)riding.holdPosition();if(own!=null&&(own.isVehicle()||own.hasIncoming()))own.holdPosition();
+            if(home!=null)home.holdPosition();if(learnerBoat!=null&&(learnerBoat.isVehicle()||learnerBoat.hasIncoming()))learnerBoat.holdPosition();
         }
         return true;
     }
@@ -240,7 +240,12 @@ public final class FirstVoyage {
         if(pauseForMotion(true))return;
         if(pupil!=null){
             var learner=person(pupil);child.getNavigation().stop();
-            if(child.getVehicle() instanceof HatBoatEntity hat)hat.holdPosition();
+            if(child.getVehicle() instanceof HatBoatEntity hat){
+                var abandoned=learner==null?null:HatBoatEntity.owned(learner);
+                if(learner!=null&&learner.getVehicle()==hat&&abandoned!=null
+                        &&child.aquaticLife().familyLife().approachDriftingHat(learner,hat,abandoned))return;
+                hat.holdPosition();
+            }
             if(learner!=null){face(child,learner.position());if(child.tickCount%100==0)child.speak("wait_family");}return;
         }
         if(phase==Phase.NONE)return;
@@ -262,16 +267,22 @@ public final class FirstVoyage {
             if(father!=null)face(child,father.position());if(ticks>=60||!healthy(child))finish();return;
         }
         if(boat==null||!boat.isAfloat()&&boat.state()!=HatBoatEntity.State.BEACHED){finish();return;}
-        if(child.family().flying()){boat.holdPosition();if(home!=null)home.holdPosition();return;}
+        if(child.family().flying()){
+            // A source hat with no rider or incoming grip is an actual loose object in the current.
+            if(boat.isVehicle()||boat.hasIncoming())boat.holdPosition();
+            if(home!=null)home.holdPosition();return;
+        }
         if(home!=null&&child.getVehicle()==home){
+            hatRecoveryTicks++;
             if(boat.retrieveAfloat(child,home)){
+                child.showReaction("happy","hat_recovered",40);
                 if(reachedTurn&&healthy(father)&&!completed){
                     completed=true;set(Phase.CELEBRATE);child.dailyLife().comfort(25);father.dailyLife().comfort(15);
                     var data=YukkuriWorldData.get(level());data.relate(child.getUUID(),father.getUUID(),4);data.relate(father.getUUID(),child.getUUID(),4);
-                    child.showReaction("happy","hello",60);father.showReaction("happy","hello",60);
+                    child.showReaction("happy",null,60);father.showReaction("happy",null,60);
                     level().sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,child.getX(),child.getY()+child.getBbHeight(),child.getZ(),5,.2,.1,.2,0);
                 }else finish();
-            }else if(ticks>100)finish();return;
+            }else if(hatRecoveryTicks>180){child.showReaction("teary","hat_out_of_reach",40);finish();}return;
         }
         if(child.getVehicle()!=boat){
             // A failed landing is now a real swimmer, not an endlessly restarted
@@ -311,7 +322,7 @@ public final class FirstVoyage {
             // A missing or capsized father releases this goal to emergency landing/call-for-help behavior.
             if(!safeHome(home,father)){reachedTurn=false;if(ticks>100)finish();return;}
             // First bring both real brims together; FamilyLife then walks to the
-            // near takeoff edge, aligns and commits one bounded short hop.
+            // near edge and selects a reachable climb or a bounded low hop.
             var approach=home.emergencyApproach(child);
             if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
                     &&approach!=null&&boat.position().distanceToSqr(approach)<=.01
@@ -382,6 +393,7 @@ public final class FirstVoyage {
         var home=home();if(home!=null)home.releaseVoyageBerth(child.getUUID());
         var boat=HatBoatEntity.owned(child);if(boat!=null)boat.stopPaddling();
         mentor=homeHat=null;phase=Phase.NONE;cooldown=completed&&!independent?80:600;reachedTurn=false;leavingHome=false;
+        hatRecoveryTicks=0;
         routineLaunch=routineSailing=emergencyRecall=false;
     }
     public CompoundTag save(){
@@ -401,7 +413,7 @@ public final class FirstVoyage {
         retainedHatToken=tag.hasUUID("RetainedHatToken")?tag.getUUID("RetainedHatToken"):null;
         retainedCargo=tag.contains("RetainedCargo")?tag.getCompound("RetainedCargo").copy():null;
         mentor=tag.hasUUID("Mentor")?tag.getUUID("Mentor"):null;homeHat=tag.hasUUID("HomeHat")?tag.getUUID("HomeHat"):null;
-        pupil=tag.hasUUID("Pupil")?tag.getUUID("Pupil"):null;phase=Phase.NONE;ticks=elapsed=0;reachedTurn=false;loadGrace=40;
+        pupil=tag.hasUUID("Pupil")?tag.getUUID("Pupil"):null;phase=Phase.NONE;ticks=elapsed=hatRecoveryTicks=0;reachedTurn=false;loadGrace=40;
         harbor=tag.contains("Harbor")?BlockPos.of(tag.getLong("Harbor")):null;
         if(tag.getBoolean("InterruptedTrip"))set(Phase.RETURN);
     }

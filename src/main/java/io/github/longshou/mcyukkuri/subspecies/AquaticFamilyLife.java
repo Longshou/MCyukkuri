@@ -35,6 +35,8 @@ public final class AquaticFamilyLife {
     private String rescuePhase="idle";
     private long rescuePhaseAt;
     private UUID rescueTarget;
+    private UUID recoveringHat, missedHat;
+    private long recoveryStarted, missedHatUntil;
     private ServerLevel cacheLevel;
     private long cacheTick=Long.MIN_VALUE;
     private boolean parentResolved;
@@ -244,6 +246,7 @@ public final class AquaticFamilyLife {
         if(home.unsteadyMotion()){safeTicks=0;return false;}
         var abandoned=HatBoatEntity.owned(entity);
         if(abandoned!=null&&!abandoned.unsteadyMotion()&&abandoned.retrieveAfloat(entity,home)){
+            entity.showReaction("happy","hat_recovered",40);
             safeTicks=0;activity="boat_return_family";return true;
         }
         if(parent==null||alarm.preventsOuting()||parent.aquaticLife().familyLife().alarm.preventsOuting()||safeTicks<80||level().isNight()||danger(entity,home)||danger(parent,home)
@@ -412,10 +415,59 @@ public final class AquaticFamilyLife {
             if(abandoned==null||abandoned.unsteadyMotion()||abandoned.isVehicle()||abandoned.hasIncoming()
                     ||!(abandoned.isAfloat()||abandoned.state()==HatBoatEntity.State.CAPSIZED||abandoned.state()==HatBoatEntity.State.BEACHED)
                     ||horizontal(home.position(),abandoned.position())>8)continue;
-            if(abandoned.retrieveAfloat(child,home)){hold(home,"boat_return_family");return true;}
-            if(steer(home,abandoned.position(),false)){guarding=true;activity="boat_guard_young";return true;}
+            if(abandoned.retrieveAfloat(child,home)){
+                child.showReaction("happy","hat_recovered",40);recoveringHat=null;
+                hold(home,"boat_return_family");return true;
+            }
+            if(approachDriftingHat(child,home,abandoned))return true;
         }
+        recoveringHat=null;
         return false;
+    }
+
+    /** Move the occupied parent hat beside the real abandoned brim; only the child may reclaim it at contact. */
+    public boolean approachDriftingHat(YukkuriEntity child,HatBoatEntity home,HatBoatEntity abandoned){
+        if(child==null||abandoned==null||child.getVehicle()!=home||!home.protects(child)||!home.young(child)
+                ||!entity.getUUID().equals(home.ownerYukkuri())||entity.getVehicle()!=home
+                ||!home.protects(entity)||!entity.family().caresFor(child)||child.family().flying()
+                ||abandoned.isVehicle()||abandoned.hasIncoming()||abandoned.unsteadyMotion()
+                ||!(abandoned.isAfloat()||abandoned.state()==HatBoatEntity.State.CAPSIZED||abandoned.state()==HatBoatEntity.State.BEACHED)
+                ||entity.life().hasUrgentNeed()||entity.life().isSleeping()||entity.life().mealTicks()>0
+                ||entity.aquaticLife().care().active()||alarm.preventsOuting()||danger(entity,home)
+                ||!entity.hasLineOfSight(abandoned))return false;
+        long now=level().getGameTime();
+        if(abandoned.getUUID().equals(missedHat)&&now<missedHatUntil)return false;
+        if(!abandoned.getUUID().equals(recoveringHat)){
+            recoveringHat=abandoned.getUUID();recoveryStarted=now;
+            child.showReaction("teary","hat_drifting",40);
+        }
+        if(horizontal(home.position(),abandoned.position())>8||now-recoveryStarted>160){
+            missedHat=abandoned.getUUID();missedHatUntil=now+240;recoveringHat=null;
+            child.showReaction("teary","hat_out_of_reach",40);hold(home,"boat_wait_young");return false;
+        }
+        home.approachBoardingEdge(child,abandoned.position());
+        child.getLookControl().setLookAt(abandoned,30,30);
+        if(abandoned.retrievalGrip(child)!=null){hold(home,"boat_return_family");return true;}
+        var target=abandoned.retrievalApproach(home,child);
+        if(target==null)return false;
+        guarding=true;activity="boat_guard_young";
+        if(horizontal(home.position(),target)<=.05){hold(home,"boat_return_family");return true;}
+        if(routeWait>0)return home.paddling()||home.changingSeat(child);
+        routeWait=8;
+        if(!home.cargo().paddle()||home.towed())return false;
+        var path=new ArrayList<>(HatBoatRoute.find(home,target,point->recoveryWater(home,point)));
+        var from=path.isEmpty()?home.position():path.getLast();
+        // The final metre uses the same finite hull clearance as docking, not a block-centre stop short of reach.
+        if(from.distanceToSqr(target)>2.25)return false;
+        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(target)/.08));
+        for(int step=0;step<=steps;step++)if(!recoveryWater(home,from.lerp(target,(double)step/steps)))return false;
+        path.add(target);steeringHat=home.getUUID();seekingQuiet=false;
+        return home.paddleAlong(path,.0025);
+    }
+    private boolean recoveryWater(HatBoatEntity boat,Vec3 point){
+        var at=BlockPos.containing(point.x,point.y-.12,point.z);
+        return HatBoatRoute.calmSurface(level(),at)&&level().getWorldBorder().isWithinBounds(at)
+                &&allowsDestination(boat,point)&&level().noCollision(boat,boat.getBoundingBox().move(point.subtract(boat.position())));
     }
 
     private List<YukkuriEntity> loadedChildren(){
@@ -530,7 +582,7 @@ public final class AquaticFamilyLife {
     }
     public void stop(){
         var boat=HatBoatEntity.owned(entity);if(boat!=null&&boat.getUUID().equals(steeringHat))boat.stopPaddling();
-        steeringHat=null;waitingOn=null;following=guarding=gathering=returnRequested=seekingQuiet=false;activity="idle";routeWait=0;
+        steeringHat=null;waitingOn=null;recoveringHat=null;following=guarding=gathering=returnRequested=seekingQuiet=false;activity="idle";routeWait=0;
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putInt("Version",1);

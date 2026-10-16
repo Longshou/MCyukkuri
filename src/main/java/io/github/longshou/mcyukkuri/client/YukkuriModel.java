@@ -70,19 +70,21 @@ public final class YukkuriModel {
      * anchors to close the last visible gap without translating a parent below the ground.
      */
     private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
-    private final Vector3f rescueTip=new Vector3f();
-    private boolean rescueContact;
+    private final Vector3f rescueTip=new Vector3f(),rescueJoint=new Vector3f();
+    private boolean rescueContact,rescueJointActive;
+    private float rescueRootBlend=Float.NaN;
+    private float boardingPitch=Float.NaN,boardingRoll;
     void setBraidRescueContact(Vector3f point){rescueContact=point!=null;if(point!=null)rescueTip.set(point);}
+    void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);}
+    void setBraidRescueRootBlend(float blend){rescueRootBlend=Float.isFinite(blend)?Math.clamp(blend,0,1):Float.NaN;}
+    void setBoardingPose(float pitch,float roll){boardingPitch=pitch;boardingRoll=roll;}
     private String hatMotion="";
     private float hatPhase;
     record HatTransfer(float removeTicks,float returnTicks,float rollDegrees,float clearance,float slideBegin,float lowerBegin){}
     private HatTransfer selfHatTransfer;
-    private Matrix4f selfHatDestination;
-    private float selfHatAmount;
+    private Matrix4f selfHatPose;
     HatTransfer selfHatTransfer(){return selfHatTransfer;}
-    void setSelfHatTransfer(Matrix4f destination,float amount){
-        selfHatDestination=destination==null?null:new Matrix4f(destination);selfHatAmount=Math.clamp(amount,0,1);
-    }
+    void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
     void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
         careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
@@ -644,6 +646,16 @@ public final class YukkuriModel {
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
         boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals("feed_child")||behavior.equals("boat_feed_young")||behavior.equals("first_toilet_assist"));
+        if(Float.isFinite(rescueRootBlend)){
+            var root=pose[rootBone()];
+            for(int i=0;i<6;i++)root[i]*=rescueRootBlend;
+            root[1]=(float)io.github.longshou.mcyukkuri.family.BraidRescueGeometry.rootLift(rescueRootBlend);
+        }
+        if(Float.isFinite(boardingPitch)){
+            var root=pose[rootBone()];
+            root[0]=root[1]=root[2]=root[4]=0;root[3]=boardingPitch;root[5]=boardingRoll;
+            root[6]=root[7]=root[8]=1;
+        }
         composeWorld();
         if(careContact){
             // Source and contact tracking share one total inclination budget. Adding a separate
@@ -749,7 +761,7 @@ public final class YukkuriModel {
         }
     }
 
-    /** Rotate the one existing braid onto its synchronized natural-length tip, without any scaling. */
+    /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
     private void poseRescueBraid(){
         int joint=-1,tip=-1;
         for(int i=0;i<bones.length;i++){
@@ -759,10 +771,10 @@ public final class YukkuriModel {
         if(joint<0||tip<0||bones[joint].parent<0)return;
         var base=bones[joint];var end=bones[tip];
         Matrix4f parent=world[base.parent];
-        var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueTip)).sub(base.x,base.y,base.z);
-        var authored=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.modelTip()
-                .subtract(io.github.longshou.mcyukkuri.family.BraidRescueGeometry.modelRoot());
-        var rest=new Vector3f((float)authored.x,(float)authored.y,(float)authored.z);
+        var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueJointActive?rescueJoint:rescueTip)).sub(base.x,base.y,base.z);
+        var authored=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.modelTip();
+        var rest=rescueJointActive?new Vector3f(end.x-base.x,end.y-base.y,end.z-base.z)
+                :new Vector3f((float)authored.x-base.x,(float)authored.y-base.y,(float)authored.z-base.z);
         if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
         var rotation=new org.joml.Quaternionf().rotationTo(rest.normalize(),desired.normalize());
         world[joint].set(parent).translate(base.x,base.y,base.z).rotate(rotation).translate(-base.x,-base.y,-base.z);
@@ -770,13 +782,28 @@ public final class YukkuriModel {
             boolean follows=false;for(int at=bones[i].parent;at>=0;at=bones[at].parent)if(at==joint){follows=true;break;}
             if(!follows)continue;
             Bone bone=bones[i];float[] v=pose[i];
-            if(bone.name.equals("hand_right_tip")||bone.name.equals("hand_right_ribbon")){
-                world[i].set(world[bone.parent]);continue;
+            if(i==tip){
+                Matrix4f upper=world[bone.parent];
+                if(rescueJointActive){
+                    var distal=new Vector3f((float)authored.x-end.x,(float)authored.y-end.y,(float)authored.z-end.z);
+                    var toward=new Matrix4f(upper).invert().transformPosition(new Vector3f(rescueTip)).sub(end.x,end.y,end.z);
+                    if(distal.lengthSquared()>1e-10f&&toward.lengthSquared()>1e-10f){
+                        var bend=new org.joml.Quaternionf().rotationTo(distal.normalize(),toward.normalize());
+                        world[i].set(upper).translate(end.x,end.y,end.z).rotate(bend).translate(-end.x,-end.y,-end.z);
+                        continue;
+                    }
+                }
+                world[i].set(upper);continue;
+            }
+            if(bone.name.equals("hand_right_ribbon")){
+                world[i].set(rescueJointActive?world[tip]:world[bone.parent]);continue;
             }
             world[i].set(world[bone.parent]).translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
                     .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
                     .scale(v[6],v[7],v[8]).translate(-bone.x,-bone.y,-bone.z);
         }
+        // The ribbon can be a sibling before the tip in the authored bone list.
+        for(int i=joint+1;i<bones.length;i++)if(bones[i].name.equals("hand_right_ribbon"))world[i].set(world[tip]);
     }
 
     private void composeWorld(){
@@ -789,19 +816,7 @@ public final class YukkuriModel {
             if(hatScale!=1&&i==hatFollowBone()){
                 var a=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
             }
-            if(i==hatFollowBone()&&selfHatDestination!=null&&selfHatAmount>0&&selfHatTransfer!=null){
-                var anchor=io.github.longshou.mcyukkuri.subspecies.HatVessel.anchor();
-                var from=matrix.transformPosition(new Vector3f(anchor));
-                var to=selfHatDestination.transformPosition(new Vector3f(anchor));
-                float slide=smooth((selfHatAmount-selfHatTransfer.slideBegin())/(selfHatTransfer.lowerBegin()-selfHatTransfer.slideBegin()));
-                float lower=smooth((selfHatAmount-selfHatTransfer.lowerBegin())/(1-selfHatTransfer.lowerBegin()));
-                var position=new Vector3f(from).lerp(to,slide);
-                position.y=net.minecraft.util.Mth.lerp(lower,from.y+selfHatTransfer.clearance()*smooth(selfHatAmount/selfHatTransfer.slideBegin()),to.y);
-                var scale=matrix.getScale(new Vector3f()).lerp(selfHatDestination.getScale(new Vector3f()),lower);
-                var rotation=matrix.getUnnormalizedRotation(new org.joml.Quaternionf()).normalize()
-                        .slerp(selfHatDestination.getUnnormalizedRotation(new org.joml.Quaternionf()).normalize(),lower);
-                matrix.translationRotateScale(position,rotation,scale).translate(anchor.negate());
-            }
+            if(i==hatFollowBone()&&selfHatPose!=null)matrix.set(selfHatPose);
         }
     }
 
@@ -842,7 +857,7 @@ public final class YukkuriModel {
         hatScale=io.github.longshou.mcyukkuri.subspecies.HatVessel.hatMultiplier(entity.subspeciesFlags());
         try{render(action,elapsed,stack,buffer,light,overlay,accessory||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(drawingWoundedBody)WoundRenderer.render(entity,expressionFor(action,elapsed,entity.getExpressionId()),world,stack,buffer,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setSelfHatTransfer(null,0);setExpression("");}
+        }finally{drawingWoundedBody=false;hatMotion="";hatScale=1;setCareContact(0,Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueRootBlend(Float.NaN);setBoardingPose(Float.NaN,0);setSelfHatPose(null);setExpression("");}
     }
     public void renderRemains(Object key,net.minecraft.nbt.CompoundTag data,PoseStack stack,VertexConsumer buffer,
                               net.minecraft.client.renderer.MultiBufferSource buffers,int light,int overlay){

@@ -58,6 +58,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var hatParent=entity.getVehicle() instanceof YukkuriEntity parent&&io.github.longshou.mcyukkuri.family.HatCarry.riding(parent,entity)?parent:null;
             boolean hatCarrier=entity.isVehicle()&&io.github.longshou.mcyukkuri.family.HatCarry.hasHat(entity);
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.yBodyRotO,entity.yBodyRot);
+            var boardingPose=entity.boardingState();var selfRescuePose=entity.aquaticSelfRescueState();
+            boolean controlledContact=boardingPose.getBoolean("Active")||selfRescuePose.getBoolean("BraidContact")||BraidRescuePresentation.active(entity);
+            if(boardingPose.getBoolean("Active")&&boardingPose.contains("BodyYaw"))
+                renderedBodyYaw=Mth.rotLerp(partialTick,boardingPose.getFloat("PrevBodyYaw"),boardingPose.getFloat("BodyYaw"));
+            else if(selfRescuePose.getBoolean("BraidContact")&&selfRescuePose.contains("BodyYaw"))
+                renderedBodyYaw=Mth.rotLerp(partialTick,selfRescuePose.getFloat("PrevBodyYaw"),selfRescuePose.getFloat("BodyYaw"));
             var rockingHat=entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat?boat
                     :hatParent!=null&&hatParent.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity carriedBoat?carriedBoat:null;
             if(rockingHat!=null)HatBoatMotion.rider(pose,entity,rockingHat,partialTick);
@@ -68,7 +74,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             }else {
                 float bodyYaw=renderedBodyYaw;
                 String state=entity.getBehaviorId(),waterPhase=entity.waterDistressPhase();
-                if(!BraidRescuePresentation.parent(entity)&&(state.equals("boat_reassure")||state.equals("boat_crowd_guard")
+                if(!controlledContact&&(state.equals("boat_reassure")||state.equals("boat_crowd_guard")
                         ||waterPhase.equals("IMPACT")||waterPhase.equals("STRUGGLE")||waterPhase.equals("EXHAUSTED"))){
                     float headYaw=Mth.rotLerp(partialTick,entity.yHeadRotO,entity.getYHeadRot());
                     bodyYaw+=Mth.clamp(Mth.wrapDegrees(headYaw-bodyYaw),-35,35);
@@ -126,6 +132,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
+            model.setBraidRescueRootBlend(BraidRescuePresentation.parent(entity)?BraidRescuePresentation.rootBlend(entity,partialTick):Float.NaN);
+            CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
             SelfRescueHatPresentation.configure(entity,model,partialTick,renderedBodyYaw);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);

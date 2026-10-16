@@ -2977,31 +2977,41 @@
     },
     "water_hat_flip": {
       "label": "落水脱帽翻船",
-      "duration": 0.8,
+      "duration": 2.9,
       "loop": false,
       "applies": "aquatic_marisa",
       "root_support": "free_water",
       "faces": [
         [
           0,
-          0.27999999999999997,
-          "cry"
+          0.4,
+          "surprise"
         ],
         [
-          0.27999999999999997,
-          60.8,
+          0.4,
+          1.05,
+          "teary"
+        ],
+        [
+          1.05,
+          2.35,
+          "chewing_closed"
+        ],
+        [
+          2.35,
+          62.9,
           "teary"
         ]
       ],
-      "lore": "The real server removes and turns the original hat. This supported body gesture adds no hat copy, root lift or invented grip.",
+      "lore": "The same braid tip first reaches and grips the worn rim, then turns the hat outside the body around that contact and lowers it onto the water; SelfRescueHatGeometry owns the entire hat and braid path. The body frame stays stable and no independent centre lerp is applied.",
       "triggers": [
         "water_hat_flip"
       ],
       "hat_transfer": {
         "bone": "hat_follow",
-        "remove_ticks": 18,
+        "remove_ticks": 58,
         "return_ticks": 20,
-        "deploy_roll_degrees": 110,
+        "deploy_roll_degrees": 180,
         "blend": "smoothstep",
         "destination": "synchronized fixed DeployX/Y/Z + DeployYaw; same physical hat at deployment",
         "failure": "return only the still-worn same hat from actual RemovalProgress; deployed hats are never duplicated",
@@ -3255,6 +3265,110 @@
       "triggers": [
         "well-behaved predator restraining itself from a protected yukkuri"
       ]
+    },
+    "water_hat_pull": {
+      "label": "抓稳帽缘分两次使劲抬身",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.18,
+          "teary"
+        ],
+        [
+          0.18,
+          0.48,
+          "chewing_closed"
+        ],
+        [
+          0.48,
+          0.74,
+          "teary"
+        ],
+        [
+          0.74,
+          1.08,
+          "chewing_closed"
+        ],
+        [
+          1.08,
+          61.2,
+          "teary"
+        ]
+      ],
+      "lore": "Two effort pulses match server LIFT displacement; breathing pauses cause no horizontal sliding. Braid contact stays on the same real brim.",
+      "triggers": [
+        "HatBoarding LIFT"
+      ]
+    },
+    "water_hat_over": {
+      "label": "腹部越过帽檐再落稳",
+      "duration": 1.2,
+      "loop": false,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.52,
+          "chewing_closed"
+        ],
+        [
+          0.52,
+          1.2,
+          "teary"
+        ],
+        [
+          1.2,
+          61.2,
+          "sad"
+        ]
+      ],
+      "lore": "First compress the belly over the supported rim, pause, then ease onto the inner floor. No extra root lift or horizontal translation.",
+      "triggers": [
+        "HatBoarding SETTLE"
+      ]
+    },
+    "water_held_breath": {
+      "label": "被辫梢托住时喘息与小幅回应",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.22,
+          "surprise"
+        ],
+        [
+          0.22,
+          0.65,
+          "teary"
+        ],
+        [
+          0.65,
+          0.85,
+          "chewing_closed"
+        ],
+        [
+          0.85,
+          1.35,
+          "teary"
+        ],
+        [
+          1.35,
+          1.6,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "Held young retain the server grip and body envelope. Small lock responses and breathing faces continue without a second root motion or body scaling.",
+      "triggers": [
+        "braid rescue held child"
+      ]
     }
   },
   "flourishes": {
@@ -3328,5 +3442,6 @@
     "basket_out",
     "ignore",
     "restrain"
-  ]
+  ],
+  "revision": 13
 }

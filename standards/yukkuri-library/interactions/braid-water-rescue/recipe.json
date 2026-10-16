@@ -1,5 +1,5 @@
 {
-  "revision": "single-braid-low-edge-rescue-20261017-v2",
+  "revision": "two-joint-supported-edge-rescue-20261017-v3",
   "status": "pending_user_review",
   "model": "marisa",
   "root_bone": "root",
@@ -10,12 +10,13 @@
   "contact_rule": "farthest_existing_vertex_from_braid_root",
   "root_pitch_degrees": -40,
   "grip_height_ratio": 0.35,
-  "reach_ticks": 16,
+  "reach_ticks": 20,
   "contact_ticks": 6,
-  "grip_ticks": 6,
-  "lift_ticks": 8,
-  "place_ticks": 12,
-  "release_ticks": 6,
-  "note": "One existing braid and its actual tuft contact vertex, fixed natural length. The server first paddles to actual reach, then raises only to footprint-measured rim clearance plus 0.015 block, turns horizontally at that low height and lowers a short distance in SETTLE. Every child position remains Tip minus its real grip offset; no high waypoint or client child motion.",
-  "settle_ticks": 6
+  "grip_ticks": 10,
+  "lift_ticks": 18,
+  "place_ticks": 24,
+  "release_ticks": 12,
+  "root_blend_ticks": 12,
+  "note": "The two existing braid segments preserve their individual natural lengths and meet at the actual hand_right_tip pivot. Before grip the full child body and worn hat are swept along a supported low-edge route around the parent's actual leaned mesh bounds. Two effort pulses lift only to required brim clearance; the parent stays at pickup when this avoids transport, otherwise follows a preplanned supported route. RootBlend changes the same server and client root geometry. No point-only clearance, stretched braid or high waypoint.",
+  "settle_ticks": 16
 }

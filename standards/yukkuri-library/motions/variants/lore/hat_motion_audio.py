@@ -1,4 +1,4 @@
-"""Embed the current recorded dialogue and its actual Chinese subtitles for hat playback.
+"""Embed exact contextual subtitles and matching recordings when available for hat playback.
 
 This only generates preview data. It does not synthesize speech, alter game resources,
 launch a browser or run a check. The playback page must wait for the user to enable sound.
@@ -7,7 +7,6 @@ from pathlib import Path
 import argparse
 import base64
 import json
-import re
 
 
 ROOT = Path(__file__).resolve().parents[5]
@@ -23,6 +22,9 @@ SPEAKERS = {
     'self_rescue_climb': ('young', 'child'),
     'self_rescue_slip': ('young', 'child'),
     'self_rescue_safe': ('young', 'child'),
+    'hat_drifting': ('young', 'child'),
+    'hat_recovered': ('young', 'child'),
+    'hat_out_of_reach': ('young', 'child'),
 }
 
 
@@ -47,39 +49,36 @@ def recorded_audio(sound, sounds):
 
 
 def build(out=OUT):
-    source = (ROOT / 'src/main/java/io/github/longshou/mcyukkuri/dialogue/NativeDialogue.java').read_text(encoding='utf-8')
-    aliases = dict(re.findall(r'Map\.entry\("([^"\n]+)",\s*"([^"\n]+)"\)', source))
     catalog = json.loads((ASSETS / 'dialogue/catalog.json').read_text(encoding='utf-8'))
     subtitles = json.loads((ASSETS / 'lang/zh_cn.json').read_text(encoding='utf-8'))
     sounds = json.loads((ASSETS / 'sounds.json').read_text(encoding='utf-8'))
     audio = {}
     for event, (age, role) in SPEAKERS.items():
-        # Mirror NativeDialogue: direct event first, otherwise its existing recorded alias.
+        # Exact event and speaker only. An unrecorded line remains a subtitle;
+        # exercise, generic waiting or returned-accessory recordings are unrelated.
         choices = [line for line in catalog if line['species'] == 'marisa' and line['age'] == age and event in line['events']]
-        if not choices and event in aliases:
-            choices = [line for line in catalog if line['species'] == 'marisa' and line['age'] == age and aliases[event] in line['events']]
         for line in choices:
             recording = recorded_audio(line['sound'], sounds)
             text = subtitles.get(line['key'])
-            if recording is None or not text:
+            if not text:
                 continue
-            path, name = recording
             audio[event] = {
-                'src': 'data:audio/ogg;base64,' + base64.b64encode(path.read_bytes()).decode('ascii'),
                 'text': text,
                 'key': line['key'],
                 'sound': line['sound'],
-                'recording': name,
                 'age': age,
                 'role': role,
                 'ticks': line['ticks'],
             }
+            if recording:
+                path, name = recording
+                audio[event].update(src='data:audio/ogg;base64,' + base64.b64encode(path.read_bytes()).decode('ascii'), recording=name)
             break
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     target = out / 'playback-audio.js'
     target.write_text('window.HAT_AUDIO=' + json.dumps(audio, ensure_ascii=False, separators=(',', ':')) + ';\n', encoding='utf-8')
-    print(f'Wrote {len(audio)} existing recorded events to {target}')
+    print(f'Wrote {len(audio)} exact dialogue events ({sum(bool(value.get("src")) for value in audio.values())} recorded) to {target}')
     return target
 
 

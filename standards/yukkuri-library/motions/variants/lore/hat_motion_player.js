@@ -101,18 +101,19 @@
   function stopVoice(){if(voice){voice.pause();voice=null;}pendingVoice=null;voiceText='';$('subtitle').replaceChildren();}
   function setPlaying(next){playing=next;$('play').textContent=playing?'暂停':'播放';$('play').setAttribute('aria-label',playing?'暂停播放':'继续播放');if(!next&&voice)voice.pause();else if(next&&voice)voice.play().catch(()=>{});}
   function seek(next){tick=Math.max(0,Math.min(clip.durationTicks,next));stopVoice();draw();}
+  function dialogueAt(){
+    const cue=[...(clip.cues||[])].reverse().find(item=>item.event&&item.tick<=tick);
+    const event=cue?window.HAT_AUDIO?.[cue.event]:null;
+    const duration=cue?.durationTicks??event?.ticks??60;
+    return event?.text&&tick<cue.tick+duration?{cue,event}:null;
+  }
   function startVoice(cue){
     const recording=window.HAT_AUDIO?.[cue.event];
-    if(!enabledSound||!recording?.src)return;
-    // Finish the spoken sentence. Keep only the newest nearby reply, so dialogue
-    // does not overlap or lag several actions behind the visible contact.
-    if(voice){pendingVoice=cue;return;}
-    stopVoice();voice=new Audio(recording.src);voice.playbackRate=speed;voiceText=recording.text||cue.text||'';
-    const current=voice;current.onended=()=>{
-      if(voice!==current)return;
-      const next=pendingVoice;stopVoice();
-      if(next&&tick-next.tick<=tickRate*2)startVoice(next);
-    };
+    if(!recording?.src){stopVoice();return;}
+    if(!enabledSound)return;
+    // A spoken event starts at its own scene cue. Never queue a line into a later action.
+    stopVoice();voice=new Audio(recording.src);voice.playbackRate=speed;
+    const current=voice;current.onended=()=>{if(voice===current)stopVoice();};
     current.play().catch(()=>{if(voice===current)stopVoice();});
   }
   function choose(index){
@@ -182,9 +183,14 @@
     stageButtons.forEach((stage,i)=>stage.button.setAttribute('aria-current',String(i===active)));
     const cue=[...(clip.cues||[])].reverse().find(item=>item.tick<=tick);
     $('description').textContent=cue?.text||clip.description||'';
-    if(voiceText){
-      if($('subtitle').textContent!==voiceText)$('subtitle').replaceChildren(Object.assign(document.createElement('span'),{textContent:voiceText}));
-    }else if(!voice)$('subtitle').replaceChildren();
+    // Dialogue belongs to the timed event, independently of audio availability or mute.
+    const dialogue=dialogueAt();
+    const role=dialogue?({child:'孩子',parent:'亲油'}[dialogue.event.role]||dialogue.event.role||''):'';
+    const text=dialogue?`${role?role+'：':''}${dialogue.event.text}`:'';
+    if($('subtitle').textContent!==text){
+      if(text)$('subtitle').replaceChildren(Object.assign(document.createElement('span'),{textContent:text}));
+      else $('subtitle').replaceChildren();
+    }
   }
   function resize(){const rect=$('viewport').getBoundingClientRect();renderer.setSize(Math.max(1,rect.width),Math.max(1,rect.height),false);draw();}
   function animate(time){
@@ -207,7 +213,7 @@
   $('sound').onclick=()=>{
     enabledSound=!enabledSound;$('sound').setAttribute('aria-pressed',String(enabledSound));$('sound').textContent=enabledSound?'声音已开启':'开启声音';
     if(!enabledSound)stopVoice();
-    else {const cue=[...(clip.cues||[])].reverse().find(item=>item.event&&item.tick<=tick&&tick-item.tick<=60);if(cue)startVoice(cue);}
+    else {const dialogue=dialogueAt();if(dialogue)startVoice(dialogue.cue);}
   };
   $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.querySelector('.player').requestFullscreen();}catch(_){$('description').textContent='这个窗口未启用全屏；可放大预览面板继续观看。';}};
   document.querySelectorAll('[data-scene]').forEach(button=>button.onclick=()=>{if(ready)choose(Number(button.dataset.scene));});
@@ -228,7 +234,8 @@
     texture.magFilter=THREE.NearestFilter;texture.minFilter=THREE.NearestFilter;texture.generateMipmaps=false;textures.set(id,texture);
   })).then(()=>{
     ready=true;$('loading').hidden=true;$('play').disabled=$('replay').disabled=$('seek').disabled=false;
-    $('sound').disabled=!Object.keys(window.HAT_AUDIO||{}).length;
+    const hasRecordings=Object.values(window.HAT_AUDIO||{}).some(event=>event.src);
+    $('sound').disabled=!hasRecordings;if(!hasRecordings)$('sound').textContent='本段使用情景字幕';
     const requested=new URLSearchParams(window.location.search).get('scene');
     choose(Math.max(0,data.scenes.findIndex(scene=>scene.id===requested)));resize();requestAnimationFrame(animate);
   }).catch(()=>fail('模型贴图未能载入，请重新打开当前预览页。'));

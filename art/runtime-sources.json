@@ -3639,7 +3639,7 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "pet-shop-self-rescue-20261017-v21",
+    "revision": "aquatic-contact-climb-20261017-v22",
     "lore_previews": "art/source/motion-corrections/previews/current/lore/index.html",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
@@ -3679,7 +3679,8 @@
     "hat_motion_player_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_player.js",
     "hat_motion_audio_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_audio.py",
     "water_distress_export_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-distress",
-    "water_distress_preview": ".local/previews/hat-motion/index.html"
+    "water_distress_preview": ".local/previews/hat-motion/index.html",
+    "hat_self_rescue_geometry": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SelfRescueHatGeometry.java"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",
@@ -3811,7 +3812,7 @@
     "exporter": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
     "status": "pending_user_review",
-    "scope": "One real Marisa braid: fixed-length contact with measured low rim clearance, near-side placement, separate settling and release.",
+    "scope": "Two natural Marisa braid segments with shared joint contacts, measured pose support, complete child/hat clearance, low staged placement and supported release.",
     "preview": ".local/previews/hat-motion/index.html"
   }
 }

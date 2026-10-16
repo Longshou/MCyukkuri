@@ -143,14 +143,34 @@ public final class HatBoatEntity extends Entity {
     public boolean rocking(){var m=entityData.get(MOTION);return isAfloat()&&m.contains("RockAt")&&motionAge(m,"RockAt",0)<ROCK_TICKS;}
     public boolean capsizing(){var m=entityData.get(MOTION);return state()==State.CAPSIZED&&m.contains("CapAt")&&motionAge(m,"CapAt",0)<CAPSIZE_TICKS;}
     public boolean deploying(){var m=entityData.get(MOTION);return isAfloat()&&m.contains("DeployAt")&&motionAge(m,"DeployAt",0)<20;}
+    public boolean selfRescueHeld(){return entityData.get(MOTION).getBoolean("SelfHeld");}
+    /** Held geometry and its braid share a tick position instead of the ordinary three-step entity lerp. */
+    public Vec3 motionPosition(float partial){
+        var m=entityData.get(MOTION);
+        return (selfRescueHeld()||m.contains("LooseAt")&&motionAge(m,"LooseAt",partial)<14)&&m.contains("HeldCentreX")
+                ?point(m,"PreviousCentre").lerp(point(m,"HeldCentre"),partial):getPosition(partial);
+    }
+    public float hullSquash(float partial){
+        var m=entityData.get(MOTION);
+        if(selfRescueHeld())return net.minecraft.util.Mth.lerp(partial,m.getFloat("PreviousSquash"),m.getFloat("HeldSquash"));
+        if(m.contains("LooseAt")){
+            float t=(float)Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);t=t*t*(3-2*t);
+            return net.minecraft.util.Mth.lerp(t,m.getFloat("LooseSquash"),HatVessel.SQUASH_FLOAT);
+        }
+        return isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT;
+    }
     public boolean selfRighting(){return state()==State.CAPSIZED&&entityData.get(MOTION).contains("RightProgress");}
     public float selfRightingProgress(float partial){var m=entityData.get(MOTION);return net.minecraft.util.Mth.lerp(partial,m.getFloat("RightPrevious"),m.getFloat("RightProgress"));}
-    public boolean unsteadyMotion(){return rocking()||capsizing()||deploying()||selfRighting();}
+    public boolean unsteadyMotion(){return rocking()||capsizing()||deploying()||selfRighting()||selfRescueHeld();}
     public long motionStartTick(){var m=entityData.get(MOTION);return m.contains("CapAt")?m.getLong("CapAt"):m.contains("RockAt")?m.getLong("RockAt"):0;}
     private double motionAge(CompoundTag motion,String key,float partial){return Math.max(0,level().getGameTime()-motion.getLong(key)+partial);}
     /** Signed local Z roll, in degrees, applied after the ordinary boat yaw. */
     public float motionRoll(float partial){
         var m=entityData.get(MOTION);int side=m.getInt("Side")<0?-1:1;
+        if(selfRescueHeld())return 0;
+        if(m.contains("LooseAt")){
+            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(side*110*t*t*(3-2*t));
+        }
         if(deploying()||selfRighting()){
             double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
             return (float)(side*110*(1-t*t*(3-2*t)));
@@ -166,6 +186,10 @@ public final class HatBoatEntity extends Entity {
     /** Local X pitch, in degrees. Matrix order is yaw * roll(Z) * pitch(X). */
     public float motionPitch(float partial){
         var m=entityData.get(MOTION);
+        if(selfRescueHeld())return net.minecraft.util.Mth.lerp(partial,m.getFloat("PreviousPitch"),m.getFloat("HeldPitch"));
+        if(m.contains("LooseAt")){
+            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(m.getFloat("LoosePitch")*(1-t*t*(3-2*t)));
+        }
         if(deploying()||selfRighting()){
             double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
             return (float)(7*Math.sin(t*Math.PI));
@@ -182,6 +206,7 @@ public final class HatBoatEntity extends Entity {
     public float rockingAmplitude(){var m=entityData.get(MOTION);return rocking()?(float)(m.getFloat("Amplitude")*Math.exp(-motionAge(m,"RockAt",0)/14)):0;}
     /** A bounded shove, not additive damage. Repeated interaction cannot stack an unbounded oscillation. */
     private void rock(Player player){
+        if(selfRescueHeld()){releaseSelfRescueCarry();return;}
         var before=entityData.get(MOTION);double age=before.contains("RockAt")?motionAge(before,"RockAt",0):ROCK_TICKS;
         if(age<10)return;
         var m=new CompoundTag();m.putLong("RockAt",level().getGameTime());
@@ -1026,6 +1051,19 @@ public final class HatBoatEntity extends Entity {
         if(!moveOwnerSeat(parent,localSupported,false))return false;
         rescueOwnerHeld=true;holdPosition();syncSeats();return true;
     }
+    /** Read-only LOCAL walking points for the braid controller's swept two-body custody plan. */
+    public java.util.List<Vec3> rescueOwnerRoute(YukkuriEntity parent,Vec3 localStand,YukkuriEntity child){
+        return rescueOwnerRoute(parent,localStand,child,null);
+    }
+    public java.util.List<Vec3> rescueOwnerRoute(YukkuriEntity parent,Vec3 localStand,YukkuriEntity child,Vec3 youngSeat){
+        if(parent!=owner()||parent.getVehicle()!=this||localStand==null||!isAfloat()||unsteadyMotion())return java.util.List.of();
+        var obstacles=takenExcept(child!=null?child.getUUID():parent.getUUID());
+        if(child!=null&&youngSeat!=null)obstacles.add(rescueBody(child,youngSeat));
+        if(!HatVessel.fits(mode(),localStand,radiusOf(parent),obstacles,HatVessel.bodySpace(parent,hullScale(),unit())))return java.util.List.of();
+        var from=toLocal(parent.position());
+        if(from.distanceToSqr(localStand)<.0001)return java.util.List.of(from);
+        return HatSurfaceRoute.find(mode(),from,localStand,radiusOf(parent),obstacles,parent.getBbHeight()/unit());
+    }
     public boolean rescueOwnerReady(YukkuriEntity parent){return rescueOwnerHeld&&parent==owner()&&ownerServiceSeat!=null&&atSeat(parent,ownerServiceSeat);}
     public void releaseRescueOwner(YukkuriEntity parent){
         if(level().isClientSide||parent!=owner())return;
@@ -1555,12 +1593,36 @@ public final class HatBoatEntity extends Entity {
     public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home) {
         if (level().isClientSide || capsizing() || !(isAfloat() || state()==State.CAPSIZED || state()==State.BEACHED)
                 || isVehicle() || hasIncoming() || !child.getUUID().equals(ownerYukkuri())
-                || !home.protects(child) || !home.young(child) || distanceToSqr(home)>9
+                || !home.protects(child) || !home.young(child) || retrievalGrip(child)==null
                 || !child.life().returnAccessory(ownerYukkuri(),accessoryToken,null)) return false;
         child.aquaticLife().firstVoyage().retainHat(accessoryToken,cargo.save());
         cargo.load(new CompoundTag());syncCargo(cargo.save());accessoryToken=null;
         child.subspecies().boatId(null);
         state(State.RESCUED); stopPaddling(); pullTicks=0; return true;
+    }
+    /** Same finite physical contact for a floating or stranded empty hat; ownership is not remote reach. */
+    public Vec3 retrievalGrip(YukkuriEntity actor){
+        if(actor==null||!ownsPhysicalHat(actor)||isVehicle()||hasIncoming()||capsizing())return null;
+        Vec3 nearest=null;double distance=Double.POSITIVE_INFINITY;
+        for(var local:GripRim.POINTS){var at=tiltedWorld(local);double d=actor.getBoundingBox().getCenter().distanceToSqr(at);if(d<distance){distance=d;nearest=at;}}
+        return reachableGrip(actor,nearest);
+    }
+    /** Parent-centre docking target with actual hull/AABB clearance; it grants no remote retrieval. */
+    public Vec3 retrievalApproach(HatBoatEntity parentHat,YukkuriEntity child){
+        if(parentHat==null||parentHat==this||child==null||!ownsPhysicalHat(child)||!parentHat.protects(child)
+                ||!parentHat.young(child)||isVehicle()||hasIncoming()||capsizing()||selfRescueHeld())return null;
+        var toward=parentHat.position().subtract(position()).multiply(1,0,1).normalize();
+        if(toward.lengthSqr()<.01)toward=child.position().subtract(position()).multiply(1,0,1).normalize();
+        if(toward.lengthSqr()<.01)return null;
+        double theirs=Math.max(brimReachToward(toward),boxReach(toward));
+        double ours=Math.max(parentHat.brimReachToward(toward.scale(-1)),parentHat.boxReach(toward.scale(-1)));
+        var at=position().add(toward.scale(theirs+ours+.035));
+        return new Vec3(at.x,parentHat.getY(),at.z);
+    }
+    private double boxReach(Vec3 toward){
+        double x=getBoundingBox().getXsize()*.5,z=getBoundingBox().getZsize()*.5;
+        return Math.min(Math.abs(toward.x)<1e-8?Double.POSITIVE_INFINITY:x/Math.abs(toward.x),
+                Math.abs(toward.z)<1e-8?Double.POSITIVE_INFINITY:z/Math.abs(toward.z));
     }
     public static HatBoatEntity tryLaunchNearby(YukkuriEntity owner) {
         for (var p : BlockPos.betweenClosed(owner.blockPosition().offset(-2,-1,-2), owner.blockPosition().offset(2,0,2))) {
@@ -1644,16 +1706,28 @@ public final class HatBoatEntity extends Entity {
     public Vec3 selfRescueGrip(YukkuriEntity actor,Vec3 localGrip){
         if(localGrip==null||GripRim.POINTS.stream().noneMatch(p->p.distanceToSqr(localGrip)<1e-8)
                 ||!(ownsPhysicalHat(actor)||young(actor))||capsizing()||deploying())return null;
-        return reachableGrip(actor,tiltedWorld(localGrip));
+        var grip=tiltedWorld(localGrip);
+        return io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),grip)?reachableGrip(actor,grip):null;
     }
-    public Vec3 selfRescueGrip(YukkuriEntity actor){return reachableGrip(actor,nearestGrip(actor));}
+    public Vec3 selfRescueGrip(YukkuriEntity actor){
+        if(nearestGrip(actor)==null)return null;
+        Vec3 best=null;double score=Double.POSITIVE_INFINITY;
+        var root=SelfRescueHatGeometry.root(actor);var rest=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.restTip(actor,0);
+        for(var local:GripRim.POINTS){
+            var grip=tiltedWorld(local);
+            if(!io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,root,grip)||reachableGrip(actor,grip)==null)continue;
+            double distance=rest.distanceToSqr(grip);if(distance<score){best=grip;score=distance;}
+        }
+        return best;
+    }
     private Vec3 reachableGrip(YukkuriEntity actor,Vec3 grip){
         if(grip==null||!actor.getBoundingBox().inflate(.12).contains(grip))return null;
         var hit=level().clip(new net.minecraft.world.level.ClipContext(actor.getEyePosition(),grip,
                 net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,actor));
         return hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS?grip:null;
     }
-    public Vec3 boardingGrip(YukkuriEntity actor){return selfRescueGrip(actor);}
+    // Boarding's changing root pose has its own full two-segment reach solver; do not substitute the neutral removal root.
+    public Vec3 boardingGrip(YukkuriEntity actor){return reachableGrip(actor,nearestGrip(actor));}
     /** A wet owner first reaches a nearby supported patch, then walks to the stern after settling. */
     public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom){
         if(level().isClientSide||!ownsPhysicalHat(actor)||actor.isPassenger()||!isAfloat()||unsteadyMotion()||actualFrom==null)return null;
@@ -1728,6 +1802,8 @@ public final class HatBoatEntity extends Entity {
         var m=entityData.get(MOTION).copy();float previous=m.getFloat("RightProgress");
         if(!m.contains("RightGripX")){
             point(m,"RightGrip",localGrip);point(m,"RightAnchor",tiltedWorld(localGrip));
+            // A previously dropped hat has finished its free tumble before a new real grip is accepted.
+            m.remove("LooseAt");m.remove("LoosePitch");m.remove("LooseSquash");
         }else if(point(m,"RightGrip").distanceToSqr(localGrip)>1e-8)return false;
         m.putFloat("RightPrevious",previous);m.putFloat("RightProgress",Math.clamp(progress,0,1));m.putLong("RightTouched",level().getGameTime());
         var before=entityData.get(MOTION);entityData.set(MOTION,m);
@@ -1753,53 +1829,43 @@ public final class HatBoatEntity extends Entity {
         }
         entityData.set(MOTION,copy);
     }
-    public record SelfRescueDeployment(Vec3 position,float yaw){}
+    public record SelfRescueDeployment(Vec3 position,float yaw,SelfRescueHatGeometry.Plan path){}
     /** Plan before the worn hat moves, so rendering and the eventual real vessel share one endpoint. */
     public static SelfRescueDeployment planSelfRescueDeployment(YukkuriEntity actor){
         if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory())return null;
-        for(int ring=0;ring<2;ring++)for(int i=0;i<8;i++){
-            var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return null;
-            boat.entityData.set(SCALE,HatVessel.hatScale(actor));boat.role=HatVessel.Role.SELF;
-            double angle=Math.toRadians(actor.yBodyRot)+i*Math.PI/4;
-            double distance=actor.getBbWidth()*.5+boat.getBbWidth()*.5+.03+ring*.10;
-            double x=actor.getX()+Math.sin(angle)*distance,z=actor.getZ()-Math.cos(angle)*distance;
-            var water=BlockPos.containing(x,actor.getY(),z);
-            if(!HatBoatRoute.calmSurface(level,water))continue;
-            var at=HatBoatRoute.surface(level,water);boat.setPos(x,at.y,z);boat.setYRot(actor.yBodyRot);
-            if(!level.getWorldBorder().isWithinBounds(water)||!level.noCollision(boat,boat.getBoundingBox()))continue;
-            var plan=new SelfRescueDeployment(boat.position(),actor.yBodyRot);
-            if(selfRescueDeploymentReachable(actor,plan))return plan;
-        }
-        return null;
+        var water=BlockPos.containing(actor.position());
+        if(!HatBoatRoute.calmSurface(level,water))return null;
+        var path=SelfRescueHatGeometry.plan(actor,HatBoatRoute.surface(level,water).y);
+        if(path==null)return null;
+        var plan=new SelfRescueDeployment(path.finalCentre(),path.boatYaw(),path);
+        return selfRescueDeploymentReachable(actor,plan)?plan:null;
     }
     /** Reach is measured to the real tilted rim from the actual body, bounded by the existing natural braid length. */
     public static boolean selfRescueDeploymentReachable(YukkuriEntity actor,SelfRescueDeployment plan){
         if(plan==null||!(actor.level() instanceof ServerLevel level))return false;
+        if(plan.path()==null)return false;
         var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return false;
-        boat.entityData.set(SCALE,HatVessel.hatScale(actor));boat.setPos(plan.position());boat.setYRot(plan.yaw());
-        if(actor.position().subtract(plan.position()).horizontalDistance()>actor.getBbWidth()*.5+boat.getBbWidth()*.5+.25)return false;
-        var motion=new CompoundTag();motion.putLong("DeployAt",level.getGameTime());motion.putInt("Side",1);boat.entityData.set(MOTION,motion);
-        double reach=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.length(actor)+.02;
-        var root=io.github.longshou.mcyukkuri.family.BraidRescueGeometry.root(actor);
-        for(var local:GripRim.POINTS){
-            var p=boat.tiltedWorld(local);
-            if(p.distanceToSqr(root)>reach*reach)continue;
-            var hit=level.clip(new net.minecraft.world.level.ClipContext(root,p,net.minecraft.world.level.ClipContext.Block.COLLIDER,
-                    net.minecraft.world.level.ClipContext.Fluid.NONE,actor));
-            if(hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS)return true;
-        }
-        return false;
+        boat.entityData.set(SCALE,HatVessel.hatScale(actor)*actor.getScale());boat.setPos(plan.position());boat.setYRot(plan.yaw());
+        var water=BlockPos.containing(plan.position().add(0,-.12,0));
+        return HatBoatRoute.calmSurface(level,water)&&level.getWorldBorder().isWithinBounds(water)
+                &&Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08
+                &&level.noCollision(boat,boat.getBoundingBox())
+                &&io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),plan.path().finalGrip());
     }
     /** Revalidate exactly the planned endpoint. Failure leaves the one original hat on its owner. */
     public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan){
+        return deployForSelfRescue(actor,plan,null,SelfRescueHatGeometry.REMOVE_TICKS);
+    }
+    /** Custody moves to the real vessel only after the same braid has held the worn rim continuously. */
+    public static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan,SelfRescueHatGeometry.Pose heldPose,float elapsed){
         if(!(actor.level() instanceof ServerLevel level)||!HatVessel.aquatic(actor)||!actor.isAlive()||!actor.isInWaterOrBubble()
                 ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory()||!selfRescueDeploymentReachable(actor,plan))return null;
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
         if(!HatBoatRoute.calmSurface(level,water)||!level.getWorldBorder().isWithinBounds(water)
                 ||Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)>.08)return null;
         var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return null;
-        boat.entityData.set(SCALE,HatVessel.hatScale(actor));boat.role=HatVessel.Role.SELF;
+        boat.entityData.set(SCALE,HatVessel.hatScale(actor)*actor.getScale());boat.role=HatVessel.Role.SELF;
         boat.setPos(plan.position());boat.setYRot(plan.yaw());
         if(!level.noCollision(boat,boat.getBoundingBox()))return null;
         boat.entityData.set(OWNER,Optional.of(actor.getUUID()));
@@ -1808,8 +1874,37 @@ public final class HatBoatEntity extends Entity {
         if(boat.accessoryToken==null){boat.discard();return null;}
         actor.subspecies().boatId(boat.getUUID());actor.setPersistenceRequired();
         actor.aquaticLife().firstVoyage().restoreHatCargo(boat);actor.aquaticLife().equip(boat);
-        var motion=new CompoundTag();motion.putLong("DeployAt",level.getGameTime());motion.putInt("Side",1);boat.entityData.set(MOTION,motion);
+        // The held head hat has already turned and lowered to this exact upright pose. Never flip it a second time.
+        boat.entityData.set(MOTION,new CompoundTag());
+        boat.setDeltaMovement(actor.getDeltaMovement().multiply(.65,0,.65));
+        if(heldPose!=null&&!boat.setSelfRescueCarryPose(actor,heldPose,elapsed))boat.releaseSelfRescueCarry();
         return boat;
+    }
+    /** Same local rim, world-space prop origin and natural braid used by the worn-hat geometry. */
+    public boolean setSelfRescueCarryPose(YukkuriEntity actor,SelfRescueHatGeometry.Pose pose,float elapsed){
+        if(level().isClientSide||!ownsPhysicalHat(actor)||isVehicle()||hasIncoming()||pose==null
+                ||!io.github.longshou.mcyukkuri.family.BraidRescueGeometry.reachable(actor,SelfRescueHatGeometry.root(actor),pose.grip()))return false;
+        double q=Math.clamp((elapsed-SelfRescueHatGeometry.REACH-SelfRescueHatGeometry.CONTACT)/SelfRescueHatGeometry.TURN,0,1);q=q*q*(3-2*q);
+        var offset=pose.rotation().transform(new org.joml.Vector3f(0,(float)(HatVessel.FREEBOARD*unit()),0));
+        var centre=pose.origin().subtract(new Vec3(offset.x,offset.y,offset.z));
+        var m=entityData.get(MOTION).copy();
+        m.putFloat("PreviousPitch",m.getBoolean("SelfHeld")?m.getFloat("HeldPitch"):(float)(-180*(1-q)));
+        m.putFloat("PreviousSquash",m.getBoolean("SelfHeld")?m.getFloat("HeldSquash"):pose.squash());
+        m.putBoolean("SelfHeld",true);m.putFloat("HeldPitch",(float)(-180*(1-q)));m.putFloat("HeldSquash",pose.squash());m.putLong("HeldTouched",level().getGameTime());
+        point(m,"PreviousCentre",m.contains("HeldCentreX")?point(m,"HeldCentre"):centre);point(m,"HeldCentre",centre);
+        setPos(centre);entityData.set(MOTION,m);setDeltaMovement(Vec3.ZERO);stopPaddling();return true;
+    }
+    public void finishSelfRescueCarry(YukkuriEntity actor){
+        if(level().isClientSide||!ownsPhysicalHat(actor)||!selfRescueHeld())return;
+        entityData.set(MOTION,new CompoundTag());heldTicks=0;setDeltaMovement(actor.getDeltaMovement().multiply(.65,0,.65));
+    }
+    /** A failed grip leaves the same physical hat at its actual pose and spills only via the normal capsize lifecycle. */
+    public void releaseSelfRescueCarry(){
+        if(level().isClientSide||!selfRescueHeld())return;
+        float pitch=motionPitch(1),squash=hullSquash(1);entityData.set(MOTION,new CompoundTag());
+        startCapsize(1);var m=entityData.get(MOTION).copy();m.putLong("LooseAt",level().getGameTime());
+        point(m,"HeldCentre",position());point(m,"PreviousCentre",position());
+        m.putFloat("LoosePitch",pitch);m.putFloat("LooseSquash",squash);entityData.set(MOTION,m);
     }
     public void capsize() {
         int side=entityData.get(MOTION).contains("Side")?entityData.get(MOTION).getInt("Side"):((getId()&1)==0?1:-1);
@@ -1817,6 +1912,7 @@ public final class HatBoatEntity extends Entity {
     }
     private void startCapsize(int side){
         if(level().isClientSide||state()==State.CAPSIZED||state()==State.RESCUED||state()==State.REMOVED||catches())return;
+        boolean wasHeld=selfRescueHeld();float heldPitch=wasHeld?motionPitch(1):0,heldSquash=wasHeld?hullSquash(1):HatVessel.SQUASH_FLOAT;
         // Freeze the actual current poses, including a child being carried or partway through a hop.
         for(var p:getPassengers()){
             var at=toLocal(p.position());
@@ -1827,6 +1923,10 @@ public final class HatBoatEntity extends Entity {
         seatMoves.clear();ownerSeatMove=null;carryTrip=null;recoverCarry=false;
         serviceSeats.clear();returningSeats.clear();ownerToiletSeat=false;leaving.clear();syncSeats();
         var m=new CompoundTag();m.putLong("CapAt",level().getGameTime());m.putInt("Side",side<0?-1:1);
+        if(wasHeld){
+            m.putLong("LooseAt",level().getGameTime());m.putFloat("LoosePitch",heldPitch);m.putFloat("LooseSquash",heldSquash);
+            point(m,"HeldCentre",position());point(m,"PreviousCentre",position());
+        }
         entityData.set(MOTION,m);capsizeReleased=false;rescueOwnerHeld=false;
         state(State.CAPSIZED);flooding=100;stopPaddling();heldTicks=0;pullTicks=0;pullTarget=null;
         setDeltaMovement(getDeltaMovement().scale(.25));
@@ -1976,8 +2076,19 @@ public final class HatBoatEntity extends Entity {
             return;
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
+        if(selfRescueHeld()){
+            var holder=owner();var held=entityData.get(MOTION);
+            if(holder!=null&&holder.isAlive()&&(holder.aquaticLife().selfRescue().phase()==AquaticSelfRescue.Phase.REMOVE_HAT
+                    ||holder.aquaticLife().selfRescue().phase()==AquaticSelfRescue.Phase.DEPLOY_HAT)
+                    &&level().getGameTime()-held.getLong("HeldTouched")<=2){stopPaddling();setDeltaMovement(Vec3.ZERO);return;}
+            releaseSelfRescueCarry();
+        }
         tickCapsize();
         tickSelfRighting();
+        if(selfRighting()&&level().getGameTime()-entityData.get(MOTION).getLong("RightTouched")<=1){
+            // The continuously held rim is the physical pivot. Buoyancy resumes as soon as grip is released.
+            setDeltaMovement(Vec3.ZERO);stopPaddling();return;
+        }
         if (heldTicks > 0) heldTicks--;
         if (tickCount % 20 == 0 && level() instanceof ServerLevel server)  // a place kept for a young no longer coming
             incoming.keySet().removeIf(id -> !(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive() || y.isPassenger()
@@ -2056,6 +2167,9 @@ public final class HatBoatEntity extends Entity {
             if (onGround() && state()!=State.CAPSIZED) state(State.BEACHED);
         }
         setDeltaMovement(motion); move(MoverType.SELF,motion);
+        if(entityData.get(MOTION).contains("LooseAt")&&motionAge(entityData.get(MOTION),"LooseAt",0)<14){
+            var m=entityData.get(MOTION).copy();point(m,"PreviousCentre",m.contains("HeldCentreX")?point(m,"HeldCentre"):position());point(m,"HeldCentre",position());entityData.set(MOTION,m);
+        }
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
         var y = owner();
         if (y!=null && y.getVehicle()==this) {
@@ -2081,6 +2195,8 @@ public final class HatBoatEntity extends Entity {
         if(accessoryToken!=null)tag.putUUID("AccessoryToken",accessoryToken);
         tag.putString("State",state().name());tag.putInt("Flooding",flooding);tag.putFloat("HullScale",hullScale());
         var motion=entityData.get(MOTION);tag.putInt("MotionSide",motion.getInt("Side"));
+        if(selfRescueHeld()){tag.putBoolean("SavedSelfHeld",true);tag.putFloat("SavedHeldPitch",motionPitch(1));tag.putFloat("SavedHeldSquash",hullSquash(1));}
+        if(motion.contains("LooseAt")){tag.putInt("LooseAge",(int)Math.min(14,motionAge(motion,"LooseAt",0)));tag.putFloat("LoosePitch",motion.getFloat("LoosePitch"));tag.putFloat("LooseSquash",motion.getFloat("LooseSquash"));}
         if(deploying())tag.putInt("DeployAge",(int)motionAge(motion,"DeployAt",0));
         if(selfRighting())tag.putFloat("SelfRightProgress",motion.getFloat("RightProgress"));
         if(rocking()){
@@ -2157,6 +2273,14 @@ public final class HatBoatEntity extends Entity {
         if(state()==State.CAPSIZED&&tag.contains("SelfRightProgress")){
             float progress=Math.clamp(tag.getFloat("SelfRightProgress"),0,1);
             motion.putFloat("RightPrevious",progress);motion.putFloat("RightProgress",progress);motion.putLong("RightTouched",level().getGameTime());
+        }
+        if(tag.getBoolean("SavedSelfHeld")){
+            // Reload never invents a handhold or puts this token back on the owner. The actual vessel drops here.
+            state(State.CAPSIZED);capsizeReleased=false;motion.putLong("CapAt",level().getGameTime());motion.putLong("LooseAt",level().getGameTime());
+            motion.putFloat("LoosePitch",tag.getFloat("SavedHeldPitch"));motion.putFloat("LooseSquash",tag.getFloat("SavedHeldSquash"));
+        }else if(tag.contains("LooseAge")){
+            motion.putLong("LooseAt",level().getGameTime()-Math.clamp(tag.getInt("LooseAge"),0,14));
+            motion.putFloat("LoosePitch",tag.getFloat("LoosePitch"));motion.putFloat("LooseSquash",tag.getFloat("LooseSquash"));
         }
         entityData.set(MOTION,motion);syncSeats();
         if (tag.contains("CarryTrip")) {

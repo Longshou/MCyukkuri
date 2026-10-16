@@ -5,17 +5,23 @@ function el(tag,text,className){const node=document.createElement(tag);if(text!=
 function mode(name,url){
  const recent=name==='recent';$('recent').hidden=!recent;$('viewer').hidden=recent;$('sample-player').pause();
  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===name));
- if(!recent){const src=url||('models/index.html'+(name==='audio'?'#audio':''));$('viewer-frame').src=src;$('viewer-open').href=src;}
- else $('viewer-frame').src='about:blank';
+ if(!recent){$('sequence-player').removeAttribute('src');const src=url||('models/index.html'+(name==='audio'?'#audio':''));$('viewer-frame').src=src;$('viewer-open').href=src;}
+ else{$('viewer-frame').src='about:blank';if(current)renderMedia();}
  location.hash=recent?'recent':name;
 }
 function renderMedia(){
- const item=current.steps[step],isLogic=item.kind==='logic',isSubtitles=item.kind==='subtitles',isAudio=item.kind==='audio';
- $('main-image').hidden=isLogic||isSubtitles||isAudio;$('logic-visual').hidden=!isLogic;$('voice-visual').hidden=!(isSubtitles||isAudio);
+ const item=current.steps[step],isPlayback=item.kind==='playback',isLogic=item.kind==='logic',isSubtitles=item.kind==='subtitles',isAudio=item.kind==='audio';
+ $('main-image').hidden=isPlayback||isLogic||isSubtitles||isAudio;$('logic-visual').hidden=!isLogic;$('voice-visual').hidden=!(isSubtitles||isAudio);
+ $('sequence-player').hidden=!isPlayback;
+ if(!isPlayback)$('sequence-player').removeAttribute('src');
  $('media-frame').classList.remove('portrait');$('media-frame').style.background=item.color||'';
  $('season-name').textContent='';$('sample-player').pause();$('sample-audio').hidden=!item.audioSample;
  $('animate').hidden=!item.animation;$('animate').textContent=animated?'看静帧':'播放动作';
- if(isLogic){
+ if(isPlayback){
+  const url=current.demoPage+(item.scene?'?scene='+encodeURIComponent(item.scene):'');
+  if($('sequence-player').getAttribute('src')!==url)$('sequence-player').setAttribute('src',url);
+  $('media-caption').textContent='连续动作预览 · 可暂停、慢放、拖动，点开启声音试听';
+ }else if(isLogic){
   $('logic-visual').replaceChildren(el('small','规则示意 · 无独立动画'),el('h3',item.title),...item.states.map((text,i)=>{const row=el('div',undefined,'state-row');row.append(el('b',String(i+1).padStart(2,'0')),el('span',text));return row;}));
   $('media-caption').textContent='服务端状态关系；不以无关模型动作代替';
  }else if(isSubtitles){
@@ -43,7 +49,7 @@ function chapter(id){
  $('tag').textContent=current.tag;$('title').textContent=current.title;$('summary').textContent=current.summary;
  $('points').replaceChildren(...current.points.map(p=>el('li',p)));$('source-link').href='/'+current.source;
  $('demo-link').hidden=!current.demoPage;if(current.demoPage)$('demo-link').href=current.demoPage;
- $('steps').replaceChildren(...current.steps.map((item,i)=>{const b=el('button');b.append(el('small',item.animation||item.demo&&!item.still?'动作回放':item.kind==='expression'?'表情对照':item.kind==='logic'?'状态图':item.kind==='audio'?'音频':item.kind==='subtitles'?'字幕':'静态分镜'),el('strong',item.title));b.onclick=()=>showStep(i);return b;}));
+ $('steps').replaceChildren(...current.steps.map((item,i)=>{const b=el('button');b.append(el('small',item.kind==='playback'?'连续播放':item.animation||item.demo&&!item.still?'动作回放':item.kind==='expression'?'表情对照':item.kind==='logic'?'状态图':item.kind==='audio'?'音频':item.kind==='subtitles'?'字幕':'静态分镜'),el('strong',item.title));b.onclick=()=>showStep(i);return b;}));
  $('gallery').replaceChildren(...(current.gallery||[]).map(item=>{const f=el('figure'),a=el('a'),img=el('img');a.href=item.src;a.target='_blank';img.src=item.src;img.alt=item.label;img.loading='lazy';a.append(img);f.append(a,el('figcaption',item.label));return f;}));showStep(0);
 }
 $('animate').onclick=()=>{animated=!animated;const item=current.steps[step];$('main-image').src=animated?item.animation:item.image;$('animate').textContent=animated?'看静帧':'播放动作';};

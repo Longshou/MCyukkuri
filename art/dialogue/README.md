@@ -39,13 +39,13 @@ python scripts/export_dialogue.py
 python scripts/export_dialogue.py --check
 ```
 
-第一步只读来源游戏，更新完整检索数据。第二步读取选用台词与 [语音配方](../audio/aquestalk/recipe.json)，调用本机 AquesTalkPlayer，属于另行安排的配音步骤。第三步导出选中台词和已有录音；未配音的原创条目只导出字幕，`sound` 为空。完整索引不进入模组。更改已经配音的日文后必须重新合成；导出器会拒绝台词与录音清单不一致的文件。本轮没有运行合成或界面工具。
+第一步只读来源游戏，更新完整检索数据。第二步读取选用台词与 [语音配方](../audio/aquestalk/recipe.json)，调用本机 AquesTalkPlayer，属于另行安排的配音步骤。第三步导出选中台词和已有录音；未配音的原创条目只导出字幕，`sound` 为空。完整索引不进入模组。更改已经配音的日文后必须重新合成；导出器会拒绝台词与录音清单不一致的文件。本轮使用命令行生成水上情景配音，未运行界面工具或回归检查。
 
-运行目录为 `src/main/resources/assets/mcyukkuri/`：`dialogue/catalog.json`保存选句与时长，`lang/*.json`保存文本，`sounds/voice/native/`与`original/`分别保存 204／84 个单声道 OGG，`sounds.json`登记对应字幕。来源 WAV、配方和指纹保留在 `art/audio/aquestalk/`。导出器只更新本任务拥有的对白键，保留生态歌曲等其他条目；共享总表按任务交接窗口发布，可先用 `--stage .local/dialogue-species/staged-assets` 生成待核对资源。
+运行目录为 `src/main/resources/assets/mcyukkuri/`：`dialogue/catalog.json`保存选句与时长，`lang/*.json`保存文本，`sounds/voice/native/`与`original/`分别保存 204／134 个单声道 OGG，`sounds.json`登记对应字幕。来源 WAV、配方和指纹保留在 `art/audio/aquestalk/`。导出器只更新本任务拥有的对白键，保留生态歌曲等其他条目；共享总表按任务交接窗口发布，可先用 `--stage .local/dialogue-species/staged-assets` 生成待核对资源。
 
 ## 对话行为
 
-2026-10-17 水上危机追加事件调度，不新增原句或录音：惊吓、亲油召回、子油应答、撤离、平复及辫子救援分别选择现有对应种族和年龄的短句。`NativeDialogue` 统一维护事件别名，字幕和声音始终来自同一条已登记台词。召回与应答优先于一般惊吓句；亲油发声成功后才通知听距内孩子，各阶段有限重试，不每 tick 重播声音或重置表情。预览页使用同一批 OGG，动图本身不含声音。
+2026-10-17 水上情景补写 58 条明确标注的原创台词：魔理沙成体／幼体各 17 条，分别描述惊吓、召回、回应、撤离、平复、求救、翻帽、抓檐、攀爬、滑脱、获救、辫救和空帽漂走；其他六种族成体／幼体补呼救与抓辫回应。取消 `NativeDialogue` 的旧事件别名，直接选择情景、物种与年龄匹配的条目。已用用户提供的 AquesTalkPlayer 生成 50 条，其中魔理沙 34 条齐全；蕾米莉亚与芙兰仍无既定声线，这 8 条保留字幕。召回与应答优先于一般惊吓句；亲油发声成功后才通知听距内孩子。连续预览使用同一批 OGG 和真实中文字幕，缺少录音时独立展示字幕。
 
 服务器选择台词并同步台词键、起止 tick 与递增序号。每个实体只保留一句当前台词；较高优先级可打断，重复或较低优先级不会重启当前句。结束后保留短间隔。文字时长按实际声音长度加 15 tick 计算，最短 45 tick。台词不写入存档，不向聊天栏广播。选句使用独立随机源，避免改变实体的行动随机序列。
 

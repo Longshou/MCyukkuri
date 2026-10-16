@@ -64,9 +64,32 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--player', type=Path, required=True, help='Existing AquesTalkPlayer.exe')
     parser.add_argument('--work-directory', type=Path, default=ROOT / '.local/dialogue-species', help='Owned scratch and tool directory')
+    parser.add_argument('--ids-json', type=Path, help='Only process IDs in a JSON string array or {"ids": [...]}; retain all other recordings')
     args = parser.parse_args()
-    assert os.name == 'nt' and args.player.is_file()
     recipe = json.loads((OUT / 'recipe.json').read_text(encoding='utf-8'))
+    source = json.loads((ROOT / 'art/dialogue/runtime-lines.json').read_text(encoding='utf-8'))
+    selected = source['lines']
+    if args.ids_json is not None:
+        try:
+            requested = json.loads(args.ids_json.read_text(encoding='utf-8-sig'))
+        except (OSError, ValueError) as error:
+            parser.error(f'Cannot read --ids-json {args.ids_json}: {error}')
+        if isinstance(requested, dict):
+            requested = requested.get('ids')
+        if not isinstance(requested, list) or not requested or any(not isinstance(ident, str) or not ident for ident in requested):
+            parser.error('--ids-json must contain a nonempty array of ID strings, or {"ids": [...]}')
+        if len(set(requested)) != len(requested):
+            parser.error('--ids-json contains duplicate IDs')
+        by_id = {line['id']: line for line in source['lines']}
+        unknown = [ident for ident in requested if ident not in by_id]
+        if unknown:
+            parser.error('Unknown dialogue IDs: ' + ', '.join(unknown))
+        selected = [by_id[ident] for ident in requested]
+    for line in selected:
+        name = line['species']+'.'+line['age']
+        if name not in recipe['profiles']:
+            parser.error(f'Unknown voice profile {name!r} for dialogue {line["id"]}; define its actual voice in art/audio/aquestalk/recipe.json')
+    assert os.name == 'nt' and args.player.is_file()
     tool = args.work_directory.resolve() / 'tool/aquestalkplayer'
     if args.player.parent.resolve() != tool.resolve():
         if not tool.exists():
@@ -82,28 +105,31 @@ def main():
     buffer = io.StringIO(newline='')
     csv.writer(buffer, lineterminator='\r\n').writerows(rows)
     preset.write_bytes(buffer.getvalue().encode('cp932'))
-    source = json.loads((ROOT / 'art/dialogue/runtime-lines.json').read_text(encoding='utf-8'))
     scratch = args.work_directory.resolve() / 'aques-input'
     scratch.mkdir(parents=True, exist_ok=True)
     for folder in ['masters', 'ogg']:
         (OUT / folder).mkdir(parents=True, exist_ok=True)
     prior_path=OUT/'manifest.json'
     prior=json.loads(prior_path.read_text(encoding='utf-8')) if prior_path.exists() else {}
-    clips, cards = {}, []
-    for line in source['lines']:
+    # Partial synthesis must never erase the manifest entries or touch the audio of unselected lines.
+    clips = dict(prior.get('clips', {})) if args.ids_json is not None else {}
+    player_hash = digest(player)
+    preset_hash = digest(preset)
+    engine_hashes = {v:digest(tool/f'aqtk1/{v}/AquesTalk.dll') for v in sorted({p['voice'] for p in recipe['profiles'].values()})}
+    recipe_hash = digest(OUT/'recipe.json')
+    for line in selected:
         ident = line['id']
         symbols = phonetics(line['japanese'])
         profile=recipe['profiles'][line['species']+'.'+line['age']]
         cached=prior.get('clips',{}).get(ident)
         reusable=(cached and cached['japanese']==line['japanese'] and cached['phonetics']==symbols
                   and cached['profile']==profile and cached['source_sha256']==line['source_sha256']
-                  and prior.get('player_sha256')==digest(player)
-                  and prior.get('engine_sha256',{}).get(profile['voice'])==digest(tool/f'aqtk1/{profile["voice"]}/AquesTalk.dll')
+                  and cached.get('player_sha256',prior.get('player_sha256'))==player_hash
+                  and cached.get('engine_sha256',prior.get('engine_sha256',{}).get(profile['voice']))==engine_hashes[profile['voice']]
                   and all((ROOT/cached[k]).is_file() and digest(ROOT/cached[k])==cached[h] for k,h in [('ogg','sha256'),('wav','wav_sha256')]))
         if reusable:
             clips[ident]=cached
             clips[ident]['origin']=line.get('origin','native')
-            cards.append(card(line))
             print(f'{ident}: retained',flush=True)
             continue
         textfile = scratch / (ident+'.txt')
@@ -131,14 +157,19 @@ def main():
                         'profile':recipe['profiles'][line['species']+'.'+line['age']],
                         'source_sha256':line['source_sha256'], 'ogg':ogg.relative_to(ROOT).as_posix(),
                         'wav':wav.relative_to(ROOT).as_posix(),'sha256':digest(ogg),'wav_sha256':digest(wav),
-                        'duration_seconds':len(decoded)/target_rate,'gain':gain}
-        cards.append(card(line))
+                        'duration_seconds':len(decoded)/target_rate,'gain':gain,
+                        'player_sha256':player_hash,'preset_sha256':preset_hash,
+                        'engine_sha256':engine_hashes[profile['voice']],'recipe_sha256':recipe_hash}
         print(f'{ident}: {len(decoded)/target_rate:.2f}s', flush=True)
     manifest = {'engine':'AquesTalk1','status':'implemented-candidate-awaiting-listening-review',
-                'player_sha256':digest(player),'preset_sha256':digest(preset),
-                'engine_sha256':{v:digest(tool/f'aqtk1/{v}/AquesTalk.dll') for v in sorted({p['voice'] for p in recipe['profiles'].values()})},
-                'recipe_sha256':digest(OUT/'recipe.json'),'clips':clips}
+                'player_sha256':player_hash,'preset_sha256':preset_hash,
+                'engine_sha256':engine_hashes,'recipe_sha256':recipe_hash,'clips':clips}
+    if args.ids_json is not None and prior:
+        # Legacy clips inherited these global hashes. Keep that provenance unchanged; newly
+        # synthesized clips carry their own hashes and subsequent cache checks prefer them.
+        manifest = prior | {'clips':clips}
     (OUT/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    cards = [card(line) for line in source['lines'] if line['id'] in clips]
     page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>油库里对白 · AquesTalk 试听</title>
 <style>body{font:16px/1.6 system-ui;background:#f4f0e6;color:#29271f;margin:32px auto;max-width:1100px;padding:0 20px}input{padding:12px;width:90%;font:inherit}#clips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}article{padding:18px;background:#fffdf5;border:1px solid #d4cbbc;border-radius:8px}p{margin:8px 0}small{display:block;color:#71634d}audio{width:100%;margin-top:12px}</style>
 <h1>油库里对白 · AquesTalk 试听</h1><p>灵梦、魔理沙、爱丽丝、橙与帕秋莉；成体与幼语分开制作。每条注明原版或项目原创。声种、音程与中文译法为候选，尚待听审。</p>
@@ -147,7 +178,7 @@ document.getElementById('search').addEventListener('input',e=>{for(const card of
 document.addEventListener('play',e=>{if(e.target.tagName==='AUDIO')for(const a of document.querySelectorAll('audio'))if(a!==e.target)a.pause()},true);
 </script></html>'''
     (OUT/'index.html').write_text(page,encoding='utf-8')
-    print(f'Built {len(clips)} clips. Run scripts/export_dialogue.py to install them.')
+    print(f'Processed {len(selected)} selected lines; manifest contains {len(clips)} clips. Run scripts/export_dialogue.py to install them.')
 
 
 if __name__ == '__main__':

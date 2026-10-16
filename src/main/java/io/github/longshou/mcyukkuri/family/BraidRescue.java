@@ -20,7 +20,10 @@ public final class BraidRescue {
     private final YukkuriEntity child;
     private Phase phase=Phase.IDLE;
     private UUID parentId, hatId, abandonedHat;
-    private Vec3 seat, pickup, placement, tip, previousTip, gripOffset, fromDirection, carryDirection;
+    private Vec3 seat, pickup, placement, tip, previousTip, joint, previousJoint, gripOffset, fromDirection, carryDirection;
+    private Vec3 contactTip,liftTip,carryOffset,transferFrom,transferTo,releaseTip;
+    private double transferSide,rootBlend,previousRootBlend;
+    private TransferPlan planned;
     private double contactHeight,carryHeight,settleHeight;
     private Vec3 lastVelocity=Vec3.ZERO;
     private long start, lastTick=Long.MIN_VALUE;
@@ -28,6 +31,7 @@ public final class BraidRescue {
     private int contactTicks, totalTicks, placeTicks, motionTicks;
     private boolean placing;
     private record RescuePair(Vec3 youngSeat,Vec3 parentStand,double cost){}
+    private record TransferPlan(double height,Vec3 lift,Vec3 offset,Vec3 from,Vec3 to,double side){}
     public BraidRescue(YukkuriEntity child){this.child=child;}
     private ServerLevel level(){return (ServerLevel)child.level();}
     private YukkuriEntity parent(){return parentId!=null&&level().getEntity(parentId) instanceof YukkuriEntity y?y:null;}
@@ -52,7 +56,8 @@ public final class BraidRescue {
         if(!eligible(parent,home)||child.isPassenger()||child.family().flying()||!child.waterDistress().canBeLifted()
                 ||!child.isInWaterOrBubble()&&!child.onGround()||!parent.hasLineOfSight(child)
                 ||parent.family().braidRescueActive())return false;
-        var grip=BraidRescueGeometry.grip(child);var candidates=home.rescueOwnerCandidates(parent);
+        var grip=BraidRescueGeometry.grip(child);var candidates=new ArrayList<>(home.rescueOwnerCandidates(parent));
+        candidates.addFirst(home.toLocal(parent.position()));
         var stands=new ArrayList<Vec3>();
         for(var candidate:candidates){var refined=BraidRescueGeometry.stand(parent,home,grip,candidate);if(refined!=null)stands.add(refined);}
         stands.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(parent.position())));
@@ -64,8 +69,9 @@ public final class BraidRescue {
         if(!parent.life().spendEnergy(.15f)){home.cancelIncoming(child);home.releaseRescueOwner(parent);return false;}
         parentId=parent.getUUID();hatId=home.getUUID();seat=pair.youngSeat();pickup=selected;placement=pair.parentStand();
         parentYaw=parent.yBodyRot;parent.family().rescueTarget(child.getUUID());
-        tip=previousTip=BraidRescueGeometry.restTip(parent);gripOffset=null;
-        fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();carryDirection=null;
+        rootBlend=previousRootBlend=0;tip=previousTip=BraidRescueGeometry.restTip(parent,0);gripOffset=null;
+        fromDirection=tip.subtract(BraidRescueGeometry.root(parent,0)).normalize();carryDirection=null;
+        updateJoint(parent);previousJoint=joint;
         contactTicks=totalTicks=placeTicks=0;placing=false;lastVelocity=Vec3.ZERO;
         child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.REACH);
         parent.speak("braid_rescue_offer");return true;
@@ -104,14 +110,18 @@ public final class BraidRescue {
                 ||child.family().flying()||++totalTicks>260){cancel();return;}
         parent.setYRot(parentYaw);parent.yBodyRot=parentYaw;
         parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
-        previousTip=tip;long elapsed=now-start;
+        previousTip=tip;previousJoint=joint;previousRootBlend=rootBlend;long elapsed=now-start;
+        if(phase!=Phase.RELEASE)rootBlend=Math.min(1,rootBlend+1.0/12);
         if(held()&&!parent.life().spendEnergy(.035f)){cancel();return;}
         if(phase==Phase.REACH||phase==Phase.CONTACT){
             var target=BraidRescueGeometry.grip(child);
-            var direction=target.subtract(BraidRescueGeometry.root(parent)).normalize();
-            tip=BraidRescueGeometry.tip(parent,fromDirection,direction,(double)elapsed/BraidRescueGeometry.ticks("REACH"));
+            var root=BraidRescueGeometry.root(parent,rootBlend);
+            var direction=target.subtract(root).normalize();
+            var rest=BraidRescueGeometry.restTip(parent,rootBlend);
+            tip=rest.lerp(target,HatBoarding.smooth((double)elapsed/BraidRescueGeometry.ticks("REACH")));
+            tip=constrainReach(parent,root,tip);updateJoint(parent);
             if(!braidClear(parent,tip)||!parent.hasLineOfSight(child)){cancel();return;}
-            boolean touching=home.rescueOwnerReady(parent)&&BraidRescueGeometry.touches(child,tip);
+            boolean touching=rootBlend>=1&&home.rescueOwnerReady(parent)&&BraidRescueGeometry.touches(child,tip);
             if(phase==Phase.REACH){
                 if(touching){fromDirection=direction;phase(Phase.CONTACT);contactTicks=0;}
             }else if(!touching){fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();phase(Phase.REACH);contactTicks=0;}
@@ -124,23 +134,20 @@ public final class BraidRescue {
                 seat=pair.youngSeat();placement=pair.parentStand();
                 child.waterDistress().lifted();child.getNavigation().stop();
                 fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();
-                contactHeight=tip.y;
-                carryHeight=BraidRescueGeometry.rimClearance(child,home,home.toWorld(seat))+gripOffset.y;
-                var lowTip=BraidRescueGeometry.lowTip(parent,fromDirection,carryHeight);
-                if(lowTip==null){cancel();return;}
-                carryDirection=lowTip.subtract(BraidRescueGeometry.root(parent)).normalize();
+                contactTip=tip;contactHeight=tip.y;carryHeight=planned.height();liftTip=planned.lift();
+                carryOffset=planned.offset();transferFrom=planned.from();transferTo=planned.to();transferSide=planned.side();
                 phase(Phase.GRIP);child.speak("braid_rescue_grip");
             }
             return;
         }
         if(phase==Phase.GRIP){
-            tip=BraidRescueGeometry.root(parent).add(fromDirection.scale(BraidRescueGeometry.length(parent)));
+            tip=contactTip;updateJoint(parent);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(elapsed>=BraidRescueGeometry.ticks("GRIP")){
-                motionTicks=Math.max(BraidRescueGeometry.ticks("LIFT"),(int)Math.ceil(Math.abs(carryHeight-contactHeight)/.035));phase(Phase.LIFT);
+                motionTicks=Math.max(BraidRescueGeometry.ticks("LIFT"),(int)Math.ceil(Math.abs(carryHeight-contactHeight)/.015));phase(Phase.LIFT);
             }
         }else if(phase==Phase.LIFT){
-            tip=BraidRescueGeometry.lowArc(parent,fromDirection,carryDirection,contactHeight,carryHeight,(double)elapsed/motionTicks);
+            tip=contactTip.lerp(liftTip,BraidRescueGeometry.effortProgress((double)elapsed/motionTicks));updateJoint(parent);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(elapsed>=motionTicks){
                 if(!home.moveRescueOwner(parent,placement)){cancel();return;}
@@ -148,32 +155,37 @@ public final class BraidRescue {
             }
         }else if(phase==Phase.PLACE){
             var destination=home.toWorld(seat).add(gripOffset);
-            var endDirection=destination.subtract(BraidRescueGeometry.root(parent)).normalize();
             if(!placing&&home.rescueOwnerReady(parent)){
                 placing=true;placeTicks=0;start=now;
-                motionTicks=BraidRescueGeometry.travelTicks(parent,carryDirection,endDirection,"PLACE");
+                transferFrom=tip;transferTo=new Vec3(destination.x,carryHeight,destination.z);
+                motionTicks=Math.max(BraidRescueGeometry.ticks("PLACE"),(int)Math.ceil((transferFrom.distanceTo(transferTo)+Math.abs(transferSide)*2)/.02));
             }
-            tip=placing?BraidRescueGeometry.lowArc(parent,carryDirection,endDirection,carryHeight,carryHeight,
-                    (double)++placeTicks/motionTicks):BraidRescueGeometry.lowTip(parent,carryDirection,carryHeight);
+            tip=placing?BraidRescueGeometry.transferPoint(transferFrom,transferTo,transferSide,carryHeight,
+                    BraidRescueGeometry.effortProgress((double)++placeTicks/motionTicks)):parent.position().add(carryOffset);
+            updateJoint(parent);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(placing&&placeTicks>=motionTicks){
-                fromDirection=tip.subtract(BraidRescueGeometry.root(parent)).normalize();settleHeight=destination.y;
+                releaseTip=tip;settleHeight=destination.y;
                 motionTicks=Math.max(BraidRescueGeometry.ticks("SETTLE"),(int)Math.ceil(Math.abs(carryHeight-settleHeight)/.025));phase(Phase.SETTLE);
             }
         }else if(phase==Phase.SETTLE){
             var destination=home.toWorld(seat).add(gripOffset);
-            var endDirection=destination.subtract(BraidRescueGeometry.root(parent)).normalize();
-            tip=BraidRescueGeometry.lowArc(parent,fromDirection,endDirection,carryHeight,settleHeight,(double)elapsed/motionTicks);
+            tip=releaseTip.lerp(destination,HatBoarding.smooth(((double)elapsed/motionTicks-.15)/.85));updateJoint(parent);
             if(!moveHeld(parent,home,tip)){cancel();return;}
             if(elapsed>=motionTicks){
                 var reserved=home.peekSeat(child);
                 if(reserved==null||reserved.distanceToSqr(seat)>.000001||child.position().distanceToSqr(home.toWorld(seat))>.0001
                         ||!home.boardYoung(child)){cancel();return;}
                 phase(Phase.RELEASE);
+                releaseTip=tip;
             }
         }else if(phase==Phase.RELEASE){
-            tip=child.position().add(gripOffset);
-            if(!home.protects(child)||Math.abs(tip.distanceTo(BraidRescueGeometry.root(parent))-BraidRescueGeometry.length(parent))>.015){cancel();return;}
+            if(!home.protects(child)){cancel();return;}
+            double q=Math.clamp((double)elapsed/BraidRescueGeometry.ticks("RELEASE"),0,1);
+            rootBlend=1-HatBoarding.smooth((q-.5)*2);
+            tip=q<=.5?child.position().add(gripOffset):constrainReach(parent,BraidRescueGeometry.root(parent,rootBlend),
+                    releaseTip.lerp(BraidRescueGeometry.restTip(parent,rootBlend),HatBoarding.smooth((q-.5)*2)));
+            updateJoint(parent);
             if(elapsed>=BraidRescueGeometry.ticks("RELEASE")){
                 parent.speak("braid_rescue_safe");finish(parent,home);
             }
@@ -182,6 +194,7 @@ public final class BraidRescue {
     private RescuePair reservePlacement(YukkuriEntity parent,HatBoatEntity home,Vec3 offset){
         var youngSeats=home.rescueYoungCandidates(child);if(youngSeats.isEmpty())return null;
         var ownerStands=home.rescueOwnerCandidates(parent,child);var pairs=new ArrayList<RescuePair>();
+        ownerStands=new ArrayList<>(ownerStands);ownerStands.addFirst(home.toLocal(parent.position()));
         youngSeats=new ArrayList<>(youngSeats);
         youngSeats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
         // Cheap fixed-length and body tests first. A bounded shortlist then pays for
@@ -194,7 +207,7 @@ public final class BraidRescue {
             var childBox=child.getBoundingBox().move(home.toWorld(youngSeat).subtract(child.position()));
             for(var candidate:ownerStands){
                 var refined=BraidRescueGeometry.stand(parent,home,target,candidate);if(refined==null)continue;
-                var parentBox=parent.getBoundingBox().move(home.toWorld(refined).subtract(parent.position()));
+                var parentBox=BraidRescueGeometry.parentBody(parent,home.toWorld(refined));
                 if(parentBox.deflate(.005).intersects(childBox)||!home.canPlaceRescuePair(child,parent,youngSeat,refined))continue;
                 if(Math.abs(clearance-BraidRescueGeometry.rootAt(parent,home.toWorld(refined)).y)>=BraidRescueGeometry.length(parent))continue;
                 boolean duplicate=seatPairs.stream().anyMatch(pair->pair.parentStand().distanceToSqr(refined)<.000001);
@@ -210,19 +223,81 @@ public final class BraidRescue {
             if(!seatPairs.isEmpty()&&++feasibleSeats>=8)break;
         }
         pairs.sort(Comparator.comparingDouble(RescuePair::cost));
-        for(var pair:pairs.stream().limit(16).toList())
-            if(home.reserveRescuePair(child,parent,pair.youngSeat(),pair.parentStand()))return pair;
+        for(var pair:pairs.stream().limit(16).toList()){
+            var plan=phase==Phase.CONTACT?planTransfer(parent,home,pair,offset):null;
+            if(phase==Phase.CONTACT&&plan==null)continue;
+            if(home.reserveRescuePair(child,parent,pair.youngSeat(),pair.parentStand())){planned=plan;return pair;}
+        }
         return null;
     }
+    /** Plan the whole supported carry before establishing custody, including the child's real worn hat. */
+    private TransferPlan planTransfer(YukkuriEntity parent,HatBoatEntity home,RescuePair pair,Vec3 offset){
+        var route=home.rescueOwnerRoute(parent,pair.parentStand(),child,pair.youngSeat());
+        var endParent=home.toWorld(pair.parentStand());
+        if(route.isEmpty()&&endParent.distanceToSqr(parent.position())>.0004)return null;
+        var destination=home.toWorld(pair.youngSeat()).add(offset);var initial=child.position().add(offset);
+        var displacement=endParent.subtract(parent.position());
+        double width=Math.max(child.getBbWidth(),HatVessel.BRIM[0]*HatVessel.hatScale(child)*child.getScale()/8);
+        for(double side:new double[]{0,width*.55,-width*.55}){
+            double height=Math.max(initial.y,destination.y);
+            for(int i=0;i<=24;i++){
+                var p=BraidRescueGeometry.transferPoint(initial.add(displacement),destination,side,height,i/24.0);
+                height=Math.max(height,BraidRescueGeometry.envelopeClearance(child,home,p.subtract(offset))+offset.y);
+            }
+            height+=.008*child.growthScale()*child.getScale();
+            var lifted=new Vec3(initial.x,height,initial.z);var carry=lifted.subtract(parent.position());
+            var transferStart=endParent.add(carry);var transferEnd=new Vec3(destination.x,height,destination.z);
+            boolean clear=true;
+            for(int i=0;i<=24&&clear;i++){
+                var liftedAt=initial.lerp(lifted,BraidRescueGeometry.effortProgress(i/24.0));
+                var transferAt=BraidRescueGeometry.transferPoint(transferStart,transferEnd,side,height,BraidRescueGeometry.effortProgress(i/24.0));
+                var settleAt=transferEnd.lerp(destination,HatBoarding.smooth(i/24.0));
+                clear=plannedContactClear(parent,home,liftedAt,offset,parent.position())
+                        &&plannedContactClear(parent,home,transferAt,offset,endParent)
+                        &&plannedContactClear(parent,home,settleAt,offset,endParent);
+            }
+            Vec3 previous=parent.position();
+            for(var local:route){
+                var next=home.toWorld(local);int steps=Math.max(1,(int)Math.ceil(previous.distanceTo(next)/.025));
+                for(int i=1;i<=steps&&clear;i++){
+                    var feet=previous.lerp(next,(double)i/steps);
+                    clear=plannedContactClear(parent,home,feet.add(carry),offset,feet);
+                }
+                if(!clear)break;previous=next;
+            }
+            if(clear)return new TransferPlan(height,lifted,carry,transferStart,transferEnd,side);
+        }
+        return null;
+    }
+    private boolean plannedContactClear(YukkuriEntity parent,HatBoatEntity home,Vec3 at,Vec3 offset,Vec3 parentFeet){
+        var root=BraidRescueGeometry.rootAt(parent,parentFeet);
+        if(!BraidRescueGeometry.reachable(parent,root,at))return false;
+        var hint=BraidRescueGeometry.restJoint(parent,1).add(parentFeet.subtract(parent.position()));
+        var bend=BraidRescueGeometry.joint(parent,root,at,hint);
+        return bend!=null&&segmentClear(parent,root,bend)&&segmentClear(parent,bend,at)
+                &&bodyClear(home,at.subtract(offset),parent,parentFeet);
+    }
+    private Vec3 constrainReach(YukkuriEntity parent,Vec3 root,Vec3 wanted){
+        var delta=wanted.subtract(root);if(delta.lengthSqr()<1e-10)return BraidRescueGeometry.restTip(parent,rootBlend);
+        return root.add(delta.normalize().scale(Math.clamp(delta.length(),BraidRescueGeometry.minimumReach(parent),BraidRescueGeometry.maximumReach(parent))));
+    }
+    private void updateJoint(YukkuriEntity parent){
+        var root=BraidRescueGeometry.root(parent,rootBlend);var rest=BraidRescueGeometry.restJoint(parent,rootBlend);
+        var hint=previousJoint==null?rest:previousJoint.lerp(rest,.2);
+        joint=BraidRescueGeometry.joint(parent,root,tip,hint);
+    }
     private boolean braidClear(YukkuriEntity parent,Vec3 at){
-        var origin=BraidRescueGeometry.root(parent);
-        var hit=level().clip(new ClipContext(origin,at,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,parent));
-        return hit.getType()==HitResult.Type.MISS||hit.getLocation().distanceToSqr(at)<.0004;
+        var origin=BraidRescueGeometry.root(parent,rootBlend);
+        return joint!=null&&segmentClear(parent,origin,joint)&&segmentClear(parent,joint,at);
+    }
+    private boolean segmentClear(YukkuriEntity parent,Vec3 from,Vec3 to){
+        var hit=level().clip(new ClipContext(from,to,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,parent));
+        return hit.getType()==HitResult.Type.MISS||hit.getLocation().distanceToSqr(to)<.0004;
     }
     private boolean moveHeld(YukkuriEntity parent,HatBoatEntity home,Vec3 at){
         if(at==null)return false;
         var wanted=at.subtract(gripOffset);var delta=wanted.subtract(child.position());
-        if(delta.lengthSqr()>.12*.12||!braidClear(parent,at))return false;
+        if(delta.lengthSqr()>.12*.12||!BraidRescueGeometry.reachable(parent,BraidRescueGeometry.root(parent,rootBlend),at)||!braidClear(parent,at))return false;
         int steps=Math.max(1,(int)Math.ceil(delta.length()/.025));
         for(int i=1;i<=steps;i++)if(!bodyClear(home,child.position().lerp(wanted,(double)i/steps)))return false;
         // The hollow destination hat's coarse solid entity AABB is replaced here by its
@@ -231,16 +306,22 @@ public final class BraidRescue {
         child.setPos(wanted.x,wanted.y,wanted.z);child.setDeltaMovement(Vec3.ZERO);
         child.getNavigation().stop();child.fallDistance=0;child.hasImpulse=true;lastVelocity=delta;return true;
     }
-    private boolean bodyClear(HatBoatEntity home,Vec3 feet){
-        var box=child.getBoundingBox().move(feet.subtract(child.position()));
+    private boolean bodyClear(HatBoatEntity home,Vec3 feet){return bodyClear(home,feet,parent(),parent().position());}
+    private boolean bodyClear(HatBoatEntity home,Vec3 feet,YukkuriEntity parent,Vec3 parentFeet){
+        var boxes=BraidRescueGeometry.envelope(child,feet);
+        var parentBox=BraidRescueGeometry.parentBody(parent,parentFeet);
         if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
-                ||level().getBlockCollisions(child,box).iterator().hasNext())return false;
-        for(var other:level().getEntities(child,box)){
-            if(other==home||!other.isAlive()||other.isSpectator())continue;
-            if((other instanceof YukkuriEntity||other.canBeCollidedWith())&&box.deflate(.002).intersects(other.getBoundingBox()))return false;
+                ||BraidRescueGeometry.envelopeClearance(child,home,feet)>feet.y+.002)return false;
+        for(var box:boxes){
+            if(box.deflate(.002).intersects(parentBox)||level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext())return false;
+            for(var other:level().getEntities(child,box)){
+                if(other==home||other==parent||!other.isAlive()||other.isSpectator())continue;
+                if(other instanceof YukkuriEntity y){
+                    for(var shape:BraidRescueGeometry.envelope(y,y.position()))if(box.deflate(.002).intersects(shape))return false;
+                }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox()))return false;
+            }
         }
-        var local=home.toLocal(feet);double floor=HatVessel.footprint(home.mode(),local.x,local.z,HatVessel.radius(child.getBbWidth())/home.unit());
-        return !Double.isFinite(floor)||local.y>=floor-.04;
+        return true;
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
         phase=Phase.IDLE;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
@@ -268,7 +349,13 @@ public final class BraidRescue {
         tag.putInt("ParentId",parent.getId());tag.putInt("ChildId",child.getId());tag.putInt("HatId",home.getId());tag.putFloat("Yaw",parentYaw);
         if(phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.SETTLE)tag.putInt("Duration",motionTicks);
         tag.putBoolean("Travelling",phase==Phase.PLACE&&!placing);
-        put(tag,"Tip",tip);put(tag,"PrevTip",previousTip);put(tag,"Grip",gripOffset);return tag;
+        tag.putDouble("RootBlend",rootBlend);tag.putDouble("PrevRootBlend",previousRootBlend);
+        int phaseDuration=phase==Phase.LIFT||phase==Phase.PLACE||phase==Phase.SETTLE?Math.max(1,motionTicks):BraidRescueGeometry.ticks(phase.name());
+        double q=Math.clamp((double)(level().getGameTime()-start)/phaseDuration,0,1);
+        tag.putDouble("Progress",phase==Phase.LIFT||phase==Phase.PLACE?BraidRescueGeometry.effortProgress(q):q);
+        tag.putDouble("Effort",phase==Phase.LIFT||phase==Phase.PLACE&&placing?HatBoarding.pullEffort(q):0);
+        tag.putBoolean("Gripped",held()&&(phase!=Phase.RELEASE||level().getGameTime()-start<=BraidRescueGeometry.ticks("RELEASE")/2));
+        put(tag,"Tip",tip);put(tag,"PrevTip",previousTip);put(tag,"Joint",joint);put(tag,"PrevJoint",previousJoint);put(tag,"Grip",gripOffset);return tag;
     }
     private static void put(CompoundTag tag,String name,Vec3 at){if(at!=null){tag.putDouble(name+"X",at.x);tag.putDouble(name+"Y",at.y);tag.putDouble(name+"Z",at.z);}}
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}

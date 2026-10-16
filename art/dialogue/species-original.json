@@ -11339,6 +11339,702 @@
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；尚未配音。",
       "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_boat_rock_startle",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ、ふねが ゆれるのぜ！",
+      "chinese": "呜，船在摇呀！",
+      "english": "The boat is rocking!",
+      "events": [
+        "boat_rock_startle"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_call",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ちびたち、こっちへ くるのぜ！",
+      "chinese": "孩子们，快到这边来！",
+      "english": "Little ones, come over here!",
+      "events": [
+        "family_alarm_call"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_answer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いま そっちへ いくのぜ！",
+      "chinese": "这就过来！",
+      "english": "Coming to you!",
+      "events": [
+        "family_alarm_answer"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_flee",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ここは あぶない、はなれるのぜ！",
+      "chinese": "这里危险，快离远一点！",
+      "english": "It is dangerous here. Move away!",
+      "events": [
+        "family_alarm_flee"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_family_alarm_calm",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はあ……もう だいじょうぶなのぜ。",
+      "chinese": "呼……已经安全了。",
+      "english": "Whew... we are safe now.",
+      "events": [
+        "family_alarm_calm"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_water_help",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけてほしいのぜ！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_hat",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうしを ひっくりかえすのぜ……。",
+      "chinese": "把帽帽翻过来……。",
+      "english": "Turn my hat over...",
+      "events": [
+        "self_rescue_hat"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_grip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ふちに つかまったのぜ！",
+      "chinese": "抓住帽檐了！",
+      "english": "I have the brim!",
+      "events": [
+        "self_rescue_grip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_climb",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "んっ……よいしょ……もういっかい！",
+      "chinese": "嗯……嘿咻……再使一次劲！",
+      "english": "Ngh... heave... once more!",
+      "events": [
+        "self_rescue_climb"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_slip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ゆっ！ すべっちゃうのぜ！",
+      "chinese": "呜！要滑下去了！",
+      "english": "I am slipping!",
+      "events": [
+        "self_rescue_slip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_self_rescue_safe",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はあ……のぼれたのぜ……。",
+      "chinese": "哈啊……爬上来了……。",
+      "english": "Phew... I made it aboard...",
+      "events": [
+        "self_rescue_safe"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_offer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いまいくのぜ！ みつあみに つかまるのぜ！",
+      "chinese": "这就来！抓住辫辫！",
+      "english": "I am coming! Hold on to my braid!",
+      "events": [
+        "braid_rescue_offer"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_grip",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "つかんだのぜ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_braid_rescue_safe",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう ふねのうえだよ。ゆっくり いきするのぜ。",
+      "chinese": "已经到船上了，慢慢喘口气。",
+      "english": "You are aboard now. Catch your breath.",
+      "events": [
+        "braid_rescue_safe"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_hat_drifting",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうしが ながれていくのぜ！",
+      "chinese": "帽帽漂走了！",
+      "english": "My hat is drifting away!",
+      "events": [
+        "hat_drifting"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_hat_recovered",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おぼうし、つかまえたのぜ。",
+      "chinese": "抓回帽帽了。",
+      "english": "I caught my hat.",
+      "events": [
+        "hat_recovered"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.adult.o_hat_out_of_reach",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう とどかないのぜ……。",
+      "chinese": "已经够不到了……。",
+      "english": "I cannot reach it anymore...",
+      "events": [
+        "hat_out_of_reach"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_boat_rock_startle",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっ、ふねが ゆれるのじぇ！",
+      "chinese": "呜，船在摇呀！",
+      "english": "The boat is rocking!",
+      "events": [
+        "boat_rock_startle"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_call",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちびたち、こっちへ くるのじぇ！",
+      "chinese": "孩子们，快到这边来！",
+      "english": "Little ones, come over here!",
+      "events": [
+        "family_alarm_call"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_answer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いま そっちへ いくのじぇ！",
+      "chinese": "这就过来！",
+      "english": "Coming to you!",
+      "events": [
+        "family_alarm_answer"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_flee",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ここは あぶない、はなれるのじぇ！",
+      "chinese": "这里危险，快离远一点！",
+      "english": "It is dangerous here. Move away!",
+      "events": [
+        "family_alarm_flee"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_family_alarm_calm",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はあ……もう だいじょうぶなのじぇ。",
+      "chinese": "呼……已经安全了。",
+      "english": "Whew... we are safe now.",
+      "events": [
+        "family_alarm_calm"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_water_help",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆぶっ！ たすけてほしいのじぇ！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_hat",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうしを ひっくりかえすのじぇ……。",
+      "chinese": "把帽帽翻过来……。",
+      "english": "Turn my hat over...",
+      "events": [
+        "self_rescue_hat"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_grip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふちに ちゅかまったのじぇ！",
+      "chinese": "抓住帽檐了！",
+      "english": "I have the brim!",
+      "events": [
+        "self_rescue_grip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_climb",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "んっ……よいしょ……もういっかい！",
+      "chinese": "嗯……嘿咻……再使一次劲！",
+      "english": "Ngh... heave... once more!",
+      "events": [
+        "self_rescue_climb"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_slip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ゆっ！ しゅべっちゃうのじぇ！",
+      "chinese": "呜！要滑下去了！",
+      "english": "I am slipping!",
+      "events": [
+        "self_rescue_slip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_self_rescue_safe",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はあ……のぼれたのじぇ……。",
+      "chinese": "哈啊……爬上来了……。",
+      "english": "Phew... I made it aboard...",
+      "events": [
+        "self_rescue_safe"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_offer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いまいくのじぇ！ みつあみに ちゅかまるのじぇ！",
+      "chinese": "这就来！抓住辫辫！",
+      "english": "I am coming! Hold on to my braid!",
+      "events": [
+        "braid_rescue_offer"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_grip",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちゅかんだのじぇ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_braid_rescue_safe",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう ふねのうえだよ。ゆっくり いきするのじぇ。",
+      "chinese": "已经到船上了，慢慢喘口气。",
+      "english": "You are aboard now. Catch your breath.",
+      "events": [
+        "braid_rescue_safe"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_hat_drifting",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうしが ながれていくのじぇ！",
+      "chinese": "帽帽漂走了！",
+      "english": "My hat is drifting away!",
+      "events": [
+        "hat_drifting"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_hat_recovered",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おぼうし、ちゅかまえたのじぇ。",
+      "chinese": "抓回帽帽了。",
+      "english": "I caught my hat.",
+      "events": [
+        "hat_recovered"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "marisa.young.o_hat_out_of_reach",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう とどかないのじぇ……。",
+      "chinese": "已经够不到了……。",
+      "english": "I cannot reach it anymore...",
+      "events": [
+        "hat_out_of_reach"
+      ],
+      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
+    },
+    {
+      "id": "reimu.adult.o_water_help",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "reimu.adult.o_braid_rescue_grip",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "reimu.young.o_water_help",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "reimu.young.o_braid_rescue_grip",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "alice.adult.o_water_help",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "alice.adult.o_braid_rescue_grip",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "つかまったわ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "alice.young.o_water_help",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "alice.young.o_braid_rescue_grip",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゅかまったわ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "chen.adult.o_water_help",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ゆぶっ！ たすけてよー！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "chen.adult.o_braid_rescue_grip",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "chen.young.o_water_help",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ゆぶっ！ たしゅけてよー！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "chen.young.o_braid_rescue_grip",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "patchouli.adult.o_water_help",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "patchouli.adult.o_braid_rescue_grip",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "patchouli.young.o_water_help",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "patchouli.young.o_braid_rescue_grip",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "remilia.adult.o_water_help",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "remilia.adult.o_braid_rescue_grip",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "remilia.young.o_water_help",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "remilia.young.o_braid_rescue_grip",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "flandre.adult.o_water_help",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ゆぶっ！ たすけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "flandre.adult.o_braid_rescue_grip",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……つかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "flandre.young.o_water_help",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ゆぶっ！ たしゅけて！",
+      "chinese": "咕呜！救命呀！",
+      "english": "Help! I am in the water!",
+      "events": [
+        "water_help"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "flandre.young.o_braid_rescue_grip",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ちゅかまったよ！ はなさないで！",
+      "chinese": "抓住了！不要松开！",
+      "english": "I have it! Do not let go!",
+      "events": [
+        "braid_rescue_grip"
+      ],
+      "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
     }
   ]
 }
