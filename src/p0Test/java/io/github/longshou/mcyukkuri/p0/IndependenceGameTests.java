@@ -192,6 +192,19 @@ public final class IndependenceGameTests {
             helper.assertTrue(childClaim,childClaim ? "Adult child claims a separate real bed" : "Child claim failed: " + homeDiagnostics(y,old[0]));
             var parentBed = old[0].bed(parent.getUUID()); var childBed = old[0].bed(y.getUUID());
             helper.assertTrue(parentBed != null && childBed != null && !parentBed.equals(childBed),"The two residents own distinct surveyed standing cells");
+            // This NoAI resident cannot yield in the one-cell mouth. Keep its bed ownership, but
+            // place its real body in a surveyed inner cell so a returning adult can reach its bed.
+            var parentStand = ORIGIN.north(3);
+            helper.assertTrue(old[0].beds().contains(parentStand),"The stationary parent has a real surveyed inner standing cell");
+            var parentSpot = Vec3.atBottomCenterOf(parentStand);
+            parent.move(MoverType.SELF,parentSpot.subtract(parent.position())); groundActor(helper,parent,"Inner resident");
+            helper.assertTrue(parent.distanceToSqr(parentSpot) < 1.0e-6 && old[0].owns(parent.getUUID())
+                    && old[0].bed(parent.getUUID()).equals(parentBed),"Moving the fixture body preserves the parent's original bed and home");
+            var entranceBody = y.getBoundingBox().move(Vec3.atBottomCenterOf(old[0].entrance()).subtract(y.position()));
+            var returnCorridor = entranceBody.expandTowards(Vec3.atBottomCenterOf(childBed).subtract(Vec3.atBottomCenterOf(old[0].entrance())));
+            helper.assertTrue(!returnCorridor.intersects(parent.getBoundingBox()) && level.noCollision(y,returnCorridor),
+                    "The actual grown visitor body has a clear block-and-resident corridor from entrance to its own bed: width="
+                            + y.getBbWidth() + ", corridor=" + returnCorridor + ", parent=" + parent.getBoundingBox());
             helper.assertTrue(y.life().reachable(DESTINATION,false) && y.life().reachable(DESTINATION.south(),false),
                     "The adult builder can physically reach the new cave marker and outside entrance");
             var life = y.life().save(); life.putFloat("Nutrition",100); life.putFloat("Energy",100); life.putFloat("Bladder",0); y.life().load(life);
