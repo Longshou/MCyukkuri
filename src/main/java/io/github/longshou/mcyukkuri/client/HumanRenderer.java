@@ -58,6 +58,6 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             e.registerEntityRenderer(HumanWorld.SISTER.get(), HumanRenderer::new);
         }
         @SubscribeEvent public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); }
+        @SubscribeEvent public static void screens(RegisterMenuScreensEvent e) { e.register(HumanWorld.MENU.get(), HumanScreen::new); e.register(HumanWorld.BADGE_MENU.get(), BadgeScreen::new); e.register(HumanWorld.SHOP_MENU.get(), ShopScreen::new); e.register(HumanWorld.KEEPER_MENU.get(), KeeperScreen::new); e.register(HumanWorld.EXAM_MENU.get(), ExamScreen::new); }
     }
 }

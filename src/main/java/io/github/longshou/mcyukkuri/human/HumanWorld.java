@@ -59,6 +59,8 @@ public final class HumanWorld {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.shop.KeeperMenu(id, inv, buf.readVarInt())));
     public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.shop.ShopMenu>> SHOP_MENU = MENUS.register("pet_shop",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.shop.ShopMenu(id, inv, buf.readVarInt())));
+    public static final DeferredHolder<MenuType<?>, MenuType<io.github.longshou.mcyukkuri.pet.exam.ExamMenu>> EXAM_MENU = MENUS.register("badge_exam",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new io.github.longshou.mcyukkuri.pet.exam.ExamMenu(id, inv, buf.readVarInt())));
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue ROAMING, CRUELTY;
     public static final ModConfigSpec.IntValue TRADE_DAY_LIMIT, CARE_SUPPLIES, BADGE_VALIDITY_DAYS;
