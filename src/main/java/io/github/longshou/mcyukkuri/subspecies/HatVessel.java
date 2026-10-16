@@ -119,6 +119,8 @@ public final class HatVessel {
     }
     /** A young's round body radius from its collision width (same units). */
     public static double radius(double width){return YOUNG_RADIUS*width;}
+    /** Body height and the real worn hat envelope, all relative to the feet in vessel units. */
+    public record BodySpace(double height,double hatX,double hatZ,double hatBase,double hatHeight){}
     /** A place (hat units: x, surface y, z) for a young of radius r (hat units) among those taken (x, y, z, r): the free
      *  spot nearest the preferred point (where it landed; null for the region's), on the floor rather than the ledge,
      *  overlapping the others as little as possible and, coming from start (null: anywhere), not across them. Regions:
@@ -128,6 +130,9 @@ public final class HatVessel {
     }
     /** A care berth must be on a real surface at the caregiver's height, never suspended over the well. */
     public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start,double requiredHeight){
+        return place(m,r,region,prefer,taken,start,requiredHeight,null);
+    }
+    public static Vec3 place(Mode m,double r,String region,Vec3 prefer,List<double[]> taken,Vec3 start,double requiredHeight,BodySpace body){
         var R=DELIVERY.getAsJsonObject("regions").getAsJsonObject(region);var p=R.getAsJsonArray("prefer");
         double px=prefer!=null?prefer.x:p.get(0).getAsDouble(),pz=prefer!=null?prefer.z:p.get(1).getAsDouble();
         boolean resident=m==Mode.FLOAT&&!"catch".equals(region)&&!Double.isFinite(requiredHeight);
@@ -139,6 +144,7 @@ public final class HatVessel {
         if(resident&&!night&&prefer==null)pz=(OPENING[2]+WELL[2])*.5;
         double x0=OPENING[0],x1=OPENING[1],z0=OPENING[2],z1=OPENING[3];double[] best=null;
         int nx=(int)Math.floor((x1-x0-2*r)/STEP+1e-9),nz=(int)Math.floor((z1-z0-2*r)/STEP+1e-9);
+        if(nx<0||nz<0)return null;
         for(int i=0;i<=Math.max(0,nx);i++){
             double x=nx>=0?x0+r+i*STEP:(x0+x1)/2;
             for(int j=0;j<=Math.max(0,nz);j++){
@@ -155,6 +161,10 @@ public final class HatVessel {
                     // Explicit layout reservations (parent projection and actual stored food) are never
                     // traded for a slightly cheaper seat, including children on the lower well floor.
                     if(resident&&s.length>5&&s[5]>0&&Math.hypot(x-s[0],z-s[2])<r+s[3]){blocked=true;break;}
+                    double otherHeight=s.length>4?s[4]:s[3]*2;
+                    if(h< s[1]+otherHeight-.05&&h+r*2>s[1]+.05
+                            &&Math.hypot(x-s[0],z-s[2])<r+s[3]+.04){blocked=true;break;}
+                    if(body!=null&&accessoryOverlap(x,h,z,r,body,s)){blocked=true;break;}
                     over+=Math.max(0,(r+s[3])*OVERLAP-Math.hypot(x-s[0],z-s[2]));
                     if(start!=null)across+=Math.max(0,(r+s[3])*OVERLAP-segment(s[0],s[2],start.x,start.z,x,z));
                 }
@@ -165,7 +175,40 @@ public final class HatVessel {
                 if(best==null||cost<best[0]-1e-9)best=new double[]{cost,x,h,z};
             }
         }
-        return best==null?(Double.isFinite(requiredHeight)?null:new Vec3(px,floor(m),pz)):new Vec3(best[1],best[2],best[3]);
+        return best==null?null:new Vec3(best[1],best[2],best[3]);
+    }
+    private static boolean accessoryOverlap(double x,double y,double z,double radius,BodySpace body,double[] other){
+        double otherHeight=other.length>4?other[4]:other[3]*2;
+        if(body.hatX()>0&&y+body.hatBase()<other[1]+otherHeight&&y+body.hatBase()+body.hatHeight()>other[1]
+                &&rectangleDistance(other[0]-x,other[2]-z,body.hatX(),body.hatZ())<other[3]+.04)return true;
+        if(other.length<10||other[6]<=0)return false;
+        double otherBase=other[1]+other[8],otherTop=otherBase+other[9];
+        if(y<otherTop&&y+body.height()>otherBase&&rectangleDistance(x-other[0],z-other[2],other[6],other[7])<radius+.04)return true;
+        return body.hatX()>0&&y+body.hatBase()<otherTop&&y+body.hatBase()+body.hatHeight()>otherBase
+                &&Math.abs(x-other[0])<body.hatX()+other[6]+.04&&Math.abs(z-other[2])<body.hatZ()+other[7]+.04;
+    }
+    private static double rectangleDistance(double x,double z,double halfX,double halfZ){return Math.hypot(Math.max(0,Math.abs(x)-halfX),Math.max(0,Math.abs(z)-halfZ));}
+    static boolean fits(Mode mode,Vec3 at,double radius,List<double[]> taken,BodySpace body){
+        if(!Double.isFinite(surface(mode,at.x,at.z))||Math.abs(footprint(mode,at.x,at.z,radius)-at.y)>1e-4)return false;
+        for(var other:taken){
+            double otherHeight=other.length>4?other[4]:other[3]*2;
+            if((other.length>5&&other[5]>0||at.y<other[1]+otherHeight-.05&&at.y+body.height()>other[1]+.05)
+                    &&Math.hypot(at.x-other[0],at.z-other[2])<radius+other[3]+.04)return false;
+            if(accessoryOverlap(at.x,at.y,at.z,radius,body,other))return false;
+        }
+        return true;
+    }
+    static BodySpace bodySpace(YukkuriEntity child,double hullScale,double unit){
+        boolean hat=child.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&child.life().hasAccessory();
+        double ratio=hat?hatScale(child)*child.getScale()/hullScale:0;
+        return new BodySpace(child.getBbHeight()/unit,BRIM[0]*ratio,BRIM[1]*ratio,
+                ANCHOR[1]*child.growthScale()*child.getScale()/hullScale,DATA.get("keel").getAsDouble()*ratio);
+    }
+    static BodySpace newbornSpace(Mode mode,double hullScale,double unit){
+        double growth=io.github.longshou.mcyukkuri.family.LiveBirthGeometry.BABY_SCALE;
+        double ratio=growth*(mode==Mode.FLOAT?AQUATIC_SCALE:1)/hullScale;
+        return new BodySpace(io.github.longshou.mcyukkuri.family.LiveBirthGeometry.modelHeight("marisa")*growth/16/unit,
+                BRIM[0]*ratio,BRIM[1]*ratio,ANCHOR[1]*growth/hullScale,DATA.get("keel").getAsDouble()*ratio);
     }
     /** A fully supported spot on the front brim, clear of siblings and the owner at the stern; null if too big.
      *  This is deliberately separate from newborn delivery: a newborn still lands inside the well. */
@@ -197,6 +240,34 @@ public final class HatVessel {
             }
         return best;
     }
+    /** A protected, fully supported front-inner brim patch. Emergency arrivals may compress a body by at most 20%.
+     *  Compression creates a real contact, not an eviction at reservation time. */
+    public static Vec3 refugeBrimPlace(double r,List<double[]> taken,Vec3 prefer,boolean compress){
+        Vec3 best=null;double bestCost=Double.POSITIVE_INFINITY;
+        for(double x=(compress?-BRIM[0]+r*.8:OPENING[0]+r);x<=(compress?BRIM[0]-r*.8:OPENING[1]-r);x+=STEP)
+            for(double z=(compress?-2:OPENING[2]-r-.22);z>=Math.max(-BRIM[1]+r*.8+.12,OPENING[2]-3.2);z-=STEP){
+                if(!supported(Mode.FLOAT,x,z,compress?r*.8:r+.18,top(Mode.FLOAT)))continue;
+                boolean clear=true;double pressure=0;
+                for(var s:taken){
+                    double distance=Math.hypot(x-s[0],z-s[2]),sum=r+s[3];
+                    double allowed=compress&&!(s.length>5&&s[5]>0)?.8:1;
+                    if(distance<sum*allowed+.03){clear=false;break;}
+                    if(!compress&&s[1]>FREEBOARD-.1&&Math.abs(x-s[0])<sum*2.8&&Math.abs(z-s[2])<sum*3.4){clear=false;break;}
+                    pressure+=Math.max(0,sum+.05-distance);
+                }
+                double cost=pressure*80+(prefer==null?Math.hypot(x,z-OPENING[2]):Math.hypot(x-prefer.x,z-prefer.z));
+                if(clear&&cost<bestCost){bestCost=cost;best=new Vec3(x,top(Mode.FLOAT),z);}
+            }
+        return best;
+    }
+    public static boolean supported(Mode mode,double x,double z,double radius,double height){
+        for(int i=0;i<17;i++){
+            double px=i==16?x:x+radius*Math.cos(i*Math.PI/8),pz=i==16?z:z+radius*Math.sin(i*Math.PI/8);
+            double at=surface(mode,px,pz);
+            if(!Double.isFinite(at)||Math.abs(at-height)>1e-4)return false;
+        }
+        return true;
+    }
     /** Distance from a point to the segment a-b (x, z). */
     private static double segment(double px,double pz,double ax,double az,double bx,double bz){
         double dx=bx-ax,dz=bz-az,l=dx*dx+dz*dz,q=l<1e-12?0:Math.clamp(((px-ax)*dx+(pz-az)*dz)/l,0,1);
@@ -205,7 +276,7 @@ public final class HatVessel {
     /** Places for young of these radii taken one after another (after a day/night change, or before the server says). */
     public static List<Vec3> pack(Mode m,double[] radii,String region){
         List<double[]> taken=new ArrayList<>();List<Vec3> out=new ArrayList<>();
-        for(double r:radii){var s=place(m,r,region,null,taken,null);taken.add(new double[]{s.x,s.y,s.z,r});out.add(s);}
+        for(double r:radii){var s=place(m,r,region,null,taken,null);if(s==null)break;taken.add(new double[]{s.x,s.y,s.z,r});out.add(s);}
         return out;
     }
 

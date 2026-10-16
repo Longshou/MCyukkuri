@@ -803,14 +803,7 @@ public final class YukkuriLife {
         Path path = path(target, escapeWater); return path != null && entity.getNavigation().moveTo(path, speed);
     }
     public void escapeWater() {
-        entity.getJumpControl().jump();
-        if (entity.tickCount % 10 != 0 && !entity.getNavigation().isDone()) return;
-        BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(entity.blockPosition().offset(-6,-1,-6), entity.blockPosition().offset(6,3,6))) {
-            double candidate = entity.distanceToSqr(Vec3.atBottomCenterOf(scan));
-            if (candidate < distance && dryStand(scan) && reachable(scan, true)) { best = scan.immutable(); distance = candidate; }
-        }
-        if (best != null) navigate(best, 1.4, true);
+        entity.waterDistress().escapeTick();
     }
 
     public CompoundTag save() {

@@ -49,8 +49,14 @@ public final class EcologyPresentation {
                  "boat_return_family", "boat_follow_family" -> YukkuriAction.BOAT_DRIFT;
             case "aquatic_answer_family" -> YukkuriAction.BOAT_LULLABY;
             case "boat_guard_young" -> YukkuriAction.BOAT_STEADY;
-            case "boat_rocked", "boat_capsizing" -> YukkuriAction.BOAT_STEADY;
-            case "escape_water", "struggle" -> YukkuriAction.TREMBLE;
+            case "boat_rocked", "hat_stumble" -> YukkuriAction.HAT_STUMBLE;
+            case "boat_capsizing" -> YukkuriAction.BOAT_STEADY;
+            case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
+            case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
+            case "water_impact" -> YukkuriAction.WATER_PLUNGE;
+            case "escape_water", "struggle", "water_struggle" -> YukkuriAction.WATER_STRUGGLE;
+            case "water_exhausted" -> YukkuriAction.WATER_GASP;
+            case "water_recover" -> YukkuriAction.WATER_RECOVER;
             case "boat_give_paddle" -> YukkuriAction.BOAT_CALL;
             case "boat_receive_paddle" -> YukkuriAction.HAT_CRADLE;
             case "boat_wait_young", "boat_find_paddle", "boat_seek_bank", "boat_provision" -> YukkuriAction.LOOK_AROUND;
@@ -71,6 +77,8 @@ public final class EcologyPresentation {
     /** Aquatic Marisa in her hat boat: labor and expecting first, asleep at night, then calling to a companion on the bank, steadying a troubled boat, else drifting. */
     public static YukkuriAction boat(YukkuriEntity owner, io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior, String reaction) {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
+        if (behavior.equals("boat_reassure") || behavior.equals("boat_rescue_young") || behavior.equals("boat_crowd_guard"))
+            return boat.paddling() ? YukkuriAction.BOAT_PADDLE : YukkuriAction.BOAT_REASSURE;
         if (owner.family().laboring()) return YukkuriAction.BOAT_LABOR;
         if (boat.flooding() > 0 || owner.isPanicking()) return YukkuriAction.BOAT_STEADY;
         if (owner.life().isSleeping()) return YukkuriAction.BOAT_SLEEP;
@@ -114,6 +122,8 @@ public final class EcologyPresentation {
             case "newborn", "hatched" -> YukkuriAction.FIRST_WAKE;
             case "birth" -> YukkuriAction.POSTPARTUM;
             case "birth_lost" -> YukkuriAction.BEREAVED;
+            case "boat_reassure", "boat_rescue_young", "boat_crowd_guard" -> YukkuriAction.BOAT_REASSURE;
+            case "hat_jostle", "hat_scramble", "hat_slipping" -> YukkuriAction.HAT_JOSTLE;
             case "returned_accessory" -> YukkuriAction.SHIAWASE;
             default -> YukkuriAction.IDLE;
         };
@@ -174,6 +184,10 @@ public final class EcologyPresentation {
             case "boat_sleep" -> "sleepy";
             case "boat_call", "boat_wait_young" -> "teary";
             case "boat_steady" -> "surprise";
+            case "boat_rocked", "hat_stumble", "hat_jostle", "hat_scramble", "hat_slipping", "boat_crowd_guard" -> "teary";
+            case "boat_reassure", "boat_rescue_young" -> "teary";
+            case "water_impact" -> "chewing_closed";
+            case "water_struggle", "water_exhausted", "water_recover" -> "teary";
             case "chew", "family_chew" -> (e.level().getGameTime()-e.getBehaviorStartTick())%8 < 4 ? "chewing" : "chewing_closed";
             case "swallow", "drink" -> "chewing_closed";
             case "bully_peer", "protect_peer", "sumo_push" -> "angry";

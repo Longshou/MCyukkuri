@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>帽船 · 轻摇与翻覆</title>
+  <title>帽船 · 撑稳、挤落与落水求援</title>
   <style>
     :root{color-scheme:light;--ink:#243c40;--soft:#647d80;--paper:#f4f2eb;--line:#d5dfda;--sea:#216a74}
     *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.7}
@@ -18,7 +18,7 @@
 <body>
 <main>
   <header>
-    <div><p class="eyebrow">水生魔理沙 / 当前模型离线预览</p><h1>帽船，轻摇与翻覆。</h1><p>轻推帽船，亲油稳住身体，幼体随船受惊。真正翻覆时，帽子先倾倒，乘员和粮食随后离船，落水后转为挣扎。</p></div>
+    <div><p class="eyebrow">水生魔理沙 / 当前模型离线预览</p><h1>撑稳、落水与求援。</h1><p>赤油在实际前檐压低撑稳。拥挤时，持续身体接触沿帽面推移，越过边缘才落水；随后分别演出冲击、呼救扑水、体力不足与实际回帽后的喘息。</p></div>
     <a class="back" href="../index.html?topic=hat-motion">返回集中预览 ↗</a>
   </header>
   <section class="scenes" aria-label="连续动作预览">
@@ -30,11 +30,16 @@
       <img class="media" id="capsize" src="capsize-and-struggle.gif" data-motion="capsize-and-struggle.gif" data-still="capsize-poster.png" alt="帽船逐步倾倒，乘员分别跌出，食物散落，油库里落水挣扎">
       <figcaption><span class="number">02 / 翻覆与落水</span><h2>先倾倒，再跌出帽船。</h2><p>倾倒达到释放时机后，各乘员从自己的位置跌出，物资随之散落；离船后不再跟着帽子旋转。</p><div class="tools"><button data-target="capsize">看关键帧</button><a href="capsize-and-struggle.gif">原尺寸动图 ↗</a></div></figcaption>
     </figure>
+    <figure>
+      <img class="media" id="crowd" src="crowd-and-distress.gif" data-motion="crowd-and-distress.gif" data-still="crowd-poster.png" alt="帽檐赤油受回归孩子持续挤压，真实越边落水，呼救、疲惫并由亲油近缘救回帽内喘息">
+      <figcaption><span class="number">03 / 拥挤、落水与亲友反应</span><h2>沿真实帽面挤落，再向亲友求援。</h2><p>低体力受控样本：赤油努力撑稳后被实际接触推过帽边，冲击时收身哭泣，随后抬脸呼救、拍水与停顿。亲友持续受惊呼唤；救援短弧线回到真实安全位，落稳后才喘息恢复。</p><div class="tools"><button data-target="crowd">看关键帧</button><a href="crowd-and-distress.gif">原尺寸动图 ↗</a></div></figcaption>
+    </figure>
   </section>
+  <section class="sequence"><h2>从失衡到实际获救</h2><a href="distress-stages.png"><img src="distress-stages.png" alt="撑檐、争抢、落水冲击、呼救扑水、低力停顿、回帽喘息六个分阶段动作"></a></section>
   <section class="sequence"><h2>展开看六个时刻</h2><a href="storyboard.png"><img src="storyboard.png" alt="轻摇、稳身、倾倒、离船、落水和挣扎的六格分镜"></a></section>
   <section class="sequence"><h2>帽内局部</h2><a href="cabin-detail.png"><img src="cabin-detail.png" alt="放大查看实际帽内座位、幼体及两侧存粮，保留当前模型的遮挡关系"></a><p class="note">局部放大保留当前座位和遮挡关系，便于看清幼体与存粮。</p></section>
   <p class="note">操作：<span class="key">空手右键</span> 轻摇水上的帽船；<span class="key">潜行 + 空手右键</span> 救援或拉近。轻摇与真正翻覆是两个独立片段。</p>
-  <p class="note">画面使用当前模型、贴图和动作，按代码中的摇摆与释放时机离线渲染。这里没有运行 Minecraft，不能据此确认水流、碰撞和救援 AI 的实机效果。</p>
+  <p class="note">画面使用当前模型、贴图和动作，按代码中的摇摆、身体与帽饰包络、推移步长、释放瞬间及救援弧线离线渲染。没有放大幼体或新增支撑面。落水续程是静水参数示意，低体力是场景初始条件；这里没有运行 Minecraft，不能据此确认完整水物理、伤害或救援 AI 的实机效果。</p>
 </main>
 <script>
   document.querySelectorAll('button[data-target]').forEach(button=>{

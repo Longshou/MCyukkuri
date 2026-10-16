@@ -77,7 +77,14 @@ public enum YukkuriAction {
     /** Shell Marisa only; other models fall back to idle. */
     SHELL_RETRACT("shell_retract", 6.0, true),
     HAT_BRIM("hat_brim", 3.0, true),
-    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false);
+    BOAT_FIRST_BALANCE("boat_first_balance", 2.0, false),
+    HAT_STUMBLE("hat_stumble", 1.2, true),
+    HAT_JOSTLE("hat_jostle", 1.0, true),
+    WATER_PLUNGE("water_plunge", .6, false),
+    WATER_STRUGGLE("water_struggle", 1.6, true),
+    WATER_GASP("water_gasp", 1.6, true),
+    WATER_RECOVER("water_recover", 2.8, false),
+    BOAT_REASSURE("boat_reassure", 2.0, true);
 
     private final String id;
     private final double duration;

@@ -7,21 +7,21 @@
   "chapters": [
     {
       "id": "hat-motion",
-      "label": "摇船与翻覆",
-      "title": "轻摇先稳身，翻覆再跌入水中。",
+      "label": "帽檐与落水",
+      "title": "帽檐上撑稳，拥挤时争位，落水后呼救。",
       "tag": "水生魔理沙 · 2026-10-17",
-      "summary": "同一船中心带动帽子、粮食与乘员；倾倒到释放时机后，各自离船并转为落水挣扎。两段当前模型的离线动作预览。",
+      "summary": "赤油在实际前帽檐撑稳身体，危机争位后沿帽缘挤落；落水采用冲击、扑腾、疲惫与获救喘息的新动作。三段当前模型离线演出与阶段分镜。",
       "demoPage": "hat-motion/index.html",
       "model": "marisa",
       "points": [
         "空手右键轻摇水上的帽船；潜行空手仍可救援或拉近。",
-        "亲油稳身、幼体受惊；轻摇会逐渐停止，不直接判为翻覆。",
-        "翻覆时先倾倒，再释放实际乘员与物资；落水后的实体独立运动。"
+        "赤油压低撑稳、亲油护幼；落脚空间随体型和真实存粮变化。",
+        "危机中近身争位才会挤落；落水者按真实体力间歇扑腾呼救，不获得无限浮力。"
       ],
       "steps": [
         {
           "title": "轻摇帽船，一家人稳住身体",
-          "body": "帽子、粮食和乘员共用同一摇摆中心，随后恢复平稳。",
+          "body": "醒着的赤油站在受支撑的前帽檐，压低、侧倾撑稳；各自反应与位置和摇摆方向相连。",
           "image": "hat-motion/rock-poster.png",
           "animation": "hat-motion/rock-and-steady.gif"
         },
@@ -32,15 +32,20 @@
           "animation": "hat-motion/capsize-and-struggle.gif"
         },
         {
-          "title": "六个关键时刻",
-          "body": "展开比较轻摇、稳身、倾倒、离船、落水与挣扎。",
-          "image": "hat-motion/storyboard.png"
+          "title": "争位、挤落与呼救",
+          "body": "接触、抵住退让、滑出帽檐、入水冲击和间歇扑腾相连；轨迹为离线演出示意。",
+          "image": "hat-motion/crowd-poster.png",
+          "animation": "hat-motion/crowd-and-distress.gif"
         }
       ],
       "gallery": [
         {
           "src": "hat-motion/storyboard.png",
           "label": "当前模型 · 摇船与翻覆分镜"
+        },
+        {
+          "src": "hat-motion/distress-stages.png",
+          "label": "失衡、拥挤、落水与获救喘息的七段动作"
         }
       ],
       "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md"

@@ -84,6 +84,9 @@ public final class YukkuriEntity extends PathfinderMob {
     private final io.github.longshou.mcyukkuri.subspecies.SubspeciesLife subspecies = new io.github.longshou.mcyukkuri.subspecies.SubspeciesLife(this);
     private io.github.longshou.mcyukkuri.subspecies.AquaticLife aquaticLife;
     private final YukkuriLife life;
+    private final io.github.longshou.mcyukkuri.life.WaterDistress waterDistress = new io.github.longshou.mcyukkuri.life.WaterDistress(this);
+    /** One server phase clock, including actual effort/rest beats, survives observer and chunk changes. */
+    private static final EntityDataAccessor<CompoundTag> WATER_DISTRESS = SynchedEntityData.defineId(YukkuriEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private final io.github.longshou.mcyukkuri.badge.BadgeLife badges = new io.github.longshou.mcyukkuri.badge.BadgeLife(this);
     private final YukkuriSocial social;
     private final io.github.longshou.mcyukkuri.social.DailyLife dailyLife = new io.github.longshou.mcyukkuri.social.DailyLife(this);
@@ -150,6 +153,26 @@ public final class YukkuriEntity extends PathfinderMob {
 
     public YukkuriVariant getVariant() { return variant; }
     public io.github.longshou.mcyukkuri.subspecies.AquaticLife aquaticLife() { return aquaticLife; }
+    public io.github.longshou.mcyukkuri.life.WaterDistress waterDistress() { return waterDistress; }
+    public String waterDistressPhase() {
+        var data = entityData.get(WATER_DISTRESS);
+        return data.contains("Phase") ? data.getString("Phase") : "IDLE";
+    }
+    public long waterDistressStartTick() { return entityData.get(WATER_DISTRESS).getLong("Start"); }
+    public boolean waterDistressEffort() { return entityData.get(WATER_DISTRESS).getBoolean("Effort"); }
+    private void syncWaterDistress() {
+        var data = new CompoundTag();
+        if (waterDistress.airbornePlunge()) {
+            data.putString("Phase", "FALLING");
+            data.putLong("Start", level().getGameTime() - waterDistress.airbornePlungeTicks());
+            data.putBoolean("Effort", false);
+        } else if (waterDistress.active()) {
+            data.putString("Phase", waterDistress.phase().name());
+            data.putLong("Start", level().getGameTime() - waterDistress.phaseTicks());
+            data.putBoolean("Effort", waterDistress.effort());
+        }
+        if (!data.equals(entityData.get(WATER_DISTRESS))) entityData.set(WATER_DISTRESS, data);
+    }
     /** Only an upright, unsubmerged hat keeps its actual passengers dry. No innate water immunity. */
     public boolean shelteredInHat() {
         return getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat && boat.protects(this);
@@ -383,6 +406,7 @@ public final class YukkuriEntity extends PathfinderMob {
         builder.define(BROOD_COUNT,0);builder.define(BROOD_BORN,0);builder.define(BROOD_TYPES,0);
         builder.define(BROOD_PROGRESS,0f);builder.define(BROOD_VARIATION,1f);builder.define(SPENT_STEM,false);
         builder.define(LIVE_PROGRESS,0f);builder.define(LIVE_DELIVERY,-1);builder.define(LIVE_CHILDREN,new CompoundTag());
+        builder.define(WATER_DISTRESS,new CompoundTag());
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -496,7 +520,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) speak(pendingSpeech);
         if (level().getGameTime() >= speechEnd()) entityData.set(DIALOGUE, "");
-        subspecies.tick();aquaticLife.clock();life.tick(); badges.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
+        subspecies.tick();aquaticLife.clock();life.tick();waterDistress.tick();syncWaterDistress(); badges.tick(); social.tick();operations.tick(); family.tick();childhood.tick();house.tick();settlement.tick();habitat.tick();groupInteraction.clock();playLife.clock();dailyLife.clock();predator.tick();syncFamily();
         independence.clock();
         var familyPaddle=aquaticLife.familyPaddle().carried();
         entityData.set(CARRYING,(!familyPaddle.isEmpty()?familyPaddle:!family.carrying().isEmpty()?family.carrying():!independence.carrying().isEmpty()?independence.carrying():!settlement.duties().carrying().isEmpty()?settlement.duties().carrying():variant.isHouse()?house.carrying():habitat.carrying()).copy());
@@ -530,21 +554,36 @@ public final class YukkuriEntity extends PathfinderMob {
         if(requestedAction==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))requestedAction=null;
         shellRetraction.tick(panicTicks);
-        // The still-attached crew reacts to the same real boat motion before childhood or water presentation can hide it.
-        // This changes presentation only: capsizing never grants dry protection or water-damage immunity.
+        // Actual crowd contact and boat motion take precedence over leisure or a stale newborn pose.
+        // These poses never change physical support or grant water protection during a capsize.
         if(getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity movingHat
-                &&(movingHat.rocking()||movingHat.capsizing())&&!isCommandPlaying()&&!operations.active()){
+                &&(movingHat.rocking()||movingHat.capsizing()||!movingHat.crowdingState(this).equals("idle"))
+                &&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             boolean captain=getUUID().equals(movingHat.ownerYukkuri());
-            setAnimation(captain?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_CRADLE,false);
-            setBehavior(movingHat.capsizing()?"boat_capsizing":captain?"boat_steady":"boat_rocked");
+            String crowd=movingHat.crowdingState(this);
+            String motion=movingHat.capsizing()?"boat_capsizing":!crowd.equals("idle")?crowd:captain?"boat_steady":"boat_rocked";
+            setBehavior(motion);
+            setAnimation(movingHat.capsizing()||motion.equals("hat_stumble")||crowd.equals("idle")
+                    ?captain?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE
+                    :io.github.longshou.mcyukkuri.social.EcologyPresentation.action(motion),false);
+            if(!movingHat.capsizing()&&!crowd.equals("idle"))entityData.set(ANIMATION_START,movingHat.crowdingPhaseStart(this));
             entityData.set(EXPRESSION,family.adult()?"surprise":"teary");
+            return;
+        }
+        if ((waterDistress.active() || waterDistress.airbornePlunge()) && !isCommandPlaying() && !operations.active()) {
+            if (panicTicks > 0) panicTicks--;
+            String distress = waterDistress.airbornePlunge() ? "hat_slipping" : waterDistress.activity();
+            setBehavior(distress);
+            setAnimation(io.github.longshou.mcyukkuri.social.EcologyPresentation.action(distress), false);
+            entityData.set(ANIMATION_START, waterDistressStartTick());
+            entityData.set(EXPRESSION, waterDistress.phase() == io.github.longshou.mcyukkuri.life.WaterDistress.Phase.IMPACT ? "cry" : "teary");
             return;
         }
         if (panicTicks > 0&&!isCommandPlaying()&&!operations.active()) {
             boolean shell = shellRetraction.active();
             if (shell) { navigation.stop(); }
-            else setAnimation(isInWaterOrBubble()?YukkuriAction.TREMBLE:shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
+            else setAnimation(isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE, false);
             panicTicks--;
             entityData.set(EXPRESSION, "surprise");
             setBehavior(isInWaterOrBubble() ? "escape_water" : shelteredInHat() ? "boat_steady" : shell ? "shell_retract" : "flee");
@@ -562,7 +601,7 @@ public final class YukkuriEntity extends PathfinderMob {
                 : careApproach.waiting()?careApproach.activity():!childhood.activity().equals("idle")?childhood.activity():aquaticLife.active()?aquaticLife.activity():groupInteraction.active()?groupInteraction.activity():playLife.active()?playLife.activity():dailyLife.active()?dailyLife.activity():io.github.longshou.mcyukkuri.event.WildEvents.reserved(this)?io.github.longshou.mcyukkuri.event.WildEvents.activity(this):family.active() ? family.activity() : house.active()?house.activity():habitat.active()?habitat.activity():independence.active()?independence.activity():settlement.duties().active()?settlement.duties().activity():settlement.active()?settlement.activity():social.active() ? social.activity() : family.activity();
         YukkuriAction action = requestedAction != null ? requestedAction
                 : getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat ? boatAction(boat, behavior)
-                : isInWaterOrBubble() ? YukkuriAction.TREMBLE
+                : isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : travelledX * travelledX + travelledZ * travelledZ > 0.000001 && onGround() && !life.isSleeping()
                 ? YukkuriAction.WADDLE
                 : groupInteraction.active()?io.github.longshou.mcyukkuri.social.EcologyPresentation.group(groupInteraction.activity())
@@ -601,7 +640,9 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private YukkuriAction boatAction(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat, String behavior) {
-        if(boat.rocking()||boat.capsizing())return getUUID().equals(boat.ownerYukkuri())?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_CRADLE;
+        if(boat.rocking()||boat.capsizing())return getUUID().equals(boat.ownerYukkuri())?YukkuriAction.BOAT_STEADY:YukkuriAction.HAT_STUMBLE;
+        if(behavior.equals("boat_reassure")||behavior.equals("boat_rescue_young")||behavior.equals("boat_crowd_guard"))
+            return getUUID().equals(boat.ownerYukkuri())&&boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_REASSURE;
         if (getUUID().equals(boat.ownerYukkuri()))
             return io.github.longshou.mcyukkuri.social.EcologyPresentation.boat(this, boat, behavior, reactionTicks > 0 ? reactionEvent : "");
         if (behavior.equals("hat_walk") || behavior.equals("boat_be_carried"))
@@ -764,6 +805,7 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.putInt("YukkuriFoodCooldown", foodCooldown);
         tag.putInt("YukkuriRestDelay", restDelay);
         tag.put("YukkuriLife", life.save());
+        tag.put("WaterDistress", waterDistress.save());
         tag.put("YukkuriSubspecies", subspecies.save());
         tag.put("YukkuriBadges", badges.save());
         tag.put("YukkuriDailyLife",dailyLife.save());
@@ -811,6 +853,8 @@ public final class YukkuriEntity extends PathfinderMob {
         if(tag.contains("YukkuriHouse"))house.load(tag.getCompound("YukkuriHouse"));
         if(tag.contains("YukkuriBody"))body.load(tag.getCompound("YukkuriBody"));
         operations.load(tag.getCompound("YukkuriOperations"));
+        waterDistress.load(tag.getCompound("WaterDistress"));
+        syncWaterDistress();
         settlement.load(tag.getCompound("YukkuriSettlement"));
         habitat.load(tag.getCompound("YukkuriHabitat"));
         independence.load(tag.getCompound("YukkuriIndependence"));
@@ -958,10 +1002,10 @@ public final class YukkuriEntity extends PathfinderMob {
         @Override public void stop() { social.stop(); }
     }
     private final class EscapeWaterGoal extends Goal {
-        EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP)); }
-        @Override public boolean canUse() { return isInWaterOrBubble(); }
+        EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
+        @Override public boolean canUse() { return isInWaterOrBubble() || waterDistress.restingBreath(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void tick() { life.escapeWater(); }
+        @Override public void tick() { waterDistress.escapeTick(); }
         @Override public void stop() { navigation.stop(); }
     }
     private final class HouseExitGoal extends Goal {

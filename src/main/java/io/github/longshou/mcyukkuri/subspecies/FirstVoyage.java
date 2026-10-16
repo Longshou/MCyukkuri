@@ -23,7 +23,7 @@ public final class FirstVoyage {
     private int ticks, elapsed, cooldown, loadGrace;
     private long nextSearch;
     private boolean completed, reachedTurn, independent, leavingHome;
-    private boolean routineLaunch, routineSailing;
+    private boolean routineLaunch, routineSailing, emergencyRecall;
     /** The worn hat keeps its real cargo and identity while its owner shelters aboard a parent. */
     private UUID retainedHatToken;
     private CompoundTag retainedCargo;
@@ -121,7 +121,7 @@ public final class FirstVoyage {
                 ||!(!departure&&boat.onBrim(child)?boat.keepVoyageBerth(child):boat.keepDepartureBerth(child)))return false;
         mentor=father.getUUID();homeHat=boat.getUUID();father.aquaticLife().firstVoyage().pupil=child.getUUID();
         child.setPersistenceRequired();father.setPersistenceRequired();elapsed=0;reachedTurn=false;leavingHome=departure;
-        routineLaunch=routine;routineSailing=false;
+        routineLaunch=routine;routineSailing=false;emergencyRecall=false;
         boat.holdPosition();set(Phase.APPROACH);child.speak("hello");return true;
     }
     /** A child already living in its own hat leaves in that vessel, without first packing it into a parent's hat. */
@@ -141,7 +141,7 @@ public final class FirstVoyage {
                     ||home.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y)))continue;
             mentor=parent.getUUID();homeHat=home.getUUID();
             harbor=BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());
-            leavingHome=true;routineLaunch=false;turn=findTurn(boat);
+            leavingHome=true;routineLaunch=false;emergencyRecall=false;turn=findTurn(boat);
             if(turn==null){mentor=homeHat=null;leavingHome=false;continue;}
             parent.aquaticLife().firstVoyage().pupil=child.getUUID();
             reachedTurn=false;routineSailing=false;ticks=elapsed=0;
@@ -152,12 +152,21 @@ public final class FirstVoyage {
     }
     /** Recall uses the real return route and inter-hat flight; it never awards the lesson or independence. */
     public boolean requestReturnToParent(HatBoatEntity parentHat){
+        return requestReturnToParent(parentHat,false);
+    }
+    /** The caller's observed crisis survives the approach; it never grants a remote berth. */
+    public boolean requestReturnToParent(HatBoatEntity parentHat,boolean emergency){
         if(independent||!completed||parentHat==null||!parentHat.young(child))return false;
-        if(returningToParent())return parentHat.getUUID().equals(homeHat);
+        if(returningToParent()){
+            if(!parentHat.getUUID().equals(homeHat))return false;
+            emergencyRecall|=emergency;return true;
+        }
         if(phase!=Phase.NONE)return false;
         var own=HatBoatEntity.owned(child);var parent=person(parentHat.ownerYukkuri());
-        if(own==null||own.unsteadyMotion()||child.getVehicle()!=own||!own.protects(child)||!safeHome(parentHat,parent)||!parentHat.hasRoomFor(child))return false;
+        if(own==null||own.unsteadyMotion()||child.getVehicle()!=own||!own.protects(child)||!safeHome(parentHat,parent)
+                ||!parentHat.hasSafeRoomFor(child)&&!emergency&&!emergencyReturn(own))return false;
         mentor=parent.getUUID();homeHat=parentHat.getUUID();elapsed=0;reachedTurn=false;leavingHome=false;
+        emergencyRecall=emergency||emergencyReturn(own);
         routineLaunch=true;routineSailing=false;own.stopPaddling();set(Phase.RETURN);return true;
     }
     /** Unloading, needs, commands and weather interrupt the milestone, never award a timed success. */
@@ -198,7 +207,11 @@ public final class FirstVoyage {
     private Vec3 dock(HatBoatEntity home){
         var berth=home.voyageBerth(child);
         if(berth==null&&completed&&!leavingHome)berth=home.peekSeat(child);
-        if(berth==null)return null;
+        if(berth==null){
+            // A crowded refuge can only be contested after actually reaching its near brim.
+            // This is a steering target, not a remote reservation or an eviction.
+            return home.emergencyApproach(child);
+        }
         var offset=HatVessel.placement(true,HatVessel.Role.SELF).offset().scale(child.growthScale()*child.getScale()/16)
                 .yRot((float)Math.toRadians(180-home.getYRot()));
         var at=home.toWorld(berth).add(offset);return new Vec3(at.x,home.getY(),at.z);
@@ -252,7 +265,7 @@ public final class FirstVoyage {
             if(routineLaunch){
                 if(father!=null&&child.getUUID().equals(father.aquaticLife().firstVoyage().pupil))father.aquaticLife().firstVoyage().pupil=null;
                 if(home!=null)home.releaseVoyageBerth(child.getUUID());
-                routineLaunch=false;routineSailing=true;phase=Phase.NONE;ticks=elapsed=0;
+                routineLaunch=false;routineSailing=true;emergencyRecall=false;phase=Phase.NONE;ticks=elapsed=0;
                 return;
             }
             set(Phase.BALANCE);return;
@@ -278,12 +291,17 @@ public final class FirstVoyage {
         if(phase==Phase.RETURN||phase==Phase.REBOARD){
             // A missing or capsized father releases this goal to emergency landing/call-for-help behavior.
             if(!safeHome(home,father)){reachedTurn=false;if(ticks>100)finish();return;}
-            if((home.voyageBerth(child)!=null||completed&&!leavingHome&&home.hasRoomFor(child))
-                    &&boat.distanceToSqr(home)<=6.25&&boat.protects(child)&&!boat.towed()){
-                if(child.family().transferHat(boat,home)){set(Phase.REBOARD);return;}
+            if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
+                    &&(boat.distanceToSqr(home)<=6.25||emergencyReturn(boat)&&!home.hasSafeRoomFor(child))
+                    &&boat.protects(child)&&!boat.towed()){
+                if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);return;}
             }
             if(ticks%20==1&&!sail(boat,dock(home))){boat.stopPaddling();if(ticks%100==1)child.speak("wait_family");}
         }
+    }
+    private boolean emergencyReturn(HatBoatEntity boat){
+        return emergencyRecall||child.isPanicking()||child.waterDistress().active()||child.life().nutrition()<30||child.life().energy()<20
+                ||boat.flooding()>0||boat.towed();
     }
     private List<Vec3> practicePath(HatBoatEntity boat,Vec3 destination){
         var home=home();if(destination==null||home==null)return List.of();
@@ -302,17 +320,50 @@ public final class FirstVoyage {
         choices.sort(Comparator.comparingDouble(p->p.distSqr(harbor)));
         for(var p:choices)if(!practicePath(boat,HatBoatRoute.surface(level(),p)).isEmpty())return p;return null;
     }
-    private boolean sail(HatBoatEntity boat,Vec3 destination){return !boat.unsteadyMotion()&&boat.paddleAlong(practicePath(boat,destination));}
+    private boolean sail(HatBoatEntity boat,Vec3 destination){
+        if(boat.unsteadyMotion())return false;
+        var home=home();
+        boolean closeEmergency=returningToParent()&&home!=null&&emergencyReturn(boat)&&!home.hasSafeRoomFor(child);
+        if(!closeEmergency)return boat.paddleAlong(practicePath(boat,destination));
+        // A retained berth can become crowded during the trip. Approach outside both
+        // actual hulls rather than navigating the child's own hat into that interior seat.
+        destination=home.emergencyApproach(child);
+        if(destination==null||!returnNodeAllowed(boat,home,destination))return false;
+        var path=new java.util.ArrayList<>(HatBoatRoute.find(boat,destination,point->returnNodeAllowed(boat,home,point)));
+        Vec3 from=path.isEmpty()?boat.position():path.getLast();
+        if(!closeReturnLegClear(boat,home,from,destination))return false;
+        path.add(destination);
+        return boat.paddleAlong(path,.0025);
+    }
+    private boolean returnNodeAllowed(HatBoatEntity boat,HatBoatEntity home,Vec3 point){
+        return (routineLaunch||point.distanceToSqr(home.position())<=25)
+                &&child.aquaticLife().familyLife().allowsDestination(boat,point)
+                &&HatBoatRoute.calmSurface(level(),BlockPos.containing(point.x,point.y-.12,point.z));
+    }
+    /** Only a short, fully sampled same/adjacent-water-cell finish may bypass a missing BFS centre. */
+    private boolean closeReturnLegClear(HatBoatEntity boat,HatBoatEntity home,Vec3 from,Vec3 destination){
+        var start=BlockPos.containing(from.x,from.y-.12,from.z);
+        var end=BlockPos.containing(destination.x,destination.y-.12,destination.z);
+        if(start.distManhattan(end)>1||from.distanceToSqr(destination)>2.25)return false;
+        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(destination)/.10));
+        for(int i=0;i<=steps;i++){
+            var point=from.lerp(destination,(double)i/steps);var cell=BlockPos.containing(point.x,point.y-.12,point.z);
+            if(!returnNodeAllowed(boat,home,point)||!level().getWorldBorder().isWithinBounds(cell)
+                    ||!level().noCollision(boat,boat.getBoundingBox().move(point.subtract(boat.position()))))return false;
+        }
+        return true;
+    }
     private void finish(){
         var father=person(mentor);if(father!=null&&child.getUUID().equals(father.aquaticLife().firstVoyage().pupil))father.aquaticLife().firstVoyage().pupil=null;
         var home=home();if(home!=null)home.releaseVoyageBerth(child.getUUID());
         var boat=HatBoatEntity.owned(child);if(boat!=null)boat.stopPaddling();
         mentor=homeHat=null;phase=Phase.NONE;cooldown=completed&&!independent?80:600;reachedTurn=false;leavingHome=false;
-        routineLaunch=routineSailing=false;
+        routineLaunch=routineSailing=emergencyRecall=false;
     }
     public CompoundTag save(){
         var tag=new CompoundTag();tag.putBoolean("Completed",completed);tag.putBoolean("Independent",independent);tag.putInt("Cooldown",cooldown);
         tag.putBoolean("RoutineLaunch",routineLaunch);tag.putBoolean("RoutineSailing",routineSailing);
+        tag.putBoolean("EmergencyReturn",emergencyRecall);
         if(retainedHatToken!=null)tag.putUUID("RetainedHatToken",retainedHatToken);
         if(retainedCargo!=null)tag.put("RetainedCargo",retainedCargo.copy());
         tag.putBoolean("InterruptedTrip",phase!=Phase.NONE&&phase!=Phase.CELEBRATE);
@@ -322,6 +373,7 @@ public final class FirstVoyage {
     public void load(CompoundTag tag){
         completed=tag.getBoolean("Completed");independent=tag.getBoolean("Independent");leavingHome=false;cooldown=Math.clamp(tag.getInt("Cooldown"),0,600);
         routineLaunch=tag.getBoolean("RoutineLaunch");routineSailing=tag.getBoolean("RoutineSailing")&&!independent;
+        emergencyRecall=tag.getBoolean("InterruptedTrip")&&tag.getBoolean("EmergencyReturn");
         retainedHatToken=tag.hasUUID("RetainedHatToken")?tag.getUUID("RetainedHatToken"):null;
         retainedCargo=tag.contains("RetainedCargo")?tag.getCompound("RetainedCargo").copy():null;
         mentor=tag.hasUUID("Mentor")?tag.getUUID("Mentor"):null;homeHat=tag.hasUUID("HomeHat")?tag.getUUID("HomeHat"):null;

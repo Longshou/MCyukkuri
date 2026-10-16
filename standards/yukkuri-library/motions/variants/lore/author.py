@@ -54,10 +54,47 @@ def curled(c):
     return [c['width'], c['height'], c['width']]
 
 
+def keyed(t, keys):
+    """Deliberate beats with eased holds, rather than one periodic wobble for every state."""
+    if t <= keys[0][0]:return keys[0][1]
+    for (a,x),(b,y) in zip(keys,keys[1:]):
+        if t <= b:return lerp(x,y,smooth((t-a)/(b-a)))
+    return keys[-1][1]
+
+
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board', 'boat_toilet',
+    if action == 'hat_stumble':
+        press=keyed(t,[(0,.15),(.10,1),(.25,.45),(.40,.85),(.65,.35),(.83,.65),(1.2,.15)])
+        s=[1+.065*press,1-.16*press,1+.07*press]
+        r=[-6*press,keyed(t,[(0,0),(.25,-5),(.6,4),(1.2,0)]),keyed(t,[(0,0),(.12,-4),(.36,3),(.65,-2),(1.2,0)])]
+    elif action == 'hat_jostle':
+        press=keyed(t,[(0,.4),(.16,1),(.32,.65),(.52,.95),(.76,.45),(1,.4)])
+        s=[1+.075*press,1-.15*press,1+.06*press]
+        r=[-9*press,keyed(t,[(0,-3),(.32,5),(.62,-4),(1,-3)]),keyed(t,[(0,-2),(.18,4),(.5,-3),(1,-2)])]
+    elif action == 'water_plunge':
+        impact=keyed(t,[(0,.1),(.12,1),(.30,.55),(.6,.15)])
+        s=[1+.10*impact,1-.22*impact,1+.08*impact]
+        r=[keyed(t,[(0,-15),(.12,-21),(.3,4),(.48,13),(.6,8)]),0,keyed(t,[(0,-7),(.16,9),(.36,-4),(.6,0)])]
+    elif action == 'water_struggle':
+        effort=keyed(t,[(0,.1),(.07,.9),(.17,.35),(.28,1),(.4,.12),(1.6,.1)])
+        s=[1+.045*effort,.92+.07*effort,1+.055*effort]
+        r=[keyed(t,[(0,7),(.07,16),(.18,-4),(.28,15),(.4,6),(1.6,7)]),
+           keyed(t,[(0,0),(.12,-5),(.3,4),(.45,0),(1.6,0)]),keyed(t,[(0,-2),(.12,7),(.29,-6),(.44,0),(1.6,-2)])]
+    elif action == 'water_gasp':
+        breath=keyed(t,[(0,0),(.3,0),(.5,1),(.75,.1),(1.2,0),(1.6,0)])
+        s=[1.035,.81+.035*breath,1.045]
+        r=[keyed(t,[(0,2),(.32,2),(.52,9),(.8,2),(1.6,2)]),0,keyed(t,[(0,-3),(.55,-1),(1.1,-4),(1.6,-3)])]
+    elif action == 'water_recover':
+        regain=smooth((t-1.5)/1.3)
+        breath=keyed(t,[(0,0),(.22,.7),(.5,0),(.85,1),(1.2,0),(2.8,0)])
+        s=[lerp(1.07,1,regain),lerp(.80,1,regain)+.035*breath,lerp(1.06,1,regain)]
+        r=[lerp(-10,0,regain)-2*breath,keyed(t,[(0,0),(1.3,0),(1.7,-17),(2.1,10),(2.8,0)]),0]
+    elif action == 'boat_reassure':
+        offer=keyed(t,[(0,0),(.4,.7),(.7,1),(1.25,.65),(1.7,.15),(2,0)])
+        s=[1.025,.95-.025*offer,1.025];r=[-6*offer,3*offer,1.5*offer]
+    elif action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board', 'boat_toilet',
                   'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance'):
         s = curled(c)
         phase = 2*math.pi*t/d
@@ -319,6 +356,29 @@ def braid_length(model, hand, parts):
 
 def flourish_tracks(model, action, samples, cfg, c):
     tracks = []
+    if action in ('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure'):
+        for bone,side in (('hand_right',1),('hand_left',-1)):
+            hand,parts=carried(model,bone)
+            if not parts:continue
+            def gesture(t):
+                if action=='water_struggle':
+                    at=max(0,t-(.11 if side<0 else 0))
+                    sweep=keyed(at,[(0,0),(.08,1),(.18,-.5),(.29,.7),(.42,0),(1.6,0)])
+                    return [-28*sweep,side*9*sweep,side*(8+38*abs(sweep))]
+                if action=='water_plunge':
+                    q=keyed(t,[(0,.1),(.14,1),(.35,.3),(.6,.15)])
+                    return [-12*q,0,side*(9+22*q)]
+                if action=='water_gasp':
+                    q=keyed(t,[(0,0),(.72,0),(.8,.3),(.94,0),(1.6,0)])
+                    return [4-7*q,0,side*(8+9*q)]
+                if action=='water_recover':
+                    return [-5*(1-smooth(t/2.8)),0,side*9*(1-smooth(t/2.8))]
+                if action=='boat_reassure':
+                    q=keyed(t,[(0,0),(.45,1),(1.2,.7),(2,0)])
+                    return [-8*q,side*3*q,side*15*q]
+                q=keyed(t,[(0,.3),(.15,1),(.35,.5),(.58,.9),(c['duration'],.3)])
+                return [10*q,side*5*q,side*(12+19*q)]
+            tracks.append({'bone':hand,'channel':'rotation','keys':[[round(t,8),*[round(v,5) for v in gesture(t)]] for t in samples]})
     if action in ('boat_paddle', 'boat_gather', 'boat_drink'):
         hand, parts = carried(model, 'hand_right')
         if parts:
@@ -439,9 +499,58 @@ def compile_clips(model, cfg, root, ground, height):
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
             s, r, lift, shift = state(name, t, c, height)
-            for channel, value in (('position', [shift[0], ground(s, r)+lift, shift[1]]), ('rotation', r), ('scale', s)):
+            support=0 if c.get('root_support')=='free_water' else ground(s,r)
+            for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks+flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c),
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
     return out
+
+
+def export_distress_clips():
+    """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
+    import hashlib,sys
+    sys.path.insert(0,str(ROOT/'scripts'))
+    import placement_fit
+    here=Path(__file__).resolve().parent
+    resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
+    manifest=ROOT/'art/source/motion-corrections/manifest.json'
+    cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
+    names=('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','boat_reassure')
+    cfg['clips']={name:cfg['clips'][name] for name in names}
+    payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
+    for ident,revision in payload['models'].items():
+        model=placement_fit.fitted(ROOT/f'src/main/resources/assets/mcyukkuri/yukkuri/{ident}.json',fits)
+        root=next(i for i,bone in enumerate(model['bones']) if bone['name']=='root')
+        pivot=np.array(model['bones'][root]['pivot']);raw=np.array(model['vertices']).reshape(-1,8)
+        points=np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts']
+                               if not p.get('anatomy') and not p['name'].startswith('puff_')])
+        points=np.unique(points,axis=0);floor=points[:,1].min()
+        body=np.concatenate([raw[p['start']:p['start']+p['count'],:3] for p in model['parts'] if 'body_surface' in p['name']])
+        height=body[:,1].max()-body[:,1].min()
+        def ground(scale,rot):
+            x,y,z=map(math.radians,rot);cx,sx,cy,sy,cz,sz=math.cos(x),math.sin(x),math.cos(y),math.sin(y),math.cos(z),math.sin(z)
+            row=np.array([sz*cy,(sz*sy*sx+cz*cx),(sz*sy*cx-cz*sx)])*scale
+            return floor-((points-pivot)@row+pivot[1]).min()
+        authored=compile_clips(model,cfg,root,ground,height)
+        for clip in authored.values():
+            for track in clip['tracks']:
+                name=model['bones'][track['bone']]['name']
+                if name not in revision['bone_names']:revision['bone_names'].append(name)
+                track['bone']=revision['bone_names'].index(name)
+        revision['clips'].update(authored)
+        print('Exported water/balance clips:',ident,flush=True)
+    payload['revision']='water-distress-20261017-v17'
+    resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
+    entry=json.loads(manifest.read_text(encoding='utf-8'))
+    for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource)):
+        entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+    manifest.write_text(json.dumps(entry,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
+    parser.add_argument('--export-distress',action='store_true')
+    if parser.parse_args().export_distress:export_distress_clips()

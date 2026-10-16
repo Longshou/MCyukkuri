@@ -28,7 +28,7 @@ public final class HatBoatCargo {
         return List.copyOf(result);
     }
     public boolean canStore(ItemStack stack) {
-        return !stack.isEmpty() && count() < CAPACITY && (food.size() < SLOTS
+        return !stack.isEmpty() && count() < CAPACITY && boat.cargoRoom() > 0 && (food.size() < SLOTS
                 || food.stream().anyMatch(s -> ItemStack.isSameItemSameComponents(s, stack)));
     }
     public boolean givePaddle(ItemStack source, boolean creative) {
@@ -40,7 +40,7 @@ public final class HatBoatCargo {
     /** The caller has checked owner diet, reach and (for world pickups) mob griefing. */
     public int store(ItemStack source, int limit, boolean creative) {
         if (boat.level().isClientSide || !canStore(source)) return 0;
-        int amount = Math.min(Math.min(limit, source.getCount()), CAPACITY-count());
+        int amount = Math.min(Math.min(limit, source.getCount()), Math.min(CAPACITY-count(),boat.cargoRoom()));
         if (amount <= 0) return 0;
         var same = food.stream().filter(s -> ItemStack.isSameItemSameComponents(s, source)).findFirst().orElse(null);
         if (same == null) food.add(source.copyWithCount(amount)); else same.grow(amount);

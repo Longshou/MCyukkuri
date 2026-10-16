@@ -275,14 +275,16 @@ public final class FamilyLife {
      *  a parabola. */
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){
         if(flight!=null||hat.unsteadyMotion())return;
-        var seat=hat.reserve(entity,prefer);double r=HatVessel.radius(entity.getBbWidth());
+        var seat=hat.reserve(entity,prefer);if(seat==null)return;
+        double r=HatVessel.radius(entity.getBbWidth());
         var from=HatVessel.takeoff(entity.position(),hat.toWorld(seat),hat,r);
         flight=new Flight(hat.getUUID(),from,seat,null,HatVessel.solve(from,hat.toWorld(seat),hat,r,tmin));flightTick=0;
     }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
     public void launchPast(HatBoatEntity hat){
         var from=entity.position();double r=HatVessel.radius(entity.getBbWidth());
-        var far=HatVessel.overshoot(from,hat.toWorld(hat.peekSeat(entity)),hat,r);
+        var seat=hat.peekSeat(entity);
+        var far=HatVessel.overshoot(from,seat==null?hat.position():hat.toWorld(seat),hat,r);
         var hit=level().clip(new net.minecraft.world.level.ClipContext(far.add(0,1.5,0),far.add(0,-3,0),net.minecraft.world.level.ClipContext.Block.COLLIDER,
                 net.minecraft.world.level.ClipContext.Fluid.ANY,entity));
         var to=hit.getType()==net.minecraft.world.phys.HitResult.Type.MISS?new Vec3(far.x,hat.getY(),far.z):hit.getLocation();
@@ -303,16 +305,24 @@ public final class FamilyLife {
     public void embark(HatBoatEntity hat) {
         if(flight!=null||hat.unsteadyMotion())return;
         var seat = hat.ownerSeat(entity);
+        if(seat==null)return;
         flight = new Flight(hat.getUUID(), entity.position(), seat, null,
                 HatVessel.solve(entity.position(), hat.toWorld(seat), hat, HatVessel.radius(entity.getBbWidth()), HatVessel.HOP_TMIN));
         flightTick = 0; entity.getNavigation().stop();
     }
     /** A physical hop between two hats, clearing both brims; leave the source only after reserving the landing. */
     public boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
+        return transferHat(from,to,false);
+    }
+    /** Emergency capacity is contested only by reserveEmergency's real close-brim contact. */
+    public boolean transferHat(HatBoatEntity from, HatBoatEntity to, boolean emergency) {
         if (flight!=null || from.unsteadyMotion() || to.unsteadyMotion()
                 || entity.getVehicle()!=from || !from.protects(entity) || !to.isAfloat()
-                || !entity.getUUID().equals(to.ownerYukkuri()) && (!to.young(entity) || !to.hasRoomFor(entity))) return false;
-        var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity):to.reserve(entity,null);
+                || !entity.getUUID().equals(to.ownerYukkuri()) && !to.young(entity)) return false;
+        if(!entity.getUUID().equals(to.ownerYukkuri())&&!to.hasSafeRoomFor(entity)&&!emergency)return false;
+        var seat=entity.getUUID().equals(to.ownerYukkuri())?to.ownerSeat(entity)
+                :to.hasSafeRoomFor(entity)?to.reserve(entity,null):to.reserveEmergency(entity);
+        if(seat==null)return false;
         var start=entity.position(); var end=to.toWorld(seat); double r=HatVessel.radius(entity.getBbWidth());
         int duration=Math.max(HatVessel.solve(start,end,from,r,HatVessel.HOP_TMIN),HatVessel.solve(start,end,to,r,HatVessel.HOP_TMIN));
         from.holdPosition(); to.holdPosition(); entity.stopRiding();
@@ -320,16 +330,33 @@ public final class FamilyLife {
     }
     /** A nearby parent lifts a swimming young over the brim, starting at its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){
-        if(entity.level().isClientSide||flight!=null||entity.isPassenger()||!entity.isInWaterOrBubble()
+        if(entity.level().isClientSide||flight!=null||entity.isPassenger()||!entity.isInWaterOrBubble()||!entity.waterDistress().canBeLifted()
                 ||hat.level()!=entity.level()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()
-                ||!hat.young(entity)||!hat.hasRoomFor(entity)
-                ||!(level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent)||!hat.protects(parent))return false;
+                ||!hat.young(entity)
+                ||!(level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent)||!hat.protects(parent)
+                ||parent.isNoAi()||parent.isCommandPlaying()||parent.operations().active())return false;
         var local=hat.toLocal(entity.position());double radius=entity.getBbWidth()*.5;
         double dx=Math.max(0,Math.abs(local.x)*hat.unit()-HatVessel.BRIM[0]*hat.unit()-radius);
         double dz=Math.max(0,Math.abs(local.z)*hat.unit()-HatVessel.BRIM[1]*hat.unit()-radius);
         if(dx*dx+dz*dz>.36||Math.abs(entity.getY()-hat.getY())>1.4||!parent.hasLineOfSight(entity))return false;
-        var seat=hat.reserve(entity,null);var start=entity.position();
+        var seat=hat.hasSafeRoomFor(entity)?hat.reserve(entity,null):hat.reserveEmergency(entity);
+        if(seat==null)return false;
+        if(!parent.life().spendEnergy(.6f)){hat.cancelIncoming(entity);return false;}
+        var start=entity.position();
+        entity.waterDistress().lifted();
         entity.life().wakeInHat();parent.life().wakeInHat();hat.holdPosition();
+        flight=new Flight(hat.getUUID(),start,seat,null,
+                HatVessel.solve(start,hat.toWorld(seat),hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));
+        flightTick=0;entity.getNavigation().stop();entity.setDeltaMovement(Vec3.ZERO);return true;
+    }
+    /** A trained young may scramble from real brim contact; an untrained infant must be lifted. */
+    public boolean scrambleIntoHat(HatBoatEntity hat){
+        if(entity.level().isClientSide||flight!=null||entity.isPassenger()||!entity.isInWaterOrBubble()
+                ||!entity.childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
+                ||hat.towed()||!hat.young(entity)||!entity.hasLineOfSight(hat))return false;
+        var seat=hat.reserveEmergency(entity);if(seat==null)return false;
+        if(!entity.life().spendEnergy(1)){hat.cancelIncoming(entity);return false;}
+        var start=entity.position();hat.holdPosition();
         flight=new Flight(hat.getUUID(),start,seat,null,
                 HatVessel.solve(start,hat.toWorld(seat),hat,HatVessel.radius(entity.getBbWidth()),HatVessel.HOP_TMIN));
         flightTick=0;entity.getNavigation().stop();entity.setDeltaMovement(Vec3.ZERO);return true;
@@ -349,7 +376,8 @@ public final class FamilyLife {
         flight=null;entity.setDeltaMovement(Vec3.ZERO);
         if(hat!=null) {
             if(hat.unsteadyMotion()){hat.cancelIncoming(entity);entity.setDeltaMovement(0,-.03,0);return true;}
-            if (entity.getUUID().equals(hat.ownerYukkuri())) hat.board(entity); else hat.boardYoung(entity);
+            boolean landed=entity.getUUID().equals(hat.ownerYukkuri())?hat.board(entity):hat.boardYoung(entity);
+            if(!landed){hat.cancelIncoming(entity);entity.waterDistress().plunge(hat.getUUID(),null);entity.setDeltaMovement(0,-.03,0);}
         }
         return true;
     }
@@ -366,8 +394,9 @@ public final class FamilyLife {
         for(var hat:level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(entity)&&b.hasRoomFor(entity))){
             var l=hat.toLocal(entity.position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
             if(Double.isNaN(h)||l.y>h+1e-3)continue;
-            var contact=hat.toWorld(new Vec3(l.x,h,l.z));entity.setPos(contact.x,contact.y,contact.z);entity.setDeltaMovement(Vec3.ZERO);
             var seat=hat.reserve(entity,l);  // where it came down, if free
+            if(seat==null)continue;
+            var contact=hat.toWorld(new Vec3(l.x,h,l.z));entity.setPos(contact.x,contact.y,contact.z);entity.setDeltaMovement(Vec3.ZERO);
             if(h<HatVessel.top(hat.mode())-1e-6&&Math.hypot(seat.x-l.x,seat.z-l.z)<=HatVessel.SETTLE)hat.boardYoung(entity);
             else{flight=new Flight(hat.getUUID(),contact,seat,null,HatVessel.solve(contact,hat.toWorld(seat),hat,r,HatVessel.HOP_TMIN));flightTick=0;}
             return true;

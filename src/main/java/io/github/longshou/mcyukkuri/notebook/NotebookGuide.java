@@ -79,7 +79,8 @@ public final class NotebookGuide {
         return Component.translatable("notebook.mcyukkuri.aquatic_status",
                 Component.translatable("subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(java.util.Locale.ROOT)),
                 boat.cargo().paddle()?"✓":"—",boat.cargo().count(),io.github.longshou.mcyukkuri.subspecies.HatBoatCargo.CAPACITY,
-                boat.youngAboard(),io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG,
+                boat.youngAboard(),Component.translatable("notebook.mcyukkuri.hat_space."+
+                        (boat.overcrowded()?"crowded":boat.hasRoomForYoung()?"available":"full")),
                 Component.translatable("activity.mcyukkuri."+entity.getBehaviorId()));
     }
     public static Component aquaticFamily(YukkuriEntity entity) {
