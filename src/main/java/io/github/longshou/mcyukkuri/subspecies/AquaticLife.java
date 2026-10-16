@@ -266,6 +266,11 @@ public final class AquaticLife extends Goal {
         entity.getNavigation().stop();
         boolean owner = entity.getUUID().equals(boat.ownerYukkuri());
         activity = "boat_drift";
+        if (boat.transportingInHat(entity)) {
+            boat.stopPaddling();
+            activity = boat.carryingInHat(entity) ? owner ? "boat_carry_young" : "boat_be_carried" : owner ? "hat_walk" : "first_toilet_wait";
+            return;
+        }
         if (!owner) {
             if (firstVoyage.readySize() && !stick && elapsed%40==1) findStick();
             var captain = boat.getControllingPassenger() instanceof YukkuriEntity y ? y : null;

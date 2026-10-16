@@ -64,6 +64,21 @@ public final class HatBoatEntity extends Entity {
     private record ServiceSeat(double[] original, String originalRegion, double[] service, Vec3 ownerService, boolean rearCare, boolean toiletReady) {}
     private final java.util.Map<UUID,ServiceSeat> serviceSeats = new java.util.HashMap<>();
     private final java.util.Map<UUID,ServiceSeat> returningSeats = new java.util.HashMap<>();
+    /** 0 approach, 1 lift, 2 carry, 3 lower. The child remains a passenger with one explicit holder. */
+    private static final class CarryTrip {
+        final UUID child;
+        final Vec3 from, destination, pickup, ownerDestination, offset;
+        Vec3 lastAnchor;
+        int phase, contact;
+        long at;
+        CarryTrip(UUID child, Vec3 from, Vec3 destination, Vec3 pickup, Vec3 ownerDestination, Vec3 offset, long at) {
+            this.child=child; this.from=from; this.destination=destination; this.pickup=pickup;
+            this.ownerDestination=ownerDestination; this.offset=offset; this.at=at;
+            this.lastAnchor=from;
+        }
+    }
+    private CarryTrip carryTrip;
+    private boolean recoverCarry;
     private Vec3 ownerServiceSeat;
     private SeatMove ownerSeatMove;
     /** The owner also uses a supported rear brim seat for ordinary on-water hygiene. */
@@ -96,7 +111,7 @@ public final class HatBoatEntity extends Entity {
     public boolean paddling() { return entityData.get(PADDLING); }
     public void stopPaddling() { route.clear(); entityData.set(PADDLING, false); }
     public boolean paddleTo(Vec3 destination) {
-        if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed()) return false;
+        if (level().isClientSide || !isAfloat() || !cargo.paddle() || towed() || carryTrip != null) return false;
         return paddleAlong(destination == null ? java.util.List.of() : HatBoatRoute.find(this, destination));
     }
     /** A route already checked by the supervised first-voyage planner. */
@@ -249,7 +264,9 @@ public final class HatBoatEntity extends Entity {
             if (ownerSeatMove != null) { c.putDouble("FromX", ownerSeatMove.from().x); c.putDouble("FromY", ownerSeatMove.from().y); c.putDouble("FromZ", ownerSeatMove.from().z); c.putLong("At", ownerSeatMove.start()); c.putInt("Ticks", ownerSeatMove.ticks()); c.putBoolean("Arc", ownerSeatMove.arc());HatSurfaceRoute.save(c,ownerSeatMove.route()); }
             list.add(c);
         }
-        var tag = new CompoundTag(); tag.put("S", list); entityData.set(SEATS, tag);
+        var tag = new CompoundTag(); tag.put("S", list);
+        if (carryTrip != null) tag.put("Carry", saveCarry(carryTrip));
+        entityData.set(SEATS, tag);
     }
     /** The place the server gave this young aboard, or null. */
     private Vec3 seatOf(Entity young) {
@@ -288,6 +305,7 @@ public final class HatBoatEntity extends Entity {
                 || !isAfloat() || towed() || flooding != 0 || hasIncoming() || ownerToiletSeat || child.getUUID().equals(voyageYoung)) return false;
         var held = serviceSeats.get(child.getUUID());
         if (held != null && held.ownerService() != null) return held.rearCare() == rearCare;
+        if (carryTrip != null) return false;
         if (serviceSeats.keySet().stream().anyMatch(id -> !id.equals(child.getUUID()))) return false;
         if (held == null) held = returningSeats.get(child.getUUID());
         // Feeding takes precedence over a child's voluntary movement.  Keep that movement's original
@@ -321,6 +339,7 @@ public final class HatBoatEntity extends Entity {
         var service = child == null ? null : serviceSeats.get(child.getUUID());
         var parent = owner();
         return service != null && service.ownerService() != null && parent != null
+                && carryTrip == null
                 && atSeat(child, new Vec3(service.service()[0], service.service()[1], service.service()[2]))
                 && atSeat(parent, service.ownerService());
     }
@@ -381,7 +400,7 @@ public final class HatBoatEntity extends Entity {
     public boolean toiletSeatReady(YukkuriEntity child) {
         if (child != null && child.getUUID().equals(ownerYukkuri())) return ownerToiletSeat && ownerServiceSeat != null && atSeat(child, ownerServiceSeat);
         var service = child == null ? null : serviceSeats.get(child.getUUID());
-        return service != null && service.toiletReady()
+        return carryTrip == null && service != null && service.toiletReady()
                 && atSeat(child, new Vec3(service.service()[0], service.service()[1], service.service()[2]))
                 && (service.ownerService() == null || owner() != null && atSeat(owner(), service.ownerService()));
     }
@@ -446,15 +465,24 @@ public final class HatBoatEntity extends Entity {
     }
 
     private void returnCareSeats() {
+        if (carryTrip != null) return;
         for (var entry : java.util.List.copyOf(returningSeats.entrySet())) {
             if (!(level() instanceof ServerLevel server) || !(server.getEntity(entry.getKey()) instanceof YukkuriEntity child)
                     || child.getVehicle() != this) { returningSeats.remove(entry.getKey()); continue; }
             var service = entry.getValue();
             double[] destination = service.originalRegion().equals(region()) ? service.original().clone() : normalSeat(child, child.getUUID());
-            if (destination == null || !moveYoungSeat(child, destination, false)) continue;
+            if (destination == null) continue;
+            Vec3 target = new Vec3(destination[0],destination[1],destination[2]);
+            var parent = owner();
+            var path = walkingRoute(child,target);
+            if (!child.childhood().canJump() && (hasStep(path) || Math.abs(toLocal(child.position()).y-target.y)>.01) && parent != null && parent.getVehicle() == this) {
+                if (beginCarry(child,parent,destination,ownerSeat(parent))) break;
+                continue;
+            }
+            if (!moveYoungSeat(child, destination, false)) continue;
             if (atSeat(child, new Vec3(destination[0], destination[1], destination[2]))) returningSeats.remove(entry.getKey());
         }
-        if (serviceSeats.isEmpty() && !ownerToiletSeat) {
+        if (carryTrip == null && serviceSeats.isEmpty() && !ownerToiletSeat) {
             var parent = owner();
             if (parent != null && parent.getVehicle() == this) moveOwnerSeat(parent, ownerSeat(parent), false);
         }
@@ -612,6 +640,7 @@ public final class HatBoatEntity extends Entity {
         if (existing != null && java.util.Arrays.equals(existing, destination)) return true;
         var route=arc||from.distanceToSqr(to)<=.01?java.util.List.<Vec3>of():walkingRoute(child,to);
         if(!arc&&from.distanceToSqr(to)>.01&&route.isEmpty())return false;
+        if (!arc && !child.childhood().canJump() && hasStep(route)) return false;
         seats.put(child.getUUID(), destination.clone());
         if (from.distanceToSqr(to) > .01) {
             int ticks = arc ? HatVessel.solve(child.position(), toWorld(to), this, HatVessel.radius(child.getBbWidth()), HatVessel.HOP_TMIN)
@@ -660,6 +689,10 @@ public final class HatBoatEntity extends Entity {
 
     /** Commit both reservations together; a failed parent route must not strand the child. */
     private boolean moveCarePair(YukkuriEntity child, YukkuriEntity parent, double[] destination, Vec3 ownerDestination) {
+        if (carryTrip != null) return carryTrip.child.equals(child.getUUID());
+        Vec3 target = new Vec3(destination[0],destination[1],destination[2]);
+        var path = walkingRoute(child,target);
+        if (!child.childhood().canJump() && (hasStep(path) || Math.abs(toLocal(child.position()).y-target.y)>.01)) return beginCarry(child,parent,destination,ownerDestination);
         var oldSeat = seats.get(child.getUUID());
         var oldMove = seatMoves.get(child.getUUID());
         if (!moveYoungSeat(child, destination, false)) return false;
@@ -668,11 +701,148 @@ public final class HatBoatEntity extends Entity {
         if (oldMove == null) seatMoves.remove(child.getUUID()); else seatMoves.put(child.getUUID(), oldMove);
         return false;
     }
+    private static boolean hasStep(java.util.List<Vec3> path) {
+        for (int i=1;i<path.size();i++) if (Math.abs(path.get(i).y-path.get(i-1).y)>.01) return true;
+        return false;
+    }
+
+    private boolean beginCarry(YukkuriEntity child,YukkuriEntity parent,double[] destination,Vec3 ownerDestination) {
+        if (carryTrip != null) return carryTrip.child.equals(child.getUUID());
+        Vec3 from=toLocal(child.position()), to=new Vec3(destination[0],destination[1],destination[2]);
+        Vec3 offset=to.subtract(ownerDestination).multiply(1,0,1);
+        double wanted=(FamilyFeedingContact.minimumMouthDistance(parent,child)+FamilyFeedingContact.mouthDistance(parent,child))*.5/unit();
+        if (offset.horizontalDistance()*unit()<FamilyFeedingContact.minimumMouthDistance(parent,child)
+                || offset.horizontalDistance()*unit()>FamilyFeedingContact.mouthDistance(parent,child)) {
+            Vec3 direction=offset.lengthSqr()<.01?new Vec3(0,0,-1):offset.normalize();
+            offset=direction.scale(wanted);
+            Vec3 at=to.subtract(offset);
+            ownerDestination=new Vec3(at.x,HatVessel.footprint(mode(),at.x,at.z,radiusOf(parent)),at.z);
+        }
+        if (!Double.isFinite(ownerDestination.y)) return false;
+        Vec3 pickupXZ=from.subtract(offset);
+        Vec3 pickup=new Vec3(pickupXZ.x,HatVessel.footprint(mode(),pickupXZ.x,pickupXZ.z,radiusOf(parent)),pickupXZ.z);
+        if (!Double.isFinite(pickup.y) || !serviceGeometryFits(parent,child,pickup,from)) return false;
+        var cargoPath=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),takenExcept(child.getUUID()),offset,radiusOf(child));
+        if (cargoPath.isEmpty() && pickup.distanceToSqr(ownerDestination)>.01) return false;
+        if (!moveOwnerSeat(parent,pickup,false)) return false;
+        seatMoves.remove(child.getUUID());
+        seats.put(child.getUUID(),new double[]{from.x,from.y,from.z,radiusOf(child)});
+        carryTrip=new CarryTrip(child.getUUID(),from,to,pickup,ownerDestination,
+                new Vec3(offset.x,parent.getBbHeight()*.35/unit(),offset.z),level().getGameTime());
+        syncSeats(); return true;
+    }
+
+    private void tickCarry() {
+        if (carryTrip==null) return;
+        var trip=carryTrip;
+        var parent=owner();
+        var child=level() instanceof ServerLevel server && server.getEntity(trip.child) instanceof YukkuriEntity y?y:null;
+        if (parent==null || child==null) return;
+        if (!parent.isAlive() || parent.getVehicle()!=this || child.getVehicle()!=this || !isAfloat()) {
+            // Losing a holder releases a real short fall onto the measured patch below the child.
+            Vec3 at=toLocal(child.position()); double h=HatVessel.footprint(mode(),at.x,at.z,radiusOf(child));
+            if (child.getVehicle()==this && Double.isFinite(h)) {
+                var target=new Vec3(at.x,h,at.z); seats.put(child.getUUID(),new double[]{target.x,target.y,target.z,radiusOf(child)});
+                seatMoves.put(child.getUUID(),new SeatMove(at,level().getGameTime(),12,true));
+            }
+            carryTrip=null; syncSeats(); return;
+        }
+        stopPaddling();
+        if (recoverCarry) {
+            var path=HatSurfaceRoute.find(mode(),toLocal(parent.position()),trip.ownerDestination,radiusOf(parent),
+                    takenExcept(child.getUUID()),trip.offset.multiply(1,0,1),radiusOf(child));
+            if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(trip.ownerDestination)>.01) return;
+            recoverCarry=false; ownerServiceSeat=trip.ownerDestination;
+            ownerSeatMove=path.isEmpty()?null:new SeatMove(toLocal(parent.position()),level().getGameTime(),
+                    Math.max(16,(int)Math.ceil(HatSurfaceRoute.length(path)/.20)),false,path);
+            syncSeats();
+        }
+        if (trip.phase==0) {
+            if (atSeat(parent,trip.pickup)) {
+                FamilyFeedingContact.faceEachOther(parent,child);
+                if (FamilyFeedingContact.mouthsMeet(parent,child)) trip.contact++; else trip.contact=0;
+                if (trip.contact>=12) { trip.phase=1; trip.at=level().getGameTime(); syncSeats(); }
+            }
+            return;
+        }
+        Vec3 held=toWorld(ownerCarryLocal(parent).add(trip.offset));
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(parent,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(parent.position(),held));
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(child,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(held,parent.position()));
+        if (trip.phase==1 && level().getGameTime()-trip.at>=12) {
+            var path=HatSurfaceRoute.find(mode(),toLocal(parent.position()),trip.ownerDestination,radiusOf(parent),
+                    takenExcept(child.getUUID()),trip.offset.multiply(1,0,1),radiusOf(child));
+            if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(trip.ownerDestination)>.01) {
+                // Nothing was handed off: lower at the pickup patch and let the retained return retry.
+                carryTrip=new CarryTrip(trip.child,trip.from,trip.from,trip.pickup,trip.pickup,trip.offset,level().getGameTime());
+                carryTrip.phase=3; syncSeats(); return;
+            }
+            ownerServiceSeat=trip.ownerDestination;
+            int ticks=Math.max(16,(int)Math.ceil(HatSurfaceRoute.length(path)/.20));
+            ownerSeatMove=path.isEmpty()?null:new SeatMove(toLocal(parent.position()),level().getGameTime(),ticks,false,path);
+            trip.phase=2; trip.at=level().getGameTime(); syncSeats();
+        } else if (trip.phase==2 && atSeat(parent,trip.ownerDestination)) {
+            trip.phase=3; trip.at=level().getGameTime(); syncSeats();
+        } else if (trip.phase==3 && level().getGameTime()-trip.at>=12) {
+            seats.put(child.getUUID(),new double[]{trip.destination.x,trip.destination.y,trip.destination.z,radiusOf(child)});
+            carryTrip=null; syncSeats();
+        }
+    }
+
+    public boolean carryingInHat(Entity rider) {
+        var trip=carryPose(); return trip!=null && trip.phase>0 && (rider.getUUID().equals(trip.child)||rider.getUUID().equals(ownerYukkuri()));
+    }
+    public boolean transportingInHat(Entity rider) {
+        var trip=carryPose(); return trip!=null && (rider.getUUID().equals(trip.child)||rider.getUUID().equals(ownerYukkuri()));
+    }
+    public UUID hatCarrier(YukkuriEntity child) {
+        var trip=carryPose(); return trip!=null && trip.phase>0 && trip.child.equals(child.getUUID())?ownerYukkuri():null;
+    }
+    public Vec3 hatCarryAnchor(YukkuriEntity child) {
+        var trip=carryPose();return trip!=null && trip.child.equals(child.getUUID())?toWorld(carriedLocal(trip)):null;
+    }
+    private Vec3 ownerCarryLocal(YukkuriEntity parent) {
+        Vec3 target=ownerServiceSeat(parent); if (target==null) target=ownerSeat(parent);
+        var movement=ownerServiceMove(parent);
+        if (movement==null) return target;
+        double time=Math.clamp(level().getGameTime()-movement.start(),0,movement.ticks());
+        return movement.route().isEmpty()?movement.from():walkingLocal(parent,movement,time);
+    }
+    private Vec3 carriedLocal(CarryTrip trip) {
+        if (trip.phase==0) return trip.from;
+        var parent=getPassengers().stream().filter(p->p.getUUID().equals(ownerYukkuri())&&p instanceof YukkuriEntity)
+                .map(p->(YukkuriEntity)p).findFirst().orElse(null);
+        if (parent==null) return trip.lastAnchor;
+        Vec3 anchor=ownerCarryLocal(parent).add(trip.offset);
+        double q=Math.clamp((level().getGameTime()-trip.at)/12.0,0,1); q=q*q*(3-2*q);
+        trip.lastAnchor=trip.phase==1?trip.from.lerp(anchor,q):trip.phase==3?anchor.lerp(trip.destination,q):anchor;
+        return trip.lastAnchor;
+    }
+    private static void point(CompoundTag tag,String key,Vec3 point) {
+        tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);
+    }
+    private static Vec3 point(CompoundTag tag,String key) {
+        return new Vec3(tag.getDouble(key+"X"),tag.getDouble(key+"Y"),tag.getDouble(key+"Z"));
+    }
+    private CompoundTag saveCarry(CarryTrip trip) {
+        var tag=new CompoundTag();tag.putUUID("Child",trip.child);if(ownerYukkuri()!=null)tag.putUUID("Holder",ownerYukkuri());
+        tag.putInt("Phase",trip.phase);tag.putLong("At",trip.at); point(tag,"From",trip.from);point(tag,"To",trip.destination);
+        point(tag,"Pickup",trip.pickup);point(tag,"OwnerTo",trip.ownerDestination);point(tag,"Offset",trip.offset);
+        var parent=getPassengers().stream().filter(p->p.getUUID().equals(ownerYukkuri())&&p instanceof YukkuriEntity).map(p->(YukkuriEntity)p).findFirst().orElse(null);
+        if (parent!=null) point(tag,"OwnerNow",ownerCarryLocal(parent));
+        point(tag,"ChildNow",carriedLocal(trip)); return tag;
+    }
+    private CarryTrip carryPose() {
+        if (!level().isClientSide) return carryTrip;
+        var tag=entityData.get(SEATS).getCompound("Carry"); if (!tag.hasUUID("Child")) return null;
+        var trip=new CarryTrip(tag.getUUID("Child"),point(tag,"From"),point(tag,"To"),point(tag,"Pickup"),point(tag,"OwnerTo"),point(tag,"Offset"),tag.getLong("At"));
+        trip.phase=tag.getInt("Phase");trip.lastAnchor=point(tag,"ChildNow");return trip;
+    }
+
     private Vec3 escortPlace(YukkuriEntity parent,YukkuriEntity child,Vec3 brim){
         double distance=(parent.getBbWidth()+child.getBbWidth())*.55/unit();
         for(double side:new double[]{0,.8,-.8,1.6,-1.6}){
             double x=brim.x+side,z=brim.z+distance;
-            double y=HatVessel.footprint(mode(),x,z,Math.min(1.05,radiusOf(parent)*.3));
+            double y=HatVessel.footprint(mode(),x,z,radiusOf(parent));
             var at=new Vec3(x,y,z);
             if(Double.isFinite(y))return at;
         }
@@ -682,15 +852,20 @@ public final class HatBoatEntity extends Entity {
         var move=rider.getUUID().equals(ownerYukkuri())&&rider instanceof YukkuriEntity y?ownerServiceMove(y):seatMove(rider);
         return move!=null&&!move.arc()&&!move.route().isEmpty()&&level().getGameTime()>=move.start()&&level().getGameTime()<move.start()+move.ticks();
     }
-    private Vec3 walkingPosition(Entity rider,SeatMove movement,double time){
+    private Vec3 walkingLocal(Entity rider,SeatMove movement,double time){
         double gait=time-24*Math.sin(time*Math.PI/12)/(2*Math.PI);
         double total=movement.ticks()-24*Math.sin(movement.ticks()*Math.PI/12)/(2*Math.PI);
         Vec3 local = HatSurfaceRoute.sample(movement.route(),gait/Math.max(1,total));
-        double support = HatVessel.footprint(mode(), local.x, local.z, Math.min(1.05, Math.max(.25, radiusOf(rider)*.3)));
+        double support = HatVessel.footprint(mode(), local.x, local.z, radiusOf(rider));
         // Lift onto a short ledge without ever sinking the feet through its surface.
-        Vec3 at=toWorld(new Vec3(local.x, Math.max(local.y, support), local.z));
-        if(!level().isClientSide&&rider instanceof YukkuriEntity y&&at.subtract(rider.position()).horizontalDistanceSqr()>.00001)
-            io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(rider.position(),at));
+        return new Vec3(local.x, Math.max(local.y, support), local.z);
+    }
+    private Vec3 walkingPosition(Entity rider,SeatMove movement,double time){
+        Vec3 at=toWorld(walkingLocal(rider,movement,time));
+        if(!level().isClientSide&&rider instanceof YukkuriEntity y&&at.subtract(rider.position()).horizontalDistanceSqr()>.00001) {
+            Vec3 facing=carryTrip!=null && carryTrip.phase>0 && rider.getUUID().equals(ownerYukkuri())?toWorld(walkingLocal(rider,movement,time).add(carryTrip.offset)):at;
+            io.github.longshou.mcyukkuri.life.SurfaceApproach.face(y,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(rider.position(),facing));
+        }
         return at;
     }
 
@@ -724,6 +899,7 @@ public final class HatBoatEntity extends Entity {
     /** Server: young aboard without a place (after loading) get one; afloat, at dusk and dawn they all move (before the
      *  owner by day, under her at night). */
     private void tendSeats() {
+        if (carryTrip != null) return;
         // Large juveniles need the scarce wide spaces first. Small siblings then fit around them or inside.
         var young = youngPassengers().stream().sorted(java.util.Comparator.comparingDouble(this::radiusOf).reversed()).toList();
         boolean resized = young.stream().anyMatch(p -> seats.containsKey(p.getUUID()) && Math.abs(seats.get(p.getUUID())[3]-radiusOf(p))>.001);
@@ -848,6 +1024,11 @@ public final class HatBoatEntity extends Entity {
     }
     @Override protected void positionRider(Entity passenger, MoveFunction move) {
         if (!hasPassenger(passenger)) return;
+        var carrying = carryPose();
+        if (carrying != null && passenger.getUUID().equals(carrying.child)) {
+            Vec3 at = toWorld(carriedLocal(carrying));
+            move.accept(passenger,at.x,at.y,at.z); return;
+        }
         float k = hullScale()/16, turn = (float) Math.toRadians(180 - getYRot());
         if (passenger.getUUID().equals(ownerYukkuri())) {
             // In the opening at the stern, on the ledge, her back to its rear edge: the inside before her stays open.
@@ -1114,6 +1295,7 @@ public final class HatBoatEntity extends Entity {
             incoming.keySet().removeIf(id -> !(server.getEntity(id) instanceof YukkuriEntity y) || !y.isAlive() || y.isPassenger() || !y.family().flying() || y.distanceToSqr(this) > 64);
         if (tickCount>60 && tickCount%20==0 && voyageYoung!=null && level() instanceof ServerLevel server
                 && (!(server.getEntity(voyageYoung) instanceof YukkuriEntity y) || !y.isAlive() || !y.aquaticLife().firstVoyage().keepsBerth(this))) releaseVoyageBerth(voyageYoung);
+        tickCarry();
         if (tickCount % 10 == 0) tendSeats();
         tendLeaving();
         if (catches()) {
@@ -1200,6 +1382,7 @@ public final class HatBoatEntity extends Entity {
         tag.putString("State",state().name());tag.putInt("Flooding",flooding);tag.putFloat("HullScale",hullScale());
         tag.putString("Role",role.name());if(mooring!=null){tag.putDouble("MooringX",mooring.x);tag.putDouble("MooringZ",mooring.z);}
         tag.put("Cargo", cargo.save());
+        if (carryTrip!=null) tag.put("CarryTrip",saveCarry(carryTrip));
         if(voyageYoung!=null&&voyageBerth!=null){
             tag.putUUID("VoyageYoung",voyageYoung);var berth=new CompoundTag();
             berth.putDouble("X",voyageBerth[0]);berth.putDouble("Y",voyageBerth[1]);berth.putDouble("Z",voyageBerth[2]);berth.putDouble("R",voyageBerth[3]);tag.put("VoyageBerth",berth);
@@ -1208,6 +1391,7 @@ public final class HatBoatEntity extends Entity {
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {
         serviceSeats.clear(); returningSeats.clear(); seatMoves.clear(); seats.clear(); incoming.clear();
+        carryTrip = null; recoverCarry=false;
         ownerServiceSeat = null; ownerSeatMove = null; ownerToiletSeat = false; seatRegion = "";
         entityData.set(OWNER,tag.hasUUID("OwnerYukkuri")?Optional.of(tag.getUUID("OwnerYukkuri")):Optional.empty());
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
@@ -1215,6 +1399,22 @@ public final class HatBoatEntity extends Entity {
         flooding=Math.clamp(tag.getInt("Flooding"),0,100);entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
         role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
         cargo.load(tag.getCompound("Cargo")); syncCargo(cargo.save());
+        if (tag.contains("CarryTrip")) {
+            var c=tag.getCompound("CarryTrip");
+            if (c.hasUUID("Child") && c.hasUUID("Holder") && c.getUUID("Holder").equals(ownerYukkuri())) {
+                Vec3 original=point(c,"From"), now=point(c,"ChildNow"), ownerNow=point(c,"OwnerNow");
+                int phase=Math.clamp(c.getInt("Phase"),0,3);
+                Vec3 offset=phase==3?now.subtract(ownerNow):point(c,"Offset");
+                carryTrip=new CarryTrip(c.getUUID("Child"),phase==1?now:original,point(c,"To"),point(c,"Pickup"),point(c,"OwnerTo"),offset,level().getGameTime());
+                carryTrip.lastAnchor=now;
+                carryTrip.phase=phase; recoverCarry=phase==2;
+                ownerServiceSeat=ownerNow;
+                // Loaded interactions earn no care rewards. Safely finish the owned transport, then restore normal seating.
+                returningSeats.put(carryTrip.child,new ServiceSeat(new double[]{original.x,original.y,original.z,0},"",
+                        new double[]{carryTrip.destination.x,carryTrip.destination.y,carryTrip.destination.z,0},null,false,false));
+                syncSeats();
+            }
+        }
         voyageYoung=tag.hasUUID("VoyageYoung")?tag.getUUID("VoyageYoung"):null;voyageBerth=null;
         if(voyageYoung!=null&&tag.contains("VoyageBerth")){
             var berth=tag.getCompound("VoyageBerth");voyageBerth=new double[]{berth.getDouble("X"),berth.getDouble("Y"),berth.getDouble("Z"),berth.getDouble("R")};
