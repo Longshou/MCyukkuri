@@ -36,7 +36,7 @@ final class PeripheralPreview {
         level.setBlockAndUpdate(new BlockPos(614,65,3),ModBlocks.TOILET.get().defaultBlockState());
         level.setBlockAndUpdate(new BlockPos(617,65,3),ModBlocks.HOUSE_NEST.get().defaultBlockState());
         var nest=(io.github.longshou.mcyukkuri.house.HouseNestBlockEntity)level.getBlockEntity(new BlockPos(617,65,3));
-        for(int i=0;i<6;i++)nest.deposit(new ItemStack(net.minecraft.world.item.Items.PAPER));
+        for(int i=0;i<6;i++)nest.deposit(new ItemStack(ModItems.NEST_LINT.get()));
         level.setBlockAndUpdate(new BlockPos(620,65,3),ModBlocks.GRAVE.get().defaultBlockState());
         String[] names={"oil_grain_budget","oil_grain_regular","oil_grain_premium","orange_juice","mold_remover","wash_cloth","teaching_whistle","yarn_ball","companion_cord","yukkuri_waste","leaked_filling","reimu_ribbon","marisa_hat","yukkuri_carrier"};
         for(int i=0;i<names.length;i++){

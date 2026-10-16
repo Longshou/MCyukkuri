@@ -36,6 +36,8 @@
 
 胎体出生、喂糜、首便、运动学习、家庭共巢、成长分床与亚成独立规则见[子代生命周期](docs/CHILDHOOD_LIFECYCLE.md)。
 
+家油昼夜作息、棉絮筑巢、照卵、迁卵和破壳演出见[家油生态](docs/HOUSE_ECOLOGY.md)；静态制作源在 `standards/yukkuri-library/ecology/house-nest/`，选用快照与动作源分别在 `art/source/house-ecology/` 和 `art/source/house-ecology-presentation/`。
+
 ## 素材从制作到游戏接入
 
 `standards/yukkuri-library/` 内的组件、角色登记与配方共同定义制作源，`assembled/<角色>/` 保存与源同步的可编辑模型、几何、动画和贴图。新造型从这里制作，并在角色或资产包的登记中标明确认状态。

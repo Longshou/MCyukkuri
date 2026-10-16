@@ -53,19 +53,20 @@ final class HouseInteractionPreview {
             for(var p:server.getPlayerList().getPlayers()){p.setGameMode(GameType.SPECTATOR);p.teleportTo(level,x,63.85,z,yaw,12);}
             if(request.get("command").getAsString().equals("house-interaction-check")){
                 var checks=new ArrayList<String>();
+                e.setNoAi(false); // These synchronous calls do not advance the world's other goals.
                 require(e.house().canUse(),"goal selects real source",checks);
                 e.house().tickGoal();
                 for(int i=0;i<12;i++)e.house().tickGoal();
                 require(e.house().carrying().isEmpty()&&item.getItem().getCount()==3,"before contact source stays in world",checks);
                 e.house().stop();
                 require(e.house().carrying().isEmpty()&&item.getItem().getCount()==3,"interruption before contact preserves source",checks);
-                e.setNoAi(false);for(int i=0;i<41;i++)e.house().tick();e.setNoAi(true);
+                for(int i=0;i<41;i++)e.house().tick();
                 require(e.house().canUse(),"goal resumes after interruption",checks);
                 e.house().tickGoal();for(int i=0;i<13;i++)e.house().tickGoal();
                 require(e.house().carrying().getCount()==1&&item.getItem().getCount()==2,"contact splits exactly one item",checks);
                 var saved=e.house().save();e.house().stop();e.house().load(saved);
                 require(e.house().carrying().getCount()==1&&item.getItem().getCount()==2,"interruption and reload preserve held item",checks);
-                e.setNoAi(false);for(int i=0;i<41;i++)e.house().tick();e.setNoAi(true);
+                for(int i=0;i<41;i++)e.house().tick();
                 e.moveTo(178.5,65,7.22,0,0);
                 require(e.house().canUse(),"carrying resumes toward nest",checks);
                 e.house().tickGoal();for(int i=0;i<12;i++)e.house().tickGoal();
@@ -74,6 +75,7 @@ final class HouseInteractionPreview {
                 require(nest.food()==1&&e.house().carrying().isEmpty(),"deposit transfers exactly once",checks);
                 for(int i=0;i<13;i++)e.house().tickGoal();
                 require(nest.food()==1&&item.getItem().getCount()==2,"completion conserves total stock",checks);
+                e.setNoAi(true);
                 P0Control.reply(request,true,Map.of("checks",checks,"variant",e.getVariant().assetId()));
             }else{
                 e.setNoAi(false);

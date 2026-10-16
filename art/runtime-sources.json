@@ -36,7 +36,10 @@
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",
-    "exporters": ["scripts/export_rounded_attachments.py", "scripts/export_badges.py"],
+    "exporters": [
+      "scripts/export_rounded_attachments.py",
+      "scripts/export_badges.py"
+    ],
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/badge_mounts.json",
     "offline_preview": "art/props/badges/preview.py",
     "status": "pending_visual_approval"
@@ -3730,5 +3733,37 @@
     "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/food_mash_serving.png",
     "role": "soft food prepared by a parent; preserves the original serving and nutrition",
     "status": "pending_user_confirmation"
+  },
+  "house_ecology": {
+    "source": "standards/yukkuri-library/ecology/house-nest",
+    "recipe": "standards/yukkuri-library/ecology/house-nest/recipe.json",
+    "exporter": "standards/yukkuri-library/ecology/house-nest/build.py",
+    "snapshot": "art/source/house-ecology",
+    "manifest": "art/source/house-ecology/manifest.json",
+    "runtime_catalog": "src/main/resources/assets/mcyukkuri/yukkuri_props/house-ecology-index.json",
+    "models": [
+      "nest_lint",
+      "house_lint_bedding",
+      "house_eggshell"
+    ],
+    "item_models": [
+      "nest_lint",
+      "house_egg"
+    ],
+    "existing_approved_models_reused": [
+      "house_egg",
+      "house_egg_cracked"
+    ],
+    "status": "pending_user_confirmation",
+    "preview_source": "standards/yukkuri-library/ecology/house-nest/render_preview.py",
+    "preview": ".local/previews/house-ecology/house-ecology.png",
+    "scope": "Cotton lint and dust for nest building; empty lower eggshell derived from approved intact egg. Intact and cracked approved geometry unchanged. Hatching choreography is original adaptation."
+  },
+  "house_ecology_presentation": {
+    "source": "art/source/house-ecology-presentation/recipe.json",
+    "exporter": "art/source/house-ecology-presentation/build.mjs",
+    "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/house_ecology.json",
+    "status": "pending_user_review",
+    "scope": "Original peek, tend, listen, startled and lost-home motion adaptation; not a frame-by-frame reconstruction of published artwork."
   }
 }

@@ -146,6 +146,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     pose.scale(portionScale,portionScale,portionScale);
                     PropModels.render("food_mash_serving",1,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
+                String houseProp=grip==null?null:HouseScrapRenderer.smallProp(held);
+                if(houseProp!=null){
+                    // Bypass inventory display scaling: the same real lint/egg keeps its size
+                    // from the floor to the authored hair grip and back into the nest.
+                    float scale=HouseScrapRenderer.smallScale(houseProp);pose.scale(scale,scale,scale);
+                    PropModels.center(houseProp,pose,false);
+                    PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
+                }
                 if(heldIndex==0&&io.github.longshou.mcyukkuri.life.Consumables.oral(held)){
                     String serving=io.github.longshou.mcyukkuri.life.Consumables.water(held)?"water_serving":switch(io.github.longshou.mcyukkuri.life.Consumables.kind(held)){
                         case YOGURT->"yogurt_serving";case STIMULANT->"stimulant_serving";default->"sitataran_serving";

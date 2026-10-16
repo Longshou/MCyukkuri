@@ -49,10 +49,16 @@ final class CorePreview {
                     for(var player:server.getPlayerList().getPlayers()){player.setGameMode(GameType.SPECTATOR);player.teleportTo(level,x,y,z,yaw,pitch);}
                 }
                 case "core-progress" -> {
-                    for(var e:entities(level)){var brood=e.family().brood();if(brood!=null){brood.elapsed=Math.round(request.get("progress").getAsFloat()*brood.duration);FamilyData.get(level).setDirty();e.syncFamily();}}
+                    for(var e:entities(level)){var brood=e.family().brood();if(brood!=null){
+                        brood.elapsed=Math.round(request.get("progress").getAsFloat()*brood.duration);
+                        if(brood.kind==FamilyData.BirthKind.EGG)for(var child:brood.children)if(!child.born)child.eggElapsed=Math.clamp(brood.elapsed,0,brood.duration);
+                        FamilyData.get(level).setDirty();e.syncFamily();}}
                 }
                 case "core-run" -> {
-                    for(var e:entities(level))if(e.family().brood()!=null){e.setNoAi(false);var brood=e.family().brood();brood.duration=request.has("duration")?request.get("duration").getAsInt():400;brood.elapsed=request.has("elapsed")?request.get("elapsed").getAsInt():300;FamilyData.get(level).setDirty();}
+                    for(var e:entities(level))if(e.family().brood()!=null){e.setNoAi(false);var brood=e.family().brood();
+                        brood.duration=request.has("duration")?request.get("duration").getAsInt():400;brood.elapsed=request.has("elapsed")?request.get("elapsed").getAsInt():300;
+                        if(brood.kind==FamilyData.BirthKind.EGG)for(var child:brood.children)if(!child.born)child.eggElapsed=Math.clamp(brood.elapsed,0,brood.duration);
+                        FamilyData.get(level).setDirty();}
                 }
                 case "core-freeze" -> level.getEntitiesOfClass(YukkuriEntity.class,AREA).forEach(e->e.setNoAi(true));
                 case "core-unload" -> {
@@ -63,7 +69,9 @@ final class CorePreview {
                 case "core-load" -> {for(int x=10;x<=13;x++)for(int z=0;z<=3;z++)level.setChunkForced(x,z,true);}
                 case "core-hatch" -> {
                     var nest=(HouseNestBlockEntity)level.getBlockEntity(new BlockPos(178,65,8));var brood=nest.brood();
-                    if(brood==null)throw new IllegalStateException("No actual eggs");brood.duration=400;brood.elapsed=request.has("elapsed")?request.get("elapsed").getAsInt():250;FamilyData.get(level).setDirty();
+                    if(brood==null)throw new IllegalStateException("No actual eggs");brood.duration=400;brood.elapsed=request.has("elapsed")?request.get("elapsed").getAsInt():250;
+                    for(var child:brood.children)if(!child.born)child.eggElapsed=Math.clamp(brood.elapsed,0,brood.duration);
+                    level.setDayTime(6000);for(var e:entities(level))if(e.getVariant().isHouse())e.setNoAi(false);FamilyData.get(level).setDirty();
                 }
                 case "core-hand" -> {
                     int i=request.has("index")?request.get("index").getAsInt():0;var e=entities(level).stream().filter(entity->index(entity)==i).findFirst().orElseThrow();
@@ -119,12 +127,13 @@ final class CorePreview {
                 b.moveTo(b.getX(),65,3,0,0);
             }
         }else if(scene.equals("house")||scene.equals("house_work")){
+            level.setDayTime(scene.equals("house_work")?18000:6000);
             BlockPos pos=new BlockPos(178,65,8);level.setBlockAndUpdate(pos,ModBlocks.HOUSE_NEST.get().defaultBlockState());var nest=(HouseNestBlockEntity)level.getBlockEntity(pos);
             var a=spawn(level,ModEntities.HOUSE_REIMU.get(),178.2,7.3,0);var b=spawn(level,ModEntities.HOUSE_MARISA.get(),178.8,7.3,1);
             a.house().choose(nest);b.house().choose(nest);YukkuriWorldData.get(level).relate(a.getUUID(),b.getUUID(),30);YukkuriWorldData.get(level).relate(b.getUUID(),a.getUUID(),30);
-            if(scene.equals("house")){for(int i=0;i<6;i++)nest.deposit(new ItemStack(Items.PAPER));for(int i=0;i<20;i++)nest.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));}
+            if(scene.equals("house")){for(int i=0;i<6;i++)nest.deposit(new ItemStack(ModItems.NEST_LINT.get()));for(int i=0;i<20;i++)nest.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));a.setNoAi(false);b.setNoAi(false);}
             else {
-                var paper=new ItemEntity(level,175.5,65,7.3,new ItemStack(Items.PAPER,6));paper.setNoPickUpDelay();level.addFreshEntity(paper);
+                var lint=new ItemEntity(level,175.5,65,7.3,new ItemStack(ModItems.NEST_LINT.get(),6));lint.setNoPickUpDelay();level.addFreshEntity(lint);
                 var scraps=new ItemEntity(level,175.5,65,6.3,new ItemStack(ModItems.FOOD_SCRAP.get(),20));scraps.setNoPickUpDelay();level.addFreshEntity(scraps);a.setNoAi(false);b.setNoAi(false);
             }
         }else if(scene.equals("body")){

@@ -3383,6 +3383,138 @@
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；尚未配音。",
       "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_house_listen",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "たまごさんの なかで おとがするよ。",
+      "chinese": "卵里面有动静哟。",
+      "events": [
+        "house_listen"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_house_listen",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ちいさいこが うごいているのぜ。",
+      "chinese": "小不点在里面动了惹。",
+      "events": [
+        "house_listen"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_house_startled",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ゆっ！ おおきなおとだよ！ かくれるよ！",
+      "chinese": "呜！好大的声音！先躲起来哟！",
+      "events": [
+        "house_startled"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_house_startled",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "びっくりしたのぜ！ すきまに かくれるのぜ！",
+      "chinese": "吓了一跳惹！快躲到缝隙里惹！",
+      "events": [
+        "house_startled"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_house_search_home",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おうちは どこ？ みんな ついてきてね。",
+      "chinese": "小窝在哪里？大家要跟上哟。",
+      "events": [
+        "house_search_home"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_house_search_home",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あんぜんな すきまを さがすのぜ。",
+      "chinese": "要找个安全的缝隙惹。",
+      "events": [
+        "house_search_home"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.adult.o_house_hatched",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ちいさいこ！ ゆっくり でてきてね。",
+      "chinese": "小不点，慢慢出来哟！",
+      "events": [
+        "house_hatched"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.adult.o_house_hatched",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "でてきたのぜ！ ここが おうちなのぜ。",
+      "chinese": "出来了惹！这里就是小窝惹！",
+      "events": [
+        "house_hatched"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.young.o_house_startled",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ゆっ！ おっきい おとしゃん！",
+      "chinese": "呜！好响响呀！",
+      "events": [
+        "house_startled"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.young.o_house_startled",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こわいのじぇ！ かくれりゅのじぇ！",
+      "chinese": "怕怕惹杰！要躲起来惹杰！",
+      "events": [
+        "house_startled"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "reimu.young.o_house_search_home",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おうちしゃんは どこ？",
+      "chinese": "窝窝在哪里呀？",
+      "events": [
+        "house_search_home"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
+    },
+    {
+      "id": "marisa.young.o_house_search_home",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おうちしゃん みちゅけりゅのじぇ。",
+      "chinese": "要找到窝窝惹杰。",
+      "events": [
+        "house_search_home"
+      ],
+      "basis": "家油昼夜、照卵与清扫惊扰的项目原创字幕，依据仓库家油生态设定；非原作引文，尚未配音。"
     }
   ]
 }

@@ -1,0 +1,7 @@
+# 家油生态选用快照
+
+制作源：[家油棉絮巢](../../../standards/yukkuri-library/ecology/house-nest/README.md)。`manifest.json` 登记输入与运行输出指纹。
+
+新增棉絮团、棉絮巢垫、空残壳均为原创待确认造型。残壳派生自已认可 R2.4 完整卵下部；完整卵与裂壳卵保持不变。`house_egg` 新物品直接复用现有完整卵网格与贴图。
+
+由制作包 `build.py` 同时生成本快照、运行静态 prop、专用 catalog 和两个物品显示模型。不得只改本目录或运行资源。

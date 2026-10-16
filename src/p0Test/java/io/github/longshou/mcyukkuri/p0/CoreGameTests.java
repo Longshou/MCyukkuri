@@ -87,11 +87,15 @@ public final class CoreGameTests {
     }
     private void hiding(){
         later(1,"hiding setup",()->{
+            level.setDayTime(6000);
             clear();level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);
             subject=spawn(true,278.5,19.5);subject.house().choose(nest);subject.setNoAi(false);entered=peeked=false;
         });
-        for(int i=0;i<160;i++)later(10,"hiding sample",()->{
+        for(int i=0;i<120;i++)later(10,"daytime hiding sample",()->{
             entered|=subject.blockPosition().equals(NEST)&&subject.getZ()>20.1;
+        });
+        later(1,"dusk wakes the resident",()->{check("daytime shelter is real grounded sleep",subject.house().sleeping(),subject.getBehaviorId());level.setDayTime(18000);});
+        for(int i=0;i<40;i++)later(10,"dusk exit sample",()->{
             peeked|=subject.getBehaviorId().equals("house_peek");
         });
         later(1,"hiding and exit",()->{
@@ -147,7 +151,7 @@ public final class CoreGameTests {
     }
     private void check(String name,boolean pass,Object detail){checks.add(new Check(name,pass,String.valueOf(detail)));}
     private void founders(){
-        later(1,"founder setup",()->{clear();level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);});
+        later(1,"founder setup",()->{clear();level.setDayTime(18000);level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);});
         later(20,"founder wait",()->{
             check("supplied crevice does not create founders instantly",level.getEntitiesOfClass(YukkuriEntity.class,AREA).isEmpty(),nest.identity());
             var data=nest.saveWithFullMetadata(level.registryAccess());data.putInt("ArrivalTicks",io.github.longshou.mcyukkuri.family.FamilyConfig.HOUSE_ARRIVAL_TIME.get()-1);nest.loadWithComponents(data,level.registryAccess());
@@ -189,6 +193,7 @@ public final class CoreGameTests {
     private void setup(){
         for(int x=16;x<=19;x++)for(int z=0;z<=2;z++)GameTestChunks.setForced(level,x,z,true);
         level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,level.getServer());level.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(true,level.getServer());
+        level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());
         level.setDayTime(6000);level.setWeatherParameters(6000,0,false,false);
         clear();for(int x=256;x<304;x++)for(int z=0;z<48;z++){
             for(int y=65;y<=74;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
@@ -202,9 +207,10 @@ public final class CoreGameTests {
     private YukkuriEntity spawn(boolean house,double x,double z){var e=(house?ModEntities.HOUSE_REIMU.get():ModEntities.REIMU.get()).create(level);
         e.moveTo(x,65,z,0,0);e.setPersistenceRequired();e.setOnGround(true);e.setNoAi(true);level.addFreshEntity(e);
         life(e,t->{t.putFloat("Nutrition",95);t.putFloat("Energy",90);t.putFloat("Hygiene",100);t.putInt("RestWait",5000);});return e;}
-    private void deposit(HouseNestBlockEntity value,int food,int materials){for(int i=0;i<food;i++)value.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));for(int i=0;i<materials;i++)value.deposit(new ItemStack(Items.PAPER));}
+    private void deposit(HouseNestBlockEntity value,int food,int materials){for(int i=0;i<food;i++)value.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));for(int i=0;i<materials;i++)value.deposit(new ItemStack(ModItems.NEST_LINT.get()));}
     private void house(){
         later(1,"house setup",()->{
+            level.setDayTime(18000);
             level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());level.setBlockAndUpdate(OTHER,ModBlocks.HOUSE_NEST.get().defaultBlockState());
             nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);other=(HouseNestBlockEntity)level.getBlockEntity(OTHER);
             a=spawn(true,278.3,19.2);b=spawn(true,278.8,19.3);a.house().choose(nest);b.house().choose(nest);
@@ -215,7 +221,7 @@ public final class CoreGameTests {
         });
         later(120,"no lining no eggs",()->{
             check("food without six materials cannot make a brood",nest.brood()==null&&!nest.built(),nest.materials());
-            a.setNoAi(false);var paper=new ItemEntity(level,276.5,65,19.5,new ItemStack(Items.PAPER,6));paper.setDeltaMovement(Vec3.ZERO);paper.setNoGravity(true);paper.setNoPickUpDelay();level.addFreshEntity(paper);
+            a.setNoAi(false);var lint=new ItemEntity(level,276.5,65,19.5,new ItemStack(ModItems.NEST_LINT.get(),6));lint.setDeltaMovement(Vec3.ZERO);lint.setNoGravity(true);lint.setNoPickUpDelay();level.addFreshEntity(lint);
         });
         later(4000,"material collection",()->{
             check("real goal carries and deposits six source items",nest.materials()==6&&a.house().carrying().isEmpty(),nest.materials()+" / "+a.house().save()+" / "+a.position()+" / "+a.getBehaviorId()+" / "+a.life().save()+" / "+level.getEntitiesOfClass(ItemEntity.class,AREA).stream().map(e->e.getItem()+" @ "+e.position()).toList());
@@ -223,9 +229,9 @@ public final class CoreGameTests {
             a.setNoAi(true);a.moveTo(278.3,65,19.2,0,0);b.moveTo(278.8,65,19.3,0,0);
             life(a,t->{t.putFloat("Nutrition",95);t.putFloat("Energy",90);});
             nest.clean(false); // The longer collection run accumulates dirt; breeding needs a clean nest.
-            deposit(nest,12,0);
+            deposit(nest,12,0);level.setDayTime(6000);a.setNoAi(false);b.setNoAi(false);
         });
-        later(120,"lay eggs",()->{
+        later(400,"lay eggs",()->{
             eggs=nest.brood();check("actual nest ticker lays a uniquely identified house brood",eggs!=null&&eggs.kind==FamilyData.BirthKind.EGG,eggs==null?"none":eggs.id);
             if(eggs==null)return;check("egg identities and parents are fixed",eggs.children.size()>=2&&eggs.children.stream().map(c->c.id).distinct().count()==eggs.children.size(),eggs.children.size());
             check("egg parents retain their committed partnership",b.getUUID().equals(a.family().partner())&&a.getUUID().equals(b.family().partner()),a.family().save());
@@ -237,9 +243,9 @@ public final class CoreGameTests {
         later(120,"starved eggs pause",()->{
             check("no stock pauses incubation",eggs!=null&&eggs.elapsed==progress,eggs==null?"none":eggs.elapsed);
             check("cleaning one nest leaves neighboring stock",other.food()==2&&other.materials()==3,other.food());
-            deposit(nest,12,0);if(eggs!=null){eggs.duration=200;eggs.elapsed=100;}
+            deposit(nest,12,0);if(eggs!=null){eggs.duration=200;eggs.elapsed=100;for(var child:eggs.children)if(!child.born)child.eggElapsed=100;FamilyData.get(level).setDirty();}
         });
-        later(140,"hatching",()->{
+        later(600,"hatching",()->{
             check("real nest ticker hatches all eggs once",eggs!=null&&eggs.complete(),eggs==null?"none":eggs.unborn());
             if(eggs==null||!eggs.complete())return;
             var first=(YukkuriEntity)level.getEntity(eggs.children.getFirst().id);
