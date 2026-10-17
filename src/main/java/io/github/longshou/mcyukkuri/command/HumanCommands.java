@@ -84,6 +84,7 @@ public final class HumanCommands {
                                         .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !v.isHouse()).map(YukkuriVariant::assetId), b))
                                         .then(Commands.argument("grade", IntegerArgumentType.integer(0, 3))
                                                 .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock))))))
+                        .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
                         .then(Commands.literal("buy").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("animal", EntityArgument.entity())
                                         .then(Commands.argument("buyer", UuidArgument.uuid()).executes(HumanCommands::buy))))));
@@ -144,6 +145,18 @@ public final class HumanCommands {
         var y = HumanScenes.addStock(c.getSource().getLevel(), keeper, v, IntegerArgumentType.getInteger(c, "grade"), 70, Vec3.atBottomCenterOf(pos));
         if (y == null) { say(c, "could not add stock"); return 0; }
         say(c, "stock " + at(y) + " uuid=" + y.getUUID() + " grade=" + y.pet().grade() + " price=" + ShopPricing.price(y));
+        return 1;
+    }
+
+    /** Reads the individual stored in a dropped carrier (the token's saved snapshot): who owns it now, what it is for, which badge it wears. */
+    private static int carrier(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        if (!(EntityArgument.getEntity(c, "item") instanceof net.minecraft.world.entity.item.ItemEntity item)) { say(c, "not an item entity"); return 0; }
+        var snapshot = io.github.longshou.mcyukkuri.human.HumanCommerce.heldData(level, item.getItem());
+        if (!snapshot.hasUUID("UUID")) { say(c, "no captured individual in this item"); return 0; }
+        var custody = snapshot.getCompound("NeoForgeData").getCompound("HumanCommerce");
+        say(c, "carrier holds " + snapshot.getString("id") + " uuid=" + snapshot.getUUID("UUID") + " owner=" + (custody.hasUUID("Owner") ? custody.getUUID("Owner") : "none")
+                + " use=" + custody.getString("Use") + " badgeGrade=" + snapshot.getCompound("YukkuriPet").getInt("Grade"));
         return 1;
     }
 
