@@ -19,7 +19,6 @@ def outputs():
         elements=[{'from':box[:3],'to':box[3:],'faces':{face:{'texture':'#base'} for face in ['north','south','east','west','up','down']}} for box in model['boxes']]
         emit(ASSETS/f'models/block/{name}.json',{'parent':'minecraft:block/block','textures':{'base':model['texture'],'particle':model['texture']},'elements':elements})
         emit(ASSETS/f'blockstates/{name}.json',{'variants':{'':{'model':f'mcyukkuri:block/{name}'}}})
-    emit(ASSETS/'models/item/house_crevice.json',{'parent':'mcyukkuri:block/house_crevice'})
     for name,texture in recipe['items'].items():emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:item/generated','textures':{'layer0':texture}})
     # Explicit renderer configurations are selected sources, not placeholder icons.
     selected={ROOT/path:(ROOT/path).read_bytes() for path in recipe.get('item_models',{}).values()}
@@ -33,8 +32,6 @@ def outputs():
         emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':item} for item in details['ingredients']],'result':{'id':'mcyukkuri:'+name,'count':details['count']}})
         ingredient=details['ingredients'][0]
         emit(DATA/f'advancement/recipes/misc/{name}.json',{'parent':'minecraft:recipes/root','criteria':{'has_item':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':ingredient}]}},'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':'mcyukkuri:'+name}}},'requirements':[['has_item','has_the_recipe']],'rewards':{'recipes':['mcyukkuri:'+name]}})
-    # Saved crevices migrate to loose nesting material; never award another artificial habitat.
-    emit(DATA/'loot_table/blocks/house_crevice.json',{'type':'minecraft:block','pools':[]})
     records={'status':recipe['status'],'input':{'recipe.json':fingerprint(SOURCE/'recipe.json',(SOURCE/'recipe.json').read_bytes(),previous.get('input',{}).get('recipe.json'))},'outputs':fingerprints(ROOT,result,previous.get('outputs',{}))}
     if selected:records['selected_models']=fingerprints(ROOT,selected,previous.get('selected_models',{}))
     emit(SOURCE/'provenance.json',records)

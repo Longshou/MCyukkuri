@@ -122,9 +122,6 @@ public final class YukkuriEntity extends PathfinderMob {
     private YukkuriAction requestedAction;
     private int panicTicks;
     private final io.github.longshou.mcyukkuri.subspecies.ShellRetraction shellRetraction = new io.github.longshou.mcyukkuri.subspecies.ShellRetraction(this);
-    private int foodCooldown;
-    // Retained only to migrate pre-P1 saves; nutrition and loaded-time physiology live in YukkuriLife.
-    private int restDelay = 600;
     private int reactionTicks;
     private final SpeechTiming speechTiming = new SpeechTiming();
     private final net.minecraft.util.RandomSource speechRandom = net.minecraft.util.RandomSource.create();
@@ -423,16 +420,6 @@ public final class YukkuriEntity extends PathfinderMob {
     public float broodProgress() { return entityData.get(BROOD_PROGRESS); }
     public float broodVariation() { return entityData.get(BROOD_VARIATION); }
     public boolean hasSpentStem() { return entityData.get(SPENT_STEM); }
-    private io.github.longshou.mcyukkuri.command.BirthScene birthScene;
-    private CompoundTag birthSceneRestore;
-    public io.github.longshou.mcyukkuri.command.BirthScene birthScene() { return birthScene; }
-    public void setBirthScene(io.github.longshou.mcyukkuri.command.BirthScene scene) { birthScene = scene; }
-    public void poseBirthScene(String action, long phase) {
-        if (birthScene == null || level().isClientSide) return;
-        setAnimation(YukkuriAction.byId(action).orElse(YukkuriAction.IDLE), false);
-        entityData.set(ANIMATION_START, level().getGameTime() - phase);
-        setBehavior(action); entityData.set(EXPRESSION, "neutral");
-    }
     public float livePregnancyProgress() { return entityData.get(LIVE_PROGRESS); }
     public int liveDeliveryTicks() { return entityData.get(LIVE_DELIVERY); }
     public int liveChildCount() { return entityData.get(LIVE_CHILDREN).getInt("Count"); }
@@ -466,14 +453,6 @@ public final class YukkuriEntity extends PathfinderMob {
             live.putInt("Born",liveBorn);live.putInt("Types",liveTypes);delivery=Math.max(-1,brood.elapsed-brood.duration);
         }
         entityData.set(LIVE_CHILDREN,live);entityData.set(LIVE_DELIVERY,delivery);entityData.set(LIVE_PROGRESS,family.liveBelly());
-        if (birthScene != null) {
-            entityData.set(GROWTH_SCALE, birthScene.childScale(this));
-            if (birthScene.isMother(this)) {
-                entityData.set(LIVE_CHILDREN, birthScene.liveChildren());
-                entityData.set(LIVE_DELIVERY, birthScene.deliveryTicks());
-                entityData.set(LIVE_PROGRESS, birthScene.belly());
-            }
-        }
     }
     @Override protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
@@ -596,7 +575,6 @@ public final class YukkuriEntity extends PathfinderMob {
             }
         }
         requestedAction = next == YukkuriAction.IDLE ? null : next;
-        restDelay = 200;
         panicTicks = 0;
         navigation.stop();
         setAnimation(next, true);
@@ -621,25 +599,12 @@ public final class YukkuriEntity extends PathfinderMob {
 
     @Override
     public void aiStep() {
-        if (!level().isClientSide && birthSceneRestore != null) {
-            // Passenger trees are attached after readAdditionalSaveData; restore again after that attachment.
-            if (getVehicle() != null && getVehicle().getTags().contains(io.github.longshou.mcyukkuri.command.BirthScene.HAT_TAG)) stopRiding();
-            io.github.longshou.mcyukkuri.command.BirthScene.restore(this, birthSceneRestore);
-            birthSceneRestore = null;
-        }
         if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
         double movementX = getX(), movementZ = getZ();
         super.aiStep();
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide) return;
-        if (birthScene != null) birthScene.valid();
         if (!isAlive()) return;
-        if (birthScene != null) {
-            if (birthScene.isMother(this)) birthScene.tick();
-            syncFamily();
-            entityData.set(ACCESSORY, life.hasAccessory() && (birthScene == null || !birthScene.hidesHat(this)));
-            return;
-        }
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
             if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) io.github.longshou.mcyukkuri.family.BirthStaging.greeting(this);
@@ -1023,10 +988,6 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        if (birthScene != null) tag.put("MuseumBirthRestore", birthScene.restorePoint(this));
-        else if (birthSceneRestore != null) tag.put("MuseumBirthRestore", birthSceneRestore.copy());
-        tag.putInt("YukkuriFoodCooldown", foodCooldown);
-        tag.putInt("YukkuriRestDelay", restDelay);
         tag.put("YukkuriLife", life.save());
         tag.put("WaterDistress", waterDistress.save());
         tag.put("YukkuriSubspecies", subspecies.save());
@@ -1050,27 +1011,12 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (birthScene != null) birthScene.stop();
-        birthSceneRestore = tag.contains("MuseumBirthRestore") ? tag.getCompound("MuseumBirthRestore").copy() : null;
-        if (birthSceneRestore != null) io.github.longshou.mcyukkuri.command.BirthScene.restore(this, birthSceneRestore);
-        foodCooldown = Mth.clamp(tag.getInt("YukkuriFoodCooldown"), 0, 600);
         subspecies.load(tag.getCompound("YukkuriSubspecies"));
-        restDelay = tag.contains("YukkuriRestDelay") ? Mth.clamp(tag.getInt("YukkuriRestDelay"), 0, 1200) : 600;
-        if (tag.contains("YukkuriLife")) life.load(tag.getCompound("YukkuriLife"));
-        else {
-            net.minecraft.nbt.CompoundTag migrated = new net.minecraft.nbt.CompoundTag();
-            migrated.putFloat("Nutrition", foodCooldown > 0 ? 85 : 60); migrated.putInt("RestWait", restDelay);
-            life.load(migrated);
-        }
+        life.load(tag.getCompound("YukkuriLife"));
         requestedAction = null;
         panicTicks = reactionTicks = 0;
         shellRetraction.reset();
-        if (tag.contains("YukkuriPet")) pet.load(tag.getCompound("YukkuriPet"));
-        else {
-            var legacyLife = tag.getCompound("YukkuriLife");
-            pet.migrateLegacy(tag.getCompound("YukkuriBadges"), legacyLife.getBoolean("GoldMedal") ? io.github.longshou.mcyukkuri.pet.BadgeGrade.GOLD
-                    : legacyLife.getBoolean("SilverMedal") ? io.github.longshou.mcyukkuri.pet.BadgeGrade.SILVER : io.github.longshou.mcyukkuri.pet.BadgeGrade.NONE);
-        }
+        pet.load(tag.getCompound("YukkuriPet"));
         dailyLife.load(tag.getCompound("YukkuriDailyLife"));
         groupInteraction.load(tag.getCompound("YukkuriGroupInteraction"));
         surfaceLife.load(tag.getCompound("YukkuriSurface"));

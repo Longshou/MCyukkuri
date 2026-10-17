@@ -22,16 +22,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 
-/** Loose nesting material; the old crevice ID remains only to migrate saved homes. */
+/** Loose nesting material in a corner or beside furniture. */
 public final class HouseNestBlock extends Block implements EntityBlock {
-    private final boolean natural;
-    public HouseNestBlock(Properties properties){this(false,properties);}
-    public HouseNestBlock(boolean natural,Properties properties){super(properties);this.natural=natural;}
+    public HouseNestBlock(Properties properties){super(properties);}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new HouseNestBlockEntity(pos,state);}
     @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return box(0,0,0,16,1.5,16);}
     @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return Shapes.empty();}
     @Override protected boolean isPathfindable(BlockState state,net.minecraft.world.level.pathfinder.PathComputationType type){return type==net.minecraft.world.level.pathfinder.PathComputationType.LAND;}
-    @Override protected boolean canSurvive(BlockState state,net.minecraft.world.level.LevelReader level,BlockPos pos){return !natural||SupplyPiles.supported(level,pos);}
+    @Override protected boolean canSurvive(BlockState state,net.minecraft.world.level.LevelReader level,BlockPos pos){return SupplyPiles.supported(level,pos);}
     @Override protected BlockState updateShape(BlockState state,net.minecraft.core.Direction direction,BlockState neighbor,net.minecraft.world.level.LevelAccessor level,BlockPos pos,BlockPos neighborPos){
         return !canSurvive(state,level,pos)?net.minecraft.world.level.block.Blocks.AIR.defaultBlockState():super.updateShape(state,direction,neighbor,level,pos,neighborPos);
     }
@@ -60,8 +58,7 @@ public final class HouseNestBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
-        boolean migration=state.is(ModBlocks.HOUSE_NEST.get())&&replacement.is(ModBlocks.HOUSE_DUST_NEST.get());
-        if(!migration&&!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)nest.destroyNest();
+        if(!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)nest.destroyNest();
         super.onRemove(state,level,pos,replacement,moving);
     }
 }

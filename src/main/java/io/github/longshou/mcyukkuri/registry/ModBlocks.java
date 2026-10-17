@@ -15,9 +15,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MCYukkuri.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MCYukkuri.MOD_ID);
-    public static final DeferredBlock<io.github.longshou.mcyukkuri.house.HouseholdGuardBlock> HOUSEHOLD_GUARD=BLOCKS.register("household_guard",
-            ()->new io.github.longshou.mcyukkuri.house.HouseholdGuardBlock(BlockBehaviour.Properties.of().strength(1.2f).sound(SoundType.METAL).noOcclusion()
-                    .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.family.DetachedStemBlock> DETACHED_STEM=BLOCKS.register("detached_brood_stem",()->new io.github.longshou.mcyukkuri.family.DetachedStemBlock(false,BlockBehaviour.Properties.of().strength(.2f).noCollission().noOcclusion()));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.family.DetachedStemBlock> BOTTLED_STEM=BLOCKS.register("bottled_brood_stem",()->new io.github.longshou.mcyukkuri.family.DetachedStemBlock(true,BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GLASS).noCollission().noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity>> DETACHED_STEM_ENTITY=BLOCK_ENTITIES.register("detached_stem",
@@ -38,13 +35,11 @@ public final class ModBlocks {
     public static final DeferredBlock<io.github.longshou.mcyukkuri.body.GraveBlock> GRAVE=BLOCKS.register("burial_mound",()->new io.github.longshou.mcyukkuri.body.GraveBlock(BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.GRAVEL).noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.body.GraveBlockEntity>> GRAVE_ENTITY=BLOCK_ENTITIES.register("grave",
             ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.body.GraveBlockEntity::new,GRAVE.get()).build(null));
-    public static final DeferredBlock<io.github.longshou.mcyukkuri.house.HouseNestBlock> HOUSE_NEST=BLOCKS.register("house_crevice",
-            ()->new io.github.longshou.mcyukkuri.house.HouseNestBlock(BlockBehaviour.Properties.of().strength(.8f).sound(SoundType.WOOD).noOcclusion()));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.house.HouseNestBlock> HOUSE_DUST_NEST=BLOCKS.register("house_dust_nest",
-            ()->new io.github.longshou.mcyukkuri.house.HouseNestBlock(true,BlockBehaviour.Properties.of().instabreak().sound(SoundType.WOOL).noCollission().noOcclusion()
+            ()->new io.github.longshou.mcyukkuri.house.HouseNestBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.WOOL).noCollission().noOcclusion()
                     .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<io.github.longshou.mcyukkuri.house.HouseNestBlockEntity>> HOUSE_NEST_ENTITY=BLOCK_ENTITIES.register("house_nest",
-            ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.house.HouseNestBlockEntity::new,HOUSE_NEST.get(),HOUSE_DUST_NEST.get()).build(null));
+            ()->BlockEntityType.Builder.of(io.github.longshou.mcyukkuri.house.HouseNestBlockEntity::new,HOUSE_DUST_NEST.get()).build(null));
     public static final DeferredBlock<io.github.longshou.mcyukkuri.house.SupplyPileBlock> HOUSE_SUPPLIES=BLOCKS.register("house_supplies",
             ()->new io.github.longshou.mcyukkuri.house.SupplyPileBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.WOOL).noCollission().noOcclusion().replaceable()
                     .pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));

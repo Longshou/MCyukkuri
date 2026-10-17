@@ -3887,20 +3887,6 @@
     "status": "pending_user_review",
     "scope": "Original peek, tend, listen, startled and lost-home motion adaptation; not a frame-by-frame reconstruction of published artwork."
   },
-  "household_guard": {
-    "source": "standards/yukkuri-library/ecology/house-guard",
-    "recipe": "standards/yukkuri-library/ecology/house-guard/recipe.json",
-    "exporter": "standards/yukkuri-library/ecology/house-guard/build.py",
-    "snapshot": "art/source/house-guard",
-    "manifest": "art/source/house-guard/manifest.json",
-    "runtime": [
-      "src/main/resources/assets/mcyukkuri/models/block/household_guard.json",
-      "src/main/resources/assets/mcyukkuri/blockstates/household_guard.json"
-    ],
-    "status": "legacy_save_compatibility",
-    "superseded_by": "house_repellent",
-    "scope": "Original filter-box source and legacy placed-block model retained for old saves. Current household_guard item is the spray authored by house_repellent; this exporter no longer writes its item model."
-  },
   "house_repellent": {
     "source": "standards/yukkuri-library/ecology/house-repellent",
     "recipe": "standards/yukkuri-library/ecology/house-repellent/recipe.json",

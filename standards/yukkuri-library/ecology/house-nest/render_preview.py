@@ -27,7 +27,7 @@ def main():
         if image.width>256 or image.height!=image.width:
             raise ValueError('Unexpected texture size: '+str(path))
         atlas.paste(image,(x,y)); textures[key]=dict(x=x,y=y,size=image.width);sources.append(path)
-    for ident in ('nest_lint','house_lint_bedding','house_eggshell','house_egg','house_egg_cracked','food_scrap','house_crevice'):
+    for ident in ('nest_lint','house_lint_bedding','house_eggshell','house_egg','house_egg_cracked','food_scrap'):
         p = ASSETS/'yukkuri_props'/(ident+'.json')
         models[ident]=dict(model=p.relative_to(ROOT).as_posix());sources.append(p)
         add_texture(ident,ASSETS/'textures/props'/(ident+'.png'))
@@ -47,7 +47,6 @@ def main():
     birth_scale=json.loads((ROOT/'standards/yukkuri-v1/profiles/growth.json').read_text(encoding='utf-8'))['birth']['egg']['scale']
     beds=[dict(id='house_lint_bedding',at=block_at(display['sleeping_center']),scale=display['sleeping_scale']),
           dict(id='house_lint_bedding',at=block_at(display['egg_center']),scale=display['egg_scale'])]
-    room=item('house_crevice',omit=['lintel','front_trim','left_jamb','right_jamb','grain_mark'])
     slots=[block_at(p) for p in display['egg_slots']]
     def egg(slot,ident='house_egg'):
         return dict(id=ident,at=slots[slot],scale=[egg_scale]*3)
@@ -55,19 +54,19 @@ def main():
     shots=[
         dict(id='night-peek',title='01  夜深，先探头再觅食',subtitle='家具缝隙提供藏身处；碎食与棉絮各有用途。',
              note='探身动作：house_peek · 0.75 秒',background='#dce2dc',
-             instances=[room,*beds,egg(0),egg(1),item('house_marisa',-2.7,.16,-3.2,clip='house_peek',time=.75,angle=-.18),
+             instances=[*beds,egg(0),egg(1),item('house_marisa',-2.7,.16,-3.2,clip='house_peek',time=.75,angle=-.18),
                         item('food_scrap',1.1,.10,-5.8,scale=[.55]*3)]),
         dict(id='carry-lint',title='02  衔絮回来，铺成低矮的小窝',subtitle='絮团可见、库存真实消耗；魔理沙沿用单辫夹取。',
              note='搬运动作：house_carry · 0.55 秒',background='#e9e5da',
-             instances=[room,*beds,egg(0),*pantry,item('house_marisa',-3.1,.16,-1.7,clip='house_carry',time=.55,angle=.20,key='carrier'),
+             instances=[*beds,egg(0),*pantry,item('house_marisa',-3.1,.16,-1.7,clip='house_carry',time=.55,angle=.20,key='carrier'),
                         item('nest_lint',socketOf='carrier',scale=[.65]*3)]),
         dict(id='guard-eggs',title='03  左侧休息，右侧守着卵',subtitle='卵有固定位置；照看时低头停顿、再听一听动静。',
              note='护卵动作：house_tend · 0.65 秒',background='#eee8dc',
-             instances=[room,*beds,*[egg(i) for i in range(4)],*pantry,
+             instances=[*beds,*[egg(i) for i in range(4)],*pantry,
                         item('house_reimu',-3.0,.16,.7,clip='house_tend',time=.65,face='happy',angle=.45)]),
         dict(id='staggered-hatch',title='04  小家伙破壳，空壳暂留原位',subtitle='破壳逐枚发生；已出生幼体保留自己的身份与去向。',
              note='倾听动作：house_listen · 1.10 秒；幼体缩放 0.32',background='#efe9dc',
-             instances=[room,*beds,egg(0,'house_eggshell'),egg(1,'house_egg_cracked'),egg(3),*pantry,
+             instances=[*beds,egg(0,'house_eggshell'),egg(1,'house_egg_cracked'),egg(3),*pantry,
                         item('house_reimu',-3.3,.16,.4,clip='house_listen',time=1.10,face='happy',angle=.45),
                         item('house_marisa',slots[0][0],slots[0][1]+hatch_lift,slots[0][2],scale=[birth_scale]*3,clip='newborn_crawl',time=.32,face='happy')]),
         dict(id='materials',title='棉絮团 · 棉絮巢垫 · 已认可完整卵 · 原创空残壳',subtitle='棉絮和灰尘用于筑巢，食物碎屑用于进食。完整卵与裂壳卵的认可几何未改变。',

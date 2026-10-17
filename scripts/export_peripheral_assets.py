@@ -48,16 +48,6 @@ def outputs():
         folder = ROOT / spec['source'] / name
         mesh_path, texture_path = folder / f'{name}.mesh.json', folder / 'texture.png'
         mesh = json.loads(mesh_path.read_text(encoding='utf-8'))
-        if name == 'house_crevice':
-            # Loose lining is drawn only from actual nest materials, not baked into an empty crevice.
-            original = mesh['vertices']; vertices, parts = [], []
-            for part in mesh['parts']:
-                if part['name'].startswith('cotton_'):
-                    continue
-                start = len(vertices)//8
-                vertices.extend(original[part['start']*8:(part['start']+part['count'])*8])
-                parts.append({**part, 'start': start})
-            mesh['vertices'], mesh['parts'] = vertices, parts
         texture = texture_path.read_bytes()
         # food_bowl_wheat / food_bowl_forage carry their vanilla sprite references (part "texture" and "tint") and
         # native 0..1 UVs in the authored mesh; the shipped texture is only the shared care-prop palette.
