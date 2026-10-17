@@ -108,16 +108,16 @@ public final class ShopMenu extends AbstractContainerMenu {
     }
     /** Emeralds in stacks of at most 64. */
     private static void giveEmeralds(Player p, int amount) { for (; amount > 0; amount -= 64) give(p, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
-    private static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
+    static void deliverEmeralds(ServerLevel level, UUID player, Vec3 at, int amount) { for (; amount > 0; amount -= 64) deliver(level, player, at, new ItemStack(Items.EMERALD, Math.min(64, amount))); }
     private static boolean room(Player p) { return p.getInventory().getFreeSlot() >= 0; }
-    private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
+    static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
     /** Hands over to the player if still online, otherwise leaves it on the ground where the scene happened. */
-    private static void deliver(ServerLevel level, UUID player, Vec3 at, ItemStack stack) {
+    static void deliver(ServerLevel level, UUID player, Vec3 at, ItemStack stack) {
         ServerPlayer sp = level.getServer().getPlayerList().getPlayer(player);
         if (sp != null) give(sp, stack);
         else { var item = new ItemEntity(level, at.x, at.y + .15, at.z, stack); item.setDefaultPickUpDelay(); level.addFreshEntity(item); }
     }
-    private static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && HumanCommerce.data(y).getString("Use").equals("stock"); }
+    static boolean stockOf(YukkuriEntity y, UUID shop) { return HumanCommerce.ownedBy(y, shop) && HumanCommerce.data(y).getString("Use").equals("stock"); }
     private static int stage(YukkuriEntity y) { return !y.family().adult() && y.childhood().canLiveIndependently() ? 3 : y.family().stage().ordinal(); }
     private static int[] tags(YukkuriEntity y) {
         var p = y.life().personality(); int[] out = {15, 15}; int n = 0;
@@ -221,40 +221,12 @@ public final class ShopMenu extends AbstractContainerMenu {
         int idx = page * PAGE_ROWS + row; var animal = quoted(idx);
         if (animal == null || animal.pet().busy() || animal.isPassenger() || !room(p) || !(p.level() instanceof ServerLevel level)) return false;
         int price = quotes.get(idx).price;
-        if (count(p, Items.EMERALD) < price || !animal.pet().lock("sale", p.getUUID())) return false;
+        if (count(p, Items.EMERALD) < price || !ShopTrade.begin(level, target, animal, p.getUUID(), price)) return false;
         debit(p, Items.EMERALD, price);
-        animal.playAction("joy_jump"); animal.showReaction("happy", "shop_bought", 40);
-        var neighbours = level.getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(6), o -> o != animal && o.isAlive() && !o.pet().busy() && stockOf(o, target.getUUID()));
-        if (!neighbours.isEmpty()) {
-            var o = neighbours.get(animal.getRandom().nextInt(neighbours.size()));
-            if (o.pet().grade().id() < animal.pet().grade().id()) o.showReaction("teary", "badge_envy", 60);
-            else { o.playAction("beg"); o.speak("shop_appeal"); }
-        }
-        UUID id = animal.getUUID(), buyer = p.getUUID(); Vec3 at = animal.position(); HumanNpc clerk = target;
-        ShopPerformance.schedule(level, age -> {
-            if (age < 30) return false;
-            if (!(level.getEntity(id) instanceof YukkuriEntity a) || !a.isAlive()) { handBack(clerk); deliverEmeralds(level, buyer, at, price); return true; }
-            if (age == 30) { // handover: the clerk holds out an empty basket and the animal climbs in
-                a.playAction("basket_in"); a.speak("basket_enter"); clerk.swing(InteractionHand.MAIN_HAND);
-                if (clerk.getMainHandItem().isEmpty()) clerk.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CARRIER.get()));
-                return false;
-            }
-            if (age < 46) return false;
-            handBack(clerk);
-            a.pet().unlock("sale");
-            var previous = HumanCommerce.data(a).copy();
-            HumanCommerce.assign(a, buyer, "companion");
-            UUID token = YukkuriWorldData.get(level).capture(a);
-            if (token == null) { HumanCommerce.set(a, previous); deliverEmeralds(level, buyer, at, price); return true; }
-            deliver(level, buyer, at, HumanCommerce.carrier(a, token));
-            var buyerPlayer = level.getServer().getPlayerList().getPlayer(buyer);
-            if (buyerPlayer != null) io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(buyerPlayer, "pet_bought");
-            return true;
-        });
         return true;
     }
     /** The clerk puts an empty basket away. */
-    private static void handBack(HumanNpc clerk) {
+    static void handBack(HumanNpc clerk) {
         var held = clerk.getMainHandItem();
         if (held.is(ModItems.CARRIER.get()) && io.github.longshou.mcyukkuri.item.CarrierItem.token(held) == null) clerk.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
     }
@@ -312,6 +284,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         a.pet().rotateSerial(); // a badge token the seller still holds must not outlive the sale
         io.github.longshou.mcyukkuri.notebook.SurvivalProgress.award(p, "pet_sold");
         HumanCommerce.assign(a, target.getUUID(), "stock");
+        ShopRegistry.get(level).stocked(target, a);
         var pers = a.life().personality();
         if (pers.attachment() >= 60 || pers.trust(p.getUUID()) >= 20) { a.playAction("tremble"); a.showReaction("cry", "shop_sold_sad", 80); a.getLookControl().setLookAt(p, 30, 30); }
         else if (pers.selfishness() >= 60) { a.playAction("proud"); a.showReaction("smug", "shop_sold_proud", 80); }

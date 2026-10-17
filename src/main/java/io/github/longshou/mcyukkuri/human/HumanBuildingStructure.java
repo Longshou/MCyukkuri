@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.structure.pools.*;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 
-/** A single vanilla pool piece, with dry, reasonably level ground under its full footprint. */
+/** A single pool piece on dry ground without cliffs; LevelledPoolElement cuts and fills the site when the piece is written. */
 public final class HumanBuildingStructure extends Structure {
     public static final MapCodec<HumanBuildingStructure> CODEC=RecordCodecBuilder.mapCodec(i->i.group(
             settingsCodec(i),StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(s->s.pool)).apply(i,HumanBuildingStructure::new));
@@ -26,14 +26,23 @@ public final class HumanBuildingStructure extends Structure {
         if(stub.isEmpty())return Optional.empty();
         var pieces=stub.get().getPiecesBuilder();var box=pieces.getBoundingBox();
         int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
-        // Include the exact far edges as well as a grid over the interior, regardless of rotation.
-        for(int ix=0;ix<=box.getXSpan()/3+1;ix++)for(int iz=0;iz<=box.getZSpan()/3+1;iz++) {
-            int x=Math.min(box.maxX(),box.minX()+ix*3),z=Math.min(box.maxZ(),box.minZ()+iz*3);
-            int surface=c.chunkGenerator().getBaseHeight(x,z,Heightmap.Types.WORLD_SURFACE_WG,c.heightAccessor(),c.randomState());
-            int floor=c.chunkGenerator().getBaseHeight(x,z,Heightmap.Types.OCEAN_FLOOR_WG,c.heightAccessor(),c.randomState());
-            if(surface!=floor)return Optional.empty();
+        // The four corners and the centre of the rotated footprint, one noise column per point. Every column query rebuilds the noise
+        // functions, so a dense grid (the old 3-block lattice: about 170 columns, 340 height queries per candidate chunk) stalled chunk generation and
+        // /locate for minutes; the column also tells us whether the top block is water, so no second query for the ocean floor is needed.
+        for(int[] pt:new int[][]{{0,0},{2,0},{0,2},{2,2},{1,1}}) {
+            int ix=pt[0],iz=pt[1];
+            int x=box.minX()+(box.maxX()-box.minX())*ix/2,z=box.minZ()+(box.maxZ()-box.minZ())*iz/2;
+            var column=c.chunkGenerator().getBaseColumn(x,z,c.heightAccessor(),c.randomState());
+            int floor=Integer.MIN_VALUE;
+            for(int y=c.heightAccessor().getMaxBuildHeight()-1;y>=c.heightAccessor().getMinBuildHeight();y--) {
+                var state=column.getBlock(y);
+                if(state.isAir())continue;
+                if(!state.getFluidState().isEmpty())return Optional.empty(); // water or lava on top: not a dry site
+                floor=y+1;break;
+            }
+            if(floor==Integer.MIN_VALUE)return Optional.empty();
             low=Math.min(low,floor);high=Math.max(high,floor);
-            if(high-low>3||floor<box.minY()-1||floor>box.minY()+2)return Optional.empty();
+            if(high-low>14)return Optional.empty(); // the site is levelled when the piece is written (LevelledPoolElement): only cliffs are refused
         }
         return Optional.of(new GenerationStub(stub.get().position(),Either.right(pieces)));
     }

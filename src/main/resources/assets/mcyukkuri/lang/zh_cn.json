@@ -3279,5 +3279,19 @@
   "shop.mcyukkuri.order.unavailable": "货不够，或这份委托今天已经交过了。",
   "shop.mcyukkuri.offer_detail": "回收率 %s%%，压力／溺爱折价 −%s%%",
   "shop.mcyukkuri.keeper.state.9": "相亲需要银章：这只宠物的有效等级要达到银章。",
-  "badge.mcyukkuri.permit_need_badge": "两只宠物都要佩戴有效徽章，才能开繁殖许可。"
+  "badge.mcyukkuri.permit_need_badge": "两只宠物都要佩戴有效徽章，才能开繁殖许可。",
+  "human.mcyukkuri.talk.say": "%s：%s",
+  "human.mcyukkuri.talk.returned": "谢谢你把它带回来了。",
+  "human.mcyukkuri.talk.grain": "这些油粮我收下了，喂它们用。",
+  "human.mcyukkuri.talk.friendly.0": "今天天气不错，看看有没有饿着肚子的野生油库里。",
+  "human.mcyukkuri.talk.friendly.1": "野生的也要好好对待，慢慢喂，别吓着它们。",
+  "human.mcyukkuri.talk.friendly.2": "买油库里请去宠物店，店里有专门的店员。",
+  "human.mcyukkuri.talk.pet.0": "我的孩子在家等着呢，早上我会带它出来散步。",
+  "human.mcyukkuri.talk.pet.1": "牵绳不要拉得太紧，它走累了就让它歇一歇。",
+  "human.mcyukkuri.talk.pet.2": "散步对它很好，回来就不闹了。",
+  "human.mcyukkuri.talk.walk.0": "别急，我们在散步，让它自己走。",
+  "human.mcyukkuri.talk.walk.1": "它今天走得很开心呢。",
+  "human.mcyukkuri.talk.walk.2": "绳子牵着，它就不会跑丢了。",
+  "human.mcyukkuri.talk.cruel.0": "……（他瞥了你一眼，没有说话。）",
+  "human.mcyukkuri.talk.cruel.1": "别挡路。"
 }
