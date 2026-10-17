@@ -15,7 +15,7 @@ public final class BirthScene {
 
     public static boolean eligible(YukkuriEntity actor) {
         return actor.isAlive() && actor.family().adult()
-                && (actor.getTags().contains("pm_actor") || actor.getTags().contains("living_showcase"));
+                && actor.getTags().contains("pm_actor");
     }
 
     /**
@@ -27,7 +27,7 @@ public final class BirthScene {
         if (!OUTCOMES.contains(outcome)) return refused("结果必须为 natural、caught 或 missed。");
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !eligible(mother) || !eligible(father))
-            return refused("只能选择同一维度的两只成年展示油（pm_actor 或 living_showcase）。");
+            return refused("只能选择同一维度的两只成年展示油（pm_actor）。");
         if (mother.isCommandPlaying() || father.isCommandPlaying())
             return refused("请先将双亲的动作命令恢复为 idle，再开始真实分娩。");
         if (mother.distanceToSqr(father) > 64)
