@@ -469,10 +469,10 @@ public final class YukkuriLife {
         if (planWait > 0) return false;
         planWait = 20;
         if(dryness>=40||spicyTicks>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
+        // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
         if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30) {
             targetBlock = homeStand();
-            if(targetBlock==null||!covered(targetBlock))targetBlock=nearestDryCover();
-            if (targetBlock != null) { task = Task.HOME; pursuitTicks = 0; return true; }
+            if (targetBlock != null && covered(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
         // A full bowel must not be starved by a permanently stocked food bowl.
         if (bladder >= 70 && planToilet()) return true;
@@ -502,6 +502,7 @@ public final class YukkuriLife {
         if (restWait == 0 && (energy <= restThreshold() || restTime())
                 && (!entity.getVariant().isHouse() || entity.house().homeStand() == null || energy <= 10)) {
             targetBlock = homeStand();
+            if (targetBlock == null && entity.habitat().vagrant() && !entity.getVariant().isHouse()) targetBlock = nearestDryCover();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
@@ -791,6 +792,8 @@ public final class YukkuriLife {
         else if(entity.habitat().findHome())return;
         BlockPos nest = nearestCare(CareBlock.Kind.NEST, false);
         if (nest != null && assignHome(GlobalPos.of(level().dimension(), nest))) return;
+        // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
+        if (entity.habitat().wildLiver()) return;
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8), entity.blockPosition().offset(8,2,8))) {
             if(io.github.longshou.mcyukkuri.settlement.ShelterBlock.shelter(level(),scan)!=null)continue;

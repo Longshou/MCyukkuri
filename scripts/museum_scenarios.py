@@ -253,7 +253,7 @@ add('winter', 'snow', '冬：居巢', '冬居巢', '雪原上的营地：下雪�
 
 add('settle_demo', 'settle', '小聚落', '小聚落', '一座小型示范站点和一小群成员：住所、广场、仓堆', '随意', [
     'yukkuri settlement spawn demo ~ ~ ~', LEAD_ANY], env=DAY)
-add('settle_village', 'settle', '聚落与族长', '聚落与族长', '一座完整村落：族长、各家住所、公用仓堆；可派工、制造威胁、迁居（下方按钮）', '数分钟（倍速）', [
+add('settle_village', 'settle', '聚落与族长', '聚落与族长', '一座完整村落：族长、各家住所、公用仓堆；可尝试迁居（下方按钮）', '数分钟（倍速）', [
     GRASS, 'yukkuri settlement spawn village ~ ~ ~', LEAD_ANY], env=DAY)
 add('settle_band', 'settle', '流浪小队', '流浪小队', '一支小队建起营地，看它们安顿下来', '数分钟（倍速）', [
     'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY], env=DAY)
@@ -261,9 +261,5 @@ add('settle_band', 'settle', '流浪小队', '流浪小队', '一支小队建起
 LEADER = '@e[type=mcyukkuri:patchouli,distance=..60,limit=1,sort=nearest]'
 MEMBER = '@e[type=mcyukkuri:reimu,distance=..60,limit=1,sort=random]'
 SETTLE_EXTRAS = [
-    ('order_forage', '派工·采集', '族长派一名成员', f'yukkuri settlement order {LEADER} {MEMBER} forage'),
-    ('order_scout', '派工·侦察', '族长派一名成员', f'yukkuri settlement order {LEADER} {MEMBER} scout'),
-    ('order_message', '派工·传话', '族长派一名成员', f'yukkuri settlement order {LEADER} {MEMBER} message'),
-    ('threat', '制造威胁', '给最近聚落 +6', 'yukkuri settlement threat 6'),
     ('migrate', '尝试迁居', '最近聚落的族长', 'yukkuri settlement migrate'),
 ]

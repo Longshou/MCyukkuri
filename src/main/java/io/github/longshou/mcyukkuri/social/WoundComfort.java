@@ -100,7 +100,7 @@ public final class WoundComfort {
         if (e.house().active()) return "house";
         if (e.habitat().active()) return "habitat";
         if (e.independence().active()) return "independence";
-        if (e.settlement().active() || e.settlement().duties().active() || e.settlement().orders().active()) return "settlement";
+        if (e.settlement().active() || e.settlement().duties().active()) return "settlement";
         if (e.groupInteraction().active()) return "group";
         if (e.playLife().active()) return "play";
         if (e.pet().busy()) return "pet";

@@ -1999,6 +1999,39 @@
       "source_group": "unknown:N90",
       "reviewed_on": "2026-10-17",
       "locator": "日差しの強い夏の日、二只野外个体在树荫下休息"
+    },
+    {
+      "id": "N91",
+      "title": "お兄さんが愛したれいむ",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/5266.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；核对购入用品与结尾流浪场景；仅登记襁褓物件和用途描述，不纳入篇内冲突与结局作为世界规律",
+      "summary": "宠物店购入清单将襁褓称为即将到来的季节准备的防寒衣；后文没有展示穿用、活动或脱下。",
+      "limits": "只能确认本篇把襁褓作为可购置衣物并表达防寒用途意图；不能证明实际穿用、保暖效果、尺寸或材质，也不能认定为跨作者固定用途。",
+      "topics": [
+        "habitat",
+        "environment",
+        "society"
+      ],
+      "source_group": "unknown:N91",
+      "reviewed_on": "2026-10-18",
+      "locator": "购入用品段「防寒着のおくるみも」"
+    },
+    {
+      "id": "N92",
+      "title": "うーパックとゆちゅりー",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/403.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "762；仅核读河流渡越方案段，不纳入后续情节",
+      "summary": "一次群体过河中，魔理沙把帽子作浮具，其他个体使用捡来的木板或大叶片；体弱的帕秋莉由人抱过河，木棒用于支撑和操纵。",
+      "limits": "单篇实例，不证明木板或叶片是常见渡河工具，也没有固定队形、载重或操纵规范。故事后续事故不用于估计普遍风险；载具能浮不代表乘坐者耐水。",
+      "topics": [
+        "environment",
+        "society"
+      ],
+      "source_group": "author:762",
+      "reviewed_on": "2026-10-18",
+      "locator": "过河方法段「木の板や大きな葉っぱ」与「体が弱いから」"
     }
   ]
 }

@@ -42,7 +42,6 @@ public final class SettlementDuties {
                 && (brood == null || brood.cancelled || brood.complete()) && !entity.dailyLife().active()
                 && !entity.groupInteraction().active() && !entity.playLife().active()
                 && !entity.independence().householdOuting() && !entity.wintering().active()
-                && !entity.settlement().orders().active()
                 && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity);
     }
     private YukkuriEntity assigner() {
