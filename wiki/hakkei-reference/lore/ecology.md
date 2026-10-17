@@ -10,7 +10,7 @@
 | 食物 | 《ゆっくりについて》的普通种生活包含草、昆虫、人类食物等杂食描写。[A，L02](https://w.atwiki.jp/yukkuri_gyakutai/pages/1026.html) |
 | 食性分歧 | 社区《设置集》并列了只吃甜食、杂食、捕食等互不相容的写法。[W，L07](https://w.atwiki.jp/yukkuri_gyakutau2/pages/63.html) |
 | 水 | 八景社区同时记录普通种怕大量雨水或落水、洗澡却会高兴，以及螺壳魔理沙较耐水。[W，L01](https://wikiwiki.jp/yukkuri8kei/ゆっくりとは) |
-| 冷与热 | 《解体新书》把极端高低温列为死亡原因，但没有可移植的摄氏温度阈值；另一篇故事画出两只野外个体在树荫中休息，未形成跨篇的耐晒数值或普遍生理机制。[A，L06](https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html) · [L30](../sources-lore.md) |
+| 冷与热 | 《解体新书》把极端高低温列为死亡原因，但没有可移植的摄氏温度阈值；N90、N95 两篇旧 Wiki 小说都出现野外个体躲阴休息，署名均未确认，不能据此宣称跨作者重复或建立耐晒机制。[A，L06](https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html) · [L30](../sources-lore.md) · [L39](../sources-lore.md) |
 | 生病与死亡 | 八景社区记录潮湿/不洁与霉病、长期压力与精神异常或死亡、饰物丧失的压力。[W，L01](https://wikiwiki.jp/yukkuri8kei/ゆっくりとは) |
 | 繁殖与亲属 | 八景社区记载成体结伴、配对时确定父母角色、茎上实子后落地的过程；不是种族固定性别。[W，L01](https://wikiwiki.jp/yukkuri8kei/ゆっくりとは) |
 | 家油繁殖 | キリライター《家ゆ》与ポミー《側溝のゆっくり》分别描写家具缝隙、侧沟环境中的微小家油并采用卵生；栖所不同，卵的细节不互相补全。[M01](../../art-references/works/M01.md)、[N89](../../novel-reading/cards/N89.md) |
