@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 93,
+    "game_texts": 94,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11641,6 +11641,45 @@
       ],
       "focus": "群落公共储粮、守库与紧急分配",
       "description": "只参考一篇中的储粮用途、看守、狩猎不熟练者获粮和族长参与发放；不将其扩成所有群体的固定制度或无条件供给。",
+      "kind": "reference"
+    },
+    {
+      "id": "N98",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N98.md",
+      "source_id": "N98",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/4685.html",
+      "source_title": "ゆっくりいじめ小ネタ543 駄目駄目駄目",
+      "source_note": "署名未确认；只核读觅食范围扩大、作物与花的辨认，以及采食影响人类野生食材采集的生态信息；不以受罚情节和群落结局作世界设定",
+      "source_group": "unknown:N98",
+      "observation": "单篇写到食物不足推动群体扩大觅食范围；角色难以判断园艺花、食用花与蔬菜的关系，采食土坡杂草还移除了人类寻找野生诺比露时使用的茎部标记。",
+      "limits": "食用菊、诺比露、逐步扩大禁食范围及误判只属于该篇，不能作为植物共识、群落规则或人类土地制度；惩罚与饥饿结局不纳入生态归纳。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "爱丽丝"
+      ],
+      "scenarios": [
+        "采集进食",
+        "环境避险",
+        "协商约定"
+      ],
+      "emotions": [
+        "困惑"
+      ],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "食物来源辨认与采集对环境线索的影响",
+      "description": "只参考资源短缺推动活动范围扩大、植物用途辨认困难，以及一次采集行为影响他人定位野生食材的结果；花种、群体禁令和冲突结局不作为通用生态设定。",
       "kind": "reference"
     },
     {
