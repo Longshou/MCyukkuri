@@ -48,6 +48,8 @@
 
 2026-10-18 补入 L36 主文中的头饰成长与自修复写法，以及收拢破片、保存待修的行为母题，接入[资源生态](hakkei-reference/world/resources-ecology.md#帽子作为随身物与临时设施)和[生活覆盖表](life-settings-coverage.md)。当前缺独立的修补图格，未推定饰物材质、修复速度或操作方法。
 
+2026-10-18 依 L36 补充灵梦、魔理沙种的常见创作母题，接入[灵梦种](hakkei-reference/lore/species/reimu/README.md)和[魔理沙种](hakkei-reference/lore/species/marisa/README.md)：分别记录育儿／家庭喜剧表现，以及冒险、自我宣传与帽子的生存题材用途；明确保留个体差异、作者反转和帽船版本边界，不移植东方原作能力。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
