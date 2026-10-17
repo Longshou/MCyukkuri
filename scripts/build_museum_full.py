@@ -162,8 +162,8 @@ PROBE_COMMANDS = {
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
-    'settlement spawn': 'yukkuri settlement spawn band 0 0 0', 'settlement order': 'yukkuri settlement order @s @s forage',
-    'settlement threat': 'yukkuri settlement threat 6', 'settlement migrate': 'yukkuri settlement migrate'}
+    'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
+    'settlement migrate': 'yukkuri settlement migrate'}
 
 
 def build_pack(world):
@@ -214,7 +214,7 @@ def build_pack(world):
         fn(f'scn/{s.id}', s.body())
         fn(f'start/{s.id}', [f'function {NS}:field/{f.id}/clear'] + env_commands(s.env) + [f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}'])
 
-    # extras: settlement orders, house gifts, seasons, clips
+    # extras: settlement migration, house gifts, seasons, clips
     settle = BY_ID['settle']
     sx, sz = settle.anchor
     for name, caption, hint, command in SETTLE_EXTRAS:
