@@ -75,7 +75,10 @@ public final class SelfRescueHatGeometry {
     public static Pose pose(YukkuriEntity actor,Plan plan,double elapsed){
         double up=smooth((elapsed-3)/(SHAKE-3.0)),slide=smooth((elapsed-SHAKE)/TURN),lower=smooth((elapsed-SHAKE-TURN)/LOWER);
         double wobble=Math.sin(elapsed*Math.PI/2)*.08*(1-up);
-        var rotation=new Quaternionf(facing(plan.bodyYaw())).rotateY((float)wobble).rotateZ((float)(-Math.PI*slide)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
+        // The hat is wider than the body: it first travels upright and high over the face, and only turns over (roll about the
+        // facing axis) once it hangs in front of the body, on its way down to the water. Rolling above the body swept the
+        // brim through its flank (project fix: the earlier order made every shake-off path invalid).
+        var rotation=new Quaternionf(facing(plan.bodyYaw())).rotateY((float)wobble).rotateZ((float)(-Math.PI*lower)).rotateY((float)Math.PI/2).rotateX((float)Math.PI);
         var worn=wornOrigin(actor,plan);var settled=settledOrigin(actor,plan);
         double lifted=worn.y+9*bodyUnit(actor)*up;
         var origin=new Vec3(worn.x+(settled.x-worn.x)*slide,lifted+(settled.y-lifted)*lower,worn.z+(settled.z-worn.z)*slide);
