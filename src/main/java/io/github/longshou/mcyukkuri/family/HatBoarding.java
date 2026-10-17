@@ -163,7 +163,10 @@ public final class HatBoarding {
     public boolean landingClear(HatBoatEntity source,HatBoatEntity target,Vec3 localSeat){
         var at=target.toWorld(localSeat);var delta=at.subtract(actor.position());
         float yaw=(float)(Math.toDegrees(Math.atan2(delta.z,delta.x))-90);
-        return clearAt(actor,source,target,at,0,0,yaw,HatBoatEntity.Dip.NONE);
+        // Mounting an owned hat turns its captain to the hull heading. Reserve enough room for
+        // that actual supported turn, rather than repeatedly choosing a closer unusable patch.
+        return turnClear(actor,source,target,at,yaw,target.getYRot())
+                ||turnClear(actor,source,target,at,actor.yBodyRot,target.getYRot());
     }
     /** Walk over touching support, then let gravity lower the body onto the smaller hat.
      *  A down-step is not a scaled jump: the large hat's freeboard does not shrink with its child.
@@ -203,10 +206,10 @@ public final class HatBoarding {
     private List<Vec3> planSupportedStep(HatBoatEntity source,HatBoatEntity target,Vec3 origin,Vec3 destination,float toward){
         stepDownYaws=List.of();
         for(float yaw:new float[]{toward,actor.yBodyRot}){
-            if(!turnClear(actor,source,target,origin,actor.yBodyRot,yaw))continue;
+            if(!turnClear(actor,source,target,origin,actor.yBodyRot,yaw)){lastStepPlan="departure turn blocked yaw="+yaw;continue;}
             var path=planStepDown(source,target,origin,destination,yaw);if(path.isEmpty())continue;
             float endYaw=target.getYRot();
-            if(!turnClear(actor,source,target,destination,yaw,endYaw))continue;
+            if(!turnClear(actor,source,target,destination,yaw,endYaw)){lastStepPlan="landing turn blocked yaw="+yaw+" to="+endYaw+" at="+destination;continue;}
             var points=new ArrayList<>(path);var headings=new ArrayList<Float>();
             for(int i=0;i<path.size();i++)headings.add(yaw);
             float turn=Mth.wrapDegrees(endYaw-yaw);int ticks=(int)Math.ceil(Math.abs(turn)/8);
