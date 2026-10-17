@@ -810,6 +810,66 @@
       "locator": "風呂敷",
       "html_sha256": "2f3eccc9b901d4e88ea2e6f4a5486c7e1c4aa80c76bdf3b7f28fd0e5ad9b9b3e",
       "retrieved_at": "2026-10-17T10:23:32.176691+00:00"
+    },
+    {
+      "id": "N38",
+      "title": "ゆっくり育児２",
+      "url": "https://w.atwiki.jp/yume-m/pages/19.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "本页未确认署名；核读初夏取食训练至一家封巢结尾；未补读系列其他篇",
+      "summary": "亲代让幼体逐步练习捕虫，提醒放慢接近并表扬成功，也指认不可食蘑菇。秋季备粮、收集叶枝；孩子提出春季离巢，母亲反对后改为支持并传授生活经验。",
+      "limits": "另有撞树取果导致疼痛的段落，不概括为全程温和教学。没有可靠的现实物种辨认特征；成长速度属作者设定。结尾只封巢待春，未实际离巢。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "growth",
+        "environment",
+        "society"
+      ],
+      "source_group": "unknown:N38",
+      "reviewed_on": "2026-10-17",
+      "locator": "そーろ、そ－ろ",
+      "html_sha256": "1277074ad5519e1bd7b6cccab34ac6b788a83d6f4a322b6bcaa5c3cf5031a408",
+      "retrieved_at": "2026-10-17T10:33:07.344438+00:00"
+    },
+    {
+      "id": "N39",
+      "title": "夏の宵月",
+      "url": "https://w.atwiki.jp/slowlove/pages/2532.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "本页未确认署名；核读闷热开场至秋近结尾全文",
+      "summary": "同住灵梦和魔理沙因闷热而缓慢爬行。人类制作竹制滑水设施，之后示范吃面；玩耍进食后，两只在坐垫上睡着，被连垫移入蚊帐并得到扇风照料。",
+      "limits": "这是允许泡水的作品版本，不证明普通种普遍耐水，也不是水生亚种或微小家油的证据。竹槽和桶由人类制作；设施尺寸与水位不能直接用作游戏安全参数。",
+      "topics": [
+        "environment",
+        "human",
+        "motion",
+        "cognition"
+      ],
+      "source_group": "unknown:N39",
+      "reviewed_on": "2026-10-17",
+      "locator": "座布団ごと",
+      "html_sha256": "468b84db83b1add370ab996162aedab0a7d3f1821ab858ade725040007ca8d4e",
+      "retrieved_at": "2026-10-17T10:33:08.667301+00:00"
+    },
+    {
+      "id": "N40",
+      "title": "月に帰らないかぐや姫",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3345.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "118（正文末 by118）；核读庭院相遇、筑巢及爱丽丝整理旧巢段，并核读后段实验说明与结尾",
+      "summary": "爱丽丝准备把旧巢留给熟人，检查损坏、修整并整理食物库；采野草换干草，因考虑后续住户的补给能力而谢绝额外布料。",
+      "limits": "后段揭示能力强化实验背景，不作普通种能力通则。教修理、换草与交巢是计划，未展示完整交接；对熟人能力的判断属于角色观点。没有共同施工或排水细节。",
+      "topics": [
+        "habitat",
+        "society",
+        "human"
+      ],
+      "source_group": "author:118",
+      "reviewed_on": "2026-10-17",
+      "locator": "壊れている箇所を修繕し",
+      "html_sha256": "e2c258c443913c3f6023efe9f33915e33449da7efd0c1cb621e10b6cfca4a3ed",
+      "retrieved_at": "2026-10-17T10:33:09.577752+00:00"
     }
   ]
 }

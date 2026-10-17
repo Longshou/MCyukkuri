@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 35,
+    "game_texts": 38,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -8639,6 +8639,130 @@
       ],
       "focus": "编叶包袱与物资交换",
       "description": "区分运输容器、食物和修窝材料。",
+      "kind": "reference"
+    },
+    {
+      "id": "N38",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "cognition",
+        "growth",
+        "environment",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N38.md",
+      "source_id": "N38",
+      "source_url": "https://w.atwiki.jp/yume-m/pages/19.html",
+      "source_title": "ゆっくり育児２",
+      "source_note": "本页未确认署名；核读初夏取食训练至一家封巢结尾；未补读系列其他篇",
+      "source_group": "unknown:N38",
+      "observation": "亲代让幼体逐步练习捕虫，提醒放慢接近并表扬成功，也指认不可食蘑菇。秋季备粮、收集叶枝；孩子提出春季离巢，母亲反对后改为支持并传授生活经验。",
+      "limits": "另有撞树取果导致疼痛的段落，不概括为全程温和教学。没有可靠的现实物种辨认特征；成长速度属作者设定。结尾只封巢待春，未实际离巢。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "认知教学",
+        "采集进食",
+        "照料幼体",
+        "同伴交往",
+        "住所布置"
+      ],
+      "emotions": [
+        "认真",
+        "得意",
+        "担忧"
+      ],
+      "targets": [
+        "动作",
+        "事件"
+      ],
+      "focus": "接近食物、失败后调整、成功反馈；家庭商议离巢",
+      "description": "把练习结果和家庭态度变化分别表现，不用体型直接判定独立能力。",
+      "kind": "reference"
+    },
+    {
+      "id": "N39",
+      "media": "text",
+      "topics": [
+        "environment",
+        "human",
+        "motion",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N39.md",
+      "source_id": "N39",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/2532.html",
+      "source_title": "夏の宵月",
+      "source_note": "本页未确认署名；核读闷热开场至秋近结尾全文",
+      "source_group": "unknown:N39",
+      "observation": "同住灵梦和魔理沙因闷热而缓慢爬行。人类制作竹制滑水设施，之后示范吃面；玩耍进食后，两只在坐垫上睡着，被连垫移入蚊帐并得到扇风照料。",
+      "limits": "这是允许泡水的作品版本，不证明普通种普遍耐水，也不是水生亚种或微小家油的证据。竹槽和桶由人类制作；设施尺寸与水位不能直接用作游戏安全参数。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "日常活动",
+        "休息睡眠",
+        "认知教学"
+      ],
+      "emotions": [
+        "喜悦",
+        "安心",
+        "困惑"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "道具"
+      ],
+      "focus": "闷热时移动变化、吃法示范、连垫移送与扇风",
+      "description": "补夏日活动到休息的过渡；纳凉方式须单独核对项目耐水规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N40",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N40.md",
+      "source_id": "N40",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3345.html",
+      "source_title": "月に帰らないかぐや姫",
+      "source_note": "118（正文末 by118）；核读庭院相遇、筑巢及爱丽丝整理旧巢段，并核读后段实验说明与结尾",
+      "source_group": "author:118",
+      "observation": "爱丽丝准备把旧巢留给熟人，检查损坏、修整并整理食物库；采野草换干草，因考虑后续住户的补给能力而谢绝额外布料。",
+      "limits": "后段揭示能力强化实验背景，不作普通种能力通则。教修理、换草与交巢是计划，未展示完整交接；对熟人能力的判断属于角色观点。没有共同施工或排水细节。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "爱丽丝"
+      ],
+      "scenarios": [
+        "住所布置",
+        "物品搬运",
+        "人类接触"
+      ],
+      "emotions": [
+        "认真",
+        "担忧"
+      ],
+      "targets": [
+        "场景",
+        "事件",
+        "道具"
+      ],
+      "focus": "旧巢检查、存粮整理与后续补给",
+      "description": "为住所维护记录使用者与材料来源，不把赠屋意愿写成交付完成。",
       "kind": "reference"
     }
   ]

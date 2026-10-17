@@ -52,3 +52,5 @@
 [共通生态](ecology.md) · [群落专题](../../yukkuri-communities.md) · [水生魔理沙](species/marisa/aquatic-marisa.md)
 
 2026-10-17 继续核读：[野外环境与交互](../../wild-life.md)补入雨困、暴雨撤离、床下寄居、地方互助和公园接纳；[树叶襁褓](../../leaf-swaddle.md)单独登记叶材育幼包覆。
+
+2026-10-17 续补：[N35](../../novel-reading/cards/N35.md)冬季照护、[N36](../../novel-reading/cards/N36.md)人造木屋入住、[N38](../../novel-reading/cards/N38.md)秋季备料、[N39](../../novel-reading/cards/N39.md)夏日照料及[N40](../../novel-reading/cards/N40.md)旧巢维护。N39 的泡水版本和 N40 的能力强化背景均不覆盖普通野外生态；计划中的换草、教修理和交巢不记作完成。
