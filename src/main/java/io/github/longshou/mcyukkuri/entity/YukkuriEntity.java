@@ -323,47 +323,7 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
     public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
-    private YukkuriEntity museumPartner;
-    private String museumContact = "";
-
-    public void bindMuseumContact(YukkuriEntity partner, String kind) {
-        boolean aboard = getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-        playAction(kind.equals("nuzzle") ? aboard ? "boat_nuzzle" : "nuzzle"
-                : kind.equals("rear") ? "nuzzle" : aboard ? "boat_feed_young" : "eat");
-        partner.playAction(kind.equals("nuzzle") ? "nuzzle" : kind.equals("rear") ? "brace" : "eat");
-        museumPartner = partner; museumContact = kind;
-        partner.museumPartner = this; partner.museumContact = kind.equals("nuzzle") ? kind : "receiver";
-    }
-
-    private String museumBehavior(String fallback) {
-        var peer = museumPartner;
-        if (peer == null) return fallback;
-        double distance = position().subtract(peer.position()).horizontalDistance();
-        double body = (getBbWidth() + peer.getBbWidth()) * .5;
-        if (!io.github.longshou.mcyukkuri.command.MuseumCommands.actor(this)
-                || !io.github.longshou.mcyukkuri.command.MuseumCommands.actor(peer) || peer.isRemoved()
-                || peer.level() != level() || peer.museumPartner != this || distance < body - .1
-                || distance > body + .1 || Math.abs(getY() - peer.getY()) > .5) {
-            museumPartner = null; museumContact = ""; return fallback;
-        }
-        var delta = peer.position().subtract(position());
-        float yaw = (float)Math.toDegrees(Math.atan2(-delta.x, delta.z));
-        if (museumContact.equals("receiver") && peer.museumContact.equals("rear")) yaw += 180;
-        setYRot(yaw); setYHeadRot(yaw); yBodyRot = yaw;
-        if (museumContact.equals("nuzzle")) {
-            entityData.set(NUZZLE_PARTNER, peer.getId()); return "nuzzle";
-        } else if (!museumContact.equals("receiver")) {
-            entityData.set(CARE_PARTNER, peer.getId());
-            entityData.set(CARE_PROGRESS, Mth.clamp((level().getGameTime() - getAnimationStartTick()) / 20f, 0, 1));
-            return museumContact.equals("rear") ? "first_toilet_assist" : "feed_child";
-        }
-        return fallback;
-    }
-
     @Override public void push(net.minecraft.world.entity.Entity other) {
-        // Fixed exhibit actors can meet at the authored contact envelope without vanilla's proximity shove.
-        if (io.github.longshou.mcyukkuri.command.MuseumCommands.actor(this)
-                && io.github.longshou.mcyukkuri.command.MuseumCommands.actor(other)) return;
         // Vanilla's extra proximity push otherwise separates a consenting pair before mouths can meet.
         // Actual body overlap, players and unrelated animals retain ordinary collision response.
         if(other instanceof YukkuriEntity peer&&careApproach.cooperatingWith(peer)
@@ -554,7 +514,6 @@ public final class YukkuriEntity extends PathfinderMob {
         if (level().isClientSide || !isAlive()) return false;
         var action = YukkuriAction.byId(id);
         if (action.isEmpty()) return false;
-        museumPartner = null; museumContact = "";
         if (action.get()==YukkuriAction.SHELL_RETRACT
                 &&(!shellRetraction.hasShell()||isInWaterOrBubble()||isOnFire()))return false;
         shellRetraction.reset();
@@ -734,7 +693,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if(shellRetraction.active()) {
             entityData.set(EXPRESSION,"neutral");setBehavior("shell_retract");return;
         }
-        if (requestedAction != null && museumPartner == null && !requestedAction.loops() && !requestedAction.holdsEndPose()
+        if (requestedAction != null && !requestedAction.loops() && !requestedAction.holdsEndPose()
                 && level().getGameTime() - getAnimationStartTick() >= requestedAction.durationTicks()) {
             requestedAction = null;
         }
@@ -766,7 +725,7 @@ public final class YukkuriEntity extends PathfinderMob {
                 if (getAnimationStartTick() != start) entityData.set(ANIMATION_START, start);
             }
         }
-        setBehavior(museumBehavior(behavior));
+        setBehavior(behavior);
         entityData.set(EXPRESSION, "predator_bite".equals(flightAnimation) ? "biting" : io.github.longshou.mcyukkuri.social.EcologyPresentation.expression(this,
                 reactionTicks > 0 ? reactionExpression : settlement.society().dejected() ? "teary" : life.hasAccessory() ? "neutral" : "surprise"));
     }

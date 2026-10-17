@@ -84,17 +84,6 @@ public final class RemainsEntity extends Entity {
         if(!isNoGravity())setDeltaMovement(getDeltaMovement().add(0,-.04,0));
         move(MoverType.SELF,getDeltaMovement());
         setDeltaMovement(getDeltaMovement().multiply(.8,onGround()?0:.98,.8));
-        if(tickCount%200==0&&level() instanceof net.minecraft.server.level.ServerLevel server&&expired(server))decay(server);
-    }
-    /** Remains of house yukkuri are household debris: unburied and uncollected, they rot after two game days. */
-    public static final long HOUSE_REMAINS_LIFETIME=48000;
-    private boolean expired(net.minecraft.server.level.ServerLevel server){
-        var d=data();
-        return d.getString("Variant").startsWith("house_")&&d.contains("DiedAt")&&server.getGameTime()-d.getLong("DiedAt")>=HOUSE_REMAINS_LIFETIME;
-    }
-    private void decay(net.minecraft.server.level.ServerLevel server){
-        server.sendParticles(net.minecraft.core.particles.ParticleTypes.POOF,getX(),getY()+.1,getZ(),4,.1,.05,.1,.01);
-        discard();
     }
     @Override protected void addAdditionalSaveData(CompoundTag tag){if(!remains().isEmpty())tag.put("Remains",remains().save(registryAccess()));}
     @Override protected void readAdditionalSaveData(CompoundTag tag){setRemains(ItemStack.parseOptional(registryAccess(),tag.getCompound("Remains")));}
