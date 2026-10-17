@@ -8213,31 +8213,32 @@
       "topics": [
         "appearance",
         "body",
-        "society"
+        "society",
+        "motion"
       ],
       "path": "wiki/novel-reading/cards/N11.md",
       "source_id": "N11",
       "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
       "source_title": "ゆっくり解体新書",
-      "source_note": "署名未确认；本轮复核开篇私设声明和“構造”段，季节条目沿用既有书目核读",
+      "source_note": "署名未确认；复核开篇私设声明、“構造”段、季节条目及 2026-10-18 追加的妖梦种段",
       "source_group": "unknown:N11",
-      "observation": "作者明确不强制他人接受其数值；关于身体、饰物及离体后变化的说明属于该文体系",
-      "limits": "不能据此推出：形式像研究报告就是真实自然定律；不明机理可作为项目物理系统。",
+      "observation": "作者明确不强制他人接受其数值；追加段写妖梦种常带棒状武器狩猎／战斗并担任护卫，仅作该文个人设定实例",
+      "limits": "不能据此推出：形式像研究报告就是真实自然定律；单篇文字不等于跨作者频率或美术图证，不能由「観楼剣」名称还原长刀造型。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
-        "通用油库里"
+        "妖梦"
       ],
       "scenarios": [
-        "身体受损",
-        "饰物身份"
+        "采集进食",
+        "日常活动"
       ],
       "emotions": [],
       "targets": [
-        "模型",
-        "事件"
+        "动作",
+        "道具"
       ],
-      "focus": "作者声明与结构段",
-      "description": "在身体受损方案中分别记录外皮、馅料、饰物与离体状态；数值留给项目确定。",
+      "focus": "妖梦携棒状武器狩猎／战斗与护卫",
+      "description": "作为妖梦种武器和护卫母题的文字检索入口；形状、材质和战斗动作待图证核对，不套用东方原作长刀。",
       "kind": "reference"
     },
     {
