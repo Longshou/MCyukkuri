@@ -18,6 +18,9 @@ import org.joml.Vector3f;
 final class ToiletPresentation {
     private static float cycle = 10, contactStart = 2, contactEnd = 7, width = .045f, length = .055f, faceOffset = .003f;
     private static float[][] profile = {{0, .8f}, {.25f, 1}, {.8f, 1}, {1, .55f}};
+    /** Anus (rump mark) centre of each rig in rest-pose model pixels, exported with the straining clip (toilet_contact.json "outlet"). */
+    private static java.util.Map<String, float[]> sites = java.util.Map.of();
+    private static final int[] STOOL = {96, 62, 32};
     private ToiletPresentation() {}
 
     static JsonObject reload(ResourceManager resources) {
@@ -44,7 +47,16 @@ final class ToiletPresentation {
             }
             if (loaded[0][0] != 0 || loaded[loaded.length - 1][0] != 1) throw new IllegalArgumentException("Incomplete facial tongue outline");
             profile = loaded;
-            return data.getAsJsonObject("models");
+            var models = data.getAsJsonObject("models");
+            var found = new java.util.HashMap<String, float[]>();
+            for (var entry : models.entrySet()) {
+                var outlet = entry.getValue().getAsJsonObject().getAsJsonObject("outlet");
+                if (outlet == null) continue;
+                var site = outlet.getAsJsonArray("site_px");
+                found.put(entry.getKey(), new float[]{site.get(0).getAsFloat(), site.get(1).getAsFloat(), site.get(2).getAsFloat()});
+            }
+            sites = java.util.Map.copyOf(found);
+            return models;
         } catch (IOException error) { throw new UncheckedIOException("Cannot load toilet presentation", error); }
     }
 
@@ -86,5 +98,34 @@ final class ToiletPresentation {
                         .setNormal(pose.last(), normal.x, normal.y, normal.z);
             }
         }
+    }
+
+    /**
+     * The stool leaves the model's own anus (油菊) as the straining clip pushes: it grows out of the rump along the rear-downward
+     * normal between {@code EMERGE_FROM_TICKS} and {@code DROP_TICKS}, the tick at which the server lets the real item fall from the
+     * same point (ToiletContact.anus). Drawn in the model's posed root frame, so squat, squash and yaw are all followed.
+     */
+    static void renderStool(YukkuriEntity actor, String behavior, float ticks, YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light) {
+        if (!(behavior.equals("toilet") || behavior.equals("ground_toilet") || behavior.equals("boat_toilet") || behavior.equals("toilet_accident"))) return;
+        float from = io.github.longshou.mcyukkuri.life.ToiletContact.EMERGE_FROM_TICKS, to = io.github.longshou.mcyukkuri.life.ToiletContact.DROP_TICKS;
+        if (ticks < from || ticks > to + 1) return;
+        var site = sites.get(actor.subspecies().assetId());
+        if (site == null) return;
+        float q = Mth.clamp((ticks - from) / (to - from), 0, 1);
+        q = q * q * (3 - 2 * q);
+        float size = actor.getVariant().width() / .75f;
+        var root = model.rootPose();
+        // Starts just inside the skin so the sausage seems to come out of the opening; leaves along the rear-downward normal.
+        var inside = new Vector3f(site[0], site[1] + .15f, site[2] - .25f);
+        var direction = root.transformDirection(new Vector3f(0, -.26f, .965f)).normalize();
+        var start = root.transformPosition(new Vector3f(inside)).div(16);
+        float length = .165f * size * q, radius = .036f * size * (.55f + .45f * q);
+        var end = new Vector3f(start).add(direction.x * length, direction.y * length, direction.z * length);
+        var tip = new Vector3f(end).add(direction.x * radius * .8f, direction.y * radius * .8f, direction.z * radius * .8f);
+        var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(net.minecraft.resources.ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png")));
+        FamilyRenderer.tube(pose, buffer, new net.minecraft.world.phys.Vec3(start.x, start.y, start.z), new net.minecraft.world.phys.Vec3(end.x, end.y, end.z),
+                radius * .8, radius, light, STOOL);
+        FamilyRenderer.tube(pose, buffer, new net.minecraft.world.phys.Vec3(end.x, end.y, end.z), new net.minecraft.world.phys.Vec3(tip.x, tip.y, tip.z),
+                radius, radius * .35, light, STOOL);
     }
 }

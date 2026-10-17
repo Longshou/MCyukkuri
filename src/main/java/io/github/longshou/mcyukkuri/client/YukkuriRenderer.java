@@ -148,6 +148,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?"idle":distress!=null?distress.clip():behavior, distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
+            ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
             var root=model.rootPose();
             // The captain keeps holding the paddle while she offers the brim or nudges the child.
             if ((action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young")) && entity.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity boat

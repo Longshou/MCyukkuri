@@ -33,6 +33,8 @@ public final class WoundComfort {
     /** After a session the kin does not start another one for a minute; a failed attempt waits less. */
     private static final int KIN_COOLDOWN = 1200;
     private static final int FAILED_COOLDOWN = 400;
+    /** Interrupted by something urgent (the hurt one bolted, a hunger emergency): the kin tries again soon, not after a minute. */
+    private static final int INTERRUPTED_COOLDOWN = 80;
     /** A wounded one that was comforted is not licked again for three minutes. */
     private static final int RELIEF_COOLDOWN = 3600;
     /** Every this many contact ticks the wounded one is eased a little. */
@@ -90,7 +92,7 @@ public final class WoundComfort {
         if (e.life().isSleeping()) return "sleeping";
         if (e.life().mealTicks() != 0) return "meal";
         if (!e.life().activity().equals("idle")) return "life_" + e.life().activity();
-        if (e.family().active()) return "family_" + e.family().activity();
+        if (e.family().active() && !e.family().yieldsToComfort()) return "family_" + e.family().activity();
         if (e.family().awaitingLanding()) return "awaiting_landing";
         if (e.childhood().active()) return "childhood";
         if (e.careApproach().waiting()) return "care_approach";
@@ -191,6 +193,9 @@ public final class WoundComfort {
         session = new Session(entity, victim);
         victim.woundComfort().session = session;
         entity.social().stop(); victim.social().stop();
+        // Everyday errands (waiting for the child, following the parent) are put down for the comforting.
+        if (entity.family().yieldsToComfort()) entity.family().stop();
+        if (victim.family().yieldsToComfort()) victim.family().stop();
         victim.getNavigation().stop();
         entity.setPersistenceRequired();
         return true;
@@ -288,7 +293,7 @@ public final class WoundComfort {
     private void failed() { end(FAILED_COOLDOWN); }
 
     public void stop() {
-        if (session != null && !session.ended) end(session.contact > 0 ? KIN_COOLDOWN / 2 : FAILED_COOLDOWN);
+        if (session != null && !session.ended) end(INTERRUPTED_COOLDOWN);
         session = null;
     }
 
