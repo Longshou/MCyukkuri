@@ -493,20 +493,23 @@
       "id": "N23",
       "title": "森のゆっくり",
       "url": "https://w.atwiki.jp/slowlove/pages/15.html",
-      "bibliography": "新阅读卡",
-      "author_and_scope": "署名未确认；开头拜访住所至气球破裂和相互安慰；另核读结尾同宿至 Fin",
-      "summary": "树根、岩石和坡面之间的住所、苔藓铺层以及书籍被赋予具体用途。帕秋莉能读一些字却未必懂全部意义；伙伴带气球玩耍，破裂后安慰并同宿。",
-      "limits": "未逐句核读中间所有段落；不能据本作把识字等同全知，也不能把苔藓恒温当作物理保证。",
-      "anchor": "苔",
+      "bibliography": "独立作品入口，作者关系未确认",
+      "author_and_scope": "署名未确认；补读中段，现已核读开头至 Fin 全文；评论不作正文",
+      "summary": "魔理沙回应同伴疲倦而放慢；朋友到难以远行的帕秋莉家聚会。灵梦和魔理沙合力顶气球，气球破裂后道歉、安慰爱丽丝；随后轮流讲述、共享事先准备的晚餐，给帕秋莉让食并同宿。",
+      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者仍未知。",
       "topics": [
         "habitat",
         "motion",
         "cognition",
-        "society"
+        "society",
+        "feeding"
       ],
       "source_group": "unknown:N23",
-      "reviewed_on": "2026-10-14",
-      "metadata": {
+      "reviewed_on": "2026-10-17",
+      "locator": "一匹が自分の話をして",
+      "html_sha256": "93fe6ca61e9a54ee2dd39f2d8c71b48a809da17707e5ca49a3765b2d46ade18f",
+      "retrieved_at": "2026-10-17T11:13:13.769647+00:00",
+      "previous_capture": {
         "id": "N23",
         "url": "https://w.atwiki.jp/slowlove/pages/15.html",
         "page_title": "森のゆっくり - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
@@ -1145,6 +1148,47 @@
         "retrieved_at": "2026-10-17T11:06:24.717573+00:00",
         "scope": "十二月正文已核读；只用于回查犬屋背风、人工保温层与储粮的前置条件。主要角色为有胴体捕食者，不另建当前游戏卡。"
       }
+    },
+    {
+      "id": "N52",
+      "title": "まて",
+      "url": "https://w.atwiki.jp/slowlove/pages/79.html",
+      "bibliography": "独立作品入口，作者关系未确认",
+      "author_and_scope": "署名未确认；核读正文开头至末句反省，止于评论之前",
+      "summary": "宠物灵梦用头承托餐具帮忙，随后请求进食。人类要求等许可，却故意给出似是而非的开吃信号，使它失衡撞墙并哭泣；人类道歉、承诺让它坐膝上用餐，随后实际喂食。",
+      "limits": "等待夹有断食威胁和故意逗弄，不是成功训练范例；时长是本篇叙事，不作课程参数。兑现当次承诺不能证明长期信任已经恢复；膝上喂食也不能外推全部家庭。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "human",
+        "motion"
+      ],
+      "source_group": "unknown:N52",
+      "reviewed_on": "2026-10-17",
+      "locator": "今度の約束は絶対に守る",
+      "html_sha256": "96fe5818376e82e394474a9c5f11ee9228fe6c5b32dd933a51fffb1bbd0c18b1",
+      "retrieved_at": "2026-10-17T11:13:44.365738+00:00"
+    },
+    {
+      "id": "N53",
+      "title": "お代",
+      "url": "https://w.atwiki.jp/slowlove/pages/323.html",
+      "bibliography": "独立作品入口，作者关系未确认",
+      "author_and_scope": "署名未确认；核读正文至下一批客人尾声，止于「6スレ目」和评论之前；只取灵梦、魔理沙的用餐与付款理解，不提取伤害操作",
+      "summary": "灵梦和魔理沙回应推荐、等待上菜并进食，店家到用餐后才询问付款。两者以自身馅料作为报酬，店家惊惧收下，它们满意离开；双方对交易的理解并不相同。",
+      "limits": "事前没有明确价格或付款方式，不是已议定的以物易物制度，也不是赠礼。店主为东方角色米斯蒂娅，不能误记成人类或当前游戏新增实体；自体取馅及后续转送不作制作步骤或食物规则。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "body"
+      ],
+      "source_group": "unknown:N53",
+      "reviewed_on": "2026-10-17",
+      "locator": "ところでお客さん、御代は",
+      "html_sha256": "3ca82ca7ce05051566f81822df46ff0e69662d67f896910fe4d263ad5b5b597a",
+      "retrieved_at": "2026-10-17T11:13:43.381284+00:00"
     }
   ]
 }
