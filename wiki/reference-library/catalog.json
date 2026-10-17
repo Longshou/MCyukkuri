@@ -7,7 +7,7 @@
     "image_bytes": 90216088,
     "image_unique_hashes": 414,
     "game_images": 177,
-    "game_texts": 44,
+    "game_texts": 47,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -77,7 +77,8 @@
         "收养安置",
         "共同劳动",
         "协商约定",
-        "赠礼答谢"
+        "赠礼答谢",
+        "离巢独立"
       ]
     },
     "emotions": {
@@ -7386,7 +7387,8 @@
       ],
       "scenarios": [
         "住所布置",
-        "环境避险"
+        "环境避险",
+        "离巢独立"
       ],
       "emotions": [
         "期待"
@@ -7406,31 +7408,40 @@
         "habitat",
         "feeding",
         "growth",
-        "environment"
+        "environment",
+        "cognition"
       ],
       "path": "wiki/novel-reading/cards/N02.md",
       "source_id": "N02",
       "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2736.html",
       "source_title": "ゆっくりの一年春編",
-      "source_note": "署名未确认；“季節は春”至亲代备床、准备幼体家具段，未读完整后半",
+      "source_note": "署名未确认；2026-10-14 仅读春季前段，现续读至春篇结尾与后记；只采用越冬差异、备床和出生落点情节，侵害段不作制作目标；夏篇未核读",
       "source_group": "unknown:N02",
-      "observation": "越冬后各家余粮不同；部分饥饿者连保温材料也消耗，出巢时体力不一；该篇有亲代备软床和石木家具的描写",
-      "limits": "不能据此推出：睡眠免除饥饿；所有家庭越冬结局相同；该篇繁殖时长是共同数值。",
+      "observation": "家庭越冬余粮与体力不同，缺粮者连铺层也消耗。亲代准备软床和石木家具；后半一家的幼体摇摆脱茎时撞到家具而死亡，亲代改变催促，剩余幼体平安落地。",
+      "limits": "家具不是安全育幼布置的正面范例；调整催促不证明排除了落点危险。未见跨家庭共享余粮。旁白的发育时长和因果解释只属本篇，春篇不能代表全年。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
-        "通用油库里"
+        "灵梦",
+        "魔理沙",
+        "茎果"
       ],
       "scenarios": [
         "环境避险",
-        "照料幼体"
+        "照料幼体",
+        "住所布置",
+        "出生发育"
       ],
-      "emotions": [],
+      "emotions": [
+        "期待",
+        "悲伤"
+      ],
       "targets": [
         "事件",
-        "道具"
+        "道具",
+        "场景"
       ],
-      "focus": "越冬余粮、铺层被消耗和亲代备床段",
-      "description": "为春季出巢准备不同的饥饿与体力状态；窝铺层既是保温条件，也是会被消耗的物资。",
+      "focus": "越冬后的状态差异与育幼布置的意外后果",
+      "description": "将备床、家具位置、落地空间和催促信号分开记录；保留同篇不同家庭的结果。",
       "kind": "reference"
     },
     {
@@ -8148,32 +8159,47 @@
         "feeding",
         "growth",
         "environment",
-        "human"
+        "human",
+        "cognition",
+        "society"
       ],
       "path": "wiki/novel-reading/cards/N25.md",
       "source_id": "N25",
       "source_url": "https://w.atwiki.jp/slowlove/pages/288.html",
       "source_title": "ゆっくりパークの春夏秋冬 part 1",
-      "source_note": "已读部分未确认署名；序章、四月建园、五月入住至母灵梦分配番茄段；只读第一篇开头",
-      "source_group": "unknown:N25",
-      "observation": "草原、森林、小溪、浅滩、木桥和人工仿自然洞穴组合成生活空间；不同群体在其中选择居处。母体给幼体分配食物，可与队列、亲子尺度和资源布点图对照。",
-      "limits": "未核读全文及其他 part；“人不能过、油库里能过”的围栏、体型比喻和幻想乡位置仅属此作，不能推出完整全年规律。",
+      "source_note": "YT（作者目录归属，part2–4 末署名佐证）；2026-10-14 仅读五月分食段以前，现续读序章及四月至八月本篇全文；后续见 N47–N49，part5 起未读",
+      "source_group": "author:YT",
+      "observation": "人工园区提供食源、桥和仿自然洞穴。雨季人类暗中补叶阻止巢口进水，住户误归功于自己；伤者被转至屋檐下照护。夏季为同伴采向日葵种子，带回花后才发现尚未结种。",
+      "limits": "补叶是人类干预，不是共同修窝或排水施工；园区不等于无干预野外。八月捕食者有手，不供当前无胴体造型使用；疗伤、落体恢复和主人不显露供食的做法均不作通则。",
       "review_status": "沿用指定段落核读，补写游戏用途",
       "entities": [
-        "通用油库里"
+        "灵梦",
+        "魔理沙",
+        "帕秋莉",
+        "人类"
       ],
       "scenarios": [
         "住所布置",
         "采集进食",
-        "照料幼体"
+        "照料幼体",
+        "环境避险",
+        "人类接触",
+        "同伴交往",
+        "医疗照护",
+        "物品搬运"
       ],
-      "emotions": [],
+      "emotions": [
+        "期待",
+        "担忧",
+        "困惑"
+      ],
       "targets": [
         "场景",
-        "事件"
+        "事件",
+        "动作"
       ],
-      "focus": "春季地块选择与母体分食",
-      "description": "给群落地图布置草地、林地、水边、桥与人工洞穴，把食源和亲子休息点接成可达路线。",
+      "focus": "补叶挡水、外部照护、采集目标与成熟阶段不符",
+      "description": "区分环境被改善、角色知道原因与可重复实施；植物可见、可取和已有目标食材分开。",
       "kind": "reference"
     },
     {
@@ -8678,7 +8704,8 @@
         "照料幼体",
         "同伴交往",
         "住所布置",
-        "协商约定"
+        "协商约定",
+        "离巢独立"
       ],
       "emotions": [
         "认真",
@@ -9022,7 +9049,8 @@
         "采集进食",
         "照料幼体",
         "同伴交往",
-        "共同劳动"
+        "共同劳动",
+        "离巢独立"
       ],
       "emotions": [
         "安心",
@@ -9034,6 +9062,147 @@
       ],
       "focus": "雨前储备、成年子代共巢与地表活动干扰",
       "description": "食物预算、水源可达、地表荷载和是否分家分开记录；不把季节准备写成必定安全。",
+      "kind": "reference"
+    },
+    {
+      "id": "N47",
+      "media": "text",
+      "topics": [
+        "society",
+        "environment",
+        "habitat",
+        "human",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N47.md",
+      "source_id": "N47",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/290.html",
+      "source_title": "ゆっくりパークの春夏秋冬 part 2",
+      "source_note": "YT（正文末署名及作者目录）；核读九月、十月全文至下篇链接；同 N25 系列，后续设施修订见 N48、N49",
+      "source_group": "author:YT",
+      "observation": "共同采花后整堆搬运散落，子代误以为采食而离开；母亲分束送到幼体遇难处，帕秋莉同行。人类设下游网使落水幼体到岸；后来设置需补给果物的避难处，出现以食物换脱险的个案。",
+      "limits": "救援网不是安全桥面，快速恢复只属虚构。夜间 DOS 有超能力且叙述保留梦境疑问，不作普通 DOS 依据；十月有胴体捕食者和未纳入角色不供当前造型动作使用。避难方案在 N48 又被改动。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "帕秋莉",
+        "人类"
+      ],
+      "scenarios": [
+        "共同劳动",
+        "物品搬运",
+        "离别悼念",
+        "环境避险",
+        "人类接触",
+        "同伴交往",
+        "协商约定"
+      ],
+      "emotions": [
+        "困惑",
+        "悲伤",
+        "担忧",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "搬运失败、分束献花、落水救援与依赖补给的设施",
+      "description": "共同劳动需知道用途；不将一次救援或一次交换写成永久安全，保持系列前后修订关系。",
+      "kind": "reference"
+    },
+    {
+      "id": "N48",
+      "media": "text",
+      "topics": [
+        "cognition",
+        "society",
+        "habitat",
+        "environment",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N48.md",
+      "source_id": "N48",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/291.html",
+      "source_title": "ゆっくりパークの春夏秋冬 part 3",
+      "source_note": "YT（正文末署名）；核读 intermission 全文，取帕秋莉引导、一家协同和设施使用限制；不提取伤害机关的制作参数",
+      "source_group": "author:YT",
+      "observation": "帕秋莉引导一家进入避难箱，解释并指挥多人协同操作，追逐者退去。人类以此替代前篇的供食交换方案；单独进入者无法完成操作，推广仍只是计划。",
+      "limits": "追逐者明确有胴体；只取灵梦一家和帕秋莉的沟通协作，不移植捕食者造型或机关。下一篇出现占屋问题，当前一次成功不能证明设施普遍可用。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "帕秋莉",
+        "人类"
+      ],
+      "scenarios": [
+        "受困逃离",
+        "环境避险",
+        "共同劳动",
+        "认知教学",
+        "同伴交往"
+      ],
+      "emotions": [
+        "恐惧",
+        "认真",
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "避难时解释用途、接受指挥与多人配合",
+      "description": "区分进入设施、理解操作和有足够协作者；后续使用问题回查 N49，不把原作机关当制作方案。",
+      "kind": "reference"
+    },
+    {
+      "id": "N49",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "growth",
+        "feeding",
+        "environment",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N49.md",
+      "source_id": "N49",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/293.html",
+      "source_title": "ゆっくりパークの春夏秋冬 part 4",
+      "source_note": "YT（正文末署名）；核读十一月全文至冬季将至结尾；part5 起未读",
+      "source_group": "author:YT",
+      "observation": "秋季采集使活动安排改变；避难设施被占作私宅后，人类调整内部使其继续作临时避难处。两家争屋，一家落败离开；原住者的年长子代商议后，次晨带着亲代备的食物实际离巢。",
+      "limits": "驱逐后的去向、子代新巢和越冬结果均未展示。争斗和不舒适的设施调整是该作情节，不作为治理建议；人口停止增长是叙述者观察解释，没有数量调查。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "帕秋莉",
+        "人类"
+      ],
+      "scenarios": [
+        "住所布置",
+        "采集进食",
+        "同伴交往",
+        "协商约定",
+        "物品搬运",
+        "离巢独立"
+      ],
+      "emotions": [
+        "担忧",
+        "悲伤",
+        "期待"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "临时设施被占用、迁入争执与携食离巢",
+      "description": "区分避难和居住用途；将商议、准备、实际出发和抵达分别登记，不把逐出者消失当作妥善安置。",
       "kind": "reference"
     }
   ]

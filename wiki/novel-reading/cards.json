@@ -24,18 +24,21 @@
       "title": "ゆっくりの一年春編",
       "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2736.html",
       "bibliography": "N02／E08",
-      "author_and_scope": "署名未确认；“季節は春”至亲代备床、准备幼体家具段，未读完整后半",
-      "summary": "越冬后各家余粮不同；部分饥饿者连保温材料也消耗，出巢时体力不一；该篇有亲代备软床和石木家具的描写",
-      "limits": "不能据此推出：睡眠免除饥饿；所有家庭越冬结局相同；该篇繁殖时长是共同数值。",
+      "author_and_scope": "署名未确认；2026-10-14 仅读春季前段，现续读至春篇结尾与后记；只采用越冬差异、备床和出生落点情节，侵害段不作制作目标；夏篇未核读",
+      "summary": "家庭越冬余粮与体力不同，缺粮者连铺层也消耗。亲代准备软床和石木家具；后半一家的幼体摇摆脱茎时撞到家具而死亡，亲代改变催促，剩余幼体平安落地。",
+      "limits": "家具不是安全育幼布置的正面范例；调整催促不证明排除了落点危险。未见跨家庭共享余粮。旁白的发育时长和因果解释只属本篇，春篇不能代表全年。",
       "topics": [
         "habitat",
         "feeding",
         "growth",
-        "environment"
+        "environment",
+        "cognition"
       ],
       "source_group": "unknown:N02",
-      "reviewed_on": "2026-10-14",
-      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+      "reviewed_on": "2026-10-17",
+      "locator": "体を大きく振らすのをやめました",
+      "html_sha256": "40dc3826fa5cabfc04d46a2b1ca6ac310f379f5d938da7f4922436d295979bfd",
+      "retrieved_at": "2026-10-17T10:54:41.651836+00:00"
     },
     {
       "id": "N03",
@@ -547,21 +550,31 @@
       "id": "N25",
       "title": "ゆっくりパークの春夏秋冬 part 1",
       "url": "https://w.atwiki.jp/slowlove/pages/288.html",
-      "bibliography": "新阅读卡",
-      "author_and_scope": "已读部分未确认署名；序章、四月建园、五月入住至母灵梦分配番茄段；只读第一篇开头",
-      "summary": "草原、森林、小溪、浅滩、木桥和人工仿自然洞穴组合成生活空间；不同群体在其中选择居处。母体给幼体分配食物，可与队列、亲子尺度和资源布点图对照。",
-      "limits": "未核读全文及其他 part；“人不能过、油库里能过”的围栏、体型比喻和幻想乡位置仅属此作，不能推出完整全年规律。",
-      "anchor": "コンクリートの洞穴",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（作者目录归属，part2–4 末署名佐证）；2026-10-14 仅读五月分食段以前，现续读序章及四月至八月本篇全文；后续见 N47–N49，part5 起未读",
+      "summary": "人工园区提供食源、桥和仿自然洞穴。雨季人类暗中补叶阻止巢口进水，住户误归功于自己；伤者被转至屋檐下照护。夏季为同伴采向日葵种子，带回花后才发现尚未结种。",
+      "limits": "补叶是人类干预，不是共同修窝或排水施工；园区不等于无干预野外。八月捕食者有手，不供当前无胴体造型使用；疗伤、落体恢复和主人不显露供食的做法均不作通则。",
       "topics": [
         "habitat",
         "feeding",
         "growth",
         "environment",
-        "human"
+        "human",
+        "cognition",
+        "society"
       ],
-      "source_group": "unknown:N25",
-      "reviewed_on": "2026-10-14",
-      "metadata": {
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "花の時期のヒマワリは",
+      "html_sha256": "58c7a422218478abb38e11c4a04446701cd1a596e25d17caa705c06f80ef87d9",
+      "retrieved_at": "2026-10-17T10:55:25.892092+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      },
+      "previous_capture": {
         "id": "N25",
         "url": "https://w.atwiki.jp/slowlove/pages/288.html",
         "page_title": "ゆっくりパークの春夏秋冬part1 - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
@@ -989,6 +1002,88 @@
       "locator": "その上に子供たちがスキーやソリで何度も往復",
       "html_sha256": "132885f7c35a360a10bb72c2f37d338b964d88ca0209fccc896d785fc91d51bc",
       "retrieved_at": "2026-10-17T10:48:26.518285+00:00"
+    },
+    {
+      "id": "N47",
+      "title": "ゆっくりパークの春夏秋冬 part 2",
+      "url": "https://w.atwiki.jp/slowlove/pages/290.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名及作者目录）；核读九月、十月全文至下篇链接；同 N25 系列，后续设施修订见 N48、N49",
+      "summary": "共同采花后整堆搬运散落，子代误以为采食而离开；母亲分束送到幼体遇难处，帕秋莉同行。人类设下游网使落水幼体到岸；后来设置需补给果物的避难处，出现以食物换脱险的个案。",
+      "limits": "救援网不是安全桥面，快速恢复只属虚构。夜间 DOS 有超能力且叙述保留梦境疑问，不作普通 DOS 依据；十月有胴体捕食者和未纳入角色不供当前造型动作使用。避难方案在 N48 又被改动。",
+      "topics": [
+        "society",
+        "environment",
+        "habitat",
+        "human",
+        "feeding"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "川を斜めに横断する形で",
+      "html_sha256": "148aebb9d888e34d2ff1478361483d648004ae986baa316392a4112665349ee2",
+      "retrieved_at": "2026-10-17T10:56:14.560895+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N48",
+      "title": "ゆっくりパークの春夏秋冬 part 3",
+      "url": "https://w.atwiki.jp/slowlove/pages/291.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名）；核读 intermission 全文，取帕秋莉引导、一家协同和设施使用限制；不提取伤害机关的制作参数",
+      "summary": "帕秋莉引导一家进入避难箱，解释并指挥多人协同操作，追逐者退去。人类以此替代前篇的供食交换方案；单独进入者无法完成操作，推广仍只是计划。",
+      "limits": "追逐者明确有胴体；只取灵梦一家和帕秋莉的沟通协作，不移植捕食者造型或机关。下一篇出现占屋问题，当前一次成功不能证明设施普遍可用。",
+      "topics": [
+        "cognition",
+        "society",
+        "habitat",
+        "environment",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "一人で入ると",
+      "html_sha256": "7efeb2dbb1af1f5b5e128274ea6d6546a6330da7fdf98e5314fd4dc9ae93ea41",
+      "retrieved_at": "2026-10-17T10:57:08.230106+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N49",
+      "title": "ゆっくりパークの春夏秋冬 part 4",
+      "url": "https://w.atwiki.jp/slowlove/pages/293.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名）；核读十一月全文至冬季将至结尾；part5 起未读",
+      "summary": "秋季采集使活动安排改变；避难设施被占作私宅后，人类调整内部使其继续作临时避难处。两家争屋，一家落败离开；原住者的年长子代商议后，次晨带着亲代备的食物实际离巢。",
+      "limits": "驱逐后的去向、子代新巢和越冬结果均未展示。争斗和不舒适的设施调整是该作情节，不作为治理建议；人口停止增长是叙述者观察解释，没有数量调查。",
+      "topics": [
+        "habitat",
+        "society",
+        "growth",
+        "feeding",
+        "environment",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "母が用意した餞別の食べ物",
+      "html_sha256": "e01f95924a7b17cbd9dcae7b81c0bce4cff00354cda81718f02d7021e3a13763",
+      "retrieved_at": "2026-10-17T10:57:39.273999+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
     }
   ]
 }
