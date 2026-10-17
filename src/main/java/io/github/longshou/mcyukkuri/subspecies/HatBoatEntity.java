@@ -365,18 +365,6 @@ public final class HatBoatEntity extends Entity {
         double rear = Math.max(0, HatVessel.OPENING[3]-back-.05);
         return new Vec3(0, HatVessel.travelSupport(mode(),0,rear,radiusOf(owner)),rear);
     }
-    /** Explicit exhibit seat on the real supported surface; no natural reservation or care reward. */
-    public boolean museumSeat(YukkuriEntity actor, double x, double z) {
-        if (level().isClientSide || !getTags().contains("pm_scene_hat") || !hasPassenger(actor)
-                || !io.github.longshou.mcyukkuri.command.MuseumCommands.actor(actor)) return false;
-        double y = HatVessel.footprint(mode(), x, z, radiusOf(actor));
-        if (!Double.isFinite(y)) return false;
-        var at = new Vec3(x, y, z);
-        if (actor.getUUID().equals(ownerYukkuri())) { ownerServiceSeat = at; ownerSeatMove = null; }
-        else { seats.put(actor.getUUID(), new double[]{x, y, z, radiusOf(actor)}); seatMoves.remove(actor.getUUID()); }
-        actor.setPos(toWorld(at)); actor.setDeltaMovement(Vec3.ZERO); syncSeats();
-        return true;
-    }
     public UUID ownerYukkuri() { return entityData.get(OWNER).orElse(null); }
     public State state() { return State.values()[Math.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
     public boolean isAfloat() { return state() == State.AFLOAT; }
@@ -2708,13 +2696,6 @@ public final class HatBoatEntity extends Entity {
             return;
         }
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
-        if (getTags().contains("pm_scene_hat")) {
-            // Scripted museum hulls use real passenger geometry without running wild boat ecology.
-            var actor = owner();
-            if (actor == null || !actor.isAlive() || !actor.isNoAi() || !actor.getTags().contains("pm_actor")) discard();
-            else setDeltaMovement(Vec3.ZERO);
-            return;
-        }
         tickDip();
         if(selfRescueHeld()){
             var holder=owner();var held=entityData.get(MOTION);
