@@ -25,7 +25,7 @@
 
 | 实际问题 | 图片依据 | 文字依据 | 一致处、差异与处理 |
 | --- | --- | --- | --- |
-| 帽船如何移动，身体是否会游泳？ | [EH22](../art-references/ehentai/works/EH22.md)第 1、5 页辫端持枝划水，第 6 页帽内收物，第 7 页明确写不会游泳 | [N09](../novel-reading/cards/N09.md)口衔木棒划行；[N13](../novel-reading/cards/N13.md)固定帽船、登船与拖带；[N14](../novel-reading/cards/N14.md)水上群体和学划桨 | 帽作为载体的行动在漫画、SS 中都有具体依据；持桨部位不同，不能拼成同一连贯动作。N09 与 N13 为同作者；EH22 首页作者写法与图集标题不同，未解决。项目 A1 继续区分载具浮力与本体耐水。 |
+| 不同水上通行方式，载具浮力是否代表个体耐水？ | [EH22](../art-references/ehentai/works/EH22.md)第 1、5 页辫端持枝划水，第 6 页帽内收物，第 7 页明确写不会游泳 | [N09](../novel-reading/cards/N09.md)口衔木棒划行；[N13](../novel-reading/cards/N13.md)固定帽船、登船与拖带；[N14](../novel-reading/cards/N14.md)水上群体和学划桨；[N92](../novel-reading/cards/N92.md)另有木板、大叶片浮具与抱送体弱同行者 | 多篇作品出现载具或他人协助，但工具与操纵方式各异；N92 的木板和叶片仅是单篇方案。N09 与 N13 为同作者；EH22 首页作者写法与图集标题不同，未解决。项目 A1 继续区分载具浮力与本体耐水。 |
 | 螺壳是否让所有个体潜水？ | [M09](../art-references/works/M09.md)第 2 页有壳型与普通型对照，但改编自 L24 | [N14](../novel-reading/cards/N14.md)螺壳型可沿河底行进，普通魔理沙夺壳仍会溶解 | N14 明确把耐水归给个体而非借来的壳；与项目“较耐水”的边界并列。M09 与 L24 只能算一条故事传承，不能以图文双重票数压过异说。 |
 | 茎果、胎生与卵是否共享发育时间？ | [EH16](../art-references/ehentai/works/EH16.md)綾蔵的茎果前期图解；[EH28](../art-references/ehentai/works/EH28.md)胎生；[M01](../art-references/works/M01.md)家油圆卵 | [N02](../novel-reading/cards/N02.md)备床及后半出生落点事故；[N11](../novel-reading/cards/N11.md)私设声明 | 只能确认这些作者分别使用了不同表现。N02 的石木家具不是安全布置范例；EH16 的后段不能当健康发育连续帧；作品日数不改写项目 U 年龄。 |
 | 能读字、会答题与理解是否相同？ | [EH14](../art-references/ehentai/works/EH14.md)只画读书姿势；[EH25](../art-references/ehentai/works/EH25.md)格差まんじゅう画数字卡、银章与金章考试失败 | [N23](../novel-reading/cards/N23.md)能读一些字而不懂全部含义；[N07](../novel-reading/cards/N07.md)广告图推理；[N16](../novel-reading/cards/N16.md)伪装与偷菜计划 | 有字、有书或礼貌用语不能单独证明理解与诚实（I）。EH14 作者未知；N23 也未知，独立关系未确认。惩罚画面只保留背景，不转写成有效教育程序。 |

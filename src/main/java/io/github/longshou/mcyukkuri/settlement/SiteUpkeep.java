@@ -81,7 +81,7 @@ final class SiteUpkeep {
         int dx = level.random.nextInt(site.tier.bound * 2 + 1) - site.tier.bound, dz = level.random.nextInt(site.tier.bound * 2 + 1) - site.tier.bound;
         int x = site.origin.getX() + dx, z = site.origin.getZ() + dz;
         if (Math.hypot(dx, dz) > plan.meadowOuter || plan.flat.contains(SiteGeom.key(x, z)) || plan.paths.containsKey(SiteGeom.key(x, z))
-                || plan.hedge.containsKey(SiteGeom.key(x, z))) return;
+                || plan.works.containsKey(SiteGeom.key(x, z))) return;
         int tufts = 0;
         for (int i = 0; i < 24; i++) {
             var sample = new BlockPos(site.origin.getX() + level.random.nextInt(21) - 10, site.origin.getY(), site.origin.getZ() + level.random.nextInt(21) - 10);

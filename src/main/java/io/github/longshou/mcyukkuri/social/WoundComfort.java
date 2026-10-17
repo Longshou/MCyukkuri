@@ -80,7 +80,7 @@ public final class WoundComfort {
                 && !e.life().hasUrgentNeed() && !e.life().isSleeping() && e.life().mealTicks() == 0 && e.life().activity().equals("idle")
                 && !e.family().active() && !e.family().awaitingLanding() && !e.childhood().active() && !e.careApproach().waiting()
                 && !e.house().active() && !e.habitat().active() && !e.independence().active()
-                && !e.settlement().active() && !e.settlement().duties().active() && !e.settlement().orders().active()
+                && !e.settlement().active() && !e.settlement().duties().active()
                 && !e.groupInteraction().active() && !e.playLife().active() && !e.pet().busy() && !e.dailyLife().active()
                 && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(e)
                 && !io.github.longshou.mcyukkuri.settlement.Seasons.confined(e);

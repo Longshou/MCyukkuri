@@ -12,7 +12,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.AABB;
 
 /**
- * Rumours and moving house (plan 3.4). Predator sightings, attacks and scout reports pile up as threat; a led community whose
+ * Rumours and moving house (plan 3.4). Predator sightings, attacks pile up as threat; a led community whose
  * leader believes them walks to a new site away from the danger. Stores, shelters and seasons are not carried over: the
  * food stays in the old burrows and the settlers must stock up again, so any hardship comes from the existing mechanisms.
  */
