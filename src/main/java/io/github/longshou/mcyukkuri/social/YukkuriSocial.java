@@ -201,6 +201,9 @@ public final class YukkuriSocial {
                     if (!entity.pet().reactTo(peer)) {
                         entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= 10 ? "known_peer" : "peer", 80);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
+                        // A greeting is met by the other party: otherwise bonds only grow one way and mutual affinity for nuzzling stalls.
+                        if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= 0)
+                            relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
                     personality().experienced(Trait.SOCIABILITY, 1);
                 } else entity.showReaction("surprise", "unrecognized", 80);
