@@ -12035,6 +12035,3100 @@
         "braid_rescue_grip"
       ],
       "basis": "落水与辫子接触阶段的项目原创台词；求救与抓稳回应，不用运动或普通等待对白替代。"
+    },
+    {
+      "id": "reimu.adult.o_badge_glance",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぴかぴか……あれ、なあに？",
+      "chinese": "亮晶晶的……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "reimu.young.o_badge_glance",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぴかぴかちてりゅ……あれ、なあにぇ？",
+      "chinese": "亮晶晶惹……那是什么惹哟？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "marisa.adult.o_badge_glance",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぴかぴかなのぜ……あれは なんなのぜ？",
+      "chinese": "亮晶晶贼……那是什么贼？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "marisa.young.o_badge_glance",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぴかぴかなのじぇ……あれは なんなのじぇ？",
+      "chinese": "亮晶晶惹杰……那是什么惹杰？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "alice.adult.o_badge_glance",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きらきらしてるわ……あれは なにかしら？",
+      "chinese": "闪闪发光哇……那是什么呢哇？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "alice.young.o_badge_glance",
+      "species": "alice",
+      "age": "young",
+      "japanese": "きらきらちてりゅわ……あれ なあに？",
+      "chinese": "闪闪发光哇……那是什么哇？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "chen.adult.o_badge_glance",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぴかぴかだよー……あれ なんだろー？",
+      "chinese": "亮晶晶哟——……那是什么呢——？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "chen.young.o_badge_glance",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぴかぴかちてるよー……あれ なあにー？",
+      "chinese": "亮晶晶哟——……那是什么——？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_glance",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……あの ひかる ものは なにかしら。",
+      "chinese": "姆啾……那个发亮的东西是什么呢。",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "patchouli.young.o_badge_glance",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぴかぴか……なあに？",
+      "chinese": "姆啾……亮晶晶……是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "remilia.adult.o_badge_glance",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ぴかぴかなのだ……あれは なんなのだ？",
+      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "remilia.young.o_badge_glance",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぴかぴかなのだ……あれ なあにゃのだ？",
+      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "flandre.adult.o_badge_glance",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ぴかぴか……あれ、なあに？",
+      "chinese": "呜——，亮晶晶……那是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "flandre.young.o_badge_glance",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぴかぴか……あれ なあに？",
+      "chinese": "呜——，亮晶晶……那是什么？",
+      "events": [
+        "badge_glance"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 好奇一瞥）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Sparkly... what is that?"
+    },
+    {
+      "id": "reimu.adult.o_badge_ask",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "それ、おいしいの？ ちょっとだけ、さわっていい？",
+      "chinese": "那个好吃吗？可以稍微摸一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "reimu.young.o_badge_ask",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "それ、おいちいの？ ちょっとだけ、さわっていいにぇ？",
+      "chinese": "那个好吃惹？可以摸一下惹哟？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "marisa.adult.o_badge_ask",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "それは たべれるのぜ？ ちょっと さわってみたいのぜ。",
+      "chinese": "那个能吃吗贼？想稍微摸摸看贼。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "marisa.young.o_badge_ask",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "それ たべれりゅのじぇ？ ちょっと さわりたいのじぇ。",
+      "chinese": "那个能吃惹杰？窝想摸摸惹杰。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "alice.adult.o_badge_ask",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "それ、おいしいのかしら？ さわってもいいかしら？",
+      "chinese": "那个好吃吗哇？可以摸摸吗哇？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "alice.young.o_badge_ask",
+      "species": "alice",
+      "age": "young",
+      "japanese": "それ、おいちいの？ ありちゅ、さわってみたいわ。",
+      "chinese": "那个好吃吗哇？窝想摸摸看哇。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "chen.adult.o_badge_ask",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "それ おいしいのかなー？ さわってもいいかなー？",
+      "chinese": "那个好吃吗——？可以摸摸吗——？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "chen.young.o_badge_ask",
+      "species": "chen",
+      "age": "young",
+      "japanese": "それ おいちいのー？ ちょっと さわりたいよー。",
+      "chinese": "那个好吃吗——？橙想摸摸哟——。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_ask",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、それは たべられるのかしら。ふれても いい？",
+      "chinese": "姆啾，那个能吃吗。可以碰一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "patchouli.young.o_badge_ask",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、それ たべられりゅ？ ちょっとだけ さわりたいわ。",
+      "chinese": "姆啾，那个能吃吗？想稍微摸一下。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "remilia.adult.o_badge_ask",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、それは たべれるのだ？ さわってみたいのだ。",
+      "chinese": "呜——，那个能吃吗？想摸摸看呀。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "remilia.young.o_badge_ask",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、それ たべれりゅのだ？ さわりたいのだ。",
+      "chinese": "呜——，那个能吃吗？想摸摸呀。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "flandre.adult.o_badge_ask",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、それ おいしい？ ちょっとだけ さわってもいい？",
+      "chinese": "呜——，那个好吃吗？可以稍微摸一下吗？",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "flandre.young.o_badge_ask",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、それ おいちい？ ちょっとだけ さわりたい。",
+      "chinese": "呜——，那个好吃吗？想稍微摸一下。",
+      "events": [
+        "badge_ask"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1 幼体发问）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Is that tasty? Can I touch it?"
+    },
+    {
+      "id": "reimu.adult.o_badge_show_kind",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "みてもいいよ。にんげんさんが つけてくれたんだよ。",
+      "chinese": "可以看哦。是人类先生给戴上的哦。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "reimu.young.o_badge_show_kind",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "みてもいいよ。にんげんしゃんが つけちぇくれちゃの。",
+      "chinese": "可以看惹哟。是人类先生给窝戴的惹。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "marisa.adult.o_badge_show_kind",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "みてもいいのぜ。にんげんさんが つけてくれたのぜ。",
+      "chinese": "可以看贼。是人类先生给戴上的贼。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "marisa.young.o_badge_show_kind",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "みちぇもいいのじぇ。にんげんしゃんが つけちぇくれたのじぇ。",
+      "chinese": "可以看惹杰。是人类先生给窝戴的惹杰。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "alice.adult.o_badge_show_kind",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "みてもいいわよ。にんげんさんが つけてくれたの。",
+      "chinese": "可以看哇。是人类先生给戴上的哇。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "alice.young.o_badge_show_kind",
+      "species": "alice",
+      "age": "young",
+      "japanese": "みちぇもいいわ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "可以看哇。是人类先生给窝戴的哇。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "chen.adult.o_badge_show_kind",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "みてもいいよー。にんげんさんが つけてくれたんだよー。",
+      "chinese": "可以看哟——。是人类先生给戴上的哟——。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "chen.young.o_badge_show_kind",
+      "species": "chen",
+      "age": "young",
+      "japanese": "みちぇもいいよー。にんげんしゃんが つけちぇくれたよー。",
+      "chinese": "可以看哟——。是人类先生给橙戴的哟——。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "patchouli.adult.o_badge_show_kind",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。みても いいわ。にんげんさんが つけてくれたのよ。",
+      "chinese": "姆啾。可以看。是人类先生给戴上的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "patchouli.young.o_badge_show_kind",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。みちぇもいいわ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "姆啾。可以看。是人类先生给帕秋戴的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "remilia.adult.o_badge_show_kind",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、みても いいのだ。にんげんさんが つけてくれたのだ。",
+      "chinese": "呜——，可以看呀。是人类先生给戴上的呀。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "remilia.young.o_badge_show_kind",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、みちぇもいいのだ。にんげんしゃんが つけちぇくれたのだ。",
+      "chinese": "呜——，可以看呀。是人类先生给蕾米戴的呀。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "flandre.adult.o_badge_show_kind",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、みてもいいよ。にんげんさんが つけてくれたの。",
+      "chinese": "呜——，可以看哦。是人类先生给戴上的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "flandre.young.o_badge_show_kind",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、みちぇもいいよ。にんげんしゃんが つけちぇくれたの。",
+      "chinese": "呜——，可以看哦。是人类先生给芙呀戴的。",
+      "events": [
+        "badge_show_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B2 戴章者亲切回应）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "You may look. My human put it on me."
+    },
+    {
+      "id": "reimu.adult.o_badge_pull_back",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "そのこに ちかよっちゃ だめだよ。こっちに おいで。",
+      "chinese": "不要靠近那孩子哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "reimu.young.o_badge_pull_back",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめっちぇ いわれちゃの……こっちに くるにぇ。",
+      "chinese": "被说了不能靠近惹……到这边来惹哟。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "marisa.adult.o_badge_pull_back",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あれに ちかよっちゃ だめなのぜ。こっちに くるのぜ。",
+      "chinese": "不能靠近那个贼。到这边来贼。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "marisa.young.o_badge_pull_back",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめなのじぇ……こっちに くるのじぇ。",
+      "chinese": "不能靠近惹杰……到这边来惹杰。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "alice.adult.o_badge_pull_back",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あのこに ちかよっては いけないわ。こっちへ いらっしゃい。",
+      "chinese": "不可以靠近那孩子哇。到这边来哇。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "alice.young.o_badge_pull_back",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちかよっちゃ だめだわ……こっちに くるわ。",
+      "chinese": "不可以靠近哇……到这边来哇。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "chen.adult.o_badge_pull_back",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あのこには ちかづいちゃ だめだよー。こっちに おいでー。",
+      "chinese": "不能靠近那孩子哟——。到这边来——。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "chen.young.o_badge_pull_back",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちかづいちゃ だめだよー。こっちに くるよー。",
+      "chinese": "不能靠近哟——。到这边来哟——。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "patchouli.adult.o_badge_pull_back",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、それ いじょう ちかづいては だめよ。こちらへ いらっしゃい。",
+      "chinese": "姆啾，不能再靠近了。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "patchouli.young.o_badge_pull_back",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ちかづいちゃ だめだわ。こっちに きちぇ。",
+      "chinese": "姆啾，不能靠近。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "remilia.adult.o_badge_pull_back",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あれに ちかづいちゃ だめなのだ。こっちに くるのだ。",
+      "chinese": "呜——，不能靠近那个呀。到这边来呀。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "remilia.young.o_badge_pull_back",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ちかづいちゃ だめなのだ。こっちに くるのだ。",
+      "chinese": "呜——，不能靠近呀。到这边来呀。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "flandre.adult.o_badge_pull_back",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あの子に ちかよっちゃ だめだよ。こっちに おいで。",
+      "chinese": "呜——，不能靠近那孩子哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "flandre.young.o_badge_pull_back",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ちかよっちゃ だめだよ。こっちに きちぇ。",
+      "chinese": "呜——，不能靠近哦。到这边来。",
+      "events": [
+        "badge_pull_back"
+      ],
+      "basis": "项目原创：徽章社交弧线（B1/B12 亲代拉回幼体）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Don't go near that one. Come back here."
+    },
+    {
+      "id": "reimu.adult.o_badge_envy_snark",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないよ。いいなりなんでしょ。",
+      "chinese": "当宠物才没意思呢。只能听话吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "reimu.young.o_badge_envy_snark",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいよ。いいなりなんでちょ。",
+      "chinese": "当宠物才没意思惹哟。只能听话吧惹。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "marisa.adult.o_badge_envy_snark",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないのぜ。いいなりなのぜ。",
+      "chinese": "当宠物无聊死了贼。只会听话贼。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "marisa.young.o_badge_envy_snark",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいのじぇ。いいなりなのじぇ。",
+      "chinese": "当宠物无聊惹杰。只会听话惹杰。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "alice.adult.o_badge_envy_snark",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆなんて いなかものよ。いいなりなだけだわ。",
+      "chinese": "当宠物太土气了哇。只是听话而已哇。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "alice.young.o_badge_envy_snark",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆなんて いにゃかものよ。いいなりなだけだわ。",
+      "chinese": "当宠物太土气了哇。只是听话而已哇。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "chen.adult.o_badge_envy_snark",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆなんて つまらないよー。いうこと きくだけだよー。",
+      "chinese": "当宠物才无聊哟——。只会听话哟——。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "chen.young.o_badge_envy_snark",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆなんて つまんにゃいよー。いうこと きくだけだよー。",
+      "chinese": "当宠物才无聊哟——。只会听话哟——。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "patchouli.adult.o_badge_envy_snark",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。かいゆなんて、いいなりに なるだけでしょう。",
+      "chinese": "姆啾。当宠物，不就是听话而已吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "patchouli.young.o_badge_envy_snark",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。かいゆなんて、いいなりに なるだけでちょ。",
+      "chinese": "姆啾。当宠物，不就是听话而已吧。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "remilia.adult.o_badge_envy_snark",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆなんて つまらないのだ。いいなりなのだ。",
+      "chinese": "呜——，当宠物无聊呀。只会听话呀。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "remilia.young.o_badge_envy_snark",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆなんて つまんにゃいのだ。いいなりなのだ。",
+      "chinese": "呜——，当宠物无聊呀。只会听话呀。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "flandre.adult.o_badge_envy_snark",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆなんて つまんないよ。いいなりだもん。",
+      "chinese": "呜——，当宠物才没意思呢。只会听话嘛。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "flandre.young.o_badge_envy_snark",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆなんて つまんにゃいよ。いいなりだもん。",
+      "chinese": "呜——，当宠物才没意思呢。只会听话嘛。",
+      "events": [
+        "badge_envy_snark"
+      ],
+      "basis": "项目原创：徽章社交弧线（B2 嫉妒（挖苦））。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Being a pet is boring. You just do as you are told."
+    },
+    {
+      "id": "reimu.adult.o_badge_humble",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "れいむも まだ ならっている とちゅうだよ。",
+      "chinese": "灵梦也还在学习的路上哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "reimu.young.o_badge_humble",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "れいみゅも まだ ならっちぇる とちゅうだよ。",
+      "chinese": "窝也还在学习的路上惹哟。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "marisa.adult.o_badge_humble",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "まりさも まだ れんしゅうちゅうなのぜ。",
+      "chinese": "魔理沙也还在练习中贼。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "marisa.young.o_badge_humble",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "まりちゃも まだ れんしゅうちゅうなのじぇ。",
+      "chinese": "窝也还在练习惹杰。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "alice.adult.o_badge_humble",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありすも まだ べんきょうちゅうなのよ。",
+      "chinese": "爱丽丝也还在学习哇。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "alice.young.o_badge_humble",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありちゅも まだ べんきょうちゅうなの。",
+      "chinese": "窝也还在学习哇。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "chen.adult.o_badge_humble",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちぇんも まだ ならっている とちゅうだよー。",
+      "chinese": "橙也还在学习的路上哟——。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "chen.young.o_badge_humble",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちぇんも まだ ならっちぇる とちゅうだよー。",
+      "chinese": "橙也还在学习的路上哟——。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "patchouli.adult.o_badge_humble",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ぱちゅりーも まだ べんきょうちゅうなのよ。",
+      "chinese": "姆啾，帕秋莉也还在学习。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "patchouli.young.o_badge_humble",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ぱちゅも まだ べんきょうちゅうなの。",
+      "chinese": "姆啾，帕秋也还在学习。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "remilia.adult.o_badge_humble",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、れみりあも まだ れんしゅうちゅうなのだ。",
+      "chinese": "呜——，蕾米莉亚也还在练习呀。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "remilia.young.o_badge_humble",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、れみぃも まだ れんしゅうちゅうなのだ。",
+      "chinese": "呜——，蕾米也还在练习呀。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "flandre.adult.o_badge_humble",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふらんも まだ れんしゅうちゅうだよ。",
+      "chinese": "呜——，芙兰也还在练习哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "flandre.young.o_badge_humble",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふりゃんも まだ れんしゅうちゅうだよ。",
+      "chinese": "呜——，芙呀也还在练习哦。",
+      "events": [
+        "badge_humble"
+      ],
+      "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "I am still learning too."
+    },
+    {
+      "id": "reimu.adult.o_badge_beg",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひとくち だけで いいから、わけてほしいな……。",
+      "chinese": "只要一口就好，分我一点吧……。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "reimu.young.o_badge_beg",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひとくち だけでいいから、ちょうだいにぇ……。",
+      "chinese": "只要一口就好，给窝一点惹……。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "marisa.adult.o_badge_beg",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひとくちだけ ほしいのぜ……わけてほしいのぜ。",
+      "chinese": "就想要一口贼……分我一点贼。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "marisa.young.o_badge_beg",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひとくちだけ ほちいのじぇ……ちょうだいなのじぇ。",
+      "chinese": "就想要一口惹杰……给窝一点惹杰。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "alice.adult.o_badge_beg",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ひとくちだけ いただけないかしら……。",
+      "chinese": "能分我一口吗哇……。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "alice.young.o_badge_beg",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ひとくちだけ ちょうだい……おねがい。",
+      "chinese": "就一口给窝吧哇……拜托。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "chen.adult.o_badge_beg",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひとくちだけ ほしいよー……わけてー。",
+      "chinese": "就想要一口哟——……分我一点——。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "chen.young.o_badge_beg",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひとくちだけ ほちいよー……ちょうだいー。",
+      "chinese": "就想要一口哟——……给橙一点——。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_beg",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ひとくちだけ、わけてもらえないかしら。",
+      "chinese": "姆啾……能分我一口吗。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "patchouli.young.o_badge_beg",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ひとくちだけ、ちょうだい。",
+      "chinese": "姆啾……就一口，给帕秋吧。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "remilia.adult.o_badge_beg",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ひとくちだけ ほしいのだ。わけてほしいのだ。",
+      "chinese": "呜——……就想要一口呀。分我一点呀。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "remilia.young.o_badge_beg",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ひとくちだけ ほちいのだ。ちょうだいなのだ。",
+      "chinese": "呜——……就想要一口呀。给蕾米一点呀。",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "flandre.adult.o_badge_beg",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ひとくちだけ ほしいな。わけてくれる？",
+      "chinese": "呜——……就想要一口。能分我一点吗？",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "flandre.young.o_badge_beg",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ひとくちだけ ほちい。ちょうだい？",
+      "chinese": "呜——……就想要一口。给芙呀一点？",
+      "events": [
+        "badge_beg"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just one bite... could you share a little?"
+    },
+    {
+      "id": "reimu.adult.o_badge_share_offer",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
+      "chinese": "咱们分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "reimu.young.o_badge_share_offer",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "はんぶんこ ちようにぇ。ゆっくち たべちぇにぇ。",
+      "chinese": "分一半惹哟。慢慢吃惹哟。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "marisa.adult.o_badge_share_offer",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "はんぶんこ なのぜ。ゆっくり たべるのぜ。",
+      "chinese": "分一半贼。慢慢吃贼。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "marisa.young.o_badge_share_offer",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "はんぶんこ なのじぇ。ゆっくち たべるのじぇ。",
+      "chinese": "分一半惹杰。慢慢吃惹杰。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "alice.adult.o_badge_share_offer",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "はんぶんこ しましょう。ゆっくり めしあがれ。",
+      "chinese": "分一半吧哇。请慢慢享用哇。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "alice.young.o_badge_share_offer",
+      "species": "alice",
+      "age": "young",
+      "japanese": "はんぶんこ ちましょ。ゆっくち たべちぇね。",
+      "chinese": "分一半吧哇。慢慢吃哇。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "chen.adult.o_badge_share_offer",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "はんぶんこ だよー。ゆっくり たべてねー。",
+      "chinese": "分一半哟——。慢慢吃哦——。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "chen.young.o_badge_share_offer",
+      "species": "chen",
+      "age": "young",
+      "japanese": "はんぶんこ だよー。ゆっくち たべちぇねー。",
+      "chinese": "分一半哟——。慢慢吃哦——。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "patchouli.adult.o_badge_share_offer",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、はんぶんこ しましょう。ゆっくり おあがりなさい。",
+      "chinese": "姆啾，分一半吧。请慢慢吃。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "patchouli.young.o_badge_share_offer",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、はんぶんこ ちましょ。ゆっくち たべちぇ。",
+      "chinese": "姆啾，分一半吧。慢慢吃。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "remilia.adult.o_badge_share_offer",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、はんぶんこ なのだ。ゆっくり たべるのだ。",
+      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "remilia.young.o_badge_share_offer",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、はんぶんこ なのだ。ゆっくち たべるのだ。",
+      "chinese": "呜——，分一半呀。慢慢吃呀。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "flandre.adult.o_badge_share_offer",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、はんぶんこ しよう。ゆっくり たべてね。",
+      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "flandre.young.o_badge_share_offer",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、はんぶんこ ちよう。ゆっくち たべちぇね。",
+      "chinese": "呜——，分一半吧。慢慢吃哦。",
+      "events": [
+        "badge_share_offer"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Let us split it. Eat slowly."
+    },
+    {
+      "id": "reimu.adult.o_badge_share_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "これは れいむの ごはんだよ……ごめんね。",
+      "chinese": "这是灵梦的饭……对不起哦。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "reimu.young.o_badge_share_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "これは れいみゅの ごはんだよ……ごみぇんにぇ。",
+      "chinese": "这是窝的饭惹……对不起惹哟。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "marisa.adult.o_badge_share_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "これは まりさの ごはんなのぜ。やらないのぜ。",
+      "chinese": "这是魔理沙的饭贼。不给贼。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "marisa.young.o_badge_share_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "これは まりちゃの ごはんなのじぇ。あげにゃいのじぇ。",
+      "chinese": "这是窝的饭惹杰。不给惹杰。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "alice.adult.o_badge_share_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "これは ありすの ごはんなの……ごめんなさいね。",
+      "chinese": "这是爱丽丝的饭哇……对不起哇。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "alice.young.o_badge_share_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "これは ありちゅの ごはんなの……ごめんにゃさい。",
+      "chinese": "这是窝的饭哇……对不起哇。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "chen.adult.o_badge_share_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "これは ちぇんの ごはんだよー……ごめんねー。",
+      "chinese": "这是橙的饭哟——……对不起哦——。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "chen.young.o_badge_share_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "これは ちぇんの ごはんだよー……ごめんにぇー。",
+      "chinese": "这是橙的饭哟——……对不起哦——。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "patchouli.adult.o_badge_share_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……これは ぱちゅりーの ごはんなの。ごめんなさい。",
+      "chinese": "姆啾……这是帕秋莉的饭。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "patchouli.young.o_badge_share_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……これは ぱちゅの ごはんなの。ごめんにゃしゃい。",
+      "chinese": "姆啾……这是帕秋的饭。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "remilia.adult.o_badge_share_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……これは れみりあの ごはんなのだ。やらないのだ。",
+      "chinese": "呜——……这是蕾米莉亚的饭呀。不给呀。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "remilia.young.o_badge_share_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……これは れみぃの ごはんなのだ。あげにゃいのだ。",
+      "chinese": "呜——……这是蕾米的饭呀。不给呀。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "flandre.adult.o_badge_share_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……これは ふらんの ごはんだよ。ごめんね。",
+      "chinese": "呜——……这是芙兰的饭哦。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "flandre.young.o_badge_share_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……これは ふりゃんの ごはんだよ。ごめんにぇ。",
+      "chinese": "呜——……这是芙呀的饭哦。对不起。",
+      "events": [
+        "badge_share_refuse"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "This is my meal... sorry."
+    },
+    {
+      "id": "reimu.adult.o_badge_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとう……これで ゆっくり できるよ。",
+      "chinese": "谢谢……这下能油库里了哦。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "reimu.young.o_badge_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょう……ゆっくち できりゅよ。",
+      "chinese": "谢谢惹……能油库气了惹哟。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "marisa.adult.o_badge_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとうなのぜ……ゆっくり できるのぜ。",
+      "chinese": "谢谢贼……可以油库里了贼。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "marisa.young.o_badge_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょうなのじぇ……ゆっくち できりゅのじぇ。",
+      "chinese": "谢谢惹杰……能油库气了惹杰。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "alice.adult.o_badge_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとう……やっと ゆっくり できるわ。",
+      "chinese": "谢谢……总算能油库里了哇。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "alice.young.o_badge_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょう……やっと ゆっくち できりゅわ。",
+      "chinese": "谢谢哇……总算能油库气了哇。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "chen.adult.o_badge_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー……ゆっくり できるよー。",
+      "chinese": "谢谢哟——……能油库里了哟——。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "chen.young.o_badge_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょうだよー……ゆっくち できりゅよー。",
+      "chinese": "谢谢哟——……能油库气了哟——。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "patchouli.adult.o_badge_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、ありがとう。これで ゆっくり できるわ。",
+      "chinese": "姆啾，谢谢。这下能油库里了。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "patchouli.young.o_badge_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ありがちょう。ゆっくち できりゅわ。",
+      "chinese": "姆啾，谢谢。能油库气了。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "remilia.adult.o_badge_thanks",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ありがとうなのだ。ゆっくり できるのだ。",
+      "chinese": "呜——，谢谢呀。能油库里了呀。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "remilia.young.o_badge_thanks",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ありがちょうなのだ。ゆっくち できりゅのだ。",
+      "chinese": "呜——，谢谢呀。能油库气了呀。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "flandre.adult.o_badge_thanks",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ありがとう。これで ゆっくり できるね。",
+      "chinese": "呜——，谢谢。这下能油库里了呢。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "flandre.young.o_badge_thanks",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ありがちょう。ゆっくち できりゅね。",
+      "chinese": "呜——，谢谢。能油库气了呢。",
+      "events": [
+        "badge_thanks"
+      ],
+      "basis": "项目原创：徽章社交弧线（B4/B6 道谢）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Thank you... now I can relax."
+    },
+    {
+      "id": "reimu.adult.o_badge_mock",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "かいゆの くせに なまいきだよ！",
+      "chinese": "一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "reimu.young.o_badge_mock",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "かいゆの くちぇに なまいきだよ！",
+      "chinese": "一个宠物还敢神气惹！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "marisa.adult.o_badge_mock",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "かいゆの くせに えらそうなのぜ！",
+      "chinese": "一个宠物还敢摆架子贼！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "marisa.young.o_badge_mock",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "かいゆの くちぇに えらそうなのじぇ！",
+      "chinese": "一个宠物还敢摆架子惹杰！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "alice.adult.o_badge_mock",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "かいゆの くせに とかいはぶって、いなかものだわ！",
+      "chinese": "一个宠物还装都会派，太土气了哇！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "alice.young.o_badge_mock",
+      "species": "alice",
+      "age": "young",
+      "japanese": "かいゆの くちぇに とかいはぶっちぇ、いにゃかものだわ！",
+      "chinese": "一个宠物还装都会派，太土气了哇！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "chen.adult.o_badge_mock",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "かいゆの くせに なまいきだよー！",
+      "chinese": "一个宠物还敢神气哟——！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "chen.young.o_badge_mock",
+      "species": "chen",
+      "age": "young",
+      "japanese": "かいゆの くちぇに なまいきだよー！",
+      "chinese": "一个宠物还敢神气哟——！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "patchouli.adult.o_badge_mock",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。かいゆの くせに、なまいきだわ。",
+      "chinese": "姆啾。一个宠物，还敢神气。",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "patchouli.young.o_badge_mock",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。かいゆの くちぇに、なまいきだわ。",
+      "chinese": "姆啾。一个宠物，还敢神气。",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "remilia.adult.o_badge_mock",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、かいゆの くせに なまいきなのだ！",
+      "chinese": "呜——，一个宠物还敢神气呀！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "remilia.young.o_badge_mock",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、かいゆの くちぇに なまいきなのだ！",
+      "chinese": "呜——，一个宠物还敢神气呀！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "flandre.adult.o_badge_mock",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、かいゆの くせに なまいきだよ！",
+      "chinese": "呜——，一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "flandre.young.o_badge_mock",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、かいゆの くちぇに なまいきだよ！",
+      "chinese": "呜——，一个宠物还敢神气！",
+      "events": [
+        "badge_mock"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B8 挑衅）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Just a pet, and so full of yourself!"
+    },
+    {
+      "id": "reimu.adult.o_badge_retort",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "のらは あっち いってね！",
+      "chinese": "野良到那边去哦！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "reimu.young.o_badge_retort",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "のらは あっち いっちぇね！",
+      "chinese": "野良到那边去惹哟！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "marisa.adult.o_badge_retort",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "のらは むこうに いくのぜ！",
+      "chinese": "野良到那边去贼！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "marisa.young.o_badge_retort",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "のらは むこうに いくのじぇ！",
+      "chinese": "野良到那边去惹杰！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "alice.adult.o_badge_retort",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "のらは あちらへ いってちょうだい！",
+      "chinese": "野良请到那边去哇！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "alice.young.o_badge_retort",
+      "species": "alice",
+      "age": "young",
+      "japanese": "のらは あっちへ いっちぇ！",
+      "chinese": "野良到那边去哇！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "chen.adult.o_badge_retort",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "のらは むこうに いってよー！",
+      "chinese": "野良到那边去哟——！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "chen.young.o_badge_retort",
+      "species": "chen",
+      "age": "young",
+      "japanese": "のらは むこうに いっちぇよー！",
+      "chinese": "野良到那边去哟——！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "patchouli.adult.o_badge_retort",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、のらは あちらへ いきなさい。",
+      "chinese": "姆啾，野良请到那边去。",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "patchouli.young.o_badge_retort",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、のらは あっちへ いっちぇ。",
+      "chinese": "姆啾，野良到那边去。",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "remilia.adult.o_badge_retort",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、のらは むこうに いくのだ！",
+      "chinese": "呜——，野良到那边去呀！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "remilia.young.o_badge_retort",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、のらは むこうに いくのだ！",
+      "chinese": "呜——，野良到那边去呀！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "flandre.adult.o_badge_retort",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、のらは あっち いって！",
+      "chinese": "呜——，野良到那边去！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "flandre.young.o_badge_retort",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、のらは あっち いっちぇ！",
+      "chinese": "呜——，野良到那边去！",
+      "events": [
+        "badge_retort"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 反击）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Wild ones, go over there!"
+    },
+    {
+      "id": "reimu.adult.o_pet_report_hurt",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじわる されたよ……。",
+      "chinese": "人类先生，被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "reimu.young.o_pet_report_hurt",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじわる ちゃれちゃの……。",
+      "chinese": "人类先生，被野良欺负惹……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "marisa.adult.o_pet_report_hurt",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじめられたのぜ……。",
+      "chinese": "人类先生，被野良欺负了贼……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "marisa.young.o_pet_report_hurt",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじめられたのじぇ……。",
+      "chinese": "人类先生，被野良欺负惹杰……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "alice.adult.o_pet_report_hurt",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじわるされたわ……。",
+      "chinese": "人类先生，被野良欺负了哇……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "alice.young.o_pet_report_hurt",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじわる ちゃれちゃわ……。",
+      "chinese": "人类先生，被野良欺负了哇……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "chen.adult.o_pet_report_hurt",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさん、のらに いじめられたよー……。",
+      "chinese": "人类先生，被野良欺负了哟——……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "chen.young.o_pet_report_hurt",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃん、のらに いじめられたよー……。",
+      "chinese": "人类先生，被野良欺负了哟——……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "patchouli.adult.o_pet_report_hurt",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……にんげんさん、のらに いじわるされたわ。",
+      "chinese": "姆啾……人类先生，被野良欺负了。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "patchouli.young.o_pet_report_hurt",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……にんげんしゃん、のらに いじわる ちゃれたわ。",
+      "chinese": "姆啾……人类先生，被野良欺负了。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "remilia.adult.o_pet_report_hurt",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらに いじめられたのだ……。",
+      "chinese": "呜——，人类先生。被野良欺负了呀……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "remilia.young.o_pet_report_hurt",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらに いじめられたのだ……。",
+      "chinese": "呜——，人类先生。被野良欺负了呀……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "flandre.adult.o_pet_report_hurt",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんさん。のらに いじわる されたよ……。",
+      "chinese": "呜——，人类先生。被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "flandre.young.o_pet_report_hurt",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃん。のらに いじわる ちゃれたよ……。",
+      "chinese": "呜——，人类先生。被野良欺负了……。",
+      "events": [
+        "pet_report_hurt"
+      ],
+      "basis": "项目原创：徽章社交弧线（B5/B9 向主人告状）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Human, a wild one was mean to me..."
+    },
+    {
+      "id": "reimu.adult.o_plea_sad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "……そっか。また くるね。",
+      "chinese": "……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "reimu.young.o_plea_sad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "……そっかぁ。また くりゅにぇ。",
+      "chinese": "……这样惹。下次再来惹哟。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "marisa.adult.o_plea_sad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "……そうなのぜ。また くるのぜ。",
+      "chinese": "……这样贼。下次再来贼。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "marisa.young.o_plea_sad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "……そうなのじぇ。また くりゅのじぇ。",
+      "chinese": "……这样惹杰。下次再来惹杰。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "alice.adult.o_plea_sad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "……そう。また くるわね。",
+      "chinese": "……这样啊。下次再来哇。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "alice.young.o_plea_sad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "……そう。また くりゅわ。",
+      "chinese": "……这样啊。下次再来哇。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "chen.adult.o_plea_sad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "……そっかー。また くるよー。",
+      "chinese": "……这样呀——。下次再来哟——。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "chen.young.o_plea_sad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "……そっかー。また くりゅよー。",
+      "chinese": "……这样呀——。下次再来哟——。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "patchouli.adult.o_plea_sad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……そう。また くるわ。",
+      "chinese": "姆啾……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "patchouli.young.o_plea_sad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……そう。また くりゅわ。",
+      "chinese": "姆啾……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "remilia.adult.o_plea_sad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……そうなのだ。また くるのだ。",
+      "chinese": "呜——……这样呀。下次再来呀。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "remilia.young.o_plea_sad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……そうなのだ。また くりゅのだ。",
+      "chinese": "呜——……这样呀。下次再来呀。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "flandre.adult.o_plea_sad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……そっか。また くるね。",
+      "chinese": "呜——……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "flandre.young.o_plea_sad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……そっか。また くりゅね。",
+      "chinese": "呜——……这样啊。下次再来。",
+      "events": [
+        "plea_sad"
+      ],
+      "basis": "项目原创：徽章社交弧线（B6 请求被拒或无人理会）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "...I see. I will come again."
+    },
+    {
+      "id": "reimu.adult.o_badge_pity",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ばっじ、なくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章没有了呀……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "reimu.young.o_badge_pity",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ばっじ、にゃくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章没有惹……没事惹？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "marisa.adult.o_badge_pity",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "バッジ なくなったのぜ……だいじょうぶなのぜ？",
+      "chinese": "徽章没了贼……没事吧贼？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "marisa.young.o_badge_pity",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ばっじ なくなったのじぇ……だいじょうぶなのじぇ？",
+      "chinese": "徽章没了惹杰……没事惹杰？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "alice.adult.o_badge_pity",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "バッジが なくなってしまったの……だいじょうぶ？",
+      "chinese": "徽章不见了呀……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "alice.young.o_badge_pity",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ばっじが なくなっちゃったの……だいじょうぶ？",
+      "chinese": "徽章不见了哇……没事吧哇？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "chen.adult.o_badge_pity",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ばっじ なくなっちゃったよー……だいじょうぶー？",
+      "chinese": "徽章没有了哟——……没事吧——？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "chen.young.o_badge_pity",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ばっじ にゃくなっちゃったよー……だいじょうぶー？",
+      "chinese": "徽章没有了哟——……没事吧——？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "patchouli.adult.o_badge_pity",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ、バッジが なくなったのね……だいじょうぶ？",
+      "chinese": "姆啾，徽章没有了呢……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "patchouli.young.o_badge_pity",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ、ばっじが にゃくなったのね……だいじょうぶ？",
+      "chinese": "姆啾，徽章没有了呢……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "remilia.adult.o_badge_pity",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、バッジが なくなったのだ……だいじょうぶなのだ？",
+      "chinese": "呜——，徽章没了呀……没事吗？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "remilia.young.o_badge_pity",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ばっじが にゃくなったのだ……だいじょうぶなのだ？",
+      "chinese": "呜——，徽章没了呀……没事吗？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "flandre.adult.o_badge_pity",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、バッジ なくなっちゃったの……だいじょうぶ？",
+      "chinese": "呜——，徽章没有了……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "flandre.young.o_badge_pity",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ばっじ にゃくなっちゃったの……だいじょうぶ？",
+      "chinese": "呜——，徽章没有了……没事吧？",
+      "events": [
+        "badge_pity"
+      ],
+      "basis": "项目原创：徽章社交弧线（B11 徽章没了）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Your badge is gone... are you all right?"
+    },
+    {
+      "id": "reimu.adult.o_elder_warn",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "にんげんには ちかよっちゃ だめだよ。きをつけてね。",
+      "chinese": "不要靠近人类哦。要小心哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "reimu.young.o_elder_warn",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかよっちゃ だめっちぇ。",
+      "chinese": "人类先生不能靠近惹。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "marisa.adult.o_elder_warn",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "にんげんには ちかよるなのぜ。きをつけるのぜ。",
+      "chinese": "别靠近人类贼。要小心贼。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "marisa.young.o_elder_warn",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "にんげんしゃんは ちかよっちゃ だめなのじぇ。",
+      "chinese": "不能靠近人类先生惹杰。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "alice.adult.o_elder_warn",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "にんげんには ちかよらないほうが いいわ。きをつけて。",
+      "chinese": "最好别靠近人类哇。要小心哇。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "alice.young.o_elder_warn",
+      "species": "alice",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかよっちゃ だめだわ。",
+      "chinese": "不可以靠近人类先生哇。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "chen.adult.o_elder_warn",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "にんげんさんには ちかづいちゃ だめだよー。きをつけてねー。",
+      "chinese": "不能靠近人类先生哟——。要小心哦——。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "chen.young.o_elder_warn",
+      "species": "chen",
+      "age": "young",
+      "japanese": "にんげんしゃんには ちかづかにゃいよー。",
+      "chinese": "不靠近人类先生哟——。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "patchouli.adult.o_elder_warn",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……にんげんには ちかよっちゃ だめよ。",
+      "chinese": "姆啾……不要靠近人类。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "patchouli.young.o_elder_warn",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……にんげんしゃんには ちかよらにゃいで。",
+      "chinese": "姆啾……不要靠近人类先生。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "remilia.adult.o_elder_warn",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、にんげんには ちかよっちゃ だめなのだ。",
+      "chinese": "呜——，不能靠近人类呀。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "remilia.young.o_elder_warn",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、にんげんしゃんには ちかよらにゃいのだ。",
+      "chinese": "呜——，不靠近人类先生呀。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "flandre.adult.o_elder_warn",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、にんげんには ちかよっちゃ だめだよ。",
+      "chinese": "呜——，不要靠近人类哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "flandre.young.o_elder_warn",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、にんげんしゃんには ちかよらにゃいよ。",
+      "chinese": "呜——，不靠近人类先生哦。",
+      "events": [
+        "elder_warn"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者警惕）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Do not go near humans. Be careful."
+    },
+    {
+      "id": "reimu.adult.o_elder_kind",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるんだよ。",
+      "chinese": "也有会给饭的人类先生哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "reimu.young.o_elder_kind",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるんだっちぇ。",
+      "chinese": "也有给饭的人类先生惹哟。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "marisa.adult.o_elder_kind",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんも いるのぜ。",
+      "chinese": "也有会给饭的人类贼。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "marisa.young.o_elder_kind",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるのじぇ。",
+      "chinese": "也有给饭的人类先生惹杰。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "alice.adult.o_elder_kind",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるのよ。",
+      "chinese": "也有会给饭的人类先生哇。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "alice.young.o_elder_kind",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるわ。",
+      "chinese": "也有给饭的人类先生哇。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "chen.adult.o_elder_kind",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ごはんを くれる にんげんさんも いるよー。",
+      "chinese": "也有会给饭的人类先生哟——。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "chen.young.o_elder_kind",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ごはんを くれりゅ にんげんしゃんも いるよー。",
+      "chinese": "也有给饭的人类先生哟——。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "patchouli.adult.o_elder_kind",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ごはんを くれる にんげんも いるのね。",
+      "chinese": "姆啾。也有会给饭的人类呢。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "patchouli.young.o_elder_kind",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ごはんを くれりゅ にんげんしゃんも いるのね。",
+      "chinese": "姆啾。也有给饭的人类先生呢。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "remilia.adult.o_elder_kind",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ごはんを くれる にんげんも いるのだ。",
+      "chinese": "呜——，也有会给饭的人类呀。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "remilia.young.o_elder_kind",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ごはんを くれりゅ にんげんしゃんも いるのだ。",
+      "chinese": "呜——，也有给饭的人类先生呀。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "flandre.adult.o_elder_kind",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ごはんを くれる にんげんも いるよ。",
+      "chinese": "呜——，也有会给饭的人类哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
+    },
+    {
+      "id": "flandre.young.o_elder_kind",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ごはんを くれりゅ にんげんしゃんも いるよ。",
+      "chinese": "呜——，也有给饭的人类先生哦。",
+      "events": [
+        "elder_kind"
+      ],
+      "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
+      "audio_status": "unvoiced",
+      "english": "Some humans do give food."
     }
   ]
 }
