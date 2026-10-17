@@ -1,13 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.EntityArgument;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -24,34 +21,7 @@ public final class SettlementCommands {
                 .then(Commands.literal("site")
                         .then(Commands.literal("info").executes(context -> siteInfo(context.getSource())))
                         .then(Commands.literal("check").executes(context -> siteCheck(context.getSource()))))
-                .then(Commands.literal("order").then(Commands.argument("leader", EntityArgument.entity())
-                        .then(Commands.argument("member", EntityArgument.entity())
-                                .then(Commands.argument("order", StringArgumentType.word())
-                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"forage", "scout", "message"}, builder))
-                                        .executes(context -> order(context.getSource(), EntityArgument.getEntity(context, "leader"),
-                                                EntityArgument.getEntity(context, "member"), StringArgumentType.getString(context, "order")))))))
-                .then(Commands.literal("cancel_order").then(Commands.argument("member", EntityArgument.entity())
-                        .executes(context -> {
-                            if (!(EntityArgument.getEntity(context, "member") instanceof YukkuriEntity member)) return 0;
-                            member.settlement().orders().stop();
-                            context.getSource().sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.order.cancelled"), true);
-                            return 1;
-                        })))
-                .then(Commands.literal("threat").then(Commands.argument("amount", IntegerArgumentType.integer(1, 20))
-                        .executes(context -> threat(context.getSource(), IntegerArgumentType.getInteger(context, "amount")))))
                 .then(Commands.literal("migrate").executes(context -> migrate(context.getSource())));
-    }
-    private static int order(CommandSourceStack source, net.minecraft.world.entity.Entity leader,
-                             net.minecraft.world.entity.Entity member, String name) {
-        SettlementOrders.Kind kind;
-        try { kind = SettlementOrders.Kind.valueOf(name.toUpperCase(java.util.Locale.ROOT)); }
-        catch (IllegalArgumentException invalid) { kind = SettlementOrders.Kind.NONE; }
-        if (!(leader instanceof YukkuriEntity chief) || !(member instanceof YukkuriEntity worker)
-                || !chief.settlement().orders().issue(worker, kind)) {
-            source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.order.failed")); return 0;
-        }
-        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.order.issued"), true);
-        return 1;
     }
     private static SettlementData.Group nearest(CommandSourceStack source) {
         var data = SettlementData.get(source.getLevel());
@@ -59,14 +29,6 @@ public final class SettlementCommands {
         SettlementData.Group nearest = null;
         for (var group : data.groups()) if (nearest == null || group.center.distSqr(here) < nearest.center.distSqr(here)) nearest = group;
         return nearest;
-    }
-    /** Test aid: adds threat to the nearest community, as if scouts had seen a predator at the command position. */
-    private static int threat(CommandSourceStack source, int amount) {
-        var group = nearest(source);
-        if (group == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.info.none")); return 0; }
-        SettlementData.get(source.getLevel()).reportThreat(group, BlockPos.containing(source.getPosition()), source.getLevel().getGameTime(), amount);
-        source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.threat", group.threat), true);
-        return group.threat;
     }
     /** Test aid: the nearest community's loaded leader tries to move now (the site search still applies). */
     private static int migrate(CommandSourceStack source) {
