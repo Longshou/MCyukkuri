@@ -96,7 +96,10 @@ public final class BraidRescueGeometry {
         return Math.clamp(.35*size+.05,.1,.4);
     }
     /** Allowed mouth-to-rim contact distance in blocks, scaled with this body. */
-    public static double biteReach(YukkuriEntity actor){return MOUTH_REACH*actor.growthScale()*actor.getScale();}
+    public static double biteReach(YukkuriEntity actor){
+        // The mouth sits a little behind the front of the collision box; a body that rests against a wall touches it with its face.
+        return MOUTH_REACH*actor.growthScale()*actor.getScale()+.15*actor.getBbWidth();
+    }
     /** Looser distance within which the teeth stay hooked while the body lunges, still measured from the mouth. */
     public static double holdReach(YukkuriEntity actor){return biteReach(actor)+.40*actor.growthScale()*actor.getScale();}
     /** Mouth distance to the visible rim wall: a vertical segment from the lip down to the waterline. */
