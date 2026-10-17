@@ -38,7 +38,7 @@
 | 昼夜与活动时段 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md#日夜照明与活动时段)：家油夜间觅食为 W 级汇总；N54 夜间请求采食、N33 夜鸟风险、N86 夜间同睡、EH34 晨起回应、M12 人工灯光 | 还缺不同作者对普通野外家庭昼夜采食、休息和守巢的连续过程；不把家油、野外个体和宠物作息合并为固定生物钟 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
 | 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访、N45／N73 馈赠回应、N68 谢礼拒收、N78 物物交换、N70 轮班和短缺会议 | 分工、协商、传闻验证、领袖继任、馈赠与交易的边界、拒收后的回应、资源冲突及其后果 |
-| 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：N69 垃圾食源封闭、N37 客户收缩、N57 临时避难、N34 公园互助 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续 |
+| 流浪与城市边缘 | EH27、EH26、[城市专题](city-life.md)：M14-001 雪夜纸箱遮挡、薄铺层与贴靠休息；N69 垃圾食源封闭、N37 客户收缩、N57 临时避难、N34 公园互助 | 固定路线与时段、替代食源是否成功、设施变化后的转居和栖所清理后续；单幅画面不确定纸箱的保温效果 |
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
 | 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md)、[帽子作为随身物与临时设施](hakkei-reference/world/resources-ecology.md#帽子作为随身物与临时设施) | 帽子的身份线索、承托幼体、临时遮护、载具、收纳及借还分开整理；饰物修补、替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
