@@ -277,8 +277,21 @@ public final class HouseLife {
         return entity.life().energy() >= 35 && (!daytime() || entity.life().energy() >= 70 && humanDistance >= QUIET);
     }
     private boolean needsTending(HouseNestBlockEntity value) {
-        return entity.family().adult() && value.built() && careWait == 0 && (value.eggs() > 0 && value.careTicks() < 120 || value.dirt() >= 3 && value.canClean())
+        return entity.family().adult() && value.built() && careWait == 0 && (value.eggs() > 0 && value.careTicks() < 120 && broods(value) || value.dirt() >= 3 && value.canClean())
                 && entity.life().nutrition() >= 40 && entity.life().energy() >= 25;
+    }
+    /** Eggs only warm while a parent sits with them: one parent broods (the one with the lowest id that is fit), the other forages. */
+    private boolean broods(HouseNestBlockEntity value) {
+        if (!entity.family().adult() || value.food() <= 0 || value.dirt() >= 6 || value.disturbedTicks() > 0) return false;
+        for (var other : entity.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(value.getBlockPos()).inflate(6),
+                e -> e != entity && e.isAlive() && e.getVariant().isHouse() && e.family().adult() && value.getBlockPos().equals(e.house().nestPosition())
+                        && e.life().nutrition() >= 40 && e.life().energy() >= 25))
+            if (other.getUUID().compareTo(entity.getUUID()) < 0) return false;
+        return true;
+    }
+    /** The brooding parent stays with the eggs while the clutch is fed and clean and it is itself fed and rested. */
+    private boolean keepsBrooding(HouseNestBlockEntity value) {
+        return value.eggs() > 0 && broods(value) && entity.life().nutrition() >= 40 && entity.life().energy() >= 25;
     }
     /** The nest still wants lint or crumbs (the founder's missing nest wants lint first). */
     private boolean wantsMaterials(HouseNestBlockEntity value) {
@@ -547,7 +560,10 @@ public final class HouseLife {
                 if (phase == Phase.TEND && ticks >= 40) {
                     if (careContact && value.eggs() > 0) { phase(Phase.LISTEN); if (value.progress() >= .75f) entity.showReaction("happy", "house_listen", 80); }
                     else { tending = false; phase(daytime() || !outingAllowed() ? Phase.REST : Phase.LEAVE); }
-                } else if (phase == Phase.LISTEN && ticks >= 80) { tending = false; phase(daytime() || !outingAllowed() ? Phase.REST : Phase.LEAVE); }
+                } else if (phase == Phase.LISTEN && ticks >= 80) {
+                    if (keepsBrooding(value)) { phase(Phase.TEND); return; } // stays with the eggs, tending again
+                    tending = false; phase(daytime() || !outingAllowed() ? Phase.REST : Phase.LEAVE);
+                }
             }
             case LIFT -> {
                 // Lifts one egg out of a spoiled nest in the mouth; then carries it out.
