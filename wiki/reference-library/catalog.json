@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 86,
+    "game_texts": 87,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11419,6 +11419,39 @@
       ],
       "focus": "微湿布擦拭身体、脸部与缎带",
       "description": "拆分清洁准备、轻擦身体、处理脸部与饰物、幼体由躲闪到接受；不将叙述者的洗澡顾虑当成生理规则。",
+      "kind": "reference"
+    },
+    {
+      "id": "N89",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "growth",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N89.md",
+      "source_id": "N89",
+      "source_url": "https://note.com/izumi_caron_/n/n57df29878607",
+      "source_title": "側溝のゆっくり",
+      "source_note": "ポミー；2021-08-29 发布；通过网页阅读器核读正文，限定使用开篇家油定义与繁殖类型，不整理侧沟群落情节",
+      "source_group": "author:ポミー",
+      "observation": "文章把屋内、屋檐下、地板下和侧沟等栖居的微小家油与普通油库里区分，并称其为卵生；该篇具体描写侧沟型群落。",
+      "limits": "这是作者对侧沟家油的设定文章，不是对现实生态的观察记录。家油卵生与《家ゆ》在不同作者作品中的基础设定相合；侧沟的家庭结构、产卵数量、年龄与社会等级都只属于该篇，不能移植到室内棉絮巢。没有自然破壳过程、卵壳材质或孵化时长的描写。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里"
+      ],
+      "scenarios": [
+        "出生发育",
+        "住所布置"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "事件"
+      ],
+      "focus": "家油体型类别、侧沟栖居和卵生说明",
+      "description": "仅提取微小家油与普通油库里的类型区分及卵生分类；侧沟群落结构和数值不移植到室内棉絮巢。",
       "kind": "reference"
     }
   ]

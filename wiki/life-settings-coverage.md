@@ -25,7 +25,7 @@
 
 | 领域 | 已有具体依据 | 下一步需要补到的内容 |
 | --- | --- | --- |
-| 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
+| 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md)；[M01《家ゆ》](art-references/works/M01.md)与[N89](novel-reading/cards/N89.md)由不同作者呈现不同栖所家油卵生 | 正常茎果连续成长、家油自然破壳、幼体练习与分床；两篇的卵生交集不补全卵材质、卵区或自然孵化流程 |
 | 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
 | 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md)、N38 取食练习、N59 食源消耗与库存误判、N67 冬粮分类搬运、N70 寻获另一丰产地点、N84 亲代传授及采集应用 | 可回查的辨认特征、材料处理全程、储存和腐败的连续因果 |
 | 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04；N25 人类补叶止水、N40 旧巢维护（能力强化背景）、N41 试住调整、N57 协同覆顶、N66 共同新建、N67 入口改造、N71 受控环境扫除、N72 纸箱湿损失效、N75 雨后清理 | 日常维护、排水、原巢扩容与灾后重建；现有新建、改造和抢修各保留其供给与冲突背景 |
