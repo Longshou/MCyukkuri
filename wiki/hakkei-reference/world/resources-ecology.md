@@ -115,7 +115,7 @@
 | 用途 | 来源证据 | 可确认范围 | 不应补写 |
 | --- | --- | --- | --- |
 | 头戴饰物与身份线索 | [N05](../../novel-reading/cards/N05.md)；[EH34 第 7 页](../../art-references/ehentai/works/EH34.md) | N05 中失帽及旧帽归还影响群体辨认和待遇；EH34 将帽上金章与衣物标记并列呈现 | 所有饰物必然决定亲缘、识别或社会地位；N05 与 L17 是两个独立作品 |
-| 暂时收拢、承托幼体 | [EH37 第 3 页](../../art-references/ehentai/works/EH37.md)；[EH34 第 16 页](../../art-references/ehentai/works/EH34.md) | 前者记亲代用帽收拢新生幼体；后者画另一家庭以亲代帽子容纳幼体，成体仍受冷 | 帽子有固定载重或尺寸；帽内必定温暖安全，或帽子等同被炉 |
+| 随行承托、短距搬运幼体 | [M09 第 6 页](../../art-references/works/M09.md)；[EH37 第 3 页](../../art-references/ehentai/works/EH37.md)；[EH34 第 16 页](../../art-references/ehentai/works/EH34.md) | M09 画幼体乘坐亲代帽子随行、进食时被搬到桌边；EH37 画亲代用帽收拢新生幼体；EH34 画另一家庭以帽容纳幼体，但成体仍受冷 | 不能把三篇不同场景合成统一携幼方法；不证明帽子有固定载重、尺寸、保温或防护能力，也不等于专用携带箱 |
 | 避雨与临时撤离 | [N31](../../novel-reading/cards/N31.md) | 暴雨中魔理沙让帽给母女撤离，自己留下；帽子在该次事件中承担临时遮护 | 让帽后全员安全、帽子能替代住所，或这是常规避雨安排 |
 | 水上载具 | [N09／N13](../../novel-reading/cards/N09.md)、[EH22 第 1、5–7 页](../../art-references/ehentai/works/EH22.md) | 不同作品都出现帽船；具体操纵方式不同，且正文记录落水危险 | 所有魔理沙都会以帽渡水。项目采用仅水生魔理沙使用帽船，身体耐水另计，见[水生魔理沙](../lore/species/marisa/aquatic-marisa.md) |
 | 随身收纳 | [EH22 第 5–6 页](../../art-references/ehentai/works/EH22.md)；[N76](../../novel-reading/cards/N76.md) | 帽内可收纳小物或橡实；用途受行程与作品设定影响 | 帽子是密封储粮容器、收纳量固定，或所有帽船都按同一方式装载 |

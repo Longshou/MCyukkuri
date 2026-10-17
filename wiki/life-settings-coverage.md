@@ -16,7 +16,7 @@
 | 玩具、娱乐、歌唱与节日 | EH32／EH30 不同作者的玩球；N27 文字游戏；[N23](novel-reading/cards/N23.md)同伴合玩气球；[N63](novel-reading/cards/N63.md)提醒收起球和人偶；[歌唱、哄睡与听众回应](hakkei-reference/lore/learning-social.md#唱歌哄睡与听众回应)汇总 N33 群体唱跳、N35 摇篮曲、N73 应请求唱歌及 S04 街头演唱 | 日常兴趣变化、轮流玩、节日活动和不同歌唱用途；仍缺实际交接、归还、玩具维修收纳、跨作品固定曲目或其他音乐物件证据；不推定全种歌唱偏好 |
 | 教育与资格 | [徽章](badges.md)、[学习专题](hakkei-reference/lore/learning-social.md)、EH31 路线误解 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从 |
 | 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11；[EH34](art-references/ehentai/works/EH34.md)熟人返家、晨起回应；[EH36](art-references/ehentai/works/EH36.md)主动问候陌生人后接受玩耍邀请 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客；问候只是接触开场，不等于信任、友谊或收养 |
-| 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)外出衣与袋件；[N28](novel-reading/cards/N28.md)携食、薄毯与发信器；[N64](novel-reading/cards/N64.md)仅文字提车用座椅；[N76](novel-reading/cards/N76.md)帽内存橡实；[N58](novel-reading/cards/N58.md)雪地腹下垫 | 携带箱、物件固定方式、车内座椅结构和上下车动作、途中补水与休息；按物件功能分列，不将特例装备合为标准套装 |
+| 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)外出衣与袋件；[M09](art-references/works/M09.md)幼体乘亲代帽随行；[N28](novel-reading/cards/N28.md)携食、薄毯与发信器；[N64](novel-reading/cards/N64.md)仅文字提车用座椅；[N76](novel-reading/cards/N76.md)帽内存橡实；[N58](novel-reading/cards/N58.md)雪地腹下垫 | 携带箱、物件固定方式、车内座椅结构和上下车动作、途中补水与休息；按物件功能分列，不将特例装备合为标准套装 |
 | 诊察、康复与失能照护 | [照护专题](hakkei-reference/world/health-care.md)：EH32 初期清洁保暖与喂饮、N29 诊察后擦拭和勺喂、N32 接回伤者、N51 低温后整家转移、N65 陪伴后恢复进食 | 独立作者的普通问诊、恢复期活动、护理器具、不同程度的帮助需求；不把特殊急救或单篇恢复写成普遍疗法 |
 | 衰老、死亡与纪念 | [N30](novel-reading/cards/N30.md)亲代离世与缎带；N29 告别 | 自然衰老的连续变化、晚年日常、同伴与主人长期反应；死因不由评论补写 |
 | 所有权、弃养与纠纷 | [商店与人类](shops-factory-npcs.md)、N30 身份误认 | 走失登记、身份核对、转交责任、邻里冲突及解决过程 |
