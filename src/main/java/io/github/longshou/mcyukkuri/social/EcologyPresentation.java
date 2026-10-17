@@ -20,6 +20,10 @@ public final class EcologyPresentation {
             case "house_tend", "house_listen" -> YukkuriAction.IDLE;
             case "house_startled" -> YukkuriAction.STARTLE;
             case "seek_warmth", "warm_up" -> YukkuriAction.TREMBLE;
+            // status hub reactions: predator in view, rain or snow on the body
+            case "threat_watch" -> YukkuriAction.LOOK_AROUND;
+            case "threat_hide", "rain_wait", "rain_huddle" -> YukkuriAction.TREMBLE;
+            case "rain_shake" -> YukkuriAction.SHAKE;
             case "seek_shade" -> YukkuriAction.LOOK_AROUND;
             case "independence_build", "nest_build", "nest_place", "nest_spread", "nest_press", "nest_harvest" -> YukkuriAction.BRACE;
             // These distinct care/learning states select matching authored clips in YukkuriModel.
@@ -199,6 +203,9 @@ public final class EcologyPresentation {
             case "house_pickup", "house_carry" -> "chewing_closed";
             case "house_deposit" -> "satisfied";
             case "seek_warmth", "warm_up" -> "teary";
+            case "threat_watch", "threat_retreat" -> "surprise";
+            case "threat_hide", "rain_run", "rain_wait", "rain_huddle" -> "teary";
+            case "rain_shake" -> "neutral";
             case "seek_shade", "shade_rest" -> "sleepy";
             case "wake" -> "yawn";
             case "toilet", "ground_toilet", "boat_toilet" -> "chewing_closed";
