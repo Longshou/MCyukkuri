@@ -292,7 +292,10 @@ public final class BraidRescue {
                 var at=pushFrom.add(pushDirection.scale(PUSH_FORWARD*s*h)).add(0,PUSH_UP*s,0);
                 if(bodyClear(home,at,parent,box)){wanted=at;break;}
             }
-            if(wanted==null||!moveChild(home,parent,box,wanted)){cancel();return;}
+            if(wanted==null||!moveChild(home,parent,box,wanted)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
+                cancel();return;
+            }
             if(elapsed>=PUSH_TICKS){slideFrom=child.position();slideQ=0;stalled=0;phase(Phase.SLIDE);}
         }else if(phase==Phase.SLIDE){
             SurfaceApproach.face(child,SurfaceApproach.yaw(child.position(),home.position()));
@@ -306,7 +309,10 @@ public final class BraidRescue {
                 double q=Math.min(1,slideQ+dq*f);var p=slideFrom.lerp(target,smooth(q));var at=new Vec3(p.x,y,p.z);
                 if(bodyClear(home,at,parent,box)){wanted=at;reached=q;break;}
             }
-            if(wanted==null||!moveChild(home,parent,box,wanted)){cancel();return;}
+            if(wanted==null||!moveChild(home,parent,box,wanted)){
+                io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
+                cancel();return;
+            }
             stalled=reached>slideQ+1e-9||reached>=1?0:stalled+1;slideQ=reached;
             if(stalled>16){cancel();return;}
             if(slideQ>=1&&Math.abs(child.getY()-target.y)<.0006){
@@ -381,17 +387,20 @@ public final class BraidRescue {
         if(v.horizontalDistanceSqr()<.03*.03)child.setDeltaMovement(v.x+push.x,v.y,v.z+push.z);
         child.hasImpulse=true;
     }
+    private String clearWhy="";
     private boolean bodyClear(HatBoatEntity home,Vec3 feet,YukkuriEntity parent,AABB parentBox){
         var boxes=BraidRescueGeometry.envelope(child,feet);
-        if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
-                ||BraidRescueGeometry.envelopeClearance(child,home,feet)>feet.y+.002)return false;
+        if(!level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){clearWhy="world border";return false;}
+        double required=BraidRescueGeometry.envelopeClearance(child,home,feet);
+        if(required>feet.y+.002){clearWhy="hull surface needs feet at "+required+" but feet "+feet.y+" (short by "+(required-feet.y)+") dip="+home.dipDegrees(0);return false;}
         for(var box:boxes){
-            if(box.deflate(.002).intersects(parentBox)||level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext())return false;
+            if(box.deflate(.002).intersects(parentBox)){clearWhy="parent body";return false;}
+            if(level().getBlockCollisions(child,box.deflate(.002)).iterator().hasNext()){clearWhy="block";return false;}
             for(var other:level().getEntities(child,box)){
                 if(other==home||other==parent||!other.isAlive()||other.isSpectator())continue;
                 if(other instanceof YukkuriEntity y){
-                    for(var shape:BraidRescueGeometry.envelope(y,y.position()))if(box.deflate(.002).intersects(shape))return false;
-                }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox()))return false;
+                    for(var shape:BraidRescueGeometry.envelope(y,y.position()))if(box.deflate(.002).intersects(shape)){clearWhy="another yukkuri "+y.getUUID();return false;}
+                }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox())){clearWhy="entity "+other.getType().toShortString();return false;}
             }
         }
         return true;
