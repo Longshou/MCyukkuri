@@ -86,7 +86,7 @@ public final class SelfRescueHatGeometry {
     /** A complete shake is planned only once. At runtime validate just the swept interval. */
     private static boolean validPath(YukkuriEntity actor,Plan plan){
         Pose previous=null;
-        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous))return false;previous=current;}
+        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+plan.bodyYaw()+": "+lastFailure;return false;}previous=current;}
         return true;
     }
     public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
@@ -113,8 +113,8 @@ public final class SelfRescueHatGeometry {
             // WoundSurface intentionally uses front faces for wound hits, whereas custody needs both sides.
             for(int j=0;j<3;j++){
                 var a=points[j];var b=points[(j+1)%3];var delta=new Vector3f(b).sub(a);float distance=delta.length();if(distance<1e-6)continue;delta.div(distance);
-                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) d="+hit.distance()+"<"+distance;return false;}
-                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back)";return false;}
+                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
+                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
             }
         }
         return true;
