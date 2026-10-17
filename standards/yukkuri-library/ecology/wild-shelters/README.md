@@ -1,6 +1,6 @@
 # 天然住所的叶床、结界与纸箱
 
-原创制作源为 `build.py`；叶床 `forest_burrow`、个人小叶巢 `personal_leaf_nest`、叶束 `bedding_bundle` 自 2026-10-17 起由 `standards/yukkuri-library/drafts/care-props/wild.py` 生成（按成体真实尺寸，部件引用原版贴图而不含像素，渲染单位不变），`build.py` 调用并导出；细枝结界、纸箱、便所不变。下文关于旧叶片网格的描述作历史说明。当前选用已接入 Minecraft。用户于 2026-09-13 确认此前展示的天然洞穴叶床、细枝结界及浅坑布置，指纹登记在 `manifest.json` 的 `approvals`；本轮连续共巢叶垫与个人小叶巢待用户确认，纸箱和便所造型也仍待确认。用户已否定此前的整座覆土工事；森林资产只添加叶床和细枝，洞顶、洞壁与坑底由现有地形提供。
+原创制作源为 `build.py`；叶床 `forest_burrow`、个人小叶巢 `personal_leaf_nest`、叶束 `bedding_bundle` 自 2026-10-17 起由 `standards/yukkuri-library/drafts/care-props/wild.py` 生成（按成体真实尺寸，圆形巢：后高前低的叶团围沿，相邻床位连成一圈；部件引用原版贴图而不含像素；叶床渲染单位扩为 1 铺垫、2–5 边中段、6–9 外角、10–17 边延续段），`build.py` 调用并导出；细枝结界、纸箱、便所不变。下文关于旧叶片网格的描述作历史说明。当前选用已接入 Minecraft。用户于 2026-09-13 确认此前展示的天然洞穴叶床、细枝结界及浅坑布置，指纹登记在 `manifest.json` 的 `approvals`；本轮连续共巢叶垫与个人小叶巢待用户确认，纸箱和便所造型也仍待确认。用户已否定此前的整座覆土工事；森林资产只添加叶床和细枝，洞顶、洞壁与坑底由现有地形提供。
 
 运行 `python standards/yukkuri-library/ecology/wild-shelters/build.py` 同步可编辑 `.bbmodel`、静态网格、图集、选用快照及游戏资源，并在本机生成多角度预览（不入库）。需要现有 Python、Pillow 与 Node.js。`verify.py` 核对源、选用与运行文件，将报告写入 `.local/reports/wild-shelters/`。
 

@@ -57,7 +57,7 @@
         "personal_leaf_nest",
         "bedding_bundle"
       ],
-      "note": "R5 self-built nests of wild yukkuri: parts reference vanilla textures (minecraft:textures/block/oak_leaves.png etc.) with the vanilla plains tint, mapped at 1 texel per unit; nothing copied from the vanilla pack. forest_burrow keeps its render units (1 bedding, 2-5 N/E/S/W rim), personal_leaf_nest units 1-3, so client/ShelterRenderer is unchanged."
+      "note": "R5 self-built nests of wild yukkuri: parts reference vanilla textures (minecraft:textures/block/oak_leaves.png etc.) with the vanilla plains tint, mapped at 1 texel per unit; nothing copied from the vanilla pack. forest_burrow render units: 1 bedding, 2-5 side mids N/E/S/W, 6-9 corner arcs, 10-17 side ends (client/ShelterRenderer.sharedLeafLayers picks them so a connected nest gets one round-cornered rim); personal_leaf_nest units 1-3 unchanged."
     }
   },
   "care_props": {

@@ -71,13 +71,28 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         PropModels.renderLayers(home.kind().id,(home.lining()>0?1:0)|(home.food()>0?2:0),pose,buffers,light,overlay);
         pose.popPose();
     }
-    /** Unit 1 is the bedding; units 2..5 are north/east/south/west rim pieces. */
+    /** Unit 1 is the bedding; 2..5 are the north/east/south/west rim middles, 6..9 the NE/SE/SW/NW corner arcs (both sides
+     * exposed) and 10..17 the rim ends where an exposed edge runs on over the next bed: N-west, N-east, E-north, E-south,
+     * S-east, S-west, W-south, W-north. Together they make one round-cornered rim around the whole connected nest. */
     private static int sharedLeafLayers(Set<net.minecraft.core.BlockPos> shared,net.minecraft.core.BlockPos bed) {
+        boolean north=!shared.contains(bed.north()),east=!shared.contains(bed.east()),south=!shared.contains(bed.south()),west=!shared.contains(bed.west());
         int layers=1;
-        if(!shared.contains(bed.north()))layers|=2;
-        if(!shared.contains(bed.east()))layers|=4;
-        if(!shared.contains(bed.south()))layers|=8;
-        if(!shared.contains(bed.west()))layers|=16;
+        if(north)layers|=2;
+        if(east)layers|=4;
+        if(south)layers|=8;
+        if(west)layers|=16;
+        if(north&&east)layers|=1<<5;
+        if(south&&east)layers|=1<<6;
+        if(south&&west)layers|=1<<7;
+        if(north&&west)layers|=1<<8;
+        if(north&&!west)layers|=1<<9;
+        if(north&&!east)layers|=1<<10;
+        if(east&&!north)layers|=1<<11;
+        if(east&&!south)layers|=1<<12;
+        if(south&&!east)layers|=1<<13;
+        if(south&&!west)layers|=1<<14;
+        if(west&&!south)layers|=1<<15;
+        if(west&&!north)layers|=1<<16;
         return layers;
     }
     @Override public AABB getRenderBoundingBox(ShelterBlockEntity home) {

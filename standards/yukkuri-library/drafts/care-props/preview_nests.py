@@ -23,28 +23,44 @@ def pet_bed():
     sheet(rows, 'pet_bed.png', '人造垫：商店宠物软垫（前＝当前主线，后＝本次）。成体宽12.8、个体最大1.2倍=15.4、灵胖1.5倍=19.2；后版内部宽16.4，外径24', 5, size=SZ)
 
 
+def shared_mask(shared, bed):
+    """Same layer mask as client/ShelterRenderer.sharedLeafLayers; bed = (x, z), north is z - 1."""
+    x, z = bed
+    n, e, s, w = (x, z - 1) not in shared, (x + 1, z) not in shared, (x, z + 1) not in shared, (x - 1, z) not in shared
+    m = 1 | (2 if n else 0) | (4 if e else 0) | (8 if s else 0) | (16 if w else 0)
+    for flag, bit in ((n and e, 5), (s and e, 6), (s and w, 7), (n and w, 8), (n and not w, 9), (n and not e, 10), (e and not n, 11),
+                      (e and not s, 12), (s and not e, 13), (s and not w, 14), (w and not s, 15), (w and not n, 16)):
+        if flag:
+            m |= 1 << bit
+    return m
+
+
 def wild_beds():
     rows = []
+    single = shared_mask({(0, 0)}, (0, 0))
+    ground = ('ground:17', 0, 0, 0, 0, 1)
     for src, tag in ((BEFORE, '前'), (AFTER, '后')):
         r = []
-        for mode, lab in (('none', '空'), ('adult', '成体 1.0'), ('big', '成体 1.2'), ('child', '子体 0.5')):
-            r.append(tile(src, [('forest_burrow', ('mask', 31), 0, 0, 0, 1)] + occupants(0, mode), f'{tag} 单床叶巢（四边有沿）{lab}', size=SZ, ppu=16))
-        fam = [('forest_burrow', ('mask', m), sx, 0, sz, 1) for sx, sz, m in ((-8, -8, 19), (8, -8, 7), (-8, 8, 25), (8, 8, 13))]
-        occ = [(CH, 8, sx, 0, sz, s, yaw) for sx, sz, s, yaw in ((-8, -8, 1.0, 0), (8, -8, .5, 0), (-8, 8, .5, 0), (8, 8, 1.0, 0))]
-        r.append(tile(src, fam + occ, f'{tag} 家族共巢 2x2（亲2+子2）', size=SZ, ppu=11))
+        mask = 31 if src is BEFORE else single
+        for mode, lab in (('none', '空'), ('adult', '成体 1.0'), ('child', '子体 0.5')):
+            r.append(tile(src, [ground, ('forest_burrow', ('mask', mask), 0, 0, 0, 1)] + occupants(0, mode), f'{tag} 单床叶巢 {lab}', size=SZ, ppu=19))
+        cells = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        fam = [('forest_burrow', ('mask', 31 if src is BEFORE else shared_mask(set(cells), c)), (c[0] - .5) * 16, 0, (c[1] - .5) * 16, 1) for c in cells]
+        occ = [(CH, 8, sx, 0, sz, s, 180) for sx, sz, s in ((-8, -8, 1.0), (8, -8, .5), (-8, 8, .5), (8, 8, 1.0))]
+        r.append(tile(src, [('ground:24', 0, 0, 0, 0, 1)] + fam + occ, f'{tag} 家族共巢 2x2（亲2+子2）', size=SZ, ppu=11))
         rows.append(r)
-    sheet(rows, 'wild_nests.png', '野外油库里自建：叶床（forest_burrow，共巢床位，16x16 格，沿口在外侧方块空间）', 5, size=SZ)
+    sheet(rows, 'wild_nests.png', '野外油库里自建：叶床（forest_burrow）。前面(+z)为入口侧，沿口较低；后/侧较高；相邻床位连成一圈', 4, size=SZ)
 
 
 def stages():
     rows = []
     for src, tag in ((BEFORE, '前'), (AFTER, '后')):
-        r = [tile(src, [('bedding_bundle', 0, 0, 0, 0, 1)], f'{tag} 携带的一份垫料', size=SZ, ppu=36)]
-        for m, lab in ((1, '阶段1 底垫'), (3, '阶段2 铺开'), (7, '阶段3 压沿完成')):
-            r.append(tile(src, [('personal_leaf_nest', ('mask', m), 0, 0, 0, 1)] + occupants(0, 'child'), f'{tag} 个人小叶巢 {lab} + 子体0.5', size=SZ, ppu=22))
-        r.append(tile(src, [('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1), (CH, 8, 0, 0, 0, .8, 0)], f'{tag} 个人小叶巢 + 子体0.8', size=SZ, ppu=22))
+        r = [tile(src, [('ground:8', 0, 0, 0, 0, 1), ('bedding_bundle', 0, 0, 0, 0, 1)], f'{tag} 携带的一份垫料', size=SZ, ppu=36)]
+        for m, lab in ((1, '阶段1 零散几片叶'), (3, '阶段2 粗略成圈'), (7, '阶段3 成巢')):
+            r.append(tile(src, [('ground:11', 0, 0, 0, 0, 1), ('personal_leaf_nest', ('mask', m), 0, 0, 0, 1)] + occupants(0, 'child'), f'{tag} 个人小叶巢 {lab} + 子体0.5', size=SZ, ppu=26))
+        r.append(tile(src, [('ground:11', 0, 0, 0, 0, 1), ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1), (CH, 8, 0, 0, 0, .8, 180)], f'{tag} 个人小叶巢 + 子体0.8', size=SZ, ppu=26))
         rows.append(r)
-    sheet(rows, 'wild_stages.png', '野外自建巢的建造阶段（搬运 -> 底垫 -> 铺开 -> 压沿）；子体 0.5 / 0.8', 5, size=SZ)
+    sheet(rows, 'wild_stages.png', '野外自建巢的建造阶段（搬运 -> 零散几片叶 -> 粗略成圈 -> 成巢）；子体 0.5 / 0.8', 5, size=SZ)
 
 
 def predator():

@@ -37,6 +37,13 @@ class Source:
         self.assets = self.root / 'src/main/resources/assets/mcyukkuri'
 
     def load(self, name):
+        if name.startswith('ground'):         # ground[:half-size]: a vanilla dirt plane at y = 0 (preview floor)
+            h = float(name.split(':')[1]) if ':' in name else 17.0
+            k = 2 * h / 16
+            rows = [[-h, -.01, -h, 0, 0, 0, 1, 0], [-h, -.01, h, 0, k, 0, 1, 0], [h, -.01, h, k, k, 0, 1, 0],
+                    [-h, -.01, -h, 0, 0, 0, 1, 0], [h, -.01, h, k, k, 0, 1, 0], [h, -.01, -h, k, 0, 0, 1, 0]]
+            return {'parts': [{'name': 'ground', 'start': 0, 'count': 6, 'texture': 'minecraft:textures/block/dirt.png'}],
+                    'bounds': [[-h, h], [0, 0], [-h, h]]}, np.array(rows, dtype=np.float32)
         if name.startswith('yuk:'):      # yuk:reimu[:expression]
             bits = name.split(':')
             return self.load_yukkuri(bits[1], bits[2] if len(bits) > 2 else 'sleep')

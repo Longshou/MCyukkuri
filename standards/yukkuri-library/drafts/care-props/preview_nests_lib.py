@@ -8,7 +8,7 @@ import render_preview as R
 import os
 AFTER = R.Source(R.ROOT)
 BEFORE = R.Source(os.environ.get('MCYUKKURI_BEFORE', R.ROOT))
-OUT = R.ROOT / '.local/previews/props-v2'
+OUT = Path(os.environ.get('MCYUKKURI_OUT', R.ROOT / '.local/previews/props-v2'))
 OUT.mkdir(parents=True, exist_ok=True)
 F = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 14)
 FS = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 11)
@@ -20,15 +20,15 @@ def occupants(floor, mode):
     """mode: none | adult | child | both | big (1.2x adult) ; positions in model units, face toward +z/-x camera."""
     out = []
     if mode in ('adult', 'both'):
-        out.append((FACE, 8, 0, floor, 0, 1.0, 0))
+        out.append((FACE, 8, 0, floor, 0, 1.0, 180))
     if mode == 'big':
-        out.append((FACE, 8, 0, floor, 0, 1.2, 0))
+        out.append((FACE, 8, 0, floor, 0, 1.2, 180))
     if mode == 'child':
-        out.append((FACE, 8, 0, floor, 0, .5, 0))
+        out.append((FACE, 8, 0, floor, 0, .5, 180))
     return out
 
 
-def tile(src, items, label, size=(430, 330), ppu=14, az=225, el=32, lock=None):
+def tile(src, items, label, size=(430, 330), ppu=14, az=20, el=34, lock=None):
     im = Image.new('RGBA', size, BG)
     d = ImageDraw.Draw(im)
     d.text((6, 4), label, font=FS, fill=(0, 0, 0, 255))

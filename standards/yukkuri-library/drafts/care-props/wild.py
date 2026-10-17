@@ -8,9 +8,9 @@ Real body sizes: standard adult 12.8 wide x 10.7 deep (individual target up to 1
 0.8. The shared family bed therefore keeps a 16 x 16 hollow and builds its rim in the block space around it (exposed
 sides only); the personal bed of a growing child has a 10 x 8 hollow.
 
-Render units follow client/ShelterRenderer: forest_burrow 1 = bedding, 2..5 = north / east / south / west rim;
-personal_leaf_nest 1 = underlayer, 2 = spread second portion, 3 = pressed rim, grass and twigs; bedding_bundle and
-predator_nest are unit 0.
+Render units follow client/ShelterRenderer: forest_burrow 1 = bedding, 2..5 = side mids north / east / south / west,
+6..9 = corner arcs NE / SE / SW / NW, 10..17 = side ends (see forest_burrow); personal_leaf_nest 1 = a few leaves,
+2 = rough ring, 3 = finished nest; bedding_bundle and predator_nest are unit 0.
 """
 import math
 from kit import Prop, deterministic
@@ -106,145 +106,184 @@ class Builder:
             self.sprite(mat, unit, (x, y, z), size, yaw + off, up=True)
 
 
+DRY = (V + 'block/short_grass.png', (206, 180, 92))         # dry grass: the same sprite in a straw tint
+
+
 def leaf_mat(rng):
     r = rng.random()
     return LEAF_DRY if r < .55 else LEAF if r < .78 else LEAF_BIRCH if r < .94 else LEAF_SPRUCE
 
 
-def pad(b, unit, cells, half_x, half_z, lift=0.0, litter=True):
-    """Packed mulch bed: dirt slabs in a 4-unit grid inside an ellipse, topped by a loose litter layer of thin leaf plates.
-    The surface dips to a soft hollow in the middle (ground Y = 0 is the sleeping plane) and rises toward the edge."""
+def smooth(x):
+    x = max(0.0, min(1.0, x))
+    return x * x * (3 - 2 * x)
+
+
+# Side frame: a = along the edge, t = outward from the bed centre. Sides 0..3 = north, east, south, west.
+def to_world(side, a, t):
+    return ((-a, -t), (t, -a), (a, t), (-t, a))[side]
+
+
+def tangent_yaw(tx, tz):
+    """box() yaw that turns the local x axis onto the world direction (tx, tz)."""
+    return math.atan2(-tz, tx)
+
+
+# Crest height by side: the back (north) is the highest, the front (south, the entrance side) the lowest so a face stays visible.
+SIDE_H = (5.0, 4.0, 2.4, 4.0)
+CORNER_H = {(1, -1): 4.5, (1, 1): 3.2, (-1, 1): 3.2, (-1, -1): 4.5}      # (sign x, sign z): NE, SE, SW, NW
+CREST = 9.0                                                              # distance of the rim crest from the bed centre
+
+
+def heap(b, unit, x, z, yaw, w, d, h, one_mat=True):
+    """A gathered pile of leaves: three stacked, slightly turned boxes (wide base, narrower middle, small cap)."""
     rng = b.rng
-    for gx in range(-cells, cells):
-        for gz in range(-cells, cells):
-            cx, cz = (gx + .5) * 4.0, (gz + .5) * 4.0
-            if (cx / half_x) ** 2 + (cz / half_z) ** 2 > 1.18:
+    base = leaf_mat(rng)
+    pick = (lambda: base) if one_mat else (lambda: leaf_mat(rng))
+    h1, h2 = h * .58, h * .3
+    b.box(base, unit, (x, h1 / 2, z), (w / 2, h1 / 2, d / 2), yaw=yaw + rng.uniform(-.2, .2))
+    b.box(pick(), unit, (x + rng.uniform(-.5, .5), h1 + h2 / 2 - .1, z + rng.uniform(-.5, .5)), (w * .38, h2 / 2 + .1, d * .38), yaw=yaw + rng.uniform(-.7, .7))
+    if h > 2.4:
+        b.box(pick(), unit, (x + rng.uniform(-.5, .5), h1 + h2 + .2, z + rng.uniform(-.4, .4)), (w * .2, .35, d * .2), yaw=rng.uniform(0, 3))
+
+
+def trimmings(b, unit, x, z, h, tx, tz, dry=True):
+    """Dry-grass tufts, a straw ear and a twig tucked into a rim pile."""
+    rng = b.rng
+    if rng.random() < .4:
+        b.tuft(unit, x + rng.uniform(-.8, .8), z + rng.uniform(-.8, .8), h * .72, rng.uniform(2.6, 3.4), mat=DRY if dry else GRASS)
+    if rng.random() < .4:
+        b.sprite(WHEAT, unit, (x + rng.uniform(-1, 1), h * .8 + rng.uniform(-.2, .3), z + rng.uniform(-1, 1)), 3.6, rng.uniform(0, 6.28), tilt=rng.uniform(-.25, .25))
+    if rng.random() < .45:
+        b.box(LOG if rng.random() < .5 else LOG_DARK, unit, (x, h * .85, z), (rng.uniform(2.0, 3.0), .4, .4),
+              yaw=tangent_yaw(tx, tz) + rng.uniform(-.9, .9), pitch=rng.uniform(-.14, .14), grain=True)
+
+
+def rim_run(b, unit, pts, height, thick=3.4):
+    """pts = [(x, z, tx, tz, nx, nz)]: heaps along the crest with an inner low shoulder and a ragged outer edge."""
+    rng = b.rng
+    for (x, z, tx, tz, nx, nz) in pts:
+        h = height * rng.uniform(.82, 1.15)
+        yaw = tangent_yaw(tx, tz)
+        off = rng.uniform(-.5, .5)
+        heap(b, unit, x + nx * off, z + nz * off, yaw, rng.uniform(3.8, 5.0), rng.uniform(3.2, thick + .6), h, one_mat=rng.random() < .7)
+        if rng.random() < .8:                              # soft inner shoulder
+            heap(b, unit, x - nx * 2.0, z - nz * 2.0, yaw + rng.uniform(-.4, .4), rng.uniform(2.6, 3.6), 2.2, h * .38)
+        if rng.random() < .55:                             # loose outer scrap, breaks the straight outline
+            sx, sz = x + nx * rng.uniform(2.0, 2.8) + tx * rng.uniform(-1.2, 1.2), z + nz * rng.uniform(2.0, 2.8) + tz * rng.uniform(-1.2, 1.2)
+            b.box(leaf_mat(rng), unit, (sx, .3 + rng.uniform(0, .25), sz), (rng.uniform(1.1, 1.6), .22, rng.uniform(.8, 1.2)), yaw=rng.uniform(0, 3))
+        trimmings(b, unit, x, z, h, tx, tz)
+
+
+def side_pts(side, lo, hi, count, jitter=.35):
+    """Points on the straight crest of a side between a = lo and a = hi (world frame, outward normal included)."""
+    rng = deterministic(7 * side + 13 * int(lo + 20) + int(hi))
+    out = []
+    for i in range(count):
+        a = lo + (hi - lo) * (i + .5) / count + rng.uniform(-jitter, jitter)
+        t = CREST + rng.uniform(-.5, .5)
+        x, z = to_world(side, a, t)
+        tx, tz = to_world(side, 1, 0)
+        nx, nz = to_world(side, 0, 1)
+        out.append((x, z, tx, tz, nx, nz))
+    return out
+
+
+def corner_pts(sx, sz, count=4):
+    """Arc around a convex corner: centre (4 sx, 4 sz), radius CREST - 4, from the side facing z to the side facing x."""
+    rng = deterministic(31 + sx * 3 + sz * 5)
+    cx, cz = 4.0 * sx, 4.0 * sz
+    out = []
+    for i in range(count):
+        ang = math.pi / 2 * (i + .5) / count
+        nx, nz = sx * math.sin(ang), sz * math.cos(ang)       # from (0, sz) toward (sx, 0)
+        r = CREST - 4.0 + rng.uniform(-.4, .4)
+        out.append((cx + nx * r, cz + nz * r, -nz, nx, nx, nz))
+    return out
+
+
+def litter(b, unit, bounds, spacing, dish, rng_scale=1.0, skip=None, hay=.08):
+    """Loose leaf litter: overlapping thin leaf plates on a jittered grid, lying in a soft dish (low in the middle)."""
+    rng = b.rng
+    (x0, x1, z0, z1) = bounds
+    nx, nz = int((x1 - x0) / spacing) + 1, int((z1 - z0) / spacing) + 1
+    k = 0
+    for i in range(nx):
+        for j in range(nz):
+            x = x0 + (i + .5) * (x1 - x0) / nx + rng.uniform(-.7, .7)
+            z = z0 + (j + .5) * (z1 - z0) / nz + rng.uniform(-.7, .7)
+            if skip and skip(x, z):
                 continue
-            e = min(1.0, (cx / (half_x + 1)) ** 2 + (cz / (half_z + 1)) ** 2)
-            top = .12 + lift + .75 * e + rng.uniform(-.04, .04)
-            mat = rng.choice((PODZOL, PODZOL, PODZOL, COARSE))
-            b.box(mat, unit, (cx, top - .6, cz), (2.0, .6, 2.0))
-    n = int(4 * cells + 2)
-    step = 4.0 * cells * 2 / n
-    for i in range(n):
-        for j in range(n):
-            x = -4.0 * cells + (i + .5) * step + rng.uniform(-.5, .5)
-            z = -4.0 * cells + (j + .5) * step + rng.uniform(-.5, .5)
-            if (x / half_x) ** 2 + (z / half_z) ** 2 > 1.0 or not litter:
-                continue
-            e = min(1.0, (x / (half_x + 1)) ** 2 + (z / (half_z + 1)) ** 2)
-            top = .12 + lift + .75 * e
-            w = rng.uniform(1.3, 1.8)
-            b.box(HAY if rng.random() < .14 else leaf_mat(rng), unit, (x, top + .12 + (i * n + j) % 3 * .035, z), (w, .12, rng.uniform(1.1, 1.5)), yaw=rng.uniform(0, math.pi))
-
-
-def clump(b, unit, u, t, width, depth, height, frame, lean=0.0):
-    """One piled leaf clump of the rim. frame(u, t) -> (x, z, yaw offset): maps the side frame (u along, t outward) to the bed."""
-    rng = b.rng
-    x, z, yaw0 = frame(u, t)
-    y0 = rng.uniform(.0, .3)
-    mat = leaf_mat(rng)
-    b.box(mat, unit, (x, y0 + height / 2, z), (width / 2, height / 2, depth / 2), yaw=yaw0 + rng.uniform(-.28, .28), pitch=lean)
-    if height > 2.0 and rng.random() < .55:          # a smaller second leaf lump on top gives a ragged crest
-        b.box(leaf_mat(rng), unit, (x + rng.uniform(-.6, .6), y0 + height + .35, z + rng.uniform(-.6, .6)),
-              (width / 3, .45, depth / 3), yaw=rng.uniform(0, 3), pitch=0)
-
-
-def side_frame(side):
-    """Side 0..3 = north, east, south, west: (u, t) -> (x, z, yaw)."""
-    return {0: lambda u, t: (-u, -t, 0.0), 1: lambda u, t: (t, -u, math.pi / 2),
-            2: lambda u, t: (u, t, 0.0), 3: lambda u, t: (-t, u, math.pi / 2)}[side]
-
-
-def bank(b, unit, frame, t_in, t_out, u_max, h_in, h_out, mats, step=(3.4, 4.2), yaw_var=.14):
-    """Packed mulch bank under the leaf rim: stepped slabs (inner row lower, outer row higher) of dirt, moss and straw."""
-    rng = b.rng
-    u = -u_max + rng.uniform(0, .6)
-    while u < u_max:
-        w = rng.uniform(*step)
-        for row, (t0, t1, h) in enumerate(((t_in, (t_in + t_out) / 2, h_in), ((t_in + t_out) / 2, t_out, h_out))):
-            hh = h + rng.uniform(-.25, .25)
-            x, z, yaw0 = frame(u + w / 2, (t0 + t1) / 2)
-            b.box(rng.choice(mats), unit, (x, hh / 2, z), (w / 2 + .15, hh / 2, (t1 - t0) / 2 + .1), yaw=yaw0 + rng.uniform(-yaw_var, yaw_var))
-        u += w * .96
-
-
-def rim_side(b, unit, side):
-    """Rim just outside the 16-unit cell: a packed bank, then piled leaves, a few twigs, tucked grass and straw."""
-    rng, frame = b.rng, side_frame(side)
-    bank(b, unit, frame, 7.9, 10.9, 10.8, 1.9, 3.0, (PODZOL, PODZOL, PODZOL, MOSS))
-    for band, (t0, t1, h0, h1, wd) in enumerate(((7.7, 8.8, 1.9, 2.7, (2.8, 3.6)), (8.8, 10.4, 3.4, 4.4, (3.0, 4.0)), (10.2, 11.2, 2.0, 2.9, (2.6, 3.4)))):
-        u = -10.6 + rng.uniform(0, 1)
-        while u < 10.8:
-            width = rng.uniform(*wd)
-            t = rng.uniform(t0, t1)
-            height = rng.uniform(h0, h1) + (.4 if abs(u) > 9 and band == 1 else 0)
-            clump(b, unit, u + width / 2, t, width, rng.uniform(2.0, 2.9), height, frame, lean=0.0)
-            u += width * rng.uniform(.85, 1.0)
-    for k in range(2):                                   # twigs laid over the crest
-        u = rng.uniform(-8, 8)
-        x, z, yaw0 = frame(u, rng.uniform(8.8, 9.8))
-        b.box(LOG if k % 2 else LOG_DARK, unit, (x, rng.uniform(4.2, 4.7), z), (rng.uniform(2.6, 3.4), .4, .4), yaw=yaw0 + math.pi / 2 + rng.uniform(-.6, .6), pitch=rng.uniform(-.12, .12), grain=True)
-    x, z, _ = frame(rng.uniform(-7, 7), rng.uniform(8.0, 9.6))
-    b.tuft(unit, x, z, 3.3, 3.4)
-    x, z, _ = frame(rng.uniform(-6, 6), 9.2)
-    b.box(MOSS, unit, (x, 4.3, z), (1.5, .3, 1.3), yaw=rng.uniform(0, 3))
-    for k in range(2):                                   # loose straw
-        x, z, _ = frame(rng.uniform(-8, 8), rng.uniform(7.8, 9.0))
-        b.sprite(WHEAT, unit, (x, rng.uniform(3.4, 4.2), z), 3.6, rng.uniform(0, 6.28), tilt=rng.uniform(-.2, .2))
+            k += 1
+            y = .1 + dish(x, z) + (k % 3) * .04
+            mat = HAY if rng.random() < hay else leaf_mat(rng)
+            b.box(mat, unit, (x, y + .12, z), (rng.uniform(1.5, 2.2) * rng_scale, .12, rng.uniform(1.2, 1.7) * rng_scale), yaw=rng.uniform(0, math.pi))
 
 
 def forest_burrow():
+    """Shared family bed cell. Unit 1: leaf litter pad in a soft dish. Units 2..5 = side mids N/E/S/W (|a| <= 4), 6..9 = corner
+    arcs NE/SE/SW/NW (both adjoining sides exposed), 10..17 = side ends where the edge runs on over the next bed:
+    N-west N-east E-north E-south S-east S-west W-south W-north. Joined, the pieces make one round-cornered ring."""
     p = Prop('forest_burrow')
     b = Builder(p, 931)
-    pad(b, 1, 2, 8.2, 8.2)
-    for k in range(8):                                   # moss and grass tufts in the bed, clear of the sleeping spot
-        x, z = b.rng.uniform(-7, 7), b.rng.uniform(-7, 7)
-        if math.hypot(x, z) < 5.4:
-            continue
-        if k % 2:
-            b.tuft(1, x, z, .5, 3.0)
-        else:
-            b.box(MOSS, 1, (x, .45, z), (1.2, .12, 1.0), yaw=b.rng.uniform(0, 3))
+    rng = b.rng
+    dish = lambda x, z: .55 * smooth((math.hypot(x, z) - 3.5) / 7.0) + .08
+    for _ in range(6):                                   # dark mulch showing through the litter
+        x, z = rng.uniform(-5.5, 5.5), rng.uniform(-5.5, 5.5)
+        b.box(PODZOL, 1, (x, .07, z), (rng.uniform(1.8, 2.6), .07, rng.uniform(1.6, 2.4)), yaw=rng.uniform(0, 3))
+    litter(b, 1, (-8.6, 8.6, -8.6, 8.6), 3.2, dish)
+    for _ in range(5):                                   # dry tufts and a little moss, clear of the sleeping spot
+        a = rng.uniform(0, math.tau)
+        r = rng.uniform(5.2, 7.6)
+        b.tuft(1, math.cos(a) * r, math.sin(a) * r, .7, 3.2, mat=DRY)
+    b.box(MOSS, 1, (rng.uniform(-5, 5), .33, 6.2), (1.5, .1, 1.1), yaw=.4)
     for side in range(4):
-        rim_side(b, 2 + side, side)
+        rim_run(b, 2 + side, side_pts(side, -4, 4, 3), SIDE_H[side])
+    for unit, (sx, sz) in zip((6, 7, 8, 9), ((1, -1), (1, 1), (-1, 1), (-1, -1))):
+        rim_run(b, unit, corner_pts(sx, sz), CORNER_H[(sx, sz)])
+    # ends: (unit, side, sign of a)
+    for unit, side, sign in ((10, 0, 1), (11, 0, -1), (12, 1, 1), (13, 1, -1), (14, 2, 1), (15, 2, -1), (16, 3, 1), (17, 3, -1)):
+        lo, hi = (4, 8) if sign > 0 else (-8, -4)
+        rim_run(b, unit, side_pts(side, lo, hi, 3, jitter=.2), SIDE_H[side])
     return p
 
 
 def personal_leaf_nest():
-    """A growing child's own bed: oval hollow 10 x 8, three build stages (underlayer, second portion, pressed rim)."""
+    """A growing child's own bed, oval hollow about 10 x 8. Stage 1 (unit 1): a few leaves and straw scattered on the spot.
+    Stage 2 (unit 2): a rough low ring of leaf piles and more litter. Stage 3 (unit 3): the ring built up (back highest,
+    front low), dry grass, straw and a few twigs tucked in."""
     p = Prop('personal_leaf_nest')
     b = Builder(p, 4417)
     rng = b.rng
-    pad(b, 1, 2, 6.8, 5.6)
-    # stage 2: a second portion of leaves spread over the hollow
-    for i in range(16):
-        a = rng.uniform(0, math.tau)
-        r = math.sqrt(rng.uniform(.05, 1)) * 1.0
-        x, z = math.cos(a) * 5.2 * r, math.sin(a) * 4.1 * r
-        e = min(1.0, (x / 7.0) ** 2 + (z / 6.0) ** 2)
-        b.box(leaf_mat(rng), 2, (x, .12 + .75 * e + .42 + (i % 3) * .04, z), (rng.uniform(1.2, 1.8), .1, rng.uniform(1.0, 1.5)), yaw=rng.uniform(0, math.pi))
-    for i in range(3):
-        a = rng.uniform(0, math.tau)
-        b.box(MOSS, 2, (math.cos(a) * 3.6, .78, math.sin(a) * 2.9), (1.2, .18, 1.0), yaw=rng.uniform(0, 3))
-    # stage 3: the rim is pressed up around the child, then grass and a few twigs
-    count = 17
-    for i in range(count):
-        a = math.tau * i / count + rng.uniform(-.08, .08)
-        rx, rz = 6.1 + rng.uniform(-.25, .3), 5.0 + rng.uniform(-.25, .3)
-        width = rng.uniform(2.6, 3.4)
-        height = rng.uniform(1.7, 2.8)
+    RX, RZ = 6.6, 5.5
+    inside = lambda x, z: (x / (RX + .6)) ** 2 + (z / (RZ + .6)) ** 2 > 1
+    dish = lambda x, z: .4 * smooth((math.hypot(x / RX, z / RZ) * 8 - 2.5) / 6) + .06
+    for _ in range(3):
+        b.box(PODZOL, 1, (rng.uniform(-3, 3), .06, rng.uniform(-2.5, 2.5)), (rng.uniform(1.6, 2.2), .06, rng.uniform(1.4, 2.0)), yaw=rng.uniform(0, 3))
+    litter(b, 1, (-6.4, 6.4, -5.4, 5.4), 3.6, dish, rng_scale=.9, skip=inside, hay=.2)
+    # stage 2: a rough, low, uneven ring
+    ring = []
+    for i in range(10):
+        a = math.tau * i / 10 + rng.uniform(-.12, .12)
+        ring.append((a, RX + rng.uniform(-.4, .5), RZ + rng.uniform(-.4, .5)))
+    for a, rx, rz in ring:
         x, z = math.cos(a) * rx, math.sin(a) * rz
-        b.box(leaf_mat(rng), 3, (x, rng.uniform(0, .3) + height / 2, z), (width / 2, height / 2, rng.uniform(1.0, 1.4)), yaw=-a + math.pi / 2 + rng.uniform(-.25, .25))
-        if i % 2 == 0:                                   # inner slope
-            x2, z2 = math.cos(a) * (rx - 1.8), math.sin(a) * (rz - 1.5)
-            b.box(leaf_mat(rng), 3, (x2, .55, z2), (width / 2.4, .55, .9), yaw=-a + math.pi / 2 + rng.uniform(-.3, .3))
-    for i in range(5):
-        a = math.tau * (i + rng.uniform(-.3, .3)) / 5
-        b.tuft(3, math.cos(a) * 5.0, math.sin(a) * 4.1, 1.5, 3.8)
-    for i in range(4):
-        a = math.tau * (i + rng.uniform(-.2, .2)) / 4 + .4
-        b.box(LOG if i % 2 else LOG_DARK, 3, (math.cos(a) * 6.1, 2.1, math.sin(a) * 5.0), (rng.uniform(2.0, 2.8), .4, .4), yaw=-a + rng.uniform(-.8, .8) + math.pi / 2, pitch=rng.uniform(-.1, .1), grain=True)
+        front = smooth((math.sin(a) + .2) * 1.3)                  # +z is the front: lower there
+        h = (2.1 - .7 * front) * rng.uniform(.8, 1.1)
+        heap(b, 2, x, z, tangent_yaw(-math.sin(a), math.cos(a)), rng.uniform(3.2, 4.2), rng.uniform(2.6, 3.4), h, one_mat=rng.random() < .6)
+    litter(b, 2, (-5.2, 5.2, -4.2, 4.2), 3.8, lambda x, z: dish(x, z) + .22, rng_scale=.8, skip=lambda x, z: x * x / 22 + z * z / 14 > 1)
+    # stage 3: built up, trimmed
+    for a, rx, rz in ring:
+        x, z = math.cos(a) * rx, math.sin(a) * rz
+        front = smooth((math.sin(a) + .2) * 1.3)
+        h = (3.4 - 1.5 * front) * rng.uniform(.85, 1.1)
+        tx, tz = -math.sin(a), math.cos(a)
+        heap(b, 3, x * 1.04, z * 1.04, tangent_yaw(tx, tz), rng.uniform(3.4, 4.4), rng.uniform(2.6, 3.2), h, one_mat=rng.random() < .7)
+        trimmings(b, 3, x, z, h, tx, tz)
+    for _ in range(4):
+        a = rng.uniform(0, math.tau)
+        r = rng.uniform(.55, .8)
+        b.tuft(3, math.cos(a) * RX * r, math.sin(a) * RZ * r, .5, 3.0, mat=DRY)
     return p
 
 
