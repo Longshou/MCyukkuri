@@ -3,98 +3,73 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.settlement.NaturalShelter;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
-import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
-import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.EventHooks;
 
-/** A child builds with real loose materials before transferring its existing identity and bed. */
+/**
+ * A grown child leaves its parents (project design). When it is old and fit enough, and the day suits it, it walks to a parent,
+ * the two exchange a short farewell (the child's "yukkuri shite itte ne" and the parent's glad answer), and the child
+ * then simply becomes a vagrant looking for a new nest of its own: its bed in the parents' home is released, its
+ * kinship and affinity are kept. Finding or digging the new home belongs to {@code HabitatLife}; nothing here builds.
+ * The farewell never takes control of the parent, so a parent can neither be stuck by it nor block it: a child that
+ * cannot reach a parent within {@link #FAREWELL_LIMIT} ticks leaves anyway.
+ */
 public final class IndependenceLife extends Goal {
-    private enum Task { NONE, FAREWELL, PICKUP, HARVEST, DELIVER, WORK, VISIT, GREET, RETURN }
-    private record Material(UUID entityId, UUID token) {}
-    private static final String MATERIAL_KEY = "YukkuriConstruction";
-    private static final int UNIT_WORK = 120, CHECK_INTERVAL = 1200, VISIT_INTERVAL = 12000;
+    private enum Task { NONE, FAREWELL }
+    private static final int CHECK_INTERVAL = 1200, FAREWELL_LIMIT = 600, CONTACT_TICKS = 100, PARENT_RANGE = 24, WAITS_FOR_PARENT = 8;
     private final YukkuriEntity entity;
-    private final List<Material> materials = new ArrayList<>();
-    private GlobalPos origin, site, establishedHome;
-    private UUID originalGroup, visitor;
-    private ShelterBlock.Kind kind = ShelterBlock.Kind.BURROW;
-    private Direction facing = Direction.SOUTH;
-    private ItemStack carrying = ItemStack.EMPTY;
-    private ItemEntity pickup;
-    private final io.github.longshou.mcyukkuri.settlement.PlantBedding plants;
-    private Vec3 target, progressPosition, pickupStand;
-    private int routeFailures, stalledTicks, lastRouteTick, contactTicks;
-    private boolean working, enteredHome;
+    /** The parents' home that was left; the leaver never moves back into it. */
+    private GlobalPos origin;
+    private boolean independent, armed, household;
+    private UUID visitor;
     private Task task = Task.NONE;
-    private int wait = CHECK_INTERVAL, elapsed, work, projectTicks, visitWait = VISIT_INTERVAL, visits, rainLosses, loadGrace;
-    private boolean running, farewell, returning;
+    private int wait = CHECK_INTERVAL, elapsed, contact, loadGrace, parentWaits, visits;
+    private boolean running;
+    private Vec3 target;
+    private int stalled;
+    private Vec3 progress;
 
-    public IndependenceLife(YukkuriEntity entity) { this.entity = entity;plants=new io.github.longshou.mcyukkuri.settlement.PlantBedding(entity); setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+    public IndependenceLife(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public boolean active() { return running && task != Task.NONE; }
-    public boolean building() { return site != null; }
-    public boolean independent() { return establishedHome != null; }
-    public ItemStack carrying() { return carrying; }
-    public int work() { return work; }
+    /** Kept for callers of the old construction project; leaving no longer involves building. */
+    public boolean building() { return false; }
+    /** The child has left its parents. It stays true for life, whether it already has a new home or is still looking for one. */
+    public boolean independent() { return independent; }
+    public ItemStack carrying() { return ItemStack.EMPTY; }
+    public int work() { return 0; }
     public int visits() { return visits; }
-    public int rainLosses() { return rainLosses; }
-    public GlobalPos site() { return site; }
+    public int rainLosses() { return 0; }
+    public GlobalPos site() { return null; }
     public GlobalPos origin() { return origin; }
-    public String activity() {
-        return switch (task) {
-            case FAREWELL -> "independence_gather";
-            case PICKUP -> contactTicks > 0 ? "nest_harvest" : "independence_gather";
-            case HARVEST -> plants.harvesting()?"nest_harvest":"independence_gather";
-            case DELIVER -> contactTicks > 0 ? "nest_place" : "independence_carry";
-            case WORK -> working ? "independence_build" : "independence_gather";
-            case VISIT -> "independence_gather";
-            case GREET -> "independence_visit";
-            case RETURN -> "independence_return";
-            default -> "idle";
-        };
-    }
-    /** Ordinary household maintenance yields, but eating remains a higher-priority need. */
-    public boolean householdOuting() {
-        boolean localWork = building() && loaded(site) && loaded(origin);
-        boolean localVisit = returning && loaded(establishedHome) || task == Task.VISIT || task == Task.GREET;
-        return (localWork || localVisit) && wild() && SettlementSociety.accepted(entity);
-    }
-    private boolean loaded(GlobalPos pos) {
-        return pos != null && pos.dimension().equals(level().dimension()) && level().hasChunkAt(pos.pos());
-    }
-    private ShelterBlockEntity originalShelter() { return loaded(origin) ? ShelterBlock.shelter(level(), origin.pos()) : null; }
+    public String activity() { return task == Task.FAREWELL ? "independence_farewell" : "idle"; }
+    /** The old household chores no longer yield to a building project. */
+    public boolean householdOuting() { return false; }
+    /** True for the home this individual left: it does not move back into it. */
+    public boolean avoids(BlockPos core) { return independent && origin != null && origin.dimension().equals(level().dimension()) && origin.pos().equals(core); }
+    /** Scenario hook: the next daytime opportunity is taken, with no dice. */
+    public void arm() { armed = true; wait = 0; }
+
     private boolean wild() {
         var human = HumanCommerce.data(entity);
         return !entity.getVariant().isHouse() && !entity.getVariant().isPredator()
                 && !io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)
-                && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage")
-                && entity.life().naturalHome() && entity.life().home() != null;
+                && !human.hasUUID("Owner") && !human.contains("PendingRole") && !human.contains("FactoryStage");
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */
     private boolean hasDependents() {
@@ -107,416 +82,157 @@ public final class IndependenceLife extends Goal {
         }
         return false;
     }
+    /** A capable late juvenile (or an adult still at home) that has a usable bed in a home its parent owns. */
     public boolean eligible() {
-        // A capable late JUVENILE may establish a first home, but remains non-reproductive in FamilyLife.
-        if (!wild() || !entity.childhood().canLiveIndependently() || entity.family().elder() || entity.family().partner() != null
+        if (independent || !wild() || !entity.childhood().canLiveIndependently() || entity.family().elder() || entity.family().partner() != null
                 || entity.family().recovery() > 0 || hasDependents()) return false;
         var home = entity.habitat().shelter();
         var group = entity.settlement().group();
         var role = entity.settlement().society().record();
-        // Do not escape lost-accessory consequences by creating a fresh community record.
-        return home != null && home.usable(entity) && group != null && role != null && role.role == SettlementData.Role.MEMBER
-                && role.rejections == 0 && (home.owns(entity.family().mother()) || home.owns(entity.family().father()));
+        // Do not escape lost-accessory consequences by leaving: a community member in disgrace stays where it is.
+        if (group != null && (role == null || role.role != SettlementData.Role.MEMBER || role.rejections != 0)) return false;
+        return home != null && home.usable(entity) && (home.owns(entity.family().mother()) || home.owns(entity.family().father()));
     }
     private boolean ready() {
         return wild() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isLeashed()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
-                && !entity.family().active() && !hasDependents() && entity.family().recovery() == 0
+                && !entity.family().active() && entity.family().recovery() == 0
                 && !entity.life().hasUrgentNeed() && !entity.life().isSleeping() && entity.life().mealTicks() == 0
                 && entity.life().nutrition() >= 45 && entity.life().energy() >= 40 && entity.life().dryness() < 40
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.shellRetraction().active()
                 && !io.github.longshou.mcyukkuri.event.WildEvents.reserved(entity)
                 && entity.habitat().carrying().isEmpty() && entity.settlement().duties().carrying().isEmpty();
     }
-    /** Loaded-time clock only; a paused or captured builder never gets offline construction. */
+    /** Loaded-time clock only; a paused or captured individual never leaves offline. */
     public void clock() {
         if (entity.level().isClientSide || entity.isNoAi()) return;
         if (loadGrace > 0) { loadGrace--; return; }
         if (wait > 0) wait--;
-        if (visitWait > 0) visitWait--;
-        if (!wild()) { if (building() || !carrying.isEmpty()) abandon(); returning = false; return; }
-        if (!building() || !loaded(site) || !loaded(origin)) return;
-        if (++projectTicks > 24000 || !eligible() || !originMatches()) { abandon(); return; }
-        if (entity.tickCount % 20 != 0) return;
-        reconcile();
-        // Only a real, unfinished, exposed material can be damaged. A cave roof shields its pile.
-        if (level().isThundering() && entity.tickCount % 200 == 0) {
-            for (var material : List.copyOf(materials)) {
-                var item = materialEntity(material);
-                if (item != null && level().isRainingAt(item.blockPosition())) {
-                    item.discard(); materials.remove(material); work = Math.max(0, work - UNIT_WORK); rainLosses++;
-                    level().sendParticles(ParticleTypes.SPLASH, item.getX(), item.getY() + .15, item.getZ(), 5, .15, .1, .15, .01);
-                    break;
-                }
-            }
-        }
-        // Short reservation expires naturally if the builder is unloaded, captured or interrupted.
-        if (ready()) for (var material : materials) { var item = materialEntity(material); if (item != null) item.setPickUpDelay(40); }
-    }
-    private boolean originMatches() {
-        var home = entity.habitat().shelter(); var group = entity.settlement().group();
-        return home != null && home.getBlockPos().equals(origin.pos()) && group != null && group.id.equals(originalGroup);
     }
     public int departureChance() {
         var home = entity.habitat().shelter();
         if (home == null) return 0;
-        // Original balancing, not a density inferred from EH11's panels.
-        int chance = home.occupants() >= home.capacity() ? 30 : 10;
+        // Original balancing, not a density inferred from EH11's panels: a crowded home pushes its grown young out sooner.
+        int chance = home.crowded() ? 30 : 10;
         if (entity.life().personality().attachment() >= 65) chance -= 5;
         return chance;
     }
-    private boolean chooseSite() {
-        var home = entity.habitat().shelter();
-        // The leaver need not stand beside the bed core when the attempt comes round: a daytime forager or a child
-        // at play is usually some way off, and a 4-block gate made the 1200-tick roll fail almost every time.
-        if (home == null || entity.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 24 * 24) return false;
-        var candidates = new ArrayList<BlockPos>();
-        for (var pos : BlockPos.betweenClosed(home.getBlockPos().offset(-12,-2,-12), home.getBlockPos().offset(12,2,12))) {
-            double distance = pos.distSqr(home.getBlockPos());
-            if (distance >= 64 && distance <= 144 && NaturalShelter.enclosed(level(), pos)) candidates.add(pos.immutable());
-        }
-        candidates.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atBottomCenterOf(pos))));
-        for (var pos : candidates) for (var direction : Direction.Plane.HORIZONTAL)
-            if (begin(new ShelterPlacement.Plan(pos, ShelterBlock.Kind.BURROW, direction))) return true;
-        // A cardboard proposal requires actual nearby paper; terrain never supplies paper.
-        int paper = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(14), item ->
-                item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(Items.PAPER)).stream().mapToInt(i -> i.getItem().getCount()).sum();
-        if (paper < 4) return false;
-        for (int attempt = 0; attempt < 32; attempt++) {
-            int dx = entity.getRandom().nextInt(25) - 12, dz = entity.getRandom().nextInt(25) - 12;
-            if (dx * dx + dz * dz < 64 || dx * dx + dz * dz > 144) continue;
-            for (int dy : new int[]{0, 1, -1}) for (var direction : Direction.Plane.HORIZONTAL)
-                if (begin(new ShelterPlacement.Plan(home.getBlockPos().offset(dx,dy,dz), ShelterBlock.Kind.CARDBOARD, direction))) return true;
-        }
-        return false;
-    }
-    private boolean begin(ShelterPlacement.Plan plan) {
-        if (!ShelterPlacement.canPlace(level(), plan) || !entity.life().reachable(plan.center(), false)
-                || !entity.life().reachable(plan.entrance(level()), false)) return false;
-        var home = entity.habitat().shelter();
-        origin = GlobalPos.of(level().dimension(), home.getBlockPos()); originalGroup = entity.settlement().groupId();
-        site = GlobalPos.of(level().dimension(), plan.center()); kind = plan.kind(); facing = plan.facing();
-        work = projectTicks = 0; farewell = false; entity.setPersistenceRequired(); return true;
-    }
     @Override public boolean canUse() {
-        if (loadGrace > 0 || !ready() || wait > 0 || !SettlementSociety.accepted(entity)) return false;
-        if (building()) {
-            if (!loaded(site) || !loaded(origin) || !eligible() || !originMatches()) return false;
-            if (!EventHooks.canEntityGrief(level(), entity)) return false;
-            reconcile();
-            if (!ShelterPlacement.canPlace(level(), plan())) { abandon(); return false; }
-            if (!farewell) {
-                var parent = relativeAtOrigin();
-                if (parent != null) { visitor = parent.getUUID(); task = Task.FAREWELL; return true; }
-                farewell = true;
-            }
-            if (!carrying.isEmpty()) { task = Task.DELIVER; return true; }
-            if (materialCount(true) >= paperNeeded() && materialCount(false) >= beddingNeeded()) { task = Task.WORK; return true; }
-            if (findMaterial()) return true;
-            wait = 100; return false;
-        }
-        if (independent()) return planVisit();
+        if (independent || loadGrace > 0 || wait > 0 || !ready() || !SettlementSociety.accepted(entity)) return false;
         wait = CHECK_INTERVAL;
         if (!eligible()) return false;
         // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
         if (level().isNight()) { wait = 200; return false; }
-        if (entity.getRandom().nextInt(100) >= departureChance()) return false;
-        if (chooseSite()) wait = 0;
-        return false;
+        if (!armed && entity.getRandom().nextInt(100) >= departureChance()) return false;
+        var parent = parentNearby();
+        if (parent == null) {
+            // Wants to say goodbye: waits a while for a parent to come home, then goes without.
+            if (++parentWaits <= WAITS_FOR_PARENT) { wait = 200; return false; }
+            leave();
+            return false;
+        }
+        visitor = parent.getUUID(); task = Task.FAREWELL; return true;
     }
-    @Override public void start() {
-        running = true; elapsed = 0; contactTicks = 0; working = enteredHome = false;
-        resetRoute();
-    }
+    @Override public void start() { running = true; elapsed = contact = 0; target = progress = null; stalled = 0; }
     @Override public boolean requiresUpdateEveryTick() { return true; }
-    @Override public boolean canContinueToUse() {
-        return active() && ready() && elapsed < 1000 && SettlementSociety.accepted(entity)
-                && (!building() || loaded(site) && loaded(origin) && eligible() && originMatches() && EventHooks.canEntityGrief(level(), entity));
-    }
+    @Override public boolean canContinueToUse() { return active() && ready() && elapsed < FAREWELL_LIMIT + CONTACT_TICKS && !independent; }
     @Override public void tick() {
         if (!canContinueToUse()) { stop(); return; }
         elapsed++;
-        switch (task) {
-            case FAREWELL, VISIT, GREET -> visit();
-            case PICKUP -> {
-                if (pickup == null || !pickup.isAlive() || pickup.hasPickUpDelay() || !needed(pickup.getItem())) { stop(); return; }
-                if (pickupStand == null) pickupStand = pickupStand(pickup);
-                if (pickupStand == null) { stop(); return; }
-                if (!approach(pickupStand)) { contactTicks = 0; return; }
-                if (!touchMaterial(pickup.position())) { contactTicks = 0; pickupStand = null; return; }
-                if (++contactTicks >= 24) {
-                    carrying = pickup.getItem().split(1); if (pickup.getItem().isEmpty()) pickup.discard();
-                    pickup = null; pickupStand = null; task = Task.DELIVER; elapsed = contactTicks = 0; resetRoute();
-                }
-            }
-            case HARVEST -> {
-                var portion=plants.tick();
-                if(!portion.isEmpty()){carrying=portion;task=Task.DELIVER;elapsed=contactTicks=0;resetRoute();}
-                else if(!plants.active())stop();
-            }
-            case DELIVER -> {
-                Vec3 pile = Vec3.atBottomCenterOf(site.pos());
-                Vec3 stand = pile.add(facing.getStepX() * (entity.getBbWidth() * .5 + .06), 0,
-                        facing.getStepZ() * (entity.getBbWidth() * .5 + .06));
-                if (!approach(stand) || !touchMaterial(pile)) { contactTicks = 0; return; }
-                if (++contactTicks >= 20) { deliver(); stop(); wait = 10; }
-            }
-            case WORK -> {
-                reconcile();
-                if (materialCount(true) < paperNeeded() || materialCount(false) < beddingNeeded()) { stop(); return; }
-                working = approach(site.pos());
-                if (working) {
-                    work++;
-                    if (work % 40 == 0) { entity.life().spendEnergy(.25f); entity.life().spendNutrition(.1f); }
-                    if (work % 20 == 0) level().sendParticles(ParticleTypes.COMPOSTER, entity.getX(), entity.getY() + .15, entity.getZ(), 2, .2, .1, .2, 0);
-                    if (work >= workNeeded()) finish();
-                }
-            }
-            case RETURN -> {
-                var shelter = entity.habitat().shelter();
-                var home = entity.habitat().homeStand();
-                if (shelter == null || home == null) { stop(); return; }
-                // Walk through the real entrance before aiming at an interior bed. Already
-                // inside (including immediately after building) needs no artificial exit.
-                if (!enteredHome && !shelter.contains(entity.blockPosition())) {
-                    if (!approach(shelter.entrance())) return;
-                    enteredHome = true; resetRoute();
-                }
-                if (approach(home)) { returning = false; stop(); visitWait = VISIT_INTERVAL; }
-            }
-            default -> stop();
+        if (!(level().getEntity(visitor) instanceof YukkuriEntity parent) || !parent.isAlive() || parent.isPanicking() || parent.isCommandPlaying()) {
+            leave(); stop(); return;
         }
+        var stand = contactStand(parent);
+        if (contact == 0 && (stand == null || elapsed > FAREWELL_LIMIT)) { leave(); stop(); return; }
+        if (contact == 0 && !SurfaceApproach.arrived(entity, stand)) { approach(stand); return; }
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(parent, 25, 25);
+        if (!parent.life().isSleeping()) parent.getLookControl().setLookAt(entity, 25, 25);
+        // The little show: the child bids its parent yukkuri-shite-itte-ne; the parent answers gladly a moment later.
+        if (contact == 0) entity.showReaction("happy", "hello", 90);
+        if (contact == 30 && !parent.life().isSleeping()) parent.showReactionDelayed("happy", "gentle", 80, 12);
+        if (++contact >= CONTACT_TICKS) { leave(); stop(); }
     }
-    private ShelterPlacement.Plan plan() { return new ShelterPlacement.Plan(site.pos(), kind, facing); }
-    private int paperNeeded() { return kind == ShelterBlock.Kind.CARDBOARD ? 4 : 0; }
-    private int beddingNeeded() { return kind == ShelterBlock.Kind.CARDBOARD ? 2 : 3; }
-    private int workNeeded() { return (paperNeeded() + beddingNeeded()) * UNIT_WORK; }
-    private static boolean bedding(ItemStack item) { return !item.is(Items.PAPER) && ShelterBlockEntity.bedding(item); }
-    private ItemEntity materialEntity(Material material) {
-        if (!(level().getEntity(material.entityId) instanceof ItemEntity item) || !item.isAlive() || item.getItem().getCount() != 1
-                || item.distanceToSqr(Vec3.atBottomCenterOf(site.pos())) > 2.25) return null;
-        var data = item.getItem().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return data.hasUUID(MATERIAL_KEY) && data.getUUID(MATERIAL_KEY).equals(material.token) ? item : null;
-    }
-    private void reconcile() {
-        if (!loaded(site)) return;
-        int before = materials.size(); materials.removeIf(material -> materialEntity(material) == null);
-        work = Math.max(0, Math.min(work - (before - materials.size()) * UNIT_WORK, materials.size() * UNIT_WORK));
-    }
-    private int materialCount(boolean paper) {
-        int count = 0;
-        for (var material : materials) { var item = materialEntity(material); if (item != null && (paper ? item.getItem().is(Items.PAPER) : bedding(item.getItem()))) count++; }
-        return count;
-    }
-    private boolean needed(ItemStack stack) {
-        return stack.is(Items.PAPER) ? materialCount(true) < paperNeeded() : bedding(stack) && materialCount(false) < beddingNeeded();
-    }
-    private boolean findMaterial() {
-        if(materialCount(false)<beddingNeeded()&&plants.find(entity.blockPosition(),6,pos->true)){task=Task.HARVEST;return true;}
-        pickup = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12), item ->
-                item.isAlive() && !item.hasPickUpDelay() && needed(item.getItem())
-                        && materials.stream().noneMatch(m -> m.entityId.equals(item.getUUID())))
-                .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
-                .filter(item -> entity.life().reachable(item.blockPosition(), false)).findFirst().orElse(null);
-        if (pickup != null) { task = Task.PICKUP; return true; }
-        return false;
-    }
-    private void deliver() {
-        if (carrying.isEmpty() || !needed(carrying)) { dropCarrying(); return; }
-        var token = UUID.randomUUID(); var stack = carrying.copy();
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putUUID(MATERIAL_KEY, token));
-        // Release beneath the contacting mouth, not at an unrelated scripted pile offset.
-        var pos = Vec3.atBottomCenterOf(site.pos()).add(0, .03, 0);
-        var item = new ItemEntity(level(), pos.x, pos.y, pos.z, stack); item.setDeltaMovement(Vec3.ZERO); item.setPickUpDelay(40);
-        if (level().addFreshEntity(item)) { carrying = ItemStack.EMPTY; materials.add(new Material(item.getUUID(), token)); }
-    }
-    private void finish() {
-        reconcile();
-        if (!eligible() || !originMatches() || !loaded(origin) || materialCount(true) != paperNeeded() || materialCount(false) != beddingNeeded()) { stop(); return; }
-        var placed = ShelterPlacement.place(level(), plan());
-        if (placed == null) { stop(); return; }
-        if (!entity.habitat().choose(placed.shelter())) { placed.rollback(level()); stop(); return; }
-        // Placement and claim succeeded in this server tick. No inventory or entity is copied.
-        for (var material : materials) {
-            var item = materialEntity(material);
-            if (item != null) { if (bedding(item.getItem())) placed.shelter().deposit(item.getItem()); item.discard(); }
-        }
-        materials.clear();
-        establishedHome = GlobalPos.of(level().dimension(), placed.shelter().getBlockPos());
-        entity.settlement().establishHousehold(placed.shelter());
-        site = null; work = 0; returning = true; visitWait = VISIT_INTERVAL;
-        entity.showReaction("happy", "gentle", 60); stop(); wait = 0;
-    }
-    private YukkuriEntity relativeAtOrigin() {
-        var home = originalShelter();
-        if (home == null || !home.sound()) return null;
-        return level().getEntitiesOfClass(YukkuriEntity.class, home.interior().inflate(3), other ->
-                other != entity && other.isAlive() && home.owns(other.getUUID()) && wildRelative(other)
-                        && FamilyData.get(level()).related(entity.getUUID(), other.getUUID())
-                        && !other.isPanicking() && !other.isCommandPlaying() && !other.operations().active()
-                        && !other.family().active() && !other.life().isSleeping() && !other.life().hasUrgentNeed()
+    private YukkuriEntity parentNearby() {
+        var home = entity.habitat().shelter();
+        if (home == null) return null;
+        return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(PARENT_RANGE), other -> other != entity && other.isAlive()
+                        && (other.getUUID().equals(entity.family().mother()) || other.getUUID().equals(entity.family().father()))
+                        && !other.isPanicking() && !other.isCommandPlaying() && !other.operations().active() && !other.family().active()
+                        && !other.life().isSleeping() && !other.life().hasUrgentNeed() && home.owns(other.getUUID())
                         && entity.life().canRecognize(other) && other.life().canRecognize(entity))
                 .stream().filter(other -> entity.life().reachable(other.blockPosition(), false))
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
-    private static boolean wildRelative(YukkuriEntity other) {
-        return !HumanCommerce.data(other).hasUUID("Owner") && other.life().naturalHome() && SettlementSociety.accepted(other);
-    }
-    private boolean planVisit() {
+    /** The child lets go of its place in the parents' home and becomes a vagrant. Kinship and affinity stay. */
+    private void leave() {
         var home = entity.habitat().shelter();
-        if (!loaded(establishedHome) || home == null || !home.getBlockPos().equals(establishedHome.pos()) || !home.usable(entity)) return false;
-        if (returning) { task = Task.RETURN; return true; }
-        if (visitWait > 0 || level().isNight() || level().isRaining()) return false;
-        visitWait = 1200;
-        if (!loaded(origin) || origin.pos().distSqr(establishedHome.pos()) > 16 * 16 || entity.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 9) return false;
-        var relative = relativeAtOrigin();
-        if (relative == null) return false;
-        visitor = relative.getUUID(); task = Task.VISIT; returning = true; return true;
+        if (home != null) origin = GlobalPos.of(level().dimension(), home.getBlockPos());
+        independent = true; armed = false; household = false; visits++;
+        // Keep a little extra fondness for the parents they just said goodbye to.
+        var relations = YukkuriWorldData.get(level());
+        for (var parent : new UUID[]{entity.family().mother(), entity.family().father()}) {
+            if (parent == null) continue;
+            relations.relate(entity.getUUID(), parent, 2); relations.relate(parent, entity.getUUID(), 2);
+        }
+        entity.habitat().release();
+        entity.life().releaseHome();
+        entity.setPersistenceRequired();
     }
-    private void visit() {
-        if (!(level().getEntity(visitor) instanceof YukkuriEntity other) || !other.isAlive() || other.isPanicking() || other.isCommandPlaying()
-                || other.operations().active() || other.family().active() || other.life().isSleeping() || other.life().hasUrgentNeed() || !wildRelative(other)
-                || !entity.life().canRecognize(other) || !other.life().canRecognize(entity)) { stop(); return; }
-        var home = originalShelter();
-        if (home == null || !home.owns(other.getUUID()) || other.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 16) { stop(); return; }
-        // A living parent's occupied block is not a dry stand. Finish the actual neighbouring
-        // approach before greeting, even if a broad social-distance check would already pass.
-        var stand = contactStand(other.position(), (entity.getBbWidth() + other.getBbWidth()) * .5 + .15);
-        if (stand == null) { stop(); return; }
-        if (!SurfaceApproach.arrived(entity, stand)) {
-            // A moving relative breaks continuous contact. Walking back must neither keep the
-            // greeting animation nor spend its elapsed travel time toward a completed visit.
-            if (task == Task.GREET) { task = Task.VISIT; elapsed = 0; resetRoute(); }
-            approach(stand);
-            return;
-        }
-        if (!entity.hasLineOfSight(other) || !other.hasLineOfSight(entity)) { stop(); return; }
-        SurfaceApproach.halt(entity); entity.getLookControl().setLookAt(other, 25, 25);
-        if (task != Task.GREET) {
-            boolean goodbye = task == Task.FAREWELL;
-            entity.showReaction("happy", "known_peer", 60); other.showReaction("happy", "known_peer", 60);
-            if (goodbye) { farewell = true; stop(); wait = 20; return; }
-            task = Task.GREET; elapsed = 0;
-        }
-        if (elapsed >= 100) { visits++; task = Task.RETURN; elapsed = 0; visitor = null; resetRoute(); }
+    /** Called by the habitat when the leaver has taken a home of its own: a loose family group gets a household of its own. */
+    public void settled(ShelterBlockEntity home) {
+        if (!independent || household || home == null) return;
+        var group = entity.settlement().group();
+        household = true;
+        if (group != null && group.kind != SettlementData.Kind.FAMILY) return;   // a village keeps its member in the village
+        if (home.owns(entity.getUUID()) && home.usable(entity) && (group == null || !group.center.equals(home.getBlockPos())))
+            entity.settlement().establishHousehold(home);
     }
-    private boolean approach(BlockPos pos) {
-        return approach(Vec3.atBottomCenterOf(pos));
-    }
-    private boolean approach(Vec3 destination) {
-        if (!SurfaceApproach.supported(entity, destination)) { stop(); return false; }
-        boolean changed = target == null || target.distanceToSqr(destination) > .0025;
-        if (changed) {
-            target = destination; progressPosition = entity.position(); stalledTicks = routeFailures = 0;
-            lastRouteTick = entity.tickCount - 20;
-        }
-        if (SurfaceApproach.arrived(entity, destination)) {
-            stalledTicks = 0; SurfaceApproach.halt(entity); return true;
-        }
-        if (progressPosition == null || entity.position().distanceToSqr(progressPosition) > .0036) {
-            progressPosition = entity.position(); stalledTicks = 0;
-        } else stalledTicks++;
-        if (stalledTicks >= 120) { stop(); return false; }
-        if (SurfaceApproach.clearLastStep(entity, destination)) {
-            return SurfaceApproach.walk(entity, destination, .8);
-        }
-        // Keep the current route intact while it is making progress. A new destination is
-        // acted on immediately, including PICKUP -> DELIVER within the same goal run.
-        if (changed || (entity.getNavigation().isDone() || stalledTicks >= 40)
-                && entity.tickCount - lastRouteTick >= 20) {
-            lastRouteTick = entity.tickCount;
-            if (!entity.life().navigate(BlockPos.containing(destination), .8, false)) {
-                if (++routeFailures >= 3) stop();
-            } else routeFailures = 0;
-        }
-        return false;
-    }
-    private Vec3 pickupStand(ItemEntity item) {
-        return contactStand(new Vec3(item.getX(), item.blockPosition().getY(), item.getZ()), entity.getBbWidth() * .5 + .06);
-    }
-    private Vec3 contactStand(Vec3 point, double reach) {
+    private Vec3 contactStand(YukkuriEntity other) {
         var candidates = new ArrayList<Vec3>();
-        for (var direction : Direction.Plane.HORIZONTAL) {
-            candidates.add(point.add(direction.getStepX() * reach, 0, direction.getStepZ() * reach));
-        }
+        double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .15;
+        for (var direction : Direction.Plane.HORIZONTAL)
+            candidates.add(other.position().add(direction.getStepX() * reach, 0, direction.getStepZ() * reach));
         candidates.sort(Comparator.comparingDouble(entity::distanceToSqr));
-        for (var stand : candidates) if (SurfaceApproach.supported(entity, stand)
-                && entity.life().reachable(BlockPos.containing(stand), false)) return stand;
+        for (var stand : candidates) if (SurfaceApproach.supported(entity, stand) && entity.life().reachable(BlockPos.containing(stand), false)) return stand;
         return null;
     }
-    private boolean touchMaterial(Vec3 point) {
-        double reach = entity.getBbWidth() * .5 + .12;
-        if (entity.position().subtract(point).horizontalDistanceSqr() > reach * reach
-                || Math.abs(entity.getY() - point.y) > .3) return false;
-        float yaw = SurfaceApproach.yaw(entity.position(), point);
-        SurfaceApproach.face(entity, yaw);
-        var hit = level().clip(new net.minecraft.world.level.ClipContext(
-                entity.position().add(0, entity.getBbHeight() * .45, 0), point.add(0, .03, 0),
-                net.minecraft.world.level.ClipContext.Block.COLLIDER,
-                net.minecraft.world.level.ClipContext.Fluid.NONE, entity));
-        return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS
-                && Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw - entity.getYRot())) <= 12;
-    }
-    private void resetRoute() {
-        target = progressPosition = null; stalledTicks = routeFailures = 0;
+    private void approach(Vec3 destination) {
+        if (target == null || target.distanceToSqr(destination) > .0025) { target = destination; progress = entity.position(); stalled = 0; }
+        if (progress == null || entity.position().distanceToSqr(progress) > .0036) { progress = entity.position(); stalled = 0; } else stalled++;
+        if (stalled >= 120) { elapsed = FAREWELL_LIMIT; return; }
+        if (SurfaceApproach.clearLastStep(entity, destination)) { SurfaceApproach.walk(entity, destination, .8); return; }
+        if (entity.getNavigation().isDone() || entity.tickCount % 20 == 0) entity.life().navigate(BlockPos.containing(destination), .8, false);
     }
     @Override public void stop() {
-        plants.stop();
-        if (task == Task.WORK) work -= work % UNIT_WORK;
-        task = Task.NONE; running = false; pickup = null; pickupStand = null; visitor = null; elapsed = contactTicks = 0; wait = 40;
-        working = enteredHome = false; resetRoute();
+        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; wait = 40; target = progress = null; stalled = 0;
         SurfaceApproach.halt(entity);
     }
-    public void dropCarrying() {
-        if (carrying.isEmpty()) return;
-        var drop = entity.spawnAtLocation(carrying.copy());
-        if (drop != null) { carrying = ItemStack.EMPTY; drop.setPickUpDelay(40); }
-    }
-    /** Existing piles stay in the world; abandoning never refunds already lost materials. */
-    public void abandon() {
-        if (loaded(site)) for (var material : materials) {
-            var item = materialEntity(material);
-            if (item != null) { CustomData.update(DataComponents.CUSTOM_DATA, item.getItem(), tag -> tag.remove(MATERIAL_KEY)); item.setPickUpDelay(0); }
-        }
-        materials.clear(); site = null; work = projectTicks = 0; dropCarrying(); stop(); wait = CHECK_INTERVAL;
-    }
+    public void dropCarrying() {}
+    /** Nothing is held across a departure any more; kept for the entity's death and reload hooks. */
+    public void abandon() { stop(); wait = CHECK_INTERVAL; }
     public Component observation() {
-        String status = building() ? "building" : independent() ? returning ? "returning" : "independent" : eligible() ? "eligible" : "family";
+        String status = independent ? household ? "independent" : "vagrant" : task == Task.FAREWELL ? "farewell" : eligible() ? "eligible" : "family";
+        var shelter = entity.habitat().shelter();
         return Component.translatable("notebook.mcyukkuri.independence", Component.translatable("independence.mcyukkuri." + status),
-                origin == null ? "—" : origin.pos().toShortString(), site == null ? "—" : site.pos().toShortString(),
-                building() ? materials.size() : 0, building() ? paperNeeded() + beddingNeeded() : 0,
-                building() ? work * 100 / workNeeded() : 0, rainLosses, visits);
+                origin == null ? "—" : origin.pos().toShortString(),
+                shelter == null ? "—" : shelter.getBlockPos().toShortString(), entity.habitat().digProgress());
     }
     public CompoundTag save() {
-        var tag = new CompoundTag(); FamilyData.putPosition(tag,"Origin",origin); FamilyData.putPosition(tag,"Site",site);
-        FamilyData.putPosition(tag,"EstablishedHome",establishedHome);
-        if (originalGroup != null) tag.putUUID("OriginalGroup", originalGroup);
-        tag.putString("Kind",kind.name()); tag.putString("Facing",facing.getName()); tag.putInt("Work",work - work % UNIT_WORK);
-        tag.putInt("ProjectTicks",projectTicks); tag.putInt("Wait",wait); tag.putInt("VisitWait",visitWait);
-        tag.putInt("Visits",visits); tag.putInt("RainLosses",rainLosses); tag.putBoolean("Farewell",farewell); tag.putBoolean("Returning",returning);
-        if (!carrying.isEmpty()) tag.put("Carrying",carrying.save(entity.registryAccess()));
-        var list = new ListTag();
-        for (var material : materials) { var item = new CompoundTag(); item.putUUID("Entity",material.entityId); item.putUUID("Token",material.token); list.add(item); }
-        tag.put("Materials",list); return tag;
+        var tag = new CompoundTag(); io.github.longshou.mcyukkuri.family.FamilyData.putPosition(tag, "Origin", origin);
+        tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+        return tag;
     }
     public void load(CompoundTag tag) {
-        origin = FamilyData.position(tag,"Origin"); site = FamilyData.position(tag,"Site"); establishedHome = FamilyData.position(tag,"EstablishedHome");
-        originalGroup = tag.hasUUID("OriginalGroup") ? tag.getUUID("OriginalGroup") : null;
-        kind = "CARDBOARD".equals(tag.getString("Kind")) ? ShelterBlock.Kind.CARDBOARD : ShelterBlock.Kind.BURROW;
-        var direction = Direction.byName(tag.getString("Facing")); facing = direction != null && direction.getAxis().isHorizontal() ? direction : Direction.SOUTH;
-        work = Math.clamp(tag.getInt("Work"),0,workNeeded()); work -= work % UNIT_WORK;
-        projectTicks = Math.clamp(tag.getInt("ProjectTicks"),0,24000); wait = Math.clamp(tag.getInt("Wait"),0,CHECK_INTERVAL);
-        if (tag.isEmpty()) wait = CHECK_INTERVAL;
-        visitWait = tag.contains("VisitWait") ? Math.clamp(tag.getInt("VisitWait"),0,VISIT_INTERVAL) : VISIT_INTERVAL;
-        visits = Math.max(0,tag.getInt("Visits")); rainLosses = Math.max(0,tag.getInt("RainLosses")); farewell = tag.getBoolean("Farewell");
-        returning = tag.getBoolean("Returning"); carrying = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("Carrying")) : ItemStack.EMPTY;
-        materials.clear();
-        for (Tag raw : tag.getList("Materials",Tag.TAG_COMPOUND)) { var item = (CompoundTag)raw;
-            if (materials.size() < 6 && item.hasUUID("Entity") && item.hasUUID("Token") && materials.stream().noneMatch(m -> m.entityId.equals(item.getUUID("Entity"))))
-                materials.add(new Material(item.getUUID("Entity"),item.getUUID("Token")));
-        }
-        if (origin == null || originalGroup == null || establishedHome != null) site = null;
-        task = Task.NONE; running = false; visitor = null; pickup = null; pickupStand = null; elapsed = contactTicks = 0; loadGrace = 100;
-        working = enteredHome = false; resetRoute();
+        origin = FamilyData.position(tag, "Origin");
+        // Saves of the old construction project that had finished a new home count as left; unfinished projects are dropped.
+        independent = tag.getBoolean("Independent") || tag.contains("EstablishedHome");
+        household = tag.getBoolean("Household") || tag.contains("EstablishedHome");
+        armed = tag.getBoolean("Force");
+        wait = tag.contains("Wait") ? Math.clamp(tag.getInt("Wait"), 0, CHECK_INTERVAL) : CHECK_INTERVAL;
+        if (armed) wait = 0;
+        visits = Math.max(0, tag.getInt("Visits"));
+        task = Task.NONE; running = false; visitor = null; elapsed = contact = 0; loadGrace = 100; parentWaits = 0;
+        target = progress = null; stalled = 0;
     }
 }

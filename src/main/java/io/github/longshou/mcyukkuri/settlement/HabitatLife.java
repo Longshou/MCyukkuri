@@ -6,8 +6,11 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.season.AutumnStock;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +25,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
-    private enum Task { NONE, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, GRAIN_TAKE, GRAIN_PUT }
+    private enum Task { NONE, DIG, ROAM, FOOD, PICKUP, HARVEST, DEPOSIT, CLEAN, SHARE, STAY, SIESTA, NEST_PICKUP, NEST_HARVEST, NEST_BUILD, GRAIN_TAKE, GRAIN_PUT }
     private final YukkuriEntity entity;
     private GlobalPos home;
     private ItemStack carrying=ItemStack.EMPTY;
@@ -45,6 +48,16 @@ public final class HabitatLife {
     private int shareCooldown,quarrelCooldown;
     private long siestaDay=-1;
     private boolean arrived;
+    /** The hollow being scraped (a new home or an extension of the own one), the next cell and the work done on it. Transient: the world keeps the dug cells. */
+    private Burrowing.Plan dig;
+    private int digIndex,digWork,extendWait,roamWait,searchWait;
+    private boolean extending;
+    private BlockPos roamTarget;
+    /** Where an interrupted hollow was started: the next attempt carries on there instead of opening a second one. */
+    private BlockPos resumeMouth;
+    private Direction resumeDirection;
+    /** What this individual's address is. Derived from the world each time; the only stored fact is the shelter it belongs to. */
+    public enum Residence { HOUSED, VAGRANT, DEPENDENT, ELSEWHERE }
     public HabitatLife(YukkuriEntity entity) {
         this.entity=entity;this.plants=new PlantBedding(entity);this.contact=new PileContact(entity);
         wait=20+entity.getRandom().nextInt(100); // a freshly spawned colony must not start every search on one tick
@@ -62,12 +75,42 @@ public final class HabitatLife {
         int phase=value.nestWork(entity.getUUID())%60;return phase<20?"nest_place":phase<40?"nest_spread":"nest_press";
     }
     public BlockPos homeStand() { var value=shelter();return value!=null&&value.usable(entity)?value.bed(entity.getUUID()):null; }
+    /** Wild individuals live in recognised homes; pets, house yukkuri, predators, hat-boat families and raiding bands have other arrangements. */
+    public boolean wildLiver() {
+        var human=io.github.longshou.mcyukkuri.human.HumanCommerce.data(entity);
+        return !entity.getVariant().isHouse()&&!entity.getVariant().isPredator()&&!io.github.longshou.mcyukkuri.subspecies.HatVessel.aquatic(entity)&&!roaming()
+                &&!human.hasUUID("Owner")&&!human.contains("PendingRole")&&!human.contains("FactoryStage");
+    }
+    private boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
+    /** HOUSED: belongs to a recognised home. VAGRANT: a grown wild individual with none (it looks for one or digs its own). DEPENDENT: a young one that follows its parents. ELSEWHERE: not a wild home-dweller. */
+    public Residence residence() {
+        if(!wildLiver())return Residence.ELSEWHERE;
+        if(home!=null)return Residence.HOUSED;
+        return grownEnough()?Residence.VAGRANT:Residence.DEPENDENT;
+    }
+    public boolean vagrant() { return residence()==Residence.VAGRANT; }
+    /** Share of the hollow in progress that is already dug, 0 when none. */
+    public int digProgress() { return dig==null||dig.cells().isEmpty()?0:digIndex*100/dig.cells().size(); }
+    /** Members of this individual's household that need a place: itself, its partner and its young. */
+    public int householdNeed() {
+        int count=1;
+        if(entity.family().partner()!=null)count++;
+        var data=FamilyData.get(level());
+        for(var id:data.children(entity.getUUID())) {
+            var person=data.person(id);
+            if(person==null||person.status==FamilyData.Status.DEAD||person.status==FamilyData.Status.REMOVED)continue;
+            if(!(level().getEntity(id) instanceof YukkuriEntity child)||!child.family().adult())count++;
+        }
+        return Math.min(count,8);
+    }
     public boolean leaking() {
         var value=shelter();
         return value!=null&&value.moisture()>=60&&value.contains(entity.blockPosition());
     }
     public boolean choose(ShelterBlockEntity value) {
         if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||!value.sound()||value.moisture()>=85||value.dirt()>=90||entity.distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos()))>32*32)return false;
+        // The leaver never moves back into the home it said goodbye to.
+        if(entity.independence().avoids(value.getBlockPos()))return false;
         if(hasNestProject()&&!sameNestHome(value)) { cancelNestProject();return false; }
         boolean owned=value.owns(entity.getUUID());
         if(!value.claim(entity))return false;
@@ -76,28 +119,48 @@ public final class HabitatLife {
         var old=shelter();
         if(!entity.life().assignNaturalHome(bed)){if(!owned)value.release(entity.getUUID());return false;}
         if(old!=null&&old!=value)old.release(entity.getUUID());
-        home=GlobalPos.of(entity.level().dimension(),value.getBlockPos());entity.setPersistenceRequired();return true;
+        home=GlobalPos.of(entity.level().dimension(),value.getBlockPos());entity.setPersistenceRequired();
+        entity.independence().settled(value);return true;
     }
     public boolean inherit(YukkuriEntity parent) { var value=parent.habitat().shelter();return value!=null&&choose(value); }
     public void release() { var value=shelter();if(value!=null)value.release(entity.getUUID());home=null;cancelNestProject();stop(); }
     /** Wandering bands never settle: no burrow is claimed or dug for them. */
     private boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
+    /** Lower is better: enough free cells for the household first, then a size close to what the household needs plus room to grow, then near. */
+    private static double fit(int cells,int free,int need,double distanceSqr) {
+        return Math.max(0,need+1-free)*40+Math.abs(cells-(need+3))*2+Math.sqrt(distanceSqr)/4;
+    }
+    /** Recognise a home: a registered one nearby (a roomy-enough one first), else an unregistered cave or hollow that qualifies (see {@link NaturalShelter#survey}). */
     public boolean findHome() {
         if(roaming()||entity.getVariant().isHouse()||entity.getVariant().isPredator()||unavailable())return false;
         // A community on a planned site moves into that site's own burrows first (spare ones included).
         var site=SiteLife.of(entity);
         if(site!=null&&SiteLife.settle(entity,this,site))return true;
+        int need=householdNeed();
+        var cores=new ArrayList<ShelterBlockEntity>();
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-12,-2,-12),entity.blockPosition().offset(12,2,12)))
-            if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value&&choose(value))return true;
+            if(level().hasChunkAt(pos)&&level().getBlockEntity(pos) instanceof ShelterBlockEntity value)cores.add(value);
+        cores.sort(Comparator.comparingDouble(core->fit(core.capacity(),core.capacity()-core.usedSlots(),need,entity.distanceToSqr(Vec3.atBottomCenterOf(core.getBlockPos())))));
+        for(var core:cores)if(choose(core))return true;
         if(!EventHooks.canEntityGrief(level(),entity))return false;
+        record Candidate(ShelterPlacement.Plan plan,double score) {}
+        var candidates=new ArrayList<Candidate>();
         for(BlockPos pos:BlockPos.betweenClosed(entity.blockPosition().offset(-8,-2,-8),entity.blockPosition().offset(8,2,8))) {
             if(!NaturalShelter.enclosed(level(),pos))continue;
-            for(var direction:net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            for(var direction:Direction.Plane.HORIZONTAL) {
                 var plan=new ShelterPlacement.Plan(pos.immutable(),ShelterBlock.Kind.BURROW,direction);
-                if(!ShelterPlacement.canPlace(level(),plan)||!entity.life().reachable(pos,false))continue;
-                var placed=ShelterPlacement.place(level(),plan);
-                if(placed!=null){if(choose(placed.shelter()))return true;placed.rollback(level());}
+                if(!ShelterPlacement.canPlace(level(),plan))continue;
+                int cells=plan.beds(level()).size();
+                candidates.add(new Candidate(plan,fit(cells,cells,need,entity.distanceToSqr(Vec3.atBottomCenterOf(pos)))));
             }
+        }
+        candidates.sort(Comparator.comparingDouble(Candidate::score));
+        int tried=0;
+        for(var candidate:candidates) {
+            if(++tried>4)break;
+            if(!entity.life().reachable(candidate.plan().center(),false))continue;
+            var placed=ShelterPlacement.place(level(),candidate.plan());
+            if(placed!=null){if(choose(placed.shelter()))return true;placed.rollback(level());}
         }
         return false;
     }
@@ -105,13 +168,15 @@ public final class HabitatLife {
         if(entity.level().isClientSide||entity.isNoAi()||entity.getVariant().isHouse())return;
         if(hasNestProject()&&!nestProjectValid())cancelNestProject();
         if(wait>0)wait--;
+        if(roamWait>0)roamWait--;
+        if(searchWait>0)searchWait--;
         if(shareCooldown>0)shareCooldown--;
         if(quarrelCooldown>0)quarrelCooldown--;
         if(entity.tickCount%100!=0)return;
         var value=shelter();boolean inside=value!=null&&value.contains(entity.blockPosition());
         int wet=inside&&value.moisture()>=60?3:0;
         int hygiene=inside&&value.dirt()>=50?2:0;
-        entity.life().applyEnvironment(wet,hygiene,0);
+        entity.life().applyEnvironment(wet,hygiene+(value==null&&vagrant()&&!entity.life().isSleeping()?1:0),0);
         if(value!=null&&quarrelCooldown==0&&Seasons.is(entity,Season.WINTER)&&value.food()==0&&entity.life().nutrition()<30)quarrel(value);
     }
     /** Winter famine: two starving housemates over empty stores snap at each other. Sacrifice for the family is not modelled yet (plan 2.4). */
@@ -193,12 +258,14 @@ public final class HabitatLife {
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
             if(hasNestProject())cancelNestProject();
+            if(vagrantProject())return true;
             return seasonal(null);
         }
         if(entity.life().canEat()&&value.food()>0&&!entity.wintering().usesWinterStores()){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return true;}
         if(entity.life().canEat()&&value.food()==0&&entity.life().needsFood()&&!entity.independence().householdOuting()&&startGranaryTake())return true;
         if(carrying.isEmpty()&&!entity.independence().householdOuting()&&seasonal(value))return true;
         if(nestEligible(value)&&startNest(value))return true;
+        if(extensionWanted(value)&&startExtension(value))return true;
         if(hasNestProject()) {
             if(!nestProjectValid())cancelNestProject();
             return false;
@@ -236,6 +303,8 @@ public final class HabitatLife {
     }
     private boolean startNest(ShelterBlockEntity value) {
         if(!nestEligible(value))return false;
+        // A child that grew out of the family nest first takes a cell of its own.
+        if(value.sharesBed(entity.getUUID())&&!value.separate(entity))return false;
         normalizeNestMaterials();
         if(!carrying.isEmpty()&&!nestBedding(carrying))return false;
         if(!nestMaterial.isEmpty()&&(!nestBedding(nestMaterial)||carrying.isEmpty()))return false;
@@ -329,6 +398,8 @@ public final class HabitatLife {
     }
     public boolean canContinue() {
         if(!active()||!ready())return false;
+        if(task==Task.DIG)return dig!=null&&ticks<900&&EventHooks.canEntityGrief(level(),entity)&&!entity.life().hasUrgentNeed()&&entity.life().nutrition()>=25;
+        if(task==Task.ROAM)return roamTarget!=null&&ticks<700&&!entity.life().hasUrgentNeed();
         if(task==Task.SIESTA)return ticks<1200&&targetBlock!=null&&Seasons.is(entity,Season.SUMMER)&&Seasons.noon(level())&&!entity.life().hasUrgentNeed();
         if(task==Task.STAY)return homeStand()!=null&&Seasons.confined(entity)&&!entity.wintering().usesWinterStores()&&!entity.life().hasUrgentNeed();
         if(task==Task.NEST_PICKUP||task==Task.NEST_HARVEST||task==Task.NEST_BUILD)return ticks<600&&nestEligible(shelter())&&(task!=Task.NEST_HARVEST||EventHooks.canEntityGrief(level(),entity));
@@ -339,6 +410,8 @@ public final class HabitatLife {
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}ticks++;
+        if(task==Task.DIG){tickDig();return;}
+        if(task==Task.ROAM){tickRoam();return;}
         var value=shelter();
         if(task==Task.STAY||task==Task.SIESTA) {
             if(task==Task.STAY&&value!=null&&entity.life().canEat()&&value.food()>0){task=Task.FOOD;targetBlock=value.bed(entity.getUUID());ticks=0;return;}
@@ -454,6 +527,110 @@ public final class HabitatLife {
             if(approach(outside)){dropCarrying();value.cleaned();stop();}
         }
     }
+    // ---- vagrants: look for a home, scrape one into soft ground, or move on
+    /** A grown individual without a home: it recognises one in reach, otherwise digs a hollow into a soil face nearby, otherwise wanders on. */
+    private boolean vagrantProject() {
+        if(!vagrant()||!EventHooks.canEntityGrief(level(),entity))return false;
+        if(entity.life().nutrition()<35||entity.life().energy()<30||level().isNight()||searchWait>0)return false;
+        searchWait=100;
+        if(findHome())return false;
+        if(startDig())return true;
+        return roamWait<=0&&startRoam();
+    }
+    /** Cells the household wants in a new hollow: a nest and a store for the first, two more for everyone else. */
+    private int wantedCells() { return Math.min(NaturalShelter.MAX_CELLS-2,4+2*householdNeed()); }
+    private boolean startDig() {
+        if(!SearchBudget.take(level()))return false;
+        int want=wantedCells();
+        Burrowing.Plan best=null;double bestScore=-1;
+        if(resumeMouth!=null) {
+            var again=Burrowing.plan(level(),resumeMouth,resumeDirection,want);
+            if(again!=null&&entity.life().reachable(resumeMouth,false)){dig=again;extending=false;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;}
+            resumeMouth=null;resumeDirection=null;
+        }
+        var faces=new ArrayList<>(Burrowing.faces(level(),entity.blockPosition(),9));
+        faces.sort(Comparator.comparingDouble(face->face.distSqr(entity.blockPosition())));
+        for(var face:faces.subList(0,Math.min(faces.size(),40))) {
+            if(!entity.life().reachable(face,false))continue;
+            for(var direction:Direction.Plane.HORIZONTAL) {
+                if(!Burrowing.soft(level(),face.relative(direction)))continue;
+                var plan=Burrowing.plan(level(),face,direction,want);
+                if(plan==null)continue;
+                double score=plan.cells().size()*6-Math.sqrt(face.distSqr(entity.blockPosition()));
+                if(score>bestScore){best=plan;bestScore=score;}
+            }
+        }
+        if(best==null)return false;
+        resumeMouth=best.mouth();resumeDirection=best.dig();
+        dig=best;extending=false;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;
+    }
+    private boolean extensionWanted(ShelterBlockEntity value) {
+        if(extendWait>0){extendWait--;return false;}
+        return entity.family().adult()&&value.owns(entity.getUUID())&&value.usable(entity)&&value.crowded()&&!level().isNight()
+                &&EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=50&&entity.life().energy()>=40&&!entity.life().needsFood()
+                &&!entity.independence().householdOuting()&&carrying.isEmpty()&&!hasNestProject();
+    }
+    /** The family has outgrown the cave: scrape one more cell out of the wall, away from the doorway. */
+    private boolean startExtension(ShelterBlockEntity value) {
+        extendWait=2400;
+        var plan=Burrowing.extension(level(),value);
+        if(plan==null)return false;
+        dig=plan;extending=true;digIndex=0;digWork=0;task=Task.DIG;ticks=0;return true;
+    }
+    private void tickDig() {
+        while(digIndex<dig.cells().size()&&Burrowing.open(level(),dig.cells().get(digIndex)))digIndex++;
+        if(digIndex>=dig.cells().size()){finishDig();return;}
+        var cell=dig.cells().get(digIndex);
+        if(!Burrowing.soft(level(),cell)){stop();return;}
+        var from=dig.reach(cell);
+        if(!approach(from))return;
+        var state=level().getBlockState(cell);
+        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(entity,io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(entity.position(),Vec3.atCenterOf(cell)));
+        digWork++;
+        if(digWork%12==0) {
+            level().sendParticles(new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK,state),
+                    cell.getX()+.5,cell.getY()+.3,cell.getZ()+.5,6,.25,.15,.25,.02);
+            level().playSound(null,cell,state.getSoundType().getHitSound(),net.minecraft.sounds.SoundSource.BLOCKS,.6f,.8f);
+        }
+        if(digWork<Burrowing.digTicks(state))return;
+        level().destroyBlock(cell,false,entity);
+        entity.life().spendEnergy(1.2f);entity.life().spendNutrition(.35f);
+        digIndex++;digWork=0;ticks=0;
+    }
+    /** All planned cells are open: the hollow is recognised as a home (or the cave's survey is refreshed after an extension). */
+    private void finishDig() {
+        var plan=dig;boolean wasExtending=extending;
+        dig=null;resumeMouth=null;resumeDirection=null;
+        if(wasExtending) {
+            var value=shelter();
+            if(value!=null)value.refreshSite(NaturalShelter.survey(level(),value.getBlockPos(),value.facing(),value.pileCell()));
+            entity.showReaction("happy","gentle",60);stop();return;
+        }
+        var placement=new ShelterPlacement.Plan(plan.doorway(),ShelterBlock.Kind.BURROW,plan.facing());
+        if(ShelterPlacement.canPlace(level(),placement)) {
+            var placed=ShelterPlacement.place(level(),placement);
+            if(placed!=null) {
+                if(choose(placed.shelter()))entity.showReaction("happy","gentle",80);else placed.rollback(level());
+            }
+        }
+        stop();
+    }
+    /** No soil face to dig into here: walk on a good way and look again. */
+    private boolean startRoam() {
+        roamWait=300;
+        for(int attempt=0;attempt<8;attempt++) {
+            int dx=entity.getRandom().nextInt(41)-20,dz=entity.getRandom().nextInt(41)-20;
+            if(dx*dx+dz*dz<100)continue;
+            var ground=level().getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,entity.blockPosition().offset(dx,0,dz));
+            if(!level().hasChunkAt(ground)||!entity.life().dryStand(ground)||!entity.life().reachable(ground,false))continue;
+            roamTarget=ground;task=Task.ROAM;ticks=0;return true;
+        }
+        return false;
+    }
+    private void tickRoam() {
+        if(roamTarget==null){stop();return;}
+        if(approach(roamTarget))stop();
+    }
     private boolean approach(BlockPos pos) {
         Vec3 goal=Vec3.atBottomCenterOf(pos);
         if(entity.distanceToSqr(goal)<.64){entity.getNavigation().stop();return true;}
@@ -463,7 +640,7 @@ public final class HabitatLife {
         }
         return false;
     }
-    public void stop() { plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
+    public void stop() { if(task==Task.DIG){dig=null;digWork=0;}roamTarget=null;plants.stop();contact.reset();shareLoaded=false;task=Task.NONE;targetItem=null;targetBlock=null;shareTo=null;granary=null;wait=autumn()?40:80;ticks=buildTicks=0;entity.getNavigation().stop(); }
     public void dropCarrying() {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);
