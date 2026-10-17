@@ -49,6 +49,8 @@ public final class FirstVoyage {
     public boolean returningToParent(){return !leavingHome&&(phase==Phase.RETURN||phase==Phase.REBOARD);}
     public UUID retainedHatToken(){return retainedHatToken;}
     public boolean hasRetainedPaddle(){return retainedCargo!=null&&retainedCargo.getBoolean("Paddle");}
+    /** True when the hat can take provisions bound to this token: nothing else is held, or it is the same hat. */
+    boolean canRetainHat(UUID token){return retainedCargo==null||token.equals(retainedHatToken);}
     void retainHat(UUID token,CompoundTag cargo){retainedHatToken=token;retainedCargo=cargo.copy();}
     void restoreHatCargo(HatBoatEntity boat){
         if(retainedCargo!=null){boat.cargo().load(retainedCargo);boat.syncCargo(boat.cargo().save());retainedCargo=null;}

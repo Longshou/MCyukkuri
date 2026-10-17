@@ -20,6 +20,8 @@ public final class HatBoatCargo {
     HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
     public boolean paddle() { return paddle; }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
+    /** How full the hat looks: 0 empty, 1 a little (1-2 portions), 2 half full (3-5), 3 full (6-8). Food kind never matters. */
+    public int tier() { int n = count(); return n <= 0 ? 0 : n <= 2 ? 1 : n <= 5 ? 2 : 3; }
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
     /** Read-only render snapshot: one actual serving per supported berth, retaining its item/components. */
     public List<ItemStack> portions() {
@@ -90,15 +92,25 @@ public final class HatBoatCargo {
     public void spill() {
         spillAt(boat.position());
     }
-    public void unload(YukkuriEntity owner) {
+    /** The owner puts her own hat back on: the paddle returns to her hand and the provisions stay with that hat.
+     *  They are kept under the hat's token (FirstVoyage.retainHat) and come back when it is set down as a boat again;
+     *  anything the hat cannot carry for her is dropped as a real item. */
+    public void unload(YukkuriEntity owner, java.util.UUID hatToken) {
         if (paddle && owner.aquaticLife().giveStick(new ItemStack(Items.STICK), false)) paddle = false;
+        if (hatToken != null && !food.isEmpty() && owner.aquaticLife().firstVoyage().canRetainHat(hatToken)) {
+            var kept = new CompoundTag(); kept.putBoolean("Paddle", false); var list = new ListTag();
+            for (var stack : food) list.add(stack.save(boat.registryAccess()));
+            kept.put("Food", list);
+            owner.aquaticLife().firstVoyage().retainHat(hatToken, kept);
+            food.clear(); changed();
+        }
         spillAt(owner.position());
     }
     public void returnToFamily(YukkuriEntity owner, HatBoatEntity home) {
         for (var stack : food) home.cargo().store(stack,stack.getCount(),false);
         food.removeIf(ItemStack::isEmpty);
         // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
-        unload(owner);
+        unload(owner, null);
     }
     public void spillAt(net.minecraft.world.phys.Vec3 at) {
         if (boat.level().isClientSide) return;

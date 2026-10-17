@@ -104,32 +104,9 @@ public final class HatVessel {
         for(var section:CAVITY){largest=Math.max(largest,section.depth()-previous);previous=section.depth();}
         return largest*squash(mode);
     }
-    /** Actual stored portions are heaped on the rear half of the two side brims, beside the seated captain and behind the
-     *  front half where the young stand (marisa-hat-vessel recipe cargo, care-props/cargo.py layout()). Position (x, y on the
-     *  brim plus the serving's rest height, z) and radius are unscaled hat units; the envelope is a cylinder of twice the
-     *  radius, and the renderer draws the serving in that slot at its yaw and scale (pad: its leaf pad, 0 when nested above). */
-    public record CargoBerth(Vec3 position,double radius,double lift,float yaw,float scale,int pad){}
-    public static List<CargoBerth> cargoBerths(Mode mode,int portions){
-        var out=new ArrayList<CargoBerth>();
-        if(DATA.has("cargo")){
-            var berths=DATA.getAsJsonObject("cargo").getAsJsonArray("berths");
-            for(int i=0;i<Math.min(Math.max(0,portions),berths.size());i++){
-                var b=berths.get(i).getAsJsonObject();double x=b.get("x").getAsDouble(),z=b.get("z").getAsDouble(),lift=b.get("lift").getAsDouble();
-                out.add(new CargoBerth(new Vec3(x,surface(mode,x,z)+lift,z),b.get("radius").getAsDouble(),lift,
-                        b.get("yaw").getAsFloat(),b.get("scale").getAsFloat(),b.get("pad").getAsInt()));
-            }
-            return List.copyOf(out);
-        }
-        for(int i=0;i<Math.min(8,Math.max(0,portions));i++){
-            boolean left=(i&1)==0;
-            double inner=left?WELL[0]:WELL[1],outer=left?OPENING[0]:OPENING[1];
-            double r=Math.min(.3,Math.abs(outer-inner)*.30);
-            // Hug the outer edge of the existing inner ledge, preserving a full parent-width centre passage.
-            double x=outer+(left?1:-1)*r*1.1;
-            double z=.5-(i/2)*(Math.abs(WELL[2])-.8)/3;
-            out.add(new CargoBerth(new Vec3(x,surface(mode,x,z),z),r,0,0,1.1f,0));
-        }
-        return List.copyOf(out);
+    /** Where a spilled provision leaves the brim: the rear half of the two side brims where the picture layer lies. */
+    public static Vec3 provisionSpill(Mode mode,int index){
+        return new Vec3((index&1)==0?5.4:-5.2,top(mode),.4+(index/2)*1.3);
     }
     private static boolean in(float[] r,double x,double z){return r[0]<=x&&x<=r[1]&&r[2]<=z&&z<=r[3];}
     /** The hat's top surface at a point: the well's floor, the ledge round it, the brim; NaN off the hat. */

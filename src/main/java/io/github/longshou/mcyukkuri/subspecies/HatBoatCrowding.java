@@ -243,8 +243,6 @@ final class HatBoatCrowding {
         }
         if(!Double.isFinite(support)&&!foot.stable())return false;
         if(distance>0&&foot.highest()>at.y+.08)return false; // No pressure-induced step climbing.
-        for(var berth:boat.cargoBerths())if(Math.abs(at.y-berth.position().y)<child.getBbHeight()/boat.unit()
-                &&next.subtract(berth.position()).horizontalDistance()<boat.crowdRadius(child)+berth.radius())return false;
         if(foot.stable())support=at.y;
         else if(!Double.isFinite(support))return false;
         if(at.y>support+.04){

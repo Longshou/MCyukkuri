@@ -29,8 +29,6 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import delivery as DL
 ROOT = HERE.parents[3]
-sys.path.insert(0, str(ROOT/'standards/yukkuri-library/drafts/care-props'))
-import cargo   # the shared cargo layout
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 MODEL = ASSETS/'yukkuri/marisa.json'
 BODY = ASSETS/'yukkuri_presentation/body_geometry.json'
@@ -380,7 +378,6 @@ def main():
         'keel': round(t.keel, 4), 'squash': {'nest': round(sn, 4), 'bowl': round(sw, 4)},
         'opening': rnd(t.opening), 'well': rnd(t.well), 'brim': rnd(t.brim), 'floor': round(t.floor, 4), 'ledge': round(t.ledge, 4),
         'cavity_sections': t.sections,
-        'cargo': {'berths': cargo_berths(t), 'height_per_radius': 2.0, 'surface': 'brim'},
         'nest': {'height': round(t.keel*sn, 4)},
         # afloat the owner rests on the ledge between the two opened tiers, the young on the floor below
         'bowl': {'freeboard': fb, 'owner_y': round(fb-t.ledge*sw, 4), 'mask': [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]},
@@ -407,11 +404,6 @@ def main():
     for variant, p in placements.items():
         print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn', 'gap') if k in p[r]} for r in ('helper', 'self')})
     report(metrics, body)
-
-
-def cargo_berths(t):
-    """Eight actual portion envelopes on the rear side brims (the layout the leaf pads and the renderer share)."""
-    return cargo.layout(R['cargo'])
 
 
 def report(V, body):
