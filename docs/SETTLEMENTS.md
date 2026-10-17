@@ -112,14 +112,14 @@
 
 - 职位与失饰处理共用 `SettlementData` 的成员状态、观察记录及职位恢复规则，见上文“失饰与群内职位”。被排斥者与清扫职责成员不接受普通派工；正常成员、当前履职族长与空缺分别显示。
 - 族长更替采用 `LeaderSuccession` 的现场见证机制：仅明确死亡、移除或离群开启空缺；已加载、相互认出的同群成体见证候选持续准备。候选按认知、自制力、成年时长及稳定 UUID 排序，不按体型或种族加权。失饰暂停履职、卸载、运输与跨维度均不等于职位空缺，见[族长继任](LEADER_SUCCESSION.md)。
-- 分派：`SettlementOrders`（每个实体一个，不存档），由 `OrderGoal`（优先级 5）执行。族长在白天、安全、距中心 16 格内，每 `orderMinInterval`–`orderMaxInterval` tick（默认 1200–2400）从 12 格内可见、互相认出、空闲的成年成员里挑一只下令。
-  - 觅食：中心 16 格内取一份短草（遵守 mobGriefing）或地上的食物物品，带回存进自家住所；住所不收或不存在则掉落。
+- 分派：`SettlementOrders`（每个实体一个；任务读档取消，携带实物和冷却存档），由 `OrderGoal`（优先级 5）执行。族长在白天、安全、距中心 16 格内，每 `orderMinInterval`–`orderMaxInterval` tick（默认 1200–2400）从 12 格内可见、互相认出、空闲的成年成员里挑一只下令。
+  - 觅食：中心 16 格内取一份可达短草（连续接触36 tick）或可见落地食物（追踪当前位置、身体近接12 tick且无拾取延迟），带回本人住所睡位后增加真实食物库存；不把这份食物转成铺窝材料。住所不收、失去归属或任务中断则掉落原物。取物遵守 mobGriefing。
   - 侦察：优先好奇心 + 大胆最高的成员（妖梦接入后改为优先妖梦，计划 4.2），走到中心外 16–24 格的可站立点张望约 60 tick，再回族长身边汇报；途中 16 格内看见捕食种则惊慌汇报并调用 `SettlementData.reportThreat`（`Group.threat`、`threatPos`、`threatTime`，存档，供迁徙使用，见下节）。
   - 传达：优先橙，依次走到最多 3 只 32 格内的其他成员身边，说话后对方被召集约 600 tick，在族长身边集合（`SettlementLife.canUse` 里的召集分支）。
   - 命令超时 `community.orderTimeout`（默认 1200）；惊慌、紧急需求、睡觉、事件占用、认屋都会取消；同一成员完成或取消后有 3600 tick 冷却。
 - 观察与命令：笔记群体页显示职位与空缺进度，独立群体活动页显示命令、季节、威胁与迁徙；`/yukkuri settlement info` 报告命令位置最近的群体（类型、中心、族长、是否设族长、空缺时长、已加载成员职位统计、威胁次数）。
 - 手动检查：`/yukkuri settlement spawn forest_led` 后让族长明确死亡，现场合格成员持续互认见证后才应产生继任者；卸载或暂时失饰不触发换人。白天族长隔一阵分派成员，受派者实际办事后归来。
-- 待完成：妖梦优先侦察；普通分派的实际采集、转交、卸载与迁徙中断仍需游戏确认。失饰后清扫沿用独立职责与物品持久化，不与普通派工合并。
+- 待完成：妖梦优先侦察；普通分派已补真实采集、库存交接、货物同步、卸载和死亡掉落，以及日常维护对派工的让步；连续路线、多人显示与迁徙中断仍需游戏确认。失饰后清扫沿用独立职责与物品持久化，不与普通派工合并。
 
 ## 传闻与迁徙（计划 3.4）
 
@@ -136,11 +136,54 @@
 - 手动检查：`/yukkuri settlement spawn forest_led`，在聚落旁生成雷米莉亚（或用 `threat 3`），族长应喊话并带队走向远离威胁的新址；到达后用 `info` 看中心已变。可调小 `migrateTimeout` 验证超时结算。
 - 未做：红眼妖梦触发的 `omen`（计划 4.2）；迁徙途中的储粮搬运；离新中心超过 96 格的掉队者回归。
 
+## 真实场景接入与重置
+
+聚落演出不能使用 `NoAI:1b`、`/yukkuri action` 的持续动作锁、逐帧传送或仅切换携带道具；这些会绕过或阻断上面的行为。族长自然首次派工等待 1200–2400 tick，短演示应直接调用下面的真实接口，而不是缩短世界时间或循环伪造任务结果。
+
+```mcfunction
+/yukkuri settlement order <族长单实体选择器> <居民单实体选择器> forage
+/yukkuri settlement order <族长单实体选择器> <居民单实体选择器> scout
+/yukkuri settlement order <族长单实体选择器> <居民单实体选择器> message
+/yukkuri settlement cancel_order <居民单实体选择器>
+```
+
+发令只跳过自然随机等待和任务抽签，仍执行 `leader.settlement().orders().issue(member, Kind)`：白天、族长在中心16格内、双方12格内互相可识别且可见、同群、成年正常成员、空闲、无紧急需求，采集还要求有效的已认领住所和允许生物破坏。返回1只代表接受任务，返回0是条件不成立；不要无条件显示“已完成”。取消会在当前位置放下原物，并保留3600 tick冷却。`Orders.Carrying`（位于实体 `YukkuriSettlement` 下）和 `getCarriedItem()` 分别是服务端保存的实物与客户端同步实物；`orders.kind()/active()`、住所 `food()` 是结果观察入口。
+
+### 紧凑的采集与派工场景
+
+由展馆的服务器构造入口一次性完成以下准备（初始化可摆放测试地形与实体，运行期交给正常 tick）：
+
+1. 做连续干燥地面和一座可通过洞口进入的真实天然洞。可复用 `src/p0Test/.../NaturalShelterFixture.cave` 的形状：5×5占地、3格高、侧壁与屋顶、正面两格高的入口；随后用 `ShelterPlacement.place` 创建 `BURROW`。构造入口必须检查返回值，不能只摆叶床假装已有住所。
+2. 放置相距3–5格的成年族长与居民，均开启AI、拥有可识别饰物、未怀孕、无伤、营养/体力充足。用 `new SettlementData.Group(UUID.randomUUID(), FOREST, center, leader.getUUID())`、`data.add(group)` 和两者的 `settlement().join(group)` 建立真实成员关系，再用居民的 `habitat().choose(home)` 认领可达睡位并检查成功。这是真实群体，不要求用森林随机6–12户模板填满整个展厅。三个传达接收者可同法加入。
+3. 演示采集时先下达 `forage`（在同一初始化回调内、日常AI开始前），再在中心16格内放一份可见短草或真实食物掉落物；禁止每tick补充。居民自行接近、取一份、身体携带、回本人睡位后入库。待 `orders.active()==false` 且食物库存增加1，才算完成。失败/超时、中断及库存满都应显示实际状态；草块消失而库存未增仍可能只是“正在返程”。
+4. 对照：在收集之前移走同一个 `ItemEntity`，居民应追踪新位置或取消，不得在旧坐标取走；加墙阻断后不应隔墙取物；关闭 `mobGriefing` 不应采集；搬运时取消/重载，原份数在地面出现且库存不增加。重载不恢复旧路线，保存的货物在恢复AI tick时掉落。
+
+日常修窝与储粮在已接派工、正在清扫或收到召集期间让步；生理与危险目标仍可中断。任务持有物已接入普通携带显示和真实行为ID，不创建替身实体。一般家庭采草仍允许优先补铺料；这里的明确 `FORAGE` 派工只计入食物库存。
+
+### 传达、侦察与季节场景
+
+- 传达：族长附近放传令成员，另放1–3名同群成体，距族长大于4格但在传令成员32格内。发 `message` 后，传令者实际走到接收者2.5格且可见、互认才通知，接收者有600 tick步行集合窗口。检查它们实际接近族长；有更急需求时允许中断，不用字幕当结果。
+- 侦察：场地至少覆盖中心外24格且区块加载；发 `scout` 后成员实际步行到外围、张望60 tick、再返回可见且互认的现任族长4格内。只有实际视线内的捕食种才记入回报，隔墙不能识别；有威胁时完成回报后 `group.threat` 增加。危险可中断侦察。圆形狭窄展台不满足该场景，应使用户外实景。
+- 秋储：群系必须为秋季、真实住所已认领、先准备足够铺料与维护状态，再放有限食源。开启AI且不锁动作，让 `HabitatLife` 自行采集与入库，显示真实 `food()`。帽饰/叶床道具切换不是储粮。
+- 冬居：雪林中心、有可用暖巢及真实库存、居民有进食需求，正常AI步行回本人睡位取粮；检查库存减少1且开始真实进餐。清空库存后不得继续展示“吃到粮”。季节按群系，不按 `/time` 切换。
+- 森林整体生成：`spawn forest_led` 的默认上限为12户再加族长，至少准备13个可达独立天然窝，留出随机采样余量（现有远端夹具提供16窝）。原12坑场地可能随机生成失败；只看命令返回值后决定是否继续演示。
+- 迁徙：原中心32–48格外还需新的可达天然洞穴群，路径与新址区块已加载。`settlement migrate` 返回1且 `group.migrateTo != null` 才是开始；最终检查中心改变、居民实际步行抵达、旧粮留在旧窝。只有原址坑的35×32草地不能稳定触发。
+
+### 场景重置合同
+
+展馆需保留自己创建的成员UUID、群体UUID、住所中心与初始化地形快照。只清理这些自己创建的对象，不能按“最近聚落”清理玩家的世界：
+
+1. 停止场景自身调度；逐成员 `orders().stop()` 与 `duties().cancelAssignment()`，处理其真实货物；收集每户住所引用（去重）。
+2. 仅对场景创建的住所调用 `ShelterBlockEntity.rollback()`，再移除场景成员、该场景生成的剩余掉落物/厕所，并用 `SettlementData.remove(groupId)` 移除对应群体记录；恢复初始化地形。`rollback()` 是测试场景撤销，不用于普通玩家拆窝或回收库存。
+3. 下次从原始配方重新创建；不复用已经损坏/拆空的窝、过期群体或旧成员UUID。仅 `/kill` 不会清除住所和群体 SavedData，会让后续生成被旧窝阻挡。
+
+成员实际跨群 `join` 时会从原群账本移除、撤销旧任务；原族长离群以当前游戏时刻开启职位空缺。同群重复登记保留被见证的社会身份。亲缘账本不因换群被删除。
+
 ## 验证与边界
 
-专用夹具：`SettlementGameTests`，全套执行入口为 `./gradlew build runP0GameTest`。检查报告位于 `.local/p0/gametest/p0-control/settlement-checks.json` 与 `settlement-movement-checks.json`。
+远端专用夹具：`SettlementGameTests`、`SettlementMembershipChecks`、`SettlementOrderGameTests`。仅在远端执行 `./gradlew runP0GameTest -Pp0Suite=settlements`；本机禁止编译和启动游戏。检查报告位于 `.local/p0/gametest/p0-control/settlement-checks.json` 与 `settlement-movement-checks.json`。
 
-也可先运行 `./gradlew build createP0GameTestLaunchScript`，再运行 `python scripts/run_settlement_checks.py`。该入口通过 `mcyukkuri.p0.suite=settlements` 只注册群落检查，使用独立的 `.local/settlements/gametest/` 世界和报告，避免与其他任务共用测试存档。仍需将 `JAVA_HOME` 指向 JDK 21。
+远端已有运行环境也可先运行 `./gradlew build createP0GameTestLaunchScript`，再运行 `python scripts/run_settlement_checks.py`。该入口通过 `mcyukkuri.p0.suite=settlements` 只注册群落检查，使用独立的 `.local/settlements/gametest/` 世界和报告，避免与其他任务共用测试存档。仍需将 `JAVA_HOME` 指向 JDK 21。
 
 住所修订后的检查另见[野外住所](WILD_SHELTERS.md)，不沿用人口阶段结果作为住所证据。
 

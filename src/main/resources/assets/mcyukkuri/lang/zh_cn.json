@@ -2747,5 +2747,8 @@
   "shop.mcyukkuri.about.note.alice": "爱丽丝容易在繁殖期失控，配对要有人看着；平时的社交和觅食也别落下。",
   "shop.mcyukkuri.about.note.patchouli": "帕秋莉爱读书、记性好，也爱指导别人；身体脆弱，要格外小心。",
   "shop.mcyukkuri.about.note.predator": "捕食种会飞，但飞不代表一定吃同伴；要养就先备好笼子和训练，别放在小油库里旁边。",
-  "shop.mcyukkuri.about.transport": "带回去请用运输篮，别把它放在水边或烈日下，一天之内要给它喂食。"
+  "shop.mcyukkuri.about.transport": "带回去请用运输篮，别把它放在水边或烈日下，一天之内要给它喂食。",
+  "commands.mcyukkuri.settlement.order.issued": "已下达真实派工；结果取决于可达资源与现场条件。",
+  "commands.mcyukkuri.settlement.order.failed": "派工未成立：需要白天、中心附近可相互识别的同群族长和空闲成年居民（12 格内）；采集需已认领住所、允许生物破坏且派工冷却结束。",
+  "commands.mcyukkuri.settlement.order.cancelled": "已取消派工，携带实物放回当前地面；冷却仍保留。"
 }

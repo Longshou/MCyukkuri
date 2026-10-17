@@ -2749,5 +2749,8 @@
   "shop.mcyukkuri.about.note.alice": "Alice can run wild when breeding. Watch pairings, and keep up socializing and foraging.",
   "shop.mcyukkuri.about.note.patchouli": "Patchouli loves reading, remembers well, likes to teach. Very frail, handle gently.",
   "shop.mcyukkuri.about.note.predator": "Predators fly, but flying doesn't mean they eat companions. Prepare a cage and training first, and keep them apart from the rest.",
-  "shop.mcyukkuri.about.transport": "Carry it home in the transport basket, keep it out of water and sun, and feed it within a day."
+  "shop.mcyukkuri.about.transport": "Carry it home in the transport basket, keep it out of water and sun, and feed it within a day.",
+  "commands.mcyukkuri.settlement.order.issued": "Order issued; completion requires reachable resources and valid conditions.",
+  "commands.mcyukkuri.settlement.order.failed": "Cannot issue order: daytime, recognized idle adult member within 12 blocks of its leader near the group center required. Forage also requires a claimed home, mob griefing and an expired order cooldown.",
+  "commands.mcyukkuri.settlement.order.cancelled": "Order cancelled; carried goods are dropped here. The cooldown remains."
 }

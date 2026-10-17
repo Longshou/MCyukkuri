@@ -122,7 +122,8 @@ public final class HabitatLife {
         return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
-                &&!Migration.underway(entity)&&!entity.wintering().active();
+                &&!Migration.underway(entity)&&!entity.wintering().active()&&!entity.settlement().orders().active()
+                &&(!entity.settlement().orders().summoned()||entity.life().hasUrgentNeed())&&!entity.settlement().duties().active();
     }
     private boolean wantsResource(ShelterBlockEntity value,ItemStack stack) {
         if(!value.accepts(stack))return false;

@@ -47,6 +47,13 @@ public final class SettlementLife {
     }
 
     public void join(SettlementData.Group group) {
+        var previous = group();
+        if (!entity.level().isClientSide && previous != null && !previous.id.equals(group.id)) {
+            SettlementData.get(level()).leave(previous, entity.getUUID(), level().getGameTime());
+            stop();
+            duties.cancelAssignment();
+            orders.stop();
+        }
         groupId = group.id;
         origin = GlobalPos.of(entity.level().dimension(), group.center);
         pendingNatural = false;
@@ -67,7 +74,6 @@ public final class SettlementLife {
             throw new IllegalStateException("New household requires an occupied usable shelter");
         }
         var data = SettlementData.get(level());
-        data.leave(group(), entity.getUUID());
         stop();
         duties.stop();
         orders.stop();
@@ -97,6 +103,7 @@ public final class SettlementLife {
         }
         society.tick();
         duties.clock();
+        orders.clock();
         var group = group();
         if (group == null) return;
         var data = SettlementData.get(level());
@@ -289,6 +296,7 @@ public final class SettlementLife {
         FamilyData.putPosition(tag, "Origin", origin);
         tag.putBoolean("PendingNatural", pendingNatural);
         tag.put("Duties", duties.save());
+        tag.put("Orders", orders.save());
         return tag;
     }
 
@@ -301,5 +309,6 @@ public final class SettlementLife {
         marching = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
+        orders.load(tag.getCompound("Orders"));
     }
 }

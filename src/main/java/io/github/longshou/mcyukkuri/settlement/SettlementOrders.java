@@ -4,12 +4,14 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +23,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * Per-entity, transient. A leader hands out forage / scout / message errands to idle adult members;
- * a member runs at most one order at a time. Nothing here is saved: an unloaded errand simply lapses.
+ * a member runs at most one order at a time. Errands lapse on unload; their real cargo is saved.
  */
 public final class SettlementOrders {
     public enum Kind { NONE, FORAGE, SCOUT, MESSAGE }
@@ -35,11 +37,23 @@ public final class SettlementOrders {
     private BlockPos foodPos;
     private UUID foodItem;
     private ItemStack carried = ItemStack.EMPTY;
+    private final PlantBedding plants;
+    private int contact;
     private final List<UUID> targets = new ArrayList<>();
-    public SettlementOrders(YukkuriEntity entity) { this.entity = entity; }
+    public SettlementOrders(YukkuriEntity entity) { this.entity = entity; plants = new PlantBedding(entity); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public Kind kind() { return kind; }
     public boolean active() { return kind != Kind.NONE; }
+    public ItemStack carrying() { return carried; }
+    public String activity() {
+        return !carried.isEmpty() ? "shelter_carry" : plants.harvesting() ? "nest_harvest"
+                : kind == Kind.FORAGE ? "shelter_gather" : "settlement_return";
+    }
+    /** Also expires orders that never obtained the movement goal; retry failed cargo drops. */
+    public void clock() {
+        if (active() && !runnable()) cancel();
+        if (!active() && !carried.isEmpty()) dropCarried();
+    }
     public boolean summoned() { return entity.level().getGameTime() < summonUntil; }
     // ---- leader side ----
     /** Called about once a second by {@link SettlementLife}; the leader may issue one order per interval. */
@@ -60,10 +74,26 @@ public final class SettlementOrders {
         if (order == Kind.SCOUT) pick = pool.stream().max(Comparator.comparingInt(SettlementOrders::bravery)).orElse(null);
         else if (order == Kind.MESSAGE) pick = pool.stream().filter(e -> "chen".equals(e.getVariant().dialogueSpecies())).findFirst().orElse(null);
         if (pick == null) pick = pool.get(entity.getRandom().nextInt(pool.size()));
-        if (!pick.settlement().orders().receive(order, now)) return;
-        entity.getLookControl().setLookAt(pick, 30, 30);
+        issue(pick, order);
+    }
+    /** The command and natural scheduler use the same real leader/member eligibility gates. */
+    public boolean issue(YukkuriEntity member, Kind order) {
+        var group = entity.settlement().group();
+        if (order == Kind.NONE || group == null || member == entity || member.level() != entity.level()
+                || !entity.getUUID().equals(SettlementData.get(level()).activeLeader(group))
+                || !entity.family().adult() || !WildEvents.available(entity) || entity.life().hasUrgentNeed()
+                || !level().isDay() || Seasons.confined(entity) || Migration.moving(group)
+                || entity.wintering().active() || entity.independence().householdOuting()
+                || entity.settlement().duties().active() || entity.distanceToSqr(member) > ISSUE_RANGE * ISSUE_RANGE
+                || entity.distanceToSqr(Vec3.atBottomCenterOf(group.center)) > CENTER_RANGE * CENTER_RANGE
+                || !eligible(member, group)) return false;
+        if (order == Kind.FORAGE && (member.habitat().homeStand() == null
+                || !EventHooks.canEntityGrief(level(), member))) return false;
+        if (!member.settlement().orders().receive(order, level().getGameTime())) return false;
+        entity.getLookControl().setLookAt(member, 30, 30);
         entity.showReaction("neutral", "busy", 60);
-        pick.showReaction("surprise", "heard", 40);
+        member.showReaction("surprise", "heard", 40);
+        return true;
     }
     private static int bravery(YukkuriEntity e) { return e.life().personality().trait(Trait.CURIOSITY) + e.life().personality().trait(Trait.BOLDNESS); }
     private int interval() {
@@ -77,11 +107,12 @@ public final class SettlementOrders {
                 && !e.settlement().duties().active() && !e.wintering().active() && !e.independence().householdOuting()
                 && !e.life().hasUrgentNeed() && !Seasons.confined(e) && WildEvents.recognizes(entity, e) && entity.hasLineOfSight(e);
     }
-    private boolean free(long now) { return kind == Kind.NONE && now >= cooldownUntil; }
+    private boolean free(long now) { return kind == Kind.NONE && carried.isEmpty() && entity.habitat().carrying().isEmpty()
+            && entity.settlement().duties().carrying().isEmpty() && now >= cooldownUntil; }
     private boolean receive(Kind order, long now) {
         if (!free(now)) return false;
         kind = order; stage = 0; timer = 0; failures = 0; dest = null; threatAt = null; foodPos = null; foodItem = null;
-        targets.clear(); deadline = now + YukkuriConfig.ORDER_TIMEOUT.get();
+        targets.clear(); plants.stop(); contact = 0; deadline = now + YukkuriConfig.ORDER_TIMEOUT.get();
         return true;
     }
     /** A messenger asked this member to gather around the leader for a while. */
@@ -89,7 +120,8 @@ public final class SettlementOrders {
 
     // ---- member side (OrderGoal) ----
     private boolean runnable() {
-        return kind != Kind.NONE && level().getGameTime() < deadline && entity.isAlive() && !entity.isPanicking() && !entity.isCommandPlaying()
+        return kind != Kind.NONE && level().getGameTime() < deadline && WildEvents.safe(entity)
+                && entity.family().adult() && entity.settlement().role() == SettlementData.Role.MEMBER
                 && !entity.life().hasUrgentNeed() && !entity.life().isSleeping() && !WildEvents.reserved(entity) && !HomeClaim.holds(entity)
                 && !Seasons.confined(entity) && !entity.settlement().duties().active() && !entity.wintering().active()
                 && !entity.independence().householdOuting() && entity.settlement().group() != null
@@ -101,8 +133,9 @@ public final class SettlementOrders {
         return true;
     }
     public boolean canContinue() { return kind != Kind.NONE && runnable(); }
-    public void stop() { if (kind != Kind.NONE) cancel(); entity.getNavigation().stop(); }
+    public void stop() { if (kind != Kind.NONE) cancel(); else dropCarried(); entity.getNavigation().stop(); }
     public void tick() {
+        if (!runnable()) { cancel(); return; }
         timer++;
         switch (kind) {
             case FORAGE -> forage();
@@ -112,9 +145,24 @@ public final class SettlementOrders {
         }
     }
     private void cancel() { dropCarried(); finish(); }
-    private void finish() { kind = Kind.NONE; stage = 0; cooldownUntil = level().getGameTime() + COOLDOWN; entity.getNavigation().stop(); }
-    private void dropCarried() {
-        if (!carried.isEmpty()) { var drop = entity.spawnAtLocation(carried.copy()); if (drop != null) drop.setPickUpDelay(60); carried = ItemStack.EMPTY; }
+    private void finish() { plants.stop(); kind = Kind.NONE; stage = contact = 0; cooldownUntil = level().getGameTime() + COOLDOWN; entity.getNavigation().stop(); }
+    public void dropCarried() {
+        if (carried.isEmpty() || entity.level().isClientSide) return;
+        var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carried.copy());
+        drop.setPickUpDelay(60);
+        if (level().addFreshEntity(drop)) carried = ItemStack.EMPTY;
+    }
+    public CompoundTag save() {
+        var tag = new CompoundTag();
+        if (!carried.isEmpty()) tag.put("Carrying", carried.save(entity.registryAccess()));
+        tag.putLong("CooldownUntil", cooldownUntil);
+        return tag;
+    }
+    public void load(CompoundTag tag) {
+        carried = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
+        cooldownUntil = tag.getLong("CooldownUntil");
+        kind = Kind.NONE; stage = timer = failures = contact = 0; dest = threatAt = foodPos = null;
+        foodItem = null; targets.clear(); plants.stop(); deadline = nextIssue = summonUntil = 0;
     }
     /** Walk toward a spot with the shared bounded-segment navigation; false after repeated failures. */
     private boolean walk(BlockPos goal) {
@@ -127,48 +175,72 @@ public final class SettlementOrders {
     // FORAGE: one real plant or dropped food becomes one portion, carried home to the shelter.
     private void forage() {
         var group = entity.settlement().group();
-        if (group == null) { cancel(); return; }
+        var shelter = entity.habitat().shelter();
+        if (group == null || shelter == null || !shelter.usable(entity)) { cancel(); return; }
         if (stage == 0) {
             if (!EventHooks.canEntityGrief(level(), entity)) { cancel(); return; }
-            double best = Double.MAX_VALUE; foodPos = null; foodItem = null;
             var around = new AABB(group.center).inflate(CENTER_RANGE);
-            for (ItemEntity item : level().getEntitiesOfClass(ItemEntity.class, around, i -> i.isAlive() && i.getItem().is(YukkuriEntity.FOOD))) {
-                double d = entity.distanceToSqr(item);
-                if (d < best) { best = d; foodItem = item.getUUID(); foodPos = item.blockPosition(); }
+            var item = level().getEntitiesOfClass(ItemEntity.class, around, i -> collectible(i, shelter)
+                    && i.blockPosition().distSqr(group.center) <= CENTER_RANGE * CENTER_RANGE)
+                    .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
+                    .filter(i -> entity.life().dryStand(i.blockPosition()) && entity.life().reachable(i.blockPosition(), false))
+                    .findFirst().orElse(null);
+            if (item != null) {
+                foodItem = item.getUUID(); foodPos = item.blockPosition(); stage = 1; return;
             }
-            if (foodPos == null) {
-                for (BlockPos pos : BlockPos.betweenClosed(group.center.offset(-CENTER_RANGE, -3, -CENTER_RANGE), group.center.offset(CENTER_RANGE, 3, CENTER_RANGE))) {
-                    if (!level().hasChunkAt(pos) || !level().getBlockState(pos).is(Blocks.SHORT_GRASS)) continue;
-                    double d = entity.distanceToSqr(Vec3.atCenterOf(pos));
-                    if (d < best && entity.life().dryStand(pos)) { best = d; foodPos = pos.immutable(); }
-                }
+            // Use the same physical approach and sustained mouth contact as household gathering.
+            if (shelter.foodSpace(new ItemStack(Items.SHORT_GRASS)) > 0
+                    && plants.find(group.center, CENTER_RANGE, pos -> level().getBlockState(pos).is(Blocks.SHORT_GRASS))) {
+                stage = 1; foodItem = null; return;
             }
-            if (foodPos == null) { cancel(); return; }
-            stage = 1; return;
+            cancel(); return;
         }
         if (stage == 1) {
-            if (!walk(foodPos)) { cancel(); return; }
-            if (!near(foodPos, 1.6)) return;
-            if (foodItem != null) {
+            if (!EventHooks.canEntityGrief(level(), entity)) { cancel(); return; }
+            if (foodItem == null) {
+                carried = plants.tick();
+                if (carried.isEmpty()) { if (!plants.active()) cancel(); return; }
+            } else {
                 var found = level().getEntity(foodItem);
-                if (found instanceof ItemEntity item && item.isAlive() && item.getItem().is(YukkuriEntity.FOOD)) {
-                    ItemStack stack = item.getItem(); carried = stack.copyWithCount(1); stack.shrink(1);
-                    if (stack.isEmpty()) item.discard(); else item.setItem(stack.copy());
-                } else { cancel(); return; }
-            } else if (level().getBlockState(foodPos).is(Blocks.SHORT_GRASS) && EventHooks.canEntityGrief(level(), entity)
-                    && level().setBlock(foodPos, Blocks.AIR.defaultBlockState(), 3)) carried = new ItemStack(Items.SHORT_GRASS);
-            else { cancel(); return; }
-            stage = 2; timer = 0; return;
+                if (!(found instanceof ItemEntity item) || !collectible(item, shelter)
+                        || item.blockPosition().distSqr(group.center) > CENTER_RANGE * CENTER_RANGE) { cancel(); return; }
+                // Track the real item each tick; never collect remotely from its previous position.
+                foodPos = item.blockPosition();
+                if (!entity.life().dryStand(foodPos)) { cancel(); return; }
+                if (entity.distanceToSqr(item) >= 2.25 && !walk(foodPos)) { cancel(); return; }
+                double reach = entity.getBbWidth() * .5 + item.getBbWidth() * .5 + .12;
+                if (entity.position().subtract(item.position()).horizontalDistanceSqr() > reach * reach
+                        || Math.abs(entity.getY() - item.getY()) > .45 || !entity.hasLineOfSight(item)) {
+                    contact = 0;
+                    if (entity.distanceToSqr(item) < 2.25) SurfaceApproach.walk(entity, item.position(), .65);
+                    return;
+                }
+                SurfaceApproach.halt(entity);
+                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), item.position()));
+                if (Math.abs(net.minecraft.util.Mth.wrapDegrees(SurfaceApproach.yaw(entity.position(), item.position())
+                        - entity.getYRot())) > 15) { contact = 0; return; }
+                if (++contact < 12) return;
+                var remaining = item.getItem().copy(); carried = remaining.split(1);
+                if (remaining.isEmpty()) item.discard(); else item.setItem(remaining);
+            }
+            stage = 2; timer = contact = 0; return;
         }
-        var shelter = entity.habitat().shelter();
-        if (shelter == null) { cancel(); return; } // no household store: the portion is dropped where it stands
-        BlockPos home = shelter.bed(entity.getUUID()) != null ? shelter.bed(entity.getUUID()) : shelter.entrance();
-        if (!walk(home)) { cancel(); return; }
-        if (!near(home, 1.5)) return;
-        if (shelter.deposit(carried.copy())) carried = ItemStack.EMPTY;
-        finishCarrying();
+        BlockPos home = shelter.bed(entity.getUUID());
+        if (home == null) { cancel(); return; }
+        if (!near(home, 1.5)) { if (!walk(home)) cancel(); return; }
+        Vec3 bed = Vec3.atBottomCenterOf(home);
+        if (!SurfaceApproach.walk(entity, bed, .65)) return;
+        // An explicit food errand must increase food stock, not silently turn grass into lining.
+        carried = shelter.returnFood(carried);
+        if (carried.isEmpty()) entity.showReaction("happy", "share", 40);
+        else dropCarried();
+        finish();
     }
-    private void finishCarrying() { dropCarried(); entity.showReaction("happy", "share", 40); finish(); }
+    private boolean collectible(ItemEntity item, ShelterBlockEntity shelter) {
+        return item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD)
+                && entity.life().acceptsFood(item.getItem()) && shelter.foodSpace(item.getItem()) > 0
+                && entity.hasLineOfSight(item);
+    }
 
     // SCOUT: look out from 16-24 blocks away, then report back to the leader.
     private void scout() {
@@ -200,8 +272,10 @@ public final class SettlementOrders {
             return;
         }
         BlockPos back = reportSpot(group);
+        if (back == null) { cancel(); return; }
         if (!walk(back)) { cancel(); return; }
         if (!near(back, 4)) return;
+        if (!(level().getEntity(group.leader) instanceof YukkuriEntity chief) || !entity.hasLineOfSight(chief)) return;
         if (threatAt != null) {
             entity.showReaction("surprise", "afraid", 80);
             SettlementData.get(level()).reportThreat(group, threatAt, level().getGameTime());
@@ -210,12 +284,15 @@ public final class SettlementOrders {
         finish();
     }
     private BlockPos reportSpot(SettlementData.Group group) {
-        if (group.leader != null && level().getEntity(group.leader) instanceof YukkuriEntity leader && leader.isAlive() && leader != entity) return leader.blockPosition();
-        return group.center;
+        UUID leaderId = SettlementData.get(level()).activeLeader(group);
+        if (leaderId != null && level().getEntity(leaderId) instanceof YukkuriEntity leader && leader.isAlive()
+                && SettlementSociety.sameGroup(entity, leader) && WildEvents.recognizes(entity, leader)) return leader.blockPosition();
+        return null;
     }
     private void spotPredator() {
         var seen = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(CENTER_RANGE), p -> p.isAlive() && p.getVariant().isPredator());
-        if (!seen.isEmpty()) threatAt = seen.get(0).blockPosition();
+        seen.stream().filter(entity::hasLineOfSight).min(Comparator.comparingDouble(entity::distanceToSqr))
+                .ifPresent(predator -> threatAt = predator.blockPosition());
     }
 
     // MESSAGE: speak to up to three other members, who then gather around the leader for a while.
@@ -233,7 +310,9 @@ public final class SettlementOrders {
         }
         int index = stage - 1;
         if (index >= targets.size()) { finish(); return; }
-        if (!(level().getEntity(targets.get(index)) instanceof YukkuriEntity other) || !other.isAlive()) { stage++; timer = 0; return; }
+        if (!(level().getEntity(targets.get(index)) instanceof YukkuriEntity other) || !other.isAlive()
+                || !SettlementSociety.sameGroup(entity, other) || !SettlementSociety.accepted(other)
+                || !WildEvents.recognizes(entity, other)) { stage++; timer = 0; return; }
         if (!walk(other.blockPosition())) { stage++; timer = 0; failures = 0; return; }
         if (entity.distanceToSqr(other) > 2.5 * 2.5 || !entity.hasLineOfSight(other)) return;
         entity.getLookControl().setLookAt(other, 30, 30); other.getLookControl().setLookAt(entity, 30, 30);

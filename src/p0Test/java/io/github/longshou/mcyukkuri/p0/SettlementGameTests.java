@@ -223,6 +223,7 @@ public final class SettlementGameTests {
         level.setBlockAndUpdate(ORIGIN,Blocks.AIR.defaultBlockState());
 
         SettlementSocietyChecks.run(level, ORIGIN, this::check);
+        SettlementMembershipChecks.run(level, ORIGIN, this::check);
 
         var grazer = ModEntities.REIMU.get().create(level); grazer.moveTo(Vec3.atBottomCenterOf(ORIGIN)); grazer.setOnGround(true); grazer.setNoAi(true); level.addFreshEntity(grazer);
         CompoundTag life = grazer.life().save(); life.putFloat("Nutrition", 50); grazer.life().load(life);

@@ -2709,5 +2709,8 @@
   "shop.mcyukkuri.about.note.alice": "ありすは繁殖期に暴走しがち。ペアは目を離さず、社交と採食も欠かさずに。",
   "shop.mcyukkuri.about.note.patchouli": "ぱちゅりーは読書好きで記憶力もよく、教え役。体がとても弱いので丁寧に。",
   "shop.mcyukkuri.about.note.predator": "捕食種は飛べますが、仲間を必ず食べるわけではありません。檻と訓練を先に用意し、他の子とは離して。",
-  "shop.mcyukkuri.about.transport": "持ち帰りは運搬かごで。水辺や直射日光は避け、一日以内に餌をあげてください。"
+  "shop.mcyukkuri.about.transport": "持ち帰りは運搬かごで。水辺や直射日光は避け、一日以内に餌をあげてください。",
+  "commands.mcyukkuri.settlement.order.issued": "実際の仕事を依頼しました。完了には到達可能な資源と現場条件が必要です。",
+  "commands.mcyukkuri.settlement.order.failed": "依頼できません。昼間、群れの中心付近、相互に認識できる族長と12ブロック以内の暇な成体が必要です。採集には住居と生物による破壊の許可、待機時間の終了も必要です。",
+  "commands.mcyukkuri.settlement.order.cancelled": "依頼を取り消し、運搬物を現在地に置きました。待機時間は残ります。"
 }

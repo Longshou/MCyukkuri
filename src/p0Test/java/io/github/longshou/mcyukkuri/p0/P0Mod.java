@@ -44,12 +44,12 @@ public final class P0Mod {
             if("wounds".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->event.register(WoundGameTests.class));return;}
             if("remains".equals(System.getProperty("mcyukkuri.p0.suite"))){modBus.addListener((RegisterGameTestsEvent event)->{event.register(RemainsGameTests.class);event.register(WoundGameTests.class);event.register(CoreGameTests.class);});return;}
             if ("settlements".equals(System.getProperty("mcyukkuri.p0.suite"))) {
-                modBus.addListener((RegisterGameTestsEvent event) -> {event.register(SettlementGameTests.class);event.register(ShelterGameTests.class);});
+                modBus.addListener((RegisterGameTestsEvent event) -> {event.register(SettlementGameTests.class);event.register(ShelterGameTests.class);event.register(SettlementOrderGameTests.class);});
                 return;
             }
             modBus.addListener((RegisterGameTestsEvent event) -> {event.register(HumanGameTests.class);event.register(HumanExpansionGameTests.class);});
             modBus.addListener((RegisterGameTestsEvent event) -> { event.register(P0GameTests.class); event.register(LivingGameTests.class); event.register(FamilyGameTests.class);event.register(CoreGameTests.class); event.register(DialogueGameTests.class); event.register(FillingGameTests.class);event.register(GrowthGameTests.class);event.register(PersonalityDevelopmentGameTests.class); });
-            modBus.addListener((RegisterGameTestsEvent event) -> {event.register(SettlementGameTests.class);event.register(ShelterGameTests.class);});
+            modBus.addListener((RegisterGameTestsEvent event) -> {event.register(SettlementGameTests.class);event.register(ShelterGameTests.class);event.register(SettlementOrderGameTests.class);});
             modBus.addListener((RegisterGameTestsEvent event)->event.register(OperationGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(InstrumentGameTests.class));
             modBus.addListener((RegisterGameTestsEvent event)->event.register(GroupGameTests.class));

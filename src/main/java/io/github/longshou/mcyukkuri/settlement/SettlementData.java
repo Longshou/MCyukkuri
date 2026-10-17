@@ -91,8 +91,12 @@ public final class SettlementData extends SavedData {
 
     /** A successful household move changes membership without deleting the family ledger. */
     public void leave(Group group, UUID id) {
+        leave(group, id, 1);
+    }
+
+    public void leave(Group group, UUID id, long now) {
         if (group == null || id == null) return;
-        if (id.equals(group.leader)) vacate(group, 1);
+        if (id.equals(group.leader)) vacate(group, now);
         group.members.remove(id);
         if (id.equals(group.successor) || id.equals(group.successionWitness)) resetSuccession(group);
         setDirty();
