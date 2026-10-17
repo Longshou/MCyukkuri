@@ -2,7 +2,7 @@
 
 `/yukkuri birth_scene deliver <mother> <father> <natural|caught|missed|overstrain>` 是管理权限 2 的展示调试入口。它提前真实胎次的临产时间，不搬运双亲或幼体、不创建备用幼体、不临时制造接生帽。
 
-- 双亲是同维度、八格内的活着成年油库里，带 `pm_actor` 标签（展馆演员）。
+- 双亲是同维度、八格内的活着成年油库里，带 `pm_actor` 标签（固定演员）。试玩场不用这个命令：它的接生场景走 `/yukkuri scenario birth`，双亲是普通 AI 的个体，不带 `pm_actor`。
 
 - 先用 `/yukkuri action ... idle` 结束占用身体的动作命令。双亲可以起初为 `NoAI`；入口成功后会启用正常 AI 与重力。
 - 陆地或岸边的母油应在真实可用窝位两格内；水上母油已经乘坐自己实际拥有且浮起的帽船。入口不会用坐标替代认窝、登船或下水。
@@ -25,12 +25,12 @@
 
 接生职责由服务器每 tick 主动领取（`FamilyLife.claimMidwife／tickMidwife`），不再依赖目标选择器能否轮到家庭目标；走位使用带宽限的到位判定（约 5 秒仍不到精确点时放宽到 0.8 格）以避免原先父油停在差一点的位置永远不动手。
 
-展馆的参观者会在聊天栏看到灰色“[接生]”进度行，只有带 `pm_actor` 标签的展馆演员才会发出，内容为服务器实际到达的状态；命令被拒时原因也发给附近玩家，而不只是命令来源。
+参观者会在聊天栏看到灰色“[接生]”进度行，目前只有带 `pm_actor` 标签的演员才会发出（试玩场的个体不带该标签，因此看不到；需要时可改为也接受 `scn` 标签），内容为服务器实际到达的状态；命令被拒时原因也发给附近玩家，而不只是命令来源。
 
 命令只调用 `FamilyLife.prepareBirthScene(brood, outcome)` 提前到 `duration - 2`；服务器按正常流程生成唯一真实幼体，并完成接生、产后恢复与辫子拾幼。重复播放应由展区自己的真实家庭追踪／重置流程管理；不要先预放赤油，或以逐帧命令更改坐标。
 
-## H 展馆接入
+## H 试玩场接入
 
-展馆的两处真实家庭庭院由 `museum_birth.py` 配置，用 `yukkuri museum live/home/aquatic birth` 准备真实窝位或帽船，再调用 `birth_scene deliver`。新生儿的身份来自家庭账本，清理需沿双亲亲缘追踪。
+试玩场的四个接生场景（陆地／帽船 × 接住／漏接）由 `scripts/museum_scenarios.py` 生成一对普通 AI 的双亲，再用 `/yukkuri scenario home` 认窝或 `/yukkuri scenario boat birth` 放上帽船，最后 `/yukkuri scenario birth <母> <父> <caught|missed|natural>`：它经正常的 `FamilyData.conceive` 受孕，`caught` 把临产提前到 `duration - 150`（有帽父油）或 `duration - 2`，`missed` 调用 `prepareBirthScene(brood, "missed")`。新生儿的身份来自家庭账本；“清空本场地”会先取消被清走母油的胎次，再移除实体。
 
 本机未编译、未运行游戏。命令解析、分娩连续效果、接生碰撞、死亡分支与读档续接仍需远端构建及可运行环境确认。

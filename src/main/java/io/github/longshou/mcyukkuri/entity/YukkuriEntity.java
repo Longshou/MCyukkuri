@@ -506,7 +506,6 @@ public final class YukkuriEntity extends PathfinderMob {
 
     @Override
     protected void registerGoals() {
-        goalSelector.addGoal(-1, new io.github.longshou.mcyukkuri.command.MuseumWalkGoal(this));
         goalSelector.addGoal(0, new EscapeWaterGoal());
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());

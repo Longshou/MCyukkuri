@@ -1,4 +1,5 @@
-# Starts the Yukkuri museum, the single in-game test map. Never compiles the mod.
+# Starts the Yukkuri playground (试玩场), the single in-game test world. Never compiles the mod.
+# (The file and the .cmd keep their old "museum" names so the habit and the runtime config stay valid.)
 #
 #   launcher.cmd            generate the world when it is missing or out of date, then start the game
 #   launcher.cmd -Fresh     always generate a brand-new world first (discards the old museum world)
@@ -8,13 +9,14 @@
 # The world is built from scripts/build_museum_full.py into .local/experimental-map/museum (replaced as a whole, never
 # repaired in place). The mod itself comes from the prepared CI runtime named in .local/experimental-map/museum-runtime.json
 # ("runtime", "java"; optional "python" for the interpreter that has nbtlib). Update that runtime from a CI build that contains
-# the museum commands whenever command/Museum*.java changes.
+# the playground commands whenever command/Scenario*.java or command/PlaygroundTools.java changes (an older runtime makes the world say
+# "运行模组过旧" on entry instead of silently missing parts).
 param([switch]$Menu, [switch]$Fresh, [switch]$Resume)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 $manifestFile = Join-Path $taskRoot 'museum-runtime.json'
-if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Museum runtime is missing (.local/experimental-map/museum-runtime.json). See docs/EXPERIMENTAL_MAP.md.' }
+if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See docs/EXPERIMENTAL_MAP.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
 $javaExe = Join-Path $projectRoot $runtimeConfig.java
@@ -27,7 +29,7 @@ if (Test-Path -LiteralPath $processFile) {
     $previous = Get-Content -LiteralPath $processFile -Raw | ConvertFrom-Json
     $existing = Get-Process -Id $previous.pid -ErrorAction SilentlyContinue
     if ($existing -and [string]$existing.StartTime.ToUniversalTime().Ticks -eq [string]$previous.startedTicks) {
-        Write-Host "Museum is already running (PID $($existing.Id))."
+        Write-Host "The playground is already running (PID $($existing.Id))."
         exit 0
     }
 }
@@ -56,15 +58,15 @@ if (-not (Test-Path -LiteralPath $worldFile)) { $build = $true }
 elseif (-not $Fresh -and -not $Resume) {
     $python = Find-Python
     & $python $generator --stale | Out-Null
-    if ($LASTEXITCODE -ne 0) { $build = $true; Write-Host 'The museum generator changed: building a fresh world.' }
+    if ($LASTEXITCODE -ne 0) { $build = $true; Write-Host 'The playground generator changed: building a fresh world.' }
 }
 if ($build) {
     if (-not $python) { $python = Find-Python }
-    Write-Host 'Generating the museum world (data pack and level metadata only; no compilation)...'
+    Write-Host 'Generating the playground world (data pack and level metadata only; no compilation)...'
     & $python $generator --install
     if ($LASTEXITCODE -ne 0) { throw 'World generation failed.' }
 }
-if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Museum save is missing.' }
+if (-not (Test-Path -LiteralPath $worldFile)) { throw 'Playground save is missing.' }
 
 $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunClasspath.txt') + '"'),
@@ -79,4 +81,4 @@ if (-not $Menu) { $arguments += @('--quickPlaySingleplayer',$world) }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $client = Start-Process -FilePath $javaExe -ArgumentList $arguments -WorkingDirectory $gameRoot -WindowStyle Normal -PassThru -RedirectStandardOutput (Join-Path $logRoot "$stamp.log") -RedirectStandardError (Join-Path $logRoot "$stamp.err.log")
 @{pid=$client.Id;startedTicks=[string]$client.StartTime.ToUniversalTime().Ticks;stdout=(Join-Path $logRoot "$stamp.log");stderr=(Join-Path $logRoot "$stamp.err.log");world=$world} | ConvertTo-Json | Set-Content -LiteralPath $processFile -Encoding utf8
-Write-Host "Starting the Yukkuri museum (PID $($client.Id)). First entry builds the halls (about 30 s); you are teleported to the lobby when done."
+Write-Host "Starting the Yukkuri playground (PID $($client.Id)). First entry builds the fields (about a minute); you are teleported to the lobby when done."
