@@ -198,8 +198,8 @@ public final class HabitatLife {
         return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.getVariant().isHouse()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
-                &&!Migration.underway(entity)&&!entity.wintering().active()&&!entity.settlement().orders().active()
-                &&(!entity.settlement().orders().summoned()||entity.life().hasUrgentNeed())&&!entity.settlement().duties().active();
+                &&!Migration.underway(entity)&&!entity.wintering().active()
+                &&!entity.settlement().duties().active();
     }
     /** Loose materials worth fetching from the ground: only what the shelter itself needs, never food (food is gathered from plants into the pile). */
     private boolean wantsMaterial(ShelterBlockEntity value,ItemStack stack) { return value.needsMaterial(stack); }

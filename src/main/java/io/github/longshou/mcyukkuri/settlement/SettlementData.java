@@ -282,7 +282,7 @@ public final class SettlementData extends SavedData {
         }
     }
 
-    /** A scout saw danger near the community; migration consumes the accumulated evidence. */
+    /** Danger seen near the community; migration consumes the accumulated evidence. */
     public void reportThreat(Group group, BlockPos pos, long gameTime) { reportThreat(group, pos, gameTime, 1); }
     public void reportThreat(Group group, BlockPos pos, long gameTime, int weight) {
         if (group == null || pos == null || weight <= 0) return;
