@@ -44,7 +44,8 @@ public final class PuffRenderProbe {
   }
   json.append("],\\"envelope\\":[");
   float[] e=((java.util.Map<String,float[]>)envelopes.get(model)).get("puff");
-  for(int k=0;k<=640;k++){if(k>0)json.append(',');json.append(YukkuriModel.puffEnvelope(e,k*.01f));}
+  // v10 puffs are root-transform clips without an envelope; the cheek morph path is then idle.
+  if(e!=null)for(int k=0;k<=640;k++){if(k>0)json.append(',');json.append(YukkuriModel.puffEnvelope(e,k*.01f));}
   Files.writeString(Path.of(args[2]),json.append("]}").toString());
  }
 }`;
@@ -52,7 +53,7 @@ const source=path.join(out,'io/github/longshou/mcyukkuri/client/PuffRenderProbe.
 const tool=name=>process.env.JAVA_HOME?path.join(process.env.JAVA_HOME,'bin',name+'.exe'):name;
 cp.execFileSync(tool('javac'),['-nowarn','-cp',classpath,'-d',path.join(out,'classes'),source],{stdio:['ignore','ignore','inherit']});
 const models=JSON.parse(fs.readFileSync(runtime)).models,ids=(process.env.PUFF_IDS||Object.keys(models).join(',')).split(',');
-const frames=[['puff',.2],['puff',.7],['puff',1.4],['puff',3.2],['puff',5.6],['taiso',11.2],['idle',0],['waddle',.3],['press',1.2],['hop',.4]];
+const frames=[['puff',.2],['puff',.7],['puff',1.4],['puff',2.0],['puff',2.6],['taiso',11.2],['idle',0],['waddle',.3],['press',1.2],['hop',.4]];
 const report={createdAt:new Date().toISOString(),scope:'Production YukkuriModel.applyFit, applyRevision, constructor and render() driven offline with a recording VertexConsumer; compared triangle by triangle with preview/review/pose.js. No Minecraft client, lighting or GPU.',models:[]};
 let worst=0,triangles=0,envelopeError=0;
 for(const id of ids){
@@ -74,7 +75,7 @@ for(const id of ids){
    const error=Math.abs(frame.points[q*12+j*3+a]*16-expected[q][j][a]);modelWorst=Math.max(modelWorst,error);}
   count+=quads;
  });
- const clip=pose.clips.puff;result.envelope.forEach((v,k)=>{envelopeError=Math.max(envelopeError,Math.abs(v-puffAmount(clip,k*.01)));});
+ const clip=pose.clips.puff;result.envelope.forEach((v,k)=>{envelopeError=Math.max(envelopeError,Math.abs(v-puffAmount(clip,k*.01)));}); // empty without an envelope
  if(modelWorst>2e-3)throw Error(`${id}: Java/preview vertex mismatch ${modelWorst}`);
  worst=Math.max(worst,modelWorst);triangles+=count;report.models.push({id,frames:frames.length,triangles:count,maximumError:modelWorst});console.log(id,count,'triangles, max error',modelWorst.toExponential(2));
 }

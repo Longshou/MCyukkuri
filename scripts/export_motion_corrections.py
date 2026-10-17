@@ -1,9 +1,9 @@
-"""Compile selected motion overrides, the v7 cheek puff and the world-setting clips (with Marisa's braid-and-hat clips); base models stay untouched.
+"""Compile selected motion overrides, the v10 whole-body puff and the world-setting clips (with Marisa's braid-and-hat clips); base models stay untouched.
 
 Reads the contact-safe recipe and all selected runtime models with the placement
 fit spliced in (scripts/placement_fit.py), the meshes the game shows. Writes the motion
-resource, derived cheek-puff face atlases and the source manifest. --check is
-read-only. Never launches a game or UI.
+resource, derived angry pouting cheek-puff face atlases and the source manifest.
+--check is read-only. Never launches a game or UI.
 """
 from pathlib import Path
 import argparse, hashlib, io, json, math, runpy
@@ -97,21 +97,35 @@ def mouth_patch(model, transform):
 
 
 def cheek_texture(model, tex, reference_mouth, cfg, patch):
-    """Open neutral eyes and brows, the standard pursed puff mouth, a warmer blush."""
-    neutral = Image.open(tex/'neutral.png').convert('RGBA'); size = neutral.width; out = neutral.copy()
+    """Angry eyes and furrowed brows, the standard pursed puff mouth, a flushed blush with a shine.
+
+    The angry texture carries the brows and eye shape; the mouth box takes the small
+    pursed ハ of the standard puff face. The blush is tinted warm and gets a pale
+    highlight pair on its upper outer edge, the puffed cheek's shine."""
+    base = Image.open(tex/'angry.png').convert('RGBA'); size = base.width; out = base.copy()
     box = uv_box(patch['vertices'], size)
     own = tex/'puff.png'
-    mouth = Image.open(own).convert('RGBA').crop(box) if own.exists() else \
-        reference_mouth.resize((box[2]-box[0], box[3]-box[1]), Image.NEAREST)
+    mouth = Image.open(own).convert('RGBA').crop(box) if own.exists() else         reference_mouth.resize((box[2]-box[0], box[3]-box[1]), Image.NEAREST)
     out.paste(mouth, box[:2])
-    tint, weight = cfg['blush_tint'], cfg['blush_tint_weight']
-    for name in ('face_blush_left', 'face_blush_right'):
-        b = uv_box(part_vertices(model, name), size); region = neutral.crop(b); px = region.load()
+    tint, weight, shine = cfg['blush_tint'], cfg['blush_tint_weight'], cfg['blush_shine']
+    for name, side in (('face_blush_left', -1), ('face_blush_right', 1)):
+        b = uv_box(part_vertices(model, name), size); region = base.crop(b); px = region.load()
+        opaque = []
         for y in range(region.height):
             for x in range(region.width):
                 r, g, bb, a = px[x, y]
                 if a >= 128:
                     px[x, y] = tuple(round(c*(1-weight)+t*weight) for c, t in zip((r, g, bb), tint))+(a,)
+                    opaque.append((x, y))
+        if opaque and region.width >= 4:
+            top = min(y for _, y in opaque); row = sorted(x for x, y in opaque if y <= top+1)
+            # Highlight pair on the upper half of the blush, toward the outer cheek.
+            lo, hi = min(x for x, _ in opaque), max(x for x, _ in opaque)
+            hx = round(lo+(hi-lo)*(.62 if side > 0 else .38)); hy = min(top+1, region.height-1)
+            for dx in (0, 1 if side > 0 else -1):
+                x = min(max(hx+dx, lo), hi)
+                if (x, hy) in set(opaque):
+                    px[x, hy] = tuple(shine)+(px[x, hy][3],)
         out.paste(region, b[:2])
     data = io.BytesIO(); out.save(data, format='PNG'); return data.getvalue(), out
 
@@ -153,18 +167,14 @@ def main():
         models[ident] = compile_revision(model, cfg, face)
         textures[ident] = png
         inputs[ident] = {'model': rel(path), 'sha256': sha(path), 'placement_fit': ident in fits,
-                         'expression_sources': {'eyes_brows_blush': rel(tex/'neutral.png'),
+                         'expression_sources': {'eyes_brows_blush': rel(tex/'angry.png'),
                                                 'mouth': rel(tex/'puff.png') if (tex/'puff.png').exists() else rel(ASSETS/'textures/entity'/cfg['derived_mouth_from']/'puff.png')},
-                         'expression_source_sha256': {'neutral': sha(tex/'neutral.png'), **({'puff': sha(tex/'puff.png')} if (tex/'puff.png').exists() else {})},
+                         'expression_source_sha256': {'angry': sha(tex/'angry.png'), **({'puff': sha(tex/'puff.png')} if (tex/'puff.png').exists() else {})},
                          'mouth_geometry': mouth_source,
-                         'texture': rel(tex/'cheek_puff.png'), 'texture_sha256': hashlib.sha256(png).hexdigest(),
-                         'lock_degrees': models[ident]['cheek']['locks']}
-        print(ident, 'skin vertices', len(models[ident]['puff_surface']['vertices'])//8,
-              'triangles', len(models[ident]['puff_surface']['indices'])//3, 'size', models[ident]['cheek']['size'],
-              'pressed', models[ident]['cheek']['pressed_vertices'], 'depth', models[ident]['cheek']['press_depth'],
-              'locks', {k: v['degrees'] for k, v in models[ident]['cheek']['locks'].items()})
+                         'texture': rel(tex/'cheek_puff.png'), 'texture_sha256': hashlib.sha256(png).hexdigest()}
+        print(ident, 'puff', models[ident]['clips']['puff']['expression_spans'], flush=True)
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
-    payload = json.dumps({'format': 2, 'revision': 'aquatic-brim-bite-20261017-v23', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
+    payload = json.dumps({'format': 2, 'revision': 'puff-body-20261017-v26', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:
         trial = Path(args.trial); (trial/'textures').mkdir(parents=True, exist_ok=True)
         (trial/'motion_corrections.json').write_text(payload, encoding='utf-8', newline='\n')
@@ -173,8 +183,8 @@ def main():
         return
     if only:
         return
-    manifest = {'status': 'pending_user_review', 'geometry_modified': False, 'runtime_morph_geometry_modified': True,
-                'geometry_note': 'Base selected models and their fingerprints are unchanged; the refined puff skin, blush carriers, side-lock swing and mouth patch live in the motion resource.',
+    manifest = {'status': 'pending_user_review', 'geometry_modified': False, 'runtime_morph_geometry_modified': False,
+                'geometry_note': 'Base selected models and their fingerprints are unchanged; the whole-body puff is a root transform clip, the derived cheek_puff face adds only a mouth patch to the motion resource.',
                 'recipe': rel(SOURCE/'recipe.json'), 'recipe_sha256': sha(SOURCE/'recipe.json'),
                 'author': rel(SOURCE/'author.py'), 'author_sha256': sha(SOURCE/'author.py'),
                 'lore_recipe': rel(LORE/'recipe.json'), 'lore_recipe_sha256': sha(LORE/'recipe.json'),
