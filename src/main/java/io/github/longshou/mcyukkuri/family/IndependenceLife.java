@@ -140,7 +140,7 @@ public final class IndependenceLife extends Goal {
     }
     @Override public boolean canUse() {
         if (independent || loadGrace > 0 || wait > 0 || !ready() || !member()) return false;
-        wait = CHECK_INTERVAL;
+        wait = armed ? 100 : CHECK_INTERVAL;
         if (!eligible()) return false;
         // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
         if (level().isNight()) { wait = 200; return false; }
@@ -241,7 +241,7 @@ public final class IndependenceLife extends Goal {
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); io.github.longshou.mcyukkuri.family.FamilyData.putPosition(tag, "Origin", origin);
-        tag.putString("Why", why()); tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+        tag.putString("Why", why()); tag.putBoolean("Force", armed); tag.putBoolean("Independent", independent); tag.putBoolean("Household", household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
         return tag;
     }
     public void load(CompoundTag tag) {
