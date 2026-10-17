@@ -19,11 +19,20 @@ public final class PetCare {
     public static final long DAY = 24000L;
     /** Habit praise: ticks the owner has to react, praise gains per game day, owner distance, manners gain, and idle days before one manners point is lost. */
     public static final int HABIT_WINDOW = 80, HABITS_PER_DAY = 6, HABIT_RANGE = 12, HABIT_GAIN = 2, DECAY_DAYS = 5;
+    /** Ticks before the owner can ask the same pet again. */
+    public static final int ASK_COOLDOWN = 100;
     private final YukkuriEntity animal;
+    private final PetRequests requests;
     private int day = Integer.MIN_VALUE, snacks, habits, idleDays, habitLeft;
+    private long askUntil;
+    private boolean harness, swaddle;
     private UUID habitCard;
 
-    public PetCare(YukkuriEntity animal) { this.animal = animal; }
+    public PetCare(YukkuriEntity animal) { this.animal = animal; requests = new PetRequests(animal); }
+    public PetRequests requests() { return requests; }
+    /** Worn gear (items and rendering are added with the harness and swaddle). */
+    public boolean harnessed() { return harness; }
+    public boolean swaddled() { return swaddle; }
 
     private int today() { return (int)(animal.level().getGameTime() / DAY); }
     /** Rolls the daily counters over; returns whether a new day started since the last call. */
@@ -32,6 +41,7 @@ public final class PetCare {
         if (day == now) return false;
         boolean first = day == Integer.MIN_VALUE;
         day = now; snacks = 0; habits = 0;
+        requests.newDay(!first);
         if (first) return false;
         if (animal.pet().isPet() && ++idleDays >= DECAY_DAYS) { // manners fade slowly without practice: one point per five idle game days
             idleDays = 0;
@@ -65,6 +75,10 @@ public final class PetCare {
      */
     public void feedback(Player player, CareAction action) {
         if (animal.level().isClientSide || !animal.pet().owned(player)) return;
+        // Gentle words or a rub answer a pet that asked for affection; singing and exercise are answered when they finish (boredom drops).
+        if (requests.pending() == PetRequests.Kind.NUZZLE && (action == CareAction.GENTLE || action == CareAction.RUB)) {
+            animal.dailyLife().comfort(15); requests.answer(PetRequests.Kind.NUZZLE);
+        }
         if (habitLeft > 0) {
             if (action == CareAction.GENTLE) {
                 habits++;
@@ -80,16 +94,40 @@ public final class PetCare {
         }
     }
 
+    // "ask how it is" (CareAction.ASK): say the open request again, otherwise tell the mood; what it can explain grows with its lessons
+    public boolean ask(Player player) {
+        var pet = animal.pet(); var life = animal.life(); var daily = animal.dailyLife();
+        if (animal.level().isClientSide || !pet.isPet() || !pet.owned(player) || pet.busy() || life.isSleeping() || animal.isPanicking() || life.mealTicks() > 0) return false;
+        long now = animal.level().getGameTime();
+        if (now < askUntil) return false;
+        askUntil = now + ASK_COOLDOWN;
+        if (requests.repeat()) return true;
+        boolean bad = pet.stress() >= 60 || pet.neglect() >= 30 || life.hasUrgentNeed() || life.temperature().cold() || requests.sulking();
+        boolean good = !bad && pet.stress() <= 30 && pet.neglect() == 0 && daily.affectionNeed() < 50 && daily.boredom() < 50 && life.nutrition() >= 50;
+        String mood = bad ? "bad" : good ? "good" : "ok";
+        animal.playAction(bad ? "droop" : good ? "greet" : "look_around");
+        animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, 90);
+        if (pet.ability(Ability.ACADEMICS) >= 30) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
+        if (!good && pet.ability(Ability.WITS) >= 50) {
+            String why = life.nutrition() < 45 ? "hungry" : life.temperature().cold() ? "cold" : requests.sulking() || requests.ignoredToday() > 0 ? "ignored"
+                    : pet.neglect() >= 30 || daily.affectionNeed() >= 65 ? "lonely" : daily.boredom() >= 65 ? "bored" : life.energy() < 30 ? "tired"
+                    : life.hygiene() < 40 ? "dirty" : pet.stress() >= 60 ? "stressed" : "";
+            if (!why.isEmpty()) player.sendSystemMessage(Component.translatable("pet.mcyukkuri.ask.reason." + why, animal.getDisplayName()));
+        }
+        return true;
+    }
+
     // sweets
     public int snacksToday() { rollDay(); return snacks; }
     /** Counts one sweet eaten today and returns the new count. */
     public int countSnack() { rollDay(); return ++snacks; }
     /** The pet swallowed a sweet from its owner. */
-    public void snackEaten() {}
+    public void snackEaten() { requests.answer(PetRequests.Kind.SNACK); }
 
     public void tick() {
         if (animal.level().isClientSide) return;
         rollDay();
+        requests.tick();
         if (habitLeft > 0) {
             if (!animal.isAlive() || --habitLeft <= 0) closeHabit();
             else if (habitLeft % 4 == 0) Staging.moveCard(level(), habitCard, markPos());
@@ -99,11 +137,13 @@ public final class PetCare {
     public CompoundTag save() {
         var tag = new CompoundTag();
         tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits); tag.putInt("IdleDays", idleDays);
+        tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.put("Requests", requests.save());
         return tag;
     }
     public void load(CompoundTag tag) {
         day = tag.contains("Day") ? tag.getInt("Day") : Integer.MIN_VALUE;
         snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99); idleDays = Math.clamp(tag.getInt("IdleDays"), 0, 99);
-        habitLeft = 0; habitCard = null;
+        habitLeft = 0; habitCard = null; askUntil = 0;
+        harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); requests.load(tag.getCompound("Requests"));
     }
 }

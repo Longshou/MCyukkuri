@@ -128,6 +128,7 @@ public final class OperationLife {
             case HAT_CARRY_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.pickUp(entity,player);
             case HAT_PUT_DOWN_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
+            case ASK -> entity.pet().care().ask(player);
             case RELEASE -> false;
         };
         if(done){
