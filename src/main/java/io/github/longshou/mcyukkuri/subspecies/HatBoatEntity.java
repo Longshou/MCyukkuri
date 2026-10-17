@@ -691,6 +691,20 @@ public final class HatBoatEntity extends Entity {
         addCargoFootprints(obstacles);var body=departureBody(rider);
         var direct=HatSurfaceRoute.find(mode(),from,destination,radiusOf(rider),obstacles,body);
         if(!direct.isEmpty()&&(rider.childhood().canJump()||!hasStep(direct)))return direct;
+        // Keep an exact source axis when the coarse grid misses a narrow exit between passengers.
+        for(var axis:java.util.List.of(new Vec3(destination.x,0,from.z),new Vec3(from.x,0,destination.z))){
+            double support=HatVessel.travelSupport(mode(),axis.x,axis.z,radiusOf(rider));
+            if(!Double.isFinite(support))continue;
+            var corner=new Vec3(axis.x,support,axis.z);
+            var route=new java.util.ArrayList<Vec3>();route.add(from);boolean clear=true;
+            for(var stop:java.util.List.of(corner,destination)){
+                var previous=route.getLast();if(previous.distanceToSqr(stop)<1e-10)continue;
+                var leg=HatSurfaceRoute.find(mode(),previous,stop,radiusOf(rider),obstacles,body);
+                if(leg.size()<2||(!rider.childhood().canJump()&&hasStep(leg))){clear=false;break;}
+                route.addAll(leg.subList(1,leg.size()));
+            }
+            if(clear&&route.size()>=2){departureDebug="supported axis elbow "+corner;return java.util.List.copyOf(route);}
+        }
         if(Math.abs(from.y-destination.y)>1e-4)return java.util.List.of();
         var corners=HatVessel.brimRouteCorners();corners.sort(java.util.Comparator.comparingDouble(from::distanceToSqr));
         for(var corner:corners){
