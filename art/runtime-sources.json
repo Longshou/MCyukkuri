@@ -1,5 +1,6 @@
 {
   "toilet_contact": {
+    "tongue_presentation": "flat_face_plane",
     "source": "standards/yukkuri-library/interactions/toilet-contact/recipe.json",
     "exporter": "standards/yukkuri-library/interactions/toilet-contact/build.py",
     "selected_snapshot": "art/source/toilet-contact/recipe.json",

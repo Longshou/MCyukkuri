@@ -50,6 +50,10 @@ def build():
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true');args=parser.parse_args()
     result=build();content=encode(result)
+    tongue=result['tongue'];assert tongue['placement']=='face_plane' and 'thickness' not in tongue
+    assert 0<=tongue['face_offset']<=.005 and tongue['profile'][0][0]==0 and tongue['profile'][-1][0]==1
+    assert all(0<w<=1 for t,w in tongue['profile'])
+    assert all(a[0]<b[0] for a,b in zip(tongue['profile'],tongue['profile'][1:]))
     if args.check:
         assert RESOURCE.read_text(encoding='utf8')==content,'Runtime differs from source'
         assert (SELECTED/'recipe.json').read_bytes()==(HERE/'recipe.json').read_bytes(),'Selected snapshot differs'

@@ -11,7 +11,9 @@
 
 每 tick 在已适配的实际几何上求最低点，修正根部垂直偏移以保持支撑，不增加前后或左右位移。复用已有五官几何与贴图；缺少细分类表情的形态按配方回退，哭泣状态保留优先级。
 
-舌头由客户端实体渲染器绘制真实口部至后侧目标之间的网格，纹理为 `textures/entity/care_tongue.png`，由此包程序生成。`width=.045`、`thickness=.012`、`max_reach=.22` 都是乘实体尺寸之前的 block 单位。仅在真实接触成立时画出，10 tick 一轮，2 至 7 tick 按 `.15+.85*sin(pi*(phase-2)/5)^2` 伸出和回收，窗口外缩至 15%。嘴点保留 `.07 block` 间隙，窗口中央舌尖实际触及后侧目标；服务器刺激计数不能依赖客户端帧率或舌头可见性。实时舌尖位置由 Java 接触点和姿态求值，离线预览包含各自身体/表情片段及成年亲油对 0.2 尺寸幼体的接触侧视；侧视按当前嘴点、俯仰预算和站距求值，不模拟碰撞或 AI。
+舌头按用户修正采用与嘴部同一 XY 平面的平面表情，随面部根骨骼运动。轮廓为简洁的粉色片状图形，宽 `.045`、最大向下长度 `.055` block（乘角色体型）；不做圆截面、厚度、弯曲体积或朝幼体伸出的外部网格。所有顶点在同一面部平面，统一 `.003 block` 偏移仅避免与嘴部重叠闪烁。纹理为纯色 `textures/entity/care_tongue.png`。10 tick 一轮，2 至 7 tick 按 `.15+.85*sin(pi*(phase-2)/5)^2` 在脸平面内改变长度，窗口外缩至 15%。仅真实后侧接触时显示；服务端接触与排便计数仍独立于表情。`max_reach` 仅保留为嘴部接近距离的离线核对阈值，不再决定舌头几何长度。
+
+离线预览包含身体/表情片段、成年亲油对 0.2 尺寸幼体的照护场景，以及面部舌头近景；不模拟碰撞或 AI。
 
 ```powershell
 python standards/yukkuri-library/interactions/toilet-contact/build.py
@@ -25,4 +27,4 @@ python standards/yukkuri-library/interactions/toilet-contact/preview.py
 
 豆形不足油先天不育，且服务端 `parentAvailable`/`rearContact` 明确排除其作为首便照护者。它们仍保留排便和幼体受刺激动作，可由普通亲油照护；不为不可用亲代增加深蹲或加长舌头。
 
-`node standards/yukkuri-library/interactions/toilet-contact/check_reach.cjs` 对 19 种形态的成年/.2 尺寸幼体及普通灵梦、魔理沙亲代对各自豆形幼体采样完整照护周期。豆形成年亲代保留实测距离并标为 `ineligible_caregiver`，不作为适用照护组合的失败项；其他可用亲代只在全周期嘴点到后侧目标均不超过 `.22 block` 时通过。输出在 `.local/reports/toilet-contact-reach.json`，只说明离线几何可达性，不证明游戏中碰撞、寻路或 AI 已通过。
+`node standards/yukkuri-library/interactions/toilet-contact/check_reach.cjs` 对 19 种形态的成年/.2 尺寸幼体及普通灵梦、魔理沙亲代对各自豆形幼体采样完整照护周期。豆形成年亲代保留实测距离并标为 `ineligible_caregiver`，不作为适用照护组合的失败项；其他可用亲代只在全周期嘴点到后侧目标的间距均不超过 `.22 block` 时通过。输出在 `.local/reports/toilet-contact-reach.json`，只说明离线几何可达性，不证明游戏中碰撞、寻路或 AI 已通过。

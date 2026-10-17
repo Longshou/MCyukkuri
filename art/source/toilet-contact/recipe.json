@@ -36,7 +36,6 @@
       7
     ],
     "width": 0.045,
-    "thickness": 0.012,
     "max_reach": 0.22,
     "rgba": [
       226,
@@ -45,12 +44,33 @@
       255
     ],
     "tip_rgba": [
-      241,
-      153,
-      161,
+      226,
+      126,
+      137,
       255
     ],
-    "note": "Dimensions are block units before entity scale. Draw only during server-verified rear care. A 10-tick cycle retracts to 15% outside ticks 2..7; within the window extension=.15+.85*sin(pi*(phase-2)/5)^2. At its centre the tongue tip touches the actual rear target. The mouth solver keeps .07 block clearance, not the tongue tip. Never exceed max_reach; no standalone entity."
+    "note": "Flat facial expression in the mouth XY plane, following the posed face. Animate length downward from 15% to 100% during ticks 2..7; no depth extrusion or geometry reaching toward the child. Constant .003 block offset only prevents z-fighting. max_reach is retained solely as a mouth-position audit threshold, not a rendered tongue length.",
+    "placement": "face_plane",
+    "length": 0.055,
+    "face_offset": 0.003,
+    "profile": [
+      [
+        0,
+        0.8
+      ],
+      [
+        0.25,
+        1
+      ],
+      [
+        0.8,
+        1
+      ],
+      [
+        1,
+        0.55
+      ]
+    ]
   },
   "clips": {
     "ground_toilet": {

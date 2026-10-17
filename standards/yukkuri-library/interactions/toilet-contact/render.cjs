@@ -31,14 +31,18 @@ console.log('Rendered 21 current runtime poses.');
  const pv=parent.frame('first_toilet_assist',.225,{pitch:-high,translation:[0,lift,dz]});mouth=parent.rootPoint(anchor);
  const cv=child.frame('first_toilet_stimulated',.225),vertices=[];
  function add(v,scale,z,col,row){for(let i=0;i<v.length;i+=8)vertices.push(v[i]*scale,v[i+1]*scale,v[i+2]*scale+z,(v[i+3]+col)/2,(v[i+4]+row)/2,v[i+5],v[i+6],v[i+7]);}
- add(pv,1,0,0,0);add(cv,childScale,childZ,1,0);
- const delta=target.map((x,i)=>x-mouth[i]),distance=Math.hypot(...delta),direction=delta.map(x=>x/distance),side=[1,0,0],up=[0,-direction[2],direction[1]],rings=[];
- if(distance<=.22*16){
-  for(let r=0;r<7;r++){const t=r/6,taper=r===6?.08:1-.25*t,centre=mouth.map((x,i)=>x+t*delta[i]-.008*16*Math.sin(Math.PI*t)*up[i]);rings.push(Array.from({length:8},(_,k)=>centre.map((x,i)=>x+Math.cos(k*Math.PI/4)*.045*8*taper*side[i]+Math.sin(k*Math.PI/4)*.012*8*taper*up[i])));}
-  for(let r=0;r<6;r++)for(let k=0;k<8;k++){const n=(k+1)%8;for(const tri of [[rings[r][k],rings[r+1][k],rings[r+1][n]],[rings[r][k],rings[r+1][n],rings[r][n]]]){const a=tri[1].map((x,i)=>x-tri[0][i]),b=tri[2].map((x,i)=>x-tri[0][i]),normal=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],length=Math.hypot(...normal);for(const p of tri)vertices.push(...p,.25,.75,...normal.map(x=>x/length));}}
+ add(pv,1,0,0,0);const parentEnd=vertices.length;add(cv,childScale,childZ,1,0);const tongueStart=vertices.length;
+ // The tongue is a face expression, on the mouth's XY plane, with no outward reach.
+ const tongue=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json'),'utf8')).tongue;
+ const profile=tongue.profile,rows=profile.map(([t,w])=>[-1,1].map(side=>parent.rootPoint([anchor[0]+side*tongue.width*8*w,anchor[1]-tongue.length*16*t,anchor[2]-tongue.face_offset*16])));
+ for(let r=0;r+1<rows.length;r++)for(const tri of [[rows[r][0],rows[r+1][0],rows[r+1][1]],[rows[r][0],rows[r+1][1],rows[r][1]]]){
+  const a=tri[1].map((x,i)=>x-tri[0][i]),b=tri[2].map((x,i)=>x-tri[0][i]),normal=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],length=Math.hypot(...normal);
+  for(const p of tri)vertices.push(...p,.25,.75,...normal.map(x=>x/length));
  }
  const texture=fs.readFileSync(path.join(out,'contact-atlas.texture')),size=Math.sqrt(texture.length/4);
  const image=raster.renderModel(vertices,texture,1340,650,1.08,.13,14,{centerY:10,textureSize:size});
  fs.writeFileSync(path.join(out,'contact-scene.rgba'),Buffer.from(image));
- console.log(`Adult/0.2 child tongue reach ${(distance/16).toFixed(4)} blocks; authored limit .22.`);
+ const close=[...vertices.slice(0,parentEnd),...vertices.slice(tongueStart)];for(let i=0;i<close.length;i+=8){close[i]-=mouth[0];close[i+1]-=mouth[1];close[i+2]-=mouth[2];}
+ fs.writeFileSync(path.join(out,'tongue-detail.rgba'),Buffer.from(raster.renderModel(close,texture,800,420,.18,.12,3.7,{centerY:1.2,textureSize:size})));
+ console.log('Rendered face-plane tongue: zero thickness, fixed facial depth, 3 planar strips.');
 }

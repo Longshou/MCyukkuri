@@ -26,7 +26,8 @@ for row,(action,label,model,times) in enumerate(labels):
   draw.text((40+col*440,y+340),f'{t:.2f}s · {task["face"]}',font=font(17),fill='#54665e')
 sheet.save(OUT/'toilet-contact.png')
 contact=Image.new('RGB',(1340,760),'#f3f0e8');cd=ImageDraw.Draw(contact);cd.text((30,20),'成年亲油与 0.2 尺寸幼体 · 后侧照护离线采样',font=font(30),fill='#253c35');cd.text((30,64),'按当前嘴点/俯仰预算/0.53格站距绘制；不模拟实际碰撞、AI或服务端接触判定',font=font(19),fill='#54665e');ci=Image.frombytes('RGBA',(1340,650),(OUT/'contact-scene.rgba').read_bytes());contact.paste(ci,(0,100),ci);contact.save(OUT/'contact-scene.png')
-(OUT/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>排便与后侧照护</title><style>body{background:#f3f0e8;max-width:1340px;margin:20px auto;font-family:sans-serif}img{width:100%}</style><h1>排便与后侧照护</h1><p>当前运行模型与新片段的离线采样；真实接触、舌头定位、碰撞及排泄物生成需游戏实测。</p><img src="contact-scene.png"><img src="toilet-contact.png">',encoding='utf8')
+detail=Image.new('RGB',(800,490),'#f3f0e8');dd=ImageDraw.Draw(detail);dd.text((22,14),'舌头 · 与嘴部同平面的表情',font=font(25),fill='#253c35');di=Image.frombytes('RGBA',(800,420),(OUT/'tongue-detail.rgba').read_bytes());detail.paste(di,(0,65),di);detail.save(OUT/'tongue-detail.png')
+(OUT/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>排便与后侧照护</title><style>body{background:#f3f0e8;max-width:1340px;margin:20px auto;font-family:sans-serif}img{width:100%}</style><h1>排便与后侧照护</h1><p>当前运行模型与新片段的离线采样；真实接触、舌头定位、碰撞及排泄物生成需游戏实测。</p><img src="tongue-detail.png"><img src="contact-scene.png"><img src="toilet-contact.png">',encoding='utf8')
 # Local hub only: include every currently available topic without modifying shared source templates.
 links=''.join(f'<li><a href="{p.parent.name}/index.html">{p.parent.name}</a></li>' for p in sorted(OUT.parent.glob('*/index.html')))
 (OUT.parent/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>当前预览</title><h1>当前预览</h1><ul>'+links+'</ul>',encoding='utf8')

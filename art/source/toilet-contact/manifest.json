@@ -2,7 +2,7 @@
   "status": "pending_user_review",
   "source": "standards/yukkuri-library/interactions/toilet-contact",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/toilet_contact.json",
-  "sha256": "70225a69ab5b5c14f05fcf9eaa22e3d82e784b84670e289acfb0b808f49ed8f7",
+  "sha256": "481321690d9cdb1c5f590f3b5615de8ac69b8e4515cc19c2bf5874e21021ae3c",
   "models": [
     "alice",
     "chen",

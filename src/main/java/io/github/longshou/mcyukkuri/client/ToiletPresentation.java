@@ -14,9 +14,10 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 
-/** Authored rear-care motion and a mouth-attached tongue, visible only during verified live care. */
+/** Rear-care motion and a flat facial tongue expression, visible only during verified live care. */
 final class ToiletPresentation {
-    private static float cycle = 10, contactStart = 2, contactEnd = 7, width = .045f, thickness = .012f, reach = .22f;
+    private static float cycle = 10, contactStart = 2, contactEnd = 7, width = .045f, length = .055f, faceOffset = .003f;
+    private static float[][] profile = {{0, .8f}, {.25f, 1}, {.8f, 1}, {1, .55f}};
     private ToiletPresentation() {}
 
     static JsonObject reload(ResourceManager resources) {
@@ -28,9 +29,21 @@ final class ToiletPresentation {
             contactStart = tongue.getAsJsonArray("contact_window_ticks").get(0).getAsFloat();
             contactEnd = tongue.getAsJsonArray("contact_window_ticks").get(1).getAsFloat();
             width = tongue.get("width").getAsFloat();
-            thickness = tongue.get("thickness").getAsFloat();
-            reach = tongue.get("max_reach").getAsFloat();
-            if (!(cycle > 0 && contactStart >= 0 && contactEnd > contactStart && contactEnd <= cycle && width > 0 && thickness > 0 && reach > 0)) throw new IllegalArgumentException("Invalid tongue dimensions");
+            length = tongue.get("length").getAsFloat();
+            faceOffset = tongue.get("face_offset").getAsFloat();
+            if (!tongue.get("placement").getAsString().equals("face_plane")) throw new IllegalArgumentException("Tongue must remain on the face plane");
+            if (!(cycle > 0 && contactStart >= 0 && contactEnd > contactStart && contactEnd <= cycle && width > 0 && length > 0 && faceOffset >= 0 && faceOffset <= .005f)) throw new IllegalArgumentException("Invalid tongue dimensions");
+            var outline = tongue.getAsJsonArray("profile");
+            float[][] loaded = new float[outline.size()][2];
+            if (loaded.length < 2) throw new IllegalArgumentException("Missing facial tongue outline");
+            for (int i = 0; i < loaded.length; i++) {
+                var row = outline.get(i).getAsJsonArray();
+                loaded[i][0] = row.get(0).getAsFloat(); loaded[i][1] = row.get(1).getAsFloat();
+                if (!(loaded[i][0] >= 0 && loaded[i][0] <= 1 && loaded[i][1] > 0 && loaded[i][1] <= 1)
+                        || i > 0 && loaded[i][0] <= loaded[i - 1][0]) throw new IllegalArgumentException("Invalid facial tongue outline");
+            }
+            if (loaded[0][0] != 0 || loaded[loaded.length - 1][0] != 1) throw new IllegalArgumentException("Incomplete facial tongue outline");
+            profile = loaded;
             return data.getAsJsonObject("models");
         } catch (IOException error) { throw new UncheckedIOException("Cannot load toilet presentation", error); }
     }
@@ -48,45 +61,27 @@ final class ToiletPresentation {
         if (!behavior.equals("first_toilet_assist") || parent.careContactProgress() <= 0
                 || !(parent.level().getEntity(parent.carePartnerId()) instanceof YukkuriEntity child)
                 || !FamilyFeedingContact.rearContact(parent, child)) return;
-        float scale = parent.getScale() * parent.growthScale();
-        if (scale <= 0) return;
-        float parentYaw = (180 - Mth.rotLerp(partialTick, parent.yBodyRotO, parent.yBodyRot)) * Mth.DEG_TO_RAD;
-        float childYaw = (180 - Mth.rotLerp(partialTick, child.yBodyRotO, child.yBodyRot)) * Mth.DEG_TO_RAD;
-        var delta = child.getPosition(partialTick).subtract(parent.getPosition(partialTick));
-        var target = new Vector3f(0, .04f, child.getBbWidth() * .55f).rotateY(childYaw)
-                .add((float)delta.x, (float)delta.y, (float)delta.z).rotateY(-parentYaw).div(scale);
-        var mouth = model.mouthPoint().div(16);
-        var toward = new Vector3f(target).sub(mouth);
-        if (toward.lengthSquared() < 1e-6 || toward.lengthSquared() > reach * reach) return;
-        // Four small licks across the 40-tick service phase; the tip contacts then retracts.
+        var face = LivingPresentation.variants.get(parent.subspecies().assetId());
+        if (face == null) return;
+        // A facial expression: animate down the mouth's own XY plane, never toward the other entity.
         float stroke = Mth.clamp((ticks % cycle - contactStart) / (contactEnd - contactStart), 0, 1);
         float extension = .15f + .85f * (float)Math.pow(Math.sin(Math.PI * stroke), 2);
-        var end = new Vector3f(mouth).fma(extension, toward);
-        var direction = new Vector3f(toward).normalize();
-        var side = new Vector3f(direction).cross(0, 1, 0);
-        if (side.lengthSquared() < 1e-6) side.set(1, 0, 0); else side.normalize();
-        var up = new Vector3f(side).cross(direction).normalize();
+        float size = parent.getVariant().width() / .75f;
+        float shownLength = length * size * extension;
+        var root = model.rootPose();
         var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/care_tongue.png")));
-        // A rounded, closed ribbon is a body attachment; it never becomes an entity or inventory object.
-        Vector3f[][] rings = new Vector3f[7][8];
-        for (int row = 0; row < rings.length; row++) {
-            float t = row / 6f;
-            float taper = row == 6 ? 0 : 1 - .25f * t;
-            var centre = new Vector3f(mouth).lerp(end, t).fma(-.008f * (float)Math.sin(t * Math.PI), up);
-            for (int corner = 0; corner < 8; corner++) {
-                double angle = corner * Math.PI / 4;
-                rings[row][corner] = new Vector3f(centre).fma((float)Math.cos(angle) * width * .5f * taper, side)
-                        .fma((float)Math.sin(angle) * thickness * .5f * taper, up);
-            }
-        }
-        for (int row = 0; row < 6; row++) for (int corner = 0; corner < 8; corner++) {
-            int next = (corner + 1) % 8;
-            Vector3f[] quad = {rings[row][corner], rings[row + 1][corner], rings[row + 1][next], rings[row][next]};
-            var normal = new Vector3f(quad[1]).sub(quad[0]).cross(new Vector3f(quad[3]).sub(quad[0])).normalize();
+        var normal = root.transformDirection(new Vector3f(0, 0, -1)).normalize();
+        for (int row = 0; row + 1 < profile.length; row++) {
+            int[] rows = {row, row + 1, row + 1, row};
             for (int i = 0; i < 4; i++) {
-                var vertex = quad[i];
+                var edge = profile[rows[i]];
+                float x = face.x() + (i < 2 ? -1 : 1) * width * size * .5f * edge[1];
+                float y = face.y() - shownLength * edge[0];
+                // Tiny constant offset prevents z-fighting; every vertex stays in the same facial plane.
+                var vertex = new Vector3f(x, y, face.z() - faceOffset).mul(16);
+                root.transformPosition(vertex).div(16);
                 buffer.addVertex(pose.last().pose(), vertex.x, vertex.y, vertex.z).setColor(255, 255, 255, 255)
-                        .setUv(i == 0 || i == 3 ? 0 : 1, corner / 8f).setOverlay(overlay).setLight(light)
+                        .setUv(i < 2 ? 0 : 1, edge[0]).setOverlay(overlay).setLight(light)
                         .setNormal(pose.last(), normal.x, normal.y, normal.z);
             }
         }
