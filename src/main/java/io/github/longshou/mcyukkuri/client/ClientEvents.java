@@ -21,6 +21,7 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(ModBlocks.CARE.get(), CareRenderer::new);
         event.registerBlockEntityRenderer(io.github.longshou.mcyukkuri.play.Playgrounds.ENTITY.get(),PlaygroundRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.SHELTER_ENTITY.get(), ShelterRenderer::new);
+        event.registerBlockEntityRenderer(ModBlocks.FORAGE_PILE_ENTITY.get(), ForagePileRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.HOUSE_NEST_ENTITY.get(),HouseNestRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),SupplyPileRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.GRAVE_ENTITY.get(),GraveRenderer::new);
@@ -39,7 +40,7 @@ public final class ClientEvents {
             private PropItemRenderer renderer;
             @Override public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer(){if(renderer==null)renderer=new PropItemRenderer();return renderer;}
         };
-        for(String name:new String[]{"food_bowl","yukkuri_nest","yukkuri_toilet","house_crevice","yukkuri_carrier","wash_cloth","teaching_whistle","yarn_ball","companion_cord","food_scrap","yukkuri_waste","leaked_filling","reimu_ribbon","marisa_hat","chen_hat","alice_headband","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest","oil_grain_budget","oil_grain_regular","oil_grain_premium","orange_juice","mold_remover"})
+        for(String name:new String[]{"food_bowl","yukkuri_nest","yukkuri_toilet","house_crevice","yukkuri_carrier","wash_cloth","teaching_whistle","yarn_ball","companion_cord","food_scrap","yukkuri_waste","leaked_filling","reimu_ribbon","marisa_hat","chen_hat","alice_headband","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest","oil_grain_budget","oil_grain_regular","oil_grain_premium","orange_juice","mold_remover","forage_pile"})
             event.registerItem(extension,net.minecraft.core.registries.BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));
         io.github.longshou.mcyukkuri.registry.ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,io.github.longshou.mcyukkuri.registry.ModItems.TRIMMED_HAIR.get());

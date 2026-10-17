@@ -19,21 +19,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -48,6 +45,18 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 public final class MuseumSettlementSetup {
     private static final String OWNER = "MuseumSettlementRun";
     public record Result(boolean success, String message, int count) {}
+    /** Exhibit buttons run from command blocks with output off, so every outcome (and failure reason) is also said to the players. */
+    private static Result announce(ServerLevel level, Result result) {
+        var line = Component.literal("[聚落] " + result.message()).withStyle(result.success() ? ChatFormatting.GREEN : ChatFormatting.RED);
+        level.getServer().getPlayerList().broadcastSystemMessage(line, false);
+        return result;
+    }
+    public static Result start(ServerLevel level, BlockPos center) { return announce(level, startRun(level, center)); }
+    public static Result order(ServerLevel level, SettlementOrders.Kind kind) { return announce(level, orderRun(level, kind)); }
+    public static Result threat(ServerLevel level, int amount) { return announce(level, threatRun(level, amount)); }
+    public static Result migrate(ServerLevel level) { return announce(level, migrateRun(level)); }
+    public static Result status(ServerLevel level) { return announce(level, statusRun(level)); }
+    public static Result reset(ServerLevel level) { return announce(level, resetRun(level)); }
     private static Result fail(String reason) { return new Result(false, reason, 0); }
     private static Result ok(String message, int count) { return new Result(true, message, count); }
     private record Fixture(BlockState before, boolean shelter) {}
@@ -112,7 +121,7 @@ public final class MuseumSettlementSetup {
         }
     }
 
-    public static Result start(ServerLevel level, BlockPos center) {
+    private static Result startRun(ServerLevel level, BlockPos center) {
         var state = State.get(level);
         if (state.active()) return fail("已有本轮聚落；先成功重置，不能覆盖登记或复制成员。");
         // The spawner searches 24 blocks out; two extra cells include its latrine placement.
@@ -137,29 +146,14 @@ public final class MuseumSettlementSetup {
             if (!entry.getValue().is(ModBlocks.WILD_LATRINE.get()) && level.getBlockState(at).is(ModBlocks.WILD_LATRINE.get()))
                 recordFixture(level, state, at, entry.getValue(), false);
         }
-        // Mark the finite starting stock too, so cancelling an order cannot turn fixture
-        // supplies into untracked reset drops. Ordinary harvested goods remain ordinary goods.
-        for (var at : state.fixtures.keySet()) if (level.getBlockEntity(at.pos()) instanceof ShelterBlockEntity home) {
-            var portions = new ArrayList<ItemStack>(); ItemStack portion;
-            while (!(portion = home.raid()).isEmpty()) { mark(portion, state.run); portions.add(portion); }
-            for (var stack : portions) {
-                var remaining = home.returnFood(stack);
-                if (!remaining.isEmpty()) {
-                    var drop = new ItemEntity(level, at.pos().getX() + .5, at.pos().getY(), at.pos().getZ() + .5, remaining);
-                    level.addFreshEntity(drop);
-                }
-            }
-        }
-        // A single visible finite source; no tick replenishment and no direct stock credit.
-        var food = new ItemStack(Items.APPLE, 8); mark(food, state.run);
-        var point = Vec3.atBottomCenterOf(center).add(0, .05, 0);
-        var source = new ItemEntity(level, point.x, point.y, point.z, food); source.setDeltaMovement(Vec3.ZERO); source.setNoPickUpDelay();
-        level.addFreshEntity(source);
+        // No food is dropped on the ground and nothing is credited: each household's forage pile (储粮堆, placed
+        // beside its entrance by the spawner) holds the starting grass, members stagger their first searches on
+        // their own, and the meadow's real grass is the only source. Reset removes unused piles with their shelters.
         state.setDirty();
-        return ok("真实聚落已建立；成员自行生活，派工是否接单和粮库变化须看实际状态。", actors.size());
+        return ok("真实聚落已建立；成员自行生活，粮食只存在各户门口的储粮堆，采集与存取看实际状态。", actors.size());
     }
 
-    public static Result order(ServerLevel level, SettlementOrders.Kind kind) {
+    private static Result orderRun(ServerLevel level, SettlementOrders.Kind kind) {
         var state = State.get(level); var group = group(level, state);
         if (group == null || group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity leader)) return fail("本轮族长未在当前维度加载。");
         for (UUID id : state.members) if (level.getEntity(id) instanceof YukkuriEntity worker
@@ -169,14 +163,14 @@ public final class MuseumSettlementSetup {
         return fail("没有居民通过实际接单条件：白天、族长 12 格内互认/可见、成年空闲、无急需/冷却，采集还需可用床位。");
     }
 
-    public static Result threat(ServerLevel level, int amount) {
+    private static Result threatRun(ServerLevel level, int amount) {
         var state = State.get(level); var group = group(level, state);
         if (group == null || amount < 1 || amount > 20) return fail("本轮聚落不可用或威胁数值不在 1–20。");
         SettlementData.get(level).reportThreat(group, group.center.west(8), level.getGameTime(), amount);
         return ok("已记录真实威胁；未授予迁徙完成。", group.threat);
     }
 
-    public static Result migrate(ServerLevel level) {
+    private static Result migrateRun(ServerLevel level) {
         var state = State.get(level); var group = group(level, state);
         if (group == null || group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity leader))
             return fail("本轮族长未加载。");
@@ -191,7 +185,7 @@ public final class MuseumSettlementSetup {
                 : ok("已开始真实迁徙，目标=" + group.migrateTo.toShortString() + "；尚未到达。", 1);
     }
 
-    public static Result status(ServerLevel level) {
+    private static Result statusRun(ServerLevel level) {
         var state = State.get(level); var group = group(level, state);
         if (!state.active()) return fail("没有已登记聚落轮次。");
         int loaded = 0, orders = 0, food = 0;
@@ -206,7 +200,7 @@ public final class MuseumSettlementSetup {
     }
 
     /** All refusal checks run before stopping any goal, releasing a bed, or removing a group. */
-    public static Result reset(ServerLevel level) {
+    private static Result resetRun(ServerLevel level) {
         var state = State.get(level);
         if (!state.active()) return ok("没有需要重置的轮次。", 0);
         var family = FamilyData.get(level);
@@ -274,10 +268,6 @@ public final class MuseumSettlementSetup {
             if (dimension.getBlockState(at.pos()).isAir()) dimension.setBlock(at.pos(), entry.getValue().before(), 3);
         }
         removeEmptyGroups(level, state);
-        var drops = new ArrayList<ItemEntity>();
-        for (ServerLevel dimension : level.getServer().getAllLevels()) for (Entity entity : dimension.getAllEntities())
-            if (entity instanceof ItemEntity item && owned(item.getItem().getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag(), state.run)) drops.add(item);
-        drops.forEach(Entity::discard);
         state.retired.addAll(state.members); state.members.clear(); state.groups.clear(); state.fixtures.clear(); state.beforeHomes.clear();
         state.run = state.group = null; state.origin = null; state.setDirty();
         return ok("本轮成员与专属空住所已重置；外部居民、混居住所及其库存保留。", count);
@@ -330,7 +320,6 @@ public final class MuseumSettlementSetup {
         return !state.active() || state.origin == null || !state.origin.dimension().equals(level.dimension())
                 ? null : SettlementData.get(level).group(state.group);
     }
-    private static void mark(ItemStack stack, UUID run) { CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putUUID(OWNER, run)); }
     private static boolean owned(CompoundTag tag, UUID run) { return run != null && tag.hasUUID(OWNER) && run.equals(tag.getUUID(OWNER)); }
     private static void recordFixture(ServerLevel level, State state, BlockPos pos, BlockState before, boolean shelter) {
         var blockEntity = level.getBlockEntity(pos); if (blockEntity == null) return;

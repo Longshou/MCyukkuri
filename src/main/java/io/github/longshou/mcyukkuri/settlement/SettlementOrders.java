@@ -34,13 +34,11 @@ public final class SettlementOrders {
     private long deadline, cooldownUntil, nextIssue, summonUntil;
     private int stage, timer, failures;
     private BlockPos dest, threatAt;
-    private BlockPos foodPos;
-    private UUID foodItem;
     private ItemStack carried = ItemStack.EMPTY;
     private final PlantBedding plants;
-    private int contact;
+    private final PileContact pileContact;
     private final List<UUID> targets = new ArrayList<>();
-    public SettlementOrders(YukkuriEntity entity) { this.entity = entity; plants = new PlantBedding(entity); }
+    public SettlementOrders(YukkuriEntity entity) { this.entity = entity; plants = new PlantBedding(entity); pileContact = new PileContact(entity); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public Kind kind() { return kind; }
     public boolean active() { return kind != Kind.NONE; }
@@ -111,8 +109,8 @@ public final class SettlementOrders {
             && entity.settlement().duties().carrying().isEmpty() && now >= cooldownUntil; }
     private boolean receive(Kind order, long now) {
         if (!free(now)) return false;
-        kind = order; stage = 0; timer = 0; failures = 0; dest = null; threatAt = null; foodPos = null; foodItem = null;
-        targets.clear(); plants.stop(); contact = 0; deadline = now + YukkuriConfig.ORDER_TIMEOUT.get();
+        kind = order; stage = 0; timer = 0; failures = 0; dest = null; threatAt = null;
+        targets.clear(); plants.stop(); pileContact.reset(); deadline = now + YukkuriConfig.ORDER_TIMEOUT.get();
         return true;
     }
     /** A messenger asked this member to gather around the leader for a while. */
@@ -145,7 +143,7 @@ public final class SettlementOrders {
         }
     }
     private void cancel() { dropCarried(); finish(); }
-    private void finish() { plants.stop(); kind = Kind.NONE; stage = contact = 0; cooldownUntil = level().getGameTime() + COOLDOWN; entity.getNavigation().stop(); }
+    private void finish() { plants.stop(); pileContact.reset(); kind = Kind.NONE; stage = 0; cooldownUntil = level().getGameTime() + COOLDOWN; entity.getNavigation().stop(); }
     public void dropCarried() {
         if (carried.isEmpty() || entity.level().isClientSide) return;
         var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carried.copy());
@@ -161,8 +159,8 @@ public final class SettlementOrders {
     public void load(CompoundTag tag) {
         carried = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
         cooldownUntil = tag.getLong("CooldownUntil");
-        kind = Kind.NONE; stage = timer = failures = contact = 0; dest = threatAt = foodPos = null;
-        foodItem = null; targets.clear(); plants.stop(); deadline = nextIssue = summonUntil = 0;
+        kind = Kind.NONE; stage = timer = failures = 0; dest = threatAt = null;
+        targets.clear(); plants.stop(); pileContact.reset(); deadline = nextIssue = summonUntil = 0;
     }
     /** Walk toward a spot with the shared bounded-segment navigation; false after repeated failures. */
     private boolean walk(BlockPos goal) {
@@ -172,74 +170,41 @@ public final class SettlementOrders {
     }
     private boolean near(BlockPos goal, double distance) { return entity.distanceToSqr(Vec3.atBottomCenterOf(goal)) <= distance * distance; }
 
-    // FORAGE: one real plant or dropped food becomes one portion, carried home to the shelter.
+    // FORAGE: one real plant becomes one portion, carried home and laid on the shelter's forage pile by mouth contact.
     private void forage() {
         var group = entity.settlement().group();
         var shelter = entity.habitat().shelter();
         if (group == null || shelter == null || !shelter.usable(entity)) { cancel(); return; }
         if (stage == 0) {
             if (!EventHooks.canEntityGrief(level(), entity)) { cancel(); return; }
-            var around = new AABB(group.center).inflate(CENTER_RANGE);
-            var item = level().getEntitiesOfClass(ItemEntity.class, around, i -> collectible(i, shelter)
-                    && i.blockPosition().distSqr(group.center) <= CENTER_RANGE * CENTER_RANGE)
-                    .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
-                    .filter(i -> entity.life().dryStand(i.blockPosition()) && entity.life().reachable(i.blockPosition(), false))
-                    .findFirst().orElse(null);
-            if (item != null) {
-                foodItem = item.getUUID(); foodPos = item.blockPosition(); stage = 1; return;
-            }
             // Use the same physical approach and sustained mouth contact as household gathering.
             if (shelter.foodSpace(new ItemStack(Items.SHORT_GRASS)) > 0
                     && plants.find(group.center, CENTER_RANGE, pos -> level().getBlockState(pos).is(Blocks.SHORT_GRASS))) {
-                stage = 1; foodItem = null; return;
+                stage = 1; return;
             }
+            // A search refused by the shared per-tick budget is retried; only a real miss ends the errand.
+            if (plants.refused() && timer < 200) return;
             cancel(); return;
         }
         if (stage == 1) {
             if (!EventHooks.canEntityGrief(level(), entity)) { cancel(); return; }
-            if (foodItem == null) {
-                carried = plants.tick();
-                if (carried.isEmpty()) { if (!plants.active()) cancel(); return; }
-            } else {
-                var found = level().getEntity(foodItem);
-                if (!(found instanceof ItemEntity item) || !collectible(item, shelter)
-                        || item.blockPosition().distSqr(group.center) > CENTER_RANGE * CENTER_RANGE) { cancel(); return; }
-                // Track the real item each tick; never collect remotely from its previous position.
-                foodPos = item.blockPosition();
-                if (!entity.life().dryStand(foodPos)) { cancel(); return; }
-                if (entity.distanceToSqr(item) >= 2.25 && !walk(foodPos)) { cancel(); return; }
-                double reach = entity.getBbWidth() * .5 + item.getBbWidth() * .5 + .12;
-                if (entity.position().subtract(item.position()).horizontalDistanceSqr() > reach * reach
-                        || Math.abs(entity.getY() - item.getY()) > .45 || !entity.hasLineOfSight(item)) {
-                    contact = 0;
-                    if (entity.distanceToSqr(item) < 2.25) SurfaceApproach.walk(entity, item.position(), .65);
-                    return;
-                }
-                SurfaceApproach.halt(entity);
-                SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), item.position()));
-                if (Math.abs(net.minecraft.util.Mth.wrapDegrees(SurfaceApproach.yaw(entity.position(), item.position())
-                        - entity.getYRot())) > 15) { contact = 0; return; }
-                if (++contact < 12) return;
-                var remaining = item.getItem().copy(); carried = remaining.split(1);
-                if (remaining.isEmpty()) item.discard(); else item.setItem(remaining);
-            }
-            stage = 2; timer = contact = 0; return;
+            carried = plants.tick();
+            if (carried.isEmpty()) { if (!plants.active()) cancel(); return; }
+            stage = 2; timer = 0; pileContact.reset(); return;
         }
-        BlockPos home = shelter.bed(entity.getUUID());
-        if (home == null) { cancel(); return; }
-        if (!near(home, 1.5)) { if (!walk(home)) cancel(); return; }
-        Vec3 bed = Vec3.atBottomCenterOf(home);
-        if (!SurfaceApproach.walk(entity, bed, .65)) return;
         // An explicit food errand must increase food stock, not silently turn grass into lining.
+        var pile = shelter.ensurePile();
+        if (pile == null) { cancel(); return; }
+        if (!pileContact.near(pile)) {
+            pileContact.reset();
+            if (!walk(pile.standCell())) cancel();
+            return;
+        }
+        if (!pileContact.tick(pile)) return;
         carried = shelter.returnFood(carried);
         if (carried.isEmpty()) entity.showReaction("happy", "share", 40);
         else dropCarried();
         finish();
-    }
-    private boolean collectible(ItemEntity item, ShelterBlockEntity shelter) {
-        return item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD)
-                && entity.life().acceptsFood(item.getItem()) && shelter.foodSpace(item.getItem()) > 0
-                && entity.hasLineOfSight(item);
     }
 
     // SCOUT: look out from 16-24 blocks away, then report back to the leader.

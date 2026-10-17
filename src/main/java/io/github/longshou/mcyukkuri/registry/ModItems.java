@@ -64,6 +64,7 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> NEST = ITEMS.registerSimpleBlockItem("yukkuri_nest", ModBlocks.NEST);
     public static final DeferredItem<BlockItem> TOILET = ITEMS.registerSimpleBlockItem("yukkuri_toilet", ModBlocks.TOILET);
     public static final DeferredItem<BlockItem> WILD_LATRINE=ITEMS.registerSimpleBlockItem("wild_latrine",ModBlocks.WILD_LATRINE);
+    public static final DeferredItem<BlockItem> FORAGE_PILE=ITEMS.registerSimpleBlockItem("forage_pile",ModBlocks.FORAGE_PILE);
     public static final DeferredItem<ShelterItem> FOREST_BURROW=ITEMS.register("forest_burrow",()->new ShelterItem(io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.BURROW,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<ShelterItem> CARDBOARD_SHELTER=ITEMS.register("cardboard_shelter",()->new ShelterItem(io.github.longshou.mcyukkuri.settlement.ShelterBlock.Kind.CARDBOARD,new Item.Properties().stacksTo(16)));
 
