@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 189,
-    "game_texts": 77,
+    "game_texts": 79,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11048,6 +11048,91 @@
       ],
       "focus": "求食受阻、退避与进食能力下降",
       "description": "把食物存在、接近条件、获准分享、实际吃下及恢复结果分别记录；不以逃脱一次危险代表整夜生存成功。",
+      "kind": "reference"
+    },
+    {
+      "id": "N80",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "society",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N80.md",
+      "source_id": "N80",
+      "source_url": "https://yugyakuss.seesaa.net/article/431082295.html",
+      "source_title": "野良まりちゃの新しいおうち",
+      "source_note": "页面发布者まりちゃのおぼーち（本体）；2015-12-12 发布，核读正文至完。仅收住房反馈、铺床、遇雨与求助结果的概括，不摘录正文",
+      "source_group": "author:まりちゃのおぼーち（本体）",
+      "observation": "幼体获准住进旧水槽，满意于地面平滑、没有穿堂风；提出缺床后，人类放入折叠纸巾，幼体试躺并睡着。雨来后，无盖容器积水，纸床湿透，幼体无法出去，求助也未获救。",
+      "limits": "这是人类放置并拒绝救援的场景，不能省略为纯自然事故或成功收养。此前住自贩机下只是叙述者猜测。纸巾是使用过的，不作为合格铺床材料；幼体以为床自行长出是误解。身体损伤不作制作输入，叙述者猜想的救援失败也不是实际尝试。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "住所布置",
+        "休息睡眠",
+        "环境避险",
+        "受困逃离",
+        "人类接触"
+      ],
+      "emotions": [
+        "喜悦",
+        "安心",
+        "恐惧"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "入住反馈、提出缺床与降雨后的容器失效",
+      "description": "入住满意、铺床完成、遮雨、排水、出口和实际救助分别记录；不以安静入睡代替持续适居。",
+      "kind": "reference"
+    },
+    {
+      "id": "N81",
+      "media": "text",
+      "topics": [
+        "growth",
+        "environment",
+        "habitat"
+      ],
+      "path": "wiki/novel-reading/cards/N81.md",
+      "source_id": "N81",
+      "source_url": "https://yugyakuss.seesaa.net/article/433972456.html",
+      "source_title": "決断のとき",
+      "source_note": "页面发布者まりちゃのおぼーち（本体）；2016-02-18 发布，核读正文至完。只收茎果承接位置与后续照护限制的概括，不摘录正文",
+      "source_group": "author:まりちゃのおぼーち（本体）",
+      "observation": "独自照料的水上魔理沙因茎向一侧伸展而够不到落下幼体。最后一只被空出的帽船接住，但亲代已落水死亡；幼体困在帽内低处，缺少后续照料与首餐，最终没有存活。",
+      "limits": "叙述者另述伴侣可协助承接，本次并无伴侣参与。落下成功或失败两种结果不构成各半概率；伸发能力、帽内深陷结构与水中生理均属本篇，不覆盖项目已采用的软帽巢结构。承接成功不等于育幼成功，自我牺牲不作理想化照护模板。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "水上魔理沙",
+        "帽船",
+        "茎果"
+      ],
+      "scenarios": [
+        "出生发育",
+        "照料幼体",
+        "水上移动",
+        "环境避险"
+      ],
+      "emotions": [
+        "期待",
+        "担忧",
+        "悲伤"
+      ],
+      "targets": [
+        "事件",
+        "动作",
+        "场景"
+      ],
+      "focus": "茎果落点、承接范围与承接后的照护缺失",
+      "description": "分别记录落点可达、承接结果、帽内可活动空间、照料者和首餐；不把一次接住写成全程获救。",
       "kind": "reference"
     }
   ]
