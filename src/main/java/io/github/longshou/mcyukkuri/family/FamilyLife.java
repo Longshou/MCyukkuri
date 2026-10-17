@@ -369,18 +369,21 @@ public final class FamilyLife {
     /** How far a newborn may be sent across the water from its mother's outlet into a partner's hat boat alongside. */
     public static final double SHARE_REACH=3.2;
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){launchInto(hat,tmin,prefer,1.25);}
+    private void flightLog(String why){io.github.longshou.mcyukkuri.MCYukkuri.LOGGER.info("[flight-debug] {} {}",entity.getId(),why);}
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){
+        flightLog("launch awaiting="+awaitingLanding+" onGround="+entity.onGround()+" inWater="+entity.isInWaterOrBubble()+" at="+entity.position()+" hat="+(hat==null?null:hat.position()));
         if(hat==null||flying()||heldByBraid()||hat.unsteadyMotion())return;
         // Only the actual birth push is not a voluntary jump. Landed children must
         // approach on real ground; swimming infants wait for their parent's dipped rim.
         if(!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()){
             boardFromShore(hat);return;
         }
-        var seat=hat.reserve(entity,prefer);if(seat==null)return;
+        var seat=hat.reserve(entity,prefer);if(seat==null){flightLog("no_seat");return;}
         double r=HatVessel.radius(entity.getBbWidth());
         var from=entity.position();var to=hat.toWorld(seat);
         int duration=HatVessel.solve(from,to,hat,r,tmin);
-        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){hat.cancelIncoming(entity);return;}
+        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){flightLog("refused dist="+from.subtract(to).horizontalDistance()+" clear="+birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);hat.cancelIncoming(entity);return;}
+        flightLog("flight "+duration+" ticks to "+to);
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
     }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
@@ -491,16 +494,17 @@ public final class FamilyLife {
         var hat=flight.hat()!=null&&level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
         if(flight.seat()!=null&&(hat==null||hat.capsizing()||!hat.isAfloat()&&!hat.catches())){
             if(hat!=null)hat.cancelIncoming(entity);
+            flightLog("hat_gone_or_capsizing");
             flight=null;return false; // The committed leap falls physically; never restart it in midair.
         }
         var f=flight;var to=f.to();
         // A moving-seat-only flight is released instead of resuming a remote pull.
         if(to==null||hat!=null&&hat.toWorld(f.seat()).distanceToSqr(to)>.0025){
-            if(hat!=null)hat.cancelIncoming(entity);flight=null;return false;
+            if(hat!=null)hat.cancelIncoming(entity);flightLog("seat_moved "+(hat==null||f.seat()==null?"":String.valueOf(Math.sqrt(hat.toWorld(f.seat()).distanceToSqr(to)))));flight=null;return false;
         }
         var velocity=entity.getDeltaMovement();var before=entity.position();var wanted=before.add(velocity);
         if(!HatBoarding.sweepClear(entity,null,hat,before,wanted)){
-            if(hat!=null)hat.cancelIncoming(entity);flight=null;
+            if(hat!=null)hat.cancelIncoming(entity);flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted);flight=null;
             // A swept body contact stops this step. Returning to vanilla travel here would
             // immediately repeat the rejected move through a non-solid sibling.
             entity.setDeltaMovement(-velocity.x*.15,Math.max(.02,-velocity.y*.15),-velocity.z*.15);
@@ -510,7 +514,7 @@ public final class FamilyLife {
         entity.getNavigation().stop();entity.hasImpulse=true;flightTick++;
         entity.setDeltaMovement(velocity.add(0,-HatVessel.GRAVITY/16,0));
         if(entity.position().distanceToSqr(wanted)>.000001){
-            if(hat!=null)hat.cancelIncoming(entity);flight=null;return true;
+            if(hat!=null)hat.cancelIncoming(entity);flightLog("moved_short at tick "+flightTick+" wanted "+wanted+" got "+entity.position());flight=null;return true;
         }
         if(flightTick<f.ticks())return true;
         flight=null;
@@ -520,6 +524,7 @@ public final class FamilyLife {
             // collision or a displaced hat can turn a planned catch into a real miss.
             boolean contact=entity.position().distanceToSqr(to)<=.0025&&velocity.y<=0;
             boolean landed=contact&&(entity.getUUID().equals(hat.ownerYukkuri())?hat.board(entity):hat.boardYoung(entity));
+            if(!landed)flightLog("not_landed contact="+contact+" dist="+Math.sqrt(entity.position().distanceToSqr(to))+" vy="+velocity.y+" to="+to+" at="+entity.position());
             if(!landed){hat.cancelIncoming(entity);entity.waterDistress().plunge(hat.getUUID(),null);entity.setDeltaMovement(0,-.03,0);}
         }
         return true;
