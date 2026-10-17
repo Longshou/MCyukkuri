@@ -20,7 +20,9 @@ public final class FirstVoyage {
     private Phase phase=Phase.NONE;
     private UUID mentor, pupil, homeHat;
     private BlockPos harbor, turn;
-    private int ticks, elapsed, cooldown, loadGrace, hatRecoveryTicks;
+    private int ticks, elapsed, cooldown, loadGrace, hatRecoveryTicks, returnTicks;
+    /** Docking by physics alone is bounded: after this many ticks of coming home, the child is lifted onto the parent hat directly. */
+    private static final int RETURN_FALLBACK_TICKS=500;
     private long nextSearch;
     private boolean completed, reachedTurn, independent, leavingHome;
     private boolean routineLaunch, routineSailing, emergencyRecall;
@@ -204,7 +206,7 @@ public final class FirstVoyage {
                 ||home.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y))))interrupt();
         if((phase==Phase.RETURN||phase==Phase.REBOARD)&&elapsed>1600)finish();
     }
-    private void set(Phase next){phase=next;ticks=0;}
+    private void set(Phase next){phase=next;ticks=0;if(next!=Phase.RETURN&&next!=Phase.REBOARD)returnTicks=0;}
     private static void face(YukkuriEntity who,Vec3 target){
         var d=target.subtract(who.position());float yaw=(float)(Math.toDegrees(Math.atan2(d.z,d.x))-90);
         who.setYRot(yaw);who.yBodyRot=yaw;who.setYHeadRot(yaw);
@@ -284,7 +286,8 @@ public final class FirstVoyage {
         }
         if(returningToParent()&&home!=null&&child.getVehicle()==home){
             hatRecoveryTicks++;
-            if(boat.retrieveAfloat(child,home)){
+            // The parent has brought the hulls together; a few seconds of failed rim contact must not strand the hat.
+            if(boat.retrieveAfloat(child,home,hatRecoveryTicks>60)){
                 child.showReaction("happy","hat_recovered",40);
                 if(reachedTurn&&healthy(father)&&!completed){
                     completed=true;set(Phase.CELEBRATE);child.dailyLife().comfort(25);father.dailyLife().comfort(15);
@@ -335,11 +338,14 @@ public final class FirstVoyage {
             // near edge and selects a reachable climb or a bounded low hop.
             var approach=home.emergencyApproach(child);
             if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
-                    &&approach!=null&&boat.position().distanceToSqr(approach)<=.01
+                    &&approach!=null&&boat.position().distanceToSqr(approach)<=.04
                     &&boat.protects(child)&&!boat.towed()){
                 boat.holdPosition();home.holdPosition();
                 if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);return;}
                 if(boat.changingSeat(child))return;
+            }
+            if(++returnTicks>=RETURN_FALLBACK_TICKS&&!child.family().flying()&&boat.protects(child)&&home.rejoinNow(child,boat)){
+                returnTicks=0;hatRecoveryTicks=0;set(Phase.REBOARD);return;
             }
             if(ticks%20==1&&!sail(boat,dock(home))){boat.stopPaddling();if(ticks%100==1)child.speak("wait_family");}
         }
@@ -403,7 +409,7 @@ public final class FirstVoyage {
         var home=home();if(home!=null)home.releaseVoyageBerth(child.getUUID());
         var boat=HatBoatEntity.owned(child);if(boat!=null)boat.stopPaddling();
         mentor=homeHat=null;phase=Phase.NONE;cooldown=completed&&!independent?80:600;reachedTurn=false;leavingHome=false;
-        hatRecoveryTicks=0;
+        hatRecoveryTicks=0;returnTicks=0;
         routineLaunch=routineSailing=emergencyRecall=false;
     }
     public CompoundTag save(){

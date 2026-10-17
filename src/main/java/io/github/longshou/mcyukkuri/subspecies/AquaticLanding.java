@@ -16,8 +16,11 @@ final class AquaticLanding {
     private final LinkedHashMap<UUID,Vec3> waiting=new LinkedHashMap<>();
     private UUID ownerId,rescuer;
     private BlockPos bank;
-    private long started;
-    private boolean active;
+    /** The whole operation and each single crossing are bounded; a stalled physical landing falls back to a direct one. */
+    private static final int MAX_TICKS=1500, STALL_TICKS=240, DOCK_TICKS=100;
+    private long started,progress;
+    private int dockTicks;
+    private boolean active,docked;
     private Vec3 retrievalStand;
     private long nextRetrievalSearch;
 
@@ -35,19 +38,29 @@ final class AquaticLanding {
             waiting.put(child.getUUID(),at);
         }
         waiting.put(owner.getUUID(),Vec3.atBottomCenterOf(stand));
-        ownerId=owner.getUUID();rescuer=helper;bank=stand.immutable();started=boat.level().getGameTime();
-        active=true;boat.holdPosition();return true;
+        ownerId=owner.getUUID();rescuer=helper;bank=stand.immutable();started=progress=boat.level().getGameTime();
+        dockTicks=0;docked=false;active=true;boat.holdPosition();return true;
     }
     void tick(){
         if(!active||!(boat.level() instanceof ServerLevel level))return;
-        if(!boat.isAfloat()||boat.unsteadyMotion()||level.getGameTime()-started>800
+        if(!boat.isAfloat()||boat.unsteadyMotion()
                 ||!(level.getEntity(ownerId) instanceof YukkuriEntity owner)||!owner.isAlive()){
             cancel();return;
+        }
+        long now=level.getGameTime();
+        if(now-started>MAX_TICKS||now-progress>STALL_TICKS){
+            // The contact choreography is not converging (gap, headroom, an infant's helper). Never hold the family on the hat forever.
+            boat.forceShoreLanding(owner,rescuer);cancel();return;
         }
         if(owner.family().braidRescueActive()||owner.aquaticLife().familyLife().alarm().preventsOuting()){
             cancel();return;
         }
         boat.holdPosition();
+        if(!docked){
+            // Press the hull's long brim against the bank first; a one-cell stop short of it leaves a water gap no crawl can cross.
+            docked=++dockTicks>DOCK_TICKS||boat.dockToward(Vec3.atBottomCenterOf(bank));
+            return;
+        }
         if(waiting.isEmpty()){
             if(boat.finishShoreLanding(owner,bank,rescuer)){cancel();return;}
             approachHat(owner,level);
@@ -60,8 +73,8 @@ final class AquaticLanding {
         var destination=first.getValue();
         if(actor.family().flying())return;
         if(actor.getVehicle()!=boat){
-            if(actor.onGround()&&!actor.isInWaterOrBubble()&&actor.position().distanceToSqr(destination)<.25){
-                actor.getNavigation().stop();waiting.remove(first.getKey());
+            if(actor.onGround()&&!actor.isInWaterOrBubble()&&actor.position().distanceToSqr(destination)<2.25){
+                actor.getNavigation().stop();waiting.remove(first.getKey());progress=now;
             }else cancel(); // Interrupted movement retains the real hat and cargo at their current positions.
             return;
         }
@@ -132,7 +145,9 @@ final class AquaticLanding {
                 net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,actor));
         return hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK&&Math.abs(hit.getLocation().y-at.y)<.04;
     }
-    private void cancel(){active=false;waiting.clear();retrievalStand=null;nextRetrievalSearch=0;}
+    /** Drop the operation without side effects, after a direct landing already settled everyone. */
+    void abort(){cancel();}
+    private void cancel(){active=false;docked=false;dockTicks=0;waiting.clear();retrievalStand=null;nextRetrievalSearch=0;}
     CompoundTag save(){
         var tag=new CompoundTag();if(!active)return tag;
         tag.putUUID("Owner",ownerId);if(rescuer!=null)tag.putUUID("Rescuer",rescuer);
@@ -147,7 +162,7 @@ final class AquaticLanding {
     void load(CompoundTag tag){
         cancel();if(!tag.hasUUID("Owner")||!tag.contains("Bank"))return;
         ownerId=tag.getUUID("Owner");rescuer=tag.hasUUID("Rescuer")?tag.getUUID("Rescuer"):null;
-        bank=BlockPos.of(tag.getLong("Bank"));started=tag.getLong("Started");
+        bank=BlockPos.of(tag.getLong("Bank"));started=progress=boat.level().getGameTime();
         for(var raw:tag.getList("Waiting",Tag.TAG_COMPOUND)){
             var r=(CompoundTag)raw;if(!r.hasUUID("Id")||waiting.size()>HatBoatEntity.MAX_YOUNG)continue;
             var at=new Vec3(r.getDouble("X"),r.getDouble("Y"),r.getDouble("Z"));

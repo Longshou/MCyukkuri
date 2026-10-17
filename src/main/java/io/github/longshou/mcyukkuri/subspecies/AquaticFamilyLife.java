@@ -37,6 +37,10 @@ public final class AquaticFamilyLife {
     private UUID rescueTarget;
     private UUID recoveringHat, missedHat;
     private long recoveryStarted, missedHatUntil;
+    /** A swimming young whose rescue has not worked for this long is lifted in directly; the physical rescue stays the first attempt. */
+    private static final int SWIMMER_FALLBACK_TICKS=160;
+    private UUID swimmerWatch;
+    private long swimmerSince;
     private ServerLevel cacheLevel;
     private long cacheTick=Long.MIN_VALUE;
     private boolean parentResolved;
@@ -353,6 +357,7 @@ public final class AquaticFamilyLife {
                         :y.aquaticLife().firstVoyage().returningToParent()?2:danger(y,ownHat(y))?1:0)
                         .thenComparingDouble(y->y.isInWaterOrBubble()?-y.getHealth():0)
                         .thenComparingDouble(y->y.isInWaterOrBubble()?-entity.distanceToSqr(y):entity.distanceToSqr(y))).orElse(null);
+        if(swimmerWatch!=null&&(troubled==null||!troubled.getUUID().equals(swimmerWatch)||troubled.isPassenger()||!troubled.isInWaterOrBubble()))swimmerWatch=null;
         if(troubled!=null){
             if(troubled.isInWaterOrBubble()||troubled.family().flying())alertCrew(troubled,boat);
             boolean together=children.stream().allMatch(y->horizontal(boat.position(),y.position())<=WAIT_STOP);
@@ -371,6 +376,11 @@ public final class AquaticFamilyLife {
                 if(!troubled.isPassenger()&&troubled.isInWaterOrBubble()){
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
+                    long now=level().getGameTime();
+                    if(!troubled.getUUID().equals(swimmerWatch)){swimmerWatch=troubled.getUUID();swimmerSince=now;}
+                    else if(now-swimmerSince>SWIMMER_FALLBACK_TICKS&&horizontal(boat.position(),troubled.position())<=4&&boat.liftSwimmerNow(troubled)){
+                        swimmerWatch=null;hold(boat,"boat_return_family");rescueActivity(troubled,"boat_rescue_young");return true;
+                    }
                     if(troubled.family().rescueIntoHat(boat))hold(boat,"boat_return_family");
                     else if(this.alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
                     else if(horizontal(boat.position(),troubled.position())>.8)steer(boat,troubled.position(),false);
