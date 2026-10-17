@@ -20,6 +20,7 @@
 | 茎果；出生发育 | 较上一页露出更多的闭眼脸 | **模型**：与 EH16-003 对照幼体增大后的叶萼覆盖比例，用于成长外观阶段。 | [EH16-004](../../art-references/ehentai/images/EH16/004.jpg) · [出处](../../art-references/ehentai/works/EH16.md) |
 | 灵梦、魔理沙；出生发育、住所布置；愤怒 | 同一箱体内长大的两只个体侧身相挤 | **场景／模型**：参考成长后活动空间变小的可见反馈，箱体尺寸固定而身体占位增加。 | [EH11-007](../../art-references/ehentai/images/EH11/007.jpg) · [出处](../../art-references/ehentai/works/EH11.md) |
 | 灵梦、魔理沙、多毛灵梦；出生发育、照料幼体；喜悦 | 下格垂茎、枝上幼体与亲代接触 | **模型／动作**：参考茎枝弯曲、幼体悬挂方向以及亲代贴近幼体的空间关系。 | [EH10-003](../../art-references/ehentai/images/EH10/003.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
+| 魔理沙、灵梦、襁褓；卫生如厕、穿戴襁褓、照料幼体；喜悦 | 上格头罩保留、下部无衣物与厕所边界 | **动作／场景／道具**：衔接第 13 页分体说明和实际如厕状态，分别记录部件穿戴、地点和亲代反馈；仍需原创脱衣动作。 | [EH34-017](../../art-references/ehentai/images/EH34/017.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 爱丽丝、魔理沙；同伴交往 | 上格爱丽丝正脸、下右魔理沙侧脸 | **模型／表情**：补两种角色对话时的正侧面轮廓；爱丽丝发带波边、齐发尾和半闭眼分别制作，笑脸不直接等同友好意图。 | [EH15-006](../../art-references/ehentai/images/EH15/006.webp) · [出处](../../art-references/ehentai/works/EH15.md) |
 | 魔理沙；同伴交往；愤怒 | 下半完整正脸，帽缘、右侧辫子与向内压低的眉眼 | **模型／表情**：补魔理沙警戒对话脸和正面帽发层次；保留小嘴收紧与眉眼角度，区分大张嘴喊叫。 | [EH15-005](../../art-references/ehentai/images/EH15/005.webp) · [出处](../../art-references/ehentai/works/EH15.md) |
 | 魔理沙、帕秋莉；同伴交往；喜悦、困惑 | 中排两者背面，末排抬脸交谈 | **模型／表情**：补后脑、帽后缘和侧辫落点；制作对话时转身、抬头看对方的姿态。 | [EH26-004](../../art-references/ehentai/images/EH26/004.webp) · [出处](../../art-references/ehentai/works/EH26.md) |
@@ -37,7 +38,10 @@
 | 魔理沙、灵梦、多毛灵梦；照料幼体、日常活动；喜悦、期待 | 上排成体帽缘上的三只幼体及下方幼体仰望近景 | **动作／模型**：补亲代用帽缘承载幼体的占位与视线关系；移动时让幼体跟随帽面而保留各自轻微摆动。 | [EH10-007](../../art-references/ehentai/images/EH10/007.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
 | 被炉魔理沙；环境避险、同伴交往；安心 | 避热、借住凉巢与结尾 | **事件／场景**：给被炉型季节活动准备寻找凉处、借宿沟通和进入休息的情景。 | [N10](../../novel-reading/cards/N10.md) · 文字卡 |
 | 蕾米莉亚、芙兰；空中移动、同伴交往；喜悦 | 两只飞行个体的正面与侧面 | **模型／动作**：参考帽缘、短发、蝠翼与晶体翼的位置；制作悬停时翅膀展开和身体轻摆。 | [EH02-003](../../art-references/ehentai/images/EH02/003.webp) · [出处](../../art-references/ehentai/works/EH02.md) |
+| 魔理沙、灵梦、襁褓；穿戴襁褓、卫生如厕；喜悦 | 下格分离头罩与衣身，魔术贴和辫子孔标注；上两格试作失败说明 | **模型／道具**：分开建模头罩和下部衣物，核对侧辫孔、开合处与如厕时的穿戴状态；不照搬失败款为通用道具。 | [EH34-013](../../art-references/ehentai/images/EH34/013.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
+| 魔理沙、灵梦、襁褓；穿戴襁褓、同伴交往；喜悦 | 彩页上半虎纹头罩与跟随亲代拜年 | **模型／表情／动作**：补黄色底、黑纹与露辫的颜色参考，制作节日问候和亲子呼应。 | [EH34-014](../../art-references/ehentai/images/EH34/014.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 灵梦、襁褓、人类；穿戴襁褓、外出旅行、认知教学；期待 | 下两格衣口、橡胶底、外侧袋；中排路线图 | **道具／模型／动作**：制作外出服的开口、底层与挂袋，并编排出门前说明路线。 | [EH31-002](../../art-references/ehentai/images/EH31/002.webp) · [出处](../../art-references/ehentai/works/EH31.md) |
+| 魔理沙、灵梦、襁褓、人类；穿戴襁褓、宠物照料；期待、喜悦 | 上格虎纹头罩、侧辫外露与幼体想穿的回应 | **模型／道具／表情**：增加节庆服装外观和穿衣意愿；不宣称该格已经画完穿衣动作。 | [EH34-012](../../art-references/ehentai/images/EH34/012.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 灵梦、襁褓、茎果、人类；穿戴襁褓、照料幼体；安心 | 上、中格头顶茎果与抚头 | **模型／动作**：检查茎果、原饰物、衣口同时可见，给待产照料增加接触反馈。 | [EH34-008](../../art-references/ehentai/images/EH34/008.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 灵梦、魔理沙、襁褓、树叶襁褓；穿戴襁褓、照料幼体；安心 | 仅左下：幼体身上的叶片包层，非底下承托大叶 | **道具／模型**：登记野外叶材襁褓：叶脉、折边、低前缘和露出的帽发；制作输入不包含本页上方有胴体捕食者。 | [EH37-006](../../art-references/ehentai/images/EH37/006.webp) · [出处](../../art-references/ehentai/works/EH37.md) |
 | 魔理沙、灵梦、襁褓、徽章、人类；穿戴襁褓、留守迎接；喜悦 | M／R 字样衣物与返乡问候 | **模型／道具／动作**：做个体衣物标记和熟人迎接，衣物标记不替代徽章资格。 | [EH34-007](../../art-references/ehentai/images/EH34/007.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
