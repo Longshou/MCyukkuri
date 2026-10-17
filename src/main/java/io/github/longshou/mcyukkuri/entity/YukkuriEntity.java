@@ -502,7 +502,7 @@ public final class YukkuriEntity extends PathfinderMob {
             @Override public boolean canContinueToUse() { return life.canEat() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(5, new FamilyGoal());
-        goalSelector.addGoal(5, new HouseGoal());
+        goalSelector.addGoal(4, new HouseGoal());
         forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
         goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
@@ -521,8 +521,9 @@ public final class YukkuriEntity extends PathfinderMob {
         wintering = new io.github.longshou.mcyukkuri.season.WinteringLife(this);
         goalSelector.addGoal(7, wintering);
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0) {
-            @Override public boolean canUse() { return childhood.canLearn() && super.canUse(); }
-            @Override public boolean canContinueToUse() { return childhood.canLearn() && super.canContinueToUse(); }
+            // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
+            @Override public boolean canUse() { return childhood.canLearn() && (!variant.isHouse() || house.homeless()) && super.canUse(); }
+            @Override public boolean canContinueToUse() { return childhood.canLearn() && (!variant.isHouse() || house.homeless()) && super.canContinueToUse(); }
         });
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
@@ -980,6 +981,13 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriFamily", family.save());tag.putBoolean("FamilyDeathRecorded",deathRecorded);
         tag.put("YukkuriChildhood", childhood.save());
         tag.put("YukkuriHouse",house.save());
+        if (variant.isHouse()) {
+            // Read-only observation for operators and automated checks: which goals are running right now.
+            var running = new net.minecraft.nbt.ListTag();
+            goalSelector.getAvailableGoals().stream().filter(net.minecraft.world.entity.ai.goal.WrappedGoal::isRunning)
+                    .forEach(goal -> running.add(net.minecraft.nbt.StringTag.valueOf(goal.getGoal().getClass().getSimpleName() + "@" + goal.getPriority())));
+            tag.put("YukkuriDebugGoals", running);
+        }
         tag.put("YukkuriBody",body.save());
         tag.put("YukkuriStatus",status.save());
         if(level() instanceof ServerLevel)try{tag.put("YukkuriStatusView",io.github.longshou.mcyukkuri.status.YukkuriStatus.snapshot(this));}catch(RuntimeException ignored){}

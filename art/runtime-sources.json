@@ -3920,6 +3920,7 @@
     "snapshot": "art/source/house-ecology",
     "manifest": "art/source/house-ecology/manifest.json",
     "runtime_catalog": "src/main/resources/assets/mcyukkuri/yukkuri_props/house-ecology-index.json",
+    "note": "2026-10-18: nest_lint and food_scrap are no longer player items; they remain registered only as internal carriers for ground debris, mouth and nest display. Models and textures are unchanged; no new art was added by the house ecology rework.",
     "models": [
       "nest_lint",
       "house_lint_bedding",

@@ -65,6 +65,9 @@ final class HouseNavigation {
             var sample = from.add(delta.scale((double)i / samples));
             var pos = BlockPos.containing(sample);
             var floor = BlockPos.containing(sample.x, sample.y - .05, sample.z);
+            // The bedding is a destination, never a short cut: only its own cell may be entered, and only by a path that ends or starts in it.
+            if (entity.level().getBlockState(pos).getBlock() instanceof HouseNestBlock
+                    && !pos.equals(BlockPos.containing(point)) && !pos.equals(BlockPos.containing(from))) return false;
             if (!entity.level().hasChunkAt(pos) || !entity.level().hasChunkAt(floor)
                     || !entity.level().getFluidState(pos).isEmpty()
                     || !entity.level().getFluidState(floor).isEmpty()

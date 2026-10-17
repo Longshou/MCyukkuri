@@ -43,7 +43,7 @@ public final class SupplyPileBlock extends Block implements EntityBlock {
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
         if(stack.is(ModItems.WASH_CLOTH.get()))return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
-        if(SupplyPiles.material(stack)){
+        if(SupplyPiles.waste(stack)){
             if(!level.isClientSide)SupplyItem.deposit(level,pos,stack,player);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
@@ -52,17 +52,18 @@ public final class SupplyPileBlock extends Block implements EntityBlock {
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){
         if(!player.getMainHandItem().isEmpty())return InteractionResult.PASS;
         if(!level.isClientSide&&level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile){
-            if(player.isSecondaryUseActive())SupplyPiles.give(player,pile.takeAll());
+            // Lint and crumbs are only dust and leftovers on the floor; only the cleaned-up waste can be gathered.
+            if(player.isSecondaryUseActive()&&pile.is(ModItems.WASTE.get()))SupplyPiles.give(player,pile.takeAll());
             else player.displayClientMessage(Component.translatable("house.mcyukkuri.supplies.inspect",pile.contents().getHoverName(),pile.count(),SupplyPileBlockEntity.CAPACITY),true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void randomTick(BlockState state,ServerLevel level,BlockPos pos,RandomSource random){
-        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)pile.rot(level.getGameTime());
+        if(level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile)pile.decay(level.getGameTime());
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
         if(!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof SupplyPileBlockEntity pile){
-            var stack=pile.drain();if(!stack.isEmpty())Block.popResource(level,pos,stack);
+            var stack=pile.drain();if(SupplyPiles.waste(stack))Block.popResource(level,pos,stack);
         }
         super.onRemove(state,level,pos,replacement,moving);
     }
