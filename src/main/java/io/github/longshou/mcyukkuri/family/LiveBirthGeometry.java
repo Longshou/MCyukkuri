@@ -197,7 +197,9 @@ public final class LiveBirthGeometry {
         if(!(mother.level() instanceof ServerLevel level))return false;
         // Afloat in her own hat boat the young are born into the hat: only a free seat is needed.
         var boat=mother.family().boatHome();
-        if(boat!=null)return boat.hasRoomForYoung();
+        // The exact seat is planned for the real newborn (FamilyData.birth: her own hat, or the partner's, with the emergency refuge as the last place);
+        // hasRoomForYoung() asks for a worn-hat seat among the owner's whole body projection and is never true for a newborn in a full-size hat.
+        if(boat!=null)return boat.isAfloat()&&boat.youngAboard()<io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_YOUNG;
         var position=position(mother,index);
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);

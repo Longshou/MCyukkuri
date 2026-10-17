@@ -366,7 +366,10 @@ public final class FamilyLife {
     public void cancelBraidRescue(){boarding.cancel();var cradle=pickupController();if(cradle!=null)cradle.cancel();var controller=rescueController();if(controller!=null)controller.cancel();}
     /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
      *  a parabola. */
-    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){
+    /** How far a newborn may be sent across the water from its mother's outlet into a partner's hat boat alongside. */
+    public static final double SHARE_REACH=3.2;
+    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){launchInto(hat,tmin,prefer,1.25);}
+    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){
         if(hat==null||flying()||heldByBraid()||hat.unsteadyMotion())return;
         // Only the actual birth push is not a voluntary jump. Landed children must
         // approach on real ground; swimming infants wait for their parent's dipped rim.
@@ -377,7 +380,7 @@ public final class FamilyLife {
         double r=HatVessel.radius(entity.getBbWidth());
         var from=entity.position();var to=hat.toWorld(seat);
         int duration=HatVessel.solve(from,to,hat,r,tmin);
-        if(from.subtract(to).horizontalDistance()>1.25||!birthPathClear(hat,from,to,duration)){hat.cancelIncoming(entity);return;}
+        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){hat.cancelIncoming(entity);return;}
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
     }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
@@ -632,6 +635,7 @@ public final class FamilyLife {
         if(task==Task.MIDWIFE)tickMidwife();
         if(comfortTicks>0)tickComfort();
         var brood=brood();
+        tickWaterPartner();
         // Labour wakes a sleeping mother (a night pregnancy used to wait until morning, or for ever in a hat).
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
             if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();
@@ -889,6 +893,25 @@ public final class FamilyLife {
                 &&entity.level().getBlockCollisions(entity,entity.getBoundingBox().move(0,-.025,0)).iterator().hasNext();
     }
     private static final int NEST_GRACE=400, NEST_PATIENCE=100;
+    /**
+     * Water birth with a partner: his own hat boat comes alongside hers for the last stretch and the labour (he needs no shore), so that a share
+     * of the newborns can be sent across into his hat (FamilyData.waterCradle). Without him, or when he cannot come, she gives birth alone in her hat.
+     */
+    private void tickWaterPartner(){
+        if(entity.tickCount%20!=7||partner==null)return;
+        var mine=boatHome();if(mine==null||mine.towed())return;
+        if(!(level().getEntity(partner) instanceof YukkuriEntity mate)||!mate.isAlive()||mate==entity)return;
+        var hers=mate.family().boatHome();var pregnancy=mate.family().brood();
+        if(hers==null||hers==mine||pregnancy==null||pregnancy.cancelled||pregnancy.complete()||pregnancy.kind!=FamilyData.BirthKind.LIVE)return;
+        if(pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring()||entity.isPanicking()||entity.life().hasUrgentNeed()||entity.distanceToSqr(mate)>576)return;
+        var forward=Vec3.directionFromRotation(0,mate.yBodyRot).multiply(1,0,1).normalize();
+        var right=new Vec3(-forward.z,0,forward.x);
+        double sign=mine.position().subtract(hers.position()).dot(right)>=0?1:-1;
+        var station=hers.position().add(forward.scale(.5)).add(right.scale(sign*STATION_GAP));
+        if(mine.position().subtract(station).multiply(1,0,1).lengthSqr()>.09)mine.paddleTo(station);
+        else mine.holdPosition();
+    }
+    private static final double STATION_GAP=2.1;
     /**
      * Where the gestation may advance. The clock runs wherever a healthy mother is until the last {@link #NEST_GRACE} ticks (it used to run only
      * beside a claimed nest, so a mother whose nest was lost or far never progressed and neither grew a belly or stem nor gave birth); in the
