@@ -21,4 +21,6 @@
 
 徽章是饰物上的圆形金属牌，随饰物离身而不显示，资格保留。挂点制作源、色板与导出方式见 [art/props/badges/README.md](../art/props/badges/README.md)；`python scripts/export_badges.py` 导出挂点、手帖配方和本模块语言，`--check` 核对当前内容。作品参考与佩戴依据见 [漫画与小说核读](../wiki/badges.md)。挂点与贴图为待用户确认版本。
 
+徽章的社会反应（目击、记忆、预算、弧线、传闻、管理员命令）见 [PET_SHOP.md §7](PET_SHOP.md#7-社会反应徽章)；配置段为 `badge_social`。
+
 旧徽章专项检查脚本（`badge_checks.init.gradle`、`run_badge_checks.py`）的说明在 [scripts/README.md](../scripts/README.md)；它们需要编译，本机不执行，现行测试见 [PET_SHOP.md §10](PET_SHOP.md#10-实现进度与验证)。
