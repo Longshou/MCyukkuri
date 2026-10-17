@@ -3,11 +3,15 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -23,16 +27,91 @@ public final class PetCare {
     public static final int ASK_COOLDOWN = 100;
     private final YukkuriEntity animal;
     private final PetRequests requests;
+    private final PetWalk walk;
+    private UUID wearOwner;
     private int day = Integer.MIN_VALUE, snacks, habits, idleDays, habitLeft;
     private long askUntil;
     private boolean harness, swaddle;
     private UUID habitCard;
 
-    public PetCare(YukkuriEntity animal) { this.animal = animal; requests = new PetRequests(animal); }
+    public PetCare(YukkuriEntity animal) { this.animal = animal; requests = new PetRequests(animal); walk = new PetWalk(animal); }
     public PetRequests requests() { return requests; }
-    /** Worn gear (items and rendering are added with the harness and swaddle). */
+    public PetWalk walk() { return walk; }
+
+    // worn gear: the harness (a body band with a back ring for the lead, never the accessory) and, later, the swaddle
     public boolean harnessed() { return harness; }
     public boolean swaddled() { return swaddle; }
+    /** Bit 0 harness, bit 1 swaddle: what the client draws and what the lead check reads. */
+    public int wearBits() { return (harness ? 1 : 0) | (swaddle ? 2 : 0); }
+    private void syncWear() { animal.setWear(wearBits()); }
+    private void say(Player player, String key) { player.displayClientMessage(Component.translatable("pet.mcyukkuri." + key, animal.getDisplayName()), true); }
+    /** Whether this player may lead the pet right now (its owner, harness on, not busy): the lead guard asks this before vanilla ties the lead. */
+    public String leashRefusal(Player player) {
+        var pet = animal.pet();
+        if (!pet.isPet() || !pet.owned(player)) return "not_yours";
+        if (!harness) return "need_harness";
+        if (pet.busy()) return "busy";
+        return null;
+    }
+    /** Right-click with the harness item: fit it on the owner's own independent pet. */
+    public boolean putOnHarness(Player player, ItemStack stack) {
+        var pet = animal.pet();
+        String why = !pet.isPet() || !pet.owned(player) ? "not_yours" : harness ? "already" : !animal.childhood().canLiveIndependently() ? "too_young"
+                : player.distanceToSqr(animal) > 9 ? "too_far" : pet.busy() || !pet.calm() ? "not_calm" : null;
+        if (why != null) { say(player, "harness.refuse." + why); return false; }
+        harness = true; wearOwner = player.getUUID(); syncWear();
+        if (!player.getAbilities().instabuild) stack.shrink(1);
+        pet.contact(player.getUUID(), true);
+        animal.playAction("hop"); animal.showReaction("happy", "harness_on", 80);
+        return true;
+    }
+    /** CareAction.REMOVE_HARNESS: the harness comes off (the lead is returned first) and goes back to the owner. */
+    public boolean takeOffHarness(Player player) {
+        if (!harness || !animal.pet().owned(player)) return false;
+        if (animal.isLeashed()) animal.dropLeash(true, true);
+        harness = false; syncWear();
+        giveBack(new ItemStack(ModItems.PET_HARNESS.get()), player);
+        return true;
+    }
+    /** The lead goes back to the player who held it (nothing for creative mode); at a fence post or for a dead holder it drops at the pet. */
+    public void returnLead(Entity holder) {
+        var lead = new ItemStack(Items.LEAD);
+        if (holder instanceof Player p && p.isAlive()) { if (!p.hasInfiniteMaterials() && !p.getInventory().add(lead)) p.drop(lead, false); }
+        else animal.spawnAtLocation(lead);
+    }
+    private void giveBack(ItemStack stack, Player preferred) {
+        Player to = preferred != null ? preferred : wearOwner == null ? null : animal.level().getPlayerByUUID(wearOwner);
+        if (to != null && to.isAlive() && to.level() == animal.level()) { if (!to.getInventory().add(stack)) to.drop(stack, false); }
+        else animal.spawnAtLocation(stack);
+    }
+    /** Ownership ends or changes (sale, adoption, abandonment): the lead is released and the worn gear goes back to whoever fitted it.
+     *  The same owner taking the pet again (a carrier trip) keeps the gear on. */
+    public void ownerChanged(UUID newOwner) {
+        if (animal.level().isClientSide) return;
+        if (animal.isLeashed()) animal.dropLeash(true, true);
+        if (newOwner != null && newOwner.equals(wearOwner)) return;
+        stripWear(null);
+    }
+    /** Death: the gear stays behind where the pet fell. */
+    public void died() {
+        if (animal.level().isClientSide) return;
+        if (animal.isLeashed()) animal.dropLeash(true, true);
+        if (harness) animal.spawnAtLocation(new ItemStack(ModItems.PET_HARNESS.get()));
+        harness = false; swaddle = false; syncWear();
+    }
+    /** Any session lock (exam, lesson, sale, matchmaking) and carrier capture release the lead; the owner gets it back. */
+    public void released() { if (!animal.level().isClientSide && animal.isLeashed()) animal.dropLeash(true, true); }
+    private void stripWear(Player preferred) {
+        if (harness) giveBack(new ItemStack(ModItems.PET_HARNESS.get()), preferred);
+        harness = false; syncWear();
+    }
+    private void tickWear() {
+        if (animal.isLeashed()) {
+            var holder = animal.getLeashHolder();
+            if (!harness || !animal.pet().isPet() || holder instanceof Player p && !animal.pet().ownedBy(p.getUUID())) animal.dropLeash(true, true);
+        }
+        if (animal.level().getGameTime() % 40 == 0 && animal.visibleWear() != wearBits()) syncWear();
+    }
 
     private int today() { return (int)(animal.level().getGameTime() / DAY); }
     /** Rolls the daily counters over; returns whether a new day started since the last call. */
@@ -41,7 +120,7 @@ public final class PetCare {
         if (day == now) return false;
         boolean first = day == Integer.MIN_VALUE;
         day = now; snacks = 0; habits = 0;
-        requests.newDay(!first);
+        requests.newDay(!first); walk.newDay();
         if (first) return false;
         if (animal.pet().isPet() && ++idleDays >= DECAY_DAYS) { // manners fade slowly without practice: one point per five idle game days
             idleDays = 0;
@@ -127,7 +206,7 @@ public final class PetCare {
     public void tick() {
         if (animal.level().isClientSide) return;
         rollDay();
-        requests.tick();
+        requests.tick(); walk.tick(); tickWear();
         if (habitLeft > 0) {
             if (!animal.isAlive() || --habitLeft <= 0) closeHabit();
             else if (habitLeft % 4 == 0) Staging.moveCard(level(), habitCard, markPos());
@@ -138,6 +217,7 @@ public final class PetCare {
         var tag = new CompoundTag();
         tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits); tag.putInt("IdleDays", idleDays);
         tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.put("Requests", requests.save());
+        tag.putInt("WalkUnits", walk.saveUnits()); tag.putDouble("WalkCarry", walk.carry()); if (wearOwner != null) tag.putUUID("WearOwner", wearOwner);
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -145,5 +225,6 @@ public final class PetCare {
         snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99); idleDays = Math.clamp(tag.getInt("IdleDays"), 0, 99);
         habitLeft = 0; habitCard = null; askUntil = 0;
         harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); requests.load(tag.getCompound("Requests"));
+        walk.load(tag.getInt("WalkUnits"), tag.getDouble("WalkCarry")); wearOwner = tag.hasUUID("WearOwner") ? tag.getUUID("WearOwner") : null;
     }
 }

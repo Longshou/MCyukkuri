@@ -116,6 +116,8 @@ public final class YukkuriEntity extends PathfinderMob {
     private static final EntityDataAccessor<Float> CONTACT_TURN=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<java.util.Optional<net.minecraft.core.BlockPos>> CONTACT_ANCHOR=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.OPTIONAL_BLOCK_POS);
     private static final EntityDataAccessor<Integer> HAIR_LOSS=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.INT);
+    /** Worn pet gear: bit 0 harness, bit 1 swaddle (docs/PET_SHOP.md section 12). */
+    private static final EntityDataAccessor<Integer> WEAR=SynchedEntityData.defineId(YukkuriEntity.class,EntityDataSerializers.INT);
     private boolean deathRecorded;
     private YukkuriAction requestedAction;
     private int panicTicks;
@@ -511,6 +513,7 @@ public final class YukkuriEntity extends PathfinderMob {
         builder.define(WATER_DISTRESS,new CompoundTag());
         builder.define(BRAID_RESCUE,new CompoundTag());builder.define(AQUATIC_ALARM,new CompoundTag());
         builder.define(HAT_BOARDING,new CompoundTag());builder.define(AQUATIC_SELF_RESCUE,new CompoundTag());
+        builder.define(WEAR,0);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -668,6 +671,7 @@ public final class YukkuriEntity extends PathfinderMob {
         if(!isAlive())return;
         if (!ItemStack.matches(entityData.get(MOUTH), life.mouth())) entityData.set(MOUTH, life.mouth().copy());
         entityData.set(MEDAL, pet.visibleGrade().id()); entityData.set(ACCESSORY, life.hasAccessory());
+        entityData.set(WEAR, pet.care().wearBits());
         if (isOnFire() && panicTicks < 100) {
             panicTicks = 100;
             requestedAction = null;
@@ -934,6 +938,7 @@ public final class YukkuriEntity extends PathfinderMob {
     @Override
     public void die(DamageSource source) {
         if (!level().isClientSide) {
+            pet.care().died();
             family.cancelBraidRescue();
             if(!deathRecorded)body.fatalInjury(source,pendingHitHealth);
             if(!deathRecorded)settlement.attackedBy(source,true);
@@ -985,6 +990,23 @@ public final class YukkuriEntity extends PathfinderMob {
             if (fed && !player.getAbilities().instabuild) stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
+    }
+
+    // pet harness and lead (docs/PET_SHOP.md section 12): the lead is tied to the harness ring on the back, never to the accessory
+    public int visibleWear() { return entityData.get(WEAR); }
+    public void setWear(int bits) { entityData.set(WEAR, bits); }
+    /** Only a harnessed pet can be led; PetCare/LeashGuard further restrict this to the owner (the check below is the same on both sides). */
+    @Override public boolean canBeLeashed() { return (entityData.get(WEAR) & 1) != 0; }
+    @Override protected Vec3 getLeashOffset() { return new Vec3(0, getBbHeight() * .6, -getBbWidth() * .46); }
+    /** It does not follow while something is urgent or it is busy: the lead only holds it back past 6 blocks. */
+    @Override protected boolean shouldStayCloseToLeashHolder() {
+        return !life.hasUrgentNeed() && !pet.busy() && life.mealTicks() == 0 && !isCommandPlaying() && !operations.active();
+    }
+    /** The lead goes back into the hands that held it instead of lying on the ground. */
+    @Override public void dropLeash(boolean broadcast, boolean dropItem) {
+        var holder = getLeashHolder();
+        super.dropLeash(broadcast, false);
+        if (dropItem && holder != null && !level().isClientSide) pet.care().returnLead(holder);
     }
 
     @Override
@@ -1045,6 +1067,7 @@ public final class YukkuriEntity extends PathfinderMob {
         setAnimation(YukkuriAction.IDLE, true);
         entityData.set(EXPRESSION, "neutral");
         entityData.set(MEDAL, pet.visibleGrade().id()); entityData.set(ACCESSORY, life.hasAccessory()); entityData.set(MOUTH, life.mouth().copy());
+        entityData.set(WEAR, pet.care().wearBits());
         if(tag.contains("YukkuriFamily"))family.load(tag.getCompound("YukkuriFamily"));
         childhood.load(tag.getCompound("YukkuriChildhood"));
         deathRecorded=tag.getBoolean("FamilyDeathRecorded");

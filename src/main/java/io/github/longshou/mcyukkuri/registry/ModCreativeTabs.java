@@ -41,7 +41,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.HOUSEHOLD_GUARD.get());
                         output.accept(ModItems.TOY.get());
                         output.accept(ModItems.WHISTLE.get());
-                        output.accept(ModItems.COMPANION_CORD.get());
+                        output.accept(ModItems.COMPANION_CORD.get());output.accept(ModItems.PET_HARNESS.get());
                         output.accept(ModItems.FOOD_SCRAP.get());output.accept(ModItems.NEST_LINT.get());
                         output.accept(ModItems.YUKKURI_STEM.get());
                         output.accept(ModItems.GRAIN_BUDGET.get());output.accept(ModItems.GRAIN_REGULAR.get());output.accept(ModItems.GRAIN_PREMIUM.get());

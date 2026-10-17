@@ -2773,5 +2773,16 @@
   "pet.mcyukkuri.ask.reason.bored": "%s wants to say: I'm bored.",
   "pet.mcyukkuri.ask.reason.tired": "%s wants to say: I'm tired.",
   "pet.mcyukkuri.ask.reason.dirty": "%s wants to say: I'm dirty.",
-  "pet.mcyukkuri.ask.reason.stressed": "%s wants to say: I feel tense and uneasy."
+  "pet.mcyukkuri.ask.reason.stressed": "%s wants to say: I feel tense and uneasy.",
+  "item.mcyukkuri.pet_harness": "Pet Harness",
+  "operation.mcyukkuri.remove_harness": "Take Off Harness",
+  "operation.mcyukkuri.help.remove_harness": "Takes the harness off and returns it. A lead is released first.",
+  "pet.mcyukkuri.harness.refuse.not_yours": "A harness can only be fitted on your own pet.",
+  "pet.mcyukkuri.harness.refuse.already": "It is already wearing a harness.",
+  "pet.mcyukkuri.harness.refuse.too_young": "It is still too small for a harness.",
+  "pet.mcyukkuri.harness.refuse.too_far": "Get a little closer.",
+  "pet.mcyukkuri.harness.refuse.not_calm": "It will not sit still right now. Try again later.",
+  "pet.mcyukkuri.leash.refuse.not_yours": "A lead only works on your own pet.",
+  "pet.mcyukkuri.leash.refuse.need_harness": "Fit %s with a harness before using a lead.",
+  "pet.mcyukkuri.leash.refuse.busy": "%s is busy and cannot be leashed now."
 }

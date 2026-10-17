@@ -2733,5 +2733,16 @@
   "pet.mcyukkuri.ask.reason.bored": "%sは「たいくつだよ」と言っています。",
   "pet.mcyukkuri.ask.reason.tired": "%sは「つかれたよ、ねむいな」と言っています。",
   "pet.mcyukkuri.ask.reason.dirty": "%sは「からだがよごれちゃった」と言っています。",
-  "pet.mcyukkuri.ask.reason.stressed": "%sは「どきどきして、おちつかないよ」と言っています。"
+  "pet.mcyukkuri.ask.reason.stressed": "%sは「どきどきして、おちつかないよ」と言っています。",
+  "item.mcyukkuri.pet_harness": "胴輪",
+  "operation.mcyukkuri.remove_harness": "胴輪をはずす",
+  "operation.mcyukkuri.help.remove_harness": "胴輪をはずして取り戻します。リードがついていれば先にはずれます。",
+  "pet.mcyukkuri.harness.refuse.not_yours": "胴輪をつけられるのは自分のペットだけです。",
+  "pet.mcyukkuri.harness.refuse.already": "もう胴輪をつけています。",
+  "pet.mcyukkuri.harness.refuse.too_young": "まだ小さすぎて、胴輪はつけられません。",
+  "pet.mcyukkuri.harness.refuse.too_far": "もう少し近づいてください。",
+  "pet.mcyukkuri.harness.refuse.not_calm": "今は落ち着かないので、あとでもう一度。",
+  "pet.mcyukkuri.leash.refuse.not_yours": "リードをつけられるのは自分のペットだけです。",
+  "pet.mcyukkuri.leash.refuse.need_harness": "リードをつける前に、%sに胴輪をつけてください。",
+  "pet.mcyukkuri.leash.refuse.busy": "%sは今忙しくて、リードをつけられません。"
 }

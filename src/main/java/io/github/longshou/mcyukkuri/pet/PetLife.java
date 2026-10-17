@@ -235,6 +235,7 @@ public final class PetLife {
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
     public void abandonedBy(UUID former) {
         if (animal.level() instanceof ServerLevel sl) AbandonLog.get(sl).record(former, now());
+        care.ownerChanged(null);
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
         var p = animal.life().personality();
@@ -243,6 +244,7 @@ public final class PetLife {
     }
     /** HumanCommerce.assign: any new owner ends the abandoned state. The former owner returning gets one tremble then joy, and the registry entry is honoured again; trust is left as it is. */
     public void newOwner(UUID owner) {
+        care.ownerChanged(owner);
         if (formerOwner == null) return;
         boolean same = formerOwner.equals(owner);
         formerOwner = null; abandonStage = 0; waits = false; lastContact = now(); neglect = 0; neglectClock = 0; reunionDue = false; noticeSent = false;
@@ -281,7 +283,7 @@ public final class PetLife {
         if (busy() || kind == null || kind.isEmpty()) return false;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         animal.dailyLife().stop(); animal.predator().stop();
-        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); return true;
+        lockKind = kind; lockedBy = by; lockGone = 0; animal.setPersistenceRequired(); care.released(); return true;
     }
     public void unlock(String kind) {
         if (lockKind == null || kind != null && !kind.equals(lockKind)) return;

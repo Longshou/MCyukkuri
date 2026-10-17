@@ -311,6 +311,16 @@ public final class YukkuriModel {
         var point=new org.joml.Vector3f();var vertex=new org.joml.Vector3f();
         for(int i=0;i<3;i++){skin(woundTriangle+i,vertex);point.add(vertex);}return point.div(48);
     }
+    /** Skinned vertices (x, y, z in blocks) of the body surface in the pose of the last render, for attachments that are derived from the body itself (CareWearRenderer). */
+    float[] posedBody() {
+        int count = 0;
+        for (var part : parts) if (bodySurface(part.name)) count += part.count;
+        float[] out = new float[count * 3];
+        var point = new Vector3f(); int k = 0;
+        for (var part : parts) if (bodySurface(part.name))
+            for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); out[k++] = point.x / 16; out[k++] = point.y / 16; out[k++] = point.z / 16; }
+        return out;
+    }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, net.minecraft.client.renderer.MultiBufferSource buffers, int light, int overlay) {
         if (tier < 1 || badgeMount == null) return;

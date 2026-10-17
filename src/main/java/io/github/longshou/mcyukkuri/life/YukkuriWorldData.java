@@ -54,7 +54,7 @@ public final class YukkuriWorldData extends SavedData {
     public UUID capture(YukkuriEntity entity) {
         if (!entity.isAlive() || entity.isRemoved() || entity.isPassenger() || entity.isVehicle() || isCaptured(entity.getUUID())) return null;
         if(!entity.operations().end())return null;
-        entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();
+        entity.groupInteraction().stop();entity.playLife().stop();entity.social().stop();entity.pet().care().released();
         CompoundTag snapshot = new CompoundTag();
         if (!entity.save(snapshot)) return null;
         UUID token = UUID.randomUUID();

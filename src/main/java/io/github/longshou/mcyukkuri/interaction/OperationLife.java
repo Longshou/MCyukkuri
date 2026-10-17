@@ -129,6 +129,7 @@ public final class OperationLife {
             case HAT_PUT_DOWN_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
+            case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
             case RELEASE -> false;
         };
         if(done){

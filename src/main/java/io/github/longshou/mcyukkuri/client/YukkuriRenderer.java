@@ -164,6 +164,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
+            if(entity.visibleWear()!=0&&!hatCarrier&&hatParent==null)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.subspecies().assetId());
             for(int heldIndex=0;heldIndex<2;heldIndex++){
                 // A prepared mash remains at the caregiver's mouth until the server atomically

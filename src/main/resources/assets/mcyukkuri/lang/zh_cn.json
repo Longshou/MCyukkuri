@@ -2771,5 +2771,16 @@
   "pet.mcyukkuri.ask.reason.bored": "%s想说：好无聊。",
   "pet.mcyukkuri.ask.reason.tired": "%s想说：好累，想睡觉。",
   "pet.mcyukkuri.ask.reason.dirty": "%s想说：身上脏脏的。",
-  "pet.mcyukkuri.ask.reason.stressed": "%s想说：心里怦怦的，不安。"
+  "pet.mcyukkuri.ask.reason.stressed": "%s想说：心里怦怦的，不安。",
+  "item.mcyukkuri.pet_harness": "牵引胴带",
+  "operation.mcyukkuri.remove_harness": "摘下胴带",
+  "operation.mcyukkuri.help.remove_harness": "取下胴带并收回；拴着绳时先松开拴绳。",
+  "pet.mcyukkuri.harness.refuse.not_yours": "只能给自己的宠物戴胴带。",
+  "pet.mcyukkuri.harness.refuse.already": "它已经戴着胴带了。",
+  "pet.mcyukkuri.harness.refuse.too_young": "它还太小，戴不了胴带。",
+  "pet.mcyukkuri.harness.refuse.too_far": "再靠近一点。",
+  "pet.mcyukkuri.harness.refuse.not_calm": "它现在静不下来，稍后再试。",
+  "pet.mcyukkuri.leash.refuse.not_yours": "拴绳只能用在自己的宠物身上。",
+  "pet.mcyukkuri.leash.refuse.need_harness": "先给%s戴上牵引胴带，才能拴绳。",
+  "pet.mcyukkuri.leash.refuse.busy": "%s现在忙着，不能拴绳。"
 }
