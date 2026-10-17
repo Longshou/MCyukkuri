@@ -103,8 +103,15 @@ def fetch(limit_override=None, source_ids=None):
             gallery = parse(gallery_raw)
             if not gallery.title or not gallery.pages:
                 raise ValueError('No public gallery content; stop and inspect manually')
-            limit = min(limit_override or source['limit'], source['total_pages'])
-            selected = list(range(1, limit+1))
+            if 'selected_pages' in source:
+                selected = source['selected_pages']
+                if (not selected or any(type(n) is not int or not 1 <= n <= source['total_pages'] for n in selected)
+                        or selected != sorted(set(selected))):
+                    raise ValueError('selected_pages must be unique, ascending gallery page numbers')
+                selected = selected[:limit_override] if limit_override else selected
+            else:
+                limit = min(limit_override or source['limit'], source['total_pages'])
+                selected = list(range(1, limit+1))
             if not all(n in gallery.pages for n in selected):
                 raise ValueError('Requested pages absent from observed gallery links')
             record = {**source, 'title':gallery.title, 'tags':gallery.tags,
@@ -153,7 +160,7 @@ def fetch(limit_override=None, source_ids=None):
                 except Exception as exc:
                     errors.append({'id':iid,'error':str(exc)})
             dump(MANIFEST,data)
-            print(sid,'saved',sum(r['source_id']==sid for r in data['images']),'selected',limit,flush=True)
+            print(sid,'saved',sum(r['source_id']==sid for r in data['images']),'selected',len(selected),flush=True)
         except Exception as exc:
             errors.append({'id':sid,'error':str(exc)})
             print(sid,'FAILED',str(exc),flush=True)
@@ -241,7 +248,7 @@ def catalog():
 if __name__=='__main__':
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('command',choices=['fetch','check','sheets','catalog'])
-    ap.add_argument('--limit',type=int,help='Fetch first N pages per registered gallery; default uses sources.json')
+    ap.add_argument('--limit',type=int,help='Fetch first N registered selections, or first N gallery pages without selected_pages')
     ap.add_argument('--source',nargs='+',help='Fetch only these registered source IDs')
     args=ap.parse_args()
     if args.limit is not None and args.limit<1:ap.error('--limit must be positive')

@@ -533,6 +533,26 @@
         }
       ],
       "source": "docs/DIALOGUE_IMPLEMENTATION.md"
+    },
+    {
+      "id": "pet-life-research",
+      "label": "宠物生活设定参考",
+      "title": "外出襁褓、如厕练习与成体穿衣",
+      "tag": "2026-10-17 · 作品参考，非游戏效果",
+      "summary": "EH31-002、EH32-006、EH33-011、EH34-007 的当前核读联系表。原图与出处位于 wiki/art-references/ehentai/，专题见 wiki/pet-life.md；不代表模型认可或玩法已经实现。",
+      "model": "marisa",
+      "points": [
+        "外出服底面橡胶与外侧挂袋。",
+        "如厕失误与清洁分开表现。",
+        "成体衣物、个体标记与正式徽章分别索引。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "pet-life-research/current.jpg",
+          "label": "四张已细看原图的联系表；署名与原文保留于原文件"
+        }
+      ]
     }
   ]
 }

@@ -34,6 +34,7 @@
 | 帕秋莉；住所布置、认知教学、同伴交往；悲伤、安心 | 苔藓巢、读书、气球破裂与安慰同宿 | **场景／事件／道具**：把书、气球和苔藓床放进日常活动链：读书、玩耍、失落、安慰、一起休息。 | [N23](../../novel-reading/cards/N23.md) · 文字卡 |
 | 家油灵梦、家油魔理沙、软窝；出生发育、休息睡眠；安心 | 中右同窝、下左圆卵 | **道具／场景**：拆分家油窝的软铺层、成幼占位和卵簇摆放，保留幼体可露头的前缘空间。 | [M01-002](../../art-references/images/M01/002-5bc89c5b.png) · [出处](../../art-references/works/M01.md) |
 | 灵梦、魔理沙、多毛灵梦；出生发育、照料幼体；喜悦 | 下格垂茎、枝上幼体与亲代接触 | **模型／动作**：参考茎枝弯曲、幼体悬挂方向以及亲代贴近幼体的空间关系。 | [EH10-003](../../art-references/ehentai/images/EH10/003.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
+| 魔理沙；卫生如厕；悲伤 | 上格低落、下格清洁动作 | **动作／表情**：区分漏便、意识到弄脏、清洁三个状态；地点约束另由项目设计。 | [EH32-006](../../art-references/ehentai/images/EH32/006.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
 | 家油灵梦、家油魔理沙；受困逃离；恐惧 | 下排粘住后挣动的个体 | **表情／动作**：做受困挣扎：接地点固定，上半身扭动，泪眼与张嘴同步；用于陷阱反馈。 | [M01-005](../../art-references/images/M01/005-75969c4e.png) · [出处](../../art-references/works/M01.md) |
 | 家油魔理沙；受困逃离；恐惧 | 下方前后两个小图，接近物件与被悬起后的轮廓 | **道具／动作**：为游戏捕捉装置制作张开、收拢和悬挂三种可辨状态；让被捕实体的帽子与身体受力分开表现。 | [EH05-007](../../art-references/ehentai/images/EH05/007.jpg) · [出处](../../art-references/ehentai/works/EH05.md) |
 | 灵梦、魔理沙、人类；受困逃离；恐惧 | 中格被击退、下格离地翻滚及落点 | **动作／形变**：做击退动作关键姿态，区分离地弧线、身体翻转与帽子脱离后的轨迹。 | [M11-003](../../art-references/images/M11/003-2da4251d.jpg) · [出处](../../art-references/works/M11.md) |
@@ -58,6 +59,9 @@
 | 灵梦、魔理沙、爱丽丝、徽章；同伴交往、徽章考核；得意 | 上部隔着透明壁面对野生个体 | **事件／表情**：参考宠物与外来个体隔栏交流的站位，让徽章、视线和隔挡同时可见。 | [M02-007](../../art-references/images/M02/007-2a600edb.png) · [出处](../../art-references/works/M02.md) |
 | 帕秋莉；同伴交往、认知教学；喜悦 | 从书上抬起的脸与张嘴问候 | **动作／表情**：与 EH14-003 配成低头阅读到抬头应答的动作对照，书本位置保持不变。 | [EH14-004](../../art-references/ehentai/images/EH14/004.jpg) · [出处](../../art-references/ehentai/works/EH14.md) |
 | 灵梦、魔理沙；同伴交往、身体受损；恐惧、痛苦 | 首格身体被压扁、末格帽盖弹出 | **形变／动作**：制作冲突受压形变及附件脱落；幼体回望与逃离分别留关键姿态。 | [EH07-004](../../art-references/ehentai/images/EH07/004.webp) · [出处](../../art-references/ehentai/works/EH07.md) |
+| 魔理沙、人类；外出旅行、环境避险、宠物照料；期待、安心 | 携食、保温、找回与包裹抱回 | **道具／事件／动作**：让外出准备、求助和归家照料各有阶段；定位装置只是候选题材。 | [N28](../../novel-reading/cards/N28.md) · 文字卡 |
+| 灵梦、人类；宠物照料；安心 | 中排摸头、递食和抱睡 | **动作／表情**：制作依恋的连续反应，让请求接触与休息各有姿态。 | [EH31-001](../../art-references/ehentai/images/EH31/001.webp) · [出处](../../art-references/ehentai/works/EH31.md) |
+| 魔理沙、人类；宠物照料、采集进食；期待 | 上格指尖触脸，下格抬脸请求 | **动作／表情**：分别设计抚摸反馈与玩耍后的索食请求。 | [EH32-004](../../art-references/ehentai/images/EH32/004.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
 | 魔理沙、人类；徽章考核；困惑、惊讶 | 上格面对叉号结果、中格圆眼僵住 | **表情／事件**：给考核失败做停顿和迟疑反应，结果牌与表情均应可读。 | [EH25-003](../../art-references/ehentai/images/EH25/003.webp) · [出处](../../art-references/ehentai/works/EH25.md) |
 | 魔理沙、橙；徽章考核；困惑、得意 | 上方戴帽个体的眼口变化 | **表情**：给考核反馈准备困惑与得意两套表情；徽章显示与表情变化分别制作。 | [M02-003](../../art-references/images/M02/003-9a21620b.png) · [出处](../../art-references/works/M02.md) |
 | 魔理沙、徽章；徽章考核、认知教学；认真、得意、喜悦 | 中格数字卡、左侧跳起、下格徽章近景 | **道具／表情／动作**：制作数字卡教学与考核成功反馈：先注视卡片，再跳起；徽章挂点随帽移动。 | [EH25-002](../../art-references/ehentai/images/EH25/002.webp) · [出处](../../art-references/ehentai/works/EH25.md) |
@@ -65,6 +69,7 @@
 | 被炉魔理沙；日常活动；喜悦 | 正面偏侧的完整造型 | **模型／道具**：拆分桌板、红白被面、露出的脸与头发；杯子和橘子作为另放的桌面道具。 | [M05-001](../../art-references/images/M05/001-9a0cae68.jpg) · [出处](../../art-references/works/M05.md) |
 | 魔理沙；日常活动；悲伤 | 只取前景魔理沙的前侧与背面两视图 | **模型**：补帽冠、帽带、侧辫和后脑轮廓；脏污做独立贴图层，避免改掉基础毛色。 | [EH27-001](../../art-references/ehentai/images/EH27/001.jpg) · [出处](../../art-references/ehentai/works/EH27.md) |
 | 魔理沙、壳魔理沙；日常活动；喜悦 | 森林中普通幼体跳起、壳型贴地前行 | **模型／动作**：并排比较跳跃与贴地移动，给壳型设置较低重心及壳体跟随。 | [M09-001](../../art-references/images/M09/001-4fc8efd2.png) · [出处](../../art-references/works/M09.md) |
+| 魔理沙、软窝；日常活动、休息睡眠；喜悦 | 上半玩球至软垫睡眠 | **动作／道具**：组合游戏、疲劳、就寝的宠物日常节奏。 | [EH32-007](../../art-references/ehentai/images/EH32/007.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
 | 魔理沙；日常活动、环境避险；喜悦 | 上格幼体从帽缘起跳，下格落入水盆 | **动作**：做边缘起跳与越过落脚点的失败动作；身体前伸、帽子滞后，接到落水反馈，不用这页证明普通魔理沙会游泳。 | [EH10-008](../../art-references/ehentai/images/EH10/008.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
 | 水上魔理沙、帽船；水上移动；喜悦 | 上格帽内正面坐姿与侧辫持枝 | **模型／道具／动作**：确定帽船的包边、身体露出量、吃水线与辫端握桨点，供载具坐姿制作。 | [EH22-001](../../art-references/ehentai/images/EH22/001.jpg) · [出处](../../art-references/ehentai/works/EH22.md) |
 | 水上魔理沙、帽船、人类；水上移动、人类接触；喜悦、期待 | 中格侧辫持枝划水，下格人手递物 | **动作／场景**：制作划桨时枝条入水和身体偏转；水槽内留出转向空间。 | [EH22-005](../../art-references/ehentai/images/EH22/005.jpg) · [出处](../../art-references/ehentai/works/EH22.md) |
@@ -118,6 +123,7 @@
 | 灵梦、魔理沙、多毛灵梦、草窝；采集进食、休息睡眠；安心 | 首格采叶、中排伏下进食、下排睡姿 | **动作／场景**：区分衔取、低头进食和窝内休息三个姿态，避免全程用同一种身体高度。 | [M04-003](../../art-references/images/M04/003-c5f68013.png) · [出处](../../art-references/works/M04.md) |
 | 魔理沙、爱丽丝、人类；采集进食、休息睡眠；喜悦、安心 | 上格进食摸头、末格软窝相依而睡 | **动作／场景**：参考受照料后的进食、放松和入睡状态，窝垫轻陷与身体靠拢保持连续。 | [EH23-006](../../art-references/ehentai/images/EH23/006.webp) · [出处](../../art-references/ehentai/works/EH23.md) |
 | 灵梦、魔理沙、纸箱；采集进食、住所布置；得意 | 魔理沙携小棍出门，灵梦留在箱内 | **道具／动作**：参考侧辫握持细杆、出入口朝向与离家时的身体前倾。 | [EH06-003](../../art-references/ehentai/images/EH06/003.webp) · [出处](../../art-references/ehentai/works/EH06.md) |
+| 魔理沙；采集进食、卫生如厕；困惑 | 下格食盆旁漏便 | **事件／动作**：连接进食后的便意提示与到达厕所失败事件。 | [EH32-005](../../art-references/ehentai/images/EH32/005.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
 | 灵梦；采集进食、照料幼体；担忧、悲伤 | 幼体面对叶盘拒食，亲代侧脸观察 | **事件／表情**：给挑食与照料情景参考食物、幼体和亲代之间的距离，拒食与担忧分别表现。 | [EH19-003](../../art-references/ehentai/images/EH19/003.jpg) · [出处](../../art-references/ehentai/works/EH19.md) |
 | 灵梦、魔理沙、多毛灵梦；采集进食、照料幼体；喜悦、期待 | 上格侧辫持食、中格幼体滚动 | **动作**：给侧辫投喂、幼体追食和滚动做动作参考，记录食物离嘴距离及侧毛滞后。 | [M04-002](../../art-references/images/M04/002-d5120520.png) · [出处](../../art-references/works/M04.md) |
 | 灵梦、魔理沙、蕾米莉亚；采集进食、照料幼体；喜悦、期待 | 上格归家，下格大口与食物 | **动作／表情**：制作带食归来后的迎接和期待表情，嘴部开合与食物量分别控制。 | [M12-001](../../art-references/images/M12/001-58a826cc.jpg) · [出处](../../art-references/works/M12.md) |

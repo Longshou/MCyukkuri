@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-10-14",
+  "reviewed_on": "2026-10-17",
   "rule": "不同网站、译本、阅读卡或图集入口不能自动增加独立作者／作品数量。下面只登记已见关系；未列项保持未知，不表示已证明独立。",
   "families": [
     {"id":"hatboat-ss-author","members":["N09","N13","L25"],"relation":"同作者；N09 与 L25 是同一书目","basis":"N13 正文后记写其他作品为波乗りまりさ；两篇只是同作者不同情节。","source_url":"https://w.atwiki.jp/yukkuri_gyakutai/pages/1468.html"},
@@ -13,9 +13,11 @@
     {"id":"mons-author","members":["EH06","EH10","EH30"],"relation":"标题／图片同署もんs","basis":"同作者的住所、成长和服饰情节；分别保留版本语境。"},
     {"id":"ayazo-author","members":["EH12","EH16"],"relation":"封面同署綾蔵","basis":"人工豆油品种与茎果发育图解，不当成两个独立生理学来源。"},
     {"id":"ballman-author","members":["N03","N05"],"relation":"同署ゆっくりボールマン","basis":"原阅读卡已核对两篇正文署名。"},
-    {"id":"m15-original","members":["M15"],"relation":"漫画据 anko0467 飼いゆっくりれいむ改编","basis":"M15 第二张标原作 SS D.O；漫画作者未确认，不能将 D.O 误登记为漫画作者。"},
+    {"id":"m15-original","members":["M15","N30"],"relation":"漫画据 anko0467 飼いゆっくりれいむ改编","basis":"M15 第二张标原作 SS D.O；漫画作者未确认，不能将 D.O 误登记为漫画作者。 2026-10-17 N30 已打开原作同名正文，署名Ｄ．Ｏ；不算第二个故事。"},
     {"id":"eh22-name-variant","members":["EH22"],"relation":"署名差异待解决","basis":"图集标题こんぽ；所存首页こんぱ；不自行合并其他笔名。"},
-    {"id":"mohawk-translation-candidate","members":["M11","gallery:3391228"],"relation":"疑似同作译版，未确认","basis":"题名接近，待逐页比较；候选图集未加入独立计数。"}
+    {"id":"mohawk-translation-candidate","members":["M11","gallery:3391228"],"relation":"疑似同作译版，未确认","basis":"题名接近，待逐页比较；候选图集未加入独立计数。"},
+    {"id":"morutarou-author","members":["EH27","EH32"],"relation":"同一转载署名もるたろう","basis":"野良生活与收养故事分别保留，不按独立作者累加。"},
+    {"id":"takumi-author","members":["EH24","EH33"],"relation":"标题同署 TAKUMI","basis":"前者范围外仍不进入当前制作库；同署名不合并世界观。"}
   ],
   "limitations": ["没有完成全库首发追溯。", "作者未知的材料可以并列观察，但不能把未知 ID 数作为独立作者数。", "同作者作品也可能互相矛盾，来源族不代表统一正史。", "文件 SHA-256 只能检出字节重复，不能识别重新压缩、翻译或改绘的同一页。"]
 }

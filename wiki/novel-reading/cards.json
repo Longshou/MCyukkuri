@@ -600,6 +600,82 @@
         "characters": 2881,
         "cache_path": ".local/reference/wiki-text-round2/N26.html"
       }
+    },
+    {
+      "id": "N27",
+      "title": "ゆっくりお留守番",
+      "url": "https://w.atwiki.jp/slowlove/pages/106.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；正文开头至末句「ゆっくりを寂しがらせた結果がこれだよ！！」，不含其后评论",
+      "summary": "两只宠物提前吃完留食，等待中饥饿、无聊；主人回来后争夺抚摸，发生冲突，最后向同伴道歉。",
+      "limits": "幻想乡人物不进入项目；不把魔理沙个体争宠写成全种天性，惩罚方式不作为项目教学规范。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society"
+      ],
+      "source_group": "unknown:N27",
+      "reviewed_on": "2026-10-17",
+      "locator": "ゆっくりお留守番",
+      "html_sha256": "fea140a29f10ec589b1df008aded680bc1c8ce56d7d2a4a571b17ea8e7aaacd5",
+      "retrieved_at": "2026-10-17T09:41:50.148537+00:00"
+    },
+    {
+      "id": "N28",
+      "title": "雪原のまりさ",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/2333.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；全部正文至作者后记，插图标全裸あき不能当小说作者",
+      "summary": "随摄影师旅行的宠物使用携带食物、薄毯和帽上发信器；仍会受寒，最后由主人找到、包裹抱回。",
+      "limits": "开头明示私设；材质、发信器、两日找回和雪洞效果均非通则，也不证明所有魔理沙能在雪地独行。",
+      "topics": [
+        "environment",
+        "human",
+        "motion"
+      ],
+      "source_group": "unknown:N28",
+      "reviewed_on": "2026-10-17",
+      "locator": "帽子には発信機",
+      "html_sha256": "4a6f40b74a0c6aed9e6dbd86559781a8af79b47c66c5176fdee0994cffb4a45f",
+      "retrieved_at": "2026-10-17T09:41:50.906891+00:00"
+    },
+    {
+      "id": "N29",
+      "title": "足りないゆっくり",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/186.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "署名未确认；开头识字教学、留守误解、诊察所、居家照护至正文末，止于评论前",
+      "summary": "能写字的宠物误解使用边界，模仿清洁造成事故；诊察后失去自理能力，主人承担擦拭和勺喂，最终留下告别文字。",
+      "limits": "标题的不足是后天损伤语境，不并入项目先天形态；文中诊断和护理不是现实医疗资料，末尾文字不能证明普遍康复。",
+      "topics": [
+        "cognition",
+        "body",
+        "human"
+      ],
+      "source_group": "unknown:N29",
+      "reviewed_on": "2026-10-17",
+      "locator": "ゆっくり診察所",
+      "html_sha256": "99e095530874f97a7bd257b97f95ccaf323253d04115d110327be50cbc88ae78",
+      "retrieved_at": "2026-10-17T09:41:53.445538+00:00"
+    },
+    {
+      "id": "N30",
+      "title": "飼いゆっくりれいむ",
+      "url": "https://w.atwiki.jp/hutaba_ranking/pages/132.html",
+      "bibliography": "M15 的原作补读",
+      "author_and_scope": "Ｄ．Ｏ（正文署名）；核读开头身份误认、庭院供食与厕所、母体离世和保留缎带段；后段繁殖与多代情节只定位，不概括全篇",
+      "summary": "灵梦把黏在饰物上的口香糖误当徽章；人类将庭院共处理解为杂草和厨余处理。母体离世后子代保留缎带，把花坛与亲代联系起来。",
+      "limits": "与 M15 是原作／漫画改编关系；人类并不自认饲主。小说未给出医学死因，不改写为已证实老衰；寿命和遗体处理不作项目规则。",
+      "topics": [
+        "society",
+        "habitat",
+        "growth"
+      ],
+      "source_group": "author:D.O",
+      "reviewed_on": "2026-10-17",
+      "locator": "子れいむが成体",
+      "html_sha256": "af9ebedad7ab824f8ff35ac080fbefe116c1a926606a062a16685f1fbec6cb48",
+      "retrieved_at": "2026-10-17T09:41:54.358185+00:00"
     }
   ]
 }

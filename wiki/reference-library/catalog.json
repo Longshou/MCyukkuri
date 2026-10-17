@@ -1,20 +1,20 @@
 {
   "schema_version": 3,
-  "updated_on": "2026-10-15",
+  "updated_on": "2026-10-17",
   "stats": {
-    "image_files": 368,
-    "image_sources": 45,
-    "image_bytes": 80221110,
-    "image_unique_hashes": 366,
-    "game_images": 146,
-    "game_texts": 24,
-    "game_image_sources": 38,
+    "image_files": 393,
+    "image_sources": 49,
+    "image_bytes": 84640940,
+    "image_unique_hashes": 391,
+    "game_images": 163,
+    "game_texts": 28,
+    "game_image_sources": 42,
     "quality_selected": 38,
     "quality_reviewed": 47,
     "scanned_sheets": 77,
-    "scanned_images": 331,
+    "scanned_images": 356,
     "out_of_scope": 37,
-    "overview_not_selected": 185,
+    "overview_not_selected": 193,
     "pending_purpose_review": 0
   },
   "facets": {
@@ -42,7 +42,8 @@
         "被炉魔理沙",
         "软窝",
         "通用油库里",
-        "魔理沙"
+        "魔理沙",
+        "襁褓"
       ]
     },
     "scenarios": {
@@ -64,7 +65,15 @@
         "认知教学",
         "身体受损",
         "采集进食",
-        "饰物身份"
+        "饰物身份",
+        "宠物照料",
+        "穿戴襁褓",
+        "卫生如厕",
+        "留守迎接",
+        "外出旅行",
+        "医疗照护",
+        "离别悼念",
+        "收养安置"
       ]
     },
     "emotions": {
@@ -222,6 +231,11 @@
       "id": "水上魔理沙",
       "status": "已纳入形态",
       "basis": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SubspeciesLife.java"
+    },
+    {
+      "id": "襁褓",
+      "status": "已接入的宠物穿戴道具",
+      "basis": "docs/PET_SHOP.md"
     }
   ],
   "topics": [
@@ -6182,6 +6196,645 @@
       }
     },
     {
+      "id": "EH31-001",
+      "media": "image",
+      "topics": [
+        "motion",
+        "feeding"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH31/001.webp",
+      "source_id": "EH31",
+      "source_url": "https://e-hentai.org/g/2346069/aaba2f58d2/",
+      "source_title": "(ゆっくり) [T3] 第一次出粗门买东西 (个人汉化)",
+      "source_note": "T3（图集标题）",
+      "source_index": "wiki/art-references/ehentai/works/EH31.md",
+      "sha256": "076f3cb4910753f160c40df4cc0eb8a909ff30b4e2d9aba72df043a28cca0d8a",
+      "bytes": 191018,
+      "width": 1280,
+      "height": 1807,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "中排摸头、递食和抱睡",
+      "description": "制作依恋的连续反应，让请求接触与休息各有姿态。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH31-002",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "human",
+        "cognition"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH31/002.webp",
+      "source_id": "EH31",
+      "source_url": "https://e-hentai.org/g/2346069/aaba2f58d2/",
+      "source_title": "(ゆっくり) [T3] 第一次出粗门买东西 (个人汉化)",
+      "source_note": "T3（图集标题）",
+      "source_index": "wiki/art-references/ehentai/works/EH31.md",
+      "sha256": "0f4b0f76597c98788a1f2589b21863e672a9e44b47e5ab878601c785d6e07263",
+      "bytes": 182778,
+      "width": 1280,
+      "height": 1807,
+      "review_status": "2026-10-17 本地原图细看",
+      "entities": [
+        "灵梦",
+        "襁褓",
+        "人类"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "外出旅行",
+        "认知教学"
+      ],
+      "emotions": [
+        "期待"
+      ],
+      "targets": [
+        "道具",
+        "模型",
+        "动作"
+      ],
+      "focus": "下两格衣口、橡胶底、外侧袋；中排路线图",
+      "description": "制作外出服的开口、底层与挂袋，并编排出门前说明路线。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH31-003",
+      "media": "image",
+      "topics": [
+        "cognition",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH31/003.webp",
+      "source_id": "EH31",
+      "source_url": "https://e-hentai.org/g/2346069/aaba2f58d2/",
+      "source_title": "(ゆっくり) [T3] 第一次出粗门买东西 (个人汉化)",
+      "source_note": "T3（图集标题）",
+      "source_index": "wiki/art-references/ehentai/works/EH31.md",
+      "sha256": "bd8564f1f269d9a8478db21b7dd8d03b836720edb6539bf4314efa6727edda5a",
+      "bytes": 171496,
+      "width": 1280,
+      "height": 1805,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "灵梦",
+        "襁褓"
+      ],
+      "scenarios": [
+        "外出旅行",
+        "认知教学"
+      ],
+      "emotions": [
+        "困惑"
+      ],
+      "targets": [
+        "事件",
+        "表情"
+      ],
+      "focus": "下半对墙上地图说话",
+      "description": "设计看图误解与求助事件；不将口头答应等同掌握路线。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-001",
+      "media": "image",
+      "topics": [
+        "growth",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/001.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "51dc8f97af5b5b39f62f8d09d4878af2964ae72b143b64ba369bc7faffd52daf",
+      "bytes": 113933,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "收养安置",
+        "身体受损"
+      ],
+      "emotions": [
+        "担忧"
+      ],
+      "targets": [
+        "动作",
+        "场景"
+      ],
+      "focus": "下格掌心托起幼体",
+      "description": "用于发现与安置幼体的大小关系，亲代去向保持未知。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-002",
+      "media": "image",
+      "topics": [
+        "feeding",
+        "body",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/002.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "77681300518ac662bd600278555b14947e9b5f52f3195723365394953df60bf3",
+      "bytes": 156478,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类",
+        "软窝"
+      ],
+      "scenarios": [
+        "医疗照护",
+        "照料幼体"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "道具"
+      ],
+      "focus": "下格软垫和细口器具",
+      "description": "表现保暖后递饮时嘴点与器具的对位，不设定橙汁治愈率。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-003",
+      "media": "image",
+      "topics": [
+        "growth",
+        "cognition"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/003.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "258e69930082887d09ee3426310c0b533f4b497ea1179ea9e492334bbcdc42cc",
+      "bytes": 157416,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类",
+        "软窝"
+      ],
+      "scenarios": [
+        "收养安置",
+        "休息睡眠"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "事件",
+        "表情"
+      ],
+      "focus": "回应收养询问后闭眼入睡",
+      "description": "给收养事件增加交流、回应和安心休息的阶段。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-004",
+      "media": "image",
+      "topics": [
+        "motion",
+        "feeding"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/004.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "52574c008d03a87f72516a1f7c7372a5fb5d7475acbf4e6a8331630754c0ae47",
+      "bytes": 142750,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "采集进食"
+      ],
+      "emotions": [
+        "期待"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "上格指尖触脸，下格抬脸请求",
+      "description": "分别设计抚摸反馈与玩耍后的索食请求。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-005",
+      "media": "image",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/005.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "96bb32cddc80022c63ce6938ba03a345dd4704d1a548b1621b90e00dce05a7bc",
+      "bytes": 120733,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙"
+      ],
+      "scenarios": [
+        "采集进食",
+        "卫生如厕"
+      ],
+      "emotions": [
+        "困惑"
+      ],
+      "targets": [
+        "事件",
+        "动作"
+      ],
+      "focus": "下格食盆旁漏便",
+      "description": "连接进食后的便意提示与到达厕所失败事件。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-006",
+      "media": "image",
+      "topics": [
+        "motion",
+        "cognition"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/006.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "31d5bb422551ed2c32fd99100016da02237b11fc026bc0be934d5bd4c89060ee",
+      "bytes": 148245,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地原图细看",
+      "entities": [
+        "魔理沙"
+      ],
+      "scenarios": [
+        "卫生如厕"
+      ],
+      "emotions": [
+        "悲伤"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "上格低落、下格清洁动作",
+      "description": "区分漏便、意识到弄脏、清洁三个状态；地点约束另由项目设计。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-007",
+      "media": "image",
+      "topics": [
+        "motion",
+        "habitat"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/007.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "cc2012c0a5a00da7d199c2bee74012dac13bcfc9409b2cb10e512aa722f0eebf",
+      "bytes": 128712,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "软窝"
+      ],
+      "scenarios": [
+        "日常活动",
+        "休息睡眠"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "道具"
+      ],
+      "focus": "上半玩球至软垫睡眠",
+      "description": "组合游戏、疲劳、就寝的宠物日常节奏。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH32-008",
+      "media": "image",
+      "topics": [
+        "habitat",
+        "feeding"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH32/008.jpg",
+      "source_id": "EH32",
+      "source_url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "source_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "source_note": "もるたろう（标题及站点 artist:morutarou）",
+      "source_index": "wiki/art-references/ehentai/works/EH32.md",
+      "sha256": "6878868fe45431fcf604d3c333786b3e65f6217c92ca4a9ffc357eec4d8aa8be",
+      "bytes": 131533,
+      "width": 848,
+      "height": 1200,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "软窝"
+      ],
+      "scenarios": [
+        "留守迎接",
+        "采集进食"
+      ],
+      "emotions": [
+        "愤怒"
+      ],
+      "targets": [
+        "事件",
+        "场景"
+      ],
+      "focus": "拒食后转向敞口软窝，盆球在近处",
+      "description": "设计主人离开前未满足请求的场景；后续行为保持未定。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH33-002",
+      "media": "image",
+      "topics": [
+        "habitat",
+        "growth",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH33/002.webp",
+      "source_id": "EH33",
+      "source_url": "https://e-hentai.org/g/4036390/ca8b3405ea/",
+      "source_title": "[ゆっくり] [TAKUMI] 【pixivリクエスト】 「まりちゃが飼いゆっくりになるまで」 (Chinese)",
+      "source_note": "TAKUMI（标题及站点标签）",
+      "source_index": "wiki/art-references/ehentai/works/EH33.md",
+      "sha256": "060b24939b5ff28ac5719b9238912e2f4cb0935b3d6a5f34e06007aa415d80d5",
+      "bytes": 148328,
+      "width": 1280,
+      "height": 905,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "住所布置",
+        "照料幼体"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "场景"
+      ],
+      "focus": "上部两个家庭箱，母体和幼体同处",
+      "description": "用于培育场家庭分区与亲子尺度，容量数值由项目另定。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH33-009",
+      "media": "image",
+      "topics": [
+        "human",
+        "society"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH33/009.webp",
+      "source_id": "EH33",
+      "source_url": "https://e-hentai.org/g/4036390/ca8b3405ea/",
+      "source_title": "[ゆっくり] [TAKUMI] 【pixivリクエスト】 「まりちゃが飼いゆっくりになるまで」 (Chinese)",
+      "source_note": "TAKUMI（标题及站点标签）",
+      "source_index": "wiki/art-references/ehentai/works/EH33.md",
+      "sha256": "91f23366051bf4604724fc05b26fa8b7b548320fb19e79c6c136d67ee17c51de",
+      "bytes": 132578,
+      "width": 1280,
+      "height": 905,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "收养安置",
+        "人类接触"
+      ],
+      "emotions": [
+        "期待"
+      ],
+      "targets": [
+        "场景",
+        "动作"
+      ],
+      "focus": "商店玻璃展示位与来客",
+      "description": "制作展示、抬头问候和交接的空间关系。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH33-010",
+      "media": "image",
+      "topics": [
+        "cognition",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH33/010.webp",
+      "source_id": "EH33",
+      "source_url": "https://e-hentai.org/g/4036390/ca8b3405ea/",
+      "source_title": "[ゆっくり] [TAKUMI] 【pixivリクエスト】 「まりちゃが飼いゆっくりになるまで」 (Chinese)",
+      "source_note": "TAKUMI（标题及站点标签）",
+      "source_index": "wiki/art-references/ehentai/works/EH33.md",
+      "sha256": "12dde4649ba5abd806019aea8ebefb2dc69c48a2cbe3bf8570b1f74ce6b2ac48",
+      "bytes": 183732,
+      "width": 1280,
+      "height": 905,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "收养安置",
+        "宠物照料"
+      ],
+      "emotions": [
+        "担忧"
+      ],
+      "targets": [
+        "事件",
+        "表情"
+      ],
+      "focus": "主人抱起幼体与内心担忧的对照",
+      "description": "表现到家适应期；不把微笑直接等同已经安心。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH33-011",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "society"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH33/011.webp",
+      "source_id": "EH33",
+      "source_url": "https://e-hentai.org/g/4036390/ca8b3405ea/",
+      "source_title": "[ゆっくり] [TAKUMI] 【pixivリクエスト】 「まりちゃが飼いゆっくりになるまで」 (Chinese)",
+      "source_note": "TAKUMI（标题及站点标签）",
+      "source_index": "wiki/art-references/ehentai/works/EH33.md",
+      "sha256": "96dc464a9b0fda6ef8f03a7638e9fbb89fefe848de72f5a7d50cfba1ad29ee5f",
+      "bytes": 126954,
+      "width": 1280,
+      "height": 905,
+      "review_status": "2026-10-17 本地原图细看",
+      "entities": [
+        "魔理沙",
+        "襁褓",
+        "徽章"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "饰物身份"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "模型",
+        "道具"
+      ],
+      "focus": "成年体型、衣口与帽上金章",
+      "description": "衣物与徽章分别挂接，覆盖成体穿戴；不增加胴体形态。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-007",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/007.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "a8db19a7413c1c5bd909cb7265019bc491d0786adb65915936a0b13cdbc93364",
+      "bytes": 280238,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地原图细看",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "襁褓",
+        "徽章",
+        "人类"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "留守迎接"
+      ],
+      "emotions": [
+        "喜悦"
+      ],
+      "targets": [
+        "模型",
+        "道具",
+        "动作"
+      ],
+      "focus": "M／R 字样衣物与返乡问候",
+      "description": "做个体衣物标记和熟人迎接，衣物标记不替代徽章资格。",
+      "kind": "reference"
+    },
+    {
+      "id": "EH34-008",
+      "media": "image",
+      "topics": [
+        "appearance",
+        "growth"
+      ],
+      "path": "wiki/art-references/ehentai/images/EH34/008.webp",
+      "source_id": "EH34",
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "source_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "source_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "source_index": "wiki/art-references/ehentai/works/EH34.md",
+      "sha256": "e576a80ee7bb3c00e2d268be4c161693564bde6b6621538aba2cd77b49ffda83",
+      "bytes": 300778,
+      "width": 1200,
+      "height": 1697,
+      "review_status": "2026-10-17 本地联系表指定画格核读",
+      "entities": [
+        "灵梦",
+        "襁褓",
+        "茎果",
+        "人类"
+      ],
+      "scenarios": [
+        "穿戴襁褓",
+        "照料幼体"
+      ],
+      "emotions": [
+        "安心"
+      ],
+      "targets": [
+        "模型",
+        "动作"
+      ],
+      "focus": "上、中格头顶茎果与抚头",
+      "description": "检查茎果、原饰物、衣口同时可见，给待产照料增加接触反馈。",
+      "kind": "reference"
+    },
+    {
       "id": "N01",
       "media": "text",
       "topics": [
@@ -7028,6 +7681,160 @@
       ],
       "focus": "协作收集食物及暖房材料，之后读书交流",
       "description": "为合作备冬拆分采食、运材、入库和完成后休息，储备量改变可用的日常活动。",
+      "kind": "reference"
+    },
+    {
+      "id": "N27",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society"
+      ],
+      "path": "wiki/novel-reading/cards/N27.md",
+      "source_id": "N27",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/106.html",
+      "source_title": "ゆっくりお留守番",
+      "source_note": "署名未确认；正文开头至末句「ゆっくりを寂しがらせた結果がこれだよ！！」，不含其后评论",
+      "source_group": "unknown:N27",
+      "observation": "两只宠物提前吃完留食，等待中饥饿、无聊；主人回来后争夺抚摸，发生冲突，最后向同伴道歉。",
+      "limits": "幻想乡人物不进入项目；不把魔理沙个体争宠写成全种天性，惩罚方式不作为项目教学规范。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "留守迎接",
+        "同伴交往"
+      ],
+      "emotions": [
+        "期待",
+        "悲伤"
+      ],
+      "targets": [
+        "事件",
+        "表情"
+      ],
+      "focus": "等候、争宠、向受伤同伴道歉",
+      "description": "构成留守—迎接—冲突—修复的事件链；喂食与陪伴分别处理。",
+      "kind": "reference"
+    },
+    {
+      "id": "N28",
+      "media": "text",
+      "topics": [
+        "environment",
+        "human",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N28.md",
+      "source_id": "N28",
+      "source_url": "https://w.atwiki.jp/futabayukkuriss/pages/2333.html",
+      "source_title": "雪原のまりさ",
+      "source_note": "署名未确认；全部正文至作者后记，插图标全裸あき不能当小说作者",
+      "source_group": "unknown:N28",
+      "observation": "随摄影师旅行的宠物使用携带食物、薄毯和帽上发信器；仍会受寒，最后由主人找到、包裹抱回。",
+      "limits": "开头明示私设；材质、发信器、两日找回和雪洞效果均非通则，也不证明所有魔理沙能在雪地独行。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "外出旅行",
+        "环境避险",
+        "宠物照料"
+      ],
+      "emotions": [
+        "期待",
+        "安心"
+      ],
+      "targets": [
+        "道具",
+        "事件",
+        "动作"
+      ],
+      "focus": "携食、保温、找回与包裹抱回",
+      "description": "让外出准备、求助和归家照料各有阶段；定位装置只是候选题材。",
+      "kind": "reference"
+    },
+    {
+      "id": "N29",
+      "media": "text",
+      "topics": [
+        "cognition",
+        "body",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N29.md",
+      "source_id": "N29",
+      "source_url": "https://w.atwiki.jp/futabayukkuriss/pages/186.html",
+      "source_title": "足りないゆっくり",
+      "source_note": "署名未确认；开头识字教学、留守误解、诊察所、居家照护至正文末，止于评论前",
+      "source_group": "unknown:N29",
+      "observation": "能写字的宠物误解使用边界，模仿清洁造成事故；诊察后失去自理能力，主人承担擦拭和勺喂，最终留下告别文字。",
+      "limits": "标题的不足是后天损伤语境，不并入项目先天形态；文中诊断和护理不是现实医疗资料，末尾文字不能证明普遍康复。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "认知教学",
+        "医疗照护",
+        "卫生如厕",
+        "离别悼念"
+      ],
+      "emotions": [
+        "担忧",
+        "悲伤"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "道具"
+      ],
+      "focus": "诊察所交接、失能后清洁与勺喂",
+      "description": "补充诊察与长期照护空间、辅助进食和离别事件；不制作伤害过程。",
+      "kind": "reference"
+    },
+    {
+      "id": "N30",
+      "media": "text",
+      "topics": [
+        "society",
+        "habitat",
+        "growth"
+      ],
+      "path": "wiki/novel-reading/cards/N30.md",
+      "source_id": "N30",
+      "source_url": "https://w.atwiki.jp/hutaba_ranking/pages/132.html",
+      "source_title": "飼いゆっくりれいむ",
+      "source_note": "Ｄ．Ｏ（正文署名）；核读开头身份误认、庭院供食与厕所、母体离世和保留缎带段；后段繁殖与多代情节只定位，不概括全篇",
+      "source_group": "author:D.O",
+      "observation": "灵梦把黏在饰物上的口香糖误当徽章；人类将庭院共处理解为杂草和厨余处理。母体离世后子代保留缎带，把花坛与亲代联系起来。",
+      "limits": "与 M15 是原作／漫画改编关系；人类并不自认饲主。小说未给出医学死因，不改写为已证实老衰；寿命和遗体处理不作项目规则。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "饰物身份",
+        "卫生如厕",
+        "离别悼念"
+      ],
+      "emotions": [
+        "悲伤"
+      ],
+      "targets": [
+        "事件",
+        "道具"
+      ],
+      "focus": "双方对饲养的不同理解；子代保留亲代缎带",
+      "description": "用身份误解和遗物纪念设计事件，正式资格不由个体自称授予。",
       "kind": "reference"
     }
   ]

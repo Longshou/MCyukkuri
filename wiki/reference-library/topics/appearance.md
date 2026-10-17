@@ -37,6 +37,10 @@
 | 魔理沙、灵梦、多毛灵梦；照料幼体、日常活动；喜悦、期待 | 上排成体帽缘上的三只幼体及下方幼体仰望近景 | **动作／模型**：补亲代用帽缘承载幼体的占位与视线关系；移动时让幼体跟随帽面而保留各自轻微摆动。 | [EH10-007](../../art-references/ehentai/images/EH10/007.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
 | 被炉魔理沙；环境避险、同伴交往；安心 | 避热、借住凉巢与结尾 | **事件／场景**：给被炉型季节活动准备寻找凉处、借宿沟通和进入休息的情景。 | [N10](../../novel-reading/cards/N10.md) · 文字卡 |
 | 蕾米莉亚、芙兰；空中移动、同伴交往；喜悦 | 两只飞行个体的正面与侧面 | **模型／动作**：参考帽缘、短发、蝠翼与晶体翼的位置；制作悬停时翅膀展开和身体轻摆。 | [EH02-003](../../art-references/ehentai/images/EH02/003.webp) · [出处](../../art-references/ehentai/works/EH02.md) |
+| 灵梦、襁褓、人类；穿戴襁褓、外出旅行、认知教学；期待 | 下两格衣口、橡胶底、外侧袋；中排路线图 | **道具／模型／动作**：制作外出服的开口、底层与挂袋，并编排出门前说明路线。 | [EH31-002](../../art-references/ehentai/images/EH31/002.webp) · [出处](../../art-references/ehentai/works/EH31.md) |
+| 灵梦、襁褓、茎果、人类；穿戴襁褓、照料幼体；安心 | 上、中格头顶茎果与抚头 | **模型／动作**：检查茎果、原饰物、衣口同时可见，给待产照料增加接触反馈。 | [EH34-008](../../art-references/ehentai/images/EH34/008.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
+| 魔理沙、灵梦、襁褓、徽章、人类；穿戴襁褓、留守迎接；喜悦 | M／R 字样衣物与返乡问候 | **模型／道具／动作**：做个体衣物标记和熟人迎接，衣物标记不替代徽章资格。 | [EH34-007](../../art-references/ehentai/images/EH34/007.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
+| 魔理沙、襁褓、徽章；穿戴襁褓、饰物身份；喜悦 | 成年体型、衣口与帽上金章 | **模型／道具**：衣物与徽章分别挂接，覆盖成体穿戴；不增加胴体形态。 | [EH33-011](../../art-references/ehentai/images/EH33/011.webp) · [出处](../../art-references/ehentai/works/EH33.md) |
 | 帕秋莉；认知教学；认真 | 正面，两侧长发靠拢红书 | **模型／动作／道具**：参考长侧发持书的接触点、月饰帽与书本大小；制作读书待机。 | [M07-001](../../art-references/images/M07/001-5960f723.jpg) · [出处](../../art-references/works/M07.md) |
 | 帕秋莉；身体受损；痛苦 | 后侧视角，长发垂地和扭动 | **模型／动作**：补帕秋莉后脑、帽后缘和长侧发落点；受惊扭转时避免头发与身体一体硬转。 | [M07-006](../../art-references/images/M07/006-a6e7bea8.jpg) · [出处](../../art-references/works/M07.md) |
 | 被炉魔理沙；身体受损、饰物身份；痛苦 | 桌板、被面、桌架与本体分离 | **模型／动作**：为附件脱落准备独立部件和遮挡关系，明确被面下面的本体与桌腿位置。 | [M05-003](../../art-references/images/M05/003-63e5fbbe.jpg) · [出处](../../art-references/works/M05.md) |

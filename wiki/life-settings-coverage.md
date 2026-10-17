@@ -1,0 +1,54 @@
+# 油库里生活设定的全领域覆盖
+
+[Wiki](README.md) · [宠物生活与襁褓](pet-life.md) · [维护计划](MAINTENANCE_PLAN.md) · [游戏开发顺序](../docs/DEVELOPMENT_PLAN.md)
+
+2026-10-17 起，设定搜集按生活过程组织，同时覆盖宠物、流浪者、野外家庭、群落和人类社会。下表是资料覆盖与待核读问题，不是功能完成表；“已有”也不代表各作者一致。
+
+## 宠物与人类共处
+
+| 领域 | 已有具体依据 | 下一步需要补到的内容 |
+| --- | --- | --- |
+| 购买、救助与收养 | [EH32](art-references/ehentai/works/EH32.md)发现与安置；[EH33](art-references/ehentai/works/EH33.md)店内交付 | 到家数日的适应过程、寄养、转养、失散重逢；继续 EH32 第 9 页之后 |
+| 服装、襁褓与个人用品 | [襁褓专题段](pet-life.md#襁褓的形状与用途)：外出服、成体穿衣、待产穿衣、约束型 | 穿脱顺序、不同尺寸、如厕开口、洗换晾干、磨损修补；不能只凭静态外形定义功能 |
+| 饮食、甜食与饮水 | EH32 4–8；[日常生态](ecology-daily-life.md)；[资源](hakkei-reference/world/resources-ecology.md) | 分餐、食物保存、换粮与挑食后续；饮水器的具体使用画格 |
+| 清洁与厕所 | EH32 5–6；[N29](novel-reading/cards/N29.md)；[幼体生命周期](../docs/CHILDHOOD_LIFECYCLE.md)的作品锚点 | 健康成体的清洁全程、襁褓沾污与替换、厕所清理工具 |
+| 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应 |
+| 玩具、娱乐与节日 | EH32 玩球、N27 文字游戏、[N23](novel-reading/cards/N23.md)气球 | 日常兴趣变化、轮流玩、节日礼物与家庭活动；EH34 已看返乡会面，节庆后段未读 |
+| 教育与资格 | [徽章](badges.md)、[学习专题](hakkei-reference/lore/learning-social.md)、EH31 路线误解 | 陪练、挫折、复习、具体规则向新场景迁移；区分知识与服从 |
+| 陪伴、留守与情绪 | [N27](novel-reading/cards/N27.md)、EH33 10–11 | 短时和长时分离、迎接差异、多个家庭成员、陌生访客 |
+| 外出、交通与旅行 | [EH31](art-references/ehentai/works/EH31.md)、[N28](novel-reading/cards/N28.md) | 牵引连接位置、携带箱、途中休息、公共设施；不把极端事故当每次出行流程 |
+| 诊察、康复与失能照护 | [N29](novel-reading/cards/N29.md)诊察与居家照护 | 普通问诊、恢复期活动、护理器具、不同程度的帮助需求 |
+| 衰老、死亡与纪念 | [N30](novel-reading/cards/N30.md)亲代离世与缎带；N29 告别 | 自然衰老的连续变化、晚年日常、同伴与主人长期反应；死因不由评论补写 |
+| 所有权、弃养与纠纷 | [商店与人类](shops-factory-npcs.md)、N30 身份误认 | 走失登记、身份核对、转交责任、邻里冲突及解决过程 |
+
+## 野外生活与社会
+
+| 领域 | 已有具体依据 | 下一步需要补到的内容 |
+| --- | --- | --- |
+| 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
+| 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
+| 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md) | 食源辨认、采集失败、携带、分享、储存和腐败的连续因果 |
+| 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04 | 修窝、排水、扩容、失窝后暂住与重建，避免只收静态洞口 |
+| 季节与天气 | N02／N15／N26、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
+| 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
+| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md) | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
+| 流浪与城市边缘 | EH27、EH26、[生活情景](hakkei-reference/world/events.md) | 固定路线、垃圾食源变化、临时同伴、人类设施开闭与栖所被清理 |
+| 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
+| 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
+| 饰物、身体与身份 | [身体资料](hakkei-reference/lore/entities-sources.md)、[差异表](hakkei-reference/lore/conflicts.md) | 饰物修补、替换、保存与继承；皮肤、馅料、能力损伤和先天形态分别记录 |
+
+## 下一批的具体核读顺序
+
+1. **襁褓生活闭环**：优先找穿上、走动、如厕、弄脏、脱下、洗换和再次穿用的连续画格。检索词可用 `おくるみ`、`飼いゆ`、`着替え`、`洗濯`；题名只算线索。
+2. **宠物长期生活**：续读 EH32 第 9–51 页，确认挑食之后的过程；补读 EH18 的图文正文。前者已读前 8 页，后者旧记录仍是插图总览，不能提前写出结论。
+3. **出行与家庭访问**：续读 EH34 第 9–26 页，核对节庆与家庭场景；另找牵引、携带箱、寄养和走失后的身份核对。
+4. **健康与晚年**：寻找独立作者的日常诊疗、恢复期和衰老作品。N29 是事故后的重度照护个案，N30 的离世没有明确医学死因，不能拿它们覆盖全部健康过程。
+5. **野外连续生活**：沿现有住所、季节、亲子和群落书目补“准备—行动—结果—恢复”，优先填上表的具体问题。
+
+新作品同时记录作者／转载关系、读到哪页、具体事实、冲突版本和可制作目标。当前种族范围继续遵守[编辑口径](EDITORIAL_GUIDE.md)；扩大生活领域不等于将所有未规划种族自动加入游戏。
+
+## 本轮边界
+
+本轮实际从公开 E-Hentai 图集取得 25 张选页并登记 URL、页序、尺寸、哈希；总览范围为 EH31 1–7、EH32 1–8、EH33 1–11、EH34 1–8，另直接细看 4 张原图。小说 N27–N30 按各卡所列正文范围核读。未读续篇、搜索摘要和评论不作为新增设定结论。另检索到くいっくる的短篇合辑及《まりちゃのおくるみしゃん》，正文读取失败，尚未计入核读成果。
+
+这一覆盖表保留实际缺口，后续拿到证据再补；它不表示已经搜遍全站，也不表示游戏已实现上述全部生活过程。

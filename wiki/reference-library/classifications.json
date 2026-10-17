@@ -3566,6 +3566,260 @@
       "topics": [],
       "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
       "classified_on": "2026-10-14"
+    },
+    {
+      "id": "EH31-001",
+      "source_id": "EH31",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "feeding"
+      ],
+      "classification_basis": "中排摸头、递食和抱睡",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH31-002",
+      "source_id": "EH31",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "human",
+        "cognition"
+      ],
+      "classification_basis": "下两格衣口、橡胶底、外侧袋；中排路线图",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH31-003",
+      "source_id": "EH31",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "human"
+      ],
+      "classification_basis": "下半对墙上地图说话",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH31-004",
+      "source_id": "EH31",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH31-007",
+      "source_id": "EH31",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-001",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "human"
+      ],
+      "classification_basis": "下格掌心托起幼体",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-002",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "body",
+        "human"
+      ],
+      "classification_basis": "下格软垫和细口器具",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-003",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "cognition"
+      ],
+      "classification_basis": "回应收养询问后闭眼入睡",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-004",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "feeding"
+      ],
+      "classification_basis": "上格指尖触脸，下格抬脸请求",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-005",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "motion"
+      ],
+      "classification_basis": "下格食盆旁漏便",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-006",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "cognition"
+      ],
+      "classification_basis": "上格低落、下格清洁动作",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-007",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "habitat"
+      ],
+      "classification_basis": "上半玩球至软垫睡眠",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH32-008",
+      "source_id": "EH32",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "feeding"
+      ],
+      "classification_basis": "拒食后转向敞口软窝，盆球在近处",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-002",
+      "source_id": "EH33",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth",
+        "human"
+      ],
+      "classification_basis": "上部两个家庭箱，母体和幼体同处",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-003",
+      "source_id": "EH33",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-004",
+      "source_id": "EH33",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-007",
+      "source_id": "EH33",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-008",
+      "source_id": "EH33",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-009",
+      "source_id": "EH33",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "society"
+      ],
+      "classification_basis": "商店玻璃展示位与来客",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-010",
+      "source_id": "EH33",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "human"
+      ],
+      "classification_basis": "主人抱起幼体与内心担忧的对照",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH33-011",
+      "source_id": "EH33",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "society"
+      ],
+      "classification_basis": "成年体型、衣口与帽上金章",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-002",
+      "source_id": "EH34",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-004",
+      "source_id": "EH34",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-007",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "human"
+      ],
+      "classification_basis": "M／R 字样衣物与返乡问候",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-008",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "growth"
+      ],
+      "classification_basis": "上、中格头顶茎果与抚头",
+      "classified_on": "2026-10-17"
     }
   ]
 }

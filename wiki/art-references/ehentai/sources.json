@@ -336,6 +336,83 @@
       "limit": 8,
       "artist_note": "标题もんs",
       "reading_note": "已总览本库所存前 8 页；只有标为指定画格细看的页另外核对原图。逐页笔记决定用途，不能把题名当作事实或把选段当作完整作品。"
+    },
+    {
+      "id": "EH31",
+      "gallery_id": 2346069,
+      "url": "https://e-hentai.org/g/2346069/aaba2f58d2/",
+      "discovery_title": "(ゆっくり) [T3] 第一次出粗门买东西 (个人汉化)",
+      "total_pages": 7,
+      "topic": "外出襁褓、路线教学与出行事故",
+      "limit": 5,
+      "selected_pages": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "artist_note": "T3（图集标题）",
+      "reading_note": "总览站点第 1–7 页，细看第 2 页；存 1、2、3、4、7。后段出行失败及事故结局已看，不作为成功独立购物示范。"
+    },
+    {
+      "id": "EH32",
+      "gallery_id": 2216321,
+      "url": "https://e-hentai.org/g/2216321/2fbd7a0f65/",
+      "discovery_title": "(ゆっくり) [もるたろう] 成為寵物油的魔理沙 (Chinese)",
+      "total_pages": 51,
+      "topic": "收养、喂食、如厕、玩耍与挑食",
+      "limit": 8,
+      "selected_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "artist_note": "もるたろう（标题及站点 artist:morutarou）",
+      "reading_note": "总览前 8 页，细看第 6 页；没有核读第 9–51 页，不补写教育结果或结局。"
+    },
+    {
+      "id": "EH33",
+      "gallery_id": 4036390,
+      "url": "https://e-hentai.org/g/4036390/ca8b3405ea/",
+      "discovery_title": "[ゆっくり] [TAKUMI] 【pixivリクエスト】 「まりちゃが飼いゆっくりになるまで」 (Chinese)",
+      "total_pages": 11,
+      "topic": "工厂出身、商店交付与宠物适应",
+      "limit": 8,
+      "selected_pages": [
+        2,
+        3,
+        4,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "artist_note": "TAKUMI（标题及站点标签）",
+      "reading_note": "总览 1–11 页图文，细看第 11 页；存 2、3、4、7–11。中文译文作为本次见证，未逐字对日文；工厂暴力训练与后段家庭生活分列。"
+    },
+    {
+      "id": "EH34",
+      "gallery_id": 2400911,
+      "url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "discovery_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
+      "total_pages": 26,
+      "topic": "冬季室内、宠物衣物与返乡会面",
+      "limit": 4,
+      "selected_pages": [
+        2,
+        4,
+        7,
+        8
+      ],
+      "artist_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
+      "reading_note": "总览第 1–8 页，细看第 7 页；存 2、4、7、8。第 2–6 页的擅入个体不认作被饲养者；第 9–26 页及另一篇未核读。"
     }
   ]
 }
