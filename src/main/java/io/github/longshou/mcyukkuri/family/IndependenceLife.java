@@ -93,6 +93,8 @@ public final class IndependenceLife extends Goal {
         if (group != null && (role == null || role.role != SettlementData.Role.MEMBER || role.rejections != 0)) return false;
         return home != null && home.usable(entity) && (home.owns(entity.family().mother()) || home.owns(entity.family().father()));
     }
+    /** A family without a community record is fine; a community member must be in good standing. */
+    private boolean member() { return entity.settlement().group() == null || SettlementSociety.accepted(entity); }
     private boolean ready() {
         return wild() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isLeashed()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
@@ -118,7 +120,7 @@ public final class IndependenceLife extends Goal {
         return chance;
     }
     @Override public boolean canUse() {
-        if (independent || loadGrace > 0 || wait > 0 || !ready() || !SettlementSociety.accepted(entity)) return false;
+        if (independent || loadGrace > 0 || wait > 0 || !ready() || !member()) return false;
         wait = CHECK_INTERVAL;
         if (!eligible()) return false;
         // Departures are by day. A night-time roll is not spent: look again soon, not a full interval later.
