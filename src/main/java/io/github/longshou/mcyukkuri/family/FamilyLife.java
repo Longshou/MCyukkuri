@@ -344,7 +344,10 @@ public final class FamilyLife {
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
     public boolean flying(){return flight!=null||boarding.active();}
-    public boolean boardingThrough(HatBoatEntity hat){return boarding.traverses(hat)||rescue.transferringThrough(hat);}
+    /** The hat does not collide with its own incoming passenger: a boarding, a braid transfer, or a newborn's launch into it (it must reach seats inside the well). */
+    public boolean boardingThrough(HatBoatEntity hat){
+        return boarding.traverses(hat)||rescue.transferringThrough(hat)||flight!=null&&hat!=null&&hat.getUUID().equals(flight.hat());
+    }
     public boolean boardingDismountInPlace(HatBoatEntity hat){return boarding.traverses(hat);}
     public boolean hatLandingActive(){return boarding.landingAshore();}
     public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return flight==null&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
