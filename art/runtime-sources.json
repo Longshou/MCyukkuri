@@ -3649,10 +3649,10 @@
     "lore_source": "standards/yukkuri-library/motions/variants/lore",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
     "format": 2,
-    "revision": "aquatic-brim-bite-20261017-v23",
+    "revision": "birth-catching-20261017-v25",
     "lore_previews": ".local/previews/lore/index.html",
     "birth_performance_source": "standards/yukkuri-library/motions/variants/lore/mamu_birth_preview.py",
-    "birth_performance_revision": "authored-mamu-delivery-20261017",
+    "birth_performance_revision": "flexible-birth-catching-20261017",
     "textures": "src/main/resources/assets/mcyukkuri/textures/entity/<id>/cheek_puff.png",
     "preview": "preview/review/index.html",
     "models": [
@@ -3692,7 +3692,10 @@
     "hat_motion_audio_source": "standards/yukkuri-library/motions/variants/lore/hat_motion_audio.py",
     "water_distress_export_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-distress",
     "water_distress_preview": ".local/previews/hat-motion/index.html",
-    "hat_self_rescue_geometry": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SelfRescueHatGeometry.java"
+    "hat_self_rescue_geometry": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SelfRescueHatGeometry.java",
+    "birth_pose_runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
+    "birth_pose_source": "standards/yukkuri-library/motions/variants/lore/author.py --export-birth",
+    "birth_current_preview": ".local/previews/birth-catching/index.html"
   },
   "placement_fit": {
     "manifest": "art/source/placement-fit/manifest.json",

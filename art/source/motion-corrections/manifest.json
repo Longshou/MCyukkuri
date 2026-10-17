@@ -8,9 +8,9 @@
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
   "author_sha256": "42704d831b30a2a22602c12bc92e1462c102e582718521b572522be25a273a8b",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "36bbbc36a5bff78cbb3258f76bc40fa4387e39a89613db934f4b573c2a813f88",
+  "lore_recipe_sha256": "e62b45abdf169c2f0dc1ec9392e64aa152a57e09e66a5e649213bacfd6e1ac52",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "48a8df6848c377518e533f9f95601fe86b8551b9289c9808f0ab63a1c83d324e",
+  "lore_author_sha256": "67b4908398cfd2f6e5f9eb1a0be793be7390222e418a96dc66b43b42eea4a3a4",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
@@ -20,7 +20,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "2b9d9886e7d7d1035e12ae9fd19a73aa5c3db60e02a175e8068a10a5120de801",
+  "runtime_sha256": "b5d70dbfbb489fc449dc49ea9cbf235b306ed0c779380feb9d28145b11a8e17b",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -660,5 +660,7 @@
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "ef7fa6fac68c4facf53d6ad17d32b30fc98442203ab0acbf4c21fbf0c098c06b",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "11bcac4bf677ab14efd2cd2796ecb3eb29f49ab6476dacfd75a0dd6b5e10e0b2"
+  "braid_rescue_geometry_sha256": "11bcac4bf677ab14efd2cd2796ecb3eb29f49ab6476dacfd75a0dd6b5e10e0b2",
+  "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
+  "birth_pose_sha256": "1cc2bade4983de7e1d46f44311b590eb963ffb58113648a319106eae72d591f6"
 }

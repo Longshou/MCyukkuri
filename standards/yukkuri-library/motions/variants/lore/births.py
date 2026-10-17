@@ -112,6 +112,7 @@ PREP, STRAIN, EMERGE, REST, RECOVERY = (birth_seconds(n) for n in ('PREPARATION'
 INTERVAL = STRAIN+EMERGE+REST
 AQ = VESSEL['aquatic_scale']
 D = VESSEL['delivery']; G = D['gravity']
+BIRTH_POSE = json.loads((PRESENT/'live_birth_pose.json').read_text(encoding='utf-8'))
 BODY = json.loads((PRESENT/'body_geometry.json').read_text(encoding='utf-8'))['variants']['reimu']
 WIDTH = BODY['bounds'][0][1]-BODY['bounds'][0][0]
 FAMILY = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
@@ -155,14 +156,25 @@ def belly_keys(births, end):
     return keys+[[end+RECOVERY, 0]]
 
 
-def emerge(mother, rot_m, belly, boat=False):
+def release_pose(point, boat=False, ident='reimu'):
+    """Use the same authored release pose as LiveBirthGeometry, in model pixels."""
+    data = BIRTH_POSE['variants']['marisa' if boat else ident]
+    clip = data['clips']['boat_labor' if boat else 'labor']
+    values = {key: P.sample(clip[key], STRAIN+EMERGE) for key in ('position','rotation','scale')}
+    pivot = np.asarray(data['pivot']); matrix = P.euler(values['rotation'])*values['scale']
+    return (matrix@(np.asarray(point)-pivot)+pivot+values['position']).tolist()
+
+
+def emerge(mother, rot_m, belly, boat=False, ident='reimu'):
     """A newborn of a live delivery (LiveBirthRenderer, LiveBirthGeometry.exitFront): where it starts, its front at the
     outlet and its body still inside her, and where it is born, ahead of her collision box (or, afloat in her hat, just
     out of her swollen front)."""
-    o = deform(BODY['outlet'], belly); y = max(.24, o[1]-BODY['height']*BABY/2)
-    inside = [0, y, o[2]-.04-BODY['bounds'][2][0]*BABY]
-    front = -o[2]+WIDTH*BABY/2+.32 if boat else max(-o[2]+2.4, WIDTH/2*(1+.26*belly)*(1+.16*belly)+2.4)
-    return add(mother, ry(rot_m, inside)), add(mother, ry(rot_m, [0, y, -front]))
+    geometry = json.loads((PRESENT/'body_geometry.json').read_text(encoding='utf-8'))['variants']['marisa' if boat else ident]
+    width = geometry['bounds'][0][1]-geometry['bounds'][0][0]
+    o = deform(geometry['outlet'], belly); y = max(.24, o[1]-geometry['height']*BABY/2)
+    inside = [0, y, o[2]-.04-geometry['bounds'][2][0]*BABY]
+    front = -o[2]+width*BABY/2+.32 if boat else max(-o[2]+2.4, width/2*(1+.26*belly)*(1+.16*belly)+2.4)
+    return add(mother, ry(rot_m, release_pose(inside, boat, ident))), add(mother, ry(rot_m, release_pose([0, y, -front], boat, ident)))
 
 
 def track(t0, f, T, step=.5):
@@ -226,14 +238,14 @@ def baby(model, scale, t0, clips, sleep_until, rot=0, **extra):
     d.update(extra); return d
 
 
-def delivered(mother, rot_m, births, kinds, pose, hat, region='catch', boat=False, fail=None, ground=0.):
+def delivered(mother, rot_m, births, kinds, pose, hat, region='catch', boat=False, fail=None, ground=0., mother_id='reimu'):
     """Newborns of a live delivery into a hat: each slides out over EMERGE, then is pushed over the near brim into its own
     place (packed in birth order), or, the one at fail, past the far brim to the ground or the water (ground: its
     height). Returns the babies and their places."""
-    r = radius(BABY); exits = [emerge(mother, rot_m, belly_at(i, len(births)), boat)[1] for i in range(len(births))]
+    r = radius(BABY); exits = [emerge(mother, rot_m, belly_at(i, len(births)), boat, mother_id)[1] for i in range(len(births))]
     places = seats(pose, hat, [r]*len(births), region, [e for i, e in enumerate(exits) if i != fail]+[exits[-1]]); out = []; caught = 0
     for i, (b, kind) in enumerate(zip(births, kinds)):
-        inside, ex = emerge(mother, rot_m, belly_at(i, len(births)), boat)
+        inside, ex = emerge(mother, rot_m, belly_at(i, len(births)), boat, mother_id)
         aim = places[caught]; start = DL.takeoff(ex, aim, pose, hat, r)  # the place it would take (HatBoatEntity.peekSeat)
         caught += i != fail
         held = [a+(b-a)*.42 for a,b in zip(inside,start)]
@@ -387,7 +399,7 @@ def scene_dock_miss():
     f = set_down(mother, rot_m, 'aquatic', 'helper'); hat_at, rot_hat = f['hat'], f['rot_hat']; father, rot_f = f['helper'], f['rot_helper']
     pose, hat = DL.Pose(hat_at, rot_hat, AQ), DL.Hat(VESSEL, 'bowl')
     t_shore = 3.0; t_off = 5.2; t_del = t_off+1.6; births = live_birth(t_del, 2); fail = births[1]
-    babies, _ = delivered(mother, rot_m, births, ['marisa']*2, pose, hat, fail=1, ground=hat_at[1])
+    babies, _ = delivered(mother, rot_m, births, ['marisa']*2, pose, hat, fail=1, ground=hat_at[1], mother_id='marisa')
     lost = babies[1]; splash = lost['pos'][-1][1:]; lost['pos'].append([lost['landed']+1.2, *add(splash, [0, -7, 0])]); lost['visible'] = [fail-EMERGE, lost['landed']+1.2]
     boat_path = key([0, -30, -drop, 30], [t_shore-.4, edge-16, -drop, 4])
     return dict(id='dock_miss', title='水生靠岸分娩与接生失误：帽子浮在岸边接，用力过猛的孩子落水', duration=fail+9, span=30, center=2, focus=[edge-8, 4], az=-1.0, el=.5,
@@ -426,7 +438,7 @@ def scene_self():
     mother, rot_m = [0, 0, 0], 0; f = set_down(mother, rot_m, 'land', 'self'); nest, rot_n = f['hat'], f['rot_hat']
     pose, hat = DL.Pose(nest, rot_n, 1.), DL.Hat(VESSEL, 'nest')
     t_off = 2.0; t_del = t_off+1.8; births = live_birth(t_del, 2); end = births[-1]
-    babies, places = delivered(mother, rot_m, births, ['marisa', 'marisa'], pose, hat)
+    babies, places = delivered(mother, rot_m, births, ['marisa', 'marisa'], pose, hat, mother_id='marisa')
     t_out = end+RECOVERY+.6; adults = [[mother[0], mother[2], WIDTH/2]]
     t_on = hop_out(pose, hat, babies, places, t_out, adults)+.7
     return dict(id='self', title='单亲魔理沙：自己用辫子把帽子倒过来放在出口前', duration=t_on+2.6, span=22, center=6, focus=[0, -14], az=.6, el=.45,

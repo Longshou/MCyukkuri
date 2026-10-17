@@ -13,6 +13,38 @@ import org.joml.Vector3f;
 public final class LiveBirthGeometry {
     private static final java.util.Map<String,Vector3f> OUTLETS=new java.util.concurrent.ConcurrentHashMap<>();
     private static final com.google.gson.JsonObject BODY=readBodies();
+    private static final com.google.gson.JsonObject POSES=readPoses();
+    private static com.google.gson.JsonObject readPoses(){
+        try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json")){
+            if(stream==null)throw new IllegalStateException("Missing selected live birth poses");
+            return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
+        }catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}
+    }
+    private static Vector3f sample(com.google.gson.JsonArray keys,float seconds,Vector3f fallback){
+        if(keys==null||keys.isEmpty())return fallback;
+        var left=keys.get(0).getAsJsonArray();var right=left;
+        for(var entry:keys){right=entry.getAsJsonArray();if(right.get(0).getAsFloat()>=seconds)break;left=right;}
+        float a=left.get(0).getAsFloat(),b=right.get(0).getAsFloat(),q=b>a?Math.clamp((seconds-a)/(b-a),0,1):0;
+        return new Vector3f(left.get(1).getAsFloat(),left.get(2).getAsFloat(),left.get(3).getAsFloat())
+                .lerp(new Vector3f(right.get(1).getAsFloat(),right.get(2).getAsFloat(),right.get(3).getAsFloat()),q);
+    }
+    /** Same exported root tracks and pivot as the visible mother at the release frame. */
+    private static Vec3 releasePose(YukkuriEntity mother,Vec3 local){
+        String id=mother.subspecies().assetId();
+        if(!POSES.has(id))return local;
+        var data=POSES.getAsJsonObject(id);var pivot=data.getAsJsonArray("pivot");
+        var clips=data.getAsJsonObject("clips");
+        var clip=clips.getAsJsonObject(mother.family().boatHome()!=null&&clips.has("boat_labor")?"boat_labor":"labor");
+        float seconds=(STRAIN+EMERGENCE)/20f;
+        var position=sample(clip.getAsJsonArray("position"),seconds,new Vector3f());
+        var rotation=sample(clip.getAsJsonArray("rotation"),seconds,new Vector3f()).mul((float)Math.PI/180);
+        var scale=sample(clip.getAsJsonArray("scale"),seconds,new Vector3f(1));
+        var origin=new Vector3f(pivot.get(0).getAsFloat(),pivot.get(1).getAsFloat(),pivot.get(2).getAsFloat());
+        float units=mother.growthScale()/16;
+        var point=new Vector3f((float)local.x/units,(float)local.y/units,(float)local.z/units).sub(origin).mul(scale);
+        new org.joml.Quaternionf().rotationZYX(rotation.z,rotation.y,rotation.x).transform(point);
+        point.add(origin).add(position).mul(units);return new Vec3(point);
+    }
     private static com.google.gson.JsonObject readBodies(){
         try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_geometry.json")){
             if(stream==null)throw new IllegalStateException("Missing selected body geometry");
@@ -134,7 +166,7 @@ public final class LiveBirthGeometry {
         float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.6f*BABY_SCALE;
         return new Vec3(0,Math.max(.015,outlet.y-height*.5),-front);
     }
-    public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,localExit(mother,index));}
+    public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,releasePose(mother,localExit(mother,index)));}
     public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){
         if(!(mother.level() instanceof ServerLevel level))return false;
         // Afloat in her own hat boat the young are born into the hat: only a free seat is needed.
@@ -163,7 +195,7 @@ public final class LiveBirthGeometry {
             if(support.getType()!=HitResult.Type.BLOCK||Math.abs(support.getLocation().y-y)>.03)return false;
         }
         // Prevent a wall between the front outlet and the checked destination.
-        var origin=FamilyGeometry.toWorld(mother,outlet(mother).scale(mother.growthScale()));
+        var origin=FamilyGeometry.toWorld(mother,releasePose(mother,outlet(mother).scale(mother.growthScale())));
         return level.clip(new ClipContext(origin,position.add(0,dimensions.height()*.5,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()==HitResult.Type.MISS;
     }
     private LiveBirthGeometry(){}

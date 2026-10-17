@@ -266,6 +266,8 @@ public final class YukkuriEntity extends PathfinderMob {
     }
 
     @Override public void travel(Vec3 input) {
+        if (!level().isClientSide && family.cradleHeld()) return;
+        if (!level().isClientSide && family.travelFlight()) return;
         if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
                 moveRelative(.1f, input);
@@ -678,7 +680,11 @@ public final class YukkuriEntity extends PathfinderMob {
         if(family.braidRescueActive()&&!isCommandPlaying()&&!operations.active()){
             if(panicTicks>0)panicTicks--;
             String phase=braidRescuePhase();boolean parent=braidRescueState().getInt("ParentId")==getId();
-            // Reaching and gripping are distinct from the child's own rim bite and the supported transfer.
+            if(phase.startsWith("CRADLE_")){
+                setBehavior(parent?"caregiver":"newborn");setAnimation(YukkuriAction.IDLE,false);
+                entityData.set(EXPRESSION,parent?"closed_smile":"neutral");return;
+            }
+            // Reaching and gripping retain their real contact phases.
             String motion=parent?switch(phase){
                 case "REACH"->"braid_rescue_reach";
                 case "GRIP"->"braid_rescue_hold";

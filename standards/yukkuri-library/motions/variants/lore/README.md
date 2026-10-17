@@ -244,3 +244,9 @@ python standards/yukkuri-library/motions/variants/lore/faces.py
 - 蹦床本身已有物理弹跳，不叠加 `hop`。人类擦脸（`RUB` 接触姿势）沿用原有的客户端摆动。
 - 八景 U 的 `7899 水上まりさ用` 精灵图像尚未核看，水生外观按 Wiki 和用户说明沿用普通魔理沙。
 - 本机未编译、未运行游戏，动作只做了离线采样与渲染，游戏内效果待用户查看。
+
+### 2026-10-17 接生修正
+
+`author.py --export-birth` 只重导四段出生相关动作，并从同一组根骨骼关键帧导出 `yukkuri_presentation/live_birth_pose.json`。每个 assetId 保存 pivot，`labor`/`boat_labor` 保存 duration、loop 与按秒线性插值的 position/rotation/scale，模型坐标单位为像素（16/格）。两次用力后仰，在 4.6 秒脱离时分别保留 10°/8°，服务端出生点必须应用该根变换。
+
+产道出生采样排除普通解剖展示的旋转，只保留平移和缩放；柔性展开沿局部半径衰减，外缘保持贴体。`mamu_birth_preview.py --node <node>` 生成 `.local/previews/birth-catching/current.png`，随后 `birth_catching_preview.py --node <node>` 生成完整母体姿势图并重建本工作树预览入口。图像为离线网格检查，未验证游戏内接触、碰撞、多人同步或性能。

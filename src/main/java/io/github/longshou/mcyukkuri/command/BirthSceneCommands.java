@@ -2,51 +2,64 @@ package io.github.longshou.mcyukkuri.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 
-/** Explicit, reversible museum performance; ordinary pets cannot be selected. */
+/** Explicit operator trigger for normal conception, delivery and postnatal care. */
 public final class BirthSceneCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("birth_scene").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("stop").then(Commands.argument("mothers", EntityArgument.entities()).executes(c -> {
-                    int count = 0;
-                    for (var entity : EntityArgument.getEntities(c, "mothers"))
-                        if (entity instanceof YukkuriEntity y && y.birthScene() != null) { y.birthScene().stop(); count++; }
-                    return count;
-                })))
+                .then(Commands.literal("deliver")
+                        .then(Commands.argument("mother", EntityArgument.entity())
+                                .then(Commands.argument("father", EntityArgument.entity())
+                                        .then(Commands.argument("outcome", StringArgumentType.word())
+                                                .suggests((c, builder) -> {
+                                                    BirthScene.OUTCOMES.stream().sorted().forEach(builder::suggest);
+                                                    return builder.buildFuture();
+                                                }).executes(BirthSceneCommands::deliver)))))
+                // Retain parsable old calls with an explicit migration message. Existing selected
+                // children are not templates and are never hidden, cloned, moved or discarded.
                 .then(Commands.literal("start")
                         .then(Commands.argument("mother", EntityArgument.entity())
                                 .then(Commands.argument("helper", EntityArgument.entity())
                                         .then(Commands.argument("children", EntityArgument.entities())
-                                                .then(Commands.argument("mode", StringArgumentType.word()).executes(c -> start(c)))))));
+                                                .then(Commands.argument("mode", StringArgumentType.word())
+                                                        .executes(BirthSceneCommands::legacy))))))
+                .then(Commands.literal("stop")
+                        .then(Commands.argument("mothers", EntityArgument.entities()).executes(c -> {
+                            c.getSource().sendFailure(Component.literal("真实出生不能倒放；本命令不会取消胎次、删除幼体或收走帽子。"));
+                            return 0;
+                        })));
     }
-    private static int start(com.mojang.brigadier.context.CommandContext<CommandSourceStack> c)
-            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
-        var first = EntityArgument.getEntity(c, "mother"); var second = EntityArgument.getEntity(c, "helper");
-        var selected = EntityArgument.getEntities(c, "children"); String mode = StringArgumentType.getString(c, "mode");
-        if (!(first instanceof YukkuriEntity mother) || !(second instanceof YukkuriEntity helper)
-                || mother == helper || mother.level() != helper.level() || mother.level() != c.getSource().getLevel()
-                || helper.getVariant() != YukkuriVariant.MARISA
-                || !mother.family().adult() || !helper.family().adult() || !mother.subspecies().canReproduce()
-                || !helper.life().hasAccessory() || selected.isEmpty() || selected.size() > 5
-                || !java.util.Set.of("land", "bank", "boat").contains(mode)) return 0;
-        if (mother.birthScene() != null) mother.birthScene().stop();
-        if (!BirthScene.eligible(mother) || !BirthScene.eligible(helper) || helper.birthScene() != null) return 0;
-        var children = new java.util.ArrayList<YukkuriEntity>();
-        for (var entity : selected) {
-            if (!(entity instanceof YukkuriEntity y) || !BirthScene.eligible(y) || y.family().adult()
-                    || y.birthScene() != null || y.level() != mother.level()) return 0;
-            children.add(y);
+
+    private static int deliver(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var first = EntityArgument.getEntity(c, "mother");
+        var second = EntityArgument.getEntity(c, "father");
+        if (!(first instanceof YukkuriEntity mother) || !(second instanceof YukkuriEntity father)
+                || mother.level() != c.getSource().getLevel() || father.level() != c.getSource().getLevel()) {
+            c.getSource().sendFailure(Component.literal("请选择当前维度的真实母油与父油。"));
+            return 0;
         }
-        children.sort(java.util.Comparator.comparing(YukkuriEntity::getUUID));
-        new BirthScene(mother, helper, children, mode);
-        c.getSource().sendSuccess(() -> Component.literal("出生演出开始：靠近接生、阵痛、逐只产出与产后照料。"), false);
+        String outcome = StringArgumentType.getString(c, "outcome");
+        var result = BirthScene.deliver(mother, father, outcome);
+        if (result.refusal() != null) {
+            c.getSource().sendFailure(Component.literal(result.refusal()));
+            return 0;
+        }
+        c.getSource().sendSuccess(() -> Component.literal("真实胎次 " + result.brood().id + " 已提前临产（"
+                + result.brood().children.size() + " 只，" + outcome
+                + "）；双亲启用正常 AI，出生与接生遵守实际碰撞。caught 仍可能因障碍失接，missed 会触发现有致命漏接后果。"), false);
         return 1;
+    }
+
+    private static int legacy(CommandContext<CommandSourceStack> c) {
+        c.getSource().sendFailure(Component.literal("旧模板幼体演出已停用，所选实体未改变。请改用 /yukkuri birth_scene deliver <mother> <father> <natural|caught|missed>；先准备真实窝位或帽船，不再预放出生替身。"));
+        return 0;
     }
     private BirthSceneCommands() {}
 }

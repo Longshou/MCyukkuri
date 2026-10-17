@@ -479,6 +479,12 @@ public final class HatBoatEntity extends Entity {
         syncSeats();
         return true;
     }
+    @Override public Vec3 getDismountLocationForPassenger(net.minecraft.world.entity.LivingEntity passenger){
+        // The braid already has physical contact. Vanilla's safe-dismount relocation would
+        // skip the entire lift and put this child outside the brim before it is carried.
+        if(passenger instanceof YukkuriEntity child&&child.family().cradleHeld())return child.position();
+        return super.getDismountLocationForPassenger(passenger);
+    }
     /** A newborn delivered in the hat stays aboard with its mother. */
     public boolean boardYoung(YukkuriEntity child) {
         if (level().isClientSide || unsteadyMotion()&&!crowding.emergency(child.getUUID()) || !young(child) || !hasRoomFor(child)) return false;
@@ -1523,6 +1529,7 @@ public final class HatBoatEntity extends Entity {
      *  4 ticks apart, so none hops over a sibling still sitting. True while any are aboard or still to go. */
     public boolean releaseYoung(YukkuriEntity taker) {
         if (level().isClientSide) return false;
+        if(taker.family().cradlePickup().active())return true;
         if (!leaving.isEmpty()) return true;
         var young = youngPassengers().stream().filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity) p).toList();
         if (young.isEmpty()) return false;
@@ -1539,6 +1546,12 @@ public final class HatBoatEntity extends Entity {
         long now = level().getGameTime();
         for (int k = 0; k < turn.size(); k++) {
             int i = turn.get(k); var child = young.get(i);
+            if(!child.childhood().canJump()){
+                var to=ground(spots.get(order[i]),child);
+                if(to!=null)taker.family().cradlePickup().start(this,child,to);
+                // One dependent child at a time, kept in the real hat until the braid grips it.
+                return true;
+            }
             leaving.add(new Leaving(child.getUUID(), spots.get(order[i]), now+4L*k, !child.childhood().canJump()));
         }
         return true;
@@ -1552,8 +1565,13 @@ public final class HatBoatEntity extends Entity {
             if (server.getEntity(l.young()) instanceof YukkuriEntity child && child.getVehicle() == this) {
                 var to = ground(l.spot(), child);
                 if (to != null) {
+                    if(l.assisted()){
+                        var parent=owner();
+                        if(parent!=null&&!parent.family().cradlePickup().active())parent.family().cradlePickup().start(this,child,to);
+                        return false;
+                    }
                     var from = child.position(); child.stopRiding(); crew.remove(child.getUUID());
-                    if (l.assisted()) child.family().assistedClimbOut(this, from, to); else child.family().hop(this, from, to);
+                    child.family().hop(this, from, to);
                 }
             }
             return true;
@@ -1766,7 +1784,7 @@ public final class HatBoatEntity extends Entity {
     /** Put the hat back on: the young climb out first, onto the bank beside a floated hat. */
     public boolean retrieve(YukkuriEntity owner) {
         if (level().isClientSide || !catches() || !owner.getUUID().equals(ownerYukkuri()) || owner.distanceToSqr(this) > 16) return false;
-        if (hasIncoming()) return false;
+        if (hasIncoming()||!getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
         if (isMoored()) { var spots=landingSpots(owner.blockPosition(), owner); if (spots==null) return false; landCrew(spots); }
         for (var p : java.util.List.copyOf(getPassengers())) p.stopRiding();
         crew.clear();

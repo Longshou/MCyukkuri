@@ -1609,7 +1609,7 @@
           "satisfied"
         ]
       ],
-      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked.",
+      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked. Birth-catching revision: both pushes lean back, keep 10 degrees at release and settle gently during recovery.",
       "triggers": [
         "labor (live delivery)"
       ],
@@ -1667,38 +1667,46 @@
         ],
         [
           0.7,
-          3
+          5
         ],
         [
           1.4,
-          4
+          10
         ],
         [
           2.2,
-          -5
+          19
         ],
         [
           2.6,
-          -3
+          15
         ],
         [
           2.85,
-          0
+          7
         ],
         [
           3.2,
-          0
+          7
         ],
         [
           3.9,
-          -6
+          22
         ],
         [
           4.3,
-          -3
+          17
         ],
         [
           4.6,
+          10
+        ],
+        [
+          5.3,
+          3
+        ],
+        [
+          6.2,
           0
         ],
         [
@@ -2606,7 +2614,7 @@
           "satisfied"
         ]
       ],
-      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked.",
+      "lore": "Eyes squeezed, mouth open and sequential emergence (CAD, 無声, AV references in viviparous-comics.md). Project timing: 1.4s brace, 3.2s emergence with a breath at 2.6–3.2s, birth at 4.6s, then 2.4s relief; the server clock freezes all presentation when blocked. Birth-catching revision: both pushes lean back within the boat, keep 8 degrees at release.",
       "triggers": [
         "labor afloat"
       ],
@@ -2655,6 +2663,60 @@
         [
           7,
           0
+        ]
+      ],
+      "pitch_keys": [
+        [
+          0,
+          0.0
+        ],
+        [
+          0.7,
+          4.0
+        ],
+        [
+          1.4,
+          8.0
+        ],
+        [
+          2.2,
+          15.2
+        ],
+        [
+          2.6,
+          12.0
+        ],
+        [
+          2.85,
+          5.6
+        ],
+        [
+          3.2,
+          5.6
+        ],
+        [
+          3.9,
+          17.6
+        ],
+        [
+          4.3,
+          13.6
+        ],
+        [
+          4.6,
+          8.0
+        ],
+        [
+          5.3,
+          2.4
+        ],
+        [
+          6.2,
+          0.0
+        ],
+        [
+          7,
+          0.0
         ]
       ]
     },

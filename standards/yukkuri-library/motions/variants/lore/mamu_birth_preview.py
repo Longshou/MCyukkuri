@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw
 import births as B
 import preview as P
 
-OUT = P.ROOT / '.local/previews/birth-performance'
+OUT = P.ROOT / '.local/previews/birth-catching'
 ASSETS = P.ASSETS
 
 
@@ -44,11 +44,11 @@ def selected(model, predicate):
 
 
 def mamu_pose(model):
-    """YukkuriModel.deliveryMamuVertices: only anatomy tracks, fully extended."""
+    """YukkuriModel.deliveryMamuVertices: anatomy translation/scale only; a birth has no rigid hinge rotation."""
     clip = model['clips']['anatomy_mamu_extend']
     sampled = {}
     for track in clip['tracks']:
-        if model['bones'][track['bone']]['name'].startswith('anatomy_'):
+        if model['bones'][track['bone']]['name'].startswith('anatomy_') and track['channel'] != 'rotation':
             sampled.setdefault(track['bone'], {})[track['channel']] = P.sample(track['keys'], clip['duration'])
     matrices = []
     for i, bone in enumerate(model['bones']):
@@ -201,7 +201,10 @@ def frame(model, belly, contraction, progress, extension=1, detached=False):
     for p in mamu:
         if np.any(np.abs(scales-1) > 1e-4):
             depth = p[2]-surface(body, p[0], p[1], plane+.025, -.005)
-            p[:2] = outlet[:2]+(p[:2]-outlet[:2])*scales
+            delta = p[:2]-outlet[:2]
+            radial = np.linalg.norm(delta/np.maximum(.01,half))
+            flex = 1-smooth((radial-.35)/.65)
+            p[:2] = outlet[:2]+delta*(1+(scales-1)*flex)
             p[2] = surface(body, p[0], p[1], plane+.025, -.005)+depth
         p[2] += .6*(1-extension)
     items = [mesh_item(subtract(body, hole, plane), 'neutral'), mesh_item(subtract(mamu, hole, plane, True), 'neutral')]

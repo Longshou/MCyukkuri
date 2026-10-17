@@ -333,7 +333,7 @@ def state(action, t, c, height):
         r = [c['look_down'], 0., c['rock']*math.sin(2*math.pi*t/d)]
     elif action == 'labor':
         # The shared 140-tick cycle: brace, first push, a held half-emerged child while
-        # catching breath, final push, then 48 ticks of relief. Rest exactly at birth.
+        # catching breath, final push, then 48 ticks of relief. Retain the recoil at birth.
         a = keyed(t, c['effort_keys']); k = c['brace']
         s = [1+.5*k*a, 1-k*a, 1+.5*k*a]
         r[0] = keyed(t, c['pitch_keys'])
@@ -354,7 +354,7 @@ def state(action, t, c, height):
     elif action == 'postpartum':
         a = keyed(t, [(0,0),(.8,1),(3.2,1),(5.8,.4),(d,0)])
         h = lerp(1, c['slump'], a); s = [lerp(1, 1+(1-c['slump'])*.5, a), h, lerp(1, 1+(1-c['slump'])*.5, a)]
-        r[0] = c['head_down']*a
+        r[0] = 10*(1-smooth(t/.8))+c['head_down']*a
         if t >= 3.2:
             r[0] += c['look_up']*bump((t-3.2)/(d-3.2))
             r[1] = c['look_young']*bump((t-3.2)/(d-3.2))
@@ -383,6 +383,7 @@ def state(action, t, c, height):
         s = curled(c); lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['rock']*math.sin(2*math.pi*t/d)
     elif action == 'boat_labor':
         base = curled(c); k = c['brace']
+        r[0] = keyed(t, c['pitch_keys'])
         if t < c['birth_seconds']:
             a = keyed(t,c['effort_keys'])
             s = [base[0]+.5*k*a, base[1]-k*a, base[2]+.5*k*a]
@@ -391,7 +392,7 @@ def state(action, t, c, height):
             # Gather the newborn into the hat: turn toward it, lean in, come back.
             e = bump((t-c['birth_seconds'])/(d-c['birth_seconds'])); s = base
             s[1]+=.015*bump(((t-c['birth_seconds'])/.8)%1)*e
-            r = [c['tuck_lean']*e, c['tuck_turn']*e, 0.]
+            r = [keyed(t, c['pitch_keys'])+c['tuck_lean']*e, c['tuck_turn']*e, 0.]
     elif action == 'bereaved':
         if t < 1.6:  # frozen, sinking a little: the blank stare
             a = smooth(t/.4); s = [1+c['sink']*.5*a, 1-c['sink']*a, 1+c['sink']*.5*a]
@@ -715,6 +716,7 @@ def export_distress_clips(include_pet=False, include_birth=False):
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
+    birth_poses={'format':1,'units':'model_pixels','ticks_per_second':20,'variants':{}}
     for ident,revision in payload['models'].items():
         model=placement_fit.fitted(ROOT/f'src/main/resources/assets/mcyukkuri/yukkuri/{ident}.json',fits)
         root=next(i for i,bone in enumerate(model['bones']) if bone['name']=='root')
@@ -732,6 +734,13 @@ def export_distress_clips(include_pet=False, include_birth=False):
         if include_pet or include_birth:
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
+        if include_birth:
+            clips={}
+            for name in ('labor','boat_labor'):
+                if name not in authored:continue
+                clip=authored[name]
+                clips[name]=dict(duration=clip['duration'],loop=clip['loop'],**{tr['channel']:tr['keys'] for tr in clip['tracks'] if tr['bone']==root})
+            if clips:birth_poses['variants'][ident]=dict(pivot=pivot.tolist(),clips=clips)
         for clip in authored.values():
             for track in clip['tracks']:
                 name=model['bones'][track['bone']]['name']
@@ -739,7 +748,9 @@ def export_distress_clips(include_pet=False, include_birth=False):
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    payload['revision']='birth-performance-20261017-v24' if include_birth else 'aquatic-brim-bite-20261017-v23'
+    if include_birth:
+        (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
+    payload['revision']='birth-catching-20261017-v25' if include_birth else 'aquatic-brim-bite-20261017-v23'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
@@ -747,6 +758,10 @@ def export_distress_clips(include_pet=False, include_birth=False):
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
                        ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
+    if include_birth:
+        pose_path=resource.parent/'live_birth_pose.json'
+        entry['birth_pose']=pose_path.relative_to(ROOT).as_posix()
+        entry['birth_pose_sha256']=hashlib.sha256(pose_path.read_bytes()).hexdigest()
     if include_pet:
         entry['exporter_sha256']=hashlib.sha256((ROOT/entry['exporter']).read_bytes()).hexdigest()
     manifest.write_text(json.dumps(entry,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')

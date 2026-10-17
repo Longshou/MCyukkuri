@@ -312,7 +312,9 @@ public final class FamilyData extends SavedData {
         var hat=boat!=null?boat:brood.kind==BirthKind.LIVE?level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
                 cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(java.util.Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         if(hat!=null) {
-            if(level.random.nextFloat()<.12f) { entity.family().doom();entity.family().launchPast(hat); }
+            boolean miss=level.random.nextFloat()<.12f;
+            if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
+            if(miss) { entity.family().doom();entity.family().launchPast(hat); }
             else entity.family().launchInto(hat,io.github.longshou.mcyukkuri.subspecies.HatVessel.TMIN,null);
         } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.class,
                 entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {

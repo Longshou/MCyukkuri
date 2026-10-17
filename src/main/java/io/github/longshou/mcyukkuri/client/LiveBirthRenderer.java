@@ -125,10 +125,14 @@ final class LiveBirthRenderer {
                     :LiveBirthGeometry.smooth(belly/.22f*LiveBirthGeometry.RECOVERY/13f);
             for(var tri:mamu)for(var vertex:tri){
                 var p=vertex.point;
-                // Keep the authored skin/ink relief on the body's curved surface when stretched.
+                // Elastic stretch dies away at the attachment edge. A rigid rectangular
+                // patch must never rotate down or peel off the body like a hinged door.
                 if(width!=1||height!=1){
                     float depth=p.z-surfaceZ(p.x,p.y);
-                    p.x=outlet.x+(p.x-outlet.x)*width;p.y=outlet.y+(p.y-outlet.y)*height;
+                    float dx=p.x-outlet.x,dy=p.y-outlet.y;
+                    float radius=(float)Math.sqrt(Math.pow(dx/Math.max(.01f,halfWidth),2)+Math.pow(dy/Math.max(.01f,halfHeightMamu),2));
+                    float flex=1-LiveBirthGeometry.smooth((radius-.35f)/.65f);
+                    p.x=outlet.x+dx*(1+(width-1)*flex);p.y=outlet.y+dy*(1+(height-1)*flex);
                     p.z=surfaceZ(p.x,p.y)+depth;
                 }
                 p.z+=.6f*(1-extension);

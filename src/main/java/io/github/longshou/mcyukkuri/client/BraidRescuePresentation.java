@@ -12,6 +12,7 @@ final class BraidRescuePresentation {
         return switch(phase){case "APPROACH","OFFER","REACH","GRIP","BITE","PUSH","SLIDE","SETTLE","RELEASE"->true;default->false;};
     }
     static boolean active(YukkuriEntity entity){
+        if(CradlePickupPresentation.active(entity))return true;
         if(!known(entity.braidRescuePhase()))return false;
         var state=entity.braidRescueState();int id=entity.getId();
         return state.getInt("ParentId")==id||state.getInt("ChildId")==id;
@@ -19,6 +20,7 @@ final class BraidRescuePresentation {
     static boolean parent(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ParentId")==entity.getId();}
     static boolean child(YukkuriEntity entity){return active(entity)&&entity.braidRescueState().getInt("ChildId")==entity.getId();}
     static CabinDistressPresentation.Motion motion(YukkuriEntity entity,float partial){
+        if(CradlePickupPresentation.active(entity))return CradlePickupPresentation.motion(entity);
         if(!active(entity))return null;
         String phase=entity.braidRescuePhase();
         float seconds=Math.max(0,(entity.level().getGameTime()-entity.braidRescueStartTick()+partial)/20f);
@@ -55,6 +57,8 @@ final class BraidRescuePresentation {
     }
     /** Reach and grip target the actual synchronized tip and joint, with the authored segment lengths intact. */
     static void configure(YukkuriEntity actor,YukkuriModel model,float partial,float renderedYaw){
+        model.setBraidCarryContact(false);
+        if(CradlePickupPresentation.active(actor)){CradlePickupPresentation.configure(actor,model,partial,renderedYaw);return;}
         CompoundTag state=actor.braidRescueState();
         String phase=actor.braidRescuePhase();
         boolean braid=state.getBoolean("Braid");
