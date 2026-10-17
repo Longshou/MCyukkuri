@@ -339,6 +339,9 @@ public final class YukkuriEntity extends PathfinderMob {
     public void syncSubspecies(int flags) { if (!level().isClientSide) entityData.set(SUBSPECIES, flags); }
     public io.github.longshou.mcyukkuri.settlement.SettlementLife settlement() { return settlement; }
     public io.github.longshou.mcyukkuri.settlement.HabitatLife habitat() { return habitat; }
+    private io.github.longshou.mcyukkuri.settlement.ForageTrip forageTrip;
+    /** Foraging trips of a household with young (father far, mother when short); read by status and the museum. */
+    public io.github.longshou.mcyukkuri.settlement.ForageTrip forageTrip() { return forageTrip; }
 
     @Override public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
             net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason,
@@ -490,6 +493,8 @@ public final class YukkuriEntity extends PathfinderMob {
         });
         goalSelector.addGoal(5, new FamilyGoal());
         goalSelector.addGoal(5, new HouseGoal());
+        forageTrip = new io.github.longshou.mcyukkuri.settlement.ForageTrip(this);
+        goalSelector.addGoal(io.github.longshou.mcyukkuri.settlement.ForageTrip.GOAL_PRIORITY, forageTrip);
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
