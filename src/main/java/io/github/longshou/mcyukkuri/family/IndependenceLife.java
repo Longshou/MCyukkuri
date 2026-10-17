@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.settlement.NaturalShelter;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -47,7 +48,9 @@ public final class IndependenceLife extends Goal {
     private ItemStack carrying = ItemStack.EMPTY;
     private ItemEntity pickup;
     private final io.github.longshou.mcyukkuri.settlement.PlantBedding plants;
-    private BlockPos target;
+    private Vec3 target, progressPosition, pickupStand;
+    private int routeFailures, stalledTicks, lastRouteTick, contactTicks;
+    private boolean working, enteredHome;
     private Task task = Task.NONE;
     private int wait = CHECK_INTERVAL, elapsed, work, projectTicks, visitWait = VISIT_INTERVAL, visits, rainLosses, loadGrace;
     private boolean running, farewell, returning;
@@ -65,12 +68,13 @@ public final class IndependenceLife extends Goal {
     public GlobalPos origin() { return origin; }
     public String activity() {
         return switch (task) {
-            case FAREWELL -> "independence_farewell";
-            case PICKUP -> "independence_gather";
+            case FAREWELL -> "independence_gather";
+            case PICKUP -> contactTicks > 0 ? "nest_harvest" : "independence_gather";
             case HARVEST -> plants.harvesting()?"nest_harvest":"independence_gather";
-            case DELIVER -> "independence_carry";
-            case WORK -> "independence_build";
-            case VISIT, GREET -> "independence_visit";
+            case DELIVER -> contactTicks > 0 ? "nest_place" : "independence_carry";
+            case WORK -> working ? "independence_build" : "independence_gather";
+            case VISIT -> "independence_gather";
+            case GREET -> "independence_visit";
             case RETURN -> "independence_return";
             default -> "idle";
         };
@@ -201,8 +205,8 @@ public final class IndependenceLife extends Goal {
             if (!ShelterPlacement.canPlace(level(), plan())) { abandon(); return false; }
             if (!farewell) {
                 var parent = relativeAtOrigin();
-                farewell = true;
                 if (parent != null) { visitor = parent.getUUID(); task = Task.FAREWELL; return true; }
+                farewell = true;
             }
             if (!carrying.isEmpty()) { task = Task.DELIVER; return true; }
             if (materialCount(true) >= paperNeeded() && materialCount(false) >= beddingNeeded()) { task = Task.WORK; return true; }
@@ -215,7 +219,10 @@ public final class IndependenceLife extends Goal {
         if (chooseSite()) wait = 0;
         return false;
     }
-    @Override public void start() { running = true; elapsed = 0; }
+    @Override public void start() {
+        running = true; elapsed = 0; contactTicks = 0; working = enteredHome = false;
+        resetRoute();
+    }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public boolean canContinueToUse() {
         return active() && ready() && elapsed < 1000 && SettlementSociety.accepted(entity)
@@ -228,21 +235,32 @@ public final class IndependenceLife extends Goal {
             case FAREWELL, VISIT, GREET -> visit();
             case PICKUP -> {
                 if (pickup == null || !pickup.isAlive() || pickup.hasPickUpDelay() || !needed(pickup.getItem())) { stop(); return; }
-                if (approach(pickup.blockPosition()) && entity.distanceToSqr(pickup) < 2.25) {
+                if (pickupStand == null) pickupStand = pickupStand(pickup);
+                if (pickupStand == null) { stop(); return; }
+                if (!approach(pickupStand)) { contactTicks = 0; return; }
+                if (!touchMaterial(pickup.position())) { contactTicks = 0; pickupStand = null; return; }
+                if (++contactTicks >= 24) {
                     carrying = pickup.getItem().split(1); if (pickup.getItem().isEmpty()) pickup.discard();
-                    pickup = null; task = Task.DELIVER; elapsed = 0;
+                    pickup = null; pickupStand = null; task = Task.DELIVER; elapsed = contactTicks = 0; resetRoute();
                 }
             }
             case HARVEST -> {
                 var portion=plants.tick();
-                if(!portion.isEmpty()){carrying=portion;task=Task.DELIVER;elapsed=0;}
+                if(!portion.isEmpty()){carrying=portion;task=Task.DELIVER;elapsed=contactTicks=0;resetRoute();}
                 else if(!plants.active())stop();
             }
-            case DELIVER -> { if (approach(site.pos())) { deliver(); stop(); wait = 10; } }
+            case DELIVER -> {
+                Vec3 pile = Vec3.atBottomCenterOf(site.pos());
+                Vec3 stand = pile.add(facing.getStepX() * (entity.getBbWidth() * .5 + .06), 0,
+                        facing.getStepZ() * (entity.getBbWidth() * .5 + .06));
+                if (!approach(stand) || !touchMaterial(pile)) { contactTicks = 0; return; }
+                if (++contactTicks >= 20) { deliver(); stop(); wait = 10; }
+            }
             case WORK -> {
                 reconcile();
                 if (materialCount(true) < paperNeeded() || materialCount(false) < beddingNeeded()) { stop(); return; }
-                if (approach(site.pos())) {
+                working = approach(site.pos());
+                if (working) {
                     work++;
                     if (work % 40 == 0) { entity.life().spendEnergy(.25f); entity.life().spendNutrition(.1f); }
                     if (work % 20 == 0) level().sendParticles(ParticleTypes.COMPOSTER, entity.getX(), entity.getY() + .15, entity.getZ(), 2, .2, .1, .2, 0);
@@ -250,8 +268,15 @@ public final class IndependenceLife extends Goal {
                 }
             }
             case RETURN -> {
+                var shelter = entity.habitat().shelter();
                 var home = entity.habitat().homeStand();
-                if (home == null) { stop(); return; }
+                if (shelter == null || home == null) { stop(); return; }
+                // Walk through the real entrance before aiming at an interior bed. Already
+                // inside (including immediately after building) needs no artificial exit.
+                if (!enteredHome && !shelter.contains(entity.blockPosition())) {
+                    if (!approach(shelter.entrance())) return;
+                    enteredHome = true; resetRoute();
+                }
                 if (approach(home)) { returning = false; stop(); visitWait = VISIT_INTERVAL; }
             }
             default -> stop();
@@ -295,7 +320,8 @@ public final class IndependenceLife extends Goal {
         if (carrying.isEmpty() || !needed(carrying)) { dropCarrying(); return; }
         var token = UUID.randomUUID(); var stack = carrying.copy();
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putUUID(MATERIAL_KEY, token));
-        var pos = Vec3.atBottomCenterOf(site.pos()).add((materials.size() % 3 - 1) * .25, .1, (materials.size() / 3) * .25);
+        // Release beneath the contacting mouth, not at an unrelated scripted pile offset.
+        var pos = Vec3.atBottomCenterOf(site.pos()).add(0, .03, 0);
         var item = new ItemEntity(level(), pos.x, pos.y, pos.z, stack); item.setDeltaMovement(Vec3.ZERO); item.setPickUpDelay(40);
         if (level().addFreshEntity(item)) { carrying = ItemStack.EMPTY; materials.add(new Material(item.getUUID(), token)); }
     }
@@ -348,28 +374,89 @@ public final class IndependenceLife extends Goal {
                 || !entity.life().canRecognize(other) || !other.life().canRecognize(entity)) { stop(); return; }
         var home = originalShelter();
         if (home == null || !home.owns(other.getUUID()) || other.distanceToSqr(Vec3.atBottomCenterOf(home.getBlockPos())) > 16) { stop(); return; }
-        if (entity.distanceToSqr(other) > 2.25) { approach(other.blockPosition()); return; }
+        if (entity.distanceToSqr(other) > 2.25) {
+            // A living parent's occupied block is not a valid dry stand. Approach a real
+            // neighbouring contact position instead of repeatedly rejecting that block.
+            var stand = contactStand(other.position(), (entity.getBbWidth() + other.getBbWidth()) * .5 + .15);
+            if (stand == null) stop(); else approach(stand);
+            return;
+        }
         if (!entity.hasLineOfSight(other)) { stop(); return; }
-        entity.getNavigation().stop(); entity.getLookControl().setLookAt(other, 25, 25);
+        SurfaceApproach.halt(entity); entity.getLookControl().setLookAt(other, 25, 25);
         if (task != Task.GREET) {
             boolean goodbye = task == Task.FAREWELL;
             entity.showReaction("happy", "known_peer", 60); other.showReaction("happy", "known_peer", 60);
-            if (goodbye) { stop(); wait = 20; return; }
+            if (goodbye) { farewell = true; stop(); wait = 20; return; }
             task = Task.GREET; elapsed = 0;
         }
-        if (elapsed >= 100) { visits++; task = Task.RETURN; elapsed = 0; visitor = null; }
+        if (elapsed >= 100) { visits++; task = Task.RETURN; elapsed = 0; visitor = null; resetRoute(); }
     }
     private boolean approach(BlockPos pos) {
-        if (!level().hasChunkAt(pos) || !entity.life().dryStand(pos)) { stop(); return false; }
-        if (entity.distanceToSqr(Vec3.atBottomCenterOf(pos)) < .64) { entity.getNavigation().stop(); return true; }
-        if (elapsed % 20 == 1 && !entity.life().navigate(pos, 1, false)) stop();
+        return approach(Vec3.atBottomCenterOf(pos));
+    }
+    private boolean approach(Vec3 destination) {
+        if (!SurfaceApproach.supported(entity, destination)) { stop(); return false; }
+        boolean changed = target == null || target.distanceToSqr(destination) > .0025;
+        if (changed) {
+            target = destination; progressPosition = entity.position(); stalledTicks = routeFailures = 0;
+            lastRouteTick = entity.tickCount - 20;
+        }
+        if (SurfaceApproach.arrived(entity, destination)) {
+            stalledTicks = 0; SurfaceApproach.halt(entity); return true;
+        }
+        if (progressPosition == null || entity.position().distanceToSqr(progressPosition) > .0036) {
+            progressPosition = entity.position(); stalledTicks = 0;
+        } else stalledTicks++;
+        if (stalledTicks >= 120) { stop(); return false; }
+        if (SurfaceApproach.clearLastStep(entity, destination)) {
+            return SurfaceApproach.walk(entity, destination, .8);
+        }
+        // Keep the current route intact while it is making progress. A new destination is
+        // acted on immediately, including PICKUP -> DELIVER within the same goal run.
+        if (changed || (entity.getNavigation().isDone() || stalledTicks >= 40)
+                && entity.tickCount - lastRouteTick >= 20) {
+            lastRouteTick = entity.tickCount;
+            if (!entity.life().navigate(BlockPos.containing(destination), .8, false)) {
+                if (++routeFailures >= 3) stop();
+            } else routeFailures = 0;
+        }
         return false;
+    }
+    private Vec3 pickupStand(ItemEntity item) {
+        return contactStand(new Vec3(item.getX(), item.blockPosition().getY(), item.getZ()), entity.getBbWidth() * .5 + .06);
+    }
+    private Vec3 contactStand(Vec3 point, double reach) {
+        var candidates = new ArrayList<Vec3>();
+        for (var direction : Direction.Plane.HORIZONTAL) {
+            candidates.add(point.add(direction.getStepX() * reach, 0, direction.getStepZ() * reach));
+        }
+        candidates.sort(Comparator.comparingDouble(entity::distanceToSqr));
+        for (var stand : candidates) if (SurfaceApproach.supported(entity, stand)
+                && entity.life().reachable(BlockPos.containing(stand), false)) return stand;
+        return null;
+    }
+    private boolean touchMaterial(Vec3 point) {
+        double reach = entity.getBbWidth() * .5 + .12;
+        if (entity.position().subtract(point).horizontalDistanceSqr() > reach * reach
+                || Math.abs(entity.getY() - point.y) > .3) return false;
+        float yaw = SurfaceApproach.yaw(entity.position(), point);
+        SurfaceApproach.face(entity, yaw);
+        var hit = level().clip(new net.minecraft.world.level.ClipContext(
+                entity.position().add(0, entity.getBbHeight() * .45, 0), point.add(0, .03, 0),
+                net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                net.minecraft.world.level.ClipContext.Fluid.NONE, entity));
+        return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS
+                && Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw - entity.getYRot())) <= 12;
+    }
+    private void resetRoute() {
+        target = progressPosition = null; stalledTicks = routeFailures = 0;
     }
     @Override public void stop() {
         plants.stop();
         if (task == Task.WORK) work -= work % UNIT_WORK;
-        task = Task.NONE; running = false; pickup = null; target = null; visitor = null; elapsed = 0; wait = 40;
-        entity.getNavigation().stop();
+        task = Task.NONE; running = false; pickup = null; pickupStand = null; visitor = null; elapsed = contactTicks = 0; wait = 40;
+        working = enteredHome = false; resetRoute();
+        SurfaceApproach.halt(entity);
     }
     public void dropCarrying() {
         if (carrying.isEmpty()) return;
@@ -420,6 +507,7 @@ public final class IndependenceLife extends Goal {
                 materials.add(new Material(item.getUUID("Entity"),item.getUUID("Token")));
         }
         if (origin == null || originalGroup == null || establishedHome != null) site = null;
-        task = Task.NONE; running = false; visitor = null; pickup = null; target = null; elapsed = 0; loadGrace = 100;
+        task = Task.NONE; running = false; visitor = null; pickup = null; pickupStand = null; elapsed = contactTicks = 0; loadGrace = 100;
+        working = enteredHome = false; resetRoute();
     }
 }
