@@ -182,6 +182,13 @@ public final class FamilyLife {
         };
     }
     /** A live delivery is under way (server side). */
+    /** Why the current delivery is held up (empty when it is not): the last refusal of the ledger, or a guard of the mother's own. */
+    public String birthBlock(){
+        var b=brood();if(b==null||b.cancelled||b.complete())return "";
+        if(!hold.isEmpty())return hold;
+        return FamilyData.get(level()).birthBlock(b);
+    }
+    private String hold="";
     public boolean laboring() {
         if(entity.level().isClientSide)return false;
         var b=brood();return b!=null&&!b.cancelled&&!b.complete()&&b.kind==FamilyData.BirthKind.LIVE&&b.elapsed>=b.duration;
@@ -625,6 +632,10 @@ public final class FamilyLife {
         if(task==Task.MIDWIFE)tickMidwife();
         if(comfortTicks>0)tickComfort();
         var brood=brood();
+        // Labour wakes a sleeping mother (a night pregnancy used to wait until morning, or for ever in a hat).
+        if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
+            if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();
+        }
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
             level().sendParticles(net.minecraft.core.particles.ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
@@ -900,15 +911,16 @@ public final class FamilyLife {
     public BlockPos birthAnchor(){var nest=nestStand();var boat=boatHome();return nest!=null?nest:boat!=null?boat.blockPosition():entity.blockPosition();}
     private void advanceLive(FamilyData.Brood brood){
         Vec3 before=deliveryLast;deliveryLast=entity.position();
-        if(!readyForDelivery())return;
+        hold="";
+        if(!readyForDelivery()){hold="mother_not_ready";return;}
         var boat=boatHome();
-        if(!placeForTerm(brood,boat))return;
+        if(!placeForTerm(brood,boat)){hold="no_place_for_term";return;}
         // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
-        if(boat==null&&brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004))return;
+        if(boat==null&&brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004)){hold="mother_moving";return;}
         int next=0;while(next<brood.children.size()&&brood.children.get(next).born)next++;
         if(next==brood.children.size())return;
-        if(boat==null&&brood.elapsed>=brood.duration-2&&catchAlone(brood))return;
-        if(hatMove!=HatMove.NONE)return;
+        if(boat==null&&brood.elapsed>=brood.duration-2&&catchAlone(brood)){hold="waiting_for_hat";return;}
+        if(hatMove!=HatMove.NONE){hold="hat_move";return;}
         if(brood.elapsed>=brood.duration){
             entity.getNavigation().stop();
             if(Float.isNaN(deliveryYaw))deliveryYaw=entity.yBodyRot;
@@ -919,13 +931,13 @@ public final class FamilyLife {
             if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
                     &&catcherWait<160&&deliveryOutcome!=3&&helper!=null&&helper!=entity&&!helper.family().dutyGaveUp
                     &&helper.family().cradleEntity()==null&&!helper.isPanicking()&&!helper.life().hasUrgentNeed()){
-                catcherWait++;return;
+                catcherWait++;hold="waiting_for_catcher";return;
             }
-            if(!LiveBirthGeometry.clear(entity,brood.children.get(next),next))return;
+            if(!LiveBirthGeometry.clear(entity,brood.children.get(next),next)){hold="outlet_blocked";return;}
         }
         float nextBelly=LiveBirthGeometry.belly(Math.min(1,(brood.elapsed+1f)/brood.duration),brood.children.size()-brood.unborn(),brood.children.size());
         var room=LiveBirthGeometry.bodyDimensions(entity,entity.growthScale(),nextBelly).scale(entity.getScale()).makeBoundingBox(entity.position());
-        if(!level().noCollision(entity,room))return;
+        if(!level().noCollision(entity,room)){hold="no_room_for_belly";return;}
         // Failed entity insertion pauses at this child's release, never running into the next child's clock.
         if(brood.elapsed<brood.duration+LiveBirthGeometry.birthTick(next)){
             brood.elapsed++;if(brood.elapsed%200==0)entity.life().spendNutrition(1);FamilyData.get(level()).setDirty();

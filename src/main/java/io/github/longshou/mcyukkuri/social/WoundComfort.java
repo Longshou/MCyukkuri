@@ -75,13 +75,14 @@ public final class WoundComfort {
     }
 
     /** Why this one cannot take part right now (an emergency or another activity wins); null when calm. */
-    private static String busyReason(YukkuriEntity e) {
+    private static String busyReason(YukkuriEntity e, boolean hurtOne) {
         if (!e.isAlive() || e.isRemoved()) return "dead";
         if (e.isNoAi()) return "noai";
         if (!e.onGround()) return "airborne";
         if (e.isPassenger()) return "passenger";
         if (e.isPanicking()) return "panic";
-        if (e.hurtTime != 0) return "hurt_flash";
+        // The hurt one flashes whenever its own wound bleeds; that is the very reason it is being comforted, not an interruption.
+        if (e.hurtTime != 0 && !hurtOne) return "hurt_flash";
         if (e.isCommandPlaying()) return "command_action";
         if (e.isOnFire()) return "fire";
         if (e.isInWaterOrBubble()) return "water";
@@ -109,11 +110,10 @@ public final class WoundComfort {
         return null;
     }
 
-    private static boolean calm(YukkuriEntity e) { return busyReason(e) == null; }
 
     /** A kin that is itself hurt, hungry or tired needs care before it can give any. */
     private static String unableReason(YukkuriEntity licker) {
-        var busy = busyReason(licker);
+        var busy = busyReason(licker, false);
         if (busy != null) return "licker_" + busy;
         if (licker.life().nutrition() < 40) return "licker_hungry";
         if (licker.life().energy() < 35) return "licker_tired";
@@ -131,7 +131,7 @@ public final class WoundComfort {
         if (victim.woundComfort().session != null) return "being_licked";
         if (victim.woundComfort().relief != 0) return "already_soothed";
         if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "no_wound";
-        var busy = busyReason(victim);
+        var busy = busyReason(victim, true);
         return busy == null ? null : "victim_" + busy;
     }
 
@@ -220,7 +220,7 @@ public final class WoundComfort {
         // The lick only continues while the same wound is still there to worry about.
         var able = unableReason(licker);
         if (able != null) return able;
-        var busy = busyReason(victim);
+        var busy = busyReason(victim, true);
         if (busy != null) return "victim_" + busy;
         if (victim.body().wound() <= 0 && victim.body().burns() <= 0) return "healed";
         return null;

@@ -97,6 +97,7 @@ public enum StatusKey {
         return b == null ? 0 : b.unborn();
     }, null),
     STERILE("reproduction", "sterile", 0, y -> y.family().sterile(), null),
+    BIRTH_BLOCK("reproduction", "birth_block", 20, y -> y.family().birthBlock(), null),
     CONCEPTIONS("reproduction", "conceptions", 0, y -> y.family().conceptions(), null),
     RECOVERY("reproduction", "recovery", 0, y -> y.family().recovery() > 0, null),
     // ---- growth -----------------------------------------------------------------------------------------------
