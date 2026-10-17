@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import java.util.*;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -26,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 /** Keeper UI: the shop's studs, nursery and restock status, plus the matchmaking (omiai) service. Button packets never carry an animal id.
  *  Button ids: 0/1 previous/next own animal, 2 book the date, 3/4 next/previous stud.
  *  Data slots (shorts): 0 daytime, 1 stud count, 2 nursery count, 3 shop population, 4 capacity, 5 days to next restock, 6 subject count, 7 subject index+1,
- *  8 stud index+1, 9 booking state (0 ok, 1 night, 2 not enough emeralds, 3 no animal, 4 no stud, 5 cannot mate now, 6 pet has no nest of its own, 7 too crowded where it lives, 8 too hungry), 10 fee, 11 emeralds held,
+ *  8 stud index+1, 9 booking state (0 ok, 1 night, 2 not enough emeralds, 3 no animal, 4 no stud, 5 cannot mate now, 6 pet has no nest of its own, 7 too crowded where it lives, 8 too hungry, 9 the pet needs a silver badge), 10 fee, 11 emeralds held,
  *  12-27 four stud rows of (species+1, grade | expired<<2 | pregnant-or-busy<<3, pedigree, selected) for the page holding the selected stud,
  *  28 subject species+1, 29 subject pedigree, 30 subject grade. */
 public final class KeeperMenu extends AbstractContainerMenu {
@@ -86,6 +87,7 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (!viewer.level().isDay()) return 1;
         if (pet == null) return 3;
         if (s == null) return 4;
+        if (!PetPrivileges.mayMatchmake(pet)) return 9; // a silver badge (effective grade) is needed to book a date
         if (count(viewer) < FEE) return 2;
         if (!matchable(pet, s)) return 5;
         if (pet.life().homeStand() == null) return 6;

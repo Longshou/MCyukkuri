@@ -24123,6 +24123,3814 @@
       },
       "source_sha256": "fceb0cec3fad805d75b79b17132619eae8964052914cdd897a771882237c6c18",
       "english": "Some humans do give food."
+    },
+    {
+      "id": "reimu.adult.o_snack_eat",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あまあま、むーしゃ むーしゃ！ しあわせー！",
+      "chinese": "甜甜的，姆咻姆咻！好幸福——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_snack_eat"
+      },
+      "source_sha256": "5db989761aaa26e1577c964182650c5e5b0429318764d1c661b9f2bf1df92fbd"
+    },
+    {
+      "id": "reimu.adult.o_snack_greedy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もっと、もっと たべたいよ！ あまあま、もっとちょうだい！",
+      "chinese": "还要，还要吃！再给灵梦一点甜甜嘛！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_snack_greedy"
+      },
+      "source_sha256": "d0fdc53c1c1bf6d5bbd0decc9ac7a1c6bf6a9a8203cf9d9aa1564dbff27bec6a"
+    },
+    {
+      "id": "reimu.adult.o_snack_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もう、おなかいっぱいだよ……あとでね。",
+      "chinese": "已经吃得饱饱的了哟……等一下再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_snack_refuse"
+      },
+      "source_sha256": "c5e1b69910920c0581bc3122975ecbc88d1ee9bc03b7428e9477c2a0e2cd1c1b"
+    },
+    {
+      "id": "reimu.adult.o_ask_food",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おなかが すいたよ！ ごはんさん ちょうだい！",
+      "chinese": "肚子饿了哟！给灵梦饭饭嘛！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_ask_food"
+      },
+      "source_sha256": "c57421c0a55fcd65256725882e2467946660085a8e62dd2c04bd01b5714b0e1e"
+    },
+    {
+      "id": "reimu.adult.o_ask_snack",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あまあま、ほしいよ！ ちょうだい、ちょうだい！",
+      "chinese": "想吃甜甜的哟！给我嘛，给我嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_ask_snack"
+      },
+      "source_sha256": "7035f5161b8524ed80b8d0e729b24aa8bd6986346ae5d5a10a78a3846caffbe7"
+    },
+    {
+      "id": "reimu.adult.o_ask_play",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひまだよ、いっしょに あそぼうよ！",
+      "chinese": "好无聊哟，一起玩嘛！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_ask_play"
+      },
+      "source_sha256": "73a26f24751c5b0f9725ecbd23c4cb5ed70b085b87f8dd271fdf4660700c860b"
+    },
+    {
+      "id": "reimu.adult.o_ask_walk",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おさんぽに いきたいよ！ おそとで ゆっくりしたいね！",
+      "chinese": "想去散步哟！到外面慢慢逛逛吧！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_ask_walk"
+      },
+      "source_sha256": "29a7acd9e66f162ab868752514cb795e808bb0aabc5573435b33fa21c234d932"
+    },
+    {
+      "id": "reimu.adult.o_request_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとう！ これで ゆっくりできるよ！",
+      "chinese": "谢谢你！这下可以慢慢来啦！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_request_thanks"
+      },
+      "source_sha256": "e44178ea77a1fe0080393884234bb070f29199ac9fadcb230f38fcb22715c87b"
+    },
+    {
+      "id": "reimu.adult.o_request_sulk",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もう、しらないよ！ ぷんぷん！",
+      "chinese": "哼，不理你啦！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_request_sulk"
+      },
+      "source_sha256": "9c5d990791d8ace782123ebbd39347e5060cf74115eb653586c1030f8810bf8e"
+    },
+    {
+      "id": "reimu.adult.o_mood_good",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりできてるよ！",
+      "chinese": "今天过得超级悠闲哟！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_mood_good"
+      },
+      "source_sha256": "713e5b539b09035b915f834ad4a1d3137ef89cee2bc85844a2b80e39cc9f37a7"
+    },
+    {
+      "id": "reimu.adult.o_mood_ok",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ふつうだよ。ぼちぼち ゆっくりしてるよ。",
+      "chinese": "还可以哟。慢慢悠悠地过着。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_mood_ok"
+      },
+      "source_sha256": "8b17b9762a33b67f41d058c53b30861084c4cd7ad8308796fcf13ce67b84f31d"
+    },
+    {
+      "id": "reimu.adult.o_mood_bad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないよ……",
+      "chinese": "不太能慢慢来呢……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_mood_bad"
+      },
+      "source_sha256": "de492ec5946160d61134121396368f32f4935274caeffeee816c6bb8ee0374b9"
+    },
+    {
+      "id": "reimu.adult.o_harness_on",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぴったり！ これで おさんぽに いけるね！",
+      "chinese": "刚刚好！这样就能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_harness_on"
+      },
+      "source_sha256": "c34e36366b1b9457a3784169435e642d1c67e116bf7ab79129702c9ddbc3c5c4"
+    },
+    {
+      "id": "reimu.adult.o_harness_tug",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "いまは あるきたくないよ……ちょっと まってね。",
+      "chinese": "现在不想走……稍微等一下嘛。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_harness_tug"
+      },
+      "source_sha256": "4d9a9cb4b3507356d0109eadd0ffcd5b67589aa7aec4688ac97d143d1e74c8d7"
+    },
+    {
+      "id": "reimu.adult.o_walk_enjoy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おさんぽ、たのしいね！ ゆっくりできるよ！",
+      "chinese": "散步好开心哟！好悠闲！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_walk_enjoy"
+      },
+      "source_sha256": "9c750ef3f623d2de8f5c71e134834515fc436aff37340a68b445653cde0716e8"
+    },
+    {
+      "id": "reimu.adult.o_swaddle_on",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいよ……",
+      "chinese": "暖乎乎的……好温暖哟……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_swaddle_on"
+      },
+      "source_sha256": "21ab223701116bbe3a69956c65b1ad4fbb2bfac6dc23d14d840b24c70aabd25a"
+    },
+    {
+      "id": "reimu.young.o_snack_eat",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あみゃあみゃ、むーちゃ むーちゃ！ しあわちぇー！",
+      "chinese": "甜甜惹，姆咻姆咻！幸福惹——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_snack_eat"
+      },
+      "source_sha256": "76919120e0537058a2770000c945a7516741481a2c00b651a4b78aba410af2aa"
+    },
+    {
+      "id": "reimu.young.o_snack_greedy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もっちょ！ もっちょ たべちゃいよ！ あみゃあみゃ ちょうらい！",
+      "chinese": "还要惹！还要吃惹！甜甜再给窝嘛！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_snack_greedy"
+      },
+      "source_sha256": "26d718bf308943534720659dd6a357044c3740df5232ebebe9e7231e8d311e8f"
+    },
+    {
+      "id": "reimu.young.o_snack_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もう、ぽんぽんいっぱいぢゃよ……あとでね。",
+      "chinese": "窝肚肚满满惹……等一下再吃啦。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_snack_refuse"
+      },
+      "source_sha256": "8d930d2a582124c1e1f197a4e8513c7fd9c08115146d7e0c90c14c0bb0e76d7b"
+    },
+    {
+      "id": "reimu.young.o_ask_food",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おなか しゅいちゃよ！ ごはんしゃん ちょうらい！",
+      "chinese": "肚肚饿惹哟！给窝饭饭惹！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_ask_food"
+      },
+      "source_sha256": "8840325532623f599e16af20e64961c3469bcc92fcdc8a32b1b60977950393d0"
+    },
+    {
+      "id": "reimu.young.o_ask_snack",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいよ！ ちょうらい、ちょうらい！",
+      "chinese": "想吃甜甜惹哟！给窝嘛，给窝嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_ask_snack"
+      },
+      "source_sha256": "24ff8a6e696d1727eb19a7e2ce7979dc27ca11e3ac4416d87bc5ec655cdd566a"
+    },
+    {
+      "id": "reimu.young.o_ask_play",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひまぢゃよ、いっちょに あしょぼうよ！",
+      "chinese": "好无聊惹，一起玩惹！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_ask_play"
+      },
+      "source_sha256": "308c473ba6f325574362f7f501b1b957e42dcb903a9c823f0689ca49cda611ce"
+    },
+    {
+      "id": "reimu.young.o_ask_walk",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おしゃんぽに いきちゃいよ！",
+      "chinese": "窝想去散步惹！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_ask_walk"
+      },
+      "source_sha256": "7c28f9e05a6a21baa8dbfd02582f37b1ae2e65371f41bf40504a791b2b042e1e"
+    },
+    {
+      "id": "reimu.young.o_request_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょう！ ゆっくち できるよ！",
+      "chinese": "谢谢惹！窝能慢慢来啦！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_request_thanks"
+      },
+      "source_sha256": "1e4ea93264cb42fe62cfb495ee98aa7cb72ad2f252e4966197ac8b11eec49553"
+    },
+    {
+      "id": "reimu.young.o_request_sulk",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もう、ちらないよ！ ぷんぷん！",
+      "chinese": "哼，窝不理你惹！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_request_sulk"
+      },
+      "source_sha256": "307c49454216ced0b9acca78e4f51c94087b0b03f6851317c39a4226b1c7cd62"
+    },
+    {
+      "id": "reimu.young.o_mood_good",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "きょうは とっちぇも ゆっくち してるよ！",
+      "chinese": "今天窝好悠闲惹！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_mood_good"
+      },
+      "source_sha256": "abf6fab4f34129feb0471779f812b7648e35837aad3b8bf0dd6c4cea788c67bc"
+    },
+    {
+      "id": "reimu.young.o_mood_ok",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ふつうぢゃよ。ゆっくち ちてるよ。",
+      "chinese": "还可以惹。慢慢悠悠惹。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_mood_ok"
+      },
+      "source_sha256": "5f727a116cb130ff004641e32f0a2ac00fce7bb0ee2a680720363803716bbd8e"
+    },
+    {
+      "id": "reimu.young.o_mood_bad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できちぇないよ……",
+      "chinese": "窝不太能慢慢来惹……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_mood_bad"
+      },
+      "source_sha256": "476f3c870a924cdb182a437677d2691087b854c6301c993ffdd6aba5d77b939a"
+    },
+    {
+      "id": "reimu.young.o_harness_on",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぴったりぢゃよ！ おしゃんぽ いけりゅね！",
+      "chinese": "刚刚好惹！可以去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_harness_on"
+      },
+      "source_sha256": "ae3917f27d1a9e2720a12588dd45a154796b3330ac794af200bc65a6bc03142b"
+    },
+    {
+      "id": "reimu.young.o_harness_tug",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "いまは あるきちゃくないよ……まっちぇね。",
+      "chinese": "现在窝不想走惹……等一下惹。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_harness_tug"
+      },
+      "source_sha256": "7f1f4eaf4e6def43ee031d705a6f0b4616028c249200ed08e569533360d584fa"
+    },
+    {
+      "id": "reimu.young.o_walk_enjoy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おしゃんぽ、たのちいね！ ゆっくち しゅるよ！",
+      "chinese": "散步好开心惹！慢慢逛惹！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_walk_enjoy"
+      },
+      "source_sha256": "302dda3aa82cba75a6ebc5168b0d783d02cbe84e6de904bc9739c8f4e3a04706"
+    },
+    {
+      "id": "reimu.young.o_swaddle_on",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいよぉ……",
+      "chinese": "暖乎乎……好温暖惹……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_swaddle_on"
+      },
+      "source_sha256": "b60411fda5af41d1e9356900795cfb71c2f576f99435a1cc250d9aa5b360ace6"
+    },
+    {
+      "id": "marisa.adult.o_snack_eat",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあま、うめぇのぜ！ しあわせなのぜ！",
+      "chinese": "甜甜好吃贼！好幸福贼！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_snack_eat"
+      },
+      "source_sha256": "f1b0a22d69e6c87acd260053305563514089dacdd24c0f5dac07f6744706c293"
+    },
+    {
+      "id": "marisa.adult.o_snack_greedy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もっと たべたいのぜ！ あまあま もっとよこすのぜ！",
+      "chinese": "还想吃贼！再多给点甜甜贼！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_snack_greedy"
+      },
+      "source_sha256": "445477cf4d81883ecbe2585a874586ae83d1950568fa93e5502668f468121049"
+    },
+    {
+      "id": "marisa.adult.o_snack_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいなのぜ……あとにするのぜ。",
+      "chinese": "已经吃饱了贼……待会儿再吃贼。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_snack_refuse"
+      },
+      "source_sha256": "59fb8475e647d2bd69a7681323e5d355965035ae2a73ea8225fdd3af0dd4fd34"
+    },
+    {
+      "id": "marisa.adult.o_ask_food",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おなかが すいたのぜ！ ごはんを くれなのぜ！",
+      "chinese": "肚子饿了贼！给点饭饭贼！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_ask_food"
+      },
+      "source_sha256": "9821b449896d2d978164c54a0a8c10aa0878d651225b60e6b585ab2686617194"
+    },
+    {
+      "id": "marisa.adult.o_ask_snack",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあまが ほしいのぜ！ くれなのぜ！",
+      "chinese": "想吃甜甜贼！给我贼！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_ask_snack"
+      },
+      "source_sha256": "6e1d32e58aeb3e4c9f9361dc1efa261e1852aa648393574d0cb00b1a42acbb67"
+    },
+    {
+      "id": "marisa.adult.o_ask_play",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひまなのぜ！ いっしょに あそぶのぜ！",
+      "chinese": "无聊贼！一起玩贼！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_ask_play"
+      },
+      "source_sha256": "39522d5d459adeb11f599ddbf580eadef34a521d651b1f0745e5a8577bb5b9c1"
+    },
+    {
+      "id": "marisa.adult.o_ask_walk",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おさんぽに いくのぜ！ そとで ゆっくりするのぜ！",
+      "chinese": "去散步贼！到外面慢慢逛贼！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_ask_walk"
+      },
+      "source_sha256": "f76b36f9ef5e2c88f50b23c58172851d05634caeb79004d249ac58eb613e2563"
+    },
+    {
+      "id": "marisa.adult.o_request_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとうなのぜ！ これで ゆっくりできるのぜ！",
+      "chinese": "谢谢贼！这下能慢慢来贼！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_request_thanks"
+      },
+      "source_sha256": "6ce425ce654ba09edc825b1521de95d1e8ffaa8b0fe070bb68dd5a38e9966e7e"
+    },
+    {
+      "id": "marisa.adult.o_request_sulk",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう しらないのぜ！ ぷんぷんなのぜ！",
+      "chinese": "不理你了贼！气鼓鼓贼！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_request_sulk"
+      },
+      "source_sha256": "974bf61b8eefa7d1671487d7001eebb947e18d452ba5a46a2e84bccd5b420964"
+    },
+    {
+      "id": "marisa.adult.o_mood_good",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "きょうは さいこうに ゆっくりなのぜ！",
+      "chinese": "今天悠闲得不得了贼！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_mood_good"
+      },
+      "source_sha256": "afb35b96d198ffd5f8b3aa74975b914dbf851111006f172dbc59c3a98935aecf"
+    },
+    {
+      "id": "marisa.adult.o_mood_ok",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ふつうなのぜ。ぼちぼち ゆっくりなのぜ。",
+      "chinese": "还行贼。慢慢悠悠贼。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_mood_ok"
+      },
+      "source_sha256": "1f63da47c106059355ebec9c6433cec2c7a97c6a338fcd3a75cfe6d0acef2f8d"
+    },
+    {
+      "id": "marisa.adult.o_mood_bad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないのぜ……",
+      "chinese": "不太能慢慢来贼……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_mood_bad"
+      },
+      "source_sha256": "ee13db3c1e30b355ccce63e97295a8870e009de2022c336bba6dda9de28bbab9"
+    },
+    {
+      "id": "marisa.adult.o_harness_on",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぴったりなのぜ！ これで おさんぽに いけるのぜ！",
+      "chinese": "刚刚好贼！这样就能去散步贼！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_harness_on"
+      },
+      "source_sha256": "f8cb122531e03eb3b444629e9e4276e77b1bced4d517fe09716d8840daa11965"
+    },
+    {
+      "id": "marisa.adult.o_harness_tug",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いまは あるきたくないのぜ……ちょっと まつのぜ。",
+      "chinese": "现在不想走贼……稍微等等贼。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_harness_tug"
+      },
+      "source_sha256": "8eba81c3edf1b9fcf296546a0643e1f3ea8fb7a14889e0eded3fe6448204a0a8"
+    },
+    {
+      "id": "marisa.adult.o_walk_enjoy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おさんぽ たのしいのぜ！ ゆっくりなのぜ！",
+      "chinese": "散步好开心贼！好悠闲贼！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_walk_enjoy"
+      },
+      "source_sha256": "0c49e9f24775e7e0dbeeed814cd50679a3efb6e7a6a3b11e86183099d2f7a81b"
+    },
+    {
+      "id": "marisa.adult.o_swaddle_on",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぬくぬくなのぜ……あったかいのぜ……",
+      "chinese": "暖乎乎贼……好温暖贼……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_swaddle_on"
+      },
+      "source_sha256": "b76a557a971792bf639cdf965ec6cafc00fd14a3ab96ff9c52f7058e941d86ad"
+    },
+    {
+      "id": "marisa.young.o_snack_eat",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あみゃあみゃ、おいちいのじぇ！ しあわちぇなのじぇ！",
+      "chinese": "甜甜好吃惹杰！好幸福惹杰！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_snack_eat"
+      },
+      "source_sha256": "d4aeedb996675201100f3c00847c57b8204270ab8cfd9f703a2e5e952196f630"
+    },
+    {
+      "id": "marisa.young.o_snack_greedy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もっちょ たべちゃいのじぇ！ あみゃあみゃ もっちょなのじぇ！",
+      "chinese": "还要吃惹杰！甜甜还要惹杰！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_snack_greedy"
+      },
+      "source_sha256": "773f7d73cc24a487b8ed7ccccbd1b041bc87922f243b9f74a53ff61dcb56ed03"
+    },
+    {
+      "id": "marisa.young.o_snack_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいなのじぇ……あとにしゅるのじぇ。",
+      "chinese": "肚肚满满惹杰……待会儿再吃惹杰。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_snack_refuse"
+      },
+      "source_sha256": "f627e10bcf998ac4b3aa74f8c632e32e89232f52c0e8ee4bbff87f589e63142b"
+    },
+    {
+      "id": "marisa.young.o_ask_food",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おなか しゅいたのじぇ！ ごはん ちょうらいなのじぇ！",
+      "chinese": "肚肚饿惹杰！给窝饭饭惹杰！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_ask_food"
+      },
+      "source_sha256": "116059d17a60fdd2e7f58fb288d7991932b539bbcbcc8702ba4b0ca1e9e858a9"
+    },
+    {
+      "id": "marisa.young.o_ask_snack",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいのじぇ！ ちょうらいなのじぇ！",
+      "chinese": "想吃甜甜惹杰！给窝惹杰！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_ask_snack"
+      },
+      "source_sha256": "8b06a14b0f03d3bdb7df57f21339022ffcd7dd3e86423f6910bb9618e5321961"
+    },
+    {
+      "id": "marisa.young.o_ask_play",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひまなのじぇ！ いっちょに あしょぶのじぇ！",
+      "chinese": "无聊惹杰！一起玩惹杰！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_ask_play"
+      },
+      "source_sha256": "aa31e9cd3018f5286ff61b2a274eb90b0cecf6c84ff3369409a9512fce953335"
+    },
+    {
+      "id": "marisa.young.o_ask_walk",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おしゃんぽ いくのじぇ！",
+      "chinese": "去散步惹杰！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_ask_walk"
+      },
+      "source_sha256": "91ca227ba679f9267bb1116abd4153ab654036032d906358f2d7f417245cc701"
+    },
+    {
+      "id": "marisa.young.o_request_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょうなのじぇ！ ゆっくち できるのじぇ！",
+      "chinese": "谢谢惹杰！能慢慢来惹杰！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_request_thanks"
+      },
+      "source_sha256": "86e10a26f1a895190dcdb1f0992bbc6fbf61ed7a9b7543577f84ca1f62d69a5b"
+    },
+    {
+      "id": "marisa.young.o_request_sulk",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう ちらないのじぇ！ ぷんぷんなのじぇ！",
+      "chinese": "不理你惹杰！气鼓鼓惹杰！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_request_sulk"
+      },
+      "source_sha256": "2a3d9893ea688a8d6246118e4901c62faf6c3cb5cc7aa742e09b295ab033081c"
+    },
+    {
+      "id": "marisa.young.o_mood_good",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "きょうは ゆっくち できてるのじぇ！",
+      "chinese": "今天好悠闲惹杰！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_mood_good"
+      },
+      "source_sha256": "61a727c328070a68e52b266ccbde1eaba140cbdb989d5d7a8a086ab67245696f"
+    },
+    {
+      "id": "marisa.young.o_mood_ok",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふつうなのじぇ。ぼちぼちなのじぇ。",
+      "chinese": "还行惹杰。慢慢悠悠惹杰。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_mood_ok"
+      },
+      "source_sha256": "968a7e3dbc2c470c9f8bc85e0611c52c53b69c467e928b11d54a7828d113b0bd"
+    },
+    {
+      "id": "marisa.young.o_mood_bad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないのじぇ……",
+      "chinese": "不太能慢慢来惹杰……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_mood_bad"
+      },
+      "source_sha256": "7c0b59c0a60724f11fce3a5724c62e2f9658ba0334cfb8d0ab3eba2318a69d9b"
+    },
+    {
+      "id": "marisa.young.o_harness_on",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぴったりなのじぇ！ おしゃんぽ いけるのじぇ！",
+      "chinese": "刚刚好惹杰！能去散步惹杰！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_harness_on"
+      },
+      "source_sha256": "5900a43e8a839c066496a459229aaff1e9fabc0c6bea27018e91f42a611c6518"
+    },
+    {
+      "id": "marisa.young.o_harness_tug",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いまは あるきたくないのじぇ……まつのじぇ。",
+      "chinese": "现在不想走惹杰……等等惹杰。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_harness_tug"
+      },
+      "source_sha256": "810d16c38734c9b57109e28899aa3b76feb5849373f3e2b6c3ea8b0824dfc0aa"
+    },
+    {
+      "id": "marisa.young.o_walk_enjoy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいのじぇ！",
+      "chinese": "散步好开心惹杰！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_walk_enjoy"
+      },
+      "source_sha256": "8d1e5a31a51c1cccfff36201fd9283077dc69fee65f88726e02087a5ebc59467"
+    },
+    {
+      "id": "marisa.young.o_swaddle_on",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぬくぬくなのじぇ……あったかいのじぇ……",
+      "chinese": "暖乎乎惹杰……好温暖惹杰……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_swaddle_on"
+      },
+      "source_sha256": "76580c67e60aef77dfd483160239ccda414f499300ecf1d41757c11ceb8b9162"
+    },
+    {
+      "id": "alice.adult.o_snack_eat",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあま、とかいはな あじだわ！ しあわせよ！",
+      "chinese": "甜甜的，真是都会派的味道哇！好幸福哇！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_snack_eat"
+      },
+      "source_sha256": "3a85226f7c1b467a3a9364b79a782d4668d8b70ffe800d966597ed8bc385fafc"
+    },
+    {
+      "id": "alice.adult.o_snack_greedy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もっと ほしいわ！ あまあま、もっとちょうだい！",
+      "chinese": "还想要哇！再给爱丽丝一点甜甜！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_snack_greedy"
+      },
+      "source_sha256": "5262754637684192dd78308ee437de907bf9cb872524470b074433ab7133efd5"
+    },
+    {
+      "id": "alice.adult.o_snack_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいよ……あとで いただくわ。",
+      "chinese": "已经吃饱啦……待会儿再享用哇。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_snack_refuse"
+      },
+      "source_sha256": "e14cc3f28ce7e82e03305949e762a217a4f142eee37cf85b0ea24246a42db5db"
+    },
+    {
+      "id": "alice.adult.o_ask_food",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おなかが すいたわ！ ごはんを ちょうだい！",
+      "chinese": "肚子饿了哇！请给我饭饭！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_ask_food"
+      },
+      "source_sha256": "eeff0597d9ee985977989d4f9dad08667795d8752c67cf368c065a7c1a5e3f36"
+    },
+    {
+      "id": "alice.adult.o_ask_snack",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあまが ほしいのよ！ ちょうだい！",
+      "chinese": "想吃甜甜的哇！给我嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_ask_snack"
+      },
+      "source_sha256": "76c3bca8855ad7f1fd2286f25b04ec4083024b9f18dd6a735c6410a6ecc18e2a"
+    },
+    {
+      "id": "alice.adult.o_ask_play",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "たいくつだわ。いっしょに あそびましょう！",
+      "chinese": "好无聊哇。一起玩吧！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_ask_play"
+      },
+      "source_sha256": "4016da5866f9a6f71ed1d734022a304d298409e68c816d167d9596af2fc16eea"
+    },
+    {
+      "id": "alice.adult.o_ask_walk",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おさんぽに いきたいわ！ とかいはに ゆっくりしましょう！",
+      "chinese": "想去散步哇！来悠闲地逛一逛吧！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_ask_walk"
+      },
+      "source_sha256": "9f58e7aaa749a9541856c380caeb9e6c44148988d6d21e10511239d706b882c0"
+    },
+    {
+      "id": "alice.adult.o_request_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとう！ これで ゆっくりできるわ！",
+      "chinese": "谢谢！这下能慢慢来啦哇！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_request_thanks"
+      },
+      "source_sha256": "421c7a71c262e4457e8491e434eae89f0086444a882852bbd6a9e67067208049"
+    },
+    {
+      "id": "alice.adult.o_request_sulk",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もう しらないわ！ ぷんぷんよ！",
+      "chinese": "不理你啦哇！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_request_sulk"
+      },
+      "source_sha256": "9e17f7583625502ba387d12ba0d98fe79742847fbf5946d8d5d6af77021f4397"
+    },
+    {
+      "id": "alice.adult.o_mood_good",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりできてるわ！",
+      "chinese": "今天过得超级悠闲哇！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_mood_good"
+      },
+      "source_sha256": "d302f189e8db535f6d85e9f959a73209b9de5e55aa1da3d8567107d7201cdf69"
+    },
+    {
+      "id": "alice.adult.o_mood_ok",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "まあまあよ。ぼちぼち ゆっくりしてるわ。",
+      "chinese": "还可以哇。慢慢悠悠地过着。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_mood_ok"
+      },
+      "source_sha256": "1af30f9b4f2f1053b2985787e16160635f9587a0a75cd525a1e5010777237f24"
+    },
+    {
+      "id": "alice.adult.o_mood_bad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないのよ……",
+      "chinese": "不太能慢慢来呢……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_mood_bad"
+      },
+      "source_sha256": "105c621539f8ec8cc1840d361f214667c0d9e1205e93add086910bc3a43a2632"
+    },
+    {
+      "id": "alice.adult.o_harness_on",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぴったりね！ これで おさんぽに いけるわ！",
+      "chinese": "刚刚好哇！这样就能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_harness_on"
+      },
+      "source_sha256": "0be132680fb0f529ad0857bbfdb2679921c98cd9d44de07ed4cf58d62eb6e8e8"
+    },
+    {
+      "id": "alice.adult.o_harness_tug",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いまは あるきたくないわ……ちょっと まってちょうだい。",
+      "chinese": "现在不想走哇……请稍等一下。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_harness_tug"
+      },
+      "source_sha256": "279fb2db15b487cdaef1643b69eeb152d4687cac29469d05280a13bf9cb0636f"
+    },
+    {
+      "id": "alice.adult.o_walk_enjoy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おさんぽ、たのしいわ！ ゆっくりできるのよ！",
+      "chinese": "散步好开心哇！好悠闲！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_walk_enjoy"
+      },
+      "source_sha256": "2262f492ce732e858517b45c151f537f19d1ca0b1bca781253c84288cd59243d"
+    },
+    {
+      "id": "alice.adult.o_swaddle_on",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいわ……",
+      "chinese": "暖乎乎的……好温暖哇……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_swaddle_on"
+      },
+      "source_sha256": "97b5a15ab378708177314a61904cd0b2e1d21c0171577568c592f2e13d852145"
+    },
+    {
+      "id": "alice.young.o_snack_eat",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あみゃあみゃ、ときゃいはな あじよ！ しあわちぇー！",
+      "chinese": "甜甜是都会派的味道哇！好幸福——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_snack_eat"
+      },
+      "source_sha256": "7d8fb1fce9988c5957754a654a9c198fb22efcffe77a76e11df22a873265dcd1"
+    },
+    {
+      "id": "alice.young.o_snack_greedy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もっちょ ほちいわ！ あみゃあみゃ ちょうらい！",
+      "chinese": "还要哇！甜甜再给窝！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_snack_greedy"
+      },
+      "source_sha256": "442a1c8f69c4c3a0269ee52cadd760511b1b1bd6710784b7009b2bfade5bb93d"
+    },
+    {
+      "id": "alice.young.o_snack_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいよ……あとで いただくわ。",
+      "chinese": "肚肚满满哇……待会儿再吃。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_snack_refuse"
+      },
+      "source_sha256": "86168e3fbfb3b821801f20597c4f67a84761965a49d0aa3004b9743089153507"
+    },
+    {
+      "id": "alice.young.o_ask_food",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おなか しゅいちゃわ！ ごはん ちょうらい！",
+      "chinese": "肚肚饿惹哇！给窝饭饭！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_ask_food"
+      },
+      "source_sha256": "399e93c64d9861e459a7245334a6ed1d59f72760280c667bef1900f20ba4ccb7"
+    },
+    {
+      "id": "alice.young.o_ask_snack",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいのよ！ ちょうらい！",
+      "chinese": "想吃甜甜哇！给窝嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_ask_snack"
+      },
+      "source_sha256": "4f8f0c9461ace6689e8e10663a0ff5e37710e66c9484cf398b3fe571c1f86108"
+    },
+    {
+      "id": "alice.young.o_ask_play",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゃいくちゅだわ。いっちょに あしょびまちょう！",
+      "chinese": "好无聊哇。一起玩吧！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_ask_play"
+      },
+      "source_sha256": "3520e1eba885654ff362ff874e4181e840960b74f32f39ea8975f2e903998c7b"
+    },
+    {
+      "id": "alice.young.o_ask_walk",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おしゃんぽ いきちゃいわ！",
+      "chinese": "窝想去散步哇！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_ask_walk"
+      },
+      "source_sha256": "98b3ff872c05a01d4f2d885ed440189440e921b7eab660cb13afe3a4490fe41f"
+    },
+    {
+      "id": "alice.young.o_request_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょう！ ゆっくち できるわ！",
+      "chinese": "谢谢！窝能慢慢来哇！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_request_thanks"
+      },
+      "source_sha256": "7010af5336ac660ee623ecf0b8de8bac7e707b22bdb1fd422bc8d5e1b6ff6f2f"
+    },
+    {
+      "id": "alice.young.o_request_sulk",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もう ちらないわ！ ぷんぷん！",
+      "chinese": "不理你哇！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_request_sulk"
+      },
+      "source_sha256": "3d7c9ce4d5664027ff8e9e9e93f165b166533eb4bcce7bfc8335b5e50b1fb3da"
+    },
+    {
+      "id": "alice.young.o_mood_good",
+      "species": "alice",
+      "age": "young",
+      "japanese": "きょうは ゆっくち できてるわ！",
+      "chinese": "今天好悠闲哇！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_mood_good"
+      },
+      "source_sha256": "e48c51414c1997ac30986891686d204ba4285838904dfa4bc6f19a42c3f9b5dc"
+    },
+    {
+      "id": "alice.young.o_mood_ok",
+      "species": "alice",
+      "age": "young",
+      "japanese": "まあまあよ。ゆっくち ちてるわ。",
+      "chinese": "还可以哇。慢慢悠悠。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_mood_ok"
+      },
+      "source_sha256": "7a7e6e7ee47c1097631bed8cfcac7b0d3d776ffe3b7f65273ee64301f307eaac"
+    },
+    {
+      "id": "alice.young.o_mood_bad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないのよ……",
+      "chinese": "不太能慢慢来哇……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_mood_bad"
+      },
+      "source_sha256": "10d7841b44964a50cbbd9b534f7f20e75ba28147ba5aa058f598240d729f3b82"
+    },
+    {
+      "id": "alice.young.o_harness_on",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぴったりね！ おしゃんぽ いけるわ！",
+      "chinese": "刚刚好哇！能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_harness_on"
+      },
+      "source_sha256": "5b085c4b7599604b480c0b9f1a216231309e59a6d995e53c26b89da07414a34e"
+    },
+    {
+      "id": "alice.young.o_harness_tug",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いまは あるきたくないわ……まっちぇ。",
+      "chinese": "现在不想走哇……等一下。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_harness_tug"
+      },
+      "source_sha256": "48e3e78265e1e8688efcde462d50b4542756128a5814711786d72220e2947121"
+    },
+    {
+      "id": "alice.young.o_walk_enjoy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいわ！",
+      "chinese": "散步好开心哇！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_walk_enjoy"
+      },
+      "source_sha256": "b6fb5675fd9cc530e0a57640fd123f1e52097453a5d650e2b78945ea3617cc95"
+    },
+    {
+      "id": "alice.young.o_swaddle_on",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいわ……",
+      "chinese": "暖乎乎……好温暖哇……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_swaddle_on"
+      },
+      "source_sha256": "97b5a15ab378708177314a61904cd0b2e1d21c0171577568c592f2e13d852145"
+    },
+    {
+      "id": "chen.adult.o_snack_eat",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあま、おいしいよー！ しあわせだよー！",
+      "chinese": "甜甜好吃哟——！好幸福哟——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_snack_eat"
+      },
+      "source_sha256": "02247d5845d3dae37ffdbef1fc648c1d370102765ebff2186d8131e82ef63314"
+    },
+    {
+      "id": "chen.adult.o_snack_greedy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もっと たべたいよー！ あまあま もっとー！",
+      "chinese": "还想吃哟——！再多给点甜甜嘛——！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_snack_greedy"
+      },
+      "source_sha256": "78312e9ed6ad758cdb3b3b3caec8ed50506b64cfa0d0a9dbbfc14585df95e940"
+    },
+    {
+      "id": "chen.adult.o_snack_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいだよー……あとでね。",
+      "chinese": "已经吃饱了哟——……待会儿再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_snack_refuse"
+      },
+      "source_sha256": "46813848dc98428a289898986715e668f566a72efed924176c3d3b5394c8db85"
+    },
+    {
+      "id": "chen.adult.o_ask_food",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おなかが ぺーこぺーこ だよー！ ごはん ちょうだいー！",
+      "chinese": "肚肚饿扁了哟——！给橙饭饭嘛——！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_ask_food"
+      },
+      "source_sha256": "24200882f6feb2ea31a912283fc76feab0374320ff0b0886df6fa4c1c65704dc"
+    },
+    {
+      "id": "chen.adult.o_ask_snack",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあまが ほしいよー！ ちょうだいー！",
+      "chinese": "想吃甜甜的哟——！给橙嘛——！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_ask_snack"
+      },
+      "source_sha256": "617bb220808d2fb4f2c84b6bd99c562ff26f04f908bf8767bd46352159910967"
+    },
+    {
+      "id": "chen.adult.o_ask_play",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひまだよー。いっしょに あそぼうよー！",
+      "chinese": "好无聊哟——。一起玩嘛——！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_ask_play"
+      },
+      "source_sha256": "b90828183019bb88fe5c4d5048d2a936cbd50e9124979a625729c046aa0b98a1"
+    },
+    {
+      "id": "chen.adult.o_ask_walk",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おさんぽ いきたいよー！ おそとに いこうよー！",
+      "chinese": "想去散步哟——！到外面去嘛——！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_ask_walk"
+      },
+      "source_sha256": "7ef73ac583328a5cc9c7d188fe8ec1264802aeb4c085cf713c358279c4de752d"
+    },
+    {
+      "id": "chen.adult.o_request_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー！ ゆっくりできるよー！",
+      "chinese": "谢谢哟——！这下能慢慢来啦——！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_request_thanks"
+      },
+      "source_sha256": "fd6e4f07838501d2416f830c9291b12e96df72379ba30d51b5ceb00313d2fbb0"
+    },
+    {
+      "id": "chen.adult.o_request_sulk",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もう しらないよー！ ぷんぷんだよー！",
+      "chinese": "不理你啦哟——！气鼓鼓哟——！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_request_sulk"
+      },
+      "source_sha256": "50e1c7af0d81a860db2dd74cf955bf8aefcf66b596185d4d544e1881f9fa8e7e"
+    },
+    {
+      "id": "chen.adult.o_mood_good",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりだよー！",
+      "chinese": "今天好悠闲哟——！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_mood_good"
+      },
+      "source_sha256": "48cf6bd1e35a2ce83ca3029f3012ba8c4fc2586783094bb08e45421671b92abc"
+    },
+    {
+      "id": "chen.adult.o_mood_ok",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ふつうだよー。ぼちぼち ゆっくりだよー。",
+      "chinese": "还可以哟——。慢慢悠悠哟——。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_mood_ok"
+      },
+      "source_sha256": "72ad39a81470e765a148974cb2700e4556eeb22d90755317ff5a5b5d475f601b"
+    },
+    {
+      "id": "chen.adult.o_mood_bad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないよー……",
+      "chinese": "不太能慢慢来哟——……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_mood_bad"
+      },
+      "source_sha256": "e91b13315c442d8be05df4ffb306e3a1c11dc0a4f0554d36ba6d00f28e805b32"
+    },
+    {
+      "id": "chen.adult.o_harness_on",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぴったりだよー！ おさんぽ いけるよー！",
+      "chinese": "刚刚好哟——！能去散步啦——！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_harness_on"
+      },
+      "source_sha256": "fc983ac91f1918080e426850188d9785ad29cf76a779c167a8ff5a0aa601b419"
+    },
+    {
+      "id": "chen.adult.o_harness_tug",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いまは あるきたくないよー……ちょっと まってー。",
+      "chinese": "现在不想走哟——……等一下嘛——。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_harness_tug"
+      },
+      "source_sha256": "e2405e84df0f8ca9d202f90a97a05b352660652180fa560a0c308b1bea47fc34"
+    },
+    {
+      "id": "chen.adult.o_walk_enjoy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おさんぽ たのしいよー！ ゆっくりだよー！",
+      "chinese": "散步好开心哟——！好悠闲——！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_walk_enjoy"
+      },
+      "source_sha256": "29f2fda6840954c979ebc8a4d726db332d7dfc19f123a91eb66b208f77b5612f"
+    },
+    {
+      "id": "chen.adult.o_swaddle_on",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいよー……",
+      "chinese": "暖乎乎……好温暖哟——……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_swaddle_on"
+      },
+      "source_sha256": "2de6491b7a59e6e5ce318ab948f7f06cd095ed813f50a97c6e165bac8e0527e7"
+    },
+    {
+      "id": "chen.young.o_snack_eat",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あみゃあみゃ、おいちいよー！ しあわちぇだよー！",
+      "chinese": "甜甜好吃惹哟——！好幸福惹——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_snack_eat"
+      },
+      "source_sha256": "78068bc52affee0fb60fae75254974be9ff1291cc3c783b55f9dc0b47f565346"
+    },
+    {
+      "id": "chen.young.o_snack_greedy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もっちょ たべちゃいよー！ あみゃあみゃ もっちょー！",
+      "chinese": "还要吃惹哟——！甜甜还要——！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_snack_greedy"
+      },
+      "source_sha256": "cad24358a1d5076b4df9353d3fec8fc00b22591aec87cdfb62e213272d4f340a"
+    },
+    {
+      "id": "chen.young.o_snack_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいだよー……あとでね。",
+      "chinese": "肚肚满满惹哟——……待会儿再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_snack_refuse"
+      },
+      "source_sha256": "c80f5306d0e8409183c758856a4f33e3e7146d430f11a1d44ce51a650e23445a"
+    },
+    {
+      "id": "chen.young.o_ask_food",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おなかが ぺーこぺーこ だよー！ ごはん ちょうらいー！",
+      "chinese": "肚肚饿扁惹哟——！给橙饭饭惹——！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_ask_food"
+      },
+      "source_sha256": "db43bf47b06ec501f4e30cbc53dfea079239fef714630288f808b40e0a668892"
+    },
+    {
+      "id": "chen.young.o_ask_snack",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいよー！ ちょうらいー！",
+      "chinese": "想吃甜甜惹哟——！给橙惹——！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_ask_snack"
+      },
+      "source_sha256": "27b335dbeef7a57f3f53713e873ef2c0edaba7a006a5c173d48a81f8fa2f84b0"
+    },
+    {
+      "id": "chen.young.o_ask_play",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひまだよー。いっちょに あしょぼうよー！",
+      "chinese": "好无聊惹哟——。一起玩惹——！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_ask_play"
+      },
+      "source_sha256": "cdf3cfee2230be8a8d481dd93832e2e7a1a88b0395ec40bd24c70ce52ee7216f"
+    },
+    {
+      "id": "chen.young.o_ask_walk",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おしゃんぽ いきちゃいよー！",
+      "chinese": "橙想去散步惹哟——！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_ask_walk"
+      },
+      "source_sha256": "e483f005bdba6a13f14b209241ecf82a4b82e2f500fd04542b298d8a1a5a91ac"
+    },
+    {
+      "id": "chen.young.o_request_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょうだよー！ ゆっくち できるよー！",
+      "chinese": "谢谢惹哟——！橙能慢慢来啦——！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_request_thanks"
+      },
+      "source_sha256": "e5e592293dcf244469bbf464ac259ff516182d83fd88fbf42c89ea654ef78c60"
+    },
+    {
+      "id": "chen.young.o_request_sulk",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もう ちらないよー！ ぷんぷんだよー！",
+      "chinese": "不理你啦惹哟——！气鼓鼓——！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_request_sulk"
+      },
+      "source_sha256": "904c40075acae5e808c72b2f0d57998952224d7665ff84d02570dcb837ad7d9a"
+    },
+    {
+      "id": "chen.young.o_mood_good",
+      "species": "chen",
+      "age": "young",
+      "japanese": "きょうは ゆっくち してるよー！",
+      "chinese": "今天橙好悠闲惹哟——！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_mood_good"
+      },
+      "source_sha256": "9e5507e8528f02f89d99dda4571a080849b0677abbf690e8663ebe5dcf5bd876"
+    },
+    {
+      "id": "chen.young.o_mood_ok",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ふつうだよー。ぼちぼちだよー。",
+      "chinese": "还可以惹哟——。慢慢悠悠——。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_mood_ok"
+      },
+      "source_sha256": "f3d42222f11304b1847a67159f9c896ba51f70eb59cf3e0d5bcc3879bfda8f0f"
+    },
+    {
+      "id": "chen.young.o_mood_bad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないよー……",
+      "chinese": "橙不太能慢慢来惹……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_mood_bad"
+      },
+      "source_sha256": "374b45fe99718ab350c12ec9e5c8e88995d8b127a5832c46a23cda55fb54bde2"
+    },
+    {
+      "id": "chen.young.o_harness_on",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぴったりだよー！ おしゃんぽ いけるよー！",
+      "chinese": "刚刚好惹哟——！能去散步啦——！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_harness_on"
+      },
+      "source_sha256": "9aeef4963f37bc7dee2f9331da8e5451910b2a817a98103076555e4e1d669c6c"
+    },
+    {
+      "id": "chen.young.o_harness_tug",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いまは あるきたくないよー……まっちぇー。",
+      "chinese": "现在不想走惹哟——……等一下——。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_harness_tug"
+      },
+      "source_sha256": "97656cda9d40c4d9691656eb180e0cb9a9859f128e637a6b2705820dd037f9f6"
+    },
+    {
+      "id": "chen.young.o_walk_enjoy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいよー！",
+      "chinese": "散步好开心惹哟——！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_walk_enjoy"
+      },
+      "source_sha256": "55d07afeae139a0f93ddad82fecb820586a6f8c0b0c676d63848de9e7fe5f19e"
+    },
+    {
+      "id": "chen.young.o_swaddle_on",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいよー……",
+      "chinese": "暖乎乎……好温暖惹——……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_swaddle_on"
+      },
+      "source_sha256": "2de6491b7a59e6e5ce318ab948f7f06cd095ed813f50a97c6e165bac8e0527e7"
+    },
+    {
+      "id": "patchouli.adult.o_snack_eat",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。あまあま、おいしいわ。しあわせよ。",
+      "chinese": "姆啾。甜甜好吃哇。好幸福。",
+      "english": "Mukyu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_snack_eat"
+      },
+      "source_sha256": "10af22b8d32fb2c8706dc45154671561fd9bea9fafef5ff7e2f0504161161103"
+    },
+    {
+      "id": "patchouli.adult.o_snack_greedy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……もっと たべたいわ。あまあま、もうひとつ。",
+      "chinese": "姆啾……还想再吃哇。甜甜，再来一个。",
+      "english": "Mukyu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_snack_greedy"
+      },
+      "source_sha256": "6721a7e914d2863dbd37db40aab0d25b879d01690700249412a787b6c4f3bb8c"
+    },
+    {
+      "id": "patchouli.adult.o_snack_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。もう おなかいっぱいだわ。あとで いただくわ。",
+      "chinese": "姆啾。已经吃饱了哇。待会儿再吃。",
+      "english": "Mukyu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_snack_refuse"
+      },
+      "source_sha256": "6592318e02cc2bd9e7371b0d43b6c2902e667be03ec43629ebe89179ef5d0d8c"
+    },
+    {
+      "id": "patchouli.adult.o_ask_food",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おなかが すいたわ。ごはんを ちょうだい。",
+      "chinese": "姆啾。肚子饿了哇。请给我饭饭。",
+      "english": "Mukyu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_ask_food"
+      },
+      "source_sha256": "f12fa5a97024802f671f375957841308240290c97b36d29470c80682a396c65f"
+    },
+    {
+      "id": "patchouli.adult.o_ask_snack",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。あまあまが たべたいわ。",
+      "chinese": "姆啾。想吃甜甜的哇。",
+      "english": "Mukyu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_ask_snack"
+      },
+      "source_sha256": "d7fbb1235476f6ee28546b36852c3633599740591ad409a043b780baf6359965"
+    },
+    {
+      "id": "patchouli.adult.o_ask_play",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。たいくつだわ。あそんでちょうだい。",
+      "chinese": "姆啾。好无聊哇。陪我玩吧。",
+      "english": "Mukyu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_ask_play"
+      },
+      "source_sha256": "a55f9dacf5bcff54d2c97b1b377071bf13974e9d7df4cc32f7cb2d25f90dca61"
+    },
+    {
+      "id": "patchouli.adult.o_ask_walk",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おさんぽに いきたいわ。",
+      "chinese": "姆啾。想去散步哇。",
+      "english": "Mukyu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_ask_walk"
+      },
+      "source_sha256": "698f4e1704d7d462f353b5395a66c815d4726092f00417641eaf95831e108773"
+    },
+    {
+      "id": "patchouli.adult.o_request_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとう。これで ゆっくりできるわ。",
+      "chinese": "姆啾。谢谢。这下能慢慢来了哇。",
+      "english": "Mukyu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_request_thanks"
+      },
+      "source_sha256": "7da4a89fc3ad583c8ee56af87ad0177c6c09cedd30e7b77459d5b8a70085696c"
+    },
+    {
+      "id": "patchouli.adult.o_request_sulk",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ もう しらないわ！",
+      "chinese": "姆啾！不理你了哇！",
+      "english": "Mukyu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_request_sulk"
+      },
+      "source_sha256": "9e48a2bb7869410b63855593273a327c7197fe71961cc6ac06e1d1043947fce3"
+    },
+    {
+      "id": "patchouli.adult.o_mood_good",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。きょうは ゆっくりできているわ。",
+      "chinese": "姆啾。今天过得很悠闲哇。",
+      "english": "Mukyu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_mood_good"
+      },
+      "source_sha256": "bc20491bab7a4f186a67c5493a92329d2dcc2feaf4bd6561c303e21a3e64406f"
+    },
+    {
+      "id": "patchouli.adult.o_mood_ok",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ふつうよ。ぼちぼちだわ。",
+      "chinese": "姆啾。还可以哇。慢慢来。",
+      "english": "Mukyu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_mood_ok"
+      },
+      "source_sha256": "aa8fa42eb50fe6913f850b9657ea040b1159d01f58023c19c36b6d4f9f9f89c7"
+    },
+    {
+      "id": "patchouli.adult.o_mood_bad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……あまり ゆっくり できていないわ。",
+      "chinese": "姆啾……不太能慢慢来哇。",
+      "english": "Mukyu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_mood_bad"
+      },
+      "source_sha256": "9c74035c804ab38843685588849fa4710b6af18921baff1822fd4f5da9481902"
+    },
+    {
+      "id": "patchouli.adult.o_harness_on",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぴったりだわ。これで おさんぽに いけるわ。",
+      "chinese": "姆啾。刚刚好哇。这样就能去散步了。",
+      "english": "Mukyu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_harness_on"
+      },
+      "source_sha256": "e1d87c12b89042a522c273bc36b2dddb65bffbb65e918e454df3b5a00dedc297"
+    },
+    {
+      "id": "patchouli.adult.o_harness_tug",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。いまは あるきたくないわ。すこし まってちょうだい。",
+      "chinese": "姆啾。现在不想走哇。请稍等一下。",
+      "english": "Mukyu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_harness_tug"
+      },
+      "source_sha256": "91265ea0090c2d2bfeee1dff2f9523f8549a7e90692931064788fbbc67b1cb58"
+    },
+    {
+      "id": "patchouli.adult.o_walk_enjoy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おさんぽ、たのしいわ。",
+      "chinese": "姆啾。散步很开心哇。",
+      "english": "Mukyu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_walk_enjoy"
+      },
+      "source_sha256": "2d5b0f767398694e2fcf69278d3741d72b3d7d88a8830ee8ae803f99b7fa9ea4"
+    },
+    {
+      "id": "patchouli.adult.o_swaddle_on",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ぬくぬく。あったかいわ……",
+      "chinese": "姆啾……暖乎乎。好温暖哇……",
+      "english": "Mukyu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_swaddle_on"
+      },
+      "source_sha256": "d8de213c43a034a91c7329fac3d3bbccf8de49f5d4109346a43da592428774f1"
+    },
+    {
+      "id": "patchouli.young.o_snack_eat",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。あみゃあみゃ、おいちいわ。しあわちぇ。",
+      "chinese": "姆啾。甜甜好吃哇。好幸福。",
+      "english": "Mukyu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_snack_eat"
+      },
+      "source_sha256": "12a3ae6f4225810e7fb4d4320592493fb4fc68a5737e018b6b02da3f6c0905d1"
+    },
+    {
+      "id": "patchouli.young.o_snack_greedy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……もっちょ たべちゃいわ。あみゃあみゃ もうひとちゅ。",
+      "chinese": "姆啾……还想吃惹哇。甜甜再来一个。",
+      "english": "Mukyu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_snack_greedy"
+      },
+      "source_sha256": "dc78cf42b174f8945b4acafb1dde338761506255efa602daae226656c0a8d131"
+    },
+    {
+      "id": "patchouli.young.o_snack_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぽんぽん いっぱいだわ。あとでね。",
+      "chinese": "姆啾。肚肚满满哇。待会儿再吃。",
+      "english": "Mukyu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_snack_refuse"
+      },
+      "source_sha256": "b97e2ec0fba5b4898fd5bb8b605ab0dabbf8c763815949e5f91e21f00b1e75d3"
+    },
+    {
+      "id": "patchouli.young.o_ask_food",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おなか しゅいちゃわ。ごはん ちょうらい。",
+      "chinese": "姆啾。肚肚饿惹哇。给帕秋饭饭。",
+      "english": "Mukyu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_ask_food"
+      },
+      "source_sha256": "6e04f7328a827b0a2986e40eb12ff434a76cabc1412442c2fce174712bedeaa1"
+    },
+    {
+      "id": "patchouli.young.o_ask_snack",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。あみゃあみゃ たべちゃいわ。",
+      "chinese": "姆啾。想吃甜甜哇。",
+      "english": "Mukyu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_ask_snack"
+      },
+      "source_sha256": "506b8b6e065e2a1bc9596b779f4bfe9c5a6cbfd2881a8a311db502bf6733c6d1"
+    },
+    {
+      "id": "patchouli.young.o_ask_play",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ひまだわ。あしょんでちょうらい。",
+      "chinese": "姆啾。好无聊哇。陪帕秋玩吧。",
+      "english": "Mukyu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_ask_play"
+      },
+      "source_sha256": "d2e1bad04c4fe0185d1522320541f193df60fe972e86f15c01b5b909b97890f1"
+    },
+    {
+      "id": "patchouli.young.o_ask_walk",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おしゃんぽ いきちゃいわ。",
+      "chinese": "姆啾。帕秋想去散步哇。",
+      "english": "Mukyu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_ask_walk"
+      },
+      "source_sha256": "99622830950b10ab5d507c04ab20957d41b19d0557be5a266fdc14da76c2097f"
+    },
+    {
+      "id": "patchouli.young.o_request_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょう。ゆっくち できるわ。",
+      "chinese": "姆啾。谢谢。帕秋能慢慢来了哇。",
+      "english": "Mukyu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_request_thanks"
+      },
+      "source_sha256": "e5b90c9d5a8dd8bd9cb0badac26acf031e423a56c94d687b074b60018fa0a425"
+    },
+    {
+      "id": "patchouli.young.o_request_sulk",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ もう ちらないわ！",
+      "chinese": "姆啾！不理你了哇！",
+      "english": "Mukyu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_request_sulk"
+      },
+      "source_sha256": "e6302f764081bde54b2ca616f659278cf26d50eb06e0d4839b458257154eca98"
+    },
+    {
+      "id": "patchouli.young.o_mood_good",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。きょうは ゆっくち できてるわ。",
+      "chinese": "姆啾。今天好悠闲哇。",
+      "english": "Mukyu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_mood_good"
+      },
+      "source_sha256": "6cd8a5eb39a5b3f0a308fb911f364fb3dc1594f0a75709dfd35c3130c60bedb3"
+    },
+    {
+      "id": "patchouli.young.o_mood_ok",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ふつうだわ。ぼちぼちよ。",
+      "chinese": "姆啾。还可以哇。慢慢来。",
+      "english": "Mukyu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_mood_ok"
+      },
+      "source_sha256": "0a5f2aa6a04ae74fa0f6da7799005708473686470f72e14a3f736d8e9241cb70"
+    },
+    {
+      "id": "patchouli.young.o_mood_bad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……あまり ゆっくち できてないわ。",
+      "chinese": "姆啾……不太能慢慢来哇。",
+      "english": "Mukyu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_mood_bad"
+      },
+      "source_sha256": "655815964838694f3732816e95101fc86336bc65f1e7bf08d0076dea9c5304da"
+    },
+    {
+      "id": "patchouli.young.o_harness_on",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぴったりだわ。おしゃんぽ いけるわ。",
+      "chinese": "姆啾。刚刚好哇。能去散步了。",
+      "english": "Mukyu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_harness_on"
+      },
+      "source_sha256": "fd682fc85766ca38c4afa95c4a227883ce9fdc5e01539e2bf541dfec78d7775d"
+    },
+    {
+      "id": "patchouli.young.o_harness_tug",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。いまは あるきたくないわ。まっちぇ。",
+      "chinese": "姆啾。现在不想走哇。等一下。",
+      "english": "Mukyu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_harness_tug"
+      },
+      "source_sha256": "f308eb47cf6c1fcc06fdf5235fda142071bb27674ad2cc8999cf227da3280e81"
+    },
+    {
+      "id": "patchouli.young.o_walk_enjoy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おしゃんぽ たのちいわ。",
+      "chinese": "姆啾。散步好开心哇。",
+      "english": "Mukyu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_walk_enjoy"
+      },
+      "source_sha256": "288eab7c6e5cdda4b664258babc6882d2a7d260eb7fe8b64dbb3b41f726b5149"
+    },
+    {
+      "id": "patchouli.young.o_swaddle_on",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぬくぬく。あったかいわ……",
+      "chinese": "姆啾……暖乎乎。好温暖哇……",
+      "english": "Mukyu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_swaddle_on"
+      },
+      "source_sha256": "d8de213c43a034a91c7329fac3d3bbccf8de49f5d4109346a43da592428774f1"
+    },
+    {
+      "id": "remilia.adult.o_snack_eat",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あまあま、おいしいのだ！ しあわせなのだ！",
+      "chinese": "呜——，甜甜好吃呀！好幸福呀！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_snack_eat"
+      },
+      "source_sha256": "745963b6d84e1152a5f4d6e2eca97de20272e3be73337a3747474b44d3314c60"
+    },
+    {
+      "id": "remilia.adult.o_snack_greedy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もっと たべたいのだ！ あまあま もっとなのだ！",
+      "chinese": "呜——，还想吃呀！甜甜再来点呀！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_snack_greedy"
+      },
+      "source_sha256": "0f5980106c1605becf64e350e7527207e355fb4a3cc2eecdd1f5ace00b3fd185"
+    },
+    {
+      "id": "remilia.adult.o_snack_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もう おなかいっぱいなのだ。あとで たべるのだ。",
+      "chinese": "呜——，已经吃饱了呀。待会儿再吃呀。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_snack_refuse"
+      },
+      "source_sha256": "2941a5d7a99ba1274d95212969e16719ae1f84aa3da95c860dba7bae63106bb8"
+    },
+    {
+      "id": "remilia.adult.o_ask_food",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おなかが すいたのだ。ごはんが ほしいのだ！",
+      "chinese": "呜——，肚子饿了呀。想要饭饭呀！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_ask_food"
+      },
+      "source_sha256": "3bf80fca967c79ce0c910aff63263a44fc243d2a91a393e47ce83d04f314cccb"
+    },
+    {
+      "id": "remilia.adult.o_ask_snack",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あまあまが ほしいのだ！",
+      "chinese": "呜——，想要甜甜呀！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_ask_snack"
+      },
+      "source_sha256": "a5436ba058d4a03cb28205d6e57c7da0b7fca6b408dac8997f7d3eb2db9fb141"
+    },
+    {
+      "id": "remilia.adult.o_ask_play",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ひまなのだ。いっしょに あそぶのだ！",
+      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_ask_play"
+      },
+      "source_sha256": "67cd4fe3333f44322f3e76c5521c529968e6f815a64af050ad17e1ffd71e21d4"
+    },
+    {
+      "id": "remilia.adult.o_ask_walk",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おさんぽに いくのだ！",
+      "chinese": "呜——，去散步呀！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_ask_walk"
+      },
+      "source_sha256": "aed1faf9933cedc64f2d76cdcc817facca690b09afb6beaa394d699c8fd28edf"
+    },
+    {
+      "id": "remilia.adult.o_request_thanks",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ありがとうなのだ！ ゆっくりできるのだ！",
+      "chinese": "呜——，谢谢呀！能慢慢来了呀！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_request_thanks"
+      },
+      "source_sha256": "70fda2d059c2b8a760b7db864235ed08d7c9603764ef9a00f7e75057c99f7d85"
+    },
+    {
+      "id": "remilia.adult.o_request_sulk",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ もう しらないのだ！",
+      "chinese": "呜——！不理你了呀！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_request_sulk"
+      },
+      "source_sha256": "5d9238899c9c455c13b641dda94ce1cc35d776a2f7c885887aaadf2a266730a9"
+    },
+    {
+      "id": "remilia.adult.o_mood_good",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きょうは ゆっくりできているのだ！",
+      "chinese": "呜——，今天过得很悠闲呀！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_mood_good"
+      },
+      "source_sha256": "730fe158c3d9bbeb7b2d564a28775468f4ff29a1ed90231c857f66361d4dc3a5"
+    },
+    {
+      "id": "remilia.adult.o_mood_ok",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ふつうなのだ。ぼちぼちなのだ。",
+      "chinese": "呜——，还可以呀。慢慢来呀。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_mood_ok"
+      },
+      "source_sha256": "e695554e919efcde360d6d39647f21842f89b6a856faedce6f9b19c6d98bff20"
+    },
+    {
+      "id": "remilia.adult.o_mood_bad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……あまり ゆっくり できていないのだ。",
+      "chinese": "呜——……不太能慢慢来呀。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_mood_bad"
+      },
+      "source_sha256": "732e4975074dc37080f1afb1c48f9355ca9de9f896a54069616704ed1e096805"
+    },
+    {
+      "id": "remilia.adult.o_harness_on",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ぴったりなのだ！ おさんぽに いけるのだ！",
+      "chinese": "呜——，刚刚好呀！能去散步了呀！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_harness_on"
+      },
+      "source_sha256": "d4a9b90bee1d762fb351cb3c97de1f141e966fc97f0e880111e11360ea7feb33"
+    },
+    {
+      "id": "remilia.adult.o_harness_tug",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、いまは あるきたくないのだ……すこし まつのだ。",
+      "chinese": "呜——，现在不想走呀……稍微等等呀。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_harness_tug"
+      },
+      "source_sha256": "d8520c5c5468ec89b5d11cf6ac7dd707e838d3ba7d1cad973cc3c10dd219e8c7"
+    },
+    {
+      "id": "remilia.adult.o_walk_enjoy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おさんぽ たのしいのだ！",
+      "chinese": "呜——，散步好开心呀！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_walk_enjoy"
+      },
+      "source_sha256": "562f6983845e8fb45c912f3a55642cb853d3fca6b785caae1de88d8b657e768d"
+    },
+    {
+      "id": "remilia.adult.o_swaddle_on",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ぬくぬくなのだ。あったかいのだ……",
+      "chinese": "呜——……暖乎乎呀。好温暖呀……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.adult.o_swaddle_on"
+      },
+      "source_sha256": "4e8d2ea34e2b55d83ee52f4a6020e21e07fea9af6f98fd156e2a4e2663f7b164"
+    },
+    {
+      "id": "remilia.young.o_snack_eat",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ、おいちいのだ！ しあわちぇなのだ！",
+      "chinese": "呜——，甜甜好吃呀！好幸福呀！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_snack_eat"
+      },
+      "source_sha256": "2b055abfa139831fd7d26f485e8c038e09e9b9a981cf56ba505ba6eb95d083b3"
+    },
+    {
+      "id": "remilia.young.o_snack_greedy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、もっちょ たべちゃいのだ！ あみゃあみゃ もっちょなのだ！",
+      "chinese": "呜——，还要吃呀！甜甜还要呀！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_snack_greedy"
+      },
+      "source_sha256": "3df732e1c1ca85f1160285ca598d70c2a4522450d74b84ed9fe86df505febe13"
+    },
+    {
+      "id": "remilia.young.o_snack_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぽんぽん いっぱいなのだ。あとでなのだ。",
+      "chinese": "呜——，肚肚满满呀。待会儿再吃呀。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_snack_refuse"
+      },
+      "source_sha256": "e0d47f4ce1c5d0a3d5e316c8db640f033ea3f3677d9bba30200de676571f6af5"
+    },
+    {
+      "id": "remilia.young.o_ask_food",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おなか しゅいたのだ。ごはん ほちいのだ！",
+      "chinese": "呜——，肚肚饿啦呀。想要饭饭呀！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_ask_food"
+      },
+      "source_sha256": "d394c980c3ea1c580e4b1746e18131aaad23d90dfa395a0f8716b31d424454cb"
+    },
+    {
+      "id": "remilia.young.o_ask_snack",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ ほちいのだ！",
+      "chinese": "呜——，想要甜甜呀！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_ask_snack"
+      },
+      "source_sha256": "2a28cbb39d91a83cdba44f029dc4e98af0725508106a8f1fbfb59ea9c1415ec9"
+    },
+    {
+      "id": "remilia.young.o_ask_play",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ひまなのだ。いっちょに あしょぶのだ！",
+      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_ask_play"
+      },
+      "source_sha256": "d76ac80c21798be1d7375782db72644c39477e93f595d2715558cf0045349541"
+    },
+    {
+      "id": "remilia.young.o_ask_walk",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ いくのだ！",
+      "chinese": "呜——，去散步呀！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_ask_walk"
+      },
+      "source_sha256": "cd9862f8e563dbe305e2cbbc5c817abcbad39aab6465db7c2187f47e3dfde2a0"
+    },
+    {
+      "id": "remilia.young.o_request_thanks",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ありがちょうなのだ！ ゆっくち できるのだ！",
+      "chinese": "呜——，谢谢呀！能慢慢来了呀！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_request_thanks"
+      },
+      "source_sha256": "ef18f0dbeb9e00561371f2f4196acbc3cc57157c46e067a6e4132a6737a72fa5"
+    },
+    {
+      "id": "remilia.young.o_request_sulk",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ もう ちらないのだ！",
+      "chinese": "呜——！不理你了呀！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_request_sulk"
+      },
+      "source_sha256": "cb02a59f53b483a5284532125bd2bb1da9db6c7b65436d43222b78e202064f3a"
+    },
+    {
+      "id": "remilia.young.o_mood_good",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、きょうは ゆっくち できてるのだ！",
+      "chinese": "呜——，今天好悠闲呀！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_mood_good"
+      },
+      "source_sha256": "5df9d2019502312f3917d57b73d4a0bf18fbd7c63b92c2954d2ff295542455b3"
+    },
+    {
+      "id": "remilia.young.o_mood_ok",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ふつうなのだ。ぼちぼちなのだ。",
+      "chinese": "呜——，还可以呀。慢慢来呀。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_mood_ok"
+      },
+      "source_sha256": "e695554e919efcde360d6d39647f21842f89b6a856faedce6f9b19c6d98bff20"
+    },
+    {
+      "id": "remilia.young.o_mood_bad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……あまり ゆっくち できてないのだ。",
+      "chinese": "呜——……不太能慢慢来呀。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_mood_bad"
+      },
+      "source_sha256": "298afe7588f02d2582e32e35224d31e056fceacb33f881860ac7d2060d06e035"
+    },
+    {
+      "id": "remilia.young.o_harness_on",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぴったりなのだ！ おしゃんぽ いけるのだ！",
+      "chinese": "呜——，刚刚好呀！能去散步了呀！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_harness_on"
+      },
+      "source_sha256": "e189ac1f1dce16713356992b2a27368127d942cea064ce9e04889a213ef39e77"
+    },
+    {
+      "id": "remilia.young.o_harness_tug",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いまは あるきたくないのだ……まっちぇなのだ。",
+      "chinese": "呜——，现在不想走呀……等一下呀。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_harness_tug"
+      },
+      "source_sha256": "e7c7fe2ae5badf26cb9f07e297a243ddc58327fcd644f9638e23f0d05cec1cde"
+    },
+    {
+      "id": "remilia.young.o_walk_enjoy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ たのちいのだ！",
+      "chinese": "呜——，散步好开心呀！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_walk_enjoy"
+      },
+      "source_sha256": "792d29b32dda58532d66734513486a4be8cda14e6b230a3fc6eeac6ffd905ed1"
+    },
+    {
+      "id": "remilia.young.o_swaddle_on",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ぬくぬくなのだ。あったかいのだ……",
+      "chinese": "呜——……暖乎乎呀。好温暖呀……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "remilia.young.o_swaddle_on"
+      },
+      "source_sha256": "4e8d2ea34e2b55d83ee52f4a6020e21e07fea9af6f98fd156e2a4e2663f7b164"
+    },
+    {
+      "id": "flandre.adult.o_snack_eat",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あまあま、おいしい！ しあわせだよ！",
+      "chinese": "呜——，甜甜好吃！好幸福呢！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_snack_eat"
+      },
+      "source_sha256": "8deeee2e6a9876fbae6dc1609ead4a21b8e51d0873ae26746baa3186ca373218"
+    },
+    {
+      "id": "flandre.adult.o_snack_greedy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、もっと たべたいな！ あまあま もっとちょうだい！",
+      "chinese": "呜——，还想吃！再给芙兰一点甜甜嘛！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_snack_greedy"
+      },
+      "source_sha256": "8e4f0a25aaf03469bbfad801e17c62f531977c7388ebe14e6f19bea8118a6d07"
+    },
+    {
+      "id": "flandre.adult.o_snack_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、もう おなかいっぱいだよ。あとで たべるね。",
+      "chinese": "呜——，已经吃饱啦。待会儿再吃哦。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_snack_refuse"
+      },
+      "source_sha256": "fe2fca4541ede4600556e15dc219017cd979dc494427120c9b551f7db6164274"
+    },
+    {
+      "id": "flandre.adult.o_ask_food",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おなかが すいたよ。ごはん ちょうだい！",
+      "chinese": "呜——，肚肚饿啦。给我饭饭嘛！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_ask_food"
+      },
+      "source_sha256": "b5ea9bd6c4639a63915c82ef306446e79dccf453910bff7ce3f2b68994ea2d0c"
+    },
+    {
+      "id": "flandre.adult.o_ask_snack",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あまあま ほしいな！ ちょうだい！",
+      "chinese": "呜——，想要甜甜！给我嘛！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_ask_snack"
+      },
+      "source_sha256": "7656b484d79bd4fec50a602e5bd0a7df22814afd6556ded0a46482620b828a30"
+    },
+    {
+      "id": "flandre.adult.o_ask_play",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ひまだよ。いっしょに あそぼ！",
+      "chinese": "呜——，好无聊。一起玩吧！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_ask_play"
+      },
+      "source_sha256": "74cf5782bbe6a2712b46c7ba96c57c76b3ca9b5f33ae7d91a0046de15765f6ec"
+    },
+    {
+      "id": "flandre.adult.o_ask_walk",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おさんぽ いきたいな！",
+      "chinese": "呜——，想去散步！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_ask_walk"
+      },
+      "source_sha256": "b842f09737f2595ceb0c6718a6375fa7b533e000da421d21a7e4baaef97ef4a5"
+    },
+    {
+      "id": "flandre.adult.o_request_thanks",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ありがとう！ ゆっくりできるね！",
+      "chinese": "呜——，谢谢！这下能慢慢来啦！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_request_thanks"
+      },
+      "source_sha256": "d420dc074d0a6ec35695856a184eee1d4fbc93505d9be82619abb190820d4c2a"
+    },
+    {
+      "id": "flandre.adult.o_request_sulk",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ もう しらない！",
+      "chinese": "呜——！不理你啦！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_request_sulk"
+      },
+      "source_sha256": "83c26cd963c46d111e46424fed2aea3f642c69f28547c191368564429b0ed7c0"
+    },
+    {
+      "id": "flandre.adult.o_mood_good",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きょうは ゆっくりできてるよ！",
+      "chinese": "呜——，今天过得很悠闲哦！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_mood_good"
+      },
+      "source_sha256": "b36bb902232432e4b1369b7b472c85353359540942ff4e4ad6dba1fdc3f1d3df"
+    },
+    {
+      "id": "flandre.adult.o_mood_ok",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふつうだよ。ぼちぼちだね。",
+      "chinese": "呜——，还可以。慢慢来吧。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_mood_ok"
+      },
+      "source_sha256": "8fe8d5d0d2490b1bffc421d876bd62ce4b44754541d558b7f9f1c64ac5767cdc"
+    },
+    {
+      "id": "flandre.adult.o_mood_bad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……あんまり ゆっくり できてないよ。",
+      "chinese": "呜——……不太能慢慢来呢。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_mood_bad"
+      },
+      "source_sha256": "84ba866ecdf6cb3aef8a846d94fcdfeb8637e2c7d91caabc17182c0f48de05ed"
+    },
+    {
+      "id": "flandre.adult.o_harness_on",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ぴったり！ おさんぽに いけるね！",
+      "chinese": "呜——，刚刚好！能去散步啦！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_harness_on"
+      },
+      "source_sha256": "b0e694de9ff3ac679c59445fe8708a6dfb3afd9c92878de07ca17132074689b7"
+    },
+    {
+      "id": "flandre.adult.o_harness_tug",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、いまは あるきたくないな……ちょっと まってね。",
+      "chinese": "呜——，现在不想走……稍微等等嘛。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_harness_tug"
+      },
+      "source_sha256": "7ea5eba8ff5ade004a1c257da9b24a56c6447b9ad198153ec7ea99c411fc3880"
+    },
+    {
+      "id": "flandre.adult.o_walk_enjoy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おさんぽ たのしいね！",
+      "chinese": "呜——，散步好开心！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_walk_enjoy"
+      },
+      "source_sha256": "d0d45acf9fda531da0fe069326a37d3eac6dd7603fb41ef444d247b304f6df42"
+    },
+    {
+      "id": "flandre.adult.o_swaddle_on",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ぬくぬく。あったかいよ……",
+      "chinese": "呜——……暖乎乎。好温暖……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.adult.o_swaddle_on"
+      },
+      "source_sha256": "756430dbde3f0b8f852475329c9d96a3b16b93ff7ec54278729d42304625b2dd"
+    },
+    {
+      "id": "flandre.young.o_snack_eat",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ、おいちい！ しあわちぇだよ！",
+      "chinese": "呜——，甜甜好吃！好幸福！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_snack_eat"
+      },
+      "source_sha256": "fe09af1f3c57392ded897f44d24c1c33740fbb26c7038121b33d53f76d420191"
+    },
+    {
+      "id": "flandre.young.o_snack_greedy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、もっちょ たべちゃい！ あみゃあみゃ もっちょ！",
+      "chinese": "呜——，还要吃！甜甜还要！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_snack_greedy"
+      },
+      "source_sha256": "bf4b65b4954ce075608ad69d70f036006a80f054edaee9ec6cae9df18636e126"
+    },
+    {
+      "id": "flandre.young.o_snack_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぽんぽん いっぱいだよ。あとでね。",
+      "chinese": "呜——，肚肚满满。待会儿再吃哦。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_snack_refuse"
+      },
+      "source_sha256": "20a5ff63ec40d10809c53e457058e9ebc27a9a9532c125a21c5428fa0f90a4f1"
+    },
+    {
+      "id": "flandre.young.o_ask_food",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おなか しゅいたよ。ごはん ちょうらい！",
+      "chinese": "呜——，肚肚饿啦。给芙呀饭饭嘛！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_ask_food"
+      },
+      "source_sha256": "d352694f12cdd012e8561a786ebe5073891696ffa7ebcb76d0ee00e10705b854"
+    },
+    {
+      "id": "flandre.young.o_ask_snack",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ ほちいよ！ ちょうらい！",
+      "chinese": "呜——，想要甜甜！给芙呀嘛！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_ask_snack"
+      },
+      "source_sha256": "e8798cf66b2b491f8e078c9a7d6805b18206ddb6a81f13c5dff2b55c71331de7"
+    },
+    {
+      "id": "flandre.young.o_ask_play",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ひまだよ。いっちょに あしょぼ！",
+      "chinese": "呜——，好无聊。一起玩嘛！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_ask_play"
+      },
+      "source_sha256": "35ddb96111b48c45f1d5a2d62d637f3f3aca499440bec720421cc180152c9c0c"
+    },
+    {
+      "id": "flandre.young.o_ask_walk",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ いきちゃいな！",
+      "chinese": "呜——，芙呀想去散步！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_ask_walk"
+      },
+      "source_sha256": "a5b7b609bd52bb58c99650e85d7f81a8bbed5d77bf3ee05940bfee7aeec5837e"
+    },
+    {
+      "id": "flandre.young.o_request_thanks",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ありがちょう！ ゆっくち できるね！",
+      "chinese": "呜——，谢谢！芙呀能慢慢来啦！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_request_thanks"
+      },
+      "source_sha256": "ed8522d920bb92c509d1e724ff9c943175e29f7548f5843fd76c0f0a7aa7632f"
+    },
+    {
+      "id": "flandre.young.o_request_sulk",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ もう ちらない！",
+      "chinese": "呜——！不理你啦！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_request_sulk"
+      },
+      "source_sha256": "212b53883b4252bc111736a35e3e8d31c8463f4490e36dcad5ec3875227a652b"
+    },
+    {
+      "id": "flandre.young.o_mood_good",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きょうは ゆっくち できてるよ！",
+      "chinese": "呜——，今天好悠闲！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_mood_good"
+      },
+      "source_sha256": "5eeac680665f081c15f9968e0ec5e111c72a993ee39e3af556a5aba447e9e45f"
+    },
+    {
+      "id": "flandre.young.o_mood_ok",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふつうだよ。ぼちぼちだね。",
+      "chinese": "呜——，还可以。慢慢来。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_mood_ok"
+      },
+      "source_sha256": "8fe8d5d0d2490b1bffc421d876bd62ce4b44754541d558b7f9f1c64ac5767cdc"
+    },
+    {
+      "id": "flandre.young.o_mood_bad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……あんまり ゆっくち できてないよ。",
+      "chinese": "呜——……不太能慢慢来。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_mood_bad"
+      },
+      "source_sha256": "973dbc88772b7f53928248e2bcf5f22d955f9970d866a23b015ca20a0a23b118"
+    },
+    {
+      "id": "flandre.young.o_harness_on",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぴったり！ おしゃんぽ いけるね！",
+      "chinese": "呜——，刚刚好！能去散步啦！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_harness_on"
+      },
+      "source_sha256": "8dbdd52438b317983dce8a99396176a02c87294a8b3a13e90da9207af521f187"
+    },
+    {
+      "id": "flandre.young.o_harness_tug",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いまは あるきたくないな……まっちぇね。",
+      "chinese": "呜——，现在不想走……等一下嘛。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_harness_tug"
+      },
+      "source_sha256": "bcf7823480bd0af96dcbba8d11df88cad17a68535edcdd3689149b897d9b640c"
+    },
+    {
+      "id": "flandre.young.o_walk_enjoy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ たのちいね！",
+      "chinese": "呜——，散步好开心！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_walk_enjoy"
+      },
+      "source_sha256": "04923110f94ecbe603f306e43818ba6068a90a531bccbfd11324788ce69d2262"
+    },
+    {
+      "id": "flandre.young.o_swaddle_on",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ぬくぬく。あったかいよ……",
+      "chinese": "呜——……暖乎乎。好温暖……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "origin": "project-original",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "flandre.young.o_swaddle_on"
+      },
+      "source_sha256": "756430dbde3f0b8f852475329c9d96a3b16b93ff7ec54278729d42304625b2dd"
     }
   ]
 }

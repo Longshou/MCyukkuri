@@ -6,6 +6,50 @@
   "commitCount": 56,
   "chapters": [
     {
+      "id": "props-restyle",
+      "label": "照料道具统一造型",
+      "title": "食盆、油粮、窝、厕所与携带用品共用一套色板和低多边形语汇",
+      "tag": "2026-10-17 · polish/props 候选，待用户确认",
+      "summary": "宠物店商品用奶油釉面陶瓷、薄荷塑料、草莓粉织物与牛皮纸，野外物件用叶、枝、草、纸板与土。每组为前后对比：3/4 视角、灰度、6 格 1:1 与 GUI x2。由当前制作源离线渲染，非游戏实机截图；盆内麦穗与短草引用原版贴图，此处以纯色代替。",
+      "model": "marisa",
+      "points": [
+        "一个色板文件（每材质 4 阶），形体贴 1/16 格网，不描黑边；满盆 2272 三角（原 15960），携带篮 416（原 3828），毛线球 144（原 5738）。",
+        "油粮四个袋型剪影不同，灰度平均亮度相差 ≥25，标签前后两面可见。",
+        "叶床、细枝结界与家油卵不变；纸箱和野外便所只换色板与折痕。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "props-restyle/bags.png",
+          "label": "油粮袋 前后"
+        },
+        {
+          "src": "props-restyle/bowl.png",
+          "label": "食盆与盆内填充 前后"
+        },
+        {
+          "src": "props-restyle/nests.png",
+          "label": "巢穴与野外住所 前后"
+        },
+        {
+          "src": "props-restyle/food_bits.png",
+          "label": "食糜、残渣、便便、漏馅 前后"
+        },
+        {
+          "src": "props-restyle/toilets_mats.png",
+          "label": "厕所与垫料 前后"
+        },
+        {
+          "src": "props-restyle/carry_toys.png",
+          "label": "携带、清洁、玩具 前后"
+        },
+        {
+          "src": "props-restyle/scale_lineup.png",
+          "label": "同比例排列"
+        }
+      ]
+    },
+    {
       "id": "repair-batch-20261017",
       "label": "本轮玩法与空间修正",
       "title": "真实接触、出生、拾幼与帽船共存空间",

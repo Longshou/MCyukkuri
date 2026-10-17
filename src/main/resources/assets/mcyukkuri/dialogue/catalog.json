@@ -17100,5 +17100,2693 @@
     ],
     "ticks": 119,
     "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 131,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 143,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_ask_food",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_ask_play",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_mood_good",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_harness_on",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "reimu.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.reimu.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_ask_food",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_ask_play",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_mood_good",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_harness_on",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "marisa.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.marisa.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 131,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.alice.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_ask_food",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_ask_play",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_mood_good",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_harness_on",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "alice.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.alice.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.chen.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_ask_food",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_ask_play",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_mood_good",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_harness_on",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
+    "id": "chen.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.chen.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 135,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 139,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_ask_food",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_ask_play",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_mood_good",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_harness_on",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.patchouli.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 143,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_ask_food",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_ask_play",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_mood_good",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_harness_on",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 119,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "remilia.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.remilia.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_snack_eat",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_snack_greedy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 127,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_snack_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_ask_food",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_ask_snack",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_ask_play",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_ask_walk",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_request_thanks",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_request_sulk",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_mood_good",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 87,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_mood_ok",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_mood_bad",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_harness_on",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_harness_tug",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.o_swaddle_on",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 83,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_snack_eat",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_snack_eat",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "snack_eat"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_snack_greedy",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_snack_greedy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "snack_greedy"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_snack_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_snack_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "snack_refuse"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_ask_food",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_ask_food",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "ask_food"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_ask_snack",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_ask_snack",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "ask_snack"
+    ],
+    "ticks": 103,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_ask_play",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_ask_play",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "ask_play"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_ask_walk",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_ask_walk",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "ask_walk"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_request_thanks",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_request_thanks",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "request_thanks"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_request_sulk",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_request_sulk",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "request_sulk"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_mood_good",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_mood_good",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "mood_good"
+    ],
+    "ticks": 91,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_mood_ok",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_mood_ok",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "mood_ok"
+    ],
+    "ticks": 79,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_mood_bad",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_mood_bad",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "mood_bad"
+    ],
+    "ticks": 99,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_harness_on",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_harness_on",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "harness_on"
+    ],
+    "ticks": 95,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_harness_tug",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_harness_tug",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "harness_tug"
+    ],
+    "ticks": 107,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_walk_enjoy",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_walk_enjoy",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "walk_enjoy"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "flandre.young.o_swaddle_on",
+    "key": "dialogue.mcyukkuri.original.flandre.young.o_swaddle_on",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "young",
+    "events": [
+      "swaddle_on"
+    ],
+    "ticks": 83,
+    "sound": ""
   }
 ]

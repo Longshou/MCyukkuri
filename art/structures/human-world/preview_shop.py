@@ -169,7 +169,7 @@ def props(a,out):
 def goods(out):
     from types import SimpleNamespace
     items=[('oil_grain_budget','廉价油粮'),('oil_grain_regular','普通油粮'),('oil_grain_premium','高级油粮'),
-           ('orange_juice','橙汁'),('mold_remover','除霉剂'),('companion_cord','陪伴绳')]
+           ('orange_juice','橙汁'),('mold_remover','除霉剂'),('companion_cord','同伴绳')]
     sheet=Image.new('RGB',(1440,880),'#edf1eb');d=ImageDraw.Draw(sheet)
     d.text((30,20),'商店用品 · 标签、等级与轮廓修订',font=font(30),fill='#273e37')
     d.text((30,65),'当前运行网格与贴图的离线渲染；家油缝隙另调整了背包展示朝向。',font=font(17),fill='#596f65')
@@ -210,7 +210,7 @@ def main():
     d.text((40,24),'宠物店、徽章考试与养成 · 当前资源预览',font=font(38),fill='#273e37')
     d.text((42,82),'当前运行素材的离线画面；界面为示例数据，完整页面含15 组动作 GIF。',font=font(20),fill='#596f65')
     cards=[('新店外观与考场','shop-exterior.png'),('商店与考试界面','ui/shop_live_zh_cn_x2.png'),
-           ('七套 NPC 皮肤','staff.png'),('徽章佩戴位置','badge-mounts.png'),('油粮、瓶装与陪伴绳','goods.png'),('铜银金章与手帖','badges.png')]
+           ('七套 NPC 皮肤','staff.png'),('徽章佩戴位置','badge-mounts.png'),('油粮、瓶装与同伴绳','goods.png'),('铜银金章与手帖','badges.png')]
     for i,(title,relative) in enumerate(cards):
         x=30+i%2*765;y=130+i//2*500;d.rounded_rectangle((x,y,x+735,y+480),14,fill='#fffdf7')
         im=ImageOps.contain(Image.open(args.out/relative).convert('RGB'),(705,415))

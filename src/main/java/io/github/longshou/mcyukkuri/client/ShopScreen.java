@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
+import io.github.longshou.mcyukkuri.shop.ShopOrders;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.language.I18n;
@@ -14,16 +15,18 @@ import static io.github.longshou.mcyukkuri.client.GuiKit.*;
 /** Tabbed shopkeeper screen: live stock, goods, buyback, consultation. Button and data slot ids are documented on ShopMenu (slot 56: highlighted live row, 1-4, 0 none). */
 public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     private static final int ROW = 57, ROW_X = 8, ROW_W = 256, ROW_H = 56, TOP = 32, FOOT = 224, LOW_HEALTH = 6, LOW_NUTRITION = 30;
-    private final Button[] actions = new Button[25];
+    private final Button[] actions = new Button[29];
     public ShopScreen(ShopMenu menu, Inventory inv, Component title) { super(menu, inv, title); imageWidth = 340; imageHeight = 250; }
     @Override protected void init() {
         super.init();
-        int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT};
-        for (int i = 0; i < 4; i++) {
-            int tabId = i;
-            actions[i] = addRenderableWidget(new GuiKit.Tab(leftPos + 8 + i * 82, topPos + 6, 78, 22, Component.translatable("shop.mcyukkuri.tab." + i), icons[i], b -> press(tabId)));
-            add(14 + i, 36, 52 + i * 34, 290, Component.empty());
+        int[] icons = {ICON_LIVE, ICON_GOODS, ICON_BUYBACK, ICON_CONSULT, ICON_PROFILE};
+        for (int i = 0; i < 5; i++) {
+            int tabId = i == 4 ? 25 : i;
+            var tab = addRenderableWidget(new GuiKit.Tab(leftPos + 8 + i * 65, topPos + 6, 64, 22, Component.translatable("shop.mcyukkuri.tab." + i), icons[i], b -> press(tabId)));
+            if (i < 4) actions[i] = tab; else actions[25] = tab;
         }
+        for (int i = 0; i < 4; i++) add(14 + i, 36, 52 + i * 34, 290, Component.empty());
+        for (int i = 0; i < ShopOrders.PER_DAY; i++) add(26 + i, 270, 49 + i * 34, 62, 22, Component.translatable("shop.mcyukkuri.order.deliver"));
         for (int i = 0; i < ShopMenu.PAGE_ROWS; i++) {
             add(4 + i, 270, TOP + i * ROW + 3, 62, 16, Component.translatable("shop.mcyukkuri.buy"));
             add(8 + i, 270, TOP + i * ROW + 20, 62, 16, Component.translatable("shop.mcyukkuri.locate"));
@@ -43,6 +46,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
     @Override protected void containerTick() {
         super.containerTick();
         int tab = menu.value(0); boolean day = menu.value(2) != 0, own = menu.value(6) > 0;
+        actions[25].active = tab != ShopMenu.ORDERS;
+        for (int i = 0; i < ShopOrders.PER_DAY; i++) {
+            actions[26 + i].visible = tab == ShopMenu.ORDERS;
+            actions[26 + i].active = day && (menu.value(65) >> i & 1) == 0 && menu.value(66 + i) > 0;
+        }
         for (int i = 0; i < 4; i++) {
             actions[i].active = tab != i;
             if (i < ShopMenu.PAGE_ROWS) {
@@ -53,11 +61,15 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             }
             var stack = ShopMenu.goodsStack(menu.value(3), i); int price = ShopMenu.goodsPrice(menu.value(3), i);
             actions[14 + i].visible = tab == ShopMenu.GOODS && !stack.isEmpty();
-            actions[14 + i].active = day && menu.value(1) > 0;
-            if (!stack.isEmpty()) actions[14 + i].setMessage(Component.translatable("human.mcyukkuri.buy_supply", stack.getHoverName(), stack.getCount(), price));
+            int left = menu.value(57 + i), need = menu.value(61 + i), standing = menu.value(71);
+            boolean soldOut = left <= 0, locked = standing < need;
+            actions[14 + i].active = day && menu.value(1) > 0 && !soldOut && !locked;
+            if (!stack.isEmpty()) actions[14 + i].setMessage(soldOut ? Component.translatable("shop.mcyukkuri.sold_out_label", stack.getHoverName())
+                    : locked ? Component.translatable("shop.mcyukkuri.locked_label." + need, stack.getHoverName())
+                    : Component.translatable("shop.mcyukkuri.buy_stock", stack.getHoverName(), stack.getCount(), price, left));
         }
         actions[12].visible = actions[13].visible = tab <= ShopMenu.GOODS; actions[12].active = actions[13].active = menu.value(4) > 1;
-        actions[20].visible = actions[21].visible = tab >= ShopMenu.BUYBACK; actions[20].active = actions[21].active = menu.value(6) > 1;
+        actions[20].visible = actions[21].visible = tab == ShopMenu.BUYBACK || tab == ShopMenu.CONSULT; actions[20].active = actions[21].active = menu.value(6) > 1;
         actions[18].visible = tab == ShopMenu.BUYBACK; actions[18].active = own && day && menu.value(34) == 0;
         actions[19].visible = tab == ShopMenu.CONSULT; actions[19].active = own && day && menu.value(33) == 0;
     }
@@ -71,6 +83,11 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
                 var stack = ShopMenu.goodsStack(menu.value(3), i); if (stack.isEmpty()) continue;
                 card(g, leftPos + 8, topPos + 46 + i * 34, 324, 30, false);
                 g.renderItem(stack, leftPos + 14, topPos + 53 + i * 34);
+            }
+        } else if (tab == ShopMenu.ORDERS) {
+            for (int i = 0; i < ShopOrders.PER_DAY; i++) {
+                card(g, leftPos + 8, topPos + 46 + i * 34, 324, 30, false);
+                if (menu.value(66 + i) > 0) g.renderItem(ShopOrders.icon(menu.value(66 + i) - 1), leftPos + 14, topPos + 53 + i * 34);
             }
         } else card(g, leftPos + 8, topPos + 32, 324, menu.value(6) == 0 ? 28 : tab == ShopMenu.BUYBACK ? 120 : 178, false);
     }
@@ -128,7 +145,18 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         } else if (tab == ShopMenu.GOODS) {
             line(g, 36, INK, Component.translatable("shop.mcyukkuri.category." + ShopMenu.goodsCategory(menu.value(3))));
             line(g, 184, SOFT, Component.translatable("shop.mcyukkuri.trades_left", menu.value(1)));
+            line(g, 196, SOFT, Component.translatable("shop.mcyukkuri.restock_hint"));
             g.drawString(font, Component.translatable("shop.mcyukkuri.page", menu.value(3) + 1, menu.value(4)), 100, FOOT + 6, SOFT, false);
+        } else if (tab == ShopMenu.ORDERS) {
+            line(g, 36, INK, Component.translatable("shop.mcyukkuri.order.title"));
+            for (int i = 0; i < ShopOrders.PER_DAY; i++) {
+                int pool = menu.value(66 + i) - 1; if (pool < 0) continue;
+                var order = ShopOrders.order(pool); boolean done = (menu.value(65) >> i & 1) != 0;
+                var item = Component.translatable(order.item().get().getDescriptionId());
+                g.drawString(font, Component.translatable("shop.mcyukkuri.order.line", item, order.count(), order.reward()), 36, 56 + i * 34, done ? SOFT : INK, false);
+                if (done) g.drawString(font, Component.translatable("shop.mcyukkuri.order.done"), 36, 66 + i * 34, GOOD, false);
+            }
+            line(g, 156, SOFT, Component.translatable("shop.mcyukkuri.order.hint"));
         } else {
             if (menu.value(6) == 0) { line(g, 42, SOFT, Component.translatable("shop.mcyukkuri.no_subject")); return; }
             boolean buy = tab == ShopMenu.BUYBACK; int f = menu.value(10);
@@ -138,9 +166,10 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
             g.drawString(font, tags(menu.value(35)), 86, 76, SOFT, false);
             line(g, 90, SOFT, Component.translatable("shop.mcyukkuri.vitals3", level(Math.min(100, menu.value(16) * 10)), level(menu.value(17)), level(menu.value(18))));
             if (buy) {
-                line(g, 108, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(29)));
-                line(g, 122, menu.value(34) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(34), menu.value(5), ShopMenu.STOCK_CAPACITY));
-                line(g, 136, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
+                line(g, 104, INK, Component.translatable("shop.mcyukkuri.offer", menu.value(29)));
+                line(g, 116, menu.value(70) > 0 ? WARN : SOFT, Component.translatable("shop.mcyukkuri.offer_detail", menu.value(69), menu.value(70)));
+                line(g, 128, menu.value(34) == 0 ? SOFT : WARN, Component.translatable("shop.mcyukkuri.sell_state." + menu.value(34), menu.value(5), ShopMenu.STOCK_CAPACITY));
+                line(g, 140, SOFT, Component.translatable("shop.mcyukkuri.sell_hint"));
                 return;
             }
             line(g, 106, INK, Component.translatable("badge.mcyukkuri.profile.routines", menu.value(21), menu.value(22), menu.value(23)));
@@ -163,7 +192,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         if (tab == ShopMenu.LIVE) {
             for (int i = 0; i < ShopMenu.PAGE_ROWS; i++)
                 if (menu.value(8 + i * 12) > 0 && over(mx, my, leftPos + ROW_X + ROW_W - 6 - STARS_WIDTH, topPos + TOP + i * ROW + 4, STARS_WIDTH, 9)) hit = true;
-        } else if (tab >= ShopMenu.BUYBACK && menu.value(6) > 0) hit = over(mx, my, leftPos + 29, topPos + 75, STARS_WIDTH, 9);
+        } else if ((tab == ShopMenu.BUYBACK || tab == ShopMenu.CONSULT) && menu.value(6) > 0) hit = over(mx, my, leftPos + 29, topPos + 75, STARS_WIDTH, 9);
         if (hit) g.renderTooltip(font, Component.translatable("shop.mcyukkuri.pedigree_tip"), mx, my);
     }
     @Override public void render(GuiGraphics g, int x, int y, float partial) { super.render(g, x, y, partial); renderTooltip(g, x, y); pedigreeTip(g, x, y); }

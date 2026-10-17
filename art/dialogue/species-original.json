@@ -15129,6 +15129,2918 @@
       "basis": "项目原创：徽章社交弧线（B12 长者放行）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；尚未配音，待听审。",
       "audio_status": "unvoiced",
       "english": "Some humans do give food."
+    },
+    {
+      "id": "reimu.adult.o_snack_eat",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あまあま、むーしゃ むーしゃ！ しあわせー！",
+      "chinese": "甜甜的，姆咻姆咻！好幸福——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_snack_greedy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もっと、もっと たべたいよ！ あまあま、もっとちょうだい！",
+      "chinese": "还要，还要吃！再给灵梦一点甜甜嘛！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_snack_refuse",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もう、おなかいっぱいだよ……あとでね。",
+      "chinese": "已经吃得饱饱的了哟……等一下再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_ask_food",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おなかが すいたよ！ ごはんさん ちょうだい！",
+      "chinese": "肚子饿了哟！给灵梦饭饭嘛！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_ask_snack",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あまあま、ほしいよ！ ちょうだい、ちょうだい！",
+      "chinese": "想吃甜甜的哟！给我嘛，给我嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_ask_play",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ひまだよ、いっしょに あそぼうよ！",
+      "chinese": "好无聊哟，一起玩嘛！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_ask_walk",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おさんぽに いきたいよ！ おそとで ゆっくりしたいね！",
+      "chinese": "想去散步哟！到外面慢慢逛逛吧！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_request_thanks",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ありがとう！ これで ゆっくりできるよ！",
+      "chinese": "谢谢你！这下可以慢慢来啦！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_request_sulk",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "もう、しらないよ！ ぷんぷん！",
+      "chinese": "哼，不理你啦！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_mood_good",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりできてるよ！",
+      "chinese": "今天过得超级悠闲哟！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_mood_ok",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ふつうだよ。ぼちぼち ゆっくりしてるよ。",
+      "chinese": "还可以哟。慢慢悠悠地过着。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_mood_bad",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないよ……",
+      "chinese": "不太能慢慢来呢……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_harness_on",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぴったり！ これで おさんぽに いけるね！",
+      "chinese": "刚刚好！这样就能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_harness_tug",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "いまは あるきたくないよ……ちょっと まってね。",
+      "chinese": "现在不想走……稍微等一下嘛。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_walk_enjoy",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おさんぽ、たのしいね！ ゆっくりできるよ！",
+      "chinese": "散步好开心哟！好悠闲！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.adult.o_swaddle_on",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいよ……",
+      "chinese": "暖乎乎的……好温暖哟……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_snack_eat",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あみゃあみゃ、むーちゃ むーちゃ！ しあわちぇー！",
+      "chinese": "甜甜惹，姆咻姆咻！幸福惹——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_snack_greedy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もっちょ！ もっちょ たべちゃいよ！ あみゃあみゃ ちょうらい！",
+      "chinese": "还要惹！还要吃惹！甜甜再给窝嘛！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_snack_refuse",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もう、ぽんぽんいっぱいぢゃよ……あとでね。",
+      "chinese": "窝肚肚满满惹……等一下再吃啦。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_ask_food",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おなか しゅいちゃよ！ ごはんしゃん ちょうらい！",
+      "chinese": "肚肚饿惹哟！给窝饭饭惹！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_ask_snack",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいよ！ ちょうらい、ちょうらい！",
+      "chinese": "想吃甜甜惹哟！给窝嘛，给窝嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_ask_play",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ひまぢゃよ、いっちょに あしょぼうよ！",
+      "chinese": "好无聊惹，一起玩惹！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_ask_walk",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おしゃんぽに いきちゃいよ！",
+      "chinese": "窝想去散步惹！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_request_thanks",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ありがちょう！ ゆっくち できるよ！",
+      "chinese": "谢谢惹！窝能慢慢来啦！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_request_sulk",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "もう、ちらないよ！ ぷんぷん！",
+      "chinese": "哼，窝不理你惹！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_mood_good",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "きょうは とっちぇも ゆっくち してるよ！",
+      "chinese": "今天窝好悠闲惹！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_mood_ok",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ふつうぢゃよ。ゆっくち ちてるよ。",
+      "chinese": "还可以惹。慢慢悠悠惹。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_mood_bad",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できちぇないよ……",
+      "chinese": "窝不太能慢慢来惹……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_harness_on",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぴったりぢゃよ！ おしゃんぽ いけりゅね！",
+      "chinese": "刚刚好惹！可以去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_harness_tug",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "いまは あるきちゃくないよ……まっちぇね。",
+      "chinese": "现在窝不想走惹……等一下惹。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_walk_enjoy",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おしゃんぽ、たのちいね！ ゆっくち しゅるよ！",
+      "chinese": "散步好开心惹！慢慢逛惹！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "reimu.young.o_swaddle_on",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいよぉ……",
+      "chinese": "暖乎乎……好温暖惹……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_snack_eat",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあま、うめぇのぜ！ しあわせなのぜ！",
+      "chinese": "甜甜好吃贼！好幸福贼！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_snack_greedy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もっと たべたいのぜ！ あまあま もっとよこすのぜ！",
+      "chinese": "还想吃贼！再多给点甜甜贼！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_snack_refuse",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいなのぜ……あとにするのぜ。",
+      "chinese": "已经吃饱了贼……待会儿再吃贼。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_ask_food",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おなかが すいたのぜ！ ごはんを くれなのぜ！",
+      "chinese": "肚子饿了贼！给点饭饭贼！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_ask_snack",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あまあまが ほしいのぜ！ くれなのぜ！",
+      "chinese": "想吃甜甜贼！给我贼！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_ask_play",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ひまなのぜ！ いっしょに あそぶのぜ！",
+      "chinese": "无聊贼！一起玩贼！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_ask_walk",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おさんぽに いくのぜ！ そとで ゆっくりするのぜ！",
+      "chinese": "去散步贼！到外面慢慢逛贼！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_request_thanks",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ありがとうなのぜ！ これで ゆっくりできるのぜ！",
+      "chinese": "谢谢贼！这下能慢慢来贼！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_request_sulk",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "もう しらないのぜ！ ぷんぷんなのぜ！",
+      "chinese": "不理你了贼！气鼓鼓贼！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_mood_good",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "きょうは さいこうに ゆっくりなのぜ！",
+      "chinese": "今天悠闲得不得了贼！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_mood_ok",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ふつうなのぜ。ぼちぼち ゆっくりなのぜ。",
+      "chinese": "还行贼。慢慢悠悠贼。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_mood_bad",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないのぜ……",
+      "chinese": "不太能慢慢来贼……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_harness_on",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぴったりなのぜ！ これで おさんぽに いけるのぜ！",
+      "chinese": "刚刚好贼！这样就能去散步贼！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_harness_tug",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いまは あるきたくないのぜ……ちょっと まつのぜ。",
+      "chinese": "现在不想走贼……稍微等等贼。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_walk_enjoy",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おさんぽ たのしいのぜ！ ゆっくりなのぜ！",
+      "chinese": "散步好开心贼！好悠闲贼！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.adult.o_swaddle_on",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぬくぬくなのぜ……あったかいのぜ……",
+      "chinese": "暖乎乎贼……好温暖贼……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_snack_eat",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あみゃあみゃ、おいちいのじぇ！ しあわちぇなのじぇ！",
+      "chinese": "甜甜好吃惹杰！好幸福惹杰！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_snack_greedy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もっちょ たべちゃいのじぇ！ あみゃあみゃ もっちょなのじぇ！",
+      "chinese": "还要吃惹杰！甜甜还要惹杰！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_snack_refuse",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいなのじぇ……あとにしゅるのじぇ。",
+      "chinese": "肚肚满满惹杰……待会儿再吃惹杰。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_ask_food",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おなか しゅいたのじぇ！ ごはん ちょうらいなのじぇ！",
+      "chinese": "肚肚饿惹杰！给窝饭饭惹杰！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_ask_snack",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいのじぇ！ ちょうらいなのじぇ！",
+      "chinese": "想吃甜甜惹杰！给窝惹杰！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_ask_play",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ひまなのじぇ！ いっちょに あしょぶのじぇ！",
+      "chinese": "无聊惹杰！一起玩惹杰！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_ask_walk",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おしゃんぽ いくのじぇ！",
+      "chinese": "去散步惹杰！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_request_thanks",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ありがちょうなのじぇ！ ゆっくち できるのじぇ！",
+      "chinese": "谢谢惹杰！能慢慢来惹杰！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_request_sulk",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "もう ちらないのじぇ！ ぷんぷんなのじぇ！",
+      "chinese": "不理你惹杰！气鼓鼓惹杰！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_mood_good",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "きょうは ゆっくち できてるのじぇ！",
+      "chinese": "今天好悠闲惹杰！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_mood_ok",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ふつうなのじぇ。ぼちぼちなのじぇ。",
+      "chinese": "还行惹杰。慢慢悠悠惹杰。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_mood_bad",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないのじぇ……",
+      "chinese": "不太能慢慢来惹杰……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_harness_on",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぴったりなのじぇ！ おしゃんぽ いけるのじぇ！",
+      "chinese": "刚刚好惹杰！能去散步惹杰！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_harness_tug",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "いまは あるきたくないのじぇ……まつのじぇ。",
+      "chinese": "现在不想走惹杰……等等惹杰。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_walk_enjoy",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいのじぇ！",
+      "chinese": "散步好开心惹杰！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "marisa.young.o_swaddle_on",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぬくぬくなのじぇ……あったかいのじぇ……",
+      "chinese": "暖乎乎惹杰……好温暖惹杰……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_snack_eat",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあま、とかいはな あじだわ！ しあわせよ！",
+      "chinese": "甜甜的，真是都会派的味道哇！好幸福哇！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_snack_greedy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もっと ほしいわ！ あまあま、もっとちょうだい！",
+      "chinese": "还想要哇！再给爱丽丝一点甜甜！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_snack_refuse",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいよ……あとで いただくわ。",
+      "chinese": "已经吃饱啦……待会儿再享用哇。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_ask_food",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おなかが すいたわ！ ごはんを ちょうだい！",
+      "chinese": "肚子饿了哇！请给我饭饭！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_ask_snack",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あまあまが ほしいのよ！ ちょうだい！",
+      "chinese": "想吃甜甜的哇！给我嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_ask_play",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "たいくつだわ。いっしょに あそびましょう！",
+      "chinese": "好无聊哇。一起玩吧！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_ask_walk",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おさんぽに いきたいわ！ とかいはに ゆっくりしましょう！",
+      "chinese": "想去散步哇！来悠闲地逛一逛吧！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_request_thanks",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ありがとう！ これで ゆっくりできるわ！",
+      "chinese": "谢谢！这下能慢慢来啦哇！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_request_sulk",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "もう しらないわ！ ぷんぷんよ！",
+      "chinese": "不理你啦哇！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_mood_good",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりできてるわ！",
+      "chinese": "今天过得超级悠闲哇！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_mood_ok",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "まあまあよ。ぼちぼち ゆっくりしてるわ。",
+      "chinese": "还可以哇。慢慢悠悠地过着。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_mood_bad",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないのよ……",
+      "chinese": "不太能慢慢来呢……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_harness_on",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぴったりね！ これで おさんぽに いけるわ！",
+      "chinese": "刚刚好哇！这样就能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_harness_tug",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いまは あるきたくないわ……ちょっと まってちょうだい。",
+      "chinese": "现在不想走哇……请稍等一下。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_walk_enjoy",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おさんぽ、たのしいわ！ ゆっくりできるのよ！",
+      "chinese": "散步好开心哇！好悠闲！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.adult.o_swaddle_on",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいわ……",
+      "chinese": "暖乎乎的……好温暖哇……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_snack_eat",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あみゃあみゃ、ときゃいはな あじよ！ しあわちぇー！",
+      "chinese": "甜甜是都会派的味道哇！好幸福——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_snack_greedy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もっちょ ほちいわ！ あみゃあみゃ ちょうらい！",
+      "chinese": "还要哇！甜甜再给窝！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_snack_refuse",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいよ……あとで いただくわ。",
+      "chinese": "肚肚满满哇……待会儿再吃。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_ask_food",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おなか しゅいちゃわ！ ごはん ちょうらい！",
+      "chinese": "肚肚饿惹哇！给窝饭饭！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_ask_snack",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいのよ！ ちょうらい！",
+      "chinese": "想吃甜甜哇！给窝嘛！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_ask_play",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゃいくちゅだわ。いっちょに あしょびまちょう！",
+      "chinese": "好无聊哇。一起玩吧！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_ask_walk",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おしゃんぽ いきちゃいわ！",
+      "chinese": "窝想去散步哇！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_request_thanks",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ありがちょう！ ゆっくち できるわ！",
+      "chinese": "谢谢！窝能慢慢来哇！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_request_sulk",
+      "species": "alice",
+      "age": "young",
+      "japanese": "もう ちらないわ！ ぷんぷん！",
+      "chinese": "不理你哇！气鼓鼓！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_mood_good",
+      "species": "alice",
+      "age": "young",
+      "japanese": "きょうは ゆっくち できてるわ！",
+      "chinese": "今天好悠闲哇！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_mood_ok",
+      "species": "alice",
+      "age": "young",
+      "japanese": "まあまあよ。ゆっくち ちてるわ。",
+      "chinese": "还可以哇。慢慢悠悠。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_mood_bad",
+      "species": "alice",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないのよ……",
+      "chinese": "不太能慢慢来哇……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_harness_on",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぴったりね！ おしゃんぽ いけるわ！",
+      "chinese": "刚刚好哇！能去散步啦！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_harness_tug",
+      "species": "alice",
+      "age": "young",
+      "japanese": "いまは あるきたくないわ……まっちぇ。",
+      "chinese": "现在不想走哇……等一下。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_walk_enjoy",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいわ！",
+      "chinese": "散步好开心哇！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "alice.young.o_swaddle_on",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいわ……",
+      "chinese": "暖乎乎……好温暖哇……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_snack_eat",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあま、おいしいよー！ しあわせだよー！",
+      "chinese": "甜甜好吃哟——！好幸福哟——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_snack_greedy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もっと たべたいよー！ あまあま もっとー！",
+      "chinese": "还想吃哟——！再多给点甜甜嘛——！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_snack_refuse",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もう おなかいっぱいだよー……あとでね。",
+      "chinese": "已经吃饱了哟——……待会儿再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_ask_food",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おなかが ぺーこぺーこ だよー！ ごはん ちょうだいー！",
+      "chinese": "肚肚饿扁了哟——！给橙饭饭嘛——！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_ask_snack",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あまあまが ほしいよー！ ちょうだいー！",
+      "chinese": "想吃甜甜的哟——！给橙嘛——！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_ask_play",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ひまだよー。いっしょに あそぼうよー！",
+      "chinese": "好无聊哟——。一起玩嘛——！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_ask_walk",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おさんぽ いきたいよー！ おそとに いこうよー！",
+      "chinese": "想去散步哟——！到外面去嘛——！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_request_thanks",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ありがとうだよー！ ゆっくりできるよー！",
+      "chinese": "谢谢哟——！这下能慢慢来啦——！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_request_sulk",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "もう しらないよー！ ぷんぷんだよー！",
+      "chinese": "不理你啦哟——！气鼓鼓哟——！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_mood_good",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "きょうは とっても ゆっくりだよー！",
+      "chinese": "今天好悠闲哟——！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_mood_ok",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ふつうだよー。ぼちぼち ゆっくりだよー。",
+      "chinese": "还可以哟——。慢慢悠悠哟——。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_mood_bad",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あんまり ゆっくり できてないよー……",
+      "chinese": "不太能慢慢来哟——……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_harness_on",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぴったりだよー！ おさんぽ いけるよー！",
+      "chinese": "刚刚好哟——！能去散步啦——！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_harness_tug",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いまは あるきたくないよー……ちょっと まってー。",
+      "chinese": "现在不想走哟——……等一下嘛——。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_walk_enjoy",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おさんぽ たのしいよー！ ゆっくりだよー！",
+      "chinese": "散步好开心哟——！好悠闲——！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.adult.o_swaddle_on",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぬくぬく……あったかいよー……",
+      "chinese": "暖乎乎……好温暖哟——……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_snack_eat",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あみゃあみゃ、おいちいよー！ しあわちぇだよー！",
+      "chinese": "甜甜好吃惹哟——！好幸福惹——！",
+      "english": "Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_snack_greedy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もっちょ たべちゃいよー！ あみゃあみゃ もっちょー！",
+      "chinese": "还要吃惹哟——！甜甜还要——！",
+      "english": "More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_snack_refuse",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぽんぽん いっぱいだよー……あとでね。",
+      "chinese": "肚肚满满惹哟——……待会儿再吃吧。",
+      "english": "I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_ask_food",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おなかが ぺーこぺーこ だよー！ ごはん ちょうらいー！",
+      "chinese": "肚肚饿扁惹哟——！给橙饭饭惹——！",
+      "english": "I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_ask_snack",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あみゃあみゃ ほちいよー！ ちょうらいー！",
+      "chinese": "想吃甜甜惹哟——！给橙惹——！",
+      "english": "I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_ask_play",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ひまだよー。いっちょに あしょぼうよー！",
+      "chinese": "好无聊惹哟——。一起玩惹——！",
+      "english": "I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_ask_walk",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おしゃんぽ いきちゃいよー！",
+      "chinese": "橙想去散步惹哟——！",
+      "english": "I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_request_thanks",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ありがちょうだよー！ ゆっくち できるよー！",
+      "chinese": "谢谢惹哟——！橙能慢慢来啦——！",
+      "english": "Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_request_sulk",
+      "species": "chen",
+      "age": "young",
+      "japanese": "もう ちらないよー！ ぷんぷんだよー！",
+      "chinese": "不理你啦惹哟——！气鼓鼓——！",
+      "english": "Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_mood_good",
+      "species": "chen",
+      "age": "young",
+      "japanese": "きょうは ゆっくち してるよー！",
+      "chinese": "今天橙好悠闲惹哟——！",
+      "english": "I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_mood_ok",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ふつうだよー。ぼちぼちだよー。",
+      "chinese": "还可以惹哟——。慢慢悠悠——。",
+      "english": "I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_mood_bad",
+      "species": "chen",
+      "age": "young",
+      "japanese": "あんまり ゆっくち できてないよー……",
+      "chinese": "橙不太能慢慢来惹……",
+      "english": "I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_harness_on",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぴったりだよー！ おしゃんぽ いけるよー！",
+      "chinese": "刚刚好惹哟——！能去散步啦——！",
+      "english": "A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_harness_tug",
+      "species": "chen",
+      "age": "young",
+      "japanese": "いまは あるきたくないよー……まっちぇー。",
+      "chinese": "现在不想走惹哟——……等一下——。",
+      "english": "I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_walk_enjoy",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おしゃんぽ たのちいよー！",
+      "chinese": "散步好开心惹哟——！",
+      "english": "Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "chen.young.o_swaddle_on",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぬくぬく……あったかいよー……",
+      "chinese": "暖乎乎……好温暖惹——……",
+      "english": "Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_snack_eat",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。あまあま、おいしいわ。しあわせよ。",
+      "chinese": "姆啾。甜甜好吃哇。好幸福。",
+      "english": "Mukyu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_snack_greedy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……もっと たべたいわ。あまあま、もうひとつ。",
+      "chinese": "姆啾……还想再吃哇。甜甜，再来一个。",
+      "english": "Mukyu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_snack_refuse",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。もう おなかいっぱいだわ。あとで いただくわ。",
+      "chinese": "姆啾。已经吃饱了哇。待会儿再吃。",
+      "english": "Mukyu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_ask_food",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おなかが すいたわ。ごはんを ちょうだい。",
+      "chinese": "姆啾。肚子饿了哇。请给我饭饭。",
+      "english": "Mukyu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_ask_snack",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。あまあまが たべたいわ。",
+      "chinese": "姆啾。想吃甜甜的哇。",
+      "english": "Mukyu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_ask_play",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。たいくつだわ。あそんでちょうだい。",
+      "chinese": "姆啾。好无聊哇。陪我玩吧。",
+      "english": "Mukyu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_ask_walk",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おさんぽに いきたいわ。",
+      "chinese": "姆啾。想去散步哇。",
+      "english": "Mukyu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_request_thanks",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ありがとう。これで ゆっくりできるわ。",
+      "chinese": "姆啾。谢谢。这下能慢慢来了哇。",
+      "english": "Mukyu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_request_sulk",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ！ もう しらないわ！",
+      "chinese": "姆啾！不理你了哇！",
+      "english": "Mukyu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_mood_good",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。きょうは ゆっくりできているわ。",
+      "chinese": "姆啾。今天过得很悠闲哇。",
+      "english": "Mukyu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_mood_ok",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ふつうよ。ぼちぼちだわ。",
+      "chinese": "姆啾。还可以哇。慢慢来。",
+      "english": "Mukyu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_mood_bad",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……あまり ゆっくり できていないわ。",
+      "chinese": "姆啾……不太能慢慢来哇。",
+      "english": "Mukyu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_harness_on",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。ぴったりだわ。これで おさんぽに いけるわ。",
+      "chinese": "姆啾。刚刚好哇。这样就能去散步了。",
+      "english": "Mukyu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_harness_tug",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。いまは あるきたくないわ。すこし まってちょうだい。",
+      "chinese": "姆啾。现在不想走哇。请稍等一下。",
+      "english": "Mukyu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_walk_enjoy",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ。おさんぽ、たのしいわ。",
+      "chinese": "姆啾。散步很开心哇。",
+      "english": "Mukyu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.adult.o_swaddle_on",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ぬくぬく。あったかいわ……",
+      "chinese": "姆啾……暖乎乎。好温暖哇……",
+      "english": "Mukyu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_snack_eat",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。あみゃあみゃ、おいちいわ。しあわちぇ。",
+      "chinese": "姆啾。甜甜好吃哇。好幸福。",
+      "english": "Mukyu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_snack_greedy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……もっちょ たべちゃいわ。あみゃあみゃ もうひとちゅ。",
+      "chinese": "姆啾……还想吃惹哇。甜甜再来一个。",
+      "english": "Mukyu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_snack_refuse",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぽんぽん いっぱいだわ。あとでね。",
+      "chinese": "姆啾。肚肚满满哇。待会儿再吃。",
+      "english": "Mukyu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_ask_food",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おなか しゅいちゃわ。ごはん ちょうらい。",
+      "chinese": "姆啾。肚肚饿惹哇。给帕秋饭饭。",
+      "english": "Mukyu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_ask_snack",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。あみゃあみゃ たべちゃいわ。",
+      "chinese": "姆啾。想吃甜甜哇。",
+      "english": "Mukyu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_ask_play",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ひまだわ。あしょんでちょうらい。",
+      "chinese": "姆啾。好无聊哇。陪帕秋玩吧。",
+      "english": "Mukyu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_ask_walk",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おしゃんぽ いきちゃいわ。",
+      "chinese": "姆啾。帕秋想去散步哇。",
+      "english": "Mukyu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_request_thanks",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ありがちょう。ゆっくち できるわ。",
+      "chinese": "姆啾。谢谢。帕秋能慢慢来了哇。",
+      "english": "Mukyu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_request_sulk",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ！ もう ちらないわ！",
+      "chinese": "姆啾！不理你了哇！",
+      "english": "Mukyu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_mood_good",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。きょうは ゆっくち できてるわ。",
+      "chinese": "姆啾。今天好悠闲哇。",
+      "english": "Mukyu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_mood_ok",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ふつうだわ。ぼちぼちよ。",
+      "chinese": "姆啾。还可以哇。慢慢来。",
+      "english": "Mukyu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_mood_bad",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……あまり ゆっくち できてないわ。",
+      "chinese": "姆啾……不太能慢慢来哇。",
+      "english": "Mukyu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_harness_on",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。ぴったりだわ。おしゃんぽ いけるわ。",
+      "chinese": "姆啾。刚刚好哇。能去散步了。",
+      "english": "Mukyu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_harness_tug",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。いまは あるきたくないわ。まっちぇ。",
+      "chinese": "姆啾。现在不想走哇。等一下。",
+      "english": "Mukyu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_walk_enjoy",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ。おしゃんぽ たのちいわ。",
+      "chinese": "姆啾。散步好开心哇。",
+      "english": "Mukyu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "patchouli.young.o_swaddle_on",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぬくぬく。あったかいわ……",
+      "chinese": "姆啾……暖乎乎。好温暖哇……",
+      "english": "Mukyu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_snack_eat",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あまあま、おいしいのだ！ しあわせなのだ！",
+      "chinese": "呜——，甜甜好吃呀！好幸福呀！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_snack_greedy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もっと たべたいのだ！ あまあま もっとなのだ！",
+      "chinese": "呜——，还想吃呀！甜甜再来点呀！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_snack_refuse",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、もう おなかいっぱいなのだ。あとで たべるのだ。",
+      "chinese": "呜——，已经吃饱了呀。待会儿再吃呀。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_ask_food",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おなかが すいたのだ。ごはんが ほしいのだ！",
+      "chinese": "呜——，肚子饿了呀。想要饭饭呀！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_ask_snack",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、あまあまが ほしいのだ！",
+      "chinese": "呜——，想要甜甜呀！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_ask_play",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ひまなのだ。いっしょに あそぶのだ！",
+      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_ask_walk",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おさんぽに いくのだ！",
+      "chinese": "呜——，去散步呀！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_request_thanks",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ありがとうなのだ！ ゆっくりできるのだ！",
+      "chinese": "呜——，谢谢呀！能慢慢来了呀！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_request_sulk",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー！ もう しらないのだ！",
+      "chinese": "呜——！不理你了呀！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_mood_good",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、きょうは ゆっくりできているのだ！",
+      "chinese": "呜——，今天过得很悠闲呀！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_mood_ok",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ふつうなのだ。ぼちぼちなのだ。",
+      "chinese": "呜——，还可以呀。慢慢来呀。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_mood_bad",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……あまり ゆっくり できていないのだ。",
+      "chinese": "呜——……不太能慢慢来呀。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_harness_on",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、ぴったりなのだ！ おさんぽに いけるのだ！",
+      "chinese": "呜——，刚刚好呀！能去散步了呀！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_harness_tug",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、いまは あるきたくないのだ……すこし まつのだ。",
+      "chinese": "呜——，现在不想走呀……稍微等等呀。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_walk_enjoy",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー、おさんぽ たのしいのだ！",
+      "chinese": "呜——，散步好开心呀！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.adult.o_swaddle_on",
+      "species": "remilia",
+      "age": "adult",
+      "japanese": "うー……ぬくぬくなのだ。あったかいのだ……",
+      "chinese": "呜——……暖乎乎呀。好温暖呀……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_snack_eat",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ、おいちいのだ！ しあわちぇなのだ！",
+      "chinese": "呜——，甜甜好吃呀！好幸福呀！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_snack_greedy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、もっちょ たべちゃいのだ！ あみゃあみゃ もっちょなのだ！",
+      "chinese": "呜——，还要吃呀！甜甜还要呀！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_snack_refuse",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぽんぽん いっぱいなのだ。あとでなのだ。",
+      "chinese": "呜——，肚肚满满呀。待会儿再吃呀。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_ask_food",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おなか しゅいたのだ。ごはん ほちいのだ！",
+      "chinese": "呜——，肚肚饿啦呀。想要饭饭呀！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_ask_snack",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ ほちいのだ！",
+      "chinese": "呜——，想要甜甜呀！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_ask_play",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ひまなのだ。いっちょに あしょぶのだ！",
+      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_ask_walk",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ いくのだ！",
+      "chinese": "呜——，去散步呀！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_request_thanks",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ありがちょうなのだ！ ゆっくち できるのだ！",
+      "chinese": "呜——，谢谢呀！能慢慢来了呀！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_request_sulk",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー！ もう ちらないのだ！",
+      "chinese": "呜——！不理你了呀！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_mood_good",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、きょうは ゆっくち できてるのだ！",
+      "chinese": "呜——，今天好悠闲呀！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_mood_ok",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ふつうなのだ。ぼちぼちなのだ。",
+      "chinese": "呜——，还可以呀。慢慢来呀。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_mood_bad",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……あまり ゆっくち できてないのだ。",
+      "chinese": "呜——……不太能慢慢来呀。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_harness_on",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、ぴったりなのだ！ おしゃんぽ いけるのだ！",
+      "chinese": "呜——，刚刚好呀！能去散步了呀！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_harness_tug",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、いまは あるきたくないのだ……まっちぇなのだ。",
+      "chinese": "呜——，现在不想走呀……等一下呀。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_walk_enjoy",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ たのちいのだ！",
+      "chinese": "呜——，散步好开心呀！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "remilia.young.o_swaddle_on",
+      "species": "remilia",
+      "age": "young",
+      "japanese": "うー……ぬくぬくなのだ。あったかいのだ……",
+      "chinese": "呜——……暖乎乎呀。好温暖呀……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_snack_eat",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あまあま、おいしい！ しあわせだよ！",
+      "chinese": "呜——，甜甜好吃！好幸福呢！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_snack_greedy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、もっと たべたいな！ あまあま もっとちょうだい！",
+      "chinese": "呜——，还想吃！再给芙兰一点甜甜嘛！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_snack_refuse",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、もう おなかいっぱいだよ。あとで たべるね。",
+      "chinese": "呜——，已经吃饱啦。待会儿再吃哦。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_ask_food",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おなかが すいたよ。ごはん ちょうだい！",
+      "chinese": "呜——，肚肚饿啦。给我饭饭嘛！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_ask_snack",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、あまあま ほしいな！ ちょうだい！",
+      "chinese": "呜——，想要甜甜！给我嘛！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_ask_play",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ひまだよ。いっしょに あそぼ！",
+      "chinese": "呜——，好无聊。一起玩吧！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_ask_walk",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おさんぽ いきたいな！",
+      "chinese": "呜——，想去散步！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_request_thanks",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ありがとう！ ゆっくりできるね！",
+      "chinese": "呜——，谢谢！这下能慢慢来啦！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_request_sulk",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー！ もう しらない！",
+      "chinese": "呜——！不理你啦！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_mood_good",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、きょうは ゆっくりできてるよ！",
+      "chinese": "呜——，今天过得很悠闲哦！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_mood_ok",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ふつうだよ。ぼちぼちだね。",
+      "chinese": "呜——，还可以。慢慢来吧。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_mood_bad",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……あんまり ゆっくり できてないよ。",
+      "chinese": "呜——……不太能慢慢来呢。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_harness_on",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、ぴったり！ おさんぽに いけるね！",
+      "chinese": "呜——，刚刚好！能去散步啦！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_harness_tug",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、いまは あるきたくないな……ちょっと まってね。",
+      "chinese": "呜——，现在不想走……稍微等等嘛。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_walk_enjoy",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー、おさんぽ たのしいね！",
+      "chinese": "呜——，散步好开心！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.adult.o_swaddle_on",
+      "species": "flandre",
+      "age": "adult",
+      "japanese": "うー……ぬくぬく。あったかいよ……",
+      "chinese": "呜——……暖乎乎。好温暖……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_snack_eat",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ、おいちい！ しあわちぇだよ！",
+      "chinese": "呜——，甜甜好吃！好幸福！",
+      "english": "Uu... Yum, so sweet! I'm so happy!",
+      "events": [
+        "snack_eat"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_snack_greedy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、もっちょ たべちゃい！ あみゃあみゃ もっちょ！",
+      "chinese": "呜——，还要吃！甜甜还要！",
+      "english": "Uu... More, more! Give me another treat!",
+      "events": [
+        "snack_greedy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_snack_refuse",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぽんぽん いっぱいだよ。あとでね。",
+      "chinese": "呜——，肚肚满满。待会儿再吃哦。",
+      "english": "Uu... I'm too full right now... later, okay?",
+      "events": [
+        "snack_refuse"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_ask_food",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おなか しゅいたよ。ごはん ちょうらい！",
+      "chinese": "呜——，肚肚饿啦。给芙呀饭饭嘛！",
+      "english": "Uu... I'm hungry! Please give me some food!",
+      "events": [
+        "ask_food"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_ask_snack",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、あみゃあみゃ ほちいよ！ ちょうらい！",
+      "chinese": "呜——，想要甜甜！给芙呀嘛！",
+      "english": "Uu... I want something sweet! Please!",
+      "events": [
+        "ask_snack"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_ask_play",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ひまだよ。いっちょに あしょぼ！",
+      "chinese": "呜——，好无聊。一起玩嘛！",
+      "english": "Uu... I'm bored! Let's play together!",
+      "events": [
+        "ask_play"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_ask_walk",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ いきちゃいな！",
+      "chinese": "呜——，芙呀想去散步！",
+      "english": "Uu... I want to go for a walk!",
+      "events": [
+        "ask_walk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_request_thanks",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ありがちょう！ ゆっくち できるね！",
+      "chinese": "呜——，谢谢！芙呀能慢慢来啦！",
+      "english": "Uu... Thank you! Now I can take it easy!",
+      "events": [
+        "request_thanks"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_request_sulk",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー！ もう ちらない！",
+      "chinese": "呜——！不理你啦！",
+      "english": "Uu... Hmph! I'm not talking to you anymore!",
+      "events": [
+        "request_sulk"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_mood_good",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、きょうは ゆっくち できてるよ！",
+      "chinese": "呜——，今天好悠闲！",
+      "english": "Uu... I'm taking it really easy today!",
+      "events": [
+        "mood_good"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_mood_ok",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ふつうだよ。ぼちぼちだね。",
+      "chinese": "呜——，还可以。慢慢来。",
+      "english": "Uu... I'm okay. Taking it slow.",
+      "events": [
+        "mood_ok"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_mood_bad",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……あんまり ゆっくち できてないよ。",
+      "chinese": "呜——……不太能慢慢来。",
+      "english": "Uu... I can't relax very well...",
+      "events": [
+        "mood_bad"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_harness_on",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、ぴったり！ おしゃんぽ いけるね！",
+      "chinese": "呜——，刚刚好！能去散步啦！",
+      "english": "Uu... A perfect fit! Now we can go for a walk!",
+      "events": [
+        "harness_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_harness_tug",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、いまは あるきたくないな……まっちぇね。",
+      "chinese": "呜——，现在不想走……等一下嘛。",
+      "english": "Uu... I don't want to walk right now... wait a moment.",
+      "events": [
+        "harness_tug"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_walk_enjoy",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー、おしゃんぽ たのちいね！",
+      "chinese": "呜——，散步好开心！",
+      "english": "Uu... Walks are fun! So relaxing!",
+      "events": [
+        "walk_enjoy"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
+    },
+    {
+      "id": "flandre.young.o_swaddle_on",
+      "species": "flandre",
+      "age": "young",
+      "japanese": "うー……ぬくぬく。あったかいよ……",
+      "chinese": "呜——……暖乎乎。好温暖……",
+      "english": "Uu... Snug and warm...",
+      "events": [
+        "swaddle_on"
+      ],
+      "basis": "项目原创；零食、日常请求、问心情、胴带牵引散步与襁褓的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；成体口吻按 dialogue/species-variants.md，年龄依MCyukkuri FamilyLife.youngVoice()，幼语按 growth-stages.md 逐句另写；尚未配音。",
+      "audio_status": "unvoiced"
     }
   ]
 }

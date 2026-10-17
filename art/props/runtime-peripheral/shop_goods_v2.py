@@ -4,7 +4,7 @@
 Edits the selected snapshot files in place (the original authoring generator was deleted with the draft library).
 Every step is idempotent; run, then re-export with scripts/export_peripheral_assets.py.
 
-- Oil-grain bags: tier marks (1/2/3 gold stars, premium also gets a gold frame) replace the tiny sub-lines on the
+- (Retired) Oil-grain bags: tier marks (1/2/3 gold stars, premium also gets a gold frame) replace the tiny sub-lines on the
   printed label; premium bag swatch is lifted so it no longer reads black in an inventory slot; the printed label is
   repeated on the back (+Z) so a label faces the camera whichever way the GUI transform turns the model.
 - orange_juice / mold_remover: the wrapped label (orange slice / crossed-out mould) is repeated on the back.
@@ -19,7 +19,9 @@ HERE = Path(__file__).resolve().parent
 SEL = HERE / 'selected'
 ROOT = HERE.parents[2]
 
-BAGS = {'oil_grain_budget': 1, 'oil_grain_regular': 2, 'oil_grain_premium': 3}
+# The three oil-grain bags are now authored by standards/yukkuri-library/drafts/care-props/bags.py (one product line,
+# palette-shared, labels on both faces); this pass no longer touches them.
+BAGS = {}
 BOTTLES = ('orange_juice', 'mold_remover')
 GOLD, GOLD_LIGHT = (232, 170, 48), (252, 214, 104)
 LABEL = (256, 0, 512, 384)          # printed_front uv box in the 512 atlas

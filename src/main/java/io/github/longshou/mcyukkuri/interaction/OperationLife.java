@@ -128,10 +128,14 @@ public final class OperationLife {
             case HAT_CARRY_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.pickUp(entity,player);
             case HAT_PUT_DOWN_CHILD -> io.github.longshou.mcyukkuri.family.HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
+            case ASK -> entity.pet().care().ask(player);
+            case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
+            case UNWRAP -> entity.pet().care().takeOffSwaddle(player);
             case RELEASE -> false;
         };
         if(done){
             if((action==CareAction.GENTLE||action==CareAction.COLD||action==CareAction.FLICK)&&entity.pet().lessons().awaitingFeedback())entity.pet().lessons().feedback(player,action);
+            entity.pet().care().feedback(player,action);
             cooldown=20;player.swing(InteractionHand.MAIN_HAND);
             entity.pet().contact(player.getUUID(),!java.util.EnumSet.of(CareAction.FLICK,CareAction.PUNCH,CareAction.SLAP,CareAction.MALLET,CareAction.PIERCE,CareAction.BURN,CareAction.PIN).contains(action));
             if(action.tool!=null&&!action.tool.inserted)player.getMainHandItem().hurtAndBreak(1,player,EquipmentSlot.MAINHAND);
