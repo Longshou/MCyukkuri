@@ -49,7 +49,7 @@ public final class AquaticSelfRescue {
     private boolean capable(){return actor.family().stage()!=io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
             &&actor.childhood().canJump()&&actor.life().energy()>=8
             &&(actor.family().adult()||actor.aquaticLife().firstVoyage().readySize());}
-    private void set(Phase next){if(phase!=next){phase=next;started=now();}}
+    private void set(Phase next){if(phase!=next){AquaDiag.log(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+AquaDiag.at(actor.position()));phase=next;started=now();}}
     private void trackYaw(){
         if(poseTick!=now()){previousPoseYaw=poseYaw;poseTick=now();}
         poseYaw=actor.yBodyRot;
@@ -215,8 +215,8 @@ public final class AquaticSelfRescue {
         double flow=Math.min(1,fluid.getFlow(level(),at).horizontalDistance()/.12);
         double tired=1-Math.clamp(actor.life().energy()/100.0,0,1);
         double fatigue=Math.min(1,actor.waterDistress().immersionTicks()/240.0);
-        double novice=!actor.family().adult()&&!actor.aquaticLife().firstVoyage().completed()?.03:0;
-        return (float)Math.clamp(.03+.09*tired+.06*fatigue+.08*flow+novice,.03,.28);
+        double novice=!actor.family().adult()&&!actor.aquaticLife().firstVoyage().completed()?.02:0;
+        return (float)Math.clamp(.01+.09*tired+.06*fatigue+.08*flow+novice,.01,.28);
     }
     private void swimToward(HatBoatEntity current,Vec3 target){
         if(!actor.life().spendEnergy(.018f))return;
