@@ -34,6 +34,8 @@
 
 2026-10-18 继续从 L36 补表达与认知母题：在[学习专题](hakkei-reference/lore/learning-social.md)整理“笨”标签与工具、计数、建造、读写及边行动边自述并存的创作张力；把“听到一起慢慢来后呼应”收入[通用短语](hakkei-reference/dialogue/common-phrases.md)，并链接至生活覆盖表。明确这是行为／表达参考，不是固定智力等级、必然口癖或项目繁殖规则。
 
+2026-10-18 从 L36 补充死后幸福之地的常见信念与临终留恋，接入[个体与生命过程](hakkei-reference/world/individuals.md#死亡信念与临终表达)及[生活覆盖表](life-settings-coverage.md)。只登记角色可能持有的想法与说法，不确认死后机制；并以 N65 的失亲反应指出悼念与后续生活仍需跨篇核读。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
