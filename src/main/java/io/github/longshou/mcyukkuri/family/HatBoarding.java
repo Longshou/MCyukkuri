@@ -449,7 +449,12 @@ public final class HatBoarding {
             var mouthOffset=BraidRescueGeometry.mouthPoint(actor,Vec3.ZERO,boardRootPitch("GRIP",1),boardRootRoll("GRIP",1),yaw);
             // Where the feet must stand so the mouth is at the rim wall; the body is nudged there before the bite.
             double low=actualGrip.y-rimWall-mouthOffset.y,high=actualGrip.y-mouthOffset.y;
-            var bite=new Vec3(actualGrip.x-mouthOffset.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z);
+            // The body rests just outside the wall: its collision box reaches a little further than the mouth, so the bite
+            // place is moved out by a fraction of the contact reach and the mouth still touches.
+            double margin=Math.clamp(.35*BraidRescueGeometry.biteReach(actor),.01,.04);
+            var outward=new Vec3(origin.x-actualGrip.x,0,origin.z-actualGrip.z);
+            outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(margin);
+            var bite=new Vec3(actualGrip.x-mouthOffset.x+outward.x,Math.clamp(origin.y,low,high),actualGrip.z-mouthOffset.z+outward.z);
             double distance=bite.subtract(origin).length();minimumNudge=Math.min(minimumNudge,distance);
             if(distance>nudge)continue;
             nudges++;
