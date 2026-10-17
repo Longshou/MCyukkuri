@@ -489,7 +489,7 @@ public final class YukkuriEntity extends PathfinderMob {
             @Override public boolean canContinueToUse() { return life.canEat() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(5, new FamilyGoal());
-        goalSelector.addGoal(5, new HouseGoal());
+        goalSelector.addGoal(4, new HouseGoal());
         goalSelector.addGoal(4, new io.github.longshou.mcyukkuri.settlement.ForageGoal(this));
         goalSelector.addGoal(4, new HabitatGoal());
         independence = new io.github.longshou.mcyukkuri.family.IndependenceLife(this);
@@ -963,6 +963,13 @@ public final class YukkuriEntity extends PathfinderMob {
         tag.put("YukkuriFamily", family.save());tag.putBoolean("FamilyDeathRecorded",deathRecorded);
         tag.put("YukkuriChildhood", childhood.save());
         tag.put("YukkuriHouse",house.save());
+        if (variant.isHouse()) {
+            // Read-only observation for operators and automated checks: which goals are running right now.
+            var running = new net.minecraft.nbt.ListTag();
+            goalSelector.getAvailableGoals().stream().filter(net.minecraft.world.entity.ai.goal.WrappedGoal::isRunning)
+                    .forEach(goal -> running.add(net.minecraft.nbt.StringTag.valueOf(goal.getGoal().getClass().getSimpleName() + "@" + goal.getPriority())));
+            tag.put("YukkuriDebugGoals", running);
+        }
         tag.put("YukkuriBody",body.save());
         tag.put("YukkuriOperations",operations.save());
         tag.put("YukkuriSettlement",settlement.save());

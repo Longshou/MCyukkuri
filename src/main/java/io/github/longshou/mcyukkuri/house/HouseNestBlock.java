@@ -39,10 +39,6 @@ public final class HouseNestBlock extends Block implements EntityBlock {
     @Override protected ItemInteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,Player player,InteractionHand hand,BlockHitResult hit){
         if(stack.is(ModItems.WASH_CLOTH.get()))return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         if(stack.is(ModItems.HOUSE_EGG.get()))return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
-        if(level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest&&(HouseNestBlockEntity.isMaterial(stack)||stack.is(ModItems.FOOD_SCRAP.get()))){
-            if(!level.isClientSide)io.github.longshou.mcyukkuri.item.SupplyItem.deposit(level,pos,stack,player);
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
-        }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state,Level level,BlockPos pos,Player player,BlockHitResult hit){

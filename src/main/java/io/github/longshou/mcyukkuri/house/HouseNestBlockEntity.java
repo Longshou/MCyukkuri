@@ -31,7 +31,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     public static final int MATERIAL_COST=6,STOCK_CAP=24,EGG_CAP=4;
     private UUID identity=UUID.randomUUID(),broodId,carer;
     private int materials,food,dirt,pendingDebris,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
-    private boolean destroyed;
+    private boolean destroyed,founderReimu=true;
     private Direction entranceDirection=Direction.NORTH;
     private final HouseEggs.Ref[] eggSlots=new HouseEggs.Ref[EGG_CAP];
     private final float[] eggProgress=new float[EGG_CAP];
@@ -84,19 +84,33 @@ public final class HouseNestBlockEntity extends BlockEntity {
         };
     }
     public FamilyData.Brood brood(){return level instanceof ServerLevel server?FamilyData.get(server).brood(broodId):null;}
-    public static boolean isMaterial(ItemStack item){return item.is(ModItems.NEST_LINT.get())||item.is(Items.STRING);}
+    public static boolean isMaterial(ItemStack item){return SupplyPiles.lint(item);}
     public boolean deposit(ItemStack item){
         if(destroyed||item.getCount()!=1)return false;
-        if(item.is(ModItems.FOOD_SCRAP.get())&&food<STOCK_CAP)food++;
+        if(SupplyPiles.crumb(item)&&food<STOCK_CAP)food++;
         else if(isMaterial(item)&&materials<MATERIAL_COST)materials++;
         else return false;
         changed();return true;
     }
-    public ItemStack takeFood(){if(food==0||destroyed)return ItemStack.EMPTY;food--;changed();return new ItemStack(ModItems.FOOD_SCRAP.get());}
+    public ItemStack takeFood(){if(food==0||destroyed)return ItemStack.EMPTY;food--;changed();return SupplyPiles.crumbUnit();}
     public boolean usable(YukkuriEntity entity){
         return entity.getVariant().isHouse()&&!destroyed&&entity.life().dryStand(entrance())&&entity.life().covered(entrance());
     }
     public BlockPos entrance(){return worldPosition.relative(entranceDirection);}
+    /** Residents keep this much crumb stock in hand: enough for a clutch and its incubation. */
+    public static final int FOOD_GOAL=12;
+    public boolean destroyed(){return destroyed;}
+    /** A founder made the nest; its partner is the other kind of house yukkuri and arrives later. */
+    public void markFounder(boolean reimu){founderReimu=reimu;arrivals=Math.max(arrivals,1);changed();}
+    /** Too dirty, being disturbed, or covered by a repellent: parents would move the clutch if they could. */
+    public boolean unfit(){
+        return destroyed||dirt>=6||disturbedTicks>0||level instanceof ServerLevel server&&HouseholdProtection.protectedAt(server,worldPosition);
+    }
+    public boolean hasEggRoom(){
+        if(destroyed||!built())return false;
+        for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0)return true;
+        return false;
+    }
     private boolean sheltered(){
         // Match living-entity shelter checks: actual roof blocks, not delayed skylight propagation.
         return level!=null&&level.hasChunkAt(entrance())
@@ -122,6 +136,11 @@ public final class HouseNestBlockEntity extends BlockEntity {
             dirt--;maintenanceWait=240;
         }
         changed();return true;
+    }
+    /** A parent standing at the eggs takes one in its mouth to carry it elsewhere. */
+    public ItemStack lift(YukkuriEntity entity){
+        if(destroyed||!(level instanceof ServerLevel)||entity.house().nest()!=this||entity.position().distanceToSqr(eggPosition(0))>1.21||!atEggs(entity))return ItemStack.EMPTY;
+        return extractEgg();
     }
     public ItemStack extractEgg(){
         if(!(level instanceof ServerLevel server)||destroyed)return ItemStack.EMPTY;
@@ -179,7 +198,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
             if(++arrivalTicks>=FamilyConfig.HOUSE_ARRIVAL_TIME.get()){
                 arrivalTicks=0;
                 if(FamilyData.get(server).population(server,worldPosition)<FamilyConfig.POPULATION_CAP.get()){
-                    var entity=(arrivals==0?ModEntities.HOUSE_REIMU.get():ModEntities.HOUSE_MARISA.get()).create(server);
+                    // The partner of the founder is the other kind of house yukkuri.
+                    var entity=(arrivals==0==founderReimu?ModEntities.HOUSE_REIMU.get():ModEntities.HOUSE_MARISA.get()).create(server);
                     if(entity!=null){
                         entity.moveTo(Vec3.atBottomCenterOf(entrance()));entity.setPersistenceRequired();
                         if(entity.life().dryStand(entrance()))entity.setOnGround(true);
@@ -269,7 +289,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
             for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
         }
         disturb(true);destroyed=true;
-        if(food>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.FOOD_SCRAP.get(),food));
         if(debris>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),debris));
         food=materials=dirt=pendingDebris=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
     }
@@ -278,7 +297,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         super.saveAdditional(tag,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
         tag.putString("Entrance",entranceDirection.getName());
         tag.putInt("Materials",materials);tag.putInt("Food",food);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);tag.putInt("ArrivalTicks",arrivalTicks);tag.putInt("Arrivals",arrivals);
-        tag.putInt("PendingDebris",pendingDebris);
+        tag.putInt("PendingDebris",pendingDebris);tag.putBoolean("FounderReimu",founderReimu);
         tag.putInt("CareTicks",careTicks);tag.putInt("DisturbedTicks",disturbedTicks);tag.putInt("MaintenanceWait",maintenanceWait);
         tag.putInt("HatchWait",hatchWait);tag.putInt("IncubationFoodTicks",incubationFoodTicks);
         var slots=new ListTag();
@@ -293,7 +312,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         var direction=Direction.byName(tag.getString("Entrance"));
         entranceDirection=direction!=null&&direction.getAxis().isHorizontal()?direction:Direction.NORTH;
         materials=Math.clamp(tag.getInt("Materials"),0,MATERIAL_COST);food=Math.clamp(tag.getInt("Food"),0,STOCK_CAP);dirt=Math.clamp(tag.getInt("Dirt"),0,8);
-        pendingDebris=Math.clamp(tag.getInt("PendingDebris"),0,EGG_CAP);
+        pendingDebris=Math.clamp(tag.getInt("PendingDebris"),0,EGG_CAP);founderReimu=!tag.contains("FounderReimu")||tag.getBoolean("FounderReimu");
         ticks=Math.max(0,tag.getInt("Ticks"));arrivalTicks=Math.max(0,tag.getInt("ArrivalTicks"));arrivals=Math.clamp(tag.getInt("Arrivals"),0,2);
         careTicks=Math.clamp(tag.getInt("CareTicks"),0,240);carer=null;
         disturbedTicks=Math.clamp(tag.getInt("DisturbedTicks"),0,240);maintenanceWait=Math.clamp(tag.getInt("MaintenanceWait"),0,240);

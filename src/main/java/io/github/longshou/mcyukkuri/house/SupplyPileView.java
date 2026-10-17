@@ -66,6 +66,15 @@ public final class SupplyPileView {
                 }
         return result;
     }
+    public List<HouseNestBlockEntity> nearbyNests(BlockPos center,int radius){
+        var result=new ArrayList<HouseNestBlockEntity>();
+        for(int x=(center.getX()-radius)>>4;x<=((center.getX()+radius)>>4);x++)
+            for(int z=(center.getZ()-radius)>>4;z<=((center.getZ()+radius)>>4);z++){
+                var stock=chunk(x,z);if(!stock.loaded)continue;
+                for(var nest:stock.nests.values())if(!nest.isRemoved()&&nest.getBlockPos().distSqr(center)<=radius*radius)result.add(nest);
+            }
+        return result;
+    }
     public boolean nestFree(BlockPos pos,int radius){
         for(int x=(pos.getX()-radius)>>4;x<=((pos.getX()+radius)>>4);x++)
             for(int z=(pos.getZ()-radius)>>4;z<=((pos.getZ()+radius)>>4);z++){

@@ -291,7 +291,6 @@ public final class YukkuriLife {
                 if(spicy){gain=12;spicyTicks=240;dryness=Math.min(100,dryness+45);}
                 else if(sweet)dryness=Math.min(100,dryness+Sweets.dryness(mouth));
                 else if(mouth.is(ModItems.GRAIN_BUDGET.get())||mouth.is(ModItems.GRAIN_REGULAR.get()))dryness=Math.min(100,dryness+15); // premium grain never leaves the pet thirsty
-                if(!scrap&&!filling)io.github.longshou.mcyukkuri.house.HouseholdEcology.meal(level(),entity.blockPosition());
                 if(filling)FillingResource.swallowed(entity,mouth);
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
