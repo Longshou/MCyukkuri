@@ -26,6 +26,7 @@ public final class MCYukkuri {
 
     public MCYukkuri(IEventBus modBus, ModContainer container) {
         io.github.longshou.mcyukkuri.human.HumanWorld.register(modBus, container);
+        io.github.longshou.mcyukkuri.settlement.site.SiteWorld.register(modBus);
         io.github.longshou.mcyukkuri.life.Facilities.init();
         io.github.longshou.mcyukkuri.play.Playgrounds.init();
         io.github.longshou.mcyukkuri.life.Consumables.init();
@@ -42,6 +43,7 @@ public final class MCYukkuri {
         modBus.addListener(ModCreativeTabs::addVanillaSpawnEggs);
         modBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.addListener(YukkuriCommands::register);
+        NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.settlement.SiteClaimer::tick);
         NeoForge.EVENT_BUS.addListener(YukkuriWorldData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::joining);
         NeoForge.EVENT_BUS.addListener(io.github.longshou.mcyukkuri.family.FamilyData::leaving);

@@ -83,7 +83,7 @@ def build_layout():
             ctx.number, ctx.title, ctx.question, ctx.hall = number, stand_title, question, hall
             number += 1
             if sid == 'settle':
-                ctx.meadow = (hall.xe + 18, 65, hall.z0 + 16)
+                ctx.meadow = (hall.xe + 14, 65, hall.z0 + 16)   # centre (plaza) of the demo site; its twin lies 36 blocks east
             builder(ctx)
             museum_hat_boats.configure(ctx)
             museum_birth.configure(ctx)
@@ -577,28 +577,26 @@ def build_pack(world, halls, shown):
                 fn(f'stand/{fname}', body)
         if hall.id == 'E':
             mx, my, mz = hall.contexts[2].meadow
-            x1, x2 = xe + 2, xe + 80
-            lines += [fill(x1 - 1, 63, z, x2 + 1, 64, z + 39, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks')]
-            lines += big_fill(x1, 65, z, x2, 75, z + 39, 'minecraft:air')
-            lines += ring_absolute(x1, z, x2, z + 39, gate=None)
+            # 64 x 28 lawn: the demo settlement site (15 x 15 plus meadow) at the west end and an empty twin 36 blocks east
+            # that the community can move to. MuseumSettlementSetup builds both sites on demand and restores the lawn on reset.
+            x1, x2 = xe + 2, xe + 65
+            mz0, mz1 = z + 2, z + 29
+            lines += [fill(x1 - 1, 63, mz0 - 1, x2 + 1, 64, mz1 + 1, 'minecraft:grass_block'), fill(xe, 63, z + 14, x1, 64, z + 18, 'minecraft:stone_bricks')]
+            lines += big_fill(x1, 65, mz0, x2, 75, mz1, 'minecraft:air')
+            lines += ring_absolute(x1, mz0, x2, mz1, gate=None)
             lines += [fill(x1, 65, z + 14, x1, 66, z + 18, 'minecraft:air'), _label(x1 + 3, 68.5, z + 16, '聚落草地\n在这里点“建立聚落”', .8)]
-            # forest burrows need natural cavities: shallow 5x5 pits in the turf, 8 blocks apart (see NaturalShelter.survey)
-            for i in range(9):
-                for j in range(4):
-                    px, pz = x1 + 5 + 8 * i, z + 6 + 8 * j
-                    lines.append(fill(px - 2, 64, pz - 2, px + 2, 64, pz + 2, 'minecraft:air'))
-            # Real forage for the colony: scattered short grass and a few ferns on the turf around the meadow centre,
-            # kept clear of the burrow pits. Gathering consumes these plants; the settlement stands never re-plant them.
+            # Extra forage between and around the two site boxes (the sites bring their own meadow). Gathering consumes
+            # these plants; the settlement stands never re-plant them.
             rng = random.Random(1717)
-            pits = [(x1 + 5 + 8 * i, z + 6 + 8 * j) for i in range(9) for j in range(4)]
+            site_centres = [(mx, mz), (mx + 36, mz)]
             planted = 0
             for _ in range(600):
-                px, pz = rng.randint(mx - 18, mx + 18), rng.randint(mz - 18, mz + 18)
-                if px <= x1 or px >= x2 or pz <= z or pz >= z + 39 or any(abs(px - qx) <= 3 and abs(pz - qz) <= 3 for qx, qz in pits):
+                px, pz = rng.randint(x1 + 1, x2 - 1), rng.randint(mz0 + 1, mz1 - 1)
+                if any(abs(px - sx) <= 11 and abs(pz - sz) <= 11 for sx, sz in site_centres):
                     continue
                 lines.append(f'setblock {px} 65 {pz} minecraft:' + ('fern' if rng.random() < .12 else 'short_grass'))
                 planted += 1
-                if planted >= 150:
+                if planted >= 90:
                     break
         lines.append(f'schedule function {NS}:build/hall_{halls[hall.index + 1].id.lower()} 1s replace' if hall.index + 1 < len(halls)
                      else f'schedule function {NS}:complete 1s replace')

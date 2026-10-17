@@ -31,6 +31,8 @@ public final class ShelterPlacement {
         return result;
     }
     public static boolean canPlace(ServerLevel level,Plan plan) {
+        // Granary hollows, plazas and nurseries of a planned site are never a home, however well they survey.
+        if(plan.kind==ShelterBlock.Kind.BURROW&&SettlementData.get(level).reserved(plan.center))return false;
         if(plan.kind==ShelterBlock.Kind.BURROW&&NaturalShelter.survey(level,plan.center,plan.facing)==null)return false;
         for(var pos:positions(plan.center,plan.kind)) {
             if(!level.hasChunkAt(pos)||!level.getFluidState(pos).isEmpty()||level.getBlockEntity(pos)!=null)return false;

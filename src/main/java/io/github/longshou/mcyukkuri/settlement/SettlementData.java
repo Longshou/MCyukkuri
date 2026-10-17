@@ -1,6 +1,10 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
+import io.github.longshou.mcyukkuri.settlement.site.SitePlanner;
+import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
+import io.github.longshou.mcyukkuri.settlement.site.SiteTier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +40,8 @@ public final class SettlementData extends SavedData {
         public final Kind kind;
         /** Changes when a migration completes. */
         public BlockPos center;
+        /** The planned site this community lives on (plaza, granaries, pool...); null for groups on natural caves. */
+        public UUID siteId;
         public UUID leader;
         /** A forest group only elects after a real incumbent's death/removal. */
         public boolean hasLeaderOffice, vacancyConfirmed;
@@ -81,11 +87,82 @@ public final class SettlementData extends SavedData {
         public boolean vacant() { return vacancyConfirmed && leader == null; }
     }
 
+    public enum SiteState { SEED, FOUNDED, THRIVING, STRAINED, DECLINING, ABANDONED }
+
+    /**
+     * A planned settlement ground (see settlement/site). Only the inputs of the plan are saved: the layout never depends on
+     * the terrain, so {@link #plan()} re-derives slots, paths and reserved boxes exactly. Time counters use loaded ticks only.
+     */
+    public static final class Site {
+        public final UUID id;
+        public final SiteTier tier;
+        public final long seed;
+        public final int rotation, palette;
+        /** The plaza centre column at the site level. */
+        public final BlockPos origin;
+        /** Auto sites are populated when a player comes near; manual sites (commands, exhibits) are populated by their owner. */
+        public final boolean auto;
+        public SiteState state = SiteState.SEED;
+        public int prosperity, failures;
+        public UUID group;
+        /** Transient pacing (not saved): next claim attempt, when the site was last seen empty, last upkeep pass. */
+        public long retryAt, emptySince, lastCheck;
+        private SitePlan plan;
+        public Site(UUID id, SiteTier tier, long seed, int rotation, int palette, BlockPos origin, boolean auto) {
+            this.id = id; this.tier = tier; this.seed = seed; this.rotation = rotation; this.palette = palette; this.origin = origin.immutable(); this.auto = auto;
+        }
+        public synchronized SitePlan plan() {
+            if (plan == null) {
+                int level = origin.getY();
+                plan = SitePlanner.plan(tier, seed, rotation, origin.getX(), origin.getZ(), palette, (x, z) -> level, false);
+            }
+            return plan;
+        }
+        public boolean vacant() { return state == SiteState.SEED || state == SiteState.ABANDONED; }
+        public List<SiteSlot> slots(SiteSlot.Kind kind) {
+            var out = new ArrayList<SiteSlot>();
+            var p = plan();
+            if (p != null) for (var slot : p.slots()) if (slot.kind() == kind) out.add(slot);
+            return out;
+        }
+        public SiteSlot first(SiteSlot.Kind kind) { var all = slots(kind); return all.isEmpty() ? null : all.getFirst(); }
+    }
+
     private final Map<UUID, Group> groups = new HashMap<>();
+    private final Map<UUID, Site> sites = new HashMap<>();
     private final Set<Long> discovered = new HashSet<>();
 
     public static SettlementData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(new Factory<>(SettlementData::new, SettlementData::load), "mcyukkuri_settlements");
+    }
+
+    public Site site(UUID id) { return id == null ? null : sites.get(id); }
+    public java.util.Collection<Site> sites() { return java.util.List.copyOf(sites.values()); }
+    public Site siteOf(Group group) { return group == null ? null : site(group.siteId); }
+    /** The site registered for this plaza column, if any. */
+    public Site siteAt(int x, int z) {
+        for (Site site : sites.values()) if (site.origin.getX() == x && site.origin.getZ() == z) return site;
+        return null;
+    }
+    public Site addSite(SitePlan plan, boolean auto) {
+        Site known = siteAt(plan.ox, plan.oz);
+        if (known != null) return known;
+        Site site = new Site(UUID.randomUUID(), plan.tier, plan.seed, plan.rotation, plan.palette, new BlockPos(plan.ox, plan.level, plan.oz), auto);
+        sites.put(site.id, site); setDirty();
+        return site;
+    }
+    public void removeSite(UUID id) { if (sites.remove(id) != null) setDirty(); }
+    /** True for columns of granary hollows, plazas and nurseries: ordinary shelter hunting must never claim these. */
+    public boolean reserved(BlockPos pos) {
+        for (Site site : sites.values()) {
+            int bound = site.tier.bound;
+            if (Math.abs(pos.getX() - site.origin.getX()) > bound || Math.abs(pos.getZ() - site.origin.getZ()) > bound
+                    || Math.abs(pos.getY() - site.origin.getY()) > 8) continue;
+            var plan = site.plan();
+            if (plan != null) for (int[] box : plan.reserved())
+                if (pos.getX() >= box[0] && pos.getX() <= box[2] && pos.getZ() >= box[1] && pos.getZ() <= box[3]) return true;
+        }
+        return false;
     }
 
     public Group group(UUID id) { return id == null ? null : groups.get(id); }
@@ -223,6 +300,7 @@ public final class SettlementData extends SavedData {
             value.putUUID("Id", group.id);
             value.putString("Kind", group.kind.name());
             value.putLong("Center", group.center.asLong());
+            if (group.siteId != null) value.putUUID("Site", group.siteId);
             if (group.leader != null) value.putUUID("Leader", group.leader);
             value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
             value.putBoolean("VacancyConfirmed", group.vacancyConfirmed);
@@ -255,7 +333,24 @@ public final class SettlementData extends SavedData {
             value.put("Members", members);
             list.add(value);
         }
-        tag.putInt("Version", 4);
+        ListTag siteList = new ListTag();
+        for (Site site : sites.values()) {
+            CompoundTag value = new CompoundTag();
+            value.putUUID("Id", site.id);
+            value.putString("Tier", site.tier.name());
+            value.putLong("Seed", site.seed);
+            value.putInt("Rotation", site.rotation);
+            value.putInt("Palette", site.palette);
+            value.putLong("Origin", site.origin.asLong());
+            value.putBoolean("Auto", site.auto);
+            value.putString("State", site.state.name());
+            value.putInt("Prosperity", site.prosperity);
+            value.putInt("Failures", site.failures);
+            if (site.group != null) value.putUUID("Group", site.group);
+            siteList.add(value);
+        }
+        tag.putInt("Version", 5);
+        tag.put("Sites", siteList);
         tag.put("Groups", list);
         tag.putLongArray("Discovered", discovered.stream().mapToLong(Long::longValue).toArray());
         return tag;
@@ -264,12 +359,26 @@ public final class SettlementData extends SavedData {
     public static SettlementData load(CompoundTag tag, HolderLookup.Provider registries) {
         SettlementData data = new SettlementData();
         for (long region : tag.getLongArray("Discovered")) data.discovered.add(region);
+        for (Tag entry : tag.getList("Sites", Tag.TAG_COMPOUND)) {
+            CompoundTag value = (CompoundTag)entry;
+            if (!value.hasUUID("Id") || !value.contains("Origin", Tag.TAG_LONG)) continue;
+            try {
+                Site site = new Site(value.getUUID("Id"), SiteTier.valueOf(value.getString("Tier")), value.getLong("Seed"), value.getInt("Rotation"),
+                        value.getInt("Palette"), BlockPos.of(value.getLong("Origin")), value.getBoolean("Auto"));
+                site.state = SiteState.valueOf(value.getString("State"));
+                site.prosperity = Math.clamp(value.getInt("Prosperity"), 0, 3);
+                site.failures = Math.max(0, value.getInt("Failures"));
+                site.group = value.hasUUID("Group") ? value.getUUID("Group") : null;
+                data.sites.put(site.id, site);
+            } catch (IllegalArgumentException ignored) { /* Unknown tiers or states from a future version are skipped. */ }
+        }
         for (Tag entry : tag.getList("Groups", Tag.TAG_COMPOUND)) {
             CompoundTag value = (CompoundTag)entry;
             if (!value.hasUUID("Id") || !value.contains("Center", Tag.TAG_LONG)) continue;
             try {
                 Group group = new Group(value.getUUID("Id"), Kind.valueOf(value.getString("Kind")), BlockPos.of(value.getLong("Center")),
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
+                if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
                 loadOffice(value, group);
                 loadMembers(value, group);
                 if (group.vacancyConfirmed && value.hasUUID("Successor") && value.hasUUID("SuccessionWitness")) {
