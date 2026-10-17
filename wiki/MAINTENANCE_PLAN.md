@@ -52,6 +52,8 @@
 
 2026-10-18 继续依 L36 补充[爱丽丝种](hakkei-reference/lore/species/alice/README.md)的生存、家居和变体污名母题，以及[帕秋莉种](hakkei-reference/lore/species/patchouli/README.md)爱读书、身体较弱、知识表现有差异的常见组合；将变体、群体偏见和单体能力分开记录，不推广为种族必然行为。
 
+2026-10-18 继续核对 L36 的繁殖、身体与恢复章节：在[共通生态](hakkei-reference/lore/ecology.md)补充雌雄同体、繁殖与排泄器官位置及两种受孕写法的综述归纳；在[身体与馅料来源](hakkei-reference/lore/entities-sources.md)补足足部敏感、失去弹性后影响行动的身体表现；在[受伤、照护与恢复](hakkei-reference/world/health-care.md)收录高代谢与糖分促愈的常用写法，并和作品中实际照护动作分开。均保留为 L36 所述设定，不据此增加项目生殖机制、伤害阈值、不可逆规则或康复参数。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
