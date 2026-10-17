@@ -602,6 +602,12 @@ public final class HabitatLife {
     private void finishDig() {
         var plan=dig;boolean wasExtending=extending;
         dig=null;resumeMouth=null;resumeDirection=null;
+        // The hollow may have been recognised as a home while the last cells were still being dug: bring its layout up to date.
+        if(!wasExtending&&level().getBlockEntity(plan.doorway()) instanceof ShelterBlockEntity early&&!early.isRemoved()) {
+            early.refreshSite(NaturalShelter.survey(level(),early.getBlockPos(),early.facing(),early.pileCell()));
+            if(!early.owns(entity.getUUID()))choose(early);
+            entity.showReaction("happy","gentle",80);stop();return;
+        }
         if(wasExtending) {
             var value=shelter();
             if(value!=null)value.refreshSite(NaturalShelter.survey(level(),value.getBlockPos(),value.facing(),value.pileCell()));
