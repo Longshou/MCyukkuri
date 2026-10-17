@@ -389,6 +389,7 @@ public final class FamilyLife {
     }
     /** The flight in progress is a newborn's launch out of its mother's outlet (it is not blocked by the mother it leaves). */
     private boolean newbornLaunch,pendingNewbornLaunch;
+    public boolean newbornLaunching(){return newbornLaunch;}
     /**
      * Sweep of a newborn's launch: the same envelope and hull clearance as {@link HatBoarding#sweepClear}, except that the mother
      * (a passenger of the hat, whose outlet the newborn leaves) is not an obstacle; with her in the way no water birth could ever land.

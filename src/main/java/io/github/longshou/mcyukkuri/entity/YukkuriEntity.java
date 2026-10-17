@@ -328,6 +328,8 @@ public final class YukkuriEntity extends PathfinderMob {
     }
     public io.github.longshou.mcyukkuri.family.ChildhoodLife childhood() { return childhood; }
     public io.github.longshou.mcyukkuri.family.CareApproach careApproach() { return careApproach; }
+    /** A newborn crossing from its mother's outlet to the hat is not shoved off its arc by the body it overlaps. */
+    @Override public boolean isPushable() { return !(family != null && family.newbornLaunching()) && super.isPushable(); }
     @Override public void push(net.minecraft.world.entity.Entity other) {
         // Vanilla's extra proximity push otherwise separates a consenting pair before mouths can meet.
         // Actual body overlap, players and unrelated animals retain ordinary collision response.
