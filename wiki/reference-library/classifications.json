@@ -4138,6 +4138,64 @@
       ],
       "classification_basis": "上格小型被炉、被边、亲代与幼体围坐",
       "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-017",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "motion",
+        "cognition"
+      ],
+      "classification_basis": "上格头罩保留、下部无衣物与厕所边界",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-019",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "society"
+      ],
+      "classification_basis": "上格朝阴阳玉前进的四只幼体及奖励说明",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-020",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "society"
+      ],
+      "classification_basis": "上格持有者的借玩承诺与妹妹确认",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-025",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "上格并排睡眠、共用被褥和露出的头罩",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH34-026",
+      "source_id": "EH34",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "cognition",
+        "human"
+      ],
+      "classification_basis": "中格晨起问候与右下道别提醒",
+      "classified_on": "2026-10-17"
     }
   ]
 }

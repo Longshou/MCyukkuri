@@ -20,6 +20,7 @@
 | 茎果；出生发育 | 较上一页露出更多的闭眼脸 | **模型**：与 EH16-003 对照幼体增大后的叶萼覆盖比例，用于成长外观阶段。 | [EH16-004](../../art-references/ehentai/images/EH16/004.jpg) · [出处](../../art-references/ehentai/works/EH16.md) |
 | 灵梦、魔理沙；出生发育、住所布置；愤怒 | 同一箱体内长大的两只个体侧身相挤 | **场景／模型**：参考成长后活动空间变小的可见反馈，箱体尺寸固定而身体占位增加。 | [EH11-007](../../art-references/ehentai/images/EH11/007.jpg) · [出处](../../art-references/ehentai/works/EH11.md) |
 | 灵梦、魔理沙、多毛灵梦；出生发育、照料幼体；喜悦 | 下格垂茎、枝上幼体与亲代接触 | **模型／动作**：参考茎枝弯曲、幼体悬挂方向以及亲代贴近幼体的空间关系。 | [EH10-003](../../art-references/ehentai/images/EH10/003.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
+| 魔理沙、灵梦、襁褓；卫生如厕、穿戴襁褓、照料幼体；喜悦 | 上格头罩保留、下部无衣物与厕所边界 | **动作／场景／道具**：衔接第 13 页分体说明和实际如厕状态，分别记录部件穿戴、地点和亲代反馈；仍需原创脱衣动作。 | [EH34-017](../../art-references/ehentai/images/EH34/017.webp) · [出处](../../art-references/ehentai/works/EH34.md) |
 | 爱丽丝、魔理沙；同伴交往 | 上格爱丽丝正脸、下右魔理沙侧脸 | **模型／表情**：补两种角色对话时的正侧面轮廓；爱丽丝发带波边、齐发尾和半闭眼分别制作，笑脸不直接等同友好意图。 | [EH15-006](../../art-references/ehentai/images/EH15/006.webp) · [出处](../../art-references/ehentai/works/EH15.md) |
 | 魔理沙；同伴交往；愤怒 | 下半完整正脸，帽缘、右侧辫子与向内压低的眉眼 | **模型／表情**：补魔理沙警戒对话脸和正面帽发层次；保留小嘴收紧与眉眼角度，区分大张嘴喊叫。 | [EH15-005](../../art-references/ehentai/images/EH15/005.webp) · [出处](../../art-references/ehentai/works/EH15.md) |
 | 魔理沙、帕秋莉；同伴交往；喜悦、困惑 | 中排两者背面，末排抬脸交谈 | **模型／表情**：补后脑、帽后缘和侧辫落点；制作对话时转身、抬头看对方的姿态。 | [EH26-004](../../art-references/ehentai/images/EH26/004.webp) · [出处](../../art-references/ehentai/works/EH26.md) |

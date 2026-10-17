@@ -1066,7 +1066,7 @@
       "discovery_title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
       "total_pages": 26,
       "topic": "冬季家庭、节庆问候、育幼与分体衣物",
-      "limit": 11,
+      "limit": 16,
       "selected_pages": [
         2,
         4,
@@ -1078,10 +1078,15 @@
         12,
         13,
         14,
-        16
+        16,
+        17,
+        19,
+        20,
+        25,
+        26
       ],
       "artist_note": "ウカイグイ（第 1 页封面）；标题 Ukaigui",
-      "reading_note": "前 8 页总览、细看第 7 页；2026-10-17 逐页核读第 9–16 页，新增存 9–14、16。第 13 页附录明确分体衣物及如厕设计；第 14 页起为复始篇，已读其前 3 页。宠物家庭与未被收养的室内寄居家庭分列；第 17–26 页未读。",
+      "reading_note": "第 1–8 页总览、细看第 7 页；2026-10-17 逐页核读第 9–26 页至完结，图集内两篇及衣物附录已覆盖，未逐字核对日文原版。第 13 页分体结构、第 17 页只穿头罩如厕；第 19–20 页赛跑和借玩承诺，未见玩具交接；第 25–26 页宠物幼体共被睡眠、晨起与道别准备，未画实际送别。另一寄居家庭的资源争夺、失饰排斥与寒冷死亡只保留叙事边界，不作为全种规律。新增保存 17、19、20、25、26，最后两页仅选普通生活画格。",
       "title": "[Ukaigui] Kisei suru yo! Nenmatsu Hen & Nenshi Hen | 回老家了哦！ 歲末篇&復始篇 (Touhou Project) [Chinese] [在烙印之光下被阿不思救回來的教導聖女後援會]",
       "tags": [
         "language:chinese",
@@ -1093,7 +1098,14 @@
       "metadata_retrieved_at": "2026-10-17T09:40:20.232993+00:00",
       "gallery_html_sha256": "908936ad477e9bad9bc432f35df145eb4f083ba38669b1325e6778a3354a7d16",
       "attribution_status": "转载标题／标签标注；作者首发及译文准确性未独立确认",
-      "license": "未取得开放许可；仅作作品研究参考"
+      "license": "未取得开放许可；仅作作品研究参考",
+      "gallery_pagination": [
+        {
+          "url": "https://e-hentai.org/g/2400911/26199c5019/?p=1",
+          "html_sha256": "7b6aaf51ff29101109105d4422231338d377aeafb30cbb1e636210a50208dc24",
+          "retrieved_at": "2026-10-17T12:16:58.282631+00:00"
+        }
+      ]
     },
     {
       "id": "EH35",
@@ -6650,6 +6662,96 @@
       "format": "WEBP",
       "review_status": "detail_reviewed",
       "review_note": "上格一家围小型被炉取暖，部分幼体探入被边；下格另一家庭用亲代帽子容纳幼体而成体仍发抖。两种保暖方式和受助条件分开。"
+    },
+    {
+      "id": "EH34-017",
+      "source_id": "EH34",
+      "gallery_page": 17,
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "page_url": "https://e-hentai.org/s/7654bfb21c/2400911-17",
+      "image_url": "https://utempor.drkaprwtyhym.hath.network/h/f5ce58455f0b6cf641582db63a96d524296f09da-380602-1200-1697-wbp/keystamp=1792239900-7ab5aa2afc;fileindex=117972535;xres=1280/95423437_p3.webp",
+      "retrieved_at": "2026-10-17T12:15:54.566281+00:00",
+      "rendition": "公开图页提供的站点版本；未取得作者母版",
+      "path": "wiki/art-references/ehentai/images/EH34/017.webp",
+      "bytes": 380602,
+      "sha256": "172eb2a34478c5a5df292ceb8365688344cf5c8570ffdc0dc705a3d051a36697",
+      "width": 1200,
+      "height": 1697,
+      "format": "WEBP",
+      "review_status": "detail_reviewed",
+      "review_note": "上格四只幼体只穿虎纹头罩，在长方形厕所内排泄，亲代给予肯定；下部衣物不在身上。未展示从穿衣到脱衣的过程，下栏是另一家庭弄脏帽子的对照。"
+    },
+    {
+      "id": "EH34-019",
+      "source_id": "EH34",
+      "gallery_page": 19,
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "page_url": "https://e-hentai.org/s/3ea30439f5/2400911-19",
+      "image_url": "https://ubvwdrj.rgbjjduoyufm.hath.network:2051/h/a3c66ec3545cc0be61e889561272dd961f9e1fbc-286646-1200-1697-wbp/keystamp=1792239900-f8d40e5b56;fileindex=117972537;xres=1280/95423437_p5.webp",
+      "retrieved_at": "2026-10-17T12:16:00.706062+00:00",
+      "rendition": "公开图页提供的站点版本；未取得作者母版",
+      "path": "wiki/art-references/ehentai/images/EH34/019.webp",
+      "bytes": 286646,
+      "sha256": "0a392d545eb1a6cc30a9a211cb6d62b9673167fbdbca231f9bea4be218e06320",
+      "width": 1200,
+      "height": 1697,
+      "format": "WEBP",
+      "review_status": "detail_reviewed",
+      "review_note": "上格幼体向阴阳玉赛跑，说明胜者可得该物；可见背向运动、头罩侧辫孔和个体间距离。下栏另为缺少暖处的兄弟姐妹争执，不把同页两组混为一场游戏。"
+    },
+    {
+      "id": "EH34-020",
+      "source_id": "EH34",
+      "gallery_page": 20,
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "page_url": "https://e-hentai.org/s/6daadf7dac/2400911-20",
+      "image_url": "https://jgtbctx.hknifpjkfnkm.hath.network:2333/h/cacabd5defe8bea13f37a91b4aee168fc750970f-316316-1200-1697-wbp/keystamp=1792239900-e1bd0ef93c;fileindex=117972538;xres=1280/95423437_p6.webp",
+      "retrieved_at": "2026-10-17T12:16:04.432516+00:00",
+      "rendition": "公开图页提供的站点版本；未取得作者母版",
+      "path": "wiki/art-references/ehentai/images/EH34/020.webp",
+      "bytes": 316316,
+      "sha256": "4b7127f809341fd698e07b327da38cebd362bf75eaa4ba380722bd2a73a51f7e",
+      "width": 1200,
+      "height": 1697,
+      "format": "WEBP",
+      "review_status": "detail_reviewed",
+      "review_note": "上格取得阴阳玉的幼体答应接下来借妹妹玩，妹妹询问确认，旁边同伴赞成分享；未画实际交接。下格争夺帽子导致撕裂，不是自愿共用。"
+    },
+    {
+      "id": "EH34-025",
+      "source_id": "EH34",
+      "gallery_page": 25,
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "page_url": "https://e-hentai.org/s/09b55df26a/2400911-25",
+      "image_url": "https://tmyviel.suwwkpljsbpo.hath.network/h/9f7dd7d0c76822d760557df220da5ecdc8505e7e-342768-1200-1697-wbp/keystamp=1792239900-a97107fd37;fileindex=117972543;xres=1280/95423437_p11.webp",
+      "retrieved_at": "2026-10-17T12:17:27.805608+00:00",
+      "rendition": "公开图页提供的站点版本；未取得作者母版",
+      "path": "wiki/art-references/ehentai/images/EH34/025.webp",
+      "bytes": 342768,
+      "sha256": "06407e5a75387912218875abc36a0676dede15cd234de3de9726a01665e394ef",
+      "width": 1200,
+      "height": 1697,
+      "format": "WEBP",
+      "review_status": "detail_reviewed",
+      "review_note": "仅取上格：四只幼体戴虎纹头罩并排盖被熟睡，亲代判断是玩累了。下栏为另一家庭寒冷与伤情恶化，保留作品语境，不作为护理、损伤动画或低温参数。"
+    },
+    {
+      "id": "EH34-026",
+      "source_id": "EH34",
+      "gallery_page": 26,
+      "source_url": "https://e-hentai.org/g/2400911/26199c5019/",
+      "page_url": "https://e-hentai.org/s/f609eaaf90/2400911-26",
+      "image_url": "https://xkdsvvu.lrlqvuayhkoh.hath.network:4433/h/237a34e28e5bea942260d2e69d4710d2603fd5f1-357366-1200-1697-wbp/keystamp=1792239900-2f12e2d11c;fileindex=117972544;xres=1280/95423437_p12.webp",
+      "retrieved_at": "2026-10-17T12:17:31.108510+00:00",
+      "rendition": "公开图页提供的站点版本；未取得作者母版",
+      "path": "wiki/art-references/ehentai/images/EH34/026.webp",
+      "bytes": 357366,
+      "sha256": "5d886e32b4bdb201445cb26c4fede60871f98e0699ba79cfd0a6a42ad03b50cb",
+      "width": 1200,
+      "height": 1697,
+      "format": "WEBP",
+      "review_status": "detail_reviewed",
+      "review_note": "仅取中格与右下：幼体醒来、回应早安及早餐询问；亲代说明大哥哥今天要回去，提醒好好道别，幼体答应。并未画实际送别；其余画格为另一家庭死亡结局。"
     }
   ]
 }
