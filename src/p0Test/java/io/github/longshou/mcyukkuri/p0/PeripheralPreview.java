@@ -34,7 +34,7 @@ final class PeripheralPreview {
         }
         level.setBlockAndUpdate(new BlockPos(611,65,3),ModBlocks.NEST.get().defaultBlockState());
         level.setBlockAndUpdate(new BlockPos(614,65,3),ModBlocks.TOILET.get().defaultBlockState());
-        level.setBlockAndUpdate(new BlockPos(617,65,3),ModBlocks.HOUSE_NEST.get().defaultBlockState());
+        level.setBlockAndUpdate(new BlockPos(617,65,3),ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());
         var nest=(io.github.longshou.mcyukkuri.house.HouseNestBlockEntity)level.getBlockEntity(new BlockPos(617,65,3));
         for(int i=0;i<6;i++)nest.deposit(new ItemStack(ModItems.NEST_LINT.get()));
         level.setBlockAndUpdate(new BlockPos(620,65,3),ModBlocks.GRAVE.get().defaultBlockState());

@@ -88,7 +88,7 @@ public final class CoreGameTests {
     private void hiding(){
         later(1,"hiding setup",()->{
             level.setDayTime(6000);
-            clear();level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);
+            clear();level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);
             subject=spawn(true,278.5,19.5);subject.house().choose(nest);subject.setNoAi(false);entered=peeked=false;
         });
         for(int i=0;i<120;i++)later(10,"daytime hiding sample",()->{
@@ -151,7 +151,7 @@ public final class CoreGameTests {
     }
     private void check(String name,boolean pass,Object detail){checks.add(new Check(name,pass,String.valueOf(detail)));}
     private void founders(){
-        later(1,"founder setup",()->{clear();level.setDayTime(18000);level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(true,level.getServer());level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);io.github.longshou.mcyukkuri.house.HouseholdEcology.sample(level,java.util.List.of(NEST.north()));});
+        later(1,"founder setup",()->{clear();level.setDayTime(18000);level.getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(true,level.getServer());level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);deposit(nest,12,0);io.github.longshou.mcyukkuri.house.HouseholdEcology.sample(level,java.util.List.of(NEST.north()));});
         later(20,"founder wait",()->{
             check("supplied crevice does not create founders instantly",level.getEntitiesOfClass(YukkuriEntity.class,AREA).isEmpty(),nest.identity());
             var data=nest.saveWithFullMetadata(level.registryAccess());data.putInt("ArrivalTicks",io.github.longshou.mcyukkuri.family.FamilyConfig.HOUSE_ARRIVAL_TIME.get()-1);nest.loadWithComponents(data,level.registryAccess());
@@ -200,6 +200,8 @@ public final class CoreGameTests {
             for(int y=65;y<=74;y++)level.setBlockAndUpdate(new BlockPos(x,y,z),Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(new BlockPos(x,64,z),Blocks.STONE.defaultBlockState());}
         for(int x=272;x<290;x++)for(int z=15;z<25;z++)level.setBlockAndUpdate(new BlockPos(x,68,z),Blocks.OAK_PLANKS.defaultBlockState());
+        level.setBlockAndUpdate(NEST.south(),Blocks.OAK_PLANKS.defaultBlockState());
+        level.setBlockAndUpdate(OTHER.south(),Blocks.OAK_PLANKS.defaultBlockState());
     }
     private void clear(){level.getEntitiesOfClass(Entity.class,AREA,e->e instanceof YukkuriEntity||e instanceof ItemEntity).forEach(Entity::discard);
         level.setBlockAndUpdate(NEST,Blocks.AIR.defaultBlockState());level.setBlockAndUpdate(OTHER,Blocks.AIR.defaultBlockState());
@@ -212,7 +214,7 @@ public final class CoreGameTests {
     private void house(){
         later(1,"house setup",()->{
             level.setDayTime(18000);
-            level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_NEST.get().defaultBlockState());level.setBlockAndUpdate(OTHER,ModBlocks.HOUSE_NEST.get().defaultBlockState());
+            level.setBlockAndUpdate(NEST,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());level.setBlockAndUpdate(OTHER,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());
             nest=(HouseNestBlockEntity)level.getBlockEntity(NEST);other=(HouseNestBlockEntity)level.getBlockEntity(OTHER);
             a=spawn(true,278.3,19.2);b=spawn(true,278.8,19.3);a.house().choose(nest);b.house().choose(nest);
             YukkuriWorldData.get(level).relate(a.getUUID(),b.getUUID(),30);YukkuriWorldData.get(level).relate(b.getUUID(),a.getUUID(),30);

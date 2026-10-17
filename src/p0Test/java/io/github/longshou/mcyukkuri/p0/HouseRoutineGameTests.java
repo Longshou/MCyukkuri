@@ -112,7 +112,9 @@ public final class HouseRoutineGameTests {
             }
             level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false,level.getServer());
             level.setDayTime(6000); level.updateSkyBrightness();
-            level.setBlockAndUpdate(HOME,ModBlocks.HOUSE_NEST.get().defaultBlockState());
+            level.setBlockAndUpdate(HOME.south(),Blocks.OAK_PLANKS.defaultBlockState());
+            level.setBlockAndUpdate(HOME.west(),Blocks.OAK_PLANKS.defaultBlockState());
+            level.setBlockAndUpdate(HOME,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());
             nest[0] = (HouseNestBlockEntity) level.getBlockEntity(HOME);
             for (int i=0;i<HouseNestBlockEntity.MATERIAL_COST;i++) helper.assertTrue(nest[0].deposit(new ItemStack(ModItems.NEST_LINT.get())),"real lint fills the lining");
             for (int i=0;i<12;i++) nest[0].deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +32,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     private UUID identity=UUID.randomUUID(),broodId,carer;
     private int materials,food,dirt,pendingDebris,ticks,arrivalTicks,arrivals,careTicks,disturbedTicks,maintenanceWait,hatchWait,incubationFoodTicks;
     private boolean destroyed,legacyEggs;
+    private Direction entranceDirection=Direction.NORTH;
     private final HouseEggs.Ref[] eggSlots=new HouseEggs.Ref[EGG_CAP];
     private final float[] eggProgress=new float[EGG_CAP];
     private final boolean[] eggPresent=new boolean[EGG_CAP];
@@ -56,7 +58,32 @@ public final class HouseNestBlockEntity extends BlockEntity {
         int elapsed=level!=null&&level.isClientSide?(int)Math.clamp(level.getGameTime()-clientSyncAt,0,120):0;
         int age=hatchAges[slot]+elapsed;return age<120?age:-1;
     }
-    public Vec3 eggPosition(int slot){return new Vec3(worldPosition.getX()+.61+(slot%2)*.11,worldPosition.getY()+.036,worldPosition.getZ()+.45+(slot/2)*.15);}
+    public Vec3 eggLocalPosition(int slot){return new Vec3(.61+(slot%2)*.11,.036,.45+(slot/2)*.15);}
+    public Vec3 eggPosition(int slot){var local=eggLocalPosition(slot);return localPosition(local.x,local.y,local.z);}
+    public Direction entranceDirection(){return entranceDirection;}
+    public void setEntrance(Direction direction){
+        if(direction!=null&&direction.getAxis().isHorizontal()){entranceDirection=direction;changed();}
+    }
+    /** Coordinates are authored facing north and rotated with the accessible entrance. */
+    public Vec3 localPosition(double x,double y,double z){
+        double dx=x-.5,dz=z-.5;
+        var rotated=switch(entranceDirection){
+            case EAST -> new Vec3(-dz,y,dx);
+            case SOUTH -> new Vec3(-dx,y,-dz);
+            case WEST -> new Vec3(dz,y,-dx);
+            default -> new Vec3(dx,y,dz);
+        };
+        return Vec3.atBottomCenterOf(worldPosition).add(rotated);
+    }
+    public Vec3 toLocal(Vec3 point){
+        var delta=point.subtract(Vec3.atBottomCenterOf(worldPosition));
+        return switch(entranceDirection){
+            case EAST -> new Vec3(delta.z+.5,delta.y,-delta.x+.5);
+            case SOUTH -> new Vec3(-delta.x+.5,delta.y,-delta.z+.5);
+            case WEST -> new Vec3(-delta.z+.5,delta.y,delta.x+.5);
+            default -> delta.add(.5,0,.5);
+        };
+    }
     public FamilyData.Brood brood(){return level instanceof ServerLevel server?FamilyData.get(server).brood(broodId):null;}
     public static boolean isMaterial(ItemStack item){return item.is(ModItems.NEST_LINT.get())||item.is(Items.STRING);}
     public boolean deposit(ItemStack item){
@@ -70,7 +97,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     public boolean usable(YukkuriEntity entity){
         return entity.getVariant().isHouse()&&!destroyed&&entity.life().dryStand(entrance())&&entity.life().covered(entrance());
     }
-    public BlockPos entrance(){return worldPosition.north();}
+    public BlockPos entrance(){return worldPosition.relative(entranceDirection);}
     private boolean sheltered(){
         // Match living-entity shelter checks: actual roof blocks, not delayed skylight propagation.
         return level!=null&&level.hasChunkAt(entrance())
@@ -92,7 +119,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
                 ||entity.house().nest()!=this||entity.position().distanceToSqr(eggPosition(0))>1.21
                 ||!atEggs(entity))return false;
         carer=entity.getUUID();careTicks=240;
-        if(dirt>0&&maintenanceWait==0&&HouseholdEcology.residual(server,entrance().north(),new ItemStack(ModItems.WASTE.get()))==1){
+        if(dirt>0&&maintenanceWait==0&&HouseholdEcology.residual(server,entrance().relative(entranceDirection),new ItemStack(ModItems.WASTE.get()))==1){
             dirt--;maintenanceWait=240;
         }
         changed();return true;
@@ -142,6 +169,18 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void tick(){
         if(!(level instanceof ServerLevel server)||destroyed)return;
+        // Preserve identity and coordinates, including the per-egg custody ledger.
+        if(!natural()&&SupplyPiles.supported(server,worldPosition)){
+            migrateEggs(server);
+            var saved=saveWithoutMetadata(server.registryAccess());
+            var direction=HouseholdEcology.findEntrance(server,worldPosition);
+            if(server.setBlockAndUpdate(worldPosition,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState())
+                    &&server.getBlockEntity(worldPosition) instanceof HouseNestBlockEntity replacement){
+                replacement.loadWithComponents(saved,server.registryAccess());
+                replacement.setEntrance(direction==null?entranceDirection:direction);
+                return;
+            }
+        }
         boolean protectedHome=HouseholdProtection.protectedAt(server,worldPosition);
         ticks++;migrateEggs(server);
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
@@ -155,14 +194,15 @@ public final class HouseNestBlockEntity extends BlockEntity {
             hatchAges[slot]=-1;
             // A shell becomes one unit of nest debris; full nests eject the real excess.
             if(dirt<8)dirt++;
-            else if(HouseholdEcology.residual(server,entrance().north(),new ItemStack(ModItems.WASTE.get()))==0)pendingDebris++;
+            else if(HouseholdEcology.residual(server,entrance().relative(entranceDirection),new ItemStack(ModItems.WASTE.get()))==0)pendingDebris++;
             changed();
         }
         if(pendingDebris>0&&dirt<8){pendingDebris--;dirt++;changed();}
         // Existing crumbs OR nesting fibers are enough for opportunistic settlers, in daylight too.
         if(HouseholdEcology.enabled(server)
                 &&arrivals<2&&(food>0||materials>0)&&disturbedTicks==0&&sheltered()&&residents.size()<2
-                &&HouseholdEcology.recentlyActive(server,worldPosition)&&!HouseholdEcology.suppressed(server,worldPosition)){
+                &&HouseholdEcology.recentlyActive(server,worldPosition)&&!HouseholdEcology.suppressed(server,worldPosition)
+                &&HouseholdEcology.shelteredCorner(server,worldPosition)){
             if(++arrivalTicks>=FamilyConfig.HOUSE_ARRIVAL_TIME.get()){
                 arrivalTicks=0;
                 if(FamilyData.get(server).population(server,worldPosition)<FamilyConfig.POPULATION_CAP.get()){
@@ -264,6 +304,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     private void changed(){setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
+        tag.putString("Entrance",entranceDirection.getName());
         tag.putInt("Materials",materials);tag.putInt("Food",food);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);tag.putInt("ArrivalTicks",arrivalTicks);tag.putInt("Arrivals",arrivals);
         tag.putInt("PendingDebris",pendingDebris);
         tag.putInt("CareTicks",careTicks);tag.putInt("DisturbedTicks",disturbedTicks);tag.putInt("MaintenanceWait",maintenanceWait);
@@ -277,6 +318,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
+        var direction=Direction.byName(tag.getString("Entrance"));
+        entranceDirection=direction!=null&&direction.getAxis().isHorizontal()?direction:Direction.NORTH;
         materials=Math.clamp(tag.getInt("Materials"),0,MATERIAL_COST);food=Math.clamp(tag.getInt("Food"),0,STOCK_CAP);dirt=Math.clamp(tag.getInt("Dirt"),0,8);
         pendingDebris=Math.clamp(tag.getInt("PendingDebris"),0,EGG_CAP);
         ticks=Math.max(0,tag.getInt("Ticks"));arrivalTicks=Math.max(0,tag.getInt("ArrivalTicks"));arrivals=Math.clamp(tag.getInt("Arrivals"),0,2);

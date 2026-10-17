@@ -69,7 +69,7 @@ final class Showcase {
         var young=CorePreview.spawn(level,ModEntities.REIMU.get(),199,8,10);
         var family=young.family().save();family.putString("Stage","JUVENILE");family.putFloat("Scale",.3f);family.putLong("Age",24001);family.putLong("Nourishment",24000);young.family().load(family);
         young.setCustomName(Component.literal("成长展示 · 按按钮睡醒"));bowl(level,200,10);
-        level.setBlockAndUpdate(EGGS,ModBlocks.HOUSE_NEST.get().defaultBlockState());var nest=(HouseNestBlockEntity)level.getBlockEntity(EGGS);
+        level.setBlockAndUpdate(EGGS,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());var nest=(HouseNestBlockEntity)level.getBlockEntity(EGGS);
         var a=CorePreview.spawn(level,ModEntities.HOUSE_REIMU.get(),209.8,34.3,20);var b=CorePreview.spawn(level,ModEntities.HOUSE_MARISA.get(),211.2,34.3,21);
         if(!a.house().choose(nest)||!b.house().choose(nest))throw new IllegalStateException("Prepared house parents cannot reach their crevice");
         YukkuriWorldData.get(level).relate(a.getUUID(),b.getUUID(),30);YukkuriWorldData.get(level).relate(b.getUUID(),a.getUUID(),30);
@@ -80,7 +80,7 @@ final class Showcase {
         if(nest.brood()==null)throw new IllegalStateException("Prepared nest has no eggs");
         nest.brood().duration=120000;FamilyData.get(level).setDirty();
         var tag=nest.saveWithFullMetadata(level.registryAccess());tag.putInt("Arrivals",2);nest.loadWithComponents(tag,level.registryAccess());
-        level.setBlockAndUpdate(WORK,ModBlocks.HOUSE_NEST.get().defaultBlockState());var work=(HouseNestBlockEntity)level.getBlockEntity(WORK);
+        level.setBlockAndUpdate(WORK,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());var work=(HouseNestBlockEntity)level.getBlockEntity(WORK);
         var worker=CorePreview.spawn(level,ModEntities.HOUSE_MARISA.get(),218,48,22);worker.house().choose(work);worker.setNoAi(false);worker.setCustomName(Component.literal("搬料与藏身"));
         drop(level,216,48,new ItemStack(ModItems.NEST_LINT.get(),6));drop(level,216,47,new ItemStack(ModItems.FOOD_SCRAP.get(),16));
         sign(level,218,65,46,"家油搬运区","棉絮和碎食在地上","夜间观察叼回缝隙","可以继续投放");

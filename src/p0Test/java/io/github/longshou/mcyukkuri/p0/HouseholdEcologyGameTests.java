@@ -40,6 +40,38 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 /** Real server ticks drive natural household activity; no recipes, generated nests or founder state are injected. */
 @PrefixGameTestTemplate(false)
 public final class HouseholdEcologyGameTests {
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=1600,batch="house_ecology")
+    public static void openRoomNeverSettlesAndCornerEntrancePersists(GameTestHelper h) {
+        var f=new Fixture(h,120);boolean[] sample={false};long[] bucket={-1};int[] samples={0};
+        h.onEachTick(()->{
+            if(!sample[0]||f.closed)return;
+            long now=f.level.getGameTime()/HouseholdEcology.SAMPLE_TICKS;
+            if(now==bucket[0])return;bucket[0]=now;
+            HouseholdEcology.sample(f.level,List.of(f.pos));samples[0]++;
+        });
+        h.startSequence().thenWaitUntil(f::ready).thenExecute(()->{
+            for(int dx=-5;dx<=5;dx++)f.level.removeBlock(f.pos.offset(dx,0,-4),false);
+            h.assertTrue(!HouseholdEcology.shelteredCorner(f.level,f.pos),"a roof alone does not make the open centre a home");
+            sample[0]=true;
+        }).thenWaitUntil(()->h.assertTrue(samples[0]>=6,"waiting for a real settlement interval"))
+                .thenExecute(()->{
+            sample[0]=false;
+            h.assertTrue(f.count(ModItems.NEST_LINT.get())>=2&&f.nests().isEmpty(),"real activity and supplies cannot found a home on open floor");
+            for(var dir:net.minecraft.core.Direction.Plane.HORIZONTAL){
+                for(var wall:net.minecraft.core.Direction.Plane.HORIZONTAL)
+                    f.level.setBlockAndUpdate(f.pos.relative(wall),wall==dir?Blocks.AIR.defaultBlockState():Blocks.OAK_PLANKS.defaultBlockState());
+                h.assertTrue(HouseholdEcology.shelteredCorner(f.level,f.pos)&&HouseholdEcology.findEntrance(f.level,f.pos)==dir,
+                        "the only accessible side is selected for "+dir);
+                f.level.setBlockAndUpdate(f.pos,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());
+                var nest=(HouseNestBlockEntity)f.level.getBlockEntity(f.pos);nest.setEntrance(dir);
+                var saved=nest.saveWithFullMetadata(f.level.registryAccess());
+                nest.loadWithComponents(saved,f.level.registryAccess());
+                h.assertTrue(nest.entrance().equals(f.pos.relative(dir))&&nest.toLocal(nest.eggPosition(0)).distanceToSqr(nest.eggLocalPosition(0))<1e-10,
+                        "saved entrance and egg coordinates round trip for "+dir);
+                f.level.removeBlock(f.pos,false);
+            }
+        }).thenSucceed();
+    }
     // The real-AI routine shares these rules. Only the last parallel fixture restores them.
     private static int environmentUsers;
     private static boolean originalSpawning,originalGriefing,originalArrivals;
@@ -74,6 +106,9 @@ public final class HouseholdEcologyGameTests {
             var nests=f.nests();h.assertTrue(nests.size()==1&&f.level.getBlockState(nests.getFirst().getBlockPos()).is(ModBlocks.HOUSE_DUST_NEST.get()),
                     "sustained ordinary activity creates the natural dust nest itself");
             var nest=nests.getFirst();
+            h.assertTrue(HouseholdEcology.shelteredCorner(f.level,nest.getBlockPos())
+                    &&nest.entranceDirection()!=net.minecraft.core.Direction.NORTH,
+                    "settlement chooses an actual wall edge and a free side despite the blocked north entrance");
             h.assertTrue(nest.materials()+nest.food()==1&&f.count(ModItems.NEST_LINT.get())+f.count(ModItems.FOOD_SCRAP.get())+nest.materials()+nest.food()==3,
                     "natural nest placement transfers one of the two accumulated fibers and meal crumb without creating a free resource");
             h.assertTrue(f.loose()==0,"natural accumulation and settlement never produce tiny dropped entities");
@@ -214,6 +249,8 @@ public final class HouseholdEcologyGameTests {
             for(var cursor:BlockPos.betweenClosed(pos.offset(-5,-1,-5),pos.offset(5,5,5))) {
                 var p=cursor.immutable();blocks.put(p,level.getBlockState(p));level.setBlockAndUpdate(p,p.getY()==64||p.getY()==69?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
             }
+            // An actual room wall supplies the inconspicuous edge; the centre remains open.
+            for(int dx=-5;dx<=5;dx++)level.setBlockAndUpdate(pos.offset(dx,0,-4),Blocks.OAK_PLANKS.defaultBlockState());
             h.assertTrue(HouseholdEcology.enabled(level),"natural-household fixture requires the ordinary arrivals, mob spawning and mobGriefing gates enabled");
         }
         boolean ours(CompoundTag area){return area.getInt("X")==chunkX&&area.getInt("Y")==8&&area.getInt("Z")==0;}

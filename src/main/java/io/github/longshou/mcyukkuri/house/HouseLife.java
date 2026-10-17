@@ -56,23 +56,20 @@ public final class HouseLife {
     public boolean sleeping() { return active && phase == Phase.REST && sleepTicks >= 20 && physicallyInside(); }
     public boolean wantsCrawl() {
         return active && interaction == 0 && (phase == Phase.ENTER || phase == Phase.LEAVE
-                || phase == Phase.APPROACH && nestPosition() != null
-                && entity.distanceToSqr(Vec3.atBottomCenterOf(nestPosition().north())) < 2.25
+                || phase == Phase.APPROACH && nest() != null
+                && entity.distanceToSqr(Vec3.atBottomCenterOf(nest().entrance())) < 2.25
                 || carrying.isEmpty() && sourceAvailable() && entity.distanceToSqr(sourcePosition()) < .36);
     }
     private boolean physicallyInside() {
         var value = nest();
-        return value != null && entity.onGround() && entity.blockPosition().equals(value.getBlockPos())
-                && entity.getY() >= value.getBlockPos().getY() && entity.getY() < value.getBlockPos().getY() + .3
-                && Math.abs(entity.getX() - (value.getBlockPos().getX() + .5)) < .3
-                && entity.getZ() > value.getBlockPos().getZ() + .02 && entity.getZ() < value.getBlockPos().getZ() + .82;
+        if(value==null)return false;
+        var local=value.toLocal(entity.position());
+        return entity.onGround() && entity.blockPosition().equals(value.getBlockPos())
+                && local.y>=0 && local.y<.3 && Math.abs(local.x-.5)<.3 && local.z>.02 && local.z<.82;
     }
     public boolean mustExit() {
-        var value = nest(); if (value == null) return false; var pos = value.getBlockPos();
-        // A vanilla path can start inside this low block after a resident steps onto its roof.
-        boolean onRoof = entity.getY() > pos.getY() + .45 && entity.getY() < pos.getY() + 1.2
-                && Math.abs(entity.getX() - (pos.getX() + .5)) < .75 && entity.getZ() > pos.getZ() - .2 && entity.getZ() < pos.getZ() + 1.2;
-        return onRoof || entity.getZ() > pos.getZ() + .08 && entity.blockPosition().equals(pos)
+        var value = nest(); if (value == null) return false;
+        return value.toLocal(entity.position()).z > .08 && entity.blockPosition().equals(value.getBlockPos())
                 && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
                 || !active && startledTicks == 0 && !entity.life().isSleeping() && entity.life().mealTicks() == 0);
     }
@@ -289,10 +286,10 @@ public final class HouseLife {
                     other -> other != entity && other.isAlive() && other.house().nest() == value);
             // Reserve the back bed first so a sleeper at the entrance cannot block the next arrival.
             // The .38 gap also leaves separate body boxes for two maximum-size (.324 wide) adults.
-            Vec3 back = Vec3.atBottomCenterOf(value.getBlockPos()).add(-.11, .025, .19);
+            Vec3 back = value.localPosition(.39, .025, .69);
             boolean backReserved = residents.stream().anyMatch(other -> other.house().restPosition != null
                     && other.house().restPosition.distanceToSqr(back) < .01);
-            restPosition = backReserved ? Vec3.atBottomCenterOf(value.getBlockPos()).add(-.11, .025, -.19) : back;
+            restPosition = backReserved ? value.localPosition(.39, .025, .31) : back;
         }
         return restPosition;
     }
@@ -301,8 +298,7 @@ public final class HouseLife {
         switch (phase) {
             case APPROACH -> {
                 double distance = entity.distanceToSqr(outside);
-                // Block navigation accepts the entrance cell before a body is aligned with its narrow door.
-                // Finish on the open ground in front of the door before moving diagonally to a bed.
+                // Reach the accessible side of the corner before moving diagonally to the bedding.
                 if (distance < .0025 && entity.onGround()) phase(Phase.ENTER);
                 else if (distance < 2.25) direct(outside, .65);
                 else if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop();
@@ -340,7 +336,7 @@ public final class HouseLife {
             }
             case LEAVE -> {
                 finishRest();
-                Vec3 peek = Vec3.atBottomCenterOf(value.getBlockPos()).add(0, 0, -.55);
+                Vec3 peek = value.localPosition(.5, 0, -.05);
                 if (entity.distanceToSqr(peek) < .025) { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
                 else direct(peek, .65);
             }
@@ -348,7 +344,8 @@ public final class HouseLife {
                 if (entity.distanceToSqr(outside) > .36) { if (ticks % 10 == 1 && !entity.life().navigate(value.entrance(), .8, false)) stop(); return; }
                 entity.getNavigation().stop();
                 double side = Math.sin(ticks * .06) * 1.4;
-                entity.getLookControl().setLookAt(outside.x + side, outside.y + .1, outside.z - 2, 20, 20);
+                var look=value.localPosition(.5+side,.1,-2.5);
+                entity.getLookControl().setLookAt(look.x,look.y,look.z,20,20);
                 if (ticks >= 60) { stop(); wait = 160; }
             }
             default -> { }

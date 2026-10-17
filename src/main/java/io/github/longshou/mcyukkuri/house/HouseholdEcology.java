@@ -240,9 +240,11 @@ public final class HouseholdEcology {
                 .sorted(CANDIDATE_ORDER).toList();
         for(var candidate:candidates){
             var pos=candidate.pos();
-            if(suppressed(level,pos)||!level.isEmptyBlock(pos)||!covered(level,pos)||!walkable(level,pos.north())||!covered(level,pos.north())||!view.nestFree(pos,16))continue;
+            var entrance=findEntrance(level,pos);
+            if(suppressed(level,pos)||!level.isEmptyBlock(pos)||!shelteredCorner(level,pos)||entrance==null||!view.nestFree(pos,16))continue;
             if(!level.setBlockAndUpdate(pos,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState()))continue;
             if(!(level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)){level.removeBlock(pos,false);return false;}
+            nest.setEntrance(entrance);
             // The selected pile is still the sole source. Placement never creates a free first unit of bedding or food.
             var material=source.takeOne();
             view.changed(source.getBlockPos());
@@ -264,6 +266,16 @@ public final class HouseholdEcology {
                 ranked.add(new Candidate(pos,entity instanceof SupplyPileBlockEntity?1:0,wallScore(level,pos),pos.distSqr(origin)));
         }
         ranked.sort(CANDIDATE_ORDER);return ranked.stream().map(Candidate::pos).toList();
+    }
+    /** Homes need real shelter beside a wall or furniture, never just an empty room centre. */
+    public static boolean shelteredCorner(ServerLevel level,BlockPos pos){
+        return walkable(level,pos)&&covered(level,pos)&&wallScore(level,pos)>0;
+    }
+    public static Direction findEntrance(ServerLevel level,BlockPos pos){
+        // Prefer the old north-facing layout when it is still accessible.
+        for(var direction:new Direction[]{Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST})
+            if(walkable(level,pos.relative(direction))&&covered(level,pos.relative(direction)))return direction;
+        return null;
     }
     private static int wallScore(ServerLevel level,BlockPos pos){
         int score=0;

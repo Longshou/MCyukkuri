@@ -155,13 +155,24 @@ def house(c):
     c.actor('hm', 'house_marisa', 1.5, 4.6, 'F', '家油魔理沙', hidden=True)
     c.actor('hr', 'house_reimu', 8.0, 3.2, 'F', '家油灵梦')
     c.actor('chick', 'house_reimu', 8.9, 2.6, 'F', '新孵的家油', stage='house_baby', hidden=True)
-    c.block(1, 4, 'mcyukkuri:house_crevice')
-    c.block(7, 4, 'mcyukkuri:house_dust_nest')
+    # Ordinary room corners, open toward visitors; no artificial habitat furniture.
+    start = len(c.props)
+    for u in (1, 7):
+        c.block(u - 1, 4, 'minecraft:oak_planks')
+        c.block(u - 1, 5, 'minecraft:oak_planks')
+        c.block(u, 5, 'minecraft:oak_planks')
+        c.block(u, 4, 'mcyukkuri:house_dust_nest',
+                state='{Materials:6,Food:3,Arrivals:2,Entrance:"' + c.facing('F') + '"}')
+    layout = c.props[start:]
+    del c.props[start:]
+    c.function('house_layout', layout)
+    c.prop('function mcylab:stand/house_layout')
+    c.stop_extra.append('function mcylab:stand/house_layout')
     c.item('mcyukkuri:nest_lint', 4.0, 3.0, .35, .5)
     c.item('mcyukkuri:house_egg', 8.8, 4.0, .45, .6)
     c.label(5.5, 5.0, 2.7, '家油在屋檐下：絮尘、巢和卵', .35)
     c.demo('arrive', '入住与筑巢', [
-        (20, [c.NOTE('家油从缝隙里探头'), c.SHOW('hm', 1.5, 4.0, 'F'), c.S('hm', 'house_peek')]),
+        (20, [c.NOTE('家油从屋内墙角探头，不需要专用方块'), c.SHOW('hm', 1.5, 4.0, 'F'), c.S('hm', 'house_peek')]),
         (60, [c.A('hm', 'look_around'), c.S('hm', 'house_search_home')])] +
         c.walk('hm', 1.5, 3.8, 4.0, 'R', steps=5, v1=3.1) + [
         (40, [c.NOTE('夹起一份絮尘'), c.S('hm', 'house_pickup'), c.PROP_ON('lint', 'mcyukkuri:nest_lint', 3.8, 3.1, .4, .35)])] +

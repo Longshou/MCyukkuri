@@ -128,7 +128,7 @@ final class CorePreview {
             }
         }else if(scene.equals("house")||scene.equals("house_work")){
             level.setDayTime(scene.equals("house_work")?18000:6000);
-            BlockPos pos=new BlockPos(178,65,8);level.setBlockAndUpdate(pos,ModBlocks.HOUSE_NEST.get().defaultBlockState());var nest=(HouseNestBlockEntity)level.getBlockEntity(pos);
+            BlockPos pos=new BlockPos(178,65,8);level.setBlockAndUpdate(pos,ModBlocks.HOUSE_DUST_NEST.get().defaultBlockState());var nest=(HouseNestBlockEntity)level.getBlockEntity(pos);
             var a=spawn(level,ModEntities.HOUSE_REIMU.get(),178.2,7.3,0);var b=spawn(level,ModEntities.HOUSE_MARISA.get(),178.8,7.3,1);
             a.house().choose(nest);b.house().choose(nest);YukkuriWorldData.get(level).relate(a.getUUID(),b.getUUID(),30);YukkuriWorldData.get(level).relate(b.getUUID(),a.getUUID(),30);
             if(scene.equals("house")){for(int i=0;i<6;i++)nest.deposit(new ItemStack(ModItems.NEST_LINT.get()));for(int i=0;i<20;i++)nest.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));a.setNoAi(false);b.setNoAi(false);}

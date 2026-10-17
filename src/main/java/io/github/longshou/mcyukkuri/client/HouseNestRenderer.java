@@ -11,12 +11,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-/** Real lint forms a low home; only a placed crevice adds the surrounding furniture. */
+/** Only accumulated bedding, food and eggs are visible; shelter comes from the actual room. */
 public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlockEntity> {
     public HouseNestRenderer(BlockEntityRendererProvider.Context context) {}
 
     @Override public void render(HouseNestBlockEntity nest,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
-        if(!nest.natural())mesh("house_crevice",.5,0,.5,1,1,1,pose,buffers,light,overlay);
+        pose.pushPose();pose.translate(.5,0,.5);
+        pose.mulPose(Axis.YP.rotationDegrees(180-nest.entranceDirection().toYRot()));pose.translate(-.5,0,-.5);
         float built=Math.min(1,nest.materials()/(float)HouseNestBlockEntity.MATERIAL_COST);
         if(built>0) {
             // Lining grows in place as real lint arrives; a single strand never creates a full bed.
@@ -32,7 +33,7 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
         double clock=nest.getLevel()==null?0:nest.getLevel().getGameTime()+(double)partial;
         boolean incubating=nest.built()&&nest.careTicks()>0&&nest.disturbedTicks()==0&&nest.food()>0&&nest.dirt()<6;
         for(int slot=0;slot<4;slot++) {
-            var point=nest.eggPosition(slot).subtract(nest.getBlockPos().getX(),nest.getBlockPos().getY(),nest.getBlockPos().getZ());
+            var point=nest.eggLocalPosition(slot);
             if(nest.eggPresent(slot)) {
                 float progress=nest.eggProgress(slot);
                 // Short efforts separated by a pause, staggered by egg slot; all clients use world time.
@@ -52,6 +53,7 @@ public final class HouseNestRenderer implements BlockEntityRenderer<HouseNestBlo
                 PropModels.render("house_eggshell",8,pose,buffers,light,overlay);pose.popPose();
             }
         }
+        pose.popPose();
     }
 
     private static void mesh(String name,double x,double y,double z,float sx,float sy,float sz,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {

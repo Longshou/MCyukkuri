@@ -1,7 +1,7 @@
 {
   "status": "Minecraft integration draft; not a confirmed standard asset",
   "input": {
-    "recipe.json": "5596e3302b1080d518e84864f97fef946109a7abf12b6309c2a3a6975aa25f79"
+    "recipe.json": "21da6d3843fd489153b2e2a233bb2148d9b92a3bca15dbb5427b4c37e3d7aff3"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/blockstates/house_crevice.json": "ea7cf46644b6b5966f42d090f9810366ce284ff7836a63a8fa320a70377579e7",
@@ -11,9 +11,7 @@
     "src/main/resources/assets/mcyukkuri/models/item/yukkuri_remains.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02",
     "src/main/resources/data/mcyukkuri/recipe/food_scrap.json": "9a77b4a4a2e39a89b581674da7caf28134b0046ba733699610a0c9c90a74022a",
     "src/main/resources/data/mcyukkuri/advancement/recipes/misc/food_scrap.json": "9766d0566696779a39ce64cbe5f67e2d88aa81b875744f0c00a98e0abaab9399",
-    "src/main/resources/data/mcyukkuri/recipe/house_crevice.json": "37b998a1b85bd8719c7923401a1afb0dd9719d822a5c75d8c754d645908d103a",
-    "src/main/resources/data/mcyukkuri/advancement/recipes/misc/house_crevice.json": "07cdf48964782bdc4ed4fb915f59f96b22674323c61b3798034cca5f6966d299",
-    "src/main/resources/data/mcyukkuri/loot_table/blocks/house_crevice.json": "26bee3a087b516aaab013b48f0552c35b8d5ef99bdc799323123af978bc2cad5"
+    "src/main/resources/data/mcyukkuri/loot_table/blocks/house_crevice.json": "f2ef2d7bc8fa2d343b0a7dd834f0eb550f84937bc0ce41f37b2cbae81c945496"
   },
   "selected_models": {
     "art/props/house-care/yukkuri_remains.item.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02"

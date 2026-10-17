@@ -32,6 +32,23 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class HouseEcologyGameTests {
     @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=100,batch="house_ecology")
+    public static void legacyCreviceMigratesWithoutLosingStoresOrEggCustody(GameTestHelper h) {
+        try(var f=new Fixture(h,3,400,true)) {
+            var identity=f.source.identity();var pos=f.source.getBlockPos();
+            f.source.deposit(new ItemStack(ModItems.FOOD_SCRAP.get()));
+            f.source.tick();
+            f.source=(HouseNestBlockEntity)f.level.getBlockEntity(pos);
+            h.assertTrue(f.source.natural()&&f.source.identity().equals(identity),"legacy shell becomes a natural nest with the same home identity");
+            h.assertTrue(f.source.materials()==6&&f.source.food()==1&&f.source.eggs()==3,
+                    "migration preserves real supplies and every legacy egg slot");
+            var egg=f.source.extractEgg();
+            h.assertTrue(!egg.isEmpty()&&HouseEggs.ticket(f.level,egg)!=null,"migrated eggs retain live custody tickets");
+            f.assertInsert(h,egg,"an egg can transfer after migration without being marked lost");
+            h.assertTrue(f.brood().children.stream().noneMatch(child->child.eggLost),"shell removal cannot destroy reserved children");
+        }
+        h.succeed();
+    }
+    @GameTest(templateNamespace=P0Mod.ID,template="empty",timeoutTicks=100,batch="house_ecology")
     public static void transferredEggAndBornYoungSurviveOldNestCleaning(GameTestHelper h) {
         try(var f=new Fixture(h,3,1200)) {
             f.source.tick();
@@ -185,16 +202,20 @@ public final class HouseEcologyGameTests {
         final Map<BlockPos,BlockState> blocks=new LinkedHashMap<>();
         final List<YukkuriEntity> babies=new ArrayList<>();
         final List<ItemEntity> drops=new ArrayList<>();
-        final HouseNestBlockEntity source,target;
+        HouseNestBlockEntity source;
+        final HouseNestBlockEntity target;
 
         Fixture(GameTestHelper h,int count,int elapsed) {
+            this(h,count,elapsed,false);
+        }
+        Fixture(GameTestHelper h,int count,int elapsed,boolean legacy) {
             level=h.getLevel();previous=FamilyData.get(level);
             var origin=h.absolutePos(new BlockPos(2,2,2));
             for(var p:BlockPos.betweenClosed(origin.offset(-1,-1,-2),origin.offset(5,3,1))) {
                 var pos=p.immutable();blocks.put(pos,level.getBlockState(pos));
                 level.setBlockAndUpdate(pos,pos.getY()==origin.getY()-1?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
             }
-            source=nest(origin);target=nest(origin.east(4));
+            source=nest(origin,legacy);target=nest(origin.east(4),false);
             h.assertTrue(source.built()&&target.built()&&covered(source)&&covered(target),
                     "fixture creates complete nests with real stone roofs before any egg transaction; "+insertionState(ItemStack.EMPTY));
             var snapshot=previous.save(new CompoundTag(),level.registryAccess());
@@ -213,13 +234,13 @@ public final class HouseEcologyGameTests {
             brood.putString("Kind","EGG");brood.putInt("Elapsed",elapsed);brood.putInt("Duration",1200);brood.putFloat("Variation",1);
             position(brood,"Anchor",origin);brood.put("Children",children);snapshot.getList("Broods",Tag.TAG_COMPOUND).add(brood);
             install(FamilyData.load(snapshot,level.registryAccess()));
-            var legacy=source.saveWithFullMetadata(level.registryAccess());
-            legacy.remove("EggSlots");legacy.putInt("Version",1);legacy.putUUID("Brood",broodId);
-            source.loadWithComponents(legacy,level.registryAccess());
+            var saved=source.saveWithFullMetadata(level.registryAccess());
+            saved.remove("EggSlots");saved.putInt("Version",1);saved.putUUID("Brood",broodId);
+            source.loadWithComponents(saved,level.registryAccess());
             h.assertTrue(brood()!=null&&brood().children.size()==count,"fixture loads a valid real family reservation");
         }
-        private HouseNestBlockEntity nest(BlockPos pos) {
-            level.setBlockAndUpdate(pos,ModBlocks.HOUSE_NEST.get().defaultBlockState());
+        private HouseNestBlockEntity nest(BlockPos pos,boolean legacy) {
+            level.setBlockAndUpdate(pos,(legacy?ModBlocks.HOUSE_NEST.get():ModBlocks.HOUSE_DUST_NEST.get()).defaultBlockState());
             level.setBlockAndUpdate(pos.north().above(2),Blocks.STONE.defaultBlockState());
             var nest=(HouseNestBlockEntity)level.getBlockEntity(pos);
             for(int i=0;i<HouseNestBlockEntity.MATERIAL_COST;i++)nest.deposit(new ItemStack(ModItems.NEST_LINT.get()));

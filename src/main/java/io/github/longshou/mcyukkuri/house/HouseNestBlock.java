@@ -22,18 +22,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 
-/** A visible, player-placeable crevice. The open front is a real small-body clearance. */
+/** Loose nesting material; the old crevice ID remains only to migrate saved homes. */
 public final class HouseNestBlock extends Block implements EntityBlock {
     private final boolean natural;
-    private static final VoxelShape SHAPE=Shapes.or(box(.5,0,2.02375,15.5,.4,15.02375),
-            box(.5,.2,13.92375,15.5,9.8,14.52375),box(.5,0,1.02375,3.5,9,14.02375),
-            box(12.5,0,1.02375,15.5,9,14.02375),box(3.5,6.8,1.02375,12.5,9,14.02375));
     public HouseNestBlock(Properties properties){this(false,properties);}
     public HouseNestBlock(boolean natural,Properties properties){super(properties);this.natural=natural;}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new HouseNestBlockEntity(pos,state);}
-    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return natural?box(0,0,0,16,1.5,16):SHAPE;}
-    @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return natural?Shapes.empty():SHAPE;}
-    @Override protected boolean isPathfindable(BlockState state,net.minecraft.world.level.pathfinder.PathComputationType type){return natural&&type==net.minecraft.world.level.pathfinder.PathComputationType.LAND;}
+    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return box(0,0,0,16,1.5,16);}
+    @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return Shapes.empty();}
+    @Override protected boolean isPathfindable(BlockState state,net.minecraft.world.level.pathfinder.PathComputationType type){return type==net.minecraft.world.level.pathfinder.PathComputationType.LAND;}
     @Override protected boolean canSurvive(BlockState state,net.minecraft.world.level.LevelReader level,BlockPos pos){return !natural||SupplyPiles.supported(level,pos);}
     @Override protected BlockState updateShape(BlockState state,net.minecraft.core.Direction direction,BlockState neighbor,net.minecraft.world.level.LevelAccessor level,BlockPos pos,BlockPos neighborPos){
         return !canSurvive(state,level,pos)?net.minecraft.world.level.block.Blocks.AIR.defaultBlockState():super.updateShape(state,direction,neighbor,level,pos,neighborPos);
@@ -63,7 +60,8 @@ public final class HouseNestBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
     @Override protected void onRemove(BlockState state,Level level,BlockPos pos,BlockState replacement,boolean moving){
-        if(!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)nest.destroyNest();
+        boolean migration=state.is(ModBlocks.HOUSE_NEST.get())&&replacement.is(ModBlocks.HOUSE_DUST_NEST.get());
+        if(!migration&&!state.is(replacement.getBlock())&&!level.isClientSide&&level.getBlockEntity(pos) instanceof HouseNestBlockEntity nest)nest.destroyNest();
         super.onRemove(state,level,pos,replacement,moving);
     }
 }

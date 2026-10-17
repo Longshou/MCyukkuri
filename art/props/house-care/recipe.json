@@ -16,7 +16,6 @@
   "presentation": {"nest_lining": "minecraft:wheat", "eggs": "minecraft:egg", "egg_scale": 0.22, "egg_count_max": 4},
   "recipes": {
     "food_scrap": {"ingredients": ["minecraft:bread"], "count": 4},
-    "house_crevice": {"ingredients": ["minecraft:oak_planks","minecraft:oak_planks","minecraft:stick"], "count": 1},
     "bandage": {"ingredients": ["minecraft:paper","minecraft:string"], "count": 2},
     "herbal_medicine": {"ingredients": ["minecraft:dried_kelp","minecraft:sugar","minecraft:glass_bottle"], "count": 1}
   }

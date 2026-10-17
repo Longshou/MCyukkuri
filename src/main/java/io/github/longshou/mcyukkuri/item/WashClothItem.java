@@ -43,12 +43,11 @@ public final class WashClothItem extends Item {
     @Override public InteractionResult useOn(UseOnContext context) {
         if(context.getPlayer()!=null&&!context.getPlayer().mayBuild())return InteractionResult.FAIL;
         if(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof io.github.longshou.mcyukkuri.house.HouseNestBlockEntity nest){
-            if(!nest.natural()&&water(context.getItemInHand())==0)return InteractionResult.FAIL;
             if(!context.getLevel().isClientSide){
                 boolean dismantle=context.getPlayer()!=null&&context.getPlayer().isSecondaryUseActive();
                 int removed=nest.clean(dismantle);
                 io.github.longshou.mcyukkuri.house.HouseholdEcology.cleaned((net.minecraft.server.level.ServerLevel)context.getLevel(),context.getClickedPos());
-                if(nest.natural()&&dismantle)context.getLevel().removeBlock(context.getClickedPos(),false);
+                if(dismantle)context.getLevel().removeBlock(context.getClickedPos(),false);
                 if(removed>0){if(water(context.getItemInHand())>0)useWater(context.getItemInHand());var waste=new ItemStack(ModItems.WASTE.get(),removed);
                     if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);
                     else net.minecraft.world.level.block.Block.popResource(context.getLevel(),context.getClickedPos(),waste);}}
