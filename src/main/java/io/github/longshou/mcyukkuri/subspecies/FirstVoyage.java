@@ -339,6 +339,9 @@ public final class FirstVoyage {
             // First bring both real brims together; FamilyLife then walks to the
             // near edge and selects a reachable climb or a bounded low hop.
             var approach=home.emergencyApproach(child);
+            AquaDiag.log(child,"return."+child.getId(),40,"phase="+phase+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" approach="+AquaDiag.at(approach)
+                    +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
+                    +" boarding="+child.family().hatBoardingDebug());
             if((home.voyageBerth(child)!=null||completed&&!leavingHome&&(home.hasSafeRoomFor(child)||emergencyReturn(boat)))
                     &&approach!=null&&boat.position().distanceToSqr(approach)<=.04
                     &&boat.protects(child)&&!boat.towed()){

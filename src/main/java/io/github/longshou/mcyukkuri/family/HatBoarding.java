@@ -323,13 +323,17 @@ public final class HatBoarding {
         if(actor.level().isClientSide||source==null||dryFeet==null||!stable(source)||actor.getVehicle()!=source
                 ||!source.protects(actor)||source.changingSeat(actor)||!actor.isAlive()||actor.isNoAi()
                 ||actor.isCommandPlaying()||actor.operations().active()||actor.family().braidRescueActive()
-                ||actor.position().distanceToSqr(dryFeet)>2.25||!actor.life().dryStand(BlockPos.containing(dryFeet)))return false;
+                ||actor.position().distanceToSqr(dryFeet)>2.25||!actor.life().dryStand(BlockPos.containing(dryFeet))){
+            landingRefusal="preconditions stable="+stable(source)+" riding="+(actor.getVehicle()==source)+" changingSeat="+(source!=null&&source.changingSeat(actor))
+                    +" dist="+(dryFeet==null?-1:Math.sqrt(actor.position().distanceToSqr(dryFeet)))+" dry="+(dryFeet!=null&&actor.life().dryStand(BlockPos.containing(dryFeet)));
+            return false;
+        }
         YukkuriEntity helper=null;
         if(!capable()){
             for(var rider:source.getPassengers())if(rider instanceof YukkuriEntity parent&&parent!=actor
                     &&parent.family().caresFor(actor)&&parent.isAlive()&&!parent.life().isSleeping()
                     &&parent.distanceTo(actor)<(parent.getBbWidth()+actor.getBbWidth())*.5+.12){helper=parent;break;}
-            if(helper==null)return false;
+            if(helper==null){landingRefusal="infant without helper";return false;}
         }
         var origin=actor.position();var points=new ArrayList<Vec3>();
         int samples=Math.max(1,(int)Math.ceil(origin.subtract(dryFeet).horizontalDistance()/.02));
@@ -338,21 +342,26 @@ public final class HatBoarding {
             var wanted=origin.lerp(dryFeet,(double)i/samples);
             var supported=shoreSupport(source,new Vec3(wanted.x,previous.y,wanted.z));
             if(supported==null||supported.y-previous.y>.08||previous.y-supported.y>.18
-                    ||!sweepClear(actor,source,null,previous,supported))return false;
+                    ||!sweepClear(actor,source,null,previous,supported)){
+                landingRefusal="path step "+i+"/"+samples+" at="+wanted+" support="+supported+" sweep="+(supported!=null&&sweepClear(actor,source,null,previous,supported));
+                return false;
+            }
             points.add(supported);previous=supported;
         }
-        if(previous.distanceToSqr(dryFeet)>.01)return false;
+        if(previous.distanceToSqr(dryFeet)>.01){landingRefusal="path end short of "+dryFeet+" at "+previous;return false;}
         // An infant is accepted only when the assisting parent's real contact covers the entire slide.
         if(helper!=null)for(var point:points)
-            if(helper.position().distanceTo(point)>(helper.getBbWidth()+actor.getBbWidth())*.5+.18)return false;
+            if(helper.position().distanceTo(point)>(helper.getBbWidth()+actor.getBbWidth())*.5+.18){landingRefusal="helper too far";return false;}
         from=origin;to=dryFeet;sourceId=hatId=source.getUUID();seat=source.toLocal(origin);
         shorePath=points;shoreStep=0;shoreFallSpeed=0;shoreLanding=true;shoreHelper=helper==null?null:helper.getUUID();
         grip=crest=belly=null;gripSupportY=Double.NaN;dip=HatBoatEntity.Dip.NONE;stagedClimb=false;landing=releasedGrip=false;hump=0;
         boardingYaw=(float)(Math.toDegrees(Math.atan2(dryFeet.z-origin.z,dryFeet.x-origin.x))-90);
         bellyYaw=boardingYaw;totalTicks=0;lastVelocity=Vec3.ZERO;
         set(Phase.SETTLE,Math.max(MIN_SETTLE_TICKS,points.size()));source.holdPosition();
-        actor.stopRiding();actor.setDeltaMovement(Vec3.ZERO);return true;
+        actor.stopRiding();actor.setDeltaMovement(Vec3.ZERO);landingRefusal="started";return true;
     }
+    private String landingRefusal="none";
+    public String landingRefusal(){return landingRefusal;}
     private Vec3 shoreSupport(HatBoatEntity source,Vec3 wanted){
         double support=Double.NEGATIVE_INFINITY;
         var local=source.toLocal(wanted);
@@ -685,6 +694,7 @@ public final class HatBoarding {
     private void cancel(String reason){
         if(!active())return;
         lastCancel=phase.name()+" tick="+totalTicks+" "+reason+" at="+actor.position();
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(actor,"boarding.cancel."+actor.getId(),0,lastCancel+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var hat=boat(hatId);boolean airborne=phase!=Phase.ALIGN;
         if(hat!=null){hat.cancelIncoming(actor);hat.releaseDip(14);if(actor.getUUID().equals(hat.ownerYukkuri()))hat.releaseOwnBoardingSeat(actor);}
         else abandonedHat=hatId;

@@ -387,10 +387,10 @@ public final class AquaticFamilyLife {
                     else if(now-swimmerSince>SWIMMER_FALLBACK_TICKS&&horizontal(boat.position(),troubled.position())<=4&&boat.liftSwimmerNow(troubled)){
                         swimmerWatch=null;hold(boat,"boat_return_family");rescueActivity(troubled,"boat_rescue_young");return true;
                     }
-                    if(troubled.family().rescueIntoHat(boat))hold(boat,"boat_return_family");
-                    else if(this.alarm.approachRescue(boat,troubled))steeringHat=boat.getUUID();
-                    else if(horizontal(boat.position(),troubled.position())>.8)steer(boat,troubled.position(),false);
-                    else hold(boat,"boat_guard_young");
+                    if(troubled.family().rescueIntoHat(boat)){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,"boat_return_family");}
+                    else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
+                    else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),troubled.position()));steer(boat,troubled.position(),false);}
+                    else{AquaDiag.log(entity,"swimmer.guard",40,"guard d="+horizontal(boat.position(),troubled.position()));hold(boat,"boat_guard_young");}
                     rescueActivity(troubled,boat.paddling()?"boat_rescue_approach":"boat_rescue_young");return true;
                 }
                 var threat=nearestThreat(troubled);

@@ -79,7 +79,10 @@ public final class AquaticSelfRescue {
     }
     /** Called by WaterDistress's existing escape goal after impact; it never suppresses the water clock or damage. */
     public boolean escapeTick(){
-        if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying())return false;
+        if(!enabled()||!capable()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
+            AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+actor.isPassenger()+" flying="+actor.family().flying());
+            return false;
+        }
         if(lastEscape==now())return active();lastEscape=now();
         if(actor.family().selfClimbActive()){set(Phase.CLIMB);return true;}
         if(phase==Phase.IDLE){
@@ -88,10 +91,11 @@ public final class AquaticSelfRescue {
             if(own!=null&&own.ownsPhysicalHat(actor)&&actor.distanceToSqr(own)<=64){hatId=own.getUUID();set(Phase.APPROACH);}
             else if(actor.life().hasAccessory()&&actor.subspecies().boatId()==null){
                 deployment=HatBoatEntity.planSelfRescueDeployment(actor);
-                if(deployment==null){nextAttempt=now()+20;return false;}
+                if(deployment==null){AquaDiag.log(actor,"self.plan."+actor.getId(),40,"no deployment spot at "+AquaDiag.at(actor.position())+" yaw="+actor.yBodyRot);nextAttempt=now()+20;return false;}
                 hatId=null;removalProgress=0;carriedPose=previousCarriedPose=null;set(Phase.REMOVE_HAT);
             }
-            else return false;
+            else{AquaDiag.log(actor,"self.nohat."+actor.getId(),40,"no hat state accessory="+actor.life().hasAccessory()+" boat="+actor.subspecies().boatId());return false;}
+            AquaDiag.log(actor,"self.start."+actor.getId(),0,"phase="+phase);
             attemptTicks=contact=rightTicks=0;lastGrip=lockedGripLocal=null;actor.showReaction("teary","self_rescue_hat",36);
         }
         if(++attemptTicks>MAX_ATTEMPT_TICKS){slip();nextAttempt=now()+40;return false;}
@@ -228,6 +232,7 @@ public final class AquaticSelfRescue {
         if(velocity.horizontalDistanceSqr()<.08*.08){actor.setDeltaMovement(velocity.add(direction.scale(.010)));actor.hasImpulse=true;}
     }
     private void slip(){
+        AquaDiag.log(actor,"self.slip."+actor.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().selfClimbActive())current.releaseOwnBoardingSeat(actor);}
         if(phase!=Phase.SLIPPED)actor.showReaction("teary","self_rescue_slip",24);
         carriedPose=previousCarriedPose=null;

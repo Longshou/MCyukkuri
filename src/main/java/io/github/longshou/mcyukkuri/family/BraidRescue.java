@@ -109,12 +109,25 @@ public final class BraidRescue {
         var parent=level().getEntity(home.ownerYukkuri()) instanceof YukkuriEntity y?y:null;
         if(!eligible(parent,home)||child.isPassenger()||child.family().flying()||!child.waterDistress().canBeLifted()
                 ||!child.isInWaterOrBubble()&&!child.onGround()||child.distanceToSqr(home)>9||!parent.hasLineOfSight(child)
-                ||parent.family().braidRescueActive())return false;
+                ||parent.family().braidRescueActive()){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"preconditions eligible="+eligible(parent,home)+" passenger="+child.isPassenger()
+                    +" lifted="+child.waterDistress().canBeLifted()+" dist="+Math.sqrt(child.distanceToSqr(home))+" los="+(parent!=null&&parent.hasLineOfSight(child))
+                    +" parentBusy="+(parent!=null&&parent.family().braidRescueActive()));
+            return false;
+        }
         var rim=rim(home);
-        if(rim==null||rim.gap()>GAP_LIMIT||!between(home,parent,rim))return false;
+        if(rim==null||rim.gap()>GAP_LIMIT||!between(home,parent,rim)){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"rim "+(rim==null?"null":"gap="+rim.gap()+" between="+between(home,parent,rim))
+                    +" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position())+" boat="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(home.position())+" yaw="+home.getYRot());
+            return false;
+        }
         retryAt=now+20;
         var plan=plan(parent,home,rim);
-        if(plan==null){failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;}
+        if(plan==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"plan null gap="+rim.gap());
+            failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;
+        }
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.start",0,"child="+child.getUUID()+" gap="+rim.gap()+" braid="+plan.braid());
         if(!home.moveRescueOwner(parent,plan.approach())){home.cancelIncoming(child);return false;}
         if(!parent.life().spendEnergy(.15f)){home.cancelIncoming(child);home.releaseRescueOwner(parent);return false;}
         parentId=parent.getUUID();hatId=home.getUUID();seat=plan.seat();approachStand=plan.approach();offerStand=plan.offer();
@@ -396,6 +409,7 @@ public final class BraidRescue {
         return true;
     }
     private void finish(YukkuriEntity parent,HatBoatEntity home){
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.finish",0,"child="+child.getUUID()+" riding="+(child.getVehicle()==home));
         phase=Phase.IDLE;lastSide=-1;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
         // The safe child is nuzzled by real mouth contact; this neither cleans nor heals.
         parent.aquaticLife().care().expectNuzzle(child);
@@ -403,6 +417,8 @@ public final class BraidRescue {
     }
     public void cancel(){
         if(!active())return;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.cancel."+child.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1))
+                +" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
         var parent=parent();var home=hat();boolean wasHeld=held();
         phase=Phase.IDLE;
         // A failed side is not retried at once; the boat may berth against another side of its brim.

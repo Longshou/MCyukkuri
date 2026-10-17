@@ -39,35 +39,43 @@ final class AquaticLanding {
         }
         waiting.put(owner.getUUID(),Vec3.atBottomCenterOf(stand));
         ownerId=owner.getUUID();rescuer=helper;bank=stand.immutable();started=progress=boat.level().getGameTime();
-        dockTicks=0;docked=false;active=true;boat.holdPosition();return true;
+        dockTicks=0;docked=false;active=true;boat.holdPosition();
+        AquaDiag.log(owner,"landing.begin",0,"owner="+owner.getUUID()+" bank="+bank+" waiting="+waiting.size()+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot());
+        return true;
     }
     void tick(){
         if(!active||!(boat.level() instanceof ServerLevel level))return;
         if(!boat.isAfloat()||boat.unsteadyMotion()
                 ||!(level.getEntity(ownerId) instanceof YukkuriEntity owner)||!owner.isAlive()){
+            AquaDiag.log(boat,"landing.cancel",0,"lost boat/owner afloat="+boat.isAfloat()+" unsteady="+boat.unsteadyMotion());
             cancel();return;
         }
         long now=level.getGameTime();
         if(now-started>MAX_TICKS||now-progress>STALL_TICKS){
+            AquaDiag.log(boat,"landing.stall",0,"started="+(now-started)+" noProgress="+(now-progress)+" waiting="+waiting.size());
             // The contact choreography is not converging (gap, headroom, an infant's helper). Never hold the family on the hat forever.
             boat.forceShoreLanding(owner,rescuer);cancel();return;
         }
         if(owner.family().braidRescueActive()||owner.aquaticLife().familyLife().alarm().preventsOuting()){
+            AquaDiag.log(boat,"landing.cancel",0,"rescue/alarm");
             cancel();return;
         }
         boat.holdPosition();
         if(!docked){
             // Press the hull's long brim against the bank first; a one-cell stop short of it leaves a water gap no crawl can cross.
             docked=++dockTicks>DOCK_TICKS||boat.dockToward(Vec3.atBottomCenterOf(bank));
+            if(docked)AquaDiag.log(boat,"landing.docked",0,"ticks="+dockTicks+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot());
             return;
         }
         if(waiting.isEmpty()){
-            if(boat.finishShoreLanding(owner,bank,rescuer)){cancel();return;}
+            if(boat.finishShoreLanding(owner,bank,rescuer)){AquaDiag.log(boat,"landing.finished",0,"hat returned");cancel();return;}
+            AquaDiag.log(boat,"landing.retrieve",40,"owner="+AquaDiag.at(owner.position())+" ground="+owner.onGround()+" grip="+boat.retrievalGrip(owner)+" stand="+retrievalStand);
             approachHat(owner,level);
             return;
         }
         var first=waiting.entrySet().iterator().next();
         if(!(level.getEntity(first.getKey()) instanceof YukkuriEntity actor)||!actor.isAlive()){
+            AquaDiag.log(boat,"landing.cancel",0,"actor gone");
             cancel();return;
         }
         var destination=first.getValue();
@@ -75,16 +83,27 @@ final class AquaticLanding {
         if(actor.getVehicle()!=boat){
             if(actor.onGround()&&!actor.isInWaterOrBubble()&&actor.position().distanceToSqr(destination)<2.25){
                 actor.getNavigation().stop();waiting.remove(first.getKey());progress=now;
-            }else cancel(); // Interrupted movement retains the real hat and cargo at their current positions.
+            }else{
+                AquaDiag.log(boat,"landing.cancel",0,"actor off boat but not landed: ground="+actor.onGround()+" water="+actor.isInWaterOrBubble()+" pos="+AquaDiag.at(actor.position())+" dest="+AquaDiag.at(destination));
+                cancel(); // Interrupted movement retains the real hat and cargo at their current positions.
+            }
             return;
         }
         if(actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.family().braidRescueActive())return;
         actor.life().wakeInHat();
-        if(!boat.approachBoardingEdge(actor,destination)||boat.changingSeat(actor))return;
-        if(actor!=owner&&(actor.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY||!actor.childhood().canJump())){
-            if(!boat.approachBoardingEdge(owner,destination)||boat.changingSeat(owner))return;
+        if(!boat.approachBoardingEdge(actor,destination)||boat.changingSeat(actor)){
+            AquaDiag.log(boat,"landing.walk",40,"actor="+AquaDiag.at(actor.position())+" dest="+AquaDiag.at(destination)+" changing="+boat.changingSeat(actor));
+            return;
         }
-        actor.family().startHatLanding(boat,destination);
+        if(actor!=owner&&(actor.family().stage()==io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY||!actor.childhood().canJump())){
+            if(!boat.approachBoardingEdge(owner,destination)||boat.changingSeat(owner)){
+                AquaDiag.log(boat,"landing.helper",40,"owner="+AquaDiag.at(owner.position())+" dest="+AquaDiag.at(destination));
+                return;
+            }
+        }
+        if(!actor.family().startHatLanding(boat,destination))
+            AquaDiag.log(boat,"landing.refused",40,"actor="+actor.getUUID()+" "+AquaDiag.at(actor.position())+" dest="+AquaDiag.at(destination)+" reason="+actor.family().hatLandingRefusal());
+        else AquaDiag.log(boat,"landing.started",0,"actor="+actor.getUUID()+" from="+AquaDiag.at(actor.position())+" dest="+AquaDiag.at(destination));
     }
     /** The dry owner actually approaches the brim before returning her token. */
     private void approachHat(YukkuriEntity owner,ServerLevel level){

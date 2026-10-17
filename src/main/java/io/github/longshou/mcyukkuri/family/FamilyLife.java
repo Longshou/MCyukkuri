@@ -332,6 +332,7 @@ public final class FamilyLife {
     public boolean boardingDismountInPlace(HatBoatEntity hat){return boarding.traverses(hat);}
     public boolean hatLandingActive(){return boarding.landingAshore();}
     public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return flight==null&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
+    public String hatLandingRefusal(){return boarding.landingRefusal();}
     public boolean selfClimbActive(){return boarding.climbing();}
     public boolean climbGripActive(){return boarding.gripped();}
     public CompoundTag boardingState(){return boarding.state();}
