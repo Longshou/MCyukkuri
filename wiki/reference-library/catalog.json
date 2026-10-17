@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 98,
+    "game_texts": 99,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -11889,6 +11889,45 @@
       ],
       "focus": "平静水面上的帽船登乘教学",
       "description": "只参考岸边放船、亲代先登并示范、幼体逐只模仿和船间转移；温泉池片段未显示返岸或下船，不作为河流渡越或普遍训练规范。",
+      "kind": "reference"
+    },
+    {
+      "id": "N103",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N103.md",
+      "source_id": "N103",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/666.html",
+      "source_title": "待つぜ待つのぜ冬篭り",
+      "source_note": "页面未见作者署名；核读正文两户家庭的越冬安排，不将角色能力说明和后续感想纳入共同设定",
+      "source_group": "unknown:N103",
+      "observation": "一户家庭围成小圈睡觉并由亲代查看巢口；另一户在入口铺草、叠放干草床，间歇醒来取储粮后继续休息。",
+      "limits": "同一篇短作里的两户实例，不计作两份独立来源；不证明普遍冬眠方式、睡位顺序、亲代职责、检查动作、睡眠时长、储粮数量或保温效果。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里",
+        "灵梦",
+        "魔理沙",
+        "爱丽丝",
+        "帕秋莉"
+      ],
+      "scenarios": [
+        "休息睡眠",
+        "住所布置",
+        "采集进食"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "道具",
+        "事件"
+      ],
+      "focus": "两户家庭的冬季围睡、巢口铺草与储粮取食",
+      "description": "参考围成睡眠圈、巢口铺柔软草料、叠放干草床及间歇醒来取用储粮；两户为同篇不同安排，不推为普遍越冬制度。",
       "kind": "reference"
     }
   ]
