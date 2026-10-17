@@ -2336,6 +2336,16 @@ public final class HatBoatEntity extends Entity {
         else moveOwnerSeat(actor,ownerSeat(actor),false);
         syncSeats();
     }
+    /** The place a returning pupil takes in this hull: the berth kept for it while its own hat was away, else a close brim place. */
+    public Vec3 returnSeat(YukkuriEntity child,boolean emergency){
+        if(level().isClientSide||child==null||!young(child)||!isAfloat()||unsteadyMotion())return null;
+        var berth=voyageBerth(child);
+        if(berth!=null){
+            if(!incoming.containsKey(child.getUUID()))incoming.put(child.getUUID(),new double[]{berth.x,berth.y,berth.z,radiusOf(child)});
+            syncSeats();return berth;
+        }
+        return reserveBoardingSeat(child,child.position(),emergency);
+    }
     /** Choose a real close landing, instead of reusing a far retained berth after jump limits tighten. */
     public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency){
         if(level().isClientSide||landing()||child==null||actualFrom==null||!young(child)||!isAfloat()||unsteadyMotion()

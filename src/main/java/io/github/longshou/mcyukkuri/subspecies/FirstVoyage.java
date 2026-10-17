@@ -351,7 +351,7 @@ public final class FirstVoyage {
                     contactTicks++;
                     boolean touching=near<=.06||drive==HatBoatEntity.Drive.ARRIVED||contactTicks>40&&near<=.25;
                     if(touching){
-                        if(child.family().transferHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);contactTicks=0;return;}
+                        if(child.family().returnToHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);contactTicks=0;return;}
                         if(boat.changingSeat(child))return;
                         AquaDiag.log(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().hatBoardingDebug()+" hop="+child.family().hatLandingRefusal());
                     }

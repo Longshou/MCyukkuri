@@ -438,6 +438,22 @@ public final class FamilyLife {
         var grip=to.boardingGrip(entity);
         from.approachBoardingEdge(entity,grip!=null?grip:to.position());return false;
     }
+    /** A pupil back from its first voyage steps from its own hat onto the berth kept for it in the parent's hull. */
+    public boolean returnToHat(HatBoatEntity from,HatBoatEntity to,boolean emergency){
+        if(boarding.active())return boarding.targets(to);
+        if(from==null||to==null||from==to||flight!=null||heldByBraid()||stage==Stage.BABY||!entity.childhood().canJump()
+                ||from.unsteadyMotion()||to.unsteadyMotion()||entity.getVehicle()!=from||!from.protects(entity)||!to.isAfloat()||!to.young(entity))return false;
+        if(from.changingSeat(entity)){from.approachBoardingEdge(entity,to.position());return false;}
+        var seat=to.returnSeat(entity,emergency);
+        if(seat==null){
+            io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"return.seat."+entity.getId(),40,"no berth or brim place for the returning pupil");
+            return false;
+        }
+        if(boarding.begin(from,to,seat)||boarding.startStep(from,to,seat,null))return true;
+        io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(entity,"return.step."+entity.getId(),40,"refused: "+boarding.landingRefusal()+" | "+boarding.diagnostic());
+        to.cancelIncoming(entity);
+        from.approachBoardingEdge(entity,to.position());return false;
+    }
     /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
     public boolean rescueIntoHat(HatBoatEntity hat){
         return hat!=null&&!flying()&&rescue.start(hat);
