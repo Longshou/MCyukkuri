@@ -2623,7 +2623,7 @@ public final class HatBoatEntity extends Entity {
         float diff=net.minecraft.util.Mth.wrapDegrees(yaw-getYRot());
         if(Math.abs(diff)>.05f)setYRot(getYRot()+net.minecraft.util.Mth.clamp(diff,-maxTurn,maxTurn));
         var gap=new Vec3(target.x-getX(),0,target.z-getZ());double distance=gap.horizontalDistance();
-        boolean moved=distance<=.02;
+        boolean moved=distance<=1e-4;
         if(!moved){
             var before=position();
             move(MoverType.SELF,gap.scale(Math.min(distance,maxStep)/distance));
