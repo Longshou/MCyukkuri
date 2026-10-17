@@ -9,6 +9,7 @@ swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-go
 only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
 authored by their own package builders, which import this kit. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
+The hat-boat provisions hat_cargo_* (apple, berries, carrot, bread, cookie, melon, grass, tall grass, wheat, candy, pudding; hat units) come from cargo.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
@@ -18,7 +19,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, designs, bags, nests, small, goods
+import kit, designs, bags, nests, small, goods, cargo
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
@@ -42,6 +43,7 @@ BUILD = {
     'wash_cloth': small.wash_cloth,
     'yarn_ball': small.yarn_ball,
     'yukkuri_carrier': small.yukkuri_carrier,
+    **cargo.CARGO,
 }
 RETINT = ('yukkuri_toilet', 'yukkuri_toilet_dirty')
 REMOVED = ('food_bowl_garbage',)          # no code or recipe references it; mesh, texture and registry rows are dropped
