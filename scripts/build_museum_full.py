@@ -37,6 +37,8 @@ from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  #
 from museum_dsl import Ctx, summon_command, _text, _q, _label  # noqa: E402
 import museum_scenes  # noqa: E402
 import museum_hat_boats  # noqa: E402
+import museum_birth  # noqa: E402
+import museum_house  # noqa: E402
 
 NS = 'mcylab'
 OBJ = 'museum'
@@ -82,6 +84,8 @@ def build_layout():
                 ctx.meadow = (hall.xe + 18, 65, hall.z0 + 16)
             builder(ctx)
             museum_hat_boats.configure(ctx)
+            museum_birth.configure(ctx)
+            museum_house.configure(ctx)
             hall.contexts.append(ctx)
         halls.append(hall)
     return halls
@@ -245,6 +249,7 @@ def build_repair(fn, source_lines, halls):
         # the final batch; scheduling also avoids a single huge synchronous rebuild.
         following = f'repair/{i + 1}' if i + 1 < len(batches) else 'repair/finish'
         fn(f'repair/{i}', batch + [f'schedule function {NS}:{following} 1t replace'])
+    finish.insert(0, f'function {NS}:install_new_actors')
     finish += [f'scoreboard players set #repair_active {OBJ} 0',
                'tellraw @a ' + _text('展馆缺失结构与按钮修补完成。已有非空方块、角色和设施物资未重置。', 'green')]
     fn('repair/finish', finish)
@@ -268,10 +273,11 @@ def expand_structure_calls(lines, functions, active=()):
 def control(x, z, command, caption, south=False, hint='右键播放'):
     """Hidden command block under the floor; a button on the block above powers it. Sign behind the button."""
     CONTROLS.append((x, z))
+    sign_lines = [text[i:i + 10] for text in (caption, hint) for i in range(0, len(text), 10)]
     return [f'setblock {x} 63 {z} minecraft:command_block{{Command:{_q(command)},TrackOutput:0b}}',
             f'setblock {x} 64 {z} minecraft:polished_andesite',
             f'setblock {x} 65 {z} minecraft:stone_button[face=floor]',
-            post_sign(x, 65, z + (1 if south else -1), [caption, hint], 8 if south else 0)]
+            post_sign(x, 65, z + (1 if south else -1), sign_lines, 8 if south else 0)]
 
 
 def control_side(x, z, command, caption, hint='右键传送'):
@@ -306,7 +312,7 @@ def book_command(halls, shown):
             lines.append(f'{ctx.number:02d} {ctx.title}')
         extra = {'D': '\n尽头的“动手角”是真实的野生个体：领喷雾和篮，亲手试一试。', 'E': '\n“聚落”展台的草地在东门外，是真实的聚落生成。'}.get(hall.id, '')
         pages.append('\n'.join(lines) + extra)
-    pages.append('说明\n\n大多数展台是“指令演出”：用 /yukkuri action 和 /yukkuri say 播放真实的动作与台词，不等于自然行为。\n\n动手角与聚落是真实游戏逻辑。\n\n水上救援三个场景仍在重做，之后会更新。')
+    pages.append('说明\n\n身体、表情等按钮仍播放动作片段。取食、排泄、护理、独立、巢卵、航行、救援与聚落按钮设置有限初始条件，后续由真实玩法运行。\n\n出生庭院生成唯一后代；漏接有真实后果。停止不会撤销库存、亲缘或已完成的成长。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
             pages.append(group + ' · 动作目录\n\n' + '\n'.join(('● ' if a in shown else '○ ') + name for a, name in entries[start:start + 7]) + '\n\n● 馆内演示  ○ 仅目录')
@@ -390,7 +396,17 @@ def build_pack(world, halls, shown):
 
     zlast = halls[-1].z0 + 31
     xmax = max(h.xe for h in halls) + 80
-    forceload = f'forceload add -40 {LOBBY_Z0 - 1} {xmax} {zlast + 10}'
+    initial_chunks = {(x, z) for x in range(-40 // 16 * 16, xmax // 16 * 16 + 1, 16)
+                      for z in range((LOBBY_Z0 - 1) // 16 * 16, (zlast + 10) // 16 * 16 + 1, 16)}
+    for hall in halls:
+        for ctx in hall.contexts:
+            initial_chunks.update((x // 16 * 16, z // 16 * 16) for x, _, z in structure_blocks(ctx.props))
+    assert len(initial_chunks) <= 256, len(initial_chunks)
+    initial_load, release_load = [], []
+    for i, (x, z) in enumerate(sorted(initial_chunks)):
+        initial_load += [f'execute store success score #build_chunk_{i} {OBJ} run forceload query {x} {z}',
+                         f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload add {x} {z}']
+        release_load.append(f'execute unless score #build_chunk_{i} {OBJ} matches 1 run forceload remove {x} {z}')
 
     fn('load', [f'scoreboard objectives add {OBJ} dummy', f'execute unless score #built {OBJ} matches 1 run function {NS}:prepare',
                 f'execute if score #repair_active {OBJ} matches 1 run schedule function {NS}:repair/wait 2t replace',
@@ -399,7 +415,7 @@ def build_pack(world, halls, shown):
                 f'schedule clear {NS}:stop_all', f'schedule clear {NS}:stop_all_late',
                 f'execute if score #built {OBJ} matches 1 run function {NS}:pause_all'])
     fn('stop_all_late', [f'function {NS}:pause_all'])
-    prepare = [f'scoreboard players set #ready {OBJ} 0', forceload,
+    prepare = [f'scoreboard players set #ready {OBJ} 0'] + initial_load + [
                'gamerule doMobSpawning false', 'gamerule doDaylightCycle false', 'gamerule doWeatherCycle false',
                'gamerule keepInventory true', 'gamerule commandBlockOutput false', 'gamerule sendCommandFeedback false',
                'gamerule doFireTick false', 'gamerule spawnRadius 0', 'difficulty peaceful', 'time set noon', 'weather clear',
@@ -493,6 +509,7 @@ def build_pack(world, halls, shown):
             lines += ctx.props
             for key, spec in ctx.actors.items():
                 lines.append(summon_command(spec))
+                lines.append(f'scoreboard players set #actor_{ctx.sid}_{key} {OBJ} 1')
             index = 0
             for did, caption, steps in ctx.demos:
                 lines += control(x + 3 + index * 3, front, f'function {NS}:demo/{ctx.sid}_{did}', caption, south)
@@ -504,13 +521,19 @@ def build_pack(world, halls, shown):
             if ctx.demos:
                 lines += control(x + 12, z + (18 if south else 13), f'function {NS}:stop/{ctx.sid}', '停止演示', south, '回到待机')
             # functions
-            stop = [f'yukkuri museum stop @e[tag=room_{ctx.sid}]']
+            stop = []
             for did, caption, steps in ctx.demos:
                 stop += [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for i in range(len(steps) + 1)]
                 for delay, cmds in steps:
                     for kind, key, name, command in cmds:
                         if kind == 'badge':
                             badge_actors.add((ctx.sid, key))
+            # Never reset the remaining cast while one actor is captured, dead or unloaded.
+            for key in ctx.actors:
+                stop += [f'execute unless entity {ctx.sel(key)} run tellraw @a ' + _text('演员缺失或未加载；保留现场，请带回成员后再重置。', 'red'),
+                         f'execute unless entity {ctx.sel(key)} run return 0']
+            stop += [f'yukkuri museum stop @e[tag=room_{ctx.sid}]',
+                     f'execute if entity @e[tag=room_{ctx.sid},tag=pm_stop_failed] run return 0']
             stop += ctx.stop_before
             stop += getattr(ctx, 'hat_cleanup', [])
             for key, spec in ctx.actors.items():
@@ -520,12 +543,15 @@ def build_pack(world, halls, shown):
                 stop.append(f'yukkuri action @e[tag=room_{ctx.sid}] idle')
             for key in ctx.actors:
                 stop.append('tp ' + ctx.sel(key) + ' {} {} {} {} 0'.format(*ctx.home(key)))
-            stop += [f'kill @e[tag=pm_{ctx.sid}_fx]'] + ctx.stop_extra
+            stop += [f'kill @e[type=minecraft:item_display,tag=pm_{ctx.sid}_fx]'] + ctx.stop_extra
+            stop += ['return 1']
             fn(f'stop/{ctx.sid}', stop)
             fn(f'failed/{ctx.sid}', ['tellraw @a[distance=..60] ' + _text('展台移动未到达目标，演示已停止；请检查路线或修补展馆后重试。', 'red'),
                                     f'function {NS}:stop/{ctx.sid}'])
             for did, caption, steps in ctx.demos:
-                fn(f'demo/{ctx.sid}_{did}', [f'function {NS}:stop/{ctx.sid}', 'tellraw @a[distance=..60] ' + _text(caption, 'gold'),
+                fn(f'demo/{ctx.sid}_{did}', [f'execute store result score #reset {OBJ} run function {NS}:stop/{ctx.sid}',
+                                              f'execute unless score #reset {OBJ} matches 1 run return 0',
+                                              'tellraw @a[distance=..60] ' + _text(caption, 'gold'),
                                               f'function {NS}:scene/{ctx.sid}_{did}/0'])
                 for i, (ticks_, cmds) in enumerate(steps):
                     step = f'scene/{ctx.sid}_{did}/{i}'
@@ -560,6 +586,19 @@ def build_pack(world, halls, shown):
         structure_source.extend(lines)
 
     stand_functions = {name: body for hall in halls for ctx in hall.contexts for name, body in ctx.functions.items()}
+    install = []
+    for hall in halls:
+        for ctx in hall.contexts:
+            for key, spec in ctx.actors.items():
+                if not spec.get('installable'):
+                    continue
+                name = f'install_actor/{ctx.sid}_{key}'
+                marker = f'#actor_{ctx.sid}_{key}'
+                at = f'{math.floor(spec["x"])} {math.floor(spec["y"])} {math.floor(spec["z"])}'
+                fn(name, [f'scoreboard players set {marker} {OBJ} 1',
+                          f'execute unless entity {ctx.sel(key)} run ' + summon_command(spec)])
+                install.append(f'execute if loaded {at} unless score {marker} {OBJ} matches 1 run function {NS}:{name}')
+    fn('install_new_actors', install)
     structure_source = expand_structure_calls(structure_source, stand_functions)
     repair_blocks, repair_lines = build_repair(fn, structure_source, halls)
 
@@ -567,12 +606,13 @@ def build_pack(world, halls, shown):
     pause = [f'schedule clear {NS}:scene/{ctx.sid}_{did}/{i}' for hall in halls for ctx in hall.contexts
              for did, _, steps in ctx.demos for i in range(len(steps) + 1)]
     pause += ['yukkuri museum pause @e[tag=pm_actor]']
+    pause += [line for hall in halls for ctx in hall.contexts for line in ctx.stop_before if line.startswith('schedule clear ')]
     fn('pause_all', pause)
     fn('stop_all', [f'function {NS}:stop/{ctx.sid}' for hall in halls for ctx in hall.contexts])
     fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:stop_all',
                     f'schedule function {NS}:check 1s replace', 'say MCYMUSEUM_BUILD_COMPLETE',
                     f'schedule function {NS}:release_load 120s replace'])
-    fn('release_load', ['forceload remove all'])
+    fn('release_load', release_load)
 
     check = [f'scoreboard players set #actors {OBJ} 0', f'scoreboard players set #controls {OBJ} 0', f'scoreboard players set #calls {OBJ} 0',
              f'scoreboard players set #says {OBJ} 0', f'scoreboard players set #hands {OBJ} 0',
@@ -657,7 +697,7 @@ def write_catalogue(path, halls, shown):
              f'当前 `YukkuriAction` 注册 {len(ACTION_META)} 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适合该情景。'
              '水生魔理沙与普通魔理沙共用模型，展台按生态身份分开。', '',
              f'展馆（五厅，{sum(len(h.contexts) for h in halls)} 个展台）按情景演示其中 {len(shown)} 个动作（含待机），其余收录在目录，不强行放入参观路线。'
-             '一般展台使用 `/yukkuri action` 与 `/yukkuri say`；出生与接生使用 `/yukkuri birth_scene` 服务端成对演出，包含走位、孕体、逐只产出和帽托交接。自然行为只在“动手角”和“聚落”两处。', '',
+             '身体与表情保留动作片段展示；生活、照护、独立、巢卵、水生与聚落入口设置有限初始条件，交给普通服务器玩法。出生庭院使用真实双亲及唯一后代，不预放幼体、不回滚胎次。按钮清单包含指令片段与真实玩法入口；动作覆盖数只统计显式片段，不代表自主行为缺失。', '',
              '缩壳虽然有专属资源，但当前命令将所有 `_retract` 当作成对收回动作，导致 `shell_retract` 回到待机。展馆暂不放置无效缩壳按钮；自然受惊时的缩壳由另一条游戏逻辑触发。', '',
              '身体结构四段、失去幼体后的悲伤（`bereaved`）和家油内部片段不纳入参观路线，但仍在下表列全。', '']
     for group, entries in CATEGORIES:

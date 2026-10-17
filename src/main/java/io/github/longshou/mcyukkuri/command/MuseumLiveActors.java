@@ -64,7 +64,8 @@ public final class MuseumLiveActors {
     private static boolean unsafeTransition(YukkuriEntity actor) {
         return actor.birthScene() != null || actor.isPassenger() || actor.isVehicle()
                 || actor.family().awaitingLanding() || actor.family().flying()
-                || actor.family().laboring() || actor.family().braidRescueActive();
+                || actor.family().laboring() || actor.family().braidRescueActive()
+                || actor.family().cradlePickup().active() || actor.family().cradleHeld();
     }
 
     /** Creates a fixture relationship, not a feeding/toilet completion. Preserve the chosen age. */

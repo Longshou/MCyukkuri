@@ -221,8 +221,12 @@ public final class HatVessel {
     }
     private static double rectangleDistance(double x,double z,double halfX,double halfZ){return Math.hypot(Math.max(0,Math.abs(x)-halfX),Math.max(0,Math.abs(z)-halfZ));}
     static boolean fits(Mode mode,Vec3 at,double radius,List<double[]> taken,BodySpace body){
+        return cabinClear(mode,at.x,at.y,at.z,radius,body)&&fitsSupported(mode,at,radius,taken,body);
+    }
+    /** Adults may bridge the well: support is a footprint, while clearance remains a complete volume. */
+    static boolean fitsSupported(Mode mode,Vec3 at,double radius,List<double[]> taken,BodySpace body){
         if(!Double.isFinite(surface(mode,at.x,at.z))||Math.abs(footprint(mode,at.x,at.z,radius)-at.y)>1e-4)return false;
-        if(!cabinClear(mode,at.x,at.y,at.z,radius,body))return false;
+        if(!cabinVolumeClear(mode,at.x,at.y,at.z,radius,body))return false;
         for(var other:taken){
             double otherHeight=other.length>4?other[4]:other[3]*2;
             if((other.length>5&&other[5]>0||at.y<other[1]+otherHeight-.05&&at.y+body.height()>other[1]+.05)
@@ -234,7 +238,12 @@ public final class HatVessel {
     /** The real stepped cavity must contain the whole lower body and worn brim. A footprint touching
      *  a higher tread cannot suspend the centre over the deep well or push a child's hat through a wall. */
     public static boolean cabinClear(Mode mode,double x,double y,double z,double radius,BodySpace body){
-        if(Math.abs(surface(mode,x,z)-y)>1e-4)return false;
+        if(!Double.isFinite(surface(mode,x,z))||Math.abs(surface(mode,x,z)-y)>1e-4)return false;
+        return cabinVolumeClear(mode,x,y,z,radius,body);
+    }
+    /** Clearance during a supported step or carry; unlike a settled child's seat, the centre may be aloft. */
+    public static boolean cabinVolumeClear(Mode mode,double x,double y,double z,double radius,BodySpace body){
+        if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z))return false;
         // radius() is the soft contact footprint (42% width); wall clearance uses the full collision width.
         double halfWidth=radius/YOUNG_RADIUS*.5;
         if(!cavityContains(mode,x,y,z,halfWidth,halfWidth))return false;
@@ -242,6 +251,7 @@ public final class HatVessel {
     }
     private static boolean cavityContains(Mode mode,double x,double y,double z,double halfX,double halfZ){
         if(y>=top(mode)-1e-4)return true;
+        if(y<floor(mode)-1e-4)return false;
         for(int i=0;i<CAVITY.size();i++){
             var section=CAVITY.get(i);
             if(y<top(mode)-section.depth()*squash(mode)-1e-4)continue;
@@ -251,6 +261,15 @@ public final class HatVessel {
         // Older resource packs retain the original two-tier contract.
         var r=y>=top(mode)-LEDGE*squash(mode)-1e-4?OPENING:WELL;
         return x-halfX>=r[0]&&x+halfX<=r[1]&&z-halfZ>=r[2]&&z+halfZ<=r[3];
+    }
+    /** Walking raises the full body onto a tread before its shell enters the vertical riser. */
+    static double travelSupport(Mode mode,double x,double z,double radius){
+        double halfWidth=radius/YOUNG_RADIUS*.5,result=Double.NEGATIVE_INFINITY;
+        for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
+            double y=surface(mode,x+dx*halfWidth,z+dz*halfWidth);
+            if(Double.isFinite(y))result=Math.max(result,y);
+        }
+        return Double.isFinite(result)?result:Double.NaN;
     }
     static BodySpace bodySpace(YukkuriEntity child,double hullScale,double unit){
         boolean hat=child.getVariant()==io.github.longshou.mcyukkuri.entity.YukkuriVariant.MARISA&&child.life().hasAccessory();

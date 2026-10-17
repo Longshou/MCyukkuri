@@ -132,6 +132,8 @@ def main():
                 c.meadow = (0, 66, 0)
                 builder(c)
                 configure(c)
+                museum.museum_birth.configure(c)
+                museum.museum_house.configure(c)
                 for did, _, steps in c.demos:
                     results.append(replay(c, did, steps))
     contacts = [v for r in results for v in r['contacts']]

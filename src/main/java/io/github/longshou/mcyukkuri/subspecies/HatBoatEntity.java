@@ -953,12 +953,16 @@ public final class HatBoatEntity extends Entity {
 
     private ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) {
         double r=radiusOf(child); Vec3 from=toLocal(child.position()), parentFrom=toLocal(parent.position()), base=ownerSeat(parent);
+        var childBody=HatVessel.bodySpace(child,hullScale(),unit());
+        var parentBody=HatVessel.bodySpace(parent,hullScale(),unit());
+        var taken=takenExcept(child.getUUID());
         var childPlaces=new java.util.ArrayList<Vec3>();
         // Enumerate measured contact patches once. A parent's station is not restricted to a few stern offsets.
         for(double x=HatVessel.OPENING[0]+r;x<=HatVessel.OPENING[1]-r;x+=.25)
             for(double z=HatVessel.OPENING[2]+r;z<=Math.min(.5,HatVessel.OPENING[3]-r);z+=.25){
                 double y=HatVessel.footprint(mode(),x,z,r);
-                if(Double.isFinite(y)&&Double.isFinite(HatVessel.surface(mode(),x,z)))childPlaces.add(new Vec3(x,y,z));
+                var at=new Vec3(x,y,z);
+                if(Double.isFinite(y)&&HatVessel.fits(mode(),at,r,taken,childBody))childPlaces.add(at);
             }
         record CarePose(Vec3 ownerAt,Vec3 childAt,double cost) {}
         var candidates=new java.util.ArrayList<CarePose>();
@@ -968,10 +972,13 @@ public final class HatBoatEntity extends Entity {
                 double y=HatVessel.footprint(mode(),x,z,radiusOf(parent));
                 if(!Double.isFinite(y)||!Double.isFinite(HatVessel.surface(mode(),x,z)))continue;
                 Vec3 ownerAt=new Vec3(x,y,z);
+                if(!HatVessel.fitsSupported(mode(),ownerAt,radiusOf(parent),taken,parentBody))continue;
                 for(var candidate:childPlaces){
                     if(Math.abs(candidate.y-ownerAt.y)>.001)continue;
                     double dx=candidate.x-x,dz=candidate.z-z,distance=dx*dx+dz*dz;
                     if(distance<min*min || distance>max*max || !serviceGeometryFits(parent,child,ownerAt,candidate))continue;
+                    if(!HatVessel.fits(mode(),candidate,r,java.util.List.of(rescueBody(parent,ownerAt)),childBody)
+                            ||!HatVessel.fitsSupported(mode(),ownerAt,radiusOf(parent),java.util.List.of(rescueBody(child,candidate)),parentBody))continue;
                     double cost=candidate.distanceToSqr(from)+ownerAt.distanceToSqr(parentFrom)*.5+ownerAt.distanceToSqr(base)*.25;
                     candidates.add(new CarePose(ownerAt,candidate,cost));
                 }
@@ -986,9 +993,9 @@ public final class HatBoatEntity extends Entity {
             else{
                 if(from.distanceToSqr(candidate)>.01&&path.isEmpty())continue;
                 var obstacles=takenExcept(child.getUUID());
-                obstacles.add(new double[]{candidate.x,candidate.y,candidate.z,r,child.getBbHeight()/unit()});
+                obstacles.add(rescueBody(child,candidate));
                 if(parentFrom.distanceToSqr(ownerAt)>.01&&HatSurfaceRoute.find(mode(),parentFrom,ownerAt,
-                        radiusOf(parent),obstacles,parent.getBbHeight()/unit()).isEmpty())continue;
+                        radiusOf(parent),obstacles,parentBody).isEmpty())continue;
             }
             return new ServiceSeat(original.clone(),region(),new double[]{candidate.x,candidate.y,candidate.z,r},ownerAt,rearCare,false);
         }
@@ -1023,7 +1030,8 @@ public final class HatBoatEntity extends Entity {
         }
         // A layout replan may temporarily remove destinations. Their actual riders still occupy the hat.
         for(var p:youngPassengers())if(!p.getUUID().equals(excluded)&&!seats.containsKey(p.getUUID())){
-            var at=toLocal(p.position());out.add(new double[]{at.x,at.y,at.z,radiusOf(p),p.getBbHeight()/unit()});
+            var at=toLocal(p.position());
+            out.add(p instanceof YukkuriEntity y?rescueBody(y,at):new double[]{at.x,at.y,at.z,radiusOf(p),p.getBbHeight()/unit()});
         }
         if (voyageBerth != null && (voyageYoung == null || !voyageYoung.equals(excluded)) && !seats.containsKey(voyageYoung) && !incoming.containsKey(voyageYoung)) out.add(voyageBerth);
         addCargoFootprints(out);
@@ -1090,7 +1098,7 @@ public final class HatBoatEntity extends Entity {
         for(double x=-HatVessel.BRIM[0];x<=HatVessel.BRIM[0];x+=.4)
             for(double z=-HatVessel.BRIM[1];z<=HatVessel.BRIM[1];z+=.4){
                 double y=HatVessel.footprint(mode(),x,z,radius);if(!Double.isFinite(y))continue;
-                var at=new Vec3(x,y,z);if(HatVessel.fits(mode(),at,radius,obstacles,body))result.add(at);
+                var at=new Vec3(x,y,z);if(HatVessel.fitsSupported(mode(),at,radius,obstacles,body))result.add(at);
             }
         return result;
     }
@@ -1140,7 +1148,7 @@ public final class HatBoatEntity extends Entity {
         var childObstacles=new java.util.ArrayList<>(obstacles);childObstacles.add(rescueBody(parent,parentStand));
         var ownerObstacles=new java.util.ArrayList<>(obstacles);ownerObstacles.add(rescueBody(child,youngSeat));
         return HatVessel.fits(mode(),youngSeat,radiusOf(child),childObstacles,HatVessel.bodySpace(child,hullScale(),unit()))
-                &&HatVessel.fits(mode(),parentStand,radiusOf(parent),ownerObstacles,HatVessel.bodySpace(parent,hullScale(),unit()));
+                &&HatVessel.fitsSupported(mode(),parentStand,radiusOf(parent),ownerObstacles,HatVessel.bodySpace(parent,hullScale(),unit()));
     }
     /** Atomically keep the chosen child berth only after both bodies and the parent's real walk are viable.
      *  The braid controller still walks to pickup first and to parentStand only after it has lifted the child. */
@@ -1151,7 +1159,7 @@ public final class HatBoatEntity extends Entity {
                 ||!incoming.containsKey(child.getUUID())&&youngAboard()+incoming.size()>=MAX_YOUNG)return false;
         var obstacles=takenExcept(child.getUUID());obstacles.add(rescueBody(child,youngSeat));
         var from=toLocal(parent.position());
-        if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(mode(),from,parentStand,radiusOf(parent),obstacles,parent.getBbHeight()/unit()).isEmpty())return false;
+        if(from.distanceToSqr(parentStand)>.01&&HatSurfaceRoute.find(mode(),from,parentStand,radiusOf(parent),obstacles,HatVessel.bodySpace(parent,hullScale(),unit())).isEmpty())return false;
         incoming.put(child.getUUID(),new double[]{youngSeat.x,youngSeat.y,youngSeat.z,radiusOf(child)});
         syncSeats();return true;
     }
@@ -1159,7 +1167,7 @@ public final class HatBoatEntity extends Entity {
     public boolean moveRescueOwner(YukkuriEntity parent,Vec3 localSupported){
         if(level().isClientSide||parent!=owner()||parent.getVehicle()!=this||!isAfloat()||unsteadyMotion()||towed()
                 ||localSupported==null||carryTrip!=null||ownerToiletSeat||!serviceSeats.isEmpty()||!returningSeats.isEmpty())return false;
-        if(!HatVessel.fits(mode(),localSupported,radiusOf(parent),takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,hullScale(),unit())))return false;
+        if(!HatVessel.fitsSupported(mode(),localSupported,radiusOf(parent),takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,hullScale(),unit())))return false;
         if(!moveOwnerSeat(parent,localSupported,false))return false;
         rescueOwnerHeld=true;holdPosition();syncSeats();return true;
     }
@@ -1171,10 +1179,10 @@ public final class HatBoatEntity extends Entity {
         if(parent!=owner()||parent.getVehicle()!=this||localStand==null||!isAfloat()||unsteadyMotion())return java.util.List.of();
         var obstacles=takenExcept(child!=null?child.getUUID():parent.getUUID());
         if(child!=null&&youngSeat!=null)obstacles.add(rescueBody(child,youngSeat));
-        if(!HatVessel.fits(mode(),localStand,radiusOf(parent),obstacles,HatVessel.bodySpace(parent,hullScale(),unit())))return java.util.List.of();
+        if(!HatVessel.fitsSupported(mode(),localStand,radiusOf(parent),obstacles,HatVessel.bodySpace(parent,hullScale(),unit())))return java.util.List.of();
         var from=toLocal(parent.position());
         if(from.distanceToSqr(localStand)<.0001)return java.util.List.of(from);
-        return HatSurfaceRoute.find(mode(),from,localStand,radiusOf(parent),obstacles,parent.getBbHeight()/unit());
+        return HatSurfaceRoute.find(mode(),from,localStand,radiusOf(parent),obstacles,HatVessel.bodySpace(parent,hullScale(),unit()));
     }
     public boolean rescueOwnerReady(YukkuriEntity parent){return rescueOwnerHeld&&parent==owner()&&ownerServiceSeat!=null&&atSeat(parent,ownerServiceSeat);}
     public void releaseRescueOwner(YukkuriEntity parent){
@@ -1194,10 +1202,11 @@ public final class HatBoatEntity extends Entity {
             var parent = owner();
             if (parent != null && parent.getVehicle() == this) {
                 Vec3 at = ownerServiceSeat != null ? ownerServiceSeat : toLocal(parent.position());
-                obstacles.add(new double[]{at.x, at.y, at.z, radiusOf(parent),parent.getBbHeight()/unit()});
+                obstacles.add(rescueBody(parent,at));
             }
         }
-        return HatSurfaceRoute.find(mode(), toLocal(rider.position()), destination, radiusOf(rider), obstacles,rider.getBbHeight()/unit());
+        return HatSurfaceRoute.find(mode(), toLocal(rider.position()), destination, radiusOf(rider), obstacles,rider instanceof YukkuriEntity y
+                ?HatVessel.bodySpace(y,hullScale(),unit()):new HatVessel.BodySpace(rider.getBbHeight()/unit(),0,0,0,0));
     }
 
     /** Commit both reservations together; a failed parent route must not strand the child. */
@@ -1227,8 +1236,11 @@ public final class HatBoatEntity extends Entity {
         Vec3 pickup=new Vec3(xz.x,HatVessel.footprint(mode(),xz.x,xz.z,radiusOf(parent)),xz.z);
         if (!Double.isFinite(pickup.y) || !serviceGeometryFits(parent,child,pickup,from)) return null;
         if (toLocal(parent.position()).distanceToSqr(pickup)>.01 && walkingRoute(parent,pickup).isEmpty()) return null;
-        var path=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),takenExcept(child.getUUID()),
-                offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
+        var obstacles=takenExcept(child.getUUID());var childBody=HatVessel.bodySpace(child,hullScale(),unit());
+        if(!HatSurfaceRoute.transferClear(mode(),from,pickup.add(offset),radiusOf(child),obstacles,childBody)
+                ||!HatSurfaceRoute.transferClear(mode(),ownerDestination.add(offset),to,radiusOf(child),obstacles,childBody))return null;
+        var path=HatSurfaceRoute.find(mode(),pickup,ownerDestination,radiusOf(parent),obstacles,
+                offset,radiusOf(child),HatVessel.bodySpace(parent,hullScale(),unit()),childBody);
         return path.isEmpty() && pickup.distanceToSqr(ownerDestination)>.01?null:pickup;
     }
 
@@ -1275,7 +1287,7 @@ public final class HatBoatEntity extends Entity {
         if (recoverCarry) {
             Vec3 target=trip.phase==0?trip.pickup:trip.ownerDestination;
             var path=trip.phase==0?walkingRoute(parent,target):HatSurfaceRoute.find(mode(),toLocal(parent.position()),target,radiusOf(parent),
-                    takenExcept(child.getUUID()),trip.offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
+                    takenExcept(child.getUUID()),trip.offset,radiusOf(child),HatVessel.bodySpace(parent,hullScale(),unit()),HatVessel.bodySpace(child,hullScale(),unit()));
             if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(target)>.01) return;
             recoverCarry=false; ownerServiceSeat=target;
             ownerSeatMove=path.isEmpty()?null:new SeatMove(toLocal(parent.position()),level().getGameTime(),
@@ -1295,7 +1307,7 @@ public final class HatBoatEntity extends Entity {
         io.github.longshou.mcyukkuri.life.SurfaceApproach.face(child,carryYaw+180);
         if (trip.phase==1 && level().getGameTime()-trip.at>=12) {
             var path=HatSurfaceRoute.find(mode(),toLocal(parent.position()),trip.ownerDestination,radiusOf(parent),
-                    takenExcept(child.getUUID()),trip.offset,radiusOf(child),parent.getBbHeight()/unit(),child.getBbHeight()/unit());
+                    takenExcept(child.getUUID()),trip.offset,radiusOf(child),HatVessel.bodySpace(parent,hullScale(),unit()),HatVessel.bodySpace(child,hullScale(),unit()));
             if (path.isEmpty() && toLocal(parent.position()).distanceToSqr(trip.ownerDestination)>.01) {
                 // Nothing was handed off: lower at the pickup patch and let the retained return retry.
                 carryTrip=new CarryTrip(trip.child,trip.from,trip.from,trip.pickup,trip.pickup,trip.offset,level().getGameTime());
@@ -1387,7 +1399,7 @@ public final class HatBoatEntity extends Entity {
         double gait=time-24*Math.sin(time*Math.PI/12)/(2*Math.PI);
         double total=movement.ticks()-24*Math.sin(movement.ticks()*Math.PI/12)/(2*Math.PI);
         Vec3 local = HatSurfaceRoute.sample(movement.route(),gait/Math.max(1,total));
-        double support = HatVessel.footprint(mode(), local.x, local.z, radiusOf(rider));
+        double support = HatVessel.travelSupport(mode(), local.x, local.z, radiusOf(rider));
         // Lift onto a short ledge without ever sinking the feet through its surface.
         return new Vec3(local.x, Math.max(local.y, support), local.z);
     }

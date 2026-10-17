@@ -278,8 +278,7 @@ def _exam_scene(c, passed):
         (60, [c.NOTE('躲猫猫：低伏、脸顶进箱子（新的小幅姿态）'), c.A('kid', 'hide_face')] + ([c.S('kid', 'exam_hide_fail')] if not passed else [])),
         (40, [c.NOTE('考官转回来找人' if passed else '屁股露在外面，被找到了'), c.FACE('judge', 'L')]),
     ]
-    steps += c.walk('kid', hide_u, 4.5, 3, 'R', steps=8, y=66)
-    steps.append((2, [c.TP('kid', 4.5, 3, 'R', 66.4375)]))
+    steps += c.walk('kid', hide_u, 4.5, 3, 'R', steps=8, y=66.4375)
     if passed:
         steps += [
             (50, [c.CARD('exam', '合格！铜章', 'green'), c.NOTE('合格'), c.A('kid', 'joy_jump'), c.S('kid', 'exam_pass'),
@@ -325,16 +324,10 @@ def date(c):
     c.actor('bride', 'reimu', 3.2, 3, 'R', '宠物灵梦', grade=1)
     c.actor('stud', 'marisa', 9.0, 3, 'L', '种油魔理沙', grade=2)
     c.actor('keeper', 'caretaker_brother', 6.0, 4.6, 'F', '饲养员', job=4)
-    c.basket(3.2, 3)
     c.label(6.0, 4.6, 1.9, '相亲 6 绿宝石', .4)
-    walk = []
-    for k in range(1, 9):
-        cmds = [c.TP('bride', round(3.2 + 2.9 * k / 8, 3), 3, 'R'), c.TP('stud', round(9.0 - 2.1 * k / 8, 3), 3, 'L')]
-        if k == 1:
-            cmds = [c.A('bride', 'waddle'), c.A('stud', 'waddle')] + cmds
-        walk.append((4, cmds))
+    walk = c.walk('bride', 3.2, 6.0, 3, 'R') + c.walk('stud', 9.0, 6.82, 3, 'L')
     c.demo('date', '饲养员相亲', [
-        (40, [c.NOTE('饲养员把宠物从篮里放出来'), c.A('bride', 'basket_out'), c.S('bride', 'basket_exit')]),
+        (40, [c.NOTE('双方已经到场；这是表情与接近片段，真实收容请用运输展台')]),
         (60, [c.NOTE('和种油见面：害羞'), c.A('bride', 'shy'), c.S('bride', 'date_meet'), c.A('stud', 'shy')]),
         (50, [c.S('stud', 'date_meet')]),
         (4, [c.NOTE('慢慢走近')])] + walk + [
@@ -348,7 +341,7 @@ def carry(c):
     c.actor('pet', 'reimu', 8.0, 3, 'F', '灵梦', grade=1)
     for key, label in (('wild', '野生收容实操'), ('pet', '真实篮内身份')):
         c.demo(key, label, [(2400, [c.LIVE(key),
-            c.raw(f'execute at {c.sel(key)} run give @p[distance=..20] mcyukkuri:yukkuri_carrier 1'),
+            c.raw(f'execute at {c.sel(key)} run give @p[distance=..20] mcyukkuri:yukkuri_carrier[minecraft:can_place_on={{predicates:[{{blocks:"minecraft:polished_diorite"}},{{blocks:"minecraft:smooth_quartz"}}],show_in_tooltip:false}}] 1'),
             c.raw(f'execute at {c.sel(key)} run give @p[distance=..20] mcyukkuri:sleep_spray 1'),
             c.NOTE('使用实际喷雾与收容篮；收容、放出均保留同一只实体身份。停止前先放回展台')])])
 
@@ -370,7 +363,7 @@ def wild(c):
         c.walk('guard', 7.5, 4.6 + c.contact_distance('guard', 'beggar'), 1.5, 'L', steps=12) +
         c.walk('guard', 5.4, 5.4, 1.5, 'B', steps=8, v1=3) + [
         (14, [c.NOTE('近身推挤（压力 +2）'), c.FACE('guard', 'L'), c.A('guard', 'push')]),
-        (40, [c.TP('beggar', 4.25, 3, 'R'), c.A('beggar', 'startle')]),
+        (40, [c.A('beggar', 'startle')]),
         (30, [c.NOTE('失败也会记在心里')])])
 
 
@@ -412,6 +405,7 @@ def autumn(c):
     c.actor('forager', 'reimu', 8.5, 3, 'F', '采集的灵梦')
     c.actor('resident', 'chen', 3.0, 3, 'F', '留守的橙')
     c.block_facing(0, 4, 'mcyukkuri:cardboard_shelter', 'F')
+    c.fill_cells(8, 0, 10, 2, 'minecraft:grass_block', dy=-1)
     c.block(8, 2, 'minecraft:short_grass')
     c.fill_cells(8, 0, 10, 0, 'minecraft:short_grass', dy=0)
     c.block(9, 1, 'minecraft:fern')
@@ -495,21 +489,21 @@ def handson(c):
 
 
 def settlement(c):
-    """Real settlement through the operator command, in the fenced meadow east of hall E."""
+    """Persistently owned real settlement; replay never deletes unregistered meadow residents."""
     mx, my, mz = c.meadow
-    c.function('settle_spawn', ['tellraw @a ' + _t('正在草地上建立一个有族长的森林聚落……（条件不够会提示失败）', 'yellow'),
-                                f'yukkuri settlement spawn forest_led {mx} {my} {mz}'])
-    c.function('settle_threat', [f'execute positioned {mx} {my} {mz} run yukkuri settlement threat 6',
-                                 'tellraw @a ' + _t('聚落收到了威胁报告：看它们怎么应对。', 'yellow')])
-    c.function('settle_migrate', [f'execute positioned {mx} {my} {mz} run yukkuri settlement migrate',
-                                  'tellraw @a ' + _t('族长尝试迁居（需要真实可用的新址，失败属于正常）。', 'yellow')])
-    c.function('settle_clear', [f'kill @e[type=#mcylab:yukkuri,x={mx},y={my},z={mz},distance=..30,tag=!pm_actor,tag=!pm_hands]',
-                                'tellraw @a ' + _t('已清走草地上的个体。', 'yellow')])
+    c.function('settle_spawn', [f'yukkuri museum settlement start {mx} {my} {mz}'])
+    c.function('settle_forage', ['yukkuri museum settlement order forage'])
+    c.function('settle_scout', ['yukkuri museum settlement order scout'])
+    c.function('settle_message', ['yukkuri museum settlement order message'])
+    c.function('settle_threat', ['yukkuri museum settlement threat 6'])
+    c.function('settle_status', ['yukkuri museum settlement status'])
+    c.function('settle_migrate', ['yukkuri museum settlement migrate'])
+    c.function('settle_clear', ['yukkuri museum settlement reset'])
     c.button('建立聚落', '真实生成', 'settle_spawn')
-    c.button('增加威胁', '真实事件', 'settle_threat')
+    c.button('执行采集', '真实派工', 'settle_forage')
     c.button('尝试迁居', '真实事件', 'settle_migrate')
-    c.button('清空草地', '重新开始', 'settle_clear')
-    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n族长、住户与真实的洞穴', .5)
+    c.button('安全重置', '仅本轮成员', 'settle_clear')
+    c.label(5.5, 3, 2.4, '聚落：走出东门，到草地上看\n采集结果看真实粮库；成员未加载或收容时不能重置', .5)
 
 
 def biomes(c):

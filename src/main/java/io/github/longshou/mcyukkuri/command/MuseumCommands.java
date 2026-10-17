@@ -2,16 +2,21 @@ package io.github.longshou.mcyukkuri.command;
 
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.settlement.SettlementOrders;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 
-/** Presentation-only bindings for the fixed museum cast. Never starts natural care or awards progress. */
+/** Museum setup and real-behaviour entry points; action outcomes remain owned by gameplay. */
 public final class MuseumCommands {
     public static boolean actor(Entity entity) {
         return entity instanceof YukkuriEntity y && y.isAlive() && y.isNoAi() && y.getTags().contains("pm_actor");
@@ -19,6 +24,8 @@ public final class MuseumCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("museum").requires(s -> s.hasPermission(2))
+                .then(settlementCommand())
+                .then(aquaticCommand())
                 .then(Commands.literal("pause").then(Commands.argument("actors", EntityArgument.entities()).executes(c -> {
                     int count = 0;
                     for (var entity : EntityArgument.getEntities(c, "actors"))
@@ -72,14 +79,16 @@ public final class MuseumCommands {
                     int count = 0;
                     for (var entity : EntityArgument.getEntities(c, "actors"))
                         if (entity instanceof net.minecraft.world.entity.Mob mob && entity.getTags().contains("pm_actor")) {
-                            MuseumWalkGoal.cancel(mob);
                             if (mob instanceof YukkuriEntity y) {
-                                if (!MuseumIndependenceSetup.stop(y)) {
-                                    c.getSource().sendFailure(net.minecraft.network.chat.Component.literal("独立展台仍有未加载成员或住所；先带回成员再重置。"));
+                                if (!MuseumIndependenceSetup.stop(y) || !MuseumAquaticSetup.stop(y) || !MuseumLiveActors.restore(y)) {
+                                    y.addTag("pm_stop_failed");
+                                    c.getSource().sendFailure(Component.literal("暂不能停止 " + y.getName().getString()
+                                            + "：成员或住所可能未加载，或仍在生产、接生、救援、上岸/收帽中；已保留当前演出，请安全结束后重试。"));
                                     continue;
                                 }
-                                MuseumLiveActors.restore(y);
                             }
+                            MuseumWalkGoal.cancel(mob);
+                            mob.removeTag("pm_stop_failed");
                             count++;
                         }
                     return count;
@@ -120,6 +129,67 @@ public final class MuseumCommands {
                                             return hat.museumSeat((YukkuriEntity)entity, DoubleArgumentType.getDouble(c, "x"),
                                                     DoubleArgumentType.getDouble(c, "z")) ? 1 : 0;
                                         })))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> settlementCommand() {
+        return Commands.literal("settlement")
+                .then(Commands.literal("start").then(Commands.argument("center", BlockPosArgument.blockPos()).executes(c ->
+                        settlementResult(c.getSource(), MuseumSettlementSetup.start(c.getSource().getLevel(), BlockPosArgument.getLoadedBlockPos(c, "center"))))))
+                .then(Commands.literal("reset").executes(c -> settlementResult(c.getSource(), MuseumSettlementSetup.reset(c.getSource().getLevel()))))
+                .then(Commands.literal("status").executes(c -> settlementResult(c.getSource(), MuseumSettlementSetup.status(c.getSource().getLevel()))))
+                .then(Commands.literal("order").then(Commands.argument("kind", StringArgumentType.word())
+                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"forage", "scout", "message"}, b))
+                        .executes(c -> {
+                            var kind = switch (StringArgumentType.getString(c, "kind")) {
+                                case "forage" -> SettlementOrders.Kind.FORAGE;
+                                case "scout" -> SettlementOrders.Kind.SCOUT;
+                                case "message" -> SettlementOrders.Kind.MESSAGE;
+                                default -> SettlementOrders.Kind.NONE;
+                            };
+                            if (kind == SettlementOrders.Kind.NONE) {
+                                c.getSource().sendFailure(Component.literal("聚落命令只能是 forage、scout 或 message。")); return 0;
+                            }
+                            return settlementResult(c.getSource(), MuseumSettlementSetup.order(c.getSource().getLevel(), kind));
+                        })))
+                .then(Commands.literal("threat").then(Commands.argument("amount", IntegerArgumentType.integer(1, 20)).executes(c ->
+                        settlementResult(c.getSource(), MuseumSettlementSetup.threat(c.getSource().getLevel(), IntegerArgumentType.getInteger(c, "amount"))))))
+                .then(Commands.literal("migrate").executes(c -> settlementResult(c.getSource(), MuseumSettlementSetup.migrate(c.getSource().getLevel()))));
+    }
+
+    private static int settlementResult(CommandSourceStack source, MuseumSettlementSetup.Result result) {
+        if (!result.success()) { source.sendFailure(Component.literal(result.message())); return 0; }
+        source.sendSuccess(() -> Component.literal(result.message()), false);
+        // An already-empty reset is still successful, even though it removed zero residents.
+        return Math.max(1, result.count());
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> aquaticCommand() {
+        return Commands.literal("aquatic").then(Commands.argument("mode", StringArgumentType.word())
+                .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"low", "high", "voyage", "self", "braid", "shore", "birth", "sail"}, b))
+                .then(Commands.argument("parent", EntityArgument.entity())
+                        .then(Commands.argument("others", EntityArgument.entities())
+                                .then(Commands.argument("bank", BlockPosArgument.blockPos())
+                                        .then(Commands.argument("water", BlockPosArgument.blockPos()).executes(c -> {
+                                            var selectedParent = EntityArgument.getEntity(c, "parent");
+                                            if (!(selectedParent instanceof YukkuriEntity parent)) {
+                                                c.getSource().sendFailure(Component.literal("水生演出的亲油必须是油库里。")); return 0;
+                                            }
+                                            var others = new java.util.ArrayList<YukkuriEntity>();
+                                            for (var selected : EntityArgument.getEntities(c, "others")) {
+                                                if (selected == parent) continue; // 'self' may select only the parent.
+                                                if (!(selected instanceof YukkuriEntity actor)) {
+                                                    c.getSource().sendFailure(Component.literal("水生演出的配角必须全部是油库里。")); return 0;
+                                                }
+                                                others.add(actor);
+                                            }
+                                            String mode = StringArgumentType.getString(c, "mode");
+                                            if (!MuseumAquaticSetup.prepare(mode, parent, others,
+                                                    BlockPosArgument.getLoadedBlockPos(c, "bank"), BlockPosArgument.getLoadedBlockPos(c, "water"))) {
+                                                c.getSource().sendFailure(Component.literal("水生演出准备失败：检查模式、同展台演员、年龄、真实桨粮、相邻干岸/水面，以及上一轮是否已安全结束。")); return 0;
+                                            }
+                                            c.getSource().sendSuccess(() -> Component.literal("水生演出 " + mode + " 已由真实行为接管；动作与结果以实际状态为准。"), false);
+                                            return 1;
+                                        }))))));
     }
     private MuseumCommands() {}
 }
