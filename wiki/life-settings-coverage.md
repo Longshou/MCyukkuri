@@ -1,6 +1,6 @@
 # 油库里生活设定的全领域覆盖
 
-[Wiki](README.md) · [宠物生活与襁褓](pet-life.md) · [维护计划](MAINTENANCE_PLAN.md) · [游戏开发顺序](../docs/DEVELOPMENT_PLAN.md)
+[Wiki](README.md) · [宠物生活与襁褓](pet-life.md) · [野外与交互](wild-life.md) · [树叶襁褓](leaf-swaddle.md) · [维护计划](MAINTENANCE_PLAN.md) · [游戏开发顺序](../docs/DEVELOPMENT_PLAN.md)
 
 2026-10-17 起，设定搜集按生活过程组织，同时覆盖宠物、流浪者、野外家庭、群落和人类社会。下表是资料覆盖与待核读问题，不是功能完成表；“已有”也不代表各作者一致。
 
@@ -9,7 +9,7 @@
 | 领域 | 已有具体依据 | 下一步需要补到的内容 |
 | --- | --- | --- |
 | 购买、救助与收养 | [EH32](art-references/ehentai/works/EH32.md)发现与安置；[EH33](art-references/ehentai/works/EH33.md)店内交付 | 到家数日的适应过程、寄养、转养、失散重逢；继续 EH32 第 9 页之后 |
-| 服装、襁褓与个人用品 | [襁褓专题段](pet-life.md#襁褓的形状与用途)：外出服、成体穿衣、待产穿衣、约束型 | 穿脱顺序、不同尺寸、如厕开口、洗换晾干、磨损修补；不能只凭静态外形定义功能 |
+| 服装、襁褓与个人用品 | [襁褓专题段](pet-life.md#襁褓的形状与用途)：外出服、成体穿衣、待产穿衣、约束型，另有 EH37-006 树叶包覆幼体 | 穿脱顺序、不同尺寸、如厕开口、洗换晾干、磨损修补；不能只凭静态外形定义功能 |
 | 饮食、甜食与饮水 | EH32 4–8；[日常生态](ecology-daily-life.md)；[资源](hakkei-reference/world/resources-ecology.md) | 分餐、食物保存、换粮与挑食后续；饮水器的具体使用画格 |
 | 清洁与厕所 | EH32 5–6；[N29](novel-reading/cards/N29.md)；[幼体生命周期](../docs/CHILDHOOD_LIFECYCLE.md)的作品锚点 | 健康成体的清洁全程、襁褓沾污与替换、厕所清理工具 |
 | 居室、睡眠与家具 | [N24](novel-reading/cards/N24.md)、EH32 7–8；[住所专题](hakkei-reference/lore/habitat-seasonal-life.md) | 多只同居的分区、换窝、夜间需求、搬家后的适应 |
@@ -26,12 +26,12 @@
 | 领域 | 已有具体依据 | 下一步需要补到的内容 |
 | --- | --- | --- |
 | 出生与成长 | [共通生态](hakkei-reference/lore/ecology.md)、EH08／EH16、[家庭生命周期](../docs/CHILDHOOD_LIFECYCLE.md) | 正常茎果连续成长、家油自然破壳、幼体练习与分床；不同出生版本分别登记 |
-| 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
+| 家庭与亲缘 | [作品母题](hakkei-reference/events/traditional-motifs.md)、N01 离巢、N30 代际关系，EH35 姐妹照料、N32 供食者失联 | 兄弟姐妹分工、照料负担、成体再会、亲代死亡后的家庭变化 |
 | 食源与采集 | [资源生态](hakkei-reference/world/resources-ecology.md)、[情景卡](hakkei-reference/world/events.md) | 食源辨认、采集失败、携带、分享、储存和腐败的连续因果 |
 | 住所与建造 | [住所与季节生活](hakkei-reference/lore/habitat-seasonal-life.md)、N01／N03／N04 | 修窝、排水、扩容、失窝后暂住与重建，避免只收静态洞口 |
-| 季节与天气 | N02／N15／N26、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
+| 季节与天气 | N02／N15／N26；EH35 梅雨、N31 暴雨与雨后洪流、[环境参考](reference-library/topics/environment.md) | 雨前准备、夏季避热、秋储消耗、冬季照料与春季分粮；保留寒冷致死异说 |
 | 水域与移动 | N09／N13／N14、[水生类型](hakkei-reference/lore/conflicts.md) | 登离帽船、靠岸、载幼、物资受潮、夜间休息；船浮力与本体耐水分开 |
-| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md) | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
+| 群落与权力 | [群落核读](yukkuri-communities.md)、[个体社会](hakkei-reference/world/personality-social.md)；N33 地方盟约、N34 接纳与回访 | 分工、协商、传闻验证、领袖继任、资源冲突及其后果 |
 | 流浪与城市边缘 | EH27、EH26、[生活情景](hakkei-reference/world/events.md) | 固定路线、垃圾食源变化、临时同伴、人类设施开闭与栖所被清理 |
 | 捕食、避险与救助 | EH02、[种族目录](hakkei-reference/lore/species/README.md) | 日常活动、警戒、逃离与救助；不只积累受伤画面 |
 | 人类产业与劳动 | [商店／加工所](shops-factory-npcs.md)、[工厂专项](factory-production-review.md)、EH33 | 从来源、培训、运输到销售的具体交接；不同作者的残酷制度与普通照料并列 |
@@ -47,7 +47,11 @@
 
 新作品同时记录作者／转载关系、读到哪页、具体事实、冲突版本和可制作目标。当前种族范围继续遵守[编辑口径](EDITORIAL_GUIDE.md)；扩大生活领域不等于将所有未规划种族自动加入游戏。
 
-## 本轮边界
+## 野外与交互的继续核读
+
+已补 EH35–EH37、N31–N34，具体范围见[野外专题](wild-life.md#来源范围与下一步)。新增雨季储粮与卫生、暴雨撤离、雨后水域、床下寄居、跨种互助、赠礼回访及树叶襁褓。下一批优先叶襁褓穿脱、正常采食教学、共同修窝与灾后重建，续读 EH37 后段季节内容。
+
+## 宠物批次边界
 
 本轮实际从公开 E-Hentai 图集取得 25 张选页并登记 URL、页序、尺寸、哈希；总览范围为 EH31 1–7、EH32 1–8、EH33 1–11、EH34 1–8，另直接细看 4 张原图。小说 N27–N30 按各卡所列正文范围核读。未读续篇、搜索摘要和评论不作为新增设定结论。另检索到くいっくる的短篇合辑及《まりちゃのおくるみしゃん》，正文读取失败，尚未计入核读成果。
 

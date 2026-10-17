@@ -676,6 +676,82 @@
       "locator": "子れいむが成体",
       "html_sha256": "af9ebedad7ab824f8ff35ac080fbefe116c1a926606a062a16685f1fbec6cb48",
       "retrieved_at": "2026-10-17T09:41:54.358185+00:00"
+    },
+    {
+      "id": "N31",
+      "title": "雨さんはゆっくりしてるね",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/177.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "Ｄ．Ｏ（正文署名）；正文及后记核读，不含评论；前作未补读",
+      "summary": "新来家庭被林地群落接纳；暴雨预警过迟，树冠滴水、拥挤避难与幼体搬运都成为限制。魔理沙让出帽子后留下，母女到洞中；雨停后返回河岸，洪流再次袭来。",
+      "limits": "本作先允许浅水清洗，后写暴雨破坏，不能压成碰水即死；树洞并非天然安全，雨停不等于水域恢复安全。灾害规模、帽容量及伤亡概率没有通用数值。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society"
+      ],
+      "source_group": "author:D.O",
+      "reviewed_on": "2026-10-17",
+      "locator": "このあめさんは",
+      "html_sha256": "f9e1e60a7312b26bbb70bac4cb4f34750b52565445759b88b81b832c6bea87e2",
+      "retrieved_at": "2026-10-17T10:01:28.732282+00:00"
+    },
+    {
+      "id": "N32",
+      "title": "人間とゆっくりの境界1",
+      "url": "https://w.atwiki.jp/slowlove/pages/85.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "話の長い人（正文末署名）；本页正文至「続く」，未读后续",
+      "summary": "床下短时避雨发展为带草垫的寄居巢；人类约定活动边界、安静和清洁。外出供食者失联，留守者缺粮；人类寻找、接回伤者，开始长期照料。",
+      "limits": "首批避雨者和后来寄居者是否同一家并未确认。人类讲规则时有暴力威胁，不美化为温和教学；第一人称对油库里的评价不是客观规律。篇末只是同居开始，不宣称完全康复。",
+      "topics": [
+        "habitat",
+        "human",
+        "growth"
+      ],
+      "source_group": "author:話の長い人",
+      "reviewed_on": "2026-10-17",
+      "locator": "床下",
+      "html_sha256": "072bcca8e1dac25948157e7f0ae9e8842d54bf70269db73db25c8a64cee2ccb9",
+      "retrieved_at": "2026-10-17T10:01:29.746063+00:00"
+    },
+    {
+      "id": "N33",
+      "title": "不思議な絆",
+      "url": "https://w.atwiki.jp/slowlove/pages/292.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "即興の人（后记署名）；核读开场迷路归家、亲代解释及「昔の話」共存史至结尾；未逐句读父亲早年回忆全部段落",
+      "summary": "幼体错过归家时间，被当地蕾米莉亚送回，却因传闻而害怕。回忆说明共同遭遇天敌、升树救援和送果蜜致谢促成协商；成年群体合唱跳舞，幼体被暂时隐瞒地方盟约。",
+      "limits": "开头明示作者与讨论串解释混用；地域性合作不取消别地捕食。正文明确当前同伴可无胴体，也讨论有胴体历史，两者不混用。少量吸馅换帮助只是该作约定，不能把幼体受惊写成充分知情同意。",
+      "topics": [
+        "society",
+        "environment",
+        "cognition"
+      ],
+      "source_group": "author:即興の人",
+      "reviewed_on": "2026-10-17",
+      "locator": "お礼の果実",
+      "html_sha256": "e471bfa86d683e792a804696f90b9456d8e819d2f6e1c862de5c888324e2e1b3",
+      "retrieved_at": "2026-10-17T10:01:30.583722+00:00"
+    },
+    {
+      "id": "N34",
+      "title": "「さあ、おたべなさい！」のこと（下）",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3650.html",
+      "bibliography": "新阅读卡",
+      "author_and_scope": "本页未确认作者；只核读下篇正文至「おしまい」，上中篇未读",
+      "summary": "人类把外出当作弃养，宠物却期待一起游玩；公园同伴邀请、陪寻、劝说和送食，长老提出群落支援。被弃者坚持等待，最后未获救；同伴与长老掌握的信息不同。",
+      "limits": "标题不等于已核读自我献食机制；本卡只取下篇弃养与互助。长老对弃养原因的判断不是事实裁定，不能把离弃归咎于被弃者；没有团聚结局。",
+      "topics": [
+        "society",
+        "human",
+        "cognition"
+      ],
+      "source_group": "unknown:N34",
+      "reviewed_on": "2026-10-17",
+      "locator": "まりさもてつだうよ",
+      "html_sha256": "00fdf0978967ba3c84482a847bd3f830856711ca8548f642bb7f251597c6bf93",
+      "retrieved_at": "2026-10-17T10:01:31.195504+00:00"
     }
   ]
 }

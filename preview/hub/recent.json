@@ -553,6 +553,30 @@
           "label": "四张已细看原图的联系表；署名与原文保留于原文件"
         }
       ]
+    },
+    {
+      "id": "wild-life-research",
+      "label": "野外生活与树叶襁褓",
+      "title": "雨困、分享、交友与叶材包覆",
+      "tag": "2026-10-17 · 作品参考，非游戏效果",
+      "summary": "EH35、EH36 和 EH37 的指定画格；树叶襁褓仅取 EH37-006 左下。出处与边界见 wiki/wild-life.md 和 wiki/leaf-swaddle.md。",
+      "model": "marisa",
+      "points": [
+        "雨季储粮与住所卫生分开。",
+        "邀玩、赠食与分享分别索引。",
+        "叶片襁褓和承托大叶不混为一体。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "wild-life-research/current.jpg",
+          "label": "本批指定参考画格"
+        },
+        {
+          "src": "wild-life-research/leaf-swaddle.jpg",
+          "label": "EH37-006 左下：幼体叶片包层"
+        }
+      ]
     }
   ]
 }

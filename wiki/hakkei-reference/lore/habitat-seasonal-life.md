@@ -50,3 +50,5 @@
 按[住所](../../reference-library/topics/habitat.md)、[季节与迁徙](../../reference-library/topics/environment.md)同时查图片和文字；具体比较见[交叉核对](../../reference-library/cross-checks.md)。
 
 [共通生态](ecology.md) · [群落专题](../../yukkuri-communities.md) · [水生魔理沙](species/marisa/aquatic-marisa.md)
+
+2026-10-17 继续核读：[野外环境与交互](../../wild-life.md)补入雨困、暴雨撤离、床下寄居、地方互助和公园接纳；[树叶襁褓](../../leaf-swaddle.md)单独登记叶材育幼包覆。

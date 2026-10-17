@@ -70,6 +70,7 @@
 | 魔理沙；日常活动；悲伤 | 只取前景魔理沙的前侧与背面两视图 | **模型**：补帽冠、帽带、侧辫和后脑轮廓；脏污做独立贴图层，避免改掉基础毛色。 | [EH27-001](../../art-references/ehentai/images/EH27/001.jpg) · [出处](../../art-references/ehentai/works/EH27.md) |
 | 魔理沙、壳魔理沙；日常活动；喜悦 | 森林中普通幼体跳起、壳型贴地前行 | **模型／动作**：并排比较跳跃与贴地移动，给壳型设置较低重心及壳体跟随。 | [M09-001](../../art-references/images/M09/001-4fc8efd2.png) · [出处](../../art-references/works/M09.md) |
 | 魔理沙、软窝；日常活动、休息睡眠；喜悦 | 上半玩球至软垫睡眠 | **动作／道具**：组合游戏、疲劳、就寝的宠物日常节奏。 | [EH32-007](../../art-references/ehentai/images/EH32/007.jpg) · [出处](../../art-references/ehentai/works/EH32.md) |
+| 魔理沙、人类；日常活动、同伴交往；惊讶、喜悦 | 纸板滑坡前后表情变化 | **动作／道具**：参考共同玩耍时从犹豫到喜欢的变化。 | [EH36-003](../../art-references/ehentai/images/EH36/003.webp) · [出处](../../art-references/ehentai/works/EH36.md) |
 | 魔理沙；日常活动、环境避险；喜悦 | 上格幼体从帽缘起跳，下格落入水盆 | **动作**：做边缘起跳与越过落脚点的失败动作；身体前伸、帽子滞后，接到落水反馈，不用这页证明普通魔理沙会游泳。 | [EH10-008](../../art-references/ehentai/images/EH10/008.jpg) · [出处](../../art-references/ehentai/works/EH10.md) |
 | 水上魔理沙、帽船；水上移动；喜悦 | 上格帽内正面坐姿与侧辫持枝 | **模型／道具／动作**：确定帽船的包边、身体露出量、吃水线与辫端握桨点，供载具坐姿制作。 | [EH22-001](../../art-references/ehentai/images/EH22/001.jpg) · [出处](../../art-references/ehentai/works/EH22.md) |
 | 水上魔理沙、帽船、人类；水上移动、人类接触；喜悦、期待 | 中格侧辫持枝划水，下格人手递物 | **动作／场景**：制作划桨时枝条入水和身体偏转；水槽内留出转向空间。 | [EH22-005](../../art-references/ehentai/images/EH22/005.jpg) · [出处](../../art-references/ehentai/works/EH22.md) |
@@ -79,6 +80,7 @@
 | 灵梦、魔理沙；照料幼体；喜悦、困惑 | 右下亲代与多只不同大小幼体同框 | **模型／表情**：参考多幼体家庭的大小层次与围拢站位，给亲代微笑和回应呼唤两套脸。 | [EH28-002](../../art-references/ehentai/images/EH28/002.webp) · [出处](../../art-references/ehentai/works/EH28.md) |
 | 灵梦、魔理沙；照料幼体；担忧、悲伤 | 上部幼体靠近哭泣亲代，底部含泪魔理沙 | **动作／表情**：制作幼体试探靠近、抬脸安慰和停在亲代身旁的互动，区分双方表情。 | [EH30-005](../../art-references/ehentai/images/EH30/005.webp) · [出处](../../art-references/ehentai/works/EH30.md) |
 | 灵梦、魔理沙；照料幼体；悲伤、安心 | 中格侧毛拢住两只幼体、下格亲子相贴 | **动作／模型**：给侧毛拥抱制作柔性弯曲与接触姿态，幼体位于脸前侧，避免被头发完全遮住。 | [EH30-006](../../art-references/ehentai/images/EH30/006.webp) · [出处](../../art-references/ehentai/works/EH30.md) |
+| 灵梦、魔理沙；照料幼体；喜悦 | 亲代舔拭与帽内承托幼体 | **动作**：制作出生后的清洁与短时安置。 | [EH37-003](../../art-references/ehentai/images/EH37/003.webp) · [出处](../../art-references/ehentai/works/EH37.md) |
 | 灵梦、魔理沙、多毛灵梦；照料幼体；担忧、困惑 | 下部亲代观察窝中幼体 | **表情**：制作照料者担忧表情：眉眼下垂、目光朝向幼体，身体靠近而不遮住幼体。 | [M04-004](../../art-references/images/M04/004-21bff27d.png) · [出处](../../art-references/works/M04.md) |
 | 灵梦、魔理沙、多毛灵梦；照料幼体；喜悦、安心 | 中部亲代互靠、下部围住幼体 | **动作／表情**：制作贴靠安抚：两个圆身体轻压接触，幼体靠近前缘，闭眼微笑。 | [M04-007](../../art-references/images/M04/007-7d481c89.png) · [出处](../../art-references/works/M04.md) |
 | 家油灵梦、家油魔理沙、人类；照料幼体、休息睡眠；喜悦、安心 | 上部摸头、下部夜间靠近 | **动作／事件**：制作被触摸后的闭眼放松与夜间靠近主人情景，区分站位和触摸接触点。 | [M01-012](../../art-references/images/M01/012-5eaa4063.png) · [出处](../../art-references/works/M01.md) |
@@ -100,6 +102,7 @@
 | 灵梦、魔理沙、多毛灵梦、人类；环境避险、受困逃离；恐惧 | 人类进入窝旁后的中下格 | **事件／表情**：参考发现巨大来者时的抬头、后缩与聚拢，用机位和大小差表现威胁。 | [M04-008](../../art-references/images/M04/008-c7e8a1fc.png) · [出处](../../art-references/works/M04.md) |
 | 魔理沙、爱丽丝；环境避险、同伴交往；担忧、安心 | 中下部爱丽丝送布，魔理沙两只贴靠 | **事件／动作**：参考用布料帮助同伴和共同取暖的情景，布面覆盖边缘与脸的露出量分开设计。 | [EH23-004](../../art-references/ehentai/images/EH23/004.webp) · [出处](../../art-references/ehentai/works/EH23.md) |
 | 灵梦；环境避险、日常活动；困惑、恐惧 | 上排进入高草的背影、中排停步察看与下排突然睁眼 | **场景／动作／表情**：补草丛通道的遮挡高度和低机位；用停步侧看、眉眼骤变表现察觉身体异样，避免只靠对白说明遇险。 | [EH28-005](../../art-references/ehentai/images/EH28/005.webp) · [出处](../../art-references/ehentai/works/EH28.md) |
+| 魔理沙；环境避险、物品搬运；认真 | 身体缩进帽中、口咬帽沿出洞 | **动作／道具**：参考临时利用饰物避雨的姿态；不把帽子设为无条件防水。 | [EH35-008](../../art-references/ehentai/images/EH35/008.webp) · [出处](../../art-references/ehentai/works/EH35.md) |
 | 水上魔理沙、帽船；环境避险、身体受损；恐惧 | 脱离帽船下沉与空帽留在水面的连续格 | **动作／事件**：给落水事件做本体与载具分离、气泡和下沉动作；不要把坐帽船当成本体游泳。 | [EH22-007](../../art-references/ehentai/images/EH22/007.webp) · [出处](../../art-references/ehentai/works/EH22.md) |
 | 蕾米莉亚、芙兰；空中移动、同伴交往；喜悦 | 两只飞行个体的正面与侧面 | **模型／动作**：参考帽缘、短发、蝠翼与晶体翼的位置；制作悬停时翅膀展开和身体轻摆。 | [EH02-003](../../art-references/ehentai/images/EH02/003.webp) · [出处](../../art-references/ehentai/works/EH02.md) |
 | 帕秋莉；认知教学；认真 | 面对打开的书，两侧发束停在书页边 | **动作／道具**：给阅读待机确定书与脸的距离、侧发接触位置及向下的视线。 | [EH14-003](../../art-references/ehentai/images/EH14/003.jpg) · [出处](../../art-references/ehentai/works/EH14.md) |

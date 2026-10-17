@@ -3820,6 +3820,233 @@
       ],
       "classification_basis": "上、中格头顶茎果与抚头",
       "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-001",
+      "source_id": "EH35",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-003",
+      "source_id": "EH35",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-004",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "feeding"
+      ],
+      "classification_basis": "亲代未归、幼体哭泣至集中吃储粮",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-005",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "habitat",
+        "environment"
+      ],
+      "classification_basis": "把排泄物挪到洞角，雨仍封住出口",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-006",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "body"
+      ],
+      "classification_basis": "姐姐看守越来越虚弱的妹妹",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-007",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "cognition"
+      ],
+      "classification_basis": "闻到洞外果香，妹妹警告雨水",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-008",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "environment"
+      ],
+      "classification_basis": "身体缩进帽中、口咬帽沿出洞",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-009",
+      "source_id": "EH35",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "society"
+      ],
+      "classification_basis": "取回果实后让妹妹先吃",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-010",
+      "source_id": "EH35",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH35-011",
+      "source_id": "EH35",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-001",
+      "source_id": "EH36",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-002",
+      "source_id": "EH36",
+      "kind": "reference",
+      "topics": [
+        "human",
+        "society"
+      ],
+      "classification_basis": "下半双方问候和邀请玩耍",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-003",
+      "source_id": "EH36",
+      "kind": "reference",
+      "topics": [
+        "motion",
+        "human"
+      ],
+      "classification_basis": "纸板滑坡前后表情变化",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-004",
+      "source_id": "EH36",
+      "kind": "reference",
+      "topics": [
+        "society",
+        "feeding"
+      ],
+      "classification_basis": "幼体口衔果实来找前日朋友",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-005",
+      "source_id": "EH36",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH36-006",
+      "source_id": "EH36",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-001",
+      "source_id": "EH37",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-003",
+      "source_id": "EH37",
+      "kind": "reference",
+      "topics": [
+        "growth",
+        "motion"
+      ],
+      "classification_basis": "亲代舔拭与帽内承托幼体",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-005",
+      "source_id": "EH37",
+      "kind": "context",
+      "topics": [],
+      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-006",
+      "source_id": "EH37",
+      "kind": "reference",
+      "topics": [
+        "appearance",
+        "growth",
+        "habitat"
+      ],
+      "classification_basis": "仅左下：幼体身上的叶片包层，非底下承托大叶",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-007",
+      "source_id": "EH37",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "society"
+      ],
+      "classification_basis": "幼体索食与留守亲代无法供食",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-008",
+      "source_id": "EH37",
+      "kind": "reference",
+      "topics": [
+        "feeding",
+        "human"
+      ],
+      "classification_basis": "取菜被发现、双方所有权理解不同",
+      "classified_on": "2026-10-17"
+    },
+    {
+      "id": "EH37-010",
+      "source_id": "EH37",
+      "kind": "reference",
+      "topics": [
+        "cognition",
+        "society"
+      ],
+      "classification_basis": "风动帽子、幼体追逐和同伴呼唤",
+      "classified_on": "2026-10-17"
     }
   ]
 }
