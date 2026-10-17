@@ -290,7 +290,7 @@ public final class BraidRescue {
             double s=smooth((double)elapsed/PUSH_TICKS);Vec3 wanted=null;
             for(double h:new double[]{1,.75,.5,.25,0}){
                 var at=pushFrom.add(pushDirection.scale(PUSH_FORWARD*s*h)).add(0,PUSH_UP*s,0);
-                if(bodyClear(home,at,parent,box)){wanted=at;break;}
+                if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;break;}
             }
             if(wanted==null||!moveChild(home,parent,box,wanted)){
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.push."+child.getId(),0,"push stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" elapsed="+elapsed+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
@@ -307,7 +307,7 @@ public final class BraidRescue {
             Vec3 wanted=null;double reached=slideQ;
             for(double f:new double[]{1,.75,.5,.25,0}){
                 double q=Math.min(1,slideQ+dq*f);var p=slideFrom.lerp(target,smooth(q));var at=new Vec3(p.x,y,p.z);
-                if(bodyClear(home,at,parent,box)){wanted=at;reached=q;break;}
+                if(bodyClear(home,at,parent,box)&&sweepClear(home,parent,box,at)){wanted=at;reached=q;break;}
             }
             if(wanted==null||!moveChild(home,parent,box,wanted)){
                 io.github.longshou.mcyukkuri.subspecies.AquaDiag.log(child,"rescue.slide."+child.getId(),0,"slide stopped: wanted="+(wanted==null?"none":"moveChild refused")+" why="+clearWhy+" q="+slideQ+" child="+io.github.longshou.mcyukkuri.subspecies.AquaDiag.at(child.position()));
@@ -403,6 +403,14 @@ public final class BraidRescue {
                 }else if(other.canBeCollidedWith()&&box.deflate(.002).intersects(other.getBoundingBox())){clearWhy="entity "+other.getType().toShortString();return false;}
             }
         }
+        return true;
+    }
+    /** The straight step from where the child is to {@code wanted} is clear all the way, not only at its end. */
+    private boolean sweepClear(HatBoatEntity home,YukkuriEntity parent,AABB parentBox,Vec3 wanted){
+        var delta=wanted.subtract(child.position());
+        if(delta.lengthSqr()>MAX_STEP*MAX_STEP)return false;
+        int steps=Math.max(1,(int)Math.ceil(delta.length()/.025));
+        for(int i=1;i<=steps;i++)if(!bodyClear(home,child.position().lerp(wanted,(double)i/steps),parent,parentBox))return false;
         return true;
     }
     /** Bounded, volume-swept step of the child's whole body; never a jump to the destination. */
