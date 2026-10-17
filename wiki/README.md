@@ -6,7 +6,7 @@
 | --- | --- |
 | 本轮维护范围、后续缺口与编辑规则 | [维护计划](MAINTENANCE_PLAN.md) · [编辑口径](EDITORIAL_GUIDE.md) |
 | 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [实现状态导航](implementation-status.md) |
-| 游戏参考：177 张图、44 张文字卡；按实体、情景、情绪组合查找 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
+| 游戏参考：177 张图、63 张文字卡；按实体、情景、情绪组合查找 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 宠物油的收养、吃住、襁褓、留守、外出、医疗与离别 | [宠物生活与襁褓](pet-life.md) |
 | 扩展到宠物、野外、群落和人类社会的 23 个生活领域 | [全领域设定覆盖与待核读问题](life-settings-coverage.md) |

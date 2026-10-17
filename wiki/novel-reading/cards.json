@@ -24,18 +24,21 @@
       "title": "ゆっくりの一年春編",
       "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/2736.html",
       "bibliography": "N02／E08",
-      "author_and_scope": "署名未确认；“季節は春”至亲代备床、准备幼体家具段，未读完整后半",
-      "summary": "越冬后各家余粮不同；部分饥饿者连保温材料也消耗，出巢时体力不一；该篇有亲代备软床和石木家具的描写",
-      "limits": "不能据此推出：睡眠免除饥饿；所有家庭越冬结局相同；该篇繁殖时长是共同数值。",
+      "author_and_scope": "署名未确认；2026-10-14 仅读春季前段，现续读至春篇结尾与后记；只采用越冬差异、备床和出生落点情节，侵害段不作制作目标；夏篇未核读",
+      "summary": "家庭越冬余粮与体力不同，缺粮者连铺层也消耗。亲代准备软床和石木家具；后半一家的幼体摇摆脱茎时撞到家具而死亡，亲代改变催促，剩余幼体平安落地。",
+      "limits": "家具不是安全育幼布置的正面范例；调整催促不证明排除了落点危险。未见跨家庭共享余粮。旁白的发育时长和因果解释只属本篇，春篇不能代表全年。",
       "topics": [
         "habitat",
         "feeding",
         "growth",
-        "environment"
+        "environment",
+        "cognition"
       ],
       "source_group": "unknown:N02",
-      "reviewed_on": "2026-10-14",
-      "metadata_note": "沿用前轮已核读记录；本轮仅迁移为可分类阅读卡，不虚构重新抓取哈希。"
+      "reviewed_on": "2026-10-17",
+      "locator": "体を大きく振らすのをやめました",
+      "html_sha256": "40dc3826fa5cabfc04d46a2b1ca6ac310f379f5d938da7f4922436d295979bfd",
+      "retrieved_at": "2026-10-17T10:54:41.651836+00:00"
     },
     {
       "id": "N03",
@@ -490,20 +493,23 @@
       "id": "N23",
       "title": "森のゆっくり",
       "url": "https://w.atwiki.jp/slowlove/pages/15.html",
-      "bibliography": "新阅读卡",
-      "author_and_scope": "署名未确认；开头拜访住所至气球破裂和相互安慰；另核读结尾同宿至 Fin",
-      "summary": "树根、岩石和坡面之间的住所、苔藓铺层以及书籍被赋予具体用途。帕秋莉能读一些字却未必懂全部意义；伙伴带气球玩耍，破裂后安慰并同宿。",
-      "limits": "未逐句核读中间所有段落；不能据本作把识字等同全知，也不能把苔藓恒温当作物理保证。",
-      "anchor": "苔",
+      "bibliography": "与 N63、N64 同作者；见家のゆっくりの人作品目录",
+      "author_and_scope": "作者目录归属家のゆっくりの人；补读中段，现已核读开头至 Fin 全文；评论不作正文",
+      "summary": "魔理沙回应同伴疲倦而放慢；朋友到难以远行的帕秋莉家聚会。灵梦和魔理沙合力顶气球，气球破裂后道歉、安慰爱丽丝；随后轮流讲述、共享事先准备的晚餐，给帕秋莉让食并同宿。",
+      "limits": "不能把识字当全知，也不能把苔藓和岩石的冷热描述当物理保证。轮流讲述不是正式排队玩具规则；玩具没有修复。给食的善意有旁白说明，不是统一营养规则；作者归属已由作品目录核对。",
       "topics": [
         "habitat",
         "motion",
         "cognition",
-        "society"
+        "society",
+        "feeding"
       ],
-      "source_group": "unknown:N23",
-      "reviewed_on": "2026-10-14",
-      "metadata": {
+      "source_group": "author:家のゆっくりの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "一匹が自分の話をして",
+      "html_sha256": "93fe6ca61e9a54ee2dd39f2d8c71b48a809da17707e5ca49a3765b2d46ade18f",
+      "retrieved_at": "2026-10-17T11:13:13.769647+00:00",
+      "previous_capture": {
         "id": "N23",
         "url": "https://w.atwiki.jp/slowlove/pages/15.html",
         "page_title": "森のゆっくり - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
@@ -512,6 +518,12 @@
         "extracted_text_sha256": "a172806c9cac0d84b0aee9bc55e46fdda5932d08dbe963256dc6de07822ca011",
         "characters": 4220,
         "cache_path": ".local/reference/wiki-text-round2/N23.html"
+      },
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
       }
     },
     {
@@ -547,21 +559,31 @@
       "id": "N25",
       "title": "ゆっくりパークの春夏秋冬 part 1",
       "url": "https://w.atwiki.jp/slowlove/pages/288.html",
-      "bibliography": "新阅读卡",
-      "author_and_scope": "已读部分未确认署名；序章、四月建园、五月入住至母灵梦分配番茄段；只读第一篇开头",
-      "summary": "草原、森林、小溪、浅滩、木桥和人工仿自然洞穴组合成生活空间；不同群体在其中选择居处。母体给幼体分配食物，可与队列、亲子尺度和资源布点图对照。",
-      "limits": "未核读全文及其他 part；“人不能过、油库里能过”的围栏、体型比喻和幻想乡位置仅属此作，不能推出完整全年规律。",
-      "anchor": "コンクリートの洞穴",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（作者目录归属，part2–4 末署名佐证）；2026-10-14 仅读五月分食段以前，现续读序章及四月至八月本篇全文；后续见 N47–N49，续篇已核至 part7，见 N50、N51；后续已核读至三月尾声，见 N58、N60–N62",
+      "summary": "人工园区提供食源、桥和仿自然洞穴。雨季人类暗中补叶阻止巢口进水，住户误归功于自己；伤者被转至屋檐下照护。夏季为同伴采向日葵种子，带回花后才发现尚未结种。",
+      "limits": "补叶是人类干预，不是共同修窝或排水施工；园区不等于无干预野外。八月捕食者有手，不供当前无胴体造型使用；疗伤、落体恢复和主人不显露供食的做法均不作通则。",
       "topics": [
         "habitat",
         "feeding",
         "growth",
         "environment",
-        "human"
+        "human",
+        "cognition",
+        "society"
       ],
-      "source_group": "unknown:N25",
-      "reviewed_on": "2026-10-14",
-      "metadata": {
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "花の時期のヒマワリは",
+      "html_sha256": "58c7a422218478abb38e11c4a04446701cd1a596e25d17caa705c06f80ef87d9",
+      "retrieved_at": "2026-10-17T10:55:25.892092+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      },
+      "previous_capture": {
         "id": "N25",
         "url": "https://w.atwiki.jp/slowlove/pages/288.html",
         "page_title": "ゆっくりパークの春夏秋冬part1 - ゆっくりしていってね！！！　創作発表Wiki - atwiki（アットウィキ）",
@@ -989,6 +1011,496 @@
       "locator": "その上に子供たちがスキーやソリで何度も往復",
       "html_sha256": "132885f7c35a360a10bb72c2f37d338b964d88ca0209fccc896d785fc91d51bc",
       "retrieved_at": "2026-10-17T10:48:26.518285+00:00"
+    },
+    {
+      "id": "N47",
+      "title": "ゆっくりパークの春夏秋冬 part 2",
+      "url": "https://w.atwiki.jp/slowlove/pages/290.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名及作者目录）；核读九月、十月全文至下篇链接；同 N25 系列，后续设施修订见 N48、N49",
+      "summary": "共同采花后整堆搬运散落，子代误以为采食而离开；母亲分束送到幼体遇难处，帕秋莉同行。人类设下游网使落水幼体到岸；后来设置需补给果物的避难处，出现以食物换脱险的个案。",
+      "limits": "救援网不是安全桥面，快速恢复只属虚构。夜间 DOS 有超能力且叙述保留梦境疑问，不作普通 DOS 依据；十月有胴体捕食者和未纳入角色不供当前造型动作使用。避难方案在 N48 又被改动。",
+      "topics": [
+        "society",
+        "environment",
+        "habitat",
+        "human",
+        "feeding"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "川を斜めに横断する形で",
+      "html_sha256": "148aebb9d888e34d2ff1478361483d648004ae986baa316392a4112665349ee2",
+      "retrieved_at": "2026-10-17T10:56:14.560895+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N48",
+      "title": "ゆっくりパークの春夏秋冬 part 3",
+      "url": "https://w.atwiki.jp/slowlove/pages/291.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名）；核读 intermission 全文，取帕秋莉引导、一家协同和设施使用限制；不提取伤害机关的制作参数",
+      "summary": "帕秋莉引导一家进入避难箱，解释并指挥多人协同操作，追逐者退去。人类以此替代前篇的供食交换方案；单独进入者无法完成操作，推广仍只是计划。",
+      "limits": "追逐者明确有胴体；只取灵梦一家和帕秋莉的沟通协作，不移植捕食者造型或机关。下一篇出现占屋问题，当前一次成功不能证明设施普遍可用。",
+      "topics": [
+        "cognition",
+        "society",
+        "habitat",
+        "environment",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "一人で入ると",
+      "html_sha256": "7efeb2dbb1af1f5b5e128274ea6d6546a6330da7fdf98e5314fd4dc9ae93ea41",
+      "retrieved_at": "2026-10-17T10:57:08.230106+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N49",
+      "title": "ゆっくりパークの春夏秋冬 part 4",
+      "url": "https://w.atwiki.jp/slowlove/pages/293.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名）；核读十一月全文至冬季将至结尾；续篇已核至 part7，见 N50、N51；后续已核读至三月尾声，见 N58、N60–N62",
+      "summary": "秋季采集使活动安排改变；避难设施被占作私宅后，人类调整内部使其继续作临时避难处。两家争屋，一家落败离开；原住者的年长子代商议后，次晨带着亲代备的食物实际离巢。",
+      "limits": "驱逐后的去向、子代新巢和越冬结果均未展示。争斗和不舒适的设施调整是该作情节，不作为治理建议；人口停止增长是叙述者观察解释，没有数量调查。",
+      "topics": [
+        "habitat",
+        "society",
+        "growth",
+        "feeding",
+        "environment",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "母が用意した餞別の食べ物",
+      "html_sha256": "e01f95924a7b17cbd9dcae7b81c0bce4cff00354cda81718f02d7021e3a13763",
+      "retrieved_at": "2026-10-17T10:57:39.273999+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N50",
+      "title": "ゆっくりパークの春夏秋冬 part 5",
+      "url": "https://w.atwiki.jp/slowlove/pages/307.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（正文末署名及已核作者目录）；核读 intermission 全文，只收灵梦秋储及避难满员片段；后半未纳入角色的能力、教学和同居不建制作标签",
+      "summary": "灵梦参与家庭秋储，采集返回时遭追逐；找到避难处后，里面的灵梦、帕秋莉等表示已经满员，外来者仍无法进入，陷入慌乱。",
+      "limits": "满员不是前篇的私宅占用，也没有容量数字或扩建结果。脱险依赖未纳入角色，不能改写成灵梦自行克服；不收其飞行、特异速度或三日备齐冬粮等能力。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "feeding"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "ここはまんいんなの",
+      "html_sha256": "18956eff7ab1966e01059ca3b259b153f4de8d511f515489cbe5d613ad4d3053",
+      "retrieved_at": "2026-10-17T11:06:23.228686+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N51",
+      "title": "ゆっくりパークの春夏秋冬 part 7（一月）",
+      "url": "https://w.atwiki.jp/slowlove/pages/441.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（已核作者目录归属）；核读一月正文至「続く」，只收普通灵梦、帕秋莉一家与人类；网页题名 part7，正文误题 part6，按 URL 与月份区分；后续已核读至三月尾声，见 N58、N60–N62",
+      "summary": "冰柱刺穿犬屋保温层，亲代与较大子代受寒僵住；其他幼体躲帽中，最小的帕秋莉穿孔求助。幼体担心与亲代分离，人类说明并整家转移。陌生雪地和饮食容器又带来意外；新居中幼体已有受助经历，亲代仍警戒，最终勉强同意暂时共住。",
+      "limits": "母亲为何延迟求助是叙述者推测。冻后恢复属本作异说，不覆盖项目 A3；没有修复犬屋、重建或整个冬季结果。共住对象有胴体，手部救援与治疗细节不供当前种类制作；同意不等于已经信任或消除风险。",
+      "topics": [
+        "environment",
+        "habitat",
+        "human",
+        "society",
+        "cognition",
+        "growth",
+        "feeding"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "おかーしゃんたちとはなれたら",
+      "html_sha256": "d39f61ffcdf4b8a6f3a2cd1c1983c665b443fd1b0d7a9e37a65e08be7aab84e7",
+      "retrieved_at": "2026-10-17T11:06:25.807485+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      },
+      "supporting_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/440.html",
+        "html_sha256": "dec0f8a54501d1446fff2d7b82aa1aafea12cd7943fefe78cf810c485104347c",
+        "retrieved_at": "2026-10-17T11:06:24.717573+00:00",
+        "scope": "十二月正文已核读；只用于回查犬屋背风、人工保温层与储粮的前置条件。主要角色为有胴体捕食者，不另建当前游戏卡。"
+      }
+    },
+    {
+      "id": "N52",
+      "title": "まて",
+      "url": "https://w.atwiki.jp/slowlove/pages/79.html",
+      "bibliography": "独立作品入口，作者关系未确认",
+      "author_and_scope": "署名未确认；核读正文开头至末句反省，止于评论之前",
+      "summary": "宠物灵梦用头承托餐具帮忙，随后请求进食。人类要求等许可，却故意给出似是而非的开吃信号，使它失衡撞墙并哭泣；人类道歉、承诺让它坐膝上用餐，随后实际喂食。",
+      "limits": "等待夹有断食威胁和故意逗弄，不是成功训练范例；时长是本篇叙事，不作课程参数。兑现当次承诺不能证明长期信任已经恢复；膝上喂食也不能外推全部家庭。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "human",
+        "motion"
+      ],
+      "source_group": "unknown:N52",
+      "reviewed_on": "2026-10-17",
+      "locator": "今度の約束は絶対に守る",
+      "html_sha256": "96fe5818376e82e394474a9c5f11ee9228fe6c5b32dd933a51fffb1bbd0c18b1",
+      "retrieved_at": "2026-10-17T11:13:44.365738+00:00"
+    },
+    {
+      "id": "N53",
+      "title": "お代",
+      "url": "https://w.atwiki.jp/slowlove/pages/323.html",
+      "bibliography": "独立作品入口，作者关系未确认",
+      "author_and_scope": "署名未确认；核读正文至下一批客人尾声，止于「6スレ目」和评论之前；只取灵梦、魔理沙的用餐与付款理解，不提取伤害操作",
+      "summary": "灵梦和魔理沙回应推荐、等待上菜并进食，店家到用餐后才询问付款。两者以自身馅料作为报酬，店家惊惧收下，它们满意离开；双方对交易的理解并不相同。",
+      "limits": "事前没有明确价格或付款方式，不是已议定的以物易物制度，也不是赠礼。店主为东方角色米斯蒂娅，不能误记成人类或当前游戏新增实体；自体取馅及后续转送不作制作步骤或食物规则。",
+      "topics": [
+        "feeding",
+        "cognition",
+        "society",
+        "body"
+      ],
+      "source_group": "unknown:N53",
+      "reviewed_on": "2026-10-17",
+      "locator": "ところでお客さん、御代は",
+      "html_sha256": "3ca82ca7ce05051566f81822df46ff0e69662d67f896910fe4d263ad5b5b597a",
+      "retrieved_at": "2026-10-17T11:13:43.381284+00:00"
+    },
+    {
+      "id": "N54",
+      "title": "ひとりぼっち？",
+      "url": "https://w.atwiki.jp/slowlove/pages/179.html",
+      "bibliography": "独立作品入口，作者身份未确认",
+      "author_and_scope": "署名未确认；核读全文至「了」及后记；后记自述与《ねことれいむ》同作者，关联篇现已核读为 N56",
+      "summary": "夜间，橙请求到田里吃虫，守田犬改为代取，提醒安静并让它暂睡犬舍。次晨主人喂橙，却处罚犬；橙想分食报答，被主人阻止，后来仍向犬道谢并亲近。",
+      "limits": "叙述者是柴犬，不是人类或油库里。橙说父母不见了，正文没有确认死亡；只写到次晨，未证明正式长期收养。分食未完成是第三方阻止，不是受赠者拒收；不采用断食惩罚。",
+      "topics": [
+        "feeding",
+        "habitat",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "source_group": "unknown:N54",
+      "reviewed_on": "2026-10-17",
+      "locator": "ちょっとまっていろ。食べられない虫はあるか",
+      "html_sha256": "e25c31a7457012ad455e9389a566d10857823c94b8da537c943339dbd8760a2c",
+      "retrieved_at": "2026-10-17T11:19:17.454227+00:00",
+      "related_source": {
+        "url": "https://w.atwiki.jp/slowlove/pages/172.html",
+        "title": "ねことれいむ",
+        "relation": "后记明确自述同作者；关联篇已核读为 N56，作者姓名未知",
+        "basis_url": "https://w.atwiki.jp/slowlove/pages/179.html"
+      }
+    },
+    {
+      "id": "N55",
+      "title": "暖かな日差し",
+      "url": "https://w.atwiki.jp/slowlove/pages/83.html",
+      "bibliography": "独立作品入口，作者身份未确认",
+      "author_and_scope": "署名未确认；核读开头至 End 及后记；作者明示借用其他讨论串对东方人类角色的特殊设定，不作为原作人物性格依据",
+      "summary": "灵梦、爱丽丝与帕秋莉住在捕食者少但有落石风险的崖脚。强日照时商议推迟采食，又担心存粮与晚间捕食。定期送食者断访后，它们扩大采集并多次往返储备，疲倦时共同休息、商议返程；尾声恢复无需每次带食物的来访。",
+      "limits": "推迟到傍晚采食只是当日计划，不是已验证的野外避热方案。分家后的轮流分粮有履约争执，灵梦记不起交付，不能断言任一方说谎。送食者是人类魔理沙，不是同名油库里；弃养后的遗忘时长及人类冲突仅属本作。",
+      "topics": [
+        "environment",
+        "habitat",
+        "feeding",
+        "society",
+        "human",
+        "cognition"
+      ],
+      "source_group": "unknown:N55",
+      "reviewed_on": "2026-10-17",
+      "locator": "ご飯がない時でも",
+      "html_sha256": "042b7f41044ac6866c012b42b2bb44ccd28a00248e59255c73284b01d95294fb",
+      "retrieved_at": "2026-10-17T11:19:15.735608+00:00"
+    },
+    {
+      "id": "N56",
+      "title": "ねことれいむ",
+      "url": "https://w.atwiki.jp/slowlove/pages/172.html",
+      "bibliography": "与既有作者来源合并计数；见来源族登记",
+      "author_and_scope": "署名未确认；核读正文至「了」及后记，止于评论之前；N54 后记自述同作者，作者身份仍未知",
+      "summary": "白猫与灵梦争夺共用纸箱，被带入宅邸后仍有争执。后来共同玩耍、争零食和照护者关注，一起听不懂内容的绘本，并向救助它们的门卫道谢。灵梦逐渐减少外出、增加睡眠，最后不再活动回应，猫仍呼唤并期待它惯常的问候。",
+      "limits": "猫是叙述者，宅邸主人是妖怪，不误记成人类。起初占据猫头伴随拔须与拉毛，不作为双方自愿的乘坐动作；结尾没有诊断死因或给出寿命。后记的现实动物说法不用于证明猫与油库里必然友好。",
+      "topics": [
+        "habitat",
+        "society",
+        "cognition",
+        "motion"
+      ],
+      "source_group": "unknown:N54",
+      "reviewed_on": "2026-10-17",
+      "locator": "それが増え続け、れーむは動かなくなった",
+      "html_sha256": "0a690c61f292f033bb97318a45da793783bd5618f34aed2388751730a3bacf8d",
+      "retrieved_at": "2026-10-17T11:25:27.594923+00:00"
+    },
+    {
+      "id": "N57",
+      "title": "台風さんでゆっくりしたいよ",
+      "url": "https://w.atwiki.jp/futabayukkuriss/pages/414.html",
+      "bibliography": "与既有作者来源合并计数；见来源族登记",
+      "author_and_scope": "Ｄ．Ｏ；《町れいむ一家の四季》秋篇，ふたば系186；核读主篇至次晨结局及作者后记。只提取普通种的防风、抢修、避难与灾后事件；附篇不纳入，插图未核对",
+      "summary": "邻居三户木箱共用篷布，暴风前替换旧覆盖物并压石；篷布被吹离后，灵梦和橙拖运递送，爱丽丝在屋顶复盖，遮雨部分恢复但抢修者受伤。另写取物口、机器下与商店街避难的不同隐患。老猫进入木箱避雨使住户恐惧，橙逃入风雨后未返回；灵梦一家熬过夜间，次晨长女却被下屋顶的猫踩中。",
+      "limits": "抢修不是安全无伤的成功范例，也没有排水、重建或长期耐久结果。爱丽丝与幼体的失去和橙的未归须分开，不把失踪写成已确认死亡。城市清除情节不是救援；亲代猜天气、旁白预测和作品身体耐水机制不作现实指南或统一参数。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "motion",
+        "human",
+        "body"
+      ],
+      "source_group": "author:D.O",
+      "reviewed_on": "2026-10-17",
+      "locator": "ありすが修理してくれた屋根のおかげで",
+      "html_sha256": "88564e543c3a8cf3cf1a7418c6d56047d73760d2c01389019be237846e1810c2",
+      "retrieved_at": "2026-10-17T11:25:28.711230+00:00"
+    },
+    {
+      "id": "N58",
+      "title": "ゆっくりパークの春夏秋冬 part8 前編（二月）",
+      "url": "https://w.atwiki.jp/slowlove/pages/527.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT（已核作者目录归属）；核读二月前篇正文至「続く」。只收普通灵梦、帕秋莉与人类的雪地衣物、游戏回应及归家休息；有胴体角色仅作交互背景，不建制作标签。后续已核读至三月尾声，见 N60–N62",
+      "summary": "获得衣食住保障的灵梦、帕秋莉一家使用腹下布垫在雪地活动，幼体玩雪。被单方面投雪后，它们求助、抗议；人类示范盆上滑行，再以帮助上坡为条件借出另一只盆。晚间普通幼体在暖炉旁接受擦干，随后在毛巾上相依入睡。",
+      "limits": "文中称布垫为かんじき，头顶系结，未称襁褓；实际制作归属带有叙述者暗示，不确认为亲代独力制作。运送和擦拭由有胴体角色完成，不移植其手部与飞行能力。衣物未阻止湿身，滑行还出现跌入积雪；不给出安全防寒数值，亦未展示完整轮流玩具规则。",
+      "topics": [
+        "environment",
+        "motion",
+        "society",
+        "human",
+        "habitat"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "腹の下を半周する形で布をつけ",
+      "html_sha256": "471dcf2ee6d57db7acd56940cc95969d54b1718b60dbf44b3f4127704eca49f8",
+      "retrieved_at": "2026-10-17T11:32:53.256624+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N59",
+      "title": "バカなゆっくり",
+      "url": "https://w.atwiki.jp/slowlove/pages/218.html",
+      "bibliography": "独立作品入口，作者身份未确认",
+      "author_and_scope": "署名未确认；核读正文开头至群落灵梦的末句评价，止于评论之前",
+      "summary": "魔理沙一家采尽附近食源，获曾被驱逐的帕秋莉分粮后，又将它驱离新巢。它们误把大量存粮当作土地富饶，持续消耗而不补充，临冬耗尽才发现自己不会利用周围材料。帕秋莉则在另一群落回答食物处理问题，知识受到认可。",
+      "limits": "原文没有确认原家庭最终死亡，也没有给出植物学识别特征、可复用配方或各材料的实际处理全程。角色的食物处理说法只属于虚构作品；试毒不作教学方法。能力源于经历是本篇论点，不据此断言所有帕秋莉天生聪明或受排斥必能成功。",
+      "topics": [
+        "feeding",
+        "environment",
+        "habitat",
+        "cognition",
+        "society"
+      ],
+      "source_group": "unknown:N59",
+      "reviewed_on": "2026-10-17",
+      "locator": "この木の実は食べられる木の実",
+      "html_sha256": "af1c5ef475c6b4f7ca4f4f4dbc3ea2a5f184f139fa6b559c0cbddd36649494f9",
+      "retrieved_at": "2026-10-17T11:33:36.696749+00:00"
+    },
+    {
+      "id": "N60",
+      "title": "ゆっくりパークの春夏秋冬 part8 中編",
+      "url": "https://w.atwiki.jp/slowlove/pages/528.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT；核读中篇正文至「続く」。只收普通种的受惊、传话、搬运回应及共同悼念；未纳入角色的飞行、手部作业与救治方法不作制作输入",
+      "summary": "夜间震动后，灵梦安抚幼体，幼体帕秋莉随人类查看崩塌现场。它逐项复述传话内容，转达分工并回报；普通灵梦参与伤者转运。救援后仍有死亡，幸存者自办悼念、持花投向崖下，母灵梦告别遇难长女。",
+      "limits": "灾害成因、现场能否接近及死亡总数包含叙述者推测或住户证言，不作现实救援指南或精确生态统计。传令交通依赖未纳入的飞行角色；不能把单个幼体的表现当作普遍记忆容量。临时转运和仪式不是巢穴重建。",
+      "topics": [
+        "environment",
+        "society",
+        "cognition",
+        "motion",
+        "human",
+        "habitat"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "全部覚えたか",
+      "html_sha256": "a80b688d771b8b1bfd5bd9a8866ce21c466e2f09b48b649a16cd76437fdaee42",
+      "retrieved_at": "2026-10-17T11:39:26.356562+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N61",
+      "title": "ゆっくりパークの春夏秋冬 part8 後編",
+      "url": "https://w.atwiki.jp/slowlove/pages/530.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT；核读后篇正文至「続く」。只收普通种的临时共居、供食担忧、探访与安慰；未纳入角色仅作互动背景",
+      "summary": "临时住户各有睡位，活动却互相干扰，人类按家庭分餐。母灵梦私下提醒库存与住户数不相称，也担心人类食物；旁白随后证实补给紧张。帕秋莉亲子代替不受欢迎的人类探访丧偶者，邀请同住、提议取食均被拒；争执后幼体承认对方的努力与悲伤，亲近安慰得到道谢，随后离开。",
+      "limits": "担忧食量不等于会计算人数或拥有普适配给公式。受助提议被拒不是赠礼交付被拒，安慰得到感谢也不等于同意搬入或彻底和解。斥责外貌与搬运者手部动作不作范例；住户数、食量及恢复心情的时长仅属本作。",
+      "topics": [
+        "habitat",
+        "feeding",
+        "society",
+        "cognition",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "かぞくのかずと、食べもののりょう",
+      "html_sha256": "9594668567abbbc3e4f320a91650bce5d8f9dbd32f5c0a95de914eb16794c2ce",
+      "retrieved_at": "2026-10-17T11:39:27.204847+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      }
+    },
+    {
+      "id": "N62",
+      "title": "ゆっくりパークの春夏秋冬 エピローグ（三月）",
+      "url": "https://w.atwiki.jp/slowlove/pages/532.html",
+      "bibliography": "YT 园区系列",
+      "author_and_scope": "YT；核读三月尾声至「おわり」，并完整核读前置完结篇。只收普通种的春日外出及人类继续管理的叙事结果；特殊供食与治愈另作边界",
+      "summary": "春日转暖后，临时共居的普通种在户外活动，灵梦与帕秋莉一家下丘去见越冬后的熟人。园区经营者的照片获奖，为继续经营带来收入线索；地主接管园区并让原经营者担任管理人，园区得以延续。",
+      "limits": "前置完结篇依赖发光魔理沙、未纳入角色的能力及特殊 DOS 供食和粉末治愈，不能称为普通种独力救人、自然采集恢复供给或通用医疗机制。尾声没有各户重建旧巢、离巢新居或长期收支结果；地主的强制条件也不是平等协商模板。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "human"
+      ],
+      "source_group": "author:YT",
+      "reviewed_on": "2026-10-17",
+      "locator": "冬ごもりを終えた知り合いと会いに",
+      "html_sha256": "316dee713acd8d4c2c728616df52823a89f7e6e278d375c0dc2aefde5c34be69",
+      "retrieved_at": "2026-10-17T11:39:30.393512+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1242.html",
+        "html_sha256": "86721ea3ad2c17b9191d19dac32f81c8794b2d901d3444fae30abcaa089e73cb",
+        "retrieved_at": "2026-10-17T10:57:08.928138+00:00",
+        "note": "社区作者目录与 part2–4 末署名；不是原作者首发认证"
+      },
+      "supporting_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/531.html",
+        "html_sha256": "a4c3f1ad5802fcdcea27bcea6b2ea3fece80fe39a214330c44ab80f963eeec18",
+        "retrieved_at": "2026-10-17T11:39:27.865005+00:00",
+        "scope": "完结篇正文全部核读；用于核对救援与供食、治愈依赖特殊能力，不另建普通种能力卡。"
+      }
+    },
+    {
+      "id": "N63",
+      "title": "家のゆっくり（附第2篇生活补读）",
+      "url": "https://w.atwiki.jp/slowlove/pages/18.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "作者目录归属家のゆっくりの人；两篇均核读至正文结尾，评论及叙述者对其他角色的幻想不收录",
+      "summary": "灵梦留家吃预备午餐，迎接主人并关心其休息；第二篇受提醒收起球和人偶，晚间请求故事。进食过急被指出后曾慢食，但随后再次发生同类问题。",
+      "limits": "原篇耐水、饮食分量及窒息描写属该版本。拍打、逗弄和灌水处理不作照护范例；一次口头答应不证明形成习惯。玩具收纳未交代搬运部位或收纳容器。",
+      "topics": [
+        "human",
+        "feeding",
+        "habitat",
+        "cognition",
+        "motion"
+      ],
+      "source_group": "author:家のゆっくりの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "おひるもちゃんとたべたよ",
+      "html_sha256": "ff58e4f31a435c38daf5da5da48dec249109532d4ffb7ff28021928c4204a4ef",
+      "retrieved_at": "2026-10-17T11:47:43.921581+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
+      },
+      "supporting_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/67.html",
+        "html_sha256": "ea786d81426ef2493f2e86f2d7ca707ea608f394fb00e7bf4e396b08e3a06243",
+        "retrieved_at": "2026-10-17T11:47:44.578765+00:00",
+        "scope": "第二篇正文至 To be next；收纳、慢食反复及睡前请求，不另增一张卡。"
+      }
+    },
+    {
+      "id": "N64",
+      "title": "家のゆっくり3",
+      "url": "https://w.atwiki.jp/slowlove/pages/75.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "作者目录归属家のゆっくりの人；核读全文至归途合唱，芙兰仅作收养交涉背景，不采其有手动作",
+      "summary": "人类预告出游、备餐，灵梦乘专用座椅同行，在山顶铺席用餐。主人向偶遇的芙兰提出收养，回应费用顾虑后得到同意；雨起收拾返车，挪动座椅让灵梦与新伙伴同坐后排，归途合唱。",
+      "limits": "座椅只有文字名称，缺结构及固定图证。芙兰有手、可食植物并理解费用，是本作个体，不能推广捕食种规则；另一宠物陪伴不等于解决独处进食风险。返程同行尚非完整入户适应。",
+      "topics": [
+        "human",
+        "society",
+        "habitat",
+        "environment"
+      ],
+      "source_group": "author:家のゆっくりの人",
+      "reviewed_on": "2026-10-17",
+      "locator": "チャイルドシート",
+      "html_sha256": "ca7b14bc2baed4554be0bb6774538a981f9dea5e7cd7c9dd0e8f9a4f335697ab",
+      "retrieved_at": "2026-10-17T11:47:45.243700+00:00",
+      "attribution_reference": {
+        "url": "https://w.atwiki.jp/slowlove/pages/1666.html",
+        "html_sha256": "eda0eccffcb3301b3c5b3f9019fc81e020ec413c8ae4470dfe8e66ca684d4b03",
+        "retrieved_at": "2026-10-17T11:48:42.499949+00:00",
+        "note": "作者目录将森のゆっくり及家のゆっくり1–3列于家のゆっくりの人名下；社区归属，不冒称正文签名。"
+      }
+    },
+    {
+      "id": "N65",
+      "title": "旅は道連れ 世は情け",
+      "url": "https://w.atwiki.jp/slowlove/pages/490.html",
+      "bibliography": "生活与旅行补读；见来源族登记",
+      "author_and_scope": "正文后记署尻尾の人；核读全文及后记。只取普通橙的失散、避雨与同伴回应；椛种及东方原角色仅作背景",
+      "summary": "风灾吹散橙一家；受伤的橙夜间寻亲，获同伴帮助后结伴寻找，夜雨时借树洞或地穴休息。回旧巢发现母亲死亡后，橙持续少食与低落；受安慰后回应同伴，恢复进食，最终选择一起离开。",
+      "limits": "伙伴击退捕食者、尾巴牵连和搬食方式不移植到当前普通种；舔伤不作通用治疗。父亲引开野犬后未交代结局，不记为已死亡；短时间恢复是剧情，不是丧亲反应的统一期限。",
+      "topics": [
+        "environment",
+        "habitat",
+        "society",
+        "feeding",
+        "motion"
+      ],
+      "source_group": "author:尻尾の人",
+      "reviewed_on": "2026-10-17",
+      "locator": "夜や雨の日",
+      "html_sha256": "604bfe8544f4508362add0bec44db326e59a7ab794cf783b09638dbfb766bd52",
+      "retrieved_at": "2026-10-17T11:47:43.403441+00:00"
     }
   ]
 }
