@@ -50,6 +50,8 @@
 
 2026-10-18 依 L36 补充灵梦、魔理沙种的常见创作母题，接入[灵梦种](hakkei-reference/lore/species/reimu/README.md)和[魔理沙种](hakkei-reference/lore/species/marisa/README.md)：分别记录育儿／家庭喜剧表现，以及冒险、自我宣传与帽子的生存题材用途；明确保留个体差异、作者反转和帽船版本边界，不移植东方原作能力。
 
+2026-10-18 继续依 L36 补充[爱丽丝种](hakkei-reference/lore/species/alice/README.md)的生存、家居和变体污名母题，以及[帕秋莉种](hakkei-reference/lore/species/patchouli/README.md)爱读书、身体较弱、知识表现有差异的常见组合；将变体、群体偏见和单体能力分开记录，不推广为种族必然行为。
+
 | 阶段 | 工作 | 本轮交付 |
 | --- | --- | --- |
 | 1 统一口径 | 核对开发计划附录 A；整理作品事实、采用决定与实现状态 | [冲突表](hakkei-reference/lore/conflicts.md)、[实现导航](implementation-status.md) |
